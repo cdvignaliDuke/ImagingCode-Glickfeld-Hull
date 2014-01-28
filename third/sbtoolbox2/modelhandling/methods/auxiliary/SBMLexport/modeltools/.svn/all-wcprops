@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools
+END
+SBmakeSBMLpresets.m
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/SBmakeSBMLpresets.m
+END
+fetchCompartments.m
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/fetchCompartments.m
+END
+getAllNamesFromSBmodel.m
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/getAllNamesFromSBmodel.m
+END
+addDefaultCompartment.m
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/addDefaultCompartment.m
+END
+convert2SBMLNotes.m
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/convert2SBMLNotes.m
+END
+checkCompartmentsForLoop.m
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/checkCompartmentsForLoop.m
+END
+existsNameInSBmodel.m
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/existsNameInSBmodel.m
+END
+checkNamesInSBmodel.m
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/checkNamesInSBmodel.m
+END
+testSBMLsettings.m
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/testSBMLsettings.m
+END
+getSBmodelFunctionNames.m
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/getSBmodelFunctionNames.m
+END
+isSBmodelName.m
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/modeltools/isSBmodelName.m
+END

@@ -1,0 +1,27 @@
+fn = fullfile(outDir, 'analysis', [date '_' mouse '_run' num2str(userun) '_area_mask.mat']);
+load(fn);
+    
+col = [];
+areas = size(roi_avg,2);
+for iArea = 1:areas;
+    if area_list(iArea,1:2)=='LM'
+        s='k';
+    elseif area_list(iArea,1:2)=='AL'
+        s='r';
+    elseif area_list(iArea,1:2)=='V1'
+        s='g';
+    elseif area_list(iArea,1:2)=='PM'
+        s='c';    
+    elseif area_list(iArea,1:2)=='AM'
+        s='b';
+    elseif area_list(iArea,1:2)=='RL'
+        s='m';
+    elseif area_list(iArea,1:2)=='A '
+        s='y';
+    elseif area_list(iArea,1:2)=='P '
+        s='y';
+    else
+        s='k';
+    end
+    col =strvcat(col,s);
+end

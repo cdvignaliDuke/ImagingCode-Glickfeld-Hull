@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original
+END
+blkfctg.f
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/blkfctg.f
+END
+symfctg.f
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/symfctg.f
+END
+blkslv.f
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/blkslv.f
+END
+inpnvg.f
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/inpnvg.f
+END
+ordmmd.f
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/ordmmd.f
+END
+blkslvg.f
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/blkslvg.f
+END
+blkfct.f
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/blkfct.f
+END
+symfct.f
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/symfct.f
+END
+ordmmdg.f
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/ordmmdg.f
+END
+inpnv.f
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcwindows/srcwindows_original/inpnv.f
+END

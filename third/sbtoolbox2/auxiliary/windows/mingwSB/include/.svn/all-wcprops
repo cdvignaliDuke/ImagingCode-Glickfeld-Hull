@@ -1,0 +1,1733 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include
+END
+rapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rapi.h
+END
+olectlid.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/olectlid.h
+END
+gmon.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/gmon.h
+END
+security.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/security.h
+END
+isguids.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/isguids.h
+END
+lmbrowsr.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmbrowsr.h
+END
+usp10.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/usp10.h
+END
+d3d9caps.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/d3d9caps.h
+END
+bdatypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/bdatypes.h
+END
+dvdmedia.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dvdmedia.h
+END
+ks.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ks.h
+END
+objsel.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/objsel.h
+END
+cpl.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/cpl.h
+END
+control.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/control.h
+END
+olectl.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/olectl.h
+END
+lmwksta.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmwksta.h
+END
+lmsvc.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmsvc.h
+END
+edevdefs.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/edevdefs.h
+END
+wsnetbs.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wsnetbs.h
+END
+ws2spi.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ws2spi.h
+END
+aclapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/aclapi.h
+END
+math.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/math.h
+END
+setupapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/setupapi.h
+END
+nspapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/nspapi.h
+END
+windows.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/windows.h
+END
+dis-asm.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dis-asm.h
+END
+routprot.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/routprot.h
+END
+docobj.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/docobj.h
+END
+ipxtfflt.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ipxtfflt.h
+END
+libgen.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/libgen.h
+END
+tchar.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/tchar.h
+END
+assert.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/assert.h
+END
+share.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/share.h
+END
+conio.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/conio.h
+END
+wsipx.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wsipx.h
+END
+pshpack2.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/pshpack2.h
+END
+wininet.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wininet.h
+END
+imm.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/imm.h
+END
+scrnsave.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/scrnsave.h
+END
+ddeml.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ddeml.h
+END
+ipxrtdef.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ipxrtdef.h
+END
+lmstats.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmstats.h
+END
+mprapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mprapi.h
+END
+iprtrmib.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/iprtrmib.h
+END
+mpegtype.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mpegtype.h
+END
+dde.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dde.h
+END
+lmsname.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmsname.h
+END
+profile.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/profile.h
+END
+regstr.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/regstr.h
+END
+oledlg.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/oledlg.h
+END
+fcntl.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/fcntl.h
+END
+io.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/io.h
+END
+objfwd.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/objfwd.h
+END
+mq.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mq.h
+END
+sqlext.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/sqlext.h
+END
+stdio.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/stdio.h
+END
+dhcpcsdk.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dhcpcsdk.h
+END
+lzexpand.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lzexpand.h
+END
+sddl.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/sddl.h
+END
+oleacc.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/oleacc.h
+END
+schannel.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/schannel.h
+END
+lmshare.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmshare.h
+END
+wtypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wtypes.h
+END
+winsock2.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winsock2.h
+END
+httpext.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/httpext.h
+END
+ntdsapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ntdsapi.h
+END
+nb30.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/nb30.h
+END
+wchar.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wchar.h
+END
+shldisp.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/shldisp.h
+END
+ntsecapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ntsecapi.h
+END
+icm.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/icm.h
+END
+ws2tcpip.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ws2tcpip.h
+END
+dsgetdc.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dsgetdc.h
+END
+sqlucode.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/sqlucode.h
+END
+dsadmin.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dsadmin.h
+END
+lmuse.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmuse.h
+END
+imagehlp.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/imagehlp.h
+END
+vptype.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/vptype.h
+END
+ocidl.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ocidl.h
+END
+lmcons.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmcons.h
+END
+winsnmp.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winsnmp.h
+END
+winresrc.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winresrc.h
+END
+winldap.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winldap.h
+END
+sql.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/sql.h
+END
+errorrep.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/errorrep.h
+END
+windns.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/windns.h
+END
+mbctype.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mbctype.h
+END
+iphlpapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/iphlpapi.h
+END
+process.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/process.h
+END
+powrprof.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/powrprof.h
+END
+amaudio.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/amaudio.h
+END
+servprov.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/servprov.h
+END
+locale.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/locale.h
+END
+winnt.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winnt.h
+END
+tmschema.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/tmschema.h
+END
+shellapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/shellapi.h
+END
+vfw.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/vfw.h
+END
+ntdsbcli.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ntdsbcli.h
+END
+objidl.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/objidl.h
+END
+varargs.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/varargs.h
+END
+qedit.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/qedit.h
+END
+memory.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/memory.h
+END
+adsprop.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/adsprop.h
+END
+idispids.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/idispids.h
+END
+accctrl.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/accctrl.h
+END
+wtsapi32.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wtsapi32.h
+END
+pshpack4.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/pshpack4.h
+END
+inttypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/inttypes.h
+END
+_mingw.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/_mingw.h
+END
+lmerrlog.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmerrlog.h
+END
+dshow.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dshow.h
+END
+mbstring.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mbstring.h
+END
+rpcproxy.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpcproxy.h
+END
+fltdefs.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/fltdefs.h
+END
+winbase.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winbase.h
+END
+poppack.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/poppack.h
+END
+rpcdce.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpcdce.h
+END
+ntdef.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ntdef.h
+END
+w32api.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/w32api.h
+END
+malloc.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/malloc.h
+END
+schnlsp.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/schnlsp.h
+END
+winnls.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winnls.h
+END
+subauth.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/subauth.h
+END
+ole.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ole.h
+END
+commctrl.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/commctrl.h
+END
+stdlib.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/stdlib.h
+END
+mapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mapi.h
+END
+afxres.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/afxres.h
+END
+audevcod.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/audevcod.h
+END
+rpcnsi.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpcnsi.h
+END
+lmconfig.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmconfig.h
+END
+cderr.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/cderr.h
+END
+lmaudit.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmaudit.h
+END
+msacm.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/msacm.h
+END
+lmremutl.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmremutl.h
+END
+rtutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rtutils.h
+END
+mmreg.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mmreg.h
+END
+oleauto.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/oleauto.h
+END
+lm.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lm.h
+END
+direct.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/direct.h
+END
+signal.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/signal.h
+END
+ntdll.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ntdll.h
+END
+ole2ver.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ole2ver.h
+END
+lmmsg.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmmsg.h
+END
+il21dec.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/il21dec.h
+END
+ctype.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ctype.h
+END
+winioctl.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winioctl.h
+END
+richedit.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/richedit.h
+END
+fenv.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/fenv.h
+END
+lmapibuf.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmapibuf.h
+END
+intshcut.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/intshcut.h
+END
+limits.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/limits.h
+END
+rassapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rassapi.h
+END
+svcguid.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/svcguid.h
+END
+largeint.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/largeint.h
+END
+complex.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/complex.h
+END
+winerror.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winerror.h
+END
+oleidl.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/oleidl.h
+END
+mciavi.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mciavi.h
+END
+winsvc.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winsvc.h
+END
+psapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/psapi.h
+END
+errors.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/errors.h
+END
+dxerr8.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dxerr8.h
+END
+dirent.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dirent.h
+END
+dsrole.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dsrole.h
+END
+basetyps.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/basetyps.h
+END
+profil.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/profil.h
+END
+winreg.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winreg.h
+END
+vmr9.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/vmr9.h
+END
+aclui.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/aclui.h
+END
+wincon.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wincon.h
+END
+time.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/time.h
+END
+mlang.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mlang.h
+END
+custcntl.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/custcntl.h
+END
+lmalert.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmalert.h
+END
+strmif.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/strmif.h
+END
+dsclient.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dsclient.h
+END
+vidcap.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/vidcap.h
+END
+aygshell.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/aygshell.h
+END
+rpcnsip.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpcnsip.h
+END
+mem.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mem.h
+END
+lmuseflg.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmuseflg.h
+END
+ansidecl.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ansidecl.h
+END
+lmchdev.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmchdev.h
+END
+userenv.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/userenv.h
+END
+mcx.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mcx.h
+END
+oaidl.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/oaidl.h
+END
+d3d9types.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/d3d9types.h
+END
+dvdevcod.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dvdevcod.h
+END
+lmserver.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmserver.h
+END
+symcat.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/symcat.h
+END
+prsht.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/prsht.h
+END
+d3d9.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/d3d9.h
+END
+odbcinst.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/odbcinst.h
+END
+float.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/float.h
+END
+string.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/string.h
+END
+objsafe.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/objsafe.h
+END
+dbt.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dbt.h
+END
+winspool.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winspool.h
+END
+dxerr9.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dxerr9.h
+END
+ksmedia.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ksmedia.h
+END
+rpcdcep.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpcdcep.h
+END
+lmerr.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmerr.h
+END
+utime.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/utime.h
+END
+rpc.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpc.h
+END
+amvideo.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/amvideo.h
+END
+pbt.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/pbt.h
+END
+devguid.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/devguid.h
+END
+strings.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/strings.h
+END
+dsquery.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dsquery.h
+END
+exdisp.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/exdisp.h
+END
+lmat.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmat.h
+END
+mgmtapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mgmtapi.h
+END
+rpcnterr.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpcnterr.h
+END
+mshtml.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mshtml.h
+END
+unistd.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/unistd.h
+END
+shlwapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/shlwapi.h
+END
+bfdlink.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/bfdlink.h
+END
+winperf.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winperf.h
+END
+rasdlg.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rasdlg.h
+END
+dir.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dir.h
+END
+commdlg.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/commdlg.h
+END
+errno.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/errno.h
+END
+mswsock.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mswsock.h
+END
+rpcndr.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpcndr.h
+END
+lmaccess.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmaccess.h
+END
+values.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/values.h
+END
+shlguid.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/shlguid.h
+END
+cplext.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/cplext.h
+END
+xprtdefs.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/xprtdefs.h
+END
+ole2.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ole2.h
+END
+nddeapi.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/nddeapi.h
+END
+objbase.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/objbase.h
+END
+ipexport.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ipexport.h
+END
+ipifcons.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ipifcons.h
+END
+wctype.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wctype.h
+END
+ntsecpkg.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ntsecpkg.h
+END
+rpcdce2.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/rpcdce2.h
+END
+richole.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/richole.h
+END
+basetsd.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/basetsd.h
+END
+reason.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/reason.h
+END
+secext.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/secext.h
+END
+tlhelp32.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/tlhelp32.h
+END
+iptypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/iptypes.h
+END
+setjmp.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/setjmp.h
+END
+wsahelp.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wsahelp.h
+END
+comcat.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/comcat.h
+END
+ipxconst.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ipxconst.h
+END
+sspi.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/sspi.h
+END
+shlobj.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/shlobj.h
+END
+pshpack8.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/pshpack8.h
+END
+wingdi.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wingdi.h
+END
+zmouse.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/zmouse.h
+END
+excpt.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/excpt.h
+END
+ras.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ras.h
+END
+aviriff.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/aviriff.h
+END
+bfd.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/bfd.h
+END
+winuser.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winuser.h
+END
+raserror.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/raserror.h
+END
+ipinfoid.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ipinfoid.h
+END
+getopt.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/getopt.h
+END
+cmnquery.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/cmnquery.h
+END
+stdint.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/stdint.h
+END
+evcode.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/evcode.h
+END
+exdispid.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/exdispid.h
+END
+windef.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/windef.h
+END
+snmp.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/snmp.h
+END
+mmsystem.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mmsystem.h
+END
+unknwn.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/unknwn.h
+END
+winber.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winber.h
+END
+dlgs.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dlgs.h
+END
+cguid.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/cguid.h
+END
+lmrepl.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/lmrepl.h
+END
+stm.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/stm.h
+END
+search.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/search.h
+END
+winnetwk.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winnetwk.h
+END
+pshpack1.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/pshpack1.h
+END
+winver.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winver.h
+END
+initguid.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/initguid.h
+END
+winsock.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winsock.h
+END
+uxtheme.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/uxtheme.h
+END
+wincrypt.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/wincrypt.h
+END
+mgm.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/mgm.h
+END
+winable.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/winable.h
+END
+ntldap.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/ntldap.h
+END
+windowsx.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/windowsx.h
+END
+sqltypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/sqltypes.h
+END
+dos.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/mingwSB/include/dos.h
+END

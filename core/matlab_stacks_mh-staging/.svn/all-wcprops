@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/122/core/matlab_stacks_mh-staging
+END
+figs_diagnose_filterframes.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/figs_diagnose_filterframes.m
+END
+read_stack_frompathMH.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/read_stack_frompathMH.m
+END
+stack_stepper.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/stack_stepper.m
+END
+stack_groupproject.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/stack_groupproject.m
+END
+stack_annotator.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/stack_annotator.m
+END
+make_roi_with_pixelcount.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/make_roi_with_pixelcount.m
+END
+get_eachpix_tcoursesMH.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/get_eachpix_tcoursesMH.m
+END
+stack_averageframes.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/stack_averageframes.m
+END
+stack_timestamper.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/stack_timestamper.m
+END
+find_phase_adjust_fromimage.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/find_phase_adjust_fromimage.m
+END
+stack_make_pixelmap.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/stack_make_pixelmap.m
+END
+stack_dfof.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/stack_dfof.m
+END
+stack_rescale.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/86/core/matlab_stacks_mh-staging/stack_rescale.m
+END

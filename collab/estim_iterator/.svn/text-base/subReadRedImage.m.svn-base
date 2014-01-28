@@ -1,0 +1,99 @@
+function [redImg phaseLagsUsed phaseFigH] = subReadRedImage(varargin)
+% 
+% all the logic to find a red image for each stack is here
+%
+% If red image came from a stack, and phase adjustment was done on it, return
+% the lags used in phase correction in phaseLagsUsed
+%
+%$Id$
+
+defs = { 'ExptName', [], ...
+         'SeriesName', [], ...
+         'IsLeicaData', true, ...
+         'DataPathOverride', [], ...
+         'ForceRedImageName', [], ...
+         'DoPhaseAdjust', true, ...
+         'DoPhaseFigureSave', false, ...
+         'PhaseAdjustNAvgFrames', [], ...
+         };
+
+uo = stropt2struct(stropt_defaults(defs, varargin));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+phaseLagsUsed = [];
+phaseFigH = []; 
+
+%% leica default data location
+[dataPath isRegisteredTif origPath] ...
+    = subGetDataPath(uo.ExptName, uo.SeriesName, uo.IsLeicaData, ...
+                     uo.DataPathOverride);
+
+autoFindRed = true; % even for registered now that we have orig path
+                 
+%% read directly from specified file: do whether auto is set or not
+if ~isempty(uo.ForceRedImageName)
+    % just read it directly
+    dirs = directories;
+    redName = fullfile(dirs.reidSvn, uo.ForceRedImageName);
+    redImg = imread(redName);
+    if uo.DoPhaseAdjust
+        redImg = stackFixBidirPhase(redImg);
+    end
+end
+
+if ~autoFindRed
+    redImg = [];
+    return
+else  
+    % try to find a red image
+
+    %% get the correct channel numbers
+    [chanNo redChanNo] = subLeicaGuessChanNos(origPath, uo.SeriesName);
+
+    %%% try a few different ways to find the red data
+    if ~isempty(redChanNo) 
+        % we have a red stack, read it
+    
+        restrictRE = sprintf('%s_t[0-9]+_ch%02d', uo.SeriesName, redChanNo);
+        redS = readtiff(origPath, [], restrictRE, true);
+        
+        if uo.DoPhaseAdjust
+            [redS frameLag crap phaseLagsUsed phaseFigH] ...
+                = stackFixBidirPhase(redS, [], uo.DoPhaseFigureSave, ...
+                uo.PhaseAdjustNAvgFrames);
+        end
+        redImg = mean(redS,3);
+        
+    else
+        % not empty, not forced, look for images
+        
+        redNamesToTry = { 'pre_anatomy', 'post_anatomy', 'avg_post' }; % in order
+        nRN = length(redNamesToTry);
+        for iN = 1:nRN
+            tRN = redNamesToTry{iN};
+            restrictRE = sprintf('%s_%s_ch%02d\\.', ...
+                uo.SeriesName, tRN, ...
+                0); % always chan 0 for images
+            
+            
+            redImg = readtiff(origPath, [], restrictRE, true, ...
+                true); % allowMissing = true
+            if isempty(redImg)
+                continue;  % try another name
+            else
+                break; % have a good image now
+            end
+        end
+        if isempty(redImg)
+            warning('No red image found!');
+            redImg = [];
+            return;
+            %error('DoRed is true and no red image found');
+        end
+        
+        if uo.DoPhaseAdjust
+            redImg = stackFixBidirPhase(redImg);
+        end
+    end
+end % autofindred

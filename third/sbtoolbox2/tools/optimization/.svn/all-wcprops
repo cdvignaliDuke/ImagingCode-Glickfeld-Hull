@@ -1,0 +1,107 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization
+END
+psoSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/psoSB.m
+END
+cbnSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/cbnSB.m
+END
+SSmSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/SSmSB.m
+END
+simannealingSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/simannealingSB.m
+END
+fSSmSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/fSSmSB.m
+END
+pswarmSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/pswarmSB.m
+END
+brentSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/brentSB.m
+END
+simplexSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/simplexSB.m
+END
+bfgsSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/bfgsSB.m
+END
+stdesSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/stdesSB.m
+END
+isresSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/isresSB.m
+END
+gaSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/gaSB.m
+END
+tribesSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/tribesSB.m
+END
+hillSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/hillSB.m
+END
+deSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/deSB.m
+END
+cmaesSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/cmaesSB.m
+END
+chcSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/chcSB.m
+END

@@ -1,0 +1,185 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/reidlab/!svn/ver/452/third/plexon_plx
+END
+plx_adchan_names.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/449/third/plexon_plx/plx_adchan_names.m
+END
+plx_chan_filters.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/449/third/plexon_plx/plx_chan_filters.m
+END
+vssver2.scc
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/449/third/plexon_plx/vssver2.scc
+END
+plx_event_names.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/449/third/plexon_plx/plx_event_names.m
+END
+plx_ad_span.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/449/third/plexon_plx/plx_ad_span.m
+END
+plx_close.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/449/third/plexon_plx/plx_close.m
+END
+plx_chanmap.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/449/third/plexon_plx/plx_chanmap.m
+END
+plx_chan_thresholds.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/449/third/plexon_plx/plx_chan_thresholds.m
+END
+plx_ad_v.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/449/third/plexon_plx/plx_ad_v.m
+END
+plx_waves_v.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/449/third/plexon_plx/plx_waves_v.m
+END
+plx_adchan_samplecounts.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/449/third/plexon_plx/plx_adchan_samplecounts.m
+END
+ddt_v.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/449/third/plexon_plx/ddt_v.m
+END
+plx_adchan_freqs.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/449/third/plexon_plx/plx_adchan_freqs.m
+END
+mexPlex.dll
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/449/third/plexon_plx/mexPlex.dll
+END
+Readme.doc
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/449/third/plexon_plx/Readme.doc
+END
+plx_ad.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/449/third/plexon_plx/plx_ad.m
+END
+plx_information.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/449/third/plexon_plx/plx_information.m
+END
+plx_vt_interpret.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/449/third/plexon_plx/plx_vt_interpret.m
+END
+plx_waves.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/449/third/plexon_plx/plx_waves.m
+END
+plx_ad_gap_info.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/449/third/plexon_plx/plx_ad_gap_info.m
+END
+plx_ts.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/449/third/plexon_plx/plx_ts.m
+END
+ddt_write_v.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/449/third/plexon_plx/ddt_write_v.m
+END
+plx_event_ts.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/449/third/plexon_plx/plx_event_ts.m
+END
+ddt.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/449/third/plexon_plx/ddt.m
+END
+plx_ad_span_v.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/449/third/plexon_plx/plx_ad_span_v.m
+END
+plx_chan_gains.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/449/third/plexon_plx/plx_chan_gains.m
+END
+plx_info.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/449/third/plexon_plx/plx_info.m
+END
+plx_chan_names.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/449/third/plexon_plx/plx_chan_names.m
+END
+mexPlex.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/452/third/plexon_plx/mexPlex.mexw64
+END
+plx_adchan_gains.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/449/third/plexon_plx/plx_adchan_gains.m
+END

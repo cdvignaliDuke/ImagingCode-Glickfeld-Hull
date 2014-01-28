@@ -1,0 +1,39 @@
+img1 = getImageID;
+selectImage(img1);
+
+run("Hypervolume Shuffler", "select=[unshuffle (xyzt -> xytz)] volume=2");
+unshuffle1=getImageID();
+
+//filtsz=getNumber("Enter filter size: ", 2);
+
+origtitle=getTitle();
+stacklen=nSlices();
+//f1=stimlen/4-1;
+f1=2;
+//fproj1="start=1 stop="+f1+" projection=[Average Intensity]";
+//sstack1="slices=1-"+f1;
+
+//setSlice(1);
+
+filtsz = 2;
+filtstr = "[filtsz]";
+
+
+//selectImage(nImages());
+
+run("Gaussian Blur...", "sigma="+filtsz+" stack");
+unshuffle1blur=getImageID();
+
+
+run("Stack Splitter", "number=2 stack");
+
+
+selectImage(nImages()-1);
+rename(origtitle+"stk1.tif");
+selectImage(nImages());
+rename(origtitle+"stk2.tif");
+
+imageCalculator("Divide create 32-bit stack", origtitle+"stk2",origtitle+"stk1");
+//run("Image Calculator...", "image1="origtitle+"stk2"+" operation=Divide image2="origtitle+"stk1"+" create 32-bit stack");
+
+

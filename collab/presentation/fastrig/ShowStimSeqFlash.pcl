@@ -1,0 +1,224 @@
+# parameter window
+parameter_window.remove_all();
+int pulse_parameter = parameter_window.add_parameter("Pulse");
+int trial_parameter = parameter_window.add_parameter("Trial");
+int stim_parameter = parameter_window.add_parameter("Stimulus");
+int blank_parameter = parameter_window.add_parameter("Blank");
+
+parameter_window.set_parameter(pulse_parameter," ");
+parameter_window.set_parameter(trial_parameter," ");
+parameter_window.set_parameter(stim_parameter," ");
+parameter_window.set_parameter(blank_parameter," ");
+
+# import sdl environment variables
+string animal = get_sdl_variable("animal");
+string expt = get_sdl_variable("expt");
+
+int nStim = int(get_sdl_variable("nStim"));
+int nPicsPerStim = int(get_sdl_variable("nPicsPerStim"));
+int nTrials = int(get_sdl_variable("nTrials"));
+int nOffPulses = int(get_sdl_variable("nOffPulses"));
+int nOnPulses = int(get_sdl_variable("nOnPulses"));
+int nRefreshs = int(get_sdl_variable("nRefreshs"));
+int flashMode = int(get_sdl_variable("flashMode"));
+double scale = double(get_sdl_variable("scale"));
+
+# store variables to log
+logfile.add_event_entry( "animal = " + animal);
+logfile.add_event_entry( "expt = " + expt);
+
+logfile.add_event_entry( "nStim = " + string(nStim) );
+logfile.add_event_entry( "nPicsPerStim = " + string(nPicsPerStim) );
+logfile.add_event_entry( "nTrials = " + string(nTrials) );
+logfile.add_event_entry( "nOffPulses = " + string(nOffPulses) );
+logfile.add_event_entry( "nOnPulses = " + string(nOnPulses) );
+logfile.add_event_entry( "nRefreshs = " + string(nRefreshs) );
+logfile.add_event_entry( "flashMode = " + string(flashMode) );
+logfile.add_event_entry( "scale = " + string(scale) );
+
+# tell acquisition that stimulation about to start
+output_port port = output_port_manager.get_port( 1 );
+port.set_pulse_width( indefinite_port_code );
+port.send_code( 0 );
+
+# this event determines 
+stimulus_event event = frametrial.get_stimulus_event( 1 );
+
+# show blank, measure refresh rate, events not logged
+int iFrame = nPicsPerStim*nStim;
+frameplane.set_texture( images[iFrame]) ;
+# framepic.set_part(1, images[iFrame]);
+framepic.present();
+int starttime = clock.time();
+framepic.present();
+int refreshinterval = clock.time()-starttime;
+int pulseinterval = 33;
+
+term.print("Refresh interval " + string(refreshinterval) + "\n");
+
+# init indices
+int iStim = 1;
+int iTrial = 1;
+int stimind = 0;
+int current_onset = 0;
+int next_onset = 0; # set to zero to account for initial delay
+int iRefresh = 0;
+int iFlash = 0;
+	
+int totalPictureCount = 0; 
+bool blankflag = nOffPulses > 0;
+bool flashflag = flashMode > 0;
+
+# prepare first refresh of first picture 
+if blankflag then		
+	stimind = nStim;
+else
+	stimind = iStim;
+end;
+
+if flashflag && mod(iFlash,2)==1 then 
+	iFrame = (nStim-1)*nPicsPerStim + 1; # blank pic (for flash)
+else
+	if blankflag then
+		iFrame = (nStim)*nPicsPerStim;
+	else
+		iFrame = (stimind-1)*nPicsPerStim + mod(totalPictureCount,nPicsPerStim) + 1; # stim pic 
+	end;
+end;
+
+#iFrame = (stimind - 1) * nPicsPerStim + mod(totalPictureCount,nPicsPerStim) + 1;
+frameplane.set_texture( images[iFrame]) ;
+event.set_event_code(string(iTrial) + "," + string(iStim)+ "," + string(int(blankflag)) + "," + string(iFrame));
+
+# wait for trigger pulse
+term.print("Waiting for trigger pulse.\n");
+display_window.erase();
+display_window.draw_text( animal + " " + expt + ": Waiting for trigger.");
+
+loop until (pulse_manager.main_pulse_count() > 0)
+begin
+end;  
+
+# display first refresh of first picture
+frametrial.present();
+iRefresh = iRefresh + 1;
+if iRefresh >= nRefreshs then 
+	if flashflag then
+		iFlash = iFlash + 1;
+	else
+		totalPictureCount = totalPictureCount + 1;		  	
+	end;	
+	iRefresh = 0;			
+end;			
+
+term.print("Running.\n");
+display_window.erase();
+display_window.draw_text( animal + " " + expt + ": Running.");
+
+# loop over remaining pictures
+loop iTrial = 1 until iTrial > nTrials
+begin 
+
+parameter_window.set_parameter(trial_parameter,string(iTrial));
+
+ loop iStim = 1 until iStim > nStim
+ begin
+ 
+	parameter_window.set_parameter(stim_parameter,string(iStim));
+	parameter_window.set_parameter(blank_parameter,string(blankflag));
+
+	current_onset = next_onset;
+	
+	if blankflag then
+		stimind = nStim;
+		next_onset = next_onset + nOffPulses;
+	else
+		stimind = iStim;		
+		next_onset = next_onset + nOnPulses;
+	end;
+
+	bool firstiter = true;
+	
+	loop until false
+	begin
+	
+		# pick picture to show
+		if flashflag && mod(iFlash,2)==1 then 
+			iFrame = (nStim-1)*nPicsPerStim + 1; # blank pic (for flash)
+		else
+			if blankflag then
+				iFrame = (nStim)*nPicsPerStim;
+			else
+				iFrame = (stimind-1)*nPicsPerStim + mod(totalPictureCount,nPicsPerStim) + 1; # stim pic 
+			end;
+		end;
+			
+		frameplane.set_texture( images[iFrame]) ;
+		event.set_event_code(string(iTrial) + "," + string(iStim)+ "," + string(int(blankflag)) + "," + string(iFrame));
+					
+		int pulse_count = pulse_manager.main_pulse_count();
+		int pulse_time = pulse_manager.main_pulse_time(pulse_count);
+		int time_until_next_onset_pulse = pulseinterval - (clock.time() - pulse_time);
+		
+		# done with this cycle?
+		if pulse_count > next_onset || 
+			((pulse_count==next_onset) && time_until_next_onset_pulse < refreshinterval )
+		then
+			break;
+		end;
+				
+		frametrial.present();			
+		
+		# first iteration of each actual (or blank) stimulus 
+		# check whether onset as expected
+		if firstiter then		
+			int pulse_count_minus_one = pulse_manager.main_pulse_count()-1;
+			parameter_window.set_parameter(pulse_parameter,string(pulse_count_minus_one));
+			if pulse_count_minus_one != current_onset then
+				term.print("WARNING: Pulse count minus one " + string(pulse_count_minus_one) + " Expected " + string(current_onset) + "\n");
+			end;			
+			firstiter = false;
+		end;
+		
+		iRefresh = iRefresh + 1;
+		
+		# present each picture nRefreshs times
+		if iRefresh >= nRefreshs then 
+			if flashflag then
+				iFlash = iFlash + 1;
+			else
+				totalPictureCount = totalPictureCount + 1;		  	
+			end;	
+			iRefresh = 0;			
+		end;			
+	end;
+	
+	iRefresh = 0; # reset here because incremented ahead of iTrial loop
+	iFlash = 0;
+		
+	# toggle blank flag
+	if blankflag then
+		blankflag = false;
+	else
+		blankflag = nOffPulses > 0;
+		iStim = iStim + 1;
+	end;
+	
+	totalPictureCount = 0;
+ end; # iStim	
+	iTrial = iTrial + 1;
+end; # iTrial
+
+# wait until last video frame shown 
+# also gives time to catch the last pulse
+ iFrame = nPicsPerStim*nStim;
+frameplane.set_texture( images[iFrame]) ;
+# framepic.set_part(1, images[iFrame]);
+framepic.present();
+
+# stop acquistion
+port.send_code( 1 );
+
+term.print("Done!\n");
+display_window.erase();
+display_window.draw_text( animal + " " + expt + ": Done.");

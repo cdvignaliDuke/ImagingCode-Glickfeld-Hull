@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/units
+END
+UnitFormulaFormatter.h
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/units/UnitFormulaFormatter.h
+END
+Utils_Unit.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/units/Utils_Unit.h
+END
+UnitKindList.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/units/UnitKindList.h
+END
+FormulaUnitsData.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/units/FormulaUnitsData.h
+END
+Utils_UnitDefinition.h
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/units/Utils_UnitDefinition.h
+END

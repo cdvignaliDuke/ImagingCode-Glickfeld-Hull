@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix
+END
+blkfctg.f
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/blkfctg.f
+END
+symfctg.f
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/symfctg.f
+END
+blkslv.f
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/blkslv.f
+END
+inpnvg.f
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/inpnvg.f
+END
+ordmmd.f
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/ordmmd.f
+END
+blkslvg.f
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/blkslvg.f
+END
+f77.bat
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/f77.bat
+END
+mexopts.sh
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/mexopts.sh
+END
+blkfct.f
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/blkfct.f
+END
+symfct.f
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/symfct.f
+END
+ordmmdg.f
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/ordmmdg.f
+END
+inpnv.f
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mexfiles/srcunix/inpnv.f
+END

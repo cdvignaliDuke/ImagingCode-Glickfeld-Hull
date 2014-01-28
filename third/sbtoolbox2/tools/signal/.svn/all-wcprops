@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/signal
+END
+positivefftSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/signal/positivefftSB.m
+END
+resampleSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/signal/resampleSB.m
+END
+centeredfftSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/signal/centeredfftSB.m
+END
+postpadSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/signal/postpadSB.m
+END
+prepadSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/signal/prepadSB.m
+END
+xcorrSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/signal/xcorrSB.m
+END

@@ -1,0 +1,10 @@
+K 10
+svn:ignore
+V 56
+old
+hsv2rgbKO.asv
+hueHSV2KO.m
+hueKO2HSV.m
+hueRotateKO.m
+
+END

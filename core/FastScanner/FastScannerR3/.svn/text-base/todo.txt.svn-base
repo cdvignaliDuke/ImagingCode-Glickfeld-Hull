@@ -1,0 +1,11 @@
+Sergey:
+- alt key  generates error message - ??SY
+
+Vincent:
+
+- test external stimulus trigger timing with led
+- truesize(gcf,[512 512]) before display
+- analysis code for ringach stimulus
+- ringach stimulus with repeats
+- calibrate overfill with fluorescent targets
+- feature: reconstruct images while tracking delay variations

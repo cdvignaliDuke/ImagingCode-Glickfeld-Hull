@@ -1,0 +1,311 @@
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/reidlab/!svn/ver/653/core/fastrig
+END
+frGetAllExpts.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/631/core/fastrig/frGetAllExpts.m
+END
+chopvec.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/505/core/fastrig/chopvec.mexw64
+END
+scriptProcessTimeCourses.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/369/core/fastrig/scriptProcessTimeCourses.m
+END
+frListExpts.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/459/core/fastrig/frListExpts.m
+END
+frGetDirs.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/653/core/fastrig/frGetDirs.m
+END
+finddaddelay2.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/438/core/fastrig/finddaddelay2.m
+END
+frGetFigName.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/608/core/fastrig/frGetFigName.m
+END
+frGetFrameRate.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/515/core/fastrig/frGetFrameRate.m
+END
+strmatchl.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/304/core/fastrig/strmatchl.m
+END
+ijdad2tiffseq2.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/542/core/fastrig/ijdad2tiffseq2.m
+END
+saveslides.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/573/core/fastrig/saveslides.m
+END
+defaultfigureproperties.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/638/core/fastrig/defaultfigureproperties.m
+END
+frReconstruct.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/537/core/fastrig/frReconstruct.m
+END
+formatframe.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/505/core/fastrig/formatframe.m
+END
+update_images.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/204/core/fastrig/update_images.m
+END
+scriptCalcTimeCourses.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/369/core/fastrig/scriptCalcTimeCourses.m
+END
+frPrintFig.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/608/core/fastrig/frPrintFig.m
+END
+regress_no_error_check.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/273/core/fastrig/regress_no_error_check.m
+END
+frRegister.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/653/core/fastrig/frRegister.m
+END
+calculatedelay.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/510/core/fastrig/calculatedelay.m
+END
+chopvec.c
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/505/core/fastrig/chopvec.c
+END
+plotfft.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/627/core/fastrig/plotfft.m
+END
+makeframe.c
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/587/core/fastrig/makeframe.c
+END
+ijdad2tiffseq.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/531/core/fastrig/ijdad2tiffseq.m
+END
+readdad.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/488/core/fastrig/readdad.m
+END
+tcCalcShotNoise.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/631/core/fastrig/tcCalcShotNoise.m
+END
+makeframe.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/587/core/fastrig/makeframe.mexw64
+END
+binpixels.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/586/core/fastrig/binpixels.mexw64
+END
+frPCA.m
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/reidlab/!svn/ver/575/core/fastrig/frPCA.m
+END
+frReadWithDecimation.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/534/core/fastrig/frReadWithDecimation.m
+END
+frNameFig.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/608/core/fastrig/frNameFig.m
+END
+frRegister2.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/653/core/fastrig/frRegister2.m
+END
+frParsePresentationLog.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/369/core/fastrig/frParsePresentationLog.m
+END
+FigShotNoise.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/638/core/fastrig/FigShotNoise.m
+END
+do_parallel_recon.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/297/core/fastrig/do_parallel_recon.m
+END
+binpixels2.c
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/585/core/fastrig/binpixels2.c
+END
+reconstruct_template.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/535/core/fastrig/reconstruct_template.m
+END
+sub2ind_no_error_check.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/204/core/fastrig/sub2ind_no_error_check.m
+END
+finddaddelay.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/309/core/fastrig/finddaddelay.m
+END
+parsePresentationLog.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/376/core/fastrig/parsePresentationLog.m
+END
+frGetExpt.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/653/core/fastrig/frGetExpt.m
+END
+scriptRegister.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/304/core/fastrig/scriptRegister.m
+END
+readPresentationLog.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/608/core/fastrig/readPresentationLog.m
+END
+frVisZStack.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/530/core/fastrig/frVisZStack.m
+END
+frParseScanLog.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/608/core/fastrig/frParseScanLog.m
+END
+frExtractTransients.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/400/core/fastrig/frExtractTransients.m
+END
+getPresentationEpochs.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/537/core/fastrig/getPresentationEpochs.m
+END
+frGetFovSize.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/646/core/fastrig/frGetFovSize.m
+END
+frPrinComp.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/649/core/fastrig/frPrinComp.m
+END
+binpixels.c
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/586/core/fastrig/binpixels.c
+END
+resampleframe.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/505/core/fastrig/resampleframe.m
+END

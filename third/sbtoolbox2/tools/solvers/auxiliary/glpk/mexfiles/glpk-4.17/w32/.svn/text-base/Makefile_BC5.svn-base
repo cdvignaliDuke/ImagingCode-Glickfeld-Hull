@@ -1,0 +1,93 @@
+# Build GLPK with Borland C++ 5.0
+
+CFLAGS = -wall
+
+OBJSET = \
+..\src\glpapi01.obj \
+..\src\glpapi02.obj \
+..\src\glpapi03.obj \
+..\src\glpavl.obj \
+..\src\glpbfi.obj \
+..\src\glpbfx.obj \
+..\src\glpdmp.obj \
+..\src\glpgmp.obj \
+..\src\glphbm.obj \
+..\src\glpiet.obj \
+..\src\glpinv01.obj \
+..\src\glpinv02.obj \
+..\src\glpios01.obj \
+..\src\glpios02.obj \
+..\src\glpios03.obj \
+..\src\glpipm.obj \
+..\src\glpipp01.obj \
+..\src\glpipp02.obj \
+..\src\glplib01.obj \
+..\src\glplib02.obj \
+..\src\glplib03.obj \
+..\src\glplib04.obj \
+..\src\glplib05.obj \
+..\src\glplib06.obj \
+..\src\glplib07.obj \
+..\src\glplib08.obj \
+..\src\glplib09.obj \
+..\src\glplpf.obj \
+..\src\glplpp01.obj \
+..\src\glplpp02.obj \
+..\src\glplpx01.obj \
+..\src\glplpx02.obj \
+..\src\glplpx03.obj \
+..\src\glplpx04.obj \
+..\src\glplpx05.obj \
+..\src\glplpx06.obj \
+..\src\glplpx07.obj \
+..\src\glplpx08.obj \
+..\src\glplpx09.obj \
+..\src\glplpx10.obj \
+..\src\glplpx11.obj \
+..\src\glplpx12.obj \
+..\src\glplpx13.obj \
+..\src\glplpx14.obj \
+..\src\glplpx15.obj \
+..\src\glplpx16.obj \
+..\src\glplpx17.obj \
+..\src\glplpx18.obj \
+..\src\glplpx19.obj \
+..\src\glplpx20.obj \
+..\src\glpluf01.obj \
+..\src\glpluf02.obj \
+..\src\glplux.obj \
+..\src\glpmat.obj \
+..\src\glpmip01.obj \
+..\src\glpmip02.obj \
+..\src\glpmpl01.obj \
+..\src\glpmpl02.obj \
+..\src\glpmpl03.obj \
+..\src\glpmpl04.obj \
+..\src\glpqmd.obj \
+..\src\glprng.obj \
+..\src\glpscf.obj \
+..\src\glpscs.obj \
+..\src\glpspx01.obj \
+..\src\glpspx02.obj \
+..\src\glpssx01.obj \
+..\src\glpssx02.obj \
+..\src\glptsp.obj
+
+.c.obj:
+        bcc32.exe $(CFLAGS) -I..\include -o$*.obj -c $*.c
+
+all: glpk.lib glpsol.exe tspsol.exe
+
+glpk.lib: $(OBJSET)
+        tlib.exe @&&|
+        glpk.lib /C /0 +$(**:.obj=.obj+)
+|
+
+glpsol.exe: ..\examples\glpsol.obj glpk.lib
+        bcc32.exe -eglpsol.exe ..\examples\glpsol.obj glpk.lib
+
+tspsol.exe: ..\examples\tspsol.obj glpk.lib
+        bcc32.exe -etspsol.exe ..\examples\tspsol.obj glpk.lib
+
+check: glpsol.exe
+        .\glpsol.exe --mps ..\examples\plan.mps

@@ -1,0 +1,18 @@
+# Custom set definition file
+
+picture: event_type == "Picture"
+pictures = count( picture )
+
+pulse:       event_type == "Pulse"
+pulses = count(pulse)
+
+# 'dropped frames' are frames that lasted more
+# than one refresh. duration of last frame
+# always long subtract count by 1
+dropped: event_type == "Picture" and duration > 14
+drops = count(dropped)
+
+manual: event_type == "Manual"
+manuals = count(manual)
+
+#event_table custom_event_table(event_type, iTrial, iStim, iFrame, trial_time, time_uncertainty, duration, duration_uncertainty )

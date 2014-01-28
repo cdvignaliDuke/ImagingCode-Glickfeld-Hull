@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/mex
+END
+aind.mexw32
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/mex/aind.mexw32
+END
+solveQPcompact.mexw32
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/mex/solveQPcompact.mexw32
+END
+solveQP.mexw32
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/mex/solveQP.mexw32
+END

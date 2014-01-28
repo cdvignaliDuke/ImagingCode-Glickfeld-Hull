@@ -1,0 +1,4 @@
+StimulusType = waveletnoise2d
+DecimationRatio = 1
+n   len   npix p0   Jmin Jmax k c    seed
+1   4096  32   0.96 1    5    1 1.0  99

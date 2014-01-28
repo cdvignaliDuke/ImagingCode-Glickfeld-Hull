@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 29
+/reidlab/!svn/ver/241/core/MP
+END
+MPFILE.OCX
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/reidlab/!svn/ver/241/core/MP/MPFILE.OCX
+END
+install.txt
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/reidlab/!svn/ver/241/core/MP/install.txt
+END
+ReadMPparams.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/241/core/MP/ReadMPparams.m
+END
+OpenMPfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/reidlab/!svn/ver/241/core/MP/OpenMPfile.m
+END
+batch_convertMP.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/241/core/MP/batch_convertMP.m
+END
+GetMPFileNames.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/241/core/MP/GetMPFileNames.m
+END
+ConvertMP2tif.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/241/core/MP/ConvertMP2tif.m
+END
+ReadMPframe.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/241/core/MP/ReadMPframe.m
+END

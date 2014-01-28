@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/reidlab/!svn/ver/572/core/batch_samples
+END
+batch_tcourse.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/567/core/batch_samples/batch_tcourse.m
+END
+Contents.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/557/core/batch_samples/Contents.m
+END
+batch_stats.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/567/core/batch_samples/batch_stats.m
+END
+batch_make_labelimgTM.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/567/core/batch_samples/batch_make_labelimgTM.m
+END
+batch_realign.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/567/core/batch_samples/batch_realign.m
+END

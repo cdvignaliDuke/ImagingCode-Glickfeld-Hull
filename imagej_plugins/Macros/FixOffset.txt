@@ -1,0 +1,8 @@
+setSlice(540);
+run("Delete Slice");
+setSlice(1);
+run("Copy");
+run("Add Slice");
+run("Paste");
+run("Select None");
+setSlice(1);

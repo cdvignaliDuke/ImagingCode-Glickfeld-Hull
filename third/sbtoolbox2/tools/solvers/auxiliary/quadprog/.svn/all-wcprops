@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog
+END
+buildQuadProgUNIX.m
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/buildQuadProgUNIX.m
+END
+convertAquadprogSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/convertAquadprogSB.m
+END
+buildQuadProgWindows.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/buildQuadProgWindows.m
+END

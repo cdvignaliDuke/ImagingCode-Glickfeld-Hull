@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32
+END
+glpk_4_17.def
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/glpk_4_17.def
+END
+Build_GLPK_with_BC5.bat
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/Build_GLPK_with_BC5.bat
+END
+Build_GLPK_with_VC6_MT_DLL.bat
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/Build_GLPK_with_VC6_MT_DLL.bat
+END
+Makefile_BC5
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/Makefile_BC5
+END
+Makefile_VC6_MT_DLL
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/Makefile_VC6_MT_DLL
+END
+Build_GLPK_with_Dev.bat
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/Build_GLPK_with_Dev.bat
+END
+Build_GLPK_with_VC6.bat
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/Build_GLPK_with_VC6.bat
+END
+Makefile_Dev
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/Makefile_Dev
+END
+Makefile_VC6
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/glpk/mexfiles/glpk-4.17/w32/Makefile_VC6
+END

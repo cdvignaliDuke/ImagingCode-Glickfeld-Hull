@@ -1,0 +1,298 @@
+[Root]
+Most Recent Package=Standard Setup Package 1
+
+
+[Package|VStimV4|Root]
+SubWizProgID=PDWizard.SetupPkgSubWiz
+BuildFolder=C:\VB_Projects\VStim_XP_universalIO_V4\Install
+
+[Package|VStimV4|Configure DAO ISAMs]
+Applicable=No
+
+[Package|VStimV4|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|VStimV4|Files Found]
+
+[Package|VStimV4|Files Released]
+cbw.dll=
+
+[Package|VStimV4|Missing Dependency Information]
+C:\WINDOWS\system32\dx7vb.dll=
+C:\MCC\cbw32.dll=
+
+[Package|VStimV4|Out-of-Date Dependency Information]
+
+[Package|VStimV4|Files Added]
+
+[Package|VStimV4|Files Removed]
+
+[Package|VStimV4|Files In Project]
+C:\VB_Projects\VStim_XP_universalIO_V4\RotWaveXP_V4.exe=Yes
+C:\WINDOWS\system32\msvbvm60.dll=Yes
+C:\WINDOWS\system32\oleaut32.dll=Yes
+C:\WINDOWS\system32\olepro32.dll=Yes
+C:\WINDOWS\system32\asycfilt.dll=Yes
+C:\WINDOWS\system32\stdole2.tlb=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\MCC\cbw32.dll=Yes
+C:\WINDOWS\system32\dx7vb.dll=Yes
+C:\WINDOWS\system32\comdlg32.ocx=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=Yes
+C:\WINDOWS\system32\VB6STKIT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=Yes
+
+[Package|VStimV4|Configure Registry Files]
+Applicable=No
+
+[Package|VStimV4|Configure Remote Servers]
+Applicable=No
+
+[Package|VStimV4|Install Locations]
+C:\VB_Projects\VStim_XP_universalIO_V4\RotWaveXP_V4.exe=$(AppPath)
+C:\WINDOWS\system32\msvbvm60.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\oleaut32.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\olepro32.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\asycfilt.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\stdole2.tlb=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\MCC\cbw32.dll=$(WinSysPath)
+C:\WINDOWS\system32\dx7vb.dll=$(WinSysPath)
+C:\WINDOWS\system32\comdlg32.ocx=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=$(WinPath)
+C:\WINDOWS\system32\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=$(WinPath)
+
+[Package|VStimV4|Configure Shared Files]
+Applicable=Yes
+C:\VB_Projects\VStim_XP_universalIO_V4\RotWaveXP_V4.exe=No
+
+[Package|VStimV4|Distribution]
+Type=single
+Size=
+Title=SineWaveXP
+
+[Package|VStimV4|IconGroups]
+Group0=VisualStim
+PrivateGroup0=True
+Parent0=$(Programs)
+
+[Package|VStimV4|VisualStim]
+Icon1=RotWaveXP_V4.exe
+Title1=SineWaveXP
+StartIn1=$(AppPath)
+Key1=Icon1
+
+[Package|VStimV4|Package]
+PackageFolder=C:\VB_Projects\VStim_XP_universalIO_V4\Install
+ProjectFolder=C:\VB_Projects\VStim_XP_universalIO_V4
+ServerSideCab=
+File1=C:\VB_Projects\VStim_XP_universalIO_V4\Install\setup.exe
+File2=C:\VB_Projects\VStim_XP_universalIO_V4\Install\Setup.Lst
+File3=C:\VB_Projects\VStim_XP_universalIO_V4\Install\RotWaveXP_V4.CAB
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz
+
+
+[Package|BarAndWaveV5|Root]
+SubWizProgID=PDWizard.SetupPkgSubWiz
+BuildFolder=C:\VB_Projects\VStim_XP_universalIO_V5\Install
+
+[Package|BarAndWaveV5|Configure DAO ISAMs]
+Applicable=No
+
+[Package|BarAndWaveV5|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|BarAndWaveV5|Files Found]
+
+[Package|BarAndWaveV5|Files Released]
+cbw.dll=
+
+[Package|BarAndWaveV5|Missing Dependency Information]
+C:\WINDOWS\system32\dx7vb.dll=
+C:\MCC\cbw32.dll=
+
+[Package|BarAndWaveV5|Out-of-Date Dependency Information]
+
+[Package|BarAndWaveV5|Files Added]
+C:\VB_Projects\VStim_XP_universalIO_V5\VSim.ini=
+
+[Package|BarAndWaveV5|Files Removed]
+
+[Package|BarAndWaveV5|Files In Project]
+C:\VB_Projects\VStim_XP_universalIO_V5\BarAndWaveXP_V5.exe=Yes
+C:\WINDOWS\system32\msvbvm60.dll=Yes
+C:\WINDOWS\system32\oleaut32.dll=Yes
+C:\WINDOWS\system32\olepro32.dll=Yes
+C:\WINDOWS\system32\asycfilt.dll=Yes
+C:\WINDOWS\system32\stdole2.tlb=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\MCC\cbw32.dll=Yes
+C:\WINDOWS\system32\dx7vb.dll=Yes
+C:\WINDOWS\system32\comdlg32.ocx=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=Yes
+C:\WINDOWS\system32\VB6STKIT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=Yes
+C:\VB_Projects\VStim_XP_universalIO_V5\VSim.ini=Yes
+
+[Package|BarAndWaveV5|Configure Registry Files]
+Applicable=No
+
+[Package|BarAndWaveV5|Configure Remote Servers]
+Applicable=No
+
+[Package|BarAndWaveV5|Install Locations]
+C:\VB_Projects\VStim_XP_universalIO_V5\BarAndWaveXP_V5.exe=$(AppPath)
+C:\WINDOWS\system32\msvbvm60.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\oleaut32.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\olepro32.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\asycfilt.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\stdole2.tlb=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\MCC\cbw32.dll=$(WinSysPath)
+C:\WINDOWS\system32\dx7vb.dll=$(WinSysPath)
+C:\WINDOWS\system32\comdlg32.ocx=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=$(WinPath)
+C:\WINDOWS\system32\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=$(WinPath)
+C:\VB_Projects\VStim_XP_universalIO_V5\VSim.ini=$(AppPath)
+
+[Package|BarAndWaveV5|Configure Shared Files]
+Applicable=Yes
+C:\VB_Projects\VStim_XP_universalIO_V5\BarAndWaveXP_V5.exe=No
+C:\VB_Projects\VStim_XP_universalIO_V5\VSim.ini=No
+
+[Package|BarAndWaveV5|Distribution]
+Type=single
+Size=
+Title=BarAndWaveV5
+
+[Package|BarAndWaveV5|IconGroups]
+Group0=BarAndWaveV5
+PrivateGroup0=True
+Parent0=$(Programs)
+
+[Package|BarAndWaveV5|BarAndWaveV5]
+Icon1=BarAndWaveXP_V5.exe
+Title1=BarAndWaveV5
+StartIn1=$(AppPath)
+Key1=Icon1
+
+[Package|BarAndWaveV5|Package]
+PackageFolder=C:\VB_Projects\VStim_XP_universalIO_V5\Install
+ProjectFolder=C:\VB_Projects\VStim_XP_universalIO_V5
+ServerSideCab=
+File1=C:\VB_Projects\VStim_XP_universalIO_V5\Install\setup.exe
+File2=C:\VB_Projects\VStim_XP_universalIO_V5\Install\Setup.Lst
+File3=C:\VB_Projects\VStim_XP_universalIO_V5\Install\BarAndWaveXP_V5.CAB
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz
+
+
+[Package|Standard Setup Package 1|Root]
+SubWizProgID=PDWizard.SetupPkgSubWiz
+BuildFolder=C:\VB_Projects\VStim_XP_V621\Install
+
+[Package|Standard Setup Package 1|Configure DAO ISAMs]
+Applicable=No
+
+[Package|Standard Setup Package 1|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|Standard Setup Package 1|Files Found]
+
+[Package|Standard Setup Package 1|Files Released]
+cbw.dll=
+
+[Package|Standard Setup Package 1|Missing Dependency Information]
+C:\WINDOWS\system32\dx7vb.dll=
+C:\MCC\cbw32.dll=
+
+[Package|Standard Setup Package 1|Out-of-Date Dependency Information]
+C:\WINDOWS\system32\comdlg32.ocx=
+
+[Package|Standard Setup Package 1|Files Added]
+c:\vb_projects\vstim_xp_universalio_v6\vsim.ini=
+
+[Package|Standard Setup Package 1|Files Removed]
+
+[Package|Standard Setup Package 1|Files In Project]
+C:\WINDOWS\system32\msvbvm60.dll=Yes
+C:\WINDOWS\system32\oleaut32.dll=Yes
+C:\WINDOWS\system32\olepro32.dll=Yes
+C:\WINDOWS\system32\asycfilt.dll=Yes
+C:\WINDOWS\system32\stdole2.tlb=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\MCC\cbw32.dll=Yes
+C:\WINDOWS\system32\dx7vb.dll=Yes
+C:\WINDOWS\system32\comdlg32.ocx=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=Yes
+C:\WINDOWS\system32\VB6STKIT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=Yes
+C:\VB_Projects\VStim_XP_universalIO_V6\VSim.ini=Yes
+C:\VB_Projects\VStim_XP_V621\BarAndWaveXP_V621.exe=Yes
+
+[Package|Standard Setup Package 1|Configure Registry Files]
+Applicable=No
+
+[Package|Standard Setup Package 1|Configure Remote Servers]
+Applicable=No
+
+[Package|Standard Setup Package 1|Install Locations]
+C:\VB_Projects\VStim_XP_universalIO_V6\BarAndWaveXP_V601.exe=$(AppPath)
+C:\WINDOWS\system32\msvbvm60.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\oleaut32.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\olepro32.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\asycfilt.dll=$(WinSysPathSysFile)
+C:\WINDOWS\system32\stdole2.tlb=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\MCC\cbw32.dll=$(WinSysPath)
+C:\WINDOWS\system32\dx7vb.dll=$(WinSysPath)
+C:\WINDOWS\system32\comdlg32.ocx=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=$(WinPath)
+C:\WINDOWS\system32\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=$(WinPath)
+C:\VB_Projects\VStim_XP_universalIO_V6\VSim.ini=$(AppPath)
+C:\VB_Projects\VStim_XP_V621\BarAndWaveXP_V621.exe=$(AppPath)
+
+[Package|Standard Setup Package 1|Configure Shared Files]
+Applicable=Yes
+C:\VB_Projects\VStim_XP_universalIO_V6\BarAndWaveXP_V601.exe=No
+C:\VB_Projects\VStim_XP_universalIO_V6\VSim.ini=No
+C:\VB_Projects\VStim_XP_V621\BarAndWaveXP_V621.exe=No
+
+[Package|Standard Setup Package 1|Distribution]
+Type=single
+Size=
+Title=BarAndWaveXP_V621
+
+[Package|Standard Setup Package 1|IconGroups]
+Group0=BarAndWaveXP_V6
+PrivateGroup0=True
+Parent0=$(Programs)
+
+[Package|Standard Setup Package 1|BarAndWaveXP_V6]
+Icon1=BarAndWaveXP_V601.exe
+Title1=BarAndWaveXP_V6
+StartIn1=$(AppPath)
+Key1=Icon1
+
+[Package|Standard Setup Package 1|Package]
+PackageFolder=C:\VB_Projects\VStim_XP_V621\Install
+ProjectFolder=C:\VB_Projects\VStim_XP_V621
+ServerSideCab=
+File1=C:\VB_Projects\VStim_XP_V621\Install\setup.exe
+File2=C:\VB_Projects\VStim_XP_V621\Install\Setup.Lst
+File3=C:\VB_Projects\VStim_XP_V621\Install\BarAndWaveXP_V621.CAB
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz

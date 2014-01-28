@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc
+END
+dense.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/dense.c
+END
+cvode.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvode.c
+END
+cvdiag.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvdiag.h
+END
+cvband.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvband.h
+END
+vector.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/vector.c
+END
+dense.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/dense.h
+END
+band.c
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/band.c
+END
+cvode.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvode.h
+END
+vector.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/vector.h
+END
+band.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/band.h
+END
+llnlmath.c
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/llnlmath.c
+END
+llnlmath.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/llnlmath.h
+END
+cvspgmr.c
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvspgmr.c
+END
+cvspgmr.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvspgmr.h
+END
+llnltyps.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/llnltyps.h
+END
+cvdense.c
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvdense.c
+END
+iterativ.c
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/iterativ.c
+END
+spgmr.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/spgmr.c
+END
+cv2.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cv2.c
+END
+cvdense.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvdense.h
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/Makefile
+END
+iterativ.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/iterativ.h
+END
+cvdiag.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvdiag.c
+END
+cvband.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/cvband.c
+END
+spgmr.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/cvodesrc/spgmr.h
+END

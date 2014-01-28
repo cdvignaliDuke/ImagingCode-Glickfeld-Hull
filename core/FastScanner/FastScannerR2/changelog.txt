@@ -1,0 +1,24 @@
+fastscanner changelog 
+
+04/30/07 sy corrected z-stage control. corrected CalculateDelay
+05/03/07 sy corrected finddaddelay2
+05/03/07 vb optimized finddaddelay2
+05/08/07 sy moved shutter opening. make does not overwrite data. added color display
+05/09/07 sy added digital trigger
+05/14/07 vb optimized dad2tiff.
+05/15/07 vb optimized ProccessStream: faster zero crossing detection
+	 vb optimized ProcessDisplay: faster averaging, reduced update rate.
+06/01/07 vb moved x,y scanner control from acquisition board (6115) to secondary board
+
+06/26/07 sy changed GUI timer from cputime to clock function
+06/26/07 sy removed extra(#2) figure
+06/26/07 sy made delay calculation based on both chennels
+06/26/07 sy made "saturated" pixels (1,1,1)
+06/27/07 sy made DAQ to stop each N "Frames per Step" (only if "Frames per Step" >0)
+07/xx/07 sy z stack - done
+07/xx/07 sy restart of DAQ each 10 min is removed (Matlab 2007a does not crash anymore during long data aquisition)
+07/10/07 sy added slider for "turning ponits blocking" power control
+07/12/07 sy copyed all files to Fast_Scanner_V5 directory
+... many changes by sy
+09/14/07 vb changed FastDisplay default Y size to 240
+         vb added channel figure size toglgle button

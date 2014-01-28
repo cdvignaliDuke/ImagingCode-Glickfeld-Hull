@@ -1,0 +1,60 @@
+[parameters]
+FrameRate=75.0255267525104
+HMonSize=34
+Distance=18
+BoardN=0
+CounterN=2
+CounterNTrigger=1
+CounterNPol=1
+CounterNTriggerPol=-1
+FramesBeforeStim=0
+FramesOfStim=128
+StimMonitor=2
+
+;TTL out
+; mark type: 0-short puls, 1 - square wave 
+; 
+; mark period = 0,1 - DO NOT USE with MarkType=1
+;
+; MarkTiming:
+; Start
+; DriftPeriod
+; RotationPeriod
+; FlashPeriod
+; Loop0 (each new parameter set)
+; Loop1
+; Loop2
+; Loop3...
+;
+;
+; InitialState (0 or 1) determines polarity of TTL pulses
+;
+;Position : 0 - before blank, 1 - before stim
+
+
+[TTLout]
+TotalNumber=3
+
+[Mark1]
+MarkTiming=Loop0
+MarkCh=3
+MarkType=0
+MarkPeriod=1
+InitialState=0
+Position=0
+
+[Mark2]
+MarkTiming=Loop2
+MarkCh=1
+MarkType=0
+MarkPeriod=1
+InitialState=0
+Position=0
+
+[Mark3]
+MarkTiming=Start
+MarkCh=3
+MarkType=0
+MarkPeriod=1
+InitialState=0
+Position=0

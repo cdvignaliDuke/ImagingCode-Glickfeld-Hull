@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/640/collab/volumes/MAAK_orig
+END
+doNPsubPrep4D.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/doNPsubPrep4D.m
+END
+reg3D_xcorrMA_realignonly_subp.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/reg3D_xcorrMA_realignonly_subp.m
+END
+get_tcoursesNP3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/get_tcoursesNP3D.m
+END
+doCellFind4D.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/doCellFind4D.m
+END
+contrastnorm_3DMA.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/contrastnorm_3DMA.m
+END
+findn.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/findn.m
+END
+get_tcoursesCRMA3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/get_tcoursesCRMA3D.m
+END
+reg3D_xcorrMA_realignonly.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/reg3D_xcorrMA_realignonly.m
+END
+Shift4D.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/Shift4D.m
+END
+tostring.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/tostring.m
+END
+ReAlign4D.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/640/collab/volumes/MAAK_orig/ReAlign4D.m
+END
+getCode.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/getCode.m
+END
+normxcorr3.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/normxcorr3.m
+END
+imCellEditInteractivez_090210.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/imCellEditInteractivez_090210.m
+END
+np_mask4D.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/639/collab/volumes/MAAK_orig/np_mask4D.m
+END

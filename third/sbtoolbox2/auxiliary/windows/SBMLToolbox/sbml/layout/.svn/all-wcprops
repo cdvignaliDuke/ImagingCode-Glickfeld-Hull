@@ -1,0 +1,101 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout
+END
+Point.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/Point.h
+END
+SpeciesReferenceRole.h
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/SpeciesReferenceRole.h
+END
+CompartmentGlyph.h
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/CompartmentGlyph.h
+END
+SpeciesGlyph.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/SpeciesGlyph.h
+END
+ReactionGlyph.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/ReactionGlyph.h
+END
+Dimensions.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/Dimensions.h
+END
+LayoutUtilities.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/LayoutUtilities.h
+END
+LineSegment.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/LineSegment.h
+END
+Layout.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/Layout.h
+END
+layoutfwd.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/layoutfwd.h
+END
+SpeciesReferenceGlyph.h
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/SpeciesReferenceGlyph.h
+END
+BoundingBox.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/BoundingBox.h
+END
+GraphicalObject.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/GraphicalObject.h
+END
+Curve.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/Curve.h
+END
+CubicBezier.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/CubicBezier.h
+END
+TextGlyph.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/layout/TextGlyph.h
+END

@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary
+END
+SBconvertSBML1.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBconvertSBML1.m
+END
+SBimportSBMLCD.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBimportSBMLCD.m
+END
+SBconvertName2Id.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBconvertName2Id.m
+END
+SBconvertSBML2.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBconvertSBML2.m
+END
+SBexportSBMLcheckSBmodel.m
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBexportSBMLcheckSBmodel.m
+END
+convertTEXTArrayDefSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/convertTEXTArrayDefSB.m
+END
+SBcreateEventAssignmentFunction.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBcreateEventAssignmentFunction.m
+END
+processFormulaSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/processFormulaSB.m
+END
+SBcreateSimulationDataFunction.m
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBcreateSimulationDataFunction.m
+END
+SBimportSBML.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBimportSBML.m
+END
+SBcreateEventFunction.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBcreateEventFunction.m
+END
+convert2SBNotes.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/convert2SBNotes.m
+END

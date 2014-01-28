@@ -1,0 +1,179 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml
+END
+XercesNamespaces.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XercesNamespaces.h
+END
+XMLFileBuffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLFileBuffer.h
+END
+XMLBuffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLBuffer.h
+END
+LibXMLTranscode.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/LibXMLTranscode.h
+END
+XMLTokenizer.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLTokenizer.h
+END
+XMLInputStream.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLInputStream.h
+END
+XercesTranscode.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XercesTranscode.h
+END
+XMLOutputStream.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLOutputStream.h
+END
+XMLHandler.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLHandler.h
+END
+LibXMLAttributes.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/LibXMLAttributes.h
+END
+ExpatParser.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/ExpatParser.h
+END
+XMLNamespaces.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLNamespaces.h
+END
+XercesAttributes.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XercesAttributes.h
+END
+XMLToken.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLToken.h
+END
+LibXMLParser.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/LibXMLParser.h
+END
+XMLNode.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLNode.h
+END
+XercesParser.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XercesParser.h
+END
+XMLAttributes.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLAttributes.h
+END
+XMLError.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLError.h
+END
+XMLErrorLog.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLErrorLog.h
+END
+XMLParser.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLParser.h
+END
+ExpatHandler.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/ExpatHandler.h
+END
+XMLTriple.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLTriple.h
+END
+XMLMemoryBuffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLMemoryBuffer.h
+END
+LibXMLHandler.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/LibXMLHandler.h
+END
+XMLExtern.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XMLExtern.h
+END
+LibXMLNamespaces.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/LibXMLNamespaces.h
+END
+XercesHandler.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/XercesHandler.h
+END
+ExpatAttributes.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/windows/SBMLToolbox/sbml/xml/ExpatAttributes.h
+END

@@ -1,0 +1,17 @@
+[img]
+Ch1Use=1
+Ch2Use=1
+
+[pCell]
+min=0
+max=1
+
+[position]
+zoom=2.5
+
+[timing]
+FastMirrorTriggerDelay=0
+FastMirrorPeriod=0.252844
+
+[DAQ]
+MemMapFile=F:\MemMap.dat

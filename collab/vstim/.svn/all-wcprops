@@ -1,0 +1,191 @@
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/reidlab/!svn/ver/648/collab/vstim
+END
+pinkrnd2.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/573/collab/vstim/pinkrnd2.m
+END
+waveletnoise4.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/621/collab/vstim/waveletnoise4.m
+END
+waveletnoise3d.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/648/collab/vstim/waveletnoise3d.m
+END
+makestims.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/648/collab/vstim/makestims.m
+END
+win.m
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/reidlab/!svn/ver/636/collab/vstim/win.m
+END
+deg2pix.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/621/collab/vstim/deg2pix.m
+END
+pix2deg.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/268/collab/vstim/pix2deg.m
+END
+picspreprocess.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/351/collab/vstim/picspreprocess.m
+END
+mseq.m
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/reidlab/!svn/ver/621/collab/vstim/mseq.m
+END
+waveletnoise.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/560/collab/vstim/waveletnoise.m
+END
+pinkrnd.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/561/collab/vstim/pinkrnd.m
+END
+waveletcoefs4.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/648/collab/vstim/waveletcoefs4.m
+END
+ringach.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/579/collab/vstim/ringach.m
+END
+examples.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/324/collab/vstim/examples.m
+END
+screen.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/621/collab/vstim/screen.m
+END
+pinknoise2.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/561/collab/vstim/pinknoise2.m
+END
+readstims.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/560/collab/vstim/readstims.m
+END
+waveletnoise2d.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/561/collab/vstim/waveletnoise2d.m
+END
+waveletrnd3.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/648/collab/vstim/waveletrnd3.m
+END
+pinknoise.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/561/collab/vstim/pinknoise.m
+END
+waveletrnd4.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/648/collab/vstim/waveletrnd4.m
+END
+playstim.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/561/collab/vstim/playstim.m
+END
+hartly.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/577/collab/vstim/hartly.m
+END
+movingbars.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/456/collab/vstim/movingbars.m
+END
+picsflick.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/351/collab/vstim/picsflick.m
+END
+writestims.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/278/collab/vstim/writestims.m
+END
+dualtree2dcoefs.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/453/collab/vstim/dualtree2dcoefs.m
+END
+dualtree3dcoefs.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/648/collab/vstim/dualtree3dcoefs.m
+END
+gratings.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/561/collab/vstim/gratings.m
+END
+domakestims.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/561/collab/vstim/domakestims.m
+END
+readprot.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/353/collab/vstim/readprot.m
+END

@@ -1,0 +1,101 @@
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/reidlab/!svn/ver/624/core/oristat
+END
+VonMises1.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/387/core/oristat/VonMises1.m
+END
+find_best_dirKO.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/387/core/oristat/find_best_dirKO.m
+END
+VonMises2.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/387/core/oristat/VonMises2.m
+END
+estimate_dir_tuningKO.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/387/core/oristat/estimate_dir_tuningKO.m
+END
+average_epoch.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/387/core/oristat/average_epoch.m
+END
+vector_average.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/387/core/oristat/vector_average.m
+END
+fourier_interp.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/387/core/oristat/fourier_interp.m
+END
+tcOriStats.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/624/core/oristat/tcOriStats.m
+END
+dir_indexKO.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/387/core/oristat/dir_indexKO.m
+END
+estimate_ori_tuningKO.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/387/core/oristat/estimate_ori_tuningKO.m
+END
+doOriStatKO.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/387/core/oristat/doOriStatKO.m
+END
+clayDI.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/387/core/oristat/clayDI.m
+END
+find_pair_in_list.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/387/core/oristat/find_pair_in_list.m
+END
+interp_dir_tuningKO.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/387/core/oristat/interp_dir_tuningKO.m
+END
+anova1KO.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/387/core/oristat/anova1KO.m
+END
+select_epochs.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/387/core/oristat/select_epochs.m
+END

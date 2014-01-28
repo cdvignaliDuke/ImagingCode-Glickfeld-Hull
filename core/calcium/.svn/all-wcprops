@@ -1,0 +1,581 @@
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/reidlab/!svn/ver/658/core/calcium
+END
+readtiff.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/637/core/calcium/readtiff.m
+END
+stackShifts.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/610/core/calcium/stackShifts.m
+END
+ijarray2plus.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/475/core/calcium/ijarray2plus.m
+END
+diffsnorm.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/537/core/calcium/diffsnorm.m
+END
+stackGetTimeCourses.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/398/core/calcium/stackGetTimeCourses.m
+END
+filtfilthd.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/204/core/calcium/filtfilthd.m
+END
+setupstim.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/247/core/calcium/setupstim.m
+END
+ijGetFreeMemory.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/204/core/calcium/ijGetFreeMemory.m
+END
+imAdaptHistEqJava.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/497/core/calcium/imAdaptHistEqJava.m
+END
+tcCalcHarm.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/651/core/calcium/tcCalcHarm.m
+END
+tcLowCut.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/501/core/calcium/tcLowCut.m
+END
+stackFixBidirPhase.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/667/core/calcium/stackFixBidirPhase.m
+END
+imLog.m
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/reidlab/!svn/ver/204/core/calcium/imLog.m
+END
+hsv2rgbKO.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/610/core/calcium/hsv2rgbKO.m
+END
+stackGroupProject.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/383/core/calcium/stackGroupProject.m
+END
+imFindCellsParamsSet.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/204/core/calcium/imFindCellsParamsSet.m
+END
+getZprofRoi.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/515/core/calcium/getZprofRoi.m
+END
+GetFileList.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/567/core/calcium/GetFileList.m
+END
+ezCellMap.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/333/core/calcium/ezCellMap.m
+END
+tcOffsetPlot.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/637/core/calcium/tcOffsetPlot.m
+END
+writetiffseq.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/658/core/calcium/writetiffseq.m
+END
+writeXLSfilelist.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/302/core/calcium/writeXLSfilelist.m
+END
+stackWriteAvi.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/295/core/calcium/stackWriteAvi.m
+END
+getEpochsLen.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/375/core/calcium/getEpochsLen.m
+END
+GetBaseFname.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/567/core/calcium/GetBaseFname.m
+END
+lowpass.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/645/core/calcium/lowpass.m
+END
+imFindCellsTM.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/610/core/calcium/imFindCellsTM.m
+END
+Contents.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/559/core/calcium/Contents.m
+END
+dcblock.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/626/core/calcium/dcblock.m
+END
+stackZprofiler.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/370/core/calcium/stackZprofiler.m
+END
+writetiff.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/305/core/calcium/writetiff.m
+END
+tcProcess.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/610/core/calcium/tcProcess.m
+END
+ijreadtiff.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/204/core/calcium/ijreadtiff.m
+END
+stackFastPCA.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/649/core/calcium/stackFastPCA.m
+END
+ijStop.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/472/core/calcium/ijStop.m
+END
+imCellEditInteractive.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/517/core/calcium/imCellEditInteractive.m
+END
+GetFnames.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/567/core/calcium/GetFnames.m
+END
+stack_localcontrastadj.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/93/core/calcium/stack_localcontrastadj.m
+END
+statsFindPositiveResp.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/598/core/calcium/statsFindPositiveResp.m
+END
+hueKO2HSV.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/476/core/calcium/hueKO2HSV.m
+END
+imHueRotateKO.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/391/core/calcium/imHueRotateKO.m
+END
+tcEpochAverage.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/610/core/calcium/tcEpochAverage.m
+END
+tcContrast.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/204/core/calcium/tcContrast.m
+END
+tcRemoveArtifacts.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/626/core/calcium/tcRemoveArtifacts.m
+END
+ijwritetiff.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/204/core/calcium/ijwritetiff.m
+END
+stackRevCor.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/535/core/calcium/stackRevCor.m
+END
+imFindCells.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/267/core/calcium/imFindCells.m
+END
+tcRemoveDC.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/502/core/calcium/tcRemoveDC.m
+END
+imFilter2.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/236/core/calcium/imFilter2.m
+END
+tcPlotTcourses.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/247/core/calcium/tcPlotTcourses.m
+END
+tcSortTrials.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/645/core/calcium/tcSortTrials.m
+END
+readXLSfilelist.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/345/core/calcium/readXLSfilelist.m
+END
+stackAnimator.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/500/core/calcium/stackAnimator.m
+END
+tcDecimate.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/645/core/calcium/tcDecimate.m
+END
+bilateralFilter.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/400/core/calcium/bilateralFilter.m
+END
+adapthisteqRevBorders.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/204/core/calcium/adapthisteqRevBorders.m
+END
+GetMatFileNames.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/567/core/calcium/GetMatFileNames.m
+END
+roiDrawOnImage.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/104/core/calcium/roiDrawOnImage.m
+END
+tcGetBaseline.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/645/core/calcium/tcGetBaseline.m
+END
+stackFilter.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/626/core/calcium/stackFilter.m
+END
+statsFindNegativeResp.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/598/core/calcium/statsFindNegativeResp.m
+END
+stackSubtract.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/398/core/calcium/stackSubtract.m
+END
+imScale.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/610/core/calcium/imScale.m
+END
+hueHSV2KO.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/390/core/calcium/hueHSV2KO.m
+END
+tcCycleAverage.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/354/core/calcium/tcCycleAverage.m
+END
+tcStats.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/477/core/calcium/tcStats.m
+END
+getCellCoordinate.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/559/core/calcium/getCellCoordinate.m
+END
+anova1mult.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/204/core/calcium/anova1mult.m
+END
+ijplus2array.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/637/core/calcium/ijplus2array.m
+END
+scriptFindCells.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/204/core/calcium/scriptFindCells.m
+END
+makeDisk.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/236/core/calcium/makeDisk.m
+END
+find_best_stim.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/303/core/calcium/find_best_stim.m
+END
+getCellBasedIndexFromPixelMap.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/604/core/calcium/getCellBasedIndexFromPixelMap.m
+END
+imAdaptHistEqJavaRevBorders.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/497/core/calcium/imAdaptHistEqJavaRevBorders.m
+END
+tcTrialAverage.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/398/core/calcium/tcTrialAverage.m
+END
+stackDecimate.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/310/core/calcium/stackDecimate.m
+END
+figCellsLabeled.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/610/core/calcium/figCellsLabeled.m
+END
+GetDirs.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/567/core/calcium/GetDirs.m
+END
+stackLocalContrastAdaptation.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/204/core/calcium/stackLocalContrastAdaptation.m
+END
+pca.m
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/reidlab/!svn/ver/537/core/calcium/pca.m
+END
+imborder.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/649/core/calcium/imborder.m
+END
+tcShuffleCorrect.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/204/core/calcium/tcShuffleCorrect.m
+END
+GetTifFileNames.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/567/core/calcium/GetTifFileNames.m
+END
+readstimlogfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/204/core/calcium/readstimlogfile.m
+END
+interpLowpass.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/164/core/calcium/interpLowpass.m
+END
+imShade.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/383/core/calcium/imShade.m
+END
+imDilate2.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/236/core/calcium/imDilate2.m
+END
+GetCellNumbers.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/603/core/calcium/GetCellNumbers.m
+END
+stackRegisterJava.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/610/core/calcium/stackRegisterJava.m
+END
+imColorize.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/274/core/calcium/imColorize.m
+END
+tcFilter.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/159/core/calcium/tcFilter.m
+END
+imBidirShift.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/92/core/calcium/imBidirShift.m
+END
+stackCycleAverage.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/398/core/calcium/stackCycleAverage.m
+END
+ijStart.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/472/core/calcium/ijStart.m
+END
+getepochs.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/487/core/calcium/getepochs.m
+END
+ijreadtiffinfo.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/320/core/calcium/ijreadtiffinfo.m
+END

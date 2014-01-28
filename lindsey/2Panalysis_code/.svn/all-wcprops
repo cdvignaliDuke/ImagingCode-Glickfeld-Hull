@@ -1,0 +1,653 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code
+END
+affine_reg.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/affine_reg.m
+END
+RegStream.asv
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/RegStream.asv
+END
+Epi_summary.asv
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Epi_summary.asv
+END
+Exp_list_mat.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Exp_list_mat.m
+END
+Epi_GCAMP_runalldata.asv
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Epi_GCAMP_runalldata.asv
+END
+roi_sort_norm.asv
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/roi_sort_norm.asv
+END
+RegStream.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/RegStream.m
+END
+FindEyeFromAvi2.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/FindEyeFromAvi2.m
+END
+zscan_stack_2channel_register_sub.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/zscan_stack_2channel_register_sub.m
+END
+Make_TC_subplots.asv
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Make_TC_subplots.asv
+END
+Epi_GCAMP_runalldata.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Epi_GCAMP_runalldata.m
+END
+roi_sort_norm.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/roi_sort_norm.m
+END
+Make_TC_subplots_2P.asv
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Make_TC_subplots_2P.asv
+END
+Make_TC_subplots_2P.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Make_TC_subplots_2P.m
+END
+Window_avg.asv
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/Window_avg.asv
+END
+triu2vec.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/triu2vec.m
+END
+manual_rois.asv
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/manual_rois.asv
+END
+manual_rois.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/manual_rois.m
+END
+stack_sort.asv
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/stack_sort.asv
+END
+Local_correlations.asv
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Local_correlations.asv
+END
+stack_adapt.asv
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/stack_adapt.asv
+END
+Running_LG_MA.asv
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Running_LG_MA.asv
+END
+corrsort.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/corrsort.m
+END
+zscan_stack_2channel_register.asv
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/zscan_stack_2channel_register.asv
+END
+Running_LG_MA.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Running_LG_MA.m
+END
+zscan_stack_2channel_register.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/zscan_stack_2channel_register.m
+END
+SFTF_fit_LG.asv
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/SFTF_fit_LG.asv
+END
+Epi_GCAMP.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Epi_GCAMP.m
+END
+resort_seq_only.asv
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/resort_seq_only.asv
+END
+Makestackmatrix.asv
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Makestackmatrix.asv
+END
+Makefigs.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/Makefigs.m
+END
+resort_avg_randtif_110210.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/resort_avg_randtif_110210.m
+END
+acquire_eeg_MA.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/acquire_eeg_MA.m
+END
+var_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/var_plot.m
+END
+resort_seq_only.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/resort_seq_only.m
+END
+epi_cond_TCs.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/epi_cond_TCs.m
+END
+Stack_uncorr.asv
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Stack_uncorr.asv
+END
+big_manual_rois.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/big_manual_rois.m
+END
+imCellEditInteractive2.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/imCellEditInteractive2.m
+END
+stack_concat.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/stack_concat.m
+END
+Stack_uncorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Stack_uncorr.m
+END
+LGresort.asv
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/LGresort.asv
+END
+Running_LG.asv
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Running_LG.asv
+END
+LGresort.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/LGresort.m
+END
+roi_TCs.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/roi_TCs.m
+END
+PrinCompLG.asv
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/PrinCompLG.asv
+END
+var_SFTF_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/var_SFTF_plot.m
+END
+zstack_1channel_register.asv
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/zstack_1channel_register.asv
+END
+Make_TC_subplots_ICA.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Make_TC_subplots_ICA.m
+END
+zstack_2channel_register.asv
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/zstack_2channel_register.asv
+END
+zstack_2channel_register.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/zstack_2channel_register.m
+END
+zscan.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/zscan.m
+END
+crosscorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/crosscorr.m
+END
+resort_avg_randtif.asv
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/resort_avg_randtif.asv
+END
+multiarea_epi.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/multiarea_epi.m
+END
+FastRadialTransformOneFrame.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/FastRadialTransformOneFrame.m
+END
+Exp_list_mat.asv
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Exp_list_mat.asv
+END
+get_region_statsCR.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/get_region_statsCR.m
+END
+Epi_summary.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Epi_summary.m
+END
+ic_sort_norm.asv
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/ic_sort_norm.asv
+END
+FindEyeFromStack.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/FindEyeFromStack.m
+END
+ic_sort_norm.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/ic_sort_norm.m
+END
+Make_TC_subplots.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Make_TC_subplots.m
+END
+extractTC.asv
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/extractTC.asv
+END
+extractTC.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/extractTC.m
+END
+tcDecimate.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/tcDecimate.m
+END
+Window_avg.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/Window_avg.m
+END
+stack_sort_avg.asv
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/stack_sort_avg.asv
+END
+tcGetBaseline.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/tcGetBaseline.m
+END
+stack_sort_avg.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/stack_sort_avg.m
+END
+Local_corr.asv
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Local_corr.asv
+END
+Epi_clean.asv
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Epi_clean.asv
+END
+get_tcoursesCRMA2D_FAST.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/get_tcoursesCRMA2D_FAST.m
+END
+stack_sort.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/stack_sort.m
+END
+Local_correlations.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Local_correlations.m
+END
+stack_adapt.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/stack_adapt.m
+END
+Local_corr.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Local_corr.m
+END
+Epi_clean.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Epi_clean.m
+END
+Epi_GCAMP.asv
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Epi_GCAMP.asv
+END
+Makefigs.asv
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/Makefigs.asv
+END
+sizetiff.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/sizetiff.m
+END
+var_plot.asv
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/var_plot.asv
+END
+zscan_new.asv
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/zscan_new.asv
+END
+SFTF_fit_LG.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/SFTF_fit_LG.m
+END
+zscan_new.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/zscan_new.m
+END
+crossing.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/crossing.m
+END
+stackRegister_MA.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/stackRegister_MA.m
+END
+big_manual_rois.asv
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/big_manual_rois.asv
+END
+Makestackmatrix.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Makestackmatrix.m
+END
+area_colors.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/area_colors.m
+END
+hand_seg_flow.asv
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/hand_seg_flow.asv
+END
+FigShotNoise.asv
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/FigShotNoise.asv
+END
+hand_seg_flow.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/hand_seg_flow.m
+END
+roi_TCs.asv
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/roi_TCs.asv
+END
+FigShotNoise.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/FigShotNoise.m
+END
+Running_LG.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Running_LG.m
+END
+stack_sort_noblanks.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/stack_sort_noblanks.m
+END
+Wheel.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/Wheel.m
+END
+np_maskAK.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/np_maskAK.m
+END
+var_SFTF_plot.asv
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/var_SFTF_plot.asv
+END
+zstack_2channel_register_rtog.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/zstack_2channel_register_rtog.m
+END
+PrinCompLG.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/PrinCompLG.m
+END
+zscan.asv
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/zscan.asv
+END
+zstack_1channel_register.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/zstack_1channel_register.m
+END
+multiarea_epi.asv
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/multiarea_epi.asv
+END
+stackGroupMaxProject.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/stackGroupMaxProject.m
+END
+affine_reg.asv
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/659/users/lindsey/2Panalysis_code/affine_reg.asv
+END
+resort_avg_randtif.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/673/users/lindsey/2Panalysis_code/resort_avg_randtif.m
+END

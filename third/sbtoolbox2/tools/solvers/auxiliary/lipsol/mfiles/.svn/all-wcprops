@@ -1,0 +1,221 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles
+END
+postprocess.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/postprocess.m
+END
+densol.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/densol.m
+END
+preprocess.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/preprocess.m
+END
+monitor.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/monitor.m
+END
+checkdense.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/checkdense.m
+END
+miip.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/miip.m
+END
+errornobj.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/errornobj.m
+END
+stopping.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/stopping.m
+END
+detectinf.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/detectinf.m
+END
+symbfct.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/symbfct.m
+END
+clearglobal.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/clearglobal.m
+END
+initpoint.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/initpoint.m
+END
+ratiotest.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/ratiotest.m
+END
+scaling.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/scaling.m
+END
+parsebnds.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/parsebnds.m
+END
+linsys.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/linsys.m
+END
+solaat.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/solaat.m
+END
+reciprocal.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/reciprocal.m
+END
+checkbnds.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/checkbnds.m
+END
+getpu.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/getpu.m
+END
+errcheck.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/errcheck.m
+END
+transcon.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/transcon.m
+END
+getmisc.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/getmisc.m
+END
+vsearch.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/vsearch.m
+END
+complementy.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/complementy.m
+END
+sherman.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/sherman.m
+END
+spsol.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/spsol.m
+END
+parameters.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/parameters.m
+END
+feasibility.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/feasibility.m
+END
+project.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/project.m
+END
+pcg.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/pcg.m
+END
+transbnd.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/transbnd.m
+END
+centering.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/centering.m
+END
+direction.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/direction.m
+END
+transobj.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/transobj.m
+END
+update.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/lipsol/mfiles/update.m
+END

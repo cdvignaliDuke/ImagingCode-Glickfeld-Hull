@@ -1,0 +1,27 @@
+function stack = listfileGetStack(listStruct, listN)
+%
+%  read stack into memory
+%
+%$Id: listfileGetStack.m 267 2008-06-20 19:16:59Z histed $
+
+if nargin < 3, doRed = false; end
+
+ls = listStruct;
+
+%% check listfile integrity
+fNames = fieldnames(ls);
+assert(all(ismember({ 'IsLeicaData', 'DataPathOverride' }, fNames)), ...
+       'Missing fields in listStruct');
+
+%% get relevant bits of data from listfile
+tIsLeica = ls.IsLeicaData(listN);
+tOverridePath = ls.DataPathOverride{listN};
+[tExptName, tSeriesName] = listfileGetExptId(ls, listN);
+
+%% this function does all the hard work
+os = readStackComplete('ExptName', tExptName, ...
+                       'SeriesName', tSeriesName, ...
+                       'IsLeicaData', tIsLeica, ...
+                       'DataPathOverride', tOverridePath);
+stack = os.greenStack;
+

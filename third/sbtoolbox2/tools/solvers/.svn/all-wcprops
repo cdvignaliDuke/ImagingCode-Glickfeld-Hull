@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers
+END
+lipsolSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/lipsolSB.m
+END
+quadprogSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/quadprogSB.m
+END
+quadprogcompactSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/quadprogcompactSB.m
+END
+glpkSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/glpkSB.m
+END
+fsolveSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/fsolveSB.m
+END

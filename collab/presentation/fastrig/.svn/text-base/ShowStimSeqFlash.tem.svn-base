@@ -1,0 +1,50 @@
+#$animal = "next";
+#$expt = "mix8";
+#$nStim = 9; # n stimuli per trial including blank
+#$nPicsPerSim = 1; # n frames per stimulus
+#$nTrials = 2; # n trials
+#$nOffPulses = 32; # set to 0 if no blanks between stims
+#$nOnPulses = 32;
+#$nRefreshs = 8; # n of refresh each frame is presented
+#$flashMode = 1; # 0 -> don't flash, 1 -> alternative between stim and blank
+
+$scale = 2.0;
+$rootdir = "C:\\Documents and Settings\\V1msq\\My Documents\\stimulation\\stims";
+$stimdir = "$rootdir\\$animal\\$expt";
+
+scenario = "$animal\\$expt";
+scenario_type = fMRI; # presentation syncd to external pulses
+stimulus_properties = iTrial,number,iStim,number,fBlank,number,iFrame,number;
+
+# followig could be used to nRefreshs scan pulses
+# here no decimation (ratio = 1) so each incoming pulse is a 'main' pulse
+pulses_per_scan = 1; 
+pulse_code = 30; # to identify event in logs
+
+pcl_file = "ShowStimSeqFlash.pcl";
+
+# end-header/begin-SDLs marker
+begin;
+
+array {
+ LOOP $iStim $nStim;
+   LOOP $iFrame $nPicsPerStim;
+    bitmap { filename = "$stimdir\\stim$iStim frame$iFrame.bmp"; preload=true;};
+   ENDLOOP;    
+ ENDLOOP; 
+} images;
+
+trial {
+   picture { 
+		plane {
+			
+			width = 320;
+			height = 240;
+			color = 0.0, 0.0, 0.0;
+			emissive = 1.0, 1.0, 1.0;
+			mesh_scale = $scale, $scale, $scale;
+			
+		} frameplane;
+      x= 0; y = 0; z = 0;
+   } framepic;
+} frametrial;

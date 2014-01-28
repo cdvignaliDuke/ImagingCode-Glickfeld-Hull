@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88
+END
+read_sparse.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/read_sparse.mexw64
+END
+svmtrain.c
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svmtrain.c
+END
+svm_model_matlab.c
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svm_model_matlab.c
+END
+svm.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svm.cpp
+END
+svmtrain.mexw32
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svmtrain.mexw32
+END
+zquad-mexopts-MH.bat
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/zquad-mexopts-MH.bat
+END
+heart_scale.mat
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/heart_scale.mat
+END
+svm_model_matlab.h
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svm_model_matlab.h
+END
+svm.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svm.h
+END
+svmtrain.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svmtrain.mexw64
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/README
+END
+svmpredict.c
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svmpredict.c
+END
+svmpredict.mexw32
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svmpredict.mexw32
+END
+make.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/make.m
+END
+COPYRIGHT
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/COPYRIGHT
+END
+read_sparse.c
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/read_sparse.c
+END
+svmpredict.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svmpredict.mexw64
+END
+read_sparse.mexw32
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/read_sparse.mexw32
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/Makefile
+END
+svm_model_matlab.obj
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svm_model_matlab.obj
+END
+svm.obj
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/474/third/libsvm-mat-2_88/svm.obj
+END

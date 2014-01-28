@@ -1,0 +1,12 @@
+function wc = wildcard
+%WILDCARD (ps-utils): return wildcard character for present platform
+%
+%$Id$
+
+if isunix
+  wc = '*';
+else % assume windows!
+  wc = '*.*';
+end
+  
+ 

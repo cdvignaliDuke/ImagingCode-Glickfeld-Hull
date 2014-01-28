@@ -1,0 +1,18 @@
+[img]
+Ch1Use=1
+Ch2Use=1
+
+[pCell]
+min=0
+max=1
+LUTfile=C:\Documents and Settings\user\My Documents\logs\laser\PockelsCellLUT.txt
+
+[position]
+zoom=0.0
+
+[timing]
+FastMirrorTriggerDelay=0
+FastMirrorPeriod=0.252844
+
+[DAQ]
+MemMapFile=F:\MemMap.dat

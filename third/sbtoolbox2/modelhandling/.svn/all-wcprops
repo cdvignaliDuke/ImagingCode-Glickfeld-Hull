@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling
+END
+SBinitialconditions.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBinitialconditions.m
+END
+SBparameters.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBparameters.m
+END
+SBstates.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBstates.m
+END
+SBevents.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBevents.m
+END
+SBreactions.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBreactions.m
+END
+SBfunctions.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBfunctions.m
+END
+SBvariables.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBvariables.m
+END
+SBalgebraic.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBalgebraic.m
+END
+SBcreateTEXTmodel.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBcreateTEXTmodel.m
+END
+SBfunctionsMATLAB.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBfunctionsMATLAB.m
+END
+isSBmodel.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/isSBmodel.m
+END
+SBcreateTEXTBCmodel.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/SBcreateTEXTBCmodel.m
+END

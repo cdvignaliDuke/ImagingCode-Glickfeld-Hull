@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods
+END
+SBexportSBML.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/SBexportSBML.m
+END
+SBconvert2MA.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/SBconvert2MA.m
+END
+SBcreateTempODEfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/SBcreateTempODEfile.m
+END
+SBcreateXPPAUTfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/SBcreateXPPAUTfile.m
+END
+SBcreateTEXTfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/SBcreateTEXTfile.m
+END
+SBcreateODEfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/SBcreateODEfile.m
+END
+SBcreateTEXTBCfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/SBcreateTEXTBCfile.m
+END

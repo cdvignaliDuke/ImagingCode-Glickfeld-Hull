@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/pswarm
+END
+PenaltyEval.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/pswarm/PenaltyEval.m
+END
+InitPatternSearch.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/pswarm/InitPatternSearch.m
+END
+unifrndSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/pswarm/unifrndSB.m
+END
+Projection.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/pswarm/Projection.m
+END
+lgpl.txt
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/pswarm/lgpl.txt
+END
+PollStep.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/pswarm/PollStep.m
+END

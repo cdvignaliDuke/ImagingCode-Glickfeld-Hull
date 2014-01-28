@@ -1,0 +1,58 @@
+doalign=getNumber("Align Frames? (1=Yes 0=No):", 0);
+triallen=getNumber("Enter # frames per trial:", 160);
+stimlen=getNumber("Enter # frames per condition:", 20);
+
+origtitle=getTitle();
+stacklen=nSlices();
+//f1=stimlen/4-1;
+f1=2;
+fproj1="start=1 stop="+f1+" projection=[Average Intensity]";
+sstack1="slices=1-"+f1;
+
+setSlice(1);
+if (doalign==1) {
+startstack=getImageID();
+run("Substack Maker", sstack1);
+junk1=getImageID();
+run("Z Project...", fproj1);
+selectImage(junk1);
+close();
+junk2=getImageID();
+run("TurboReg ");
+selectImage(startstack);
+while (getSliceNumber()!=nSlices()) {wait(1000);}
+selectImage(junk2);
+close();
+selectWindow("Registered");
+rename(origtitle+"_align.tif");
+}
+
+g1=stacklen/triallen;
+g2=triallen/2;
+
+shufstr1="select=[unshuffle (xyzt -> xytz)] volume="+triallen;
+shufstr2="select=[unshuffle (xyzt -> xytz)] volume="+stimlen;
+zprogstr1= "group="+g1+" projection=[Average Intensity]";
+zprogstr2= "group="+g2+" projection=[Average Intensity]";
+
+run("Hypervolume Shuffler", shufstr1);
+unshuffle1=getImageID();
+run("Grouped ZProjector", zprogstr1);
+newname=origtitle+"_tavg.tif";
+rename(newname);
+run("Hypervolume Shuffler", shufstr2);
+unshuffle2=getImageID();
+run("Grouped ZProjector", zprogstr2);
+run("Next Slice [>]");
+run("Delete Slice");
+rename("baseline");
+baseline=getImageID();
+imageCalculator("Divide create 32-bit stack", newname,"baseline");
+rename(origtitle+"_tavgn.tif");
+run("Brightness/Contrast...");
+selectImage(unshuffle1);
+close();
+selectImage(unshuffle2);
+close();
+selectImage(baseline);
+close();

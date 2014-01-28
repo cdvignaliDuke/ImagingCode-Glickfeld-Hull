@@ -1,0 +1,16 @@
+Notes for image transformation
+
+1. Postmortem and in vivo image stacks have the same size: 256*256*60 in pixels, or 154*154*60 in £gm.
+2. Corresponding cells from the in vivo and postmortem image stacks are hand-picked, and the coordinates of their centroids are listed in 4-by-N matrices 
+   [in vivo] and [postmortem], respectively. The first three rows are the coordinates and the 4th rows are ones. Four pairs of cells are required to solve 
+   the affine matrix for a 3-dimensional transformation. In this example, we picked 41 pairs of corresponding cells and [in vivo] and [postmortem] are 
+   4-by-41 matrices. 
+3. The affine matrix for transforming the in vivo image stack to the postmortem image stack is obtained by solving: Mvp* [in vivo]= [postmortem].
+4. A new image space with a size 256*256*60 is allocated. [1, 1, 1] is operated by Mvp (Mvp* [1, 1, 1]) and the resulted coordinate is rounded to integer. 
+   The pixel value of the same position (rounded Mvp* [1, 1, 1]) in the postmortem image stack is ¡§fished¡¨ and assigned to the position [1, 1, 1] in the 
+   new space. If Mvp* [x, y, z] falls off the range of the postmortem image stack, a pixel value of zero is assigned to [x, y, z]. By repeating this process 
+   from [1, 1, 1] to [256, 256, 60], the postmortem image stack is realigned to the new image space. In short, a new image space (256*256*60) is 
+   transformed by Mvp and mapped to the postmortem image stack. This transformed image space will take up the pixel values it encounters in the postmortem 
+   image stack and then be transformed backed to a cubic space. 
+5. The in vivo image stack is displayed along its z axis in the movie on left-hand side. The realigned postmortem image stack is displayed along its z axis 
+   in the movie on the right-hand side. The realigned postmortem movie should correspond to the in vivo movie.

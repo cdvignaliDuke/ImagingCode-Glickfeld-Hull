@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools
+END
+isFunctionIdentifier.m
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isFunctionIdentifier.m
+END
+isNumber.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isNumber.m
+END
+messageOutput.m
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/messageOutput.m
+END
+isSign.m
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isSign.m
+END
+isLetter2.m
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isLetter2.m
+END
+isBracketstring.m
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isBracketstring.m
+END
+isSOSign.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isSOSign.m
+END
+isBracketstringWellformed.m
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isBracketstringWellformed.m
+END
+matchStringOnArray.m
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/matchStringOnArray.m
+END
+isClosedBracket.m
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isClosedBracket.m
+END
+isFOSign.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isFOSign.m
+END
+isOpenedBracket.m
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/methods/auxiliary/SBMLexport/stringtools/isOpenedBracket.m
+END

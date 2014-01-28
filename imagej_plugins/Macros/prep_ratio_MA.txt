@@ -1,0 +1,8 @@
+run("Hypervolume Shuffler", "select=[unshuffle (xyzt -> xytz)] volume=2");
+
+run("Gaussian Blur...", "sigma=4 stack");
+
+
+run("Stack Splitter", "number=2");
+
+

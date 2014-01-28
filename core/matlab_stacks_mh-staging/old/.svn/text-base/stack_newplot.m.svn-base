@@ -1,0 +1,12 @@
+function figH = stack_newplot
+%
+%$Id$
+
+figH = findobj(0, 'Tag', 'MHStackPlotFig');
+if isempty(figH)
+    figH = figure('Name', 'Stack plotter', ...
+                  'Tag', 'MHStackPlotFig');
+else
+    clf;
+end
+

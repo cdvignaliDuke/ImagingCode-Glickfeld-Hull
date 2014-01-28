@@ -1,0 +1,425 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda
+END
+syncNIDAQBoards.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/syncNIDAQBoards.m
+END
+SetupDAQ.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/SetupDAQ.m
+END
+DoDisplay.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/DoDisplay.m
+END
+SetPositionZ_no_wait.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/SetPositionZ_no_wait.m
+END
+dad2tiffseq.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/dad2tiffseq.m
+END
+FastDisplay.fig
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/FastDisplay.fig
+END
+PreparePCellForWaveform.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/PreparePCellForWaveform.m
+END
+IniStage.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/IniStage.m
+END
+sec2hms.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/sec2hms.m
+END
+rtifc.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/rtifc.mexw64
+END
+wtifc.mexw32
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/wtifc.mexw32
+END
+LogExternalTrigger.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/LogExternalTrigger.m
+END
+SetPCell.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/SetPCell.m
+END
+openShutter.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/openShutter.m
+END
+StartDAQ.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/StartDAQ.m
+END
+FastDisplay.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/FastDisplay.m
+END
+ReadZPos.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/ReadZPos.m
+END
+FastScanner.ini
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/FastScanner.ini
+END
+ProcessStream.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/ProcessStream.m
+END
+CloseFastScanner.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/CloseFastScanner.m
+END
+rtifc.mexw32
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/rtifc.mexw32
+END
+UpdateFastDisplayByParam.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/UpdateFastDisplayByParam.m
+END
+wtifc.c
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/wtifc.c
+END
+IniParameters.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/IniParameters.m
+END
+ProcessDisplay.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/ProcessDisplay.m
+END
+OpenFastDisplay.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/OpenFastDisplay.m
+END
+PockelsCellLUT.txt
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/PockelsCellLUT.txt
+END
+checkDAD_directory.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/checkDAD_directory.m
+END
+changelog.txt
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/changelog.txt
+END
+SetPositionZ.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/SetPositionZ.m
+END
+StopDAQ.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/StopDAQ.m
+END
+ReadIniForFS.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/ReadIniForFS.m
+END
+wtifc.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/wtifc.m
+END
+cPocTriggerFunction.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/cPocTriggerFunction.m
+END
+FastScanner.fig
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/FastScanner.fig
+END
+Power2PockelsVoltage.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/Power2PockelsVoltage.m
+END
+hs_err_pid3544.log
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/hs_err_pid3544.log
+END
+readDAD.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/readDAD.m
+END
+wtifc.mexw64.csf
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/wtifc.mexw64.csf
+END
+GetProfileString.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/GetProfileString.m
+END
+todo.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/todo.txt
+END
+StopAcquisition.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/StopAcquisition.m
+END
+getdadinfo.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/getdadinfo.m
+END
+GenericKeyPress_FastDisplay.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/GenericKeyPress_FastDisplay.m
+END
+FastScanner.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/FastScanner.m
+END
+dad2tiffstack.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/dad2tiffstack.m
+END
+StartStream.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/StartStream.m
+END
+CalculateDelay.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/CalculateDelay.m
+END
+GetScannerParameters.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/GetScannerParameters.m
+END
+RunAcquisition.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/RunAcquisition.m
+END
+LogAcquisitionTrigger.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/LogAcquisitionTrigger.m
+END
+rtifc.mexw64.csf
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/rtifc.mexw64.csf
+END
+wtifc.mexw32.csf
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/wtifc.mexw32.csf
+END
+SelectRectOnFig.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/SelectRectOnFig.m
+END
+closeShutter.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/closeShutter.m
+END
+FastScannerCallback.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/FastScannerCallback.m
+END
+checkDAD.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/checkDAD.m
+END
+UpdateFastScannerByParam.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/UpdateFastScannerByParam.m
+END
+OpenFastScanner.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/OpenFastScanner.m
+END
+rtifc.c
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/rtifc.c
+END
+StopStream.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/StopStream.m
+END
+ReadPockelsVoltageLUT.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/ReadPockelsVoltageLUT.m
+END
+FastDisplay.ini
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/FastDisplay.ini
+END
+rtifc.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/rtifc.m
+END
+sub2ind_no_error_check.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/sub2ind_no_error_check.m
+END
+finddaddelay.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/finddaddelay.m
+END
+rtifc.mexw32.csf
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/rtifc.mexw32.csf
+END
+wtifc.mexw64
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/wtifc.mexw64
+END
+restartPCellWaveform.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/restartPCellWaveform.m
+END
+DestroyDAQ.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/650/core/FastScanner/FastScannerR1_cuda/DestroyDAQ.m
+END

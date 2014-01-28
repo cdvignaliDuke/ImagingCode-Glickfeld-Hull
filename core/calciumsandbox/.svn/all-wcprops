@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/reidlab/!svn/ver/646/core/calciumsandbox
+END
+cyanred.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/646/core/calciumsandbox/cyanred.m
+END
+cyanyellow.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/306/core/calciumsandbox/cyanyellow.m
+END
+sgolaydiff.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/306/core/calciumsandbox/sgolaydiff.m
+END
+stackCalcEpochMovies.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/377/core/calciumsandbox/stackCalcEpochMovies.m
+END
+make_regressors.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/523/core/calciumsandbox/make_regressors.m
+END
+imups.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/378/core/calciumsandbox/imups.m
+END
+mapsCalcOri.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/609/core/calciumsandbox/mapsCalcOri.m
+END
+Toeplitz_matrix.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/523/core/calciumsandbox/Toeplitz_matrix.m
+END
+imFindCellsV1.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/204/core/calciumsandbox/imFindCellsV1.m
+END
+stackreg_shifts_MA.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/221/core/calciumsandbox/stackreg_shifts_MA.m
+END
+stackBidirShiftCorrection.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/512/core/calciumsandbox/stackBidirShiftCorrection.m
+END
+hsv2rgbVB.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/609/core/calciumsandbox/hsv2rgbVB.m
+END
+GetGFPcellNumbers.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/479/core/calciumsandbox/GetGFPcellNumbers.m
+END
+getAPointSansCallbackButBroken.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/205/core/calciumsandbox/getAPointSansCallbackButBroken.m
+END
+stackCalcMaps.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/646/core/calciumsandbox/stackCalcMaps.m
+END
+mapsDrawMosaic.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/314/core/calciumsandbox/mapsDrawMosaic.m
+END
+Calcium_kernel.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/523/core/calciumsandbox/Calcium_kernel.m
+END
+cold.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/306/core/calciumsandbox/cold.m
+END
+CalcDelay.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/512/core/calciumsandbox/CalcDelay.m
+END
+bluered.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/646/core/calciumsandbox/bluered.m
+END
+regression_analysis.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/556/core/calciumsandbox/regression_analysis.m
+END

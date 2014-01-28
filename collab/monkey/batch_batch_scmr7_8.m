@@ -1,0 +1,9 @@
+batch_group_make_labelimgTM_scmr7
+batch_group_make_labelimgTM_scmr8
+batch_tcourse_scmr7
+batch_tcourse_scmr8
+batch_stats_scmr7_group
+batch_stats_scmr8_group
+batch_stats_scmr7_group_ori
+batch_stats_scmr8_group_ori
+

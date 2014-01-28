@@ -1,0 +1,1271 @@
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/reidlab/!svn/ver/494/third/STRFPAK_5.3
+END
+checksum_from_file.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/checksum_from_file.m
+END
+displayinput2_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayinput2_GUI.fig
+END
+cal_AutoCorrSep.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_AutoCorrSep.m
+END
+read_spikeTime.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/read_spikeTime.m
+END
+small_autocorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/small_autocorr.m
+END
+sortrawDS.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/sortrawDS.m
+END
+displayppinput_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayppinput_GUI.m
+END
+get_predfilesGUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_predfilesGUI.fig
+END
+calStrfSep_script.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/calStrfSep_script.m
+END
+strfFirstGUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/strfFirstGUI.m
+END
+cal_CrossCorr_old.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_CrossCorr_old.m
+END
+uppertrivect.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/uppertrivect.m
+END
+calc_zero.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/calc_zero.m
+END
+mtparam.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/mtparam.m
+END
+cal_AutoCorr_backup.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_AutoCorr_backup.m
+END
+displayinput_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayinput_GUI.fig
+END
+rec_make_dir.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/rec_make_dir.m
+END
+add_to_STRFPAK_script.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/add_to_STRFPAK_script.m
+END
+resampsegs.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/resampsegs.m
+END
+small_autocorr4.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/small_autocorr4.m
+END
+displayinput2_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayinput2_GUI.m
+END
+movie_spacetime_stimonly.fig
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movie_spacetime_stimonly.fig
+END
+preprocessmenu_stimonly.fig
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/preprocessmenu_stimonly.fig
+END
+songwave_spectrum_stimonly.fig
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/songwave_spectrum_stimonly.fig
+END
+songwave_spectrum_pred.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/songwave_spectrum_pred.m
+END
+internal_cal_CrossCorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/internal_cal_CrossCorr.m
+END
+displaypredstrf_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displaypredstrf_GUI.fig
+END
+getparm.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/getparm.m
+END
+get_strf_checksum.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_strf_checksum.m
+END
+concat_for_checksum.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/concat_for_checksum.m
+END
+showkern.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/showkern.m
+END
+special_optionsGUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/special_optionsGUI.m
+END
+cal_Strf_cache2.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_Strf_cache2.m
+END
+calc_parameter2GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/calc_parameter2GUI.fig
+END
+checksum.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/checksum.m
+END
+displaybestfit_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displaybestfit_GUI.fig
+END
+read_spikeTime_2cell.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/read_spikeTime_2cell.m
+END
+movie_spacetime_stimonly.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movie_spacetime_stimonly.m
+END
+cal_PredStrf.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_PredStrf.m
+END
+dir_of_caches.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/dir_of_caches.m
+END
+do_cached_calc_checksum_known.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/do_cached_calc_checksum_known.m
+END
+movie_spacetime.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movie_spacetime.m
+END
+pixeldomain.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/pixeldomain.m
+END
+strfpak.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/494/third/STRFPAK_5.3/strfpak.m
+END
+load_stim.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/load_stim.m
+END
+predndisplay_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/predndisplay_GUI.fig
+END
+displayspiketrain_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayspiketrain_GUI.fig
+END
+cal_AutoCorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_AutoCorr.m
+END
+xcspacetimesep.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/xcspacetimesep.m
+END
+extract_strfpak_infoResult.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/extract_strfpak_infoResult.m
+END
+get_filesGUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_filesGUI.fig
+END
+update_total_space_used.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/update_total_space_used.m
+END
+normalize1.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/normalize1.m
+END
+cal_AutoCorr_first_try.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_AutoCorr_first_try.m
+END
+displaypredstrf_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displaypredstrf_GUI.m
+END
+copy_best_strf.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/copy_best_strf.m
+END
+is_raster_file.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/is_raster_file.m
+END
+beautify_filenames.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/beautify_filenames.m
+END
+cal_Strf_use_cache.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_Strf_use_cache.m
+END
+okbargain.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/okbargain.m
+END
+errargn.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/errargn.m
+END
+calculation_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/calculation_GUI.m
+END
+predict_one_tol_std_combo.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/predict_one_tol_std_combo.m
+END
+displayspiketrain_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayspiketrain_GUI.m
+END
+get_samp_rates.fig
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_samp_rates.fig
+END
+alien_subspace_help.txt
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/alien_subspace_help.txt
+END
+movie_pfft_pred.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movie_pfft_pred.m
+END
+promote_cache.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/promote_cache.m
+END
+special_optionsGUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/special_optionsGUI.fig
+END
+load_and_sort_stim_caches.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/load_and_sort_stim_caches.m
+END
+add_record_to_cache.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/add_record_to_cache.m
+END
+goodbargain.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/goodbargain.m
+END
+cal_cache_PredStrf_2.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_cache_PredStrf_2.m
+END
+normalizeshr.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/normalizeshr.m
+END
+SNRinfo.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/SNRinfo.m
+END
+SNRinfo_no_cutoff.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/SNRinfo_no_cutoff.m
+END
+songwave_spectrum.fig
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/songwave_spectrum.fig
+END
+loadrawfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/loadrawfile.m
+END
+do_locally_cached_calc.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/do_locally_cached_calc.m
+END
+loadstimonly_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/loadstimonly_GUI.fig
+END
+cc_plot_est.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cc_plot_est.m
+END
+displayraw_preprocessed_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayraw_preprocessed_GUI.m
+END
+displayppinput_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayppinput_GUI.fig
+END
+cal_AutoCorr_for_cache.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_AutoCorr_for_cache.m
+END
+cal_Strf_new.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_Strf_new.m
+END
+movie_pfft.fig
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movie_pfft.fig
+END
+cal_Validate.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_Validate.m
+END
+md5checksum.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/md5checksum.m
+END
+user_processed_1D.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/user_processed_1D.m
+END
+songwave_spectrum.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/songwave_spectrum.m
+END
+find_prefs_dir.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/find_prefs_dir.m
+END
+initialize_STRFPAK_script.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/initialize_STRFPAK_script.m
+END
+read_strfpak_infoResult.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/read_strfpak_infoResult.m
+END
+loadDCPrawfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/loadDCPrawfile.m
+END
+preprocessmenu.fig
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/preprocessmenu.fig
+END
+select_validation_files.fig
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/select_validation_files.fig
+END
+wavelet1d_scalogram.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/wavelet1d_scalogram.m
+END
+gaussfit.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/gaussfit.m
+END
+getnicedialoglocation.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/getnicedialoglocation.m
+END
+create_hash_cache_file.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/create_hash_cache_file.m
+END
+displaybestfit_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displaybestfit_GUI.m
+END
+cal_AVG.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_AVG.m
+END
+find_and_replace.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/find_and_replace.m
+END
+cal_CrossCorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_CrossCorr.m
+END
+STRFPAK_script.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/STRFPAK_script.m
+END
+predndisplay_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/predndisplay_GUI.m
+END
+cal_StrfSep.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_StrfSep.m
+END
+get_filesGUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_filesGUI.m
+END
+fft_AutoCrossCorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/fft_AutoCrossCorr.m
+END
+small_autocorr2.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/small_autocorr2.m
+END
+get_ntrials.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_ntrials.m
+END
+cal_ModulationSpectrum_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_ModulationSpectrum_plot.m
+END
+select_validation_files.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/select_validation_files.m
+END
+gaussgrad.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/gaussgrad.m
+END
+do_cache_cleanup_script.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/do_cache_cleanup_script.m
+END
+get_predfilesGUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_predfilesGUI.m
+END
+movie_spacetime.fig
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movie_spacetime.fig
+END
+pixeldomain.fig
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/pixeldomain.fig
+END
+movie_spacetime_pred.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movie_spacetime_pred.m
+END
+upsample.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/upsample.m
+END
+displaystimstat2d_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displaystimstat2d_GUI.m
+END
+loadDCPrawfile.fig
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/loadDCPrawfile.fig
+END
+displayinput_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayinput_GUI.m
+END
+cal_cache_PredStrf.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_cache_PredStrf.m
+END
+integ2d.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/integ2d.m
+END
+do_cache_cleanup.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/do_cache_cleanup.m
+END
+make_strf_checksum.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/make_strf_checksum.m
+END
+wavelet1d_scalogram.fig
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/wavelet1d_scalogram.fig
+END
+one_AutoCorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/one_AutoCorr.m
+END
+resamp_lowpass.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/resamp_lowpass.m
+END
+normalize.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/normalize.m
+END
+displayinfocc_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayinfocc_GUI.fig
+END
+update_guibuttons.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/update_guibuttons.m
+END
+negative_firing_rate_help.txt
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/negative_firing_rate_help.txt
+END
+displaystrf_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displaystrf_GUI.m
+END
+put_stim_checksums.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/put_stim_checksums.m
+END
+songwave_spectrum_stimonly.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/songwave_spectrum_stimonly.m
+END
+get_local_cache_dir.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_local_cache_dir.m
+END
+get_strfpak_version.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_strfpak_version.m
+END
+cal_Algorithm.fig
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_Algorithm.fig
+END
+allow_user_cache_input.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/allow_user_cache_input.m
+END
+get_f_ref.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_f_ref.m
+END
+displayrawstim_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayrawstim_GUI.m
+END
+loadstimonly_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/loadstimonly_GUI.m
+END
+predict_one_tol_std_combo_2.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/predict_one_tol_std_combo_2.m
+END
+guess_rawDS.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/guess_rawDS.m
+END
+process_DSs.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/process_DSs.m
+END
+load_function_text.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/load_function_text.m
+END
+do_locally_cached_calc_checksum_known.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/do_locally_cached_calc_checksum_known.m
+END
+make_slepian.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/make_slepian.m
+END
+calc_parameter2GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/calc_parameter2GUI.m
+END
+gencfilt.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/gencfilt.m
+END
+cal_Strf_old.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_Strf_old.m
+END
+displayinfocc_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayinfocc_GUI.m
+END
+make_big_usv.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/make_big_usv.m
+END
+cal_Strf.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/cal_Strf.m
+END
+load_DS_data.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/load_DS_data.m
+END
+initialize_outputPath.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/initialize_outputPath.m
+END
+movie_pfft.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movie_pfft.m
+END
+wavelet1d_scalogram_pred.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/wavelet1d_scalogram_pred.m
+END
+displaystimstat2d_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displaystimstat2d_GUI.fig
+END
+checksum_with_md5.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/checksum_with_md5.m
+END
+loadrawfile.fig
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/loadrawfile.fig
+END
+fast_filter_filter.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/fast_filter_filter.m
+END
+disprog.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/disprog.m
+END
+small_autocorr3.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/small_autocorr3.m
+END
+displayraw_preprocessed_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayraw_preprocessed_GUI.fig
+END
+preprocessmenu.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/preprocessmenu.m
+END
+get_total_space_used.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_total_space_used.m
+END
+tfrscalo.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/tfrscalo.m
+END
+README.TXT
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/README.TXT
+END
+create_spike_cache_file.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/create_spike_cache_file.m
+END
+initialize_dir_for_caching.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/initialize_dir_for_caching.m
+END
+displaystrf_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displaystrf_GUI.fig
+END
+create_stim_cache_file.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/create_stim_cache_file.m
+END
+calStrf_script.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/calStrf_script.m
+END
+STRFPAK_core.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/STRFPAK_core.m
+END
+user_processed_1D.fig
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/user_processed_1D.fig
+END
+wrev.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/wrev.m
+END
+preprocessmenu_pred.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/preprocessmenu_pred.m
+END
+mtchd_JN.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/mtchd_JN.m
+END
+is_good_cache_bargain.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/is_good_cache_bargain.m
+END
+displayrawstim_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayrawstim_GUI.fig
+END
+ComplexSpectrum.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/ComplexSpectrum.m
+END
+calc_contour_values.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/calc_contour_values.m
+END
+displayraw_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayraw_GUI.fig
+END
+get_samp_rates.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/get_samp_rates.m
+END
+Check_And_Load.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/Check_And_Load.m
+END
+create_hash_cache_file_PDS.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/create_hash_cache_file_PDS.m
+END
+normalizereg.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/normalizereg.m
+END
+hanning2.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/hanning2.m
+END
+strfFirstGUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/strfFirstGUI.fig
+END
+load_stim_spike.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/load_stim_spike.m
+END
+STRFPAK_batch_template.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/STRFPAK_batch_template.m
+END
+plot_stimspikeCross2d.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/plot_stimspikeCross2d.m
+END
+inputdlg2.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/inputdlg2.m
+END
+preprocessmenu_stimonly.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/preprocessmenu_stimonly.m
+END
+downsample.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/downsample.m
+END
+Caching_Readme.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/Caching_Readme.m
+END
+badbargain.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/badbargain.m
+END
+do_cached_calc.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/do_cached_calc.m
+END
+calculation_GUI.fig
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/calculation_GUI.fig
+END
+SP_script_header.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/SP_script_header.m
+END
+movpower.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/movpower.m
+END
+updownsample.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/updownsample.m
+END
+normalizetime.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/normalizetime.m
+END
+whos_test.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/whos_test.m
+END
+make_ready_stims.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/make_ready_stims.m
+END
+normalize0.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/normalize0.m
+END
+redblue.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/redblue.m
+END
+displayraw_GUI.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/434/third/STRFPAK_5.3/displayraw_GUI.m
+END

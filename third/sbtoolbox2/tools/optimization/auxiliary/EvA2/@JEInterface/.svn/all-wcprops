@@ -1,0 +1,119 @@
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface
+END
+postProcess.m
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/postProcess.m
+END
+getMessage.m
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/getMessage.m
+END
+runEvalLoopJE.m
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/runEvalLoopJE.m
+END
+isFinished.m
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/isFinished.m
+END
+getOptions.m
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/getOptions.m
+END
+optimizeWith.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/optimizeWith.m
+END
+optimize.m
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/optimize.m
+END
+getOpt.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/getOpt.m
+END
+getProgress.m
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/getProgress.m
+END
+showOptimizers.m
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/showOptimizers.m
+END
+stopOptimize.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/stopOptimize.m
+END
+setOptions.m
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/setOptions.m
+END
+setResultArrayJE.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/setResultArrayJE.m
+END
+setResultJE.m
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/setResultJE.m
+END
+getMultipleResults.m
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/getMultipleResults.m
+END
+setOpt.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/setOpt.m
+END
+getResult.m
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/getResult.m
+END
+getDesc.m
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/getDesc.m
+END
+JEInterface.m
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/optimization/auxiliary/EvA2/@JEInterface/JEInterface.m
+END

@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/reidlab/!svn/ver/623/core/reg
+END
+startRegSlave.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/623/core/reg/startRegSlave.m
+END
+dftregistration.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/503/core/reg/dftregistration.m
+END
+stackRegister.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/623/core/reg/stackRegister.m
+END
+Contents.m
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/reidlab/!svn/ver/294/core/reg/Contents.m
+END
+RegMcoreSlave.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/207/core/reg/RegMcoreSlave.m
+END
+RegMcoreSlave_shifts.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/216/core/reg/RegMcoreSlave_shifts.m
+END
+stackRegisterMulticore.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/294/core/reg/stackRegisterMulticore.m
+END
+stackRealignTifStack.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/367/core/reg/stackRealignTifStack.m
+END
+RegMulticore.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/623/core/reg/RegMulticore.m
+END
+RegMulticore_shifts.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/294/core/reg/RegMulticore_shifts.m
+END
+startRegSlaves.bat
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/184/core/reg/startRegSlaves.bat
+END

@@ -1,0 +1,76 @@
+The instruction for postmortem (fixed) image transformation
+- two methods: image transformation & centroid transformation
+
+
+A. Find anchor cells manually:
+Image J> File> Import> Image sequence> import in vivo and fixed images.
+Analyze> Measure> use point selection tool to click on the identified cell> Ctrl M to save the coordinate.
+% a sameple of anchor cells is in the mat file in the folder. Step A can be skipped.
+
+B. Image Transformation (affine):
+>> read_stack   % load the in vivo image stack (256*256)
+>> vivo=b;
+>> read_stack   % load the fixed image stack (256*256)
+>> fixed=b;
+Load anchors   % from the mat file in the folder.
+>> realign_fix_to_vivo
+>> QQ=[vivo, fixed_aligned];
+>> write_stack   % create a folder and save images.
+
+
+
+Part C requires the in vivo and fixed image stacks (512*512). Please contact Dr. Kenichi Ohki.
+C-0. Find centroids of cells:
+>> findcell3D 
+% select image source (ex. in vivo images 512*512)> enter frame range> create a folder for saving.
+% the output contains two parts. The first is a set of binary images in which cells are represented by 1s. 
+  The second is a 3D distribution of the found cells represented by their centroids. Save the centroids of the in vivo cells as centroidsv. 
+% Repeat the process in the fixed images. Save the centroids of the fixed cells as centroidsf.
+% frame range should be bigger than 20 frames; otherwise no cell will be detected due to boarder canceling.
+
+ 
+C-1. Cenroid transformation (affine):
+>> clear all; 
+Load centroids   % from the mat file in the folder.
+Load anchors   % from mat file in the folder.
+>> findcell3D_transformation_plot    
+% the output contains two figures. One is the 3D distribution of in vivo cells represented by their centroids. 
+  The other is the 3D distribution of affine transformed fixed cells represented by their centroids.
+% green dots are the anchors.
+
+Color labeling of surrounding cells in the in vivo figure:
+Use data cursor to click on the cell of interest.
+>> surrounding_vivo2    
+% in the input dialog, enter the coordinate of the cell and the radius for labeling. 
+  Cells whose x, y, and z are all smaller than the radius will be labeled.
+
+Color labeling of surrounding cells in the fixed_affined figure:
+Use data cursor to click on the cell of interest
+>> surrounding_fixed_tformed
+% in the input dialog, enter the coordinate of the cell and the radius for labeling. 
+  Cells whose x, y, and z are all smaller than the radius will be labeled.
+
+
+C-2. Cenroid transformation (affine + nonlinear CPD):
+>> clear all; 
+Load centroids   % from the mat file in the folder.
+Load anchors   % from the mat file in the folder.
+>> affine_cpd_plot    
+% the output contains three figures. The second is the 3D distribution of in vivo cells represented by their centroids. 
+  The third is the 3D distribution of affine+CPD transformed fixed cells represented by their centroids. Ignore the first one.
+% green dots are the anchors.
+
+Color labeling of surrounding cells in the in vivo figure:
+Use data cursor to click on the cell of interest
+>> surrounding_vivo2
+% in the input dialog, enter the coordinate of the cell and the radius for labeling. 
+  Cells whose x, y, and z are all smaller than the radius will be labeled.
+
+Color labeling of surrounding cells in the fixed_affined_CPDed figure:
+Use data cursor to click on the cell of interest
+>> surrounding_fixed_tformed_CPDed
+% in the input dialog, enter the coordinate of the cell and the radius for labeling. 
+  Cells whose x, y, and z are all smaller than the radius will be labeled.
+
+-Kuo-Hua Huang, 2007. 06.08
+

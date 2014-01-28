@@ -1,0 +1,5 @@
+1. Place MPFILE.OCX anywhere you want.
+2. Register MPFILE.OCX
+	Open command window
+	regsvr32  directory\MPFILE.OCX
+3. Modify batch_convertMP.m

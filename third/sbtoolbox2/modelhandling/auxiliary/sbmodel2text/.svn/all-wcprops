@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/auxiliary/sbmodel2text
+END
+reverseMoietyConservationsSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/auxiliary/sbmodel2text/reverseMoietyConservationsSB.m
+END
+setPartsToCompleteTextSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/auxiliary/sbmodel2text/setPartsToCompleteTextSB.m
+END
+convertModelToTextSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/auxiliary/sbmodel2text/convertModelToTextSB.m
+END
+setPartsToCompleteTextBCSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/auxiliary/sbmodel2text/setPartsToCompleteTextBCSB.m
+END
+convertModelToTextBCSB.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/reidlab/!svn/ver/473/third/sbtoolbox2/modelhandling/auxiliary/sbmodel2text/convertModelToTextBCSB.m
+END

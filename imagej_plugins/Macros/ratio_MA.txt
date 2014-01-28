@@ -1,0 +1,43 @@
+filtsz=getNumber("Enter filter size: ", 5);
+
+origtitle=getTitle();
+stacklen=nSlices();
+//f1=stimlen/4-1;
+f1=2;
+//fproj1="start=1 stop="+f1+" projection=[Average Intensity]";
+//sstack1="slices=1-"+f1;
+
+//setSlice(1);
+filtstr = "[filtsz]";
+
+run("Hypervolume Shuffler", "select=[unshuffle (xyzt -> xytz)] volume=2");
+unshuffle1=getImageID();
+
+f1 = 4;
+
+unshuf = getImageID();
+run("Gaussian Blur...", "sigma="+f1);
+
+run("Gaussian Blur...", "sigma=4 stack");
+
+
+
+run("Grouped ZProjector", zprogstr1);
+newname=origtitle+"_tavg.tif";
+rename(newname);
+run("Hypervolume Shuffler", shufstr2);
+unshuffle2=getImageID();
+run("Grouped ZProjector", zprogstr2);
+run("Next Slice [>]");
+run("Delete Slice");
+rename("baseline");
+baseline=getImageID();
+imageCalculator("Divide create 32-bit stack", newname,"baseline");
+rename(origtitle+"_tavgn.tif");
+run("Brightness/Contrast...");
+selectImage(unshuffle1);
+close();
+selectImage(unshuffle2);
+close();
+selectImage(baseline);
+close();

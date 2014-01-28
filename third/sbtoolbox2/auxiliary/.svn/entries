@@ -1,0 +1,95 @@
+10
+
+dir
+651
+http://svn.histed.org/reidlab/third/sbtoolbox2/auxiliary
+http://svn.histed.org/reidlab
+
+
+
+2009-03-18T20:52:29.565615Z
+473
+histed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1225dd61-b246-0410-9f97-a7d3ee56a35d
+
+plotting
+dir
+
+xml
+dir
+
+other
+dir
+
+xppaut
+dir
+
+convert2SB.m
+file
+
+
+
+
+2010-05-06T15:43:25.952198Z
+8d3047d4bef4001fcdc31f87070ca279
+2009-03-18T20:52:29.565615Z
+473
+histed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1898
+
+filehandling
+dir
+
+TEMP
+dir
+
+tempfilehandling
+dir
+
+windows
+dir
+
+stringhandling
+dir
+
+sbml
+dir
+
+modelaux
+dir
+

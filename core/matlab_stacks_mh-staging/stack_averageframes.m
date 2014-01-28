@@ -1,0 +1,44 @@
+function outStack = stack_averageframes(stack, frameNsToAverage, returnUInt8)
+%
+% Generalized way to average frames.  frameNsToAverage is a matrix of size
+% (nFramesInAverage, nOutFrames) and outStack is a stack with nOutFrames
+% number of frames.
+% 
+% frameNsToAverage can be produced by stim_make_frame_ns_lumped
+%
+%$Id: stack_averageframes.m 79 2008-01-17 17:05:40Z histed $
+
+if nargin < 3, returnUInt8 = true; end
+
+[nRows,nCols,nInFrames] = size(stack);
+[nFramesInAverage nOutFr] = size(frameNsToAverage);
+
+outStackD = repmat(double(0), [nRows,nCols,nOutFr]);
+
+%outMax = intmax(class(outStack(1,1,1)));
+
+for iF = 1:nOutFr
+    tFr = mean(stack(:,:,frameNsToAverage(:,iF)),3);
+    outStackD(:,:,iF) = tFr;
+
+    fprintf(1, '%s: %d/%d output frames done\n', ...
+            mfilename, iF, nOutFr);
+end
+
+% now rescale to uint8
+if returnUInt8
+    minV = min(outStackD(:));
+    maxV = max(outStackD(:));
+    outStack = uint8(floor(stack_rescale(outStackD, [minV maxV], [0 255])));
+end
+    
+
+% old way; actually slower
+% $$$ outStack = repmat(0*stack(1,1,1), [nRows,nCols,nOutFr]);
+% $$$ for iF = 1:nOutFr
+% $$$     tFr = mean(stack(:,:,frameNsToAverage(:,iF)),3);
+% $$$     outStack(:,:,iF) = floor(tFr);
+% $$$ 
+% $$$     fprintf(1, '%s: %d/%d output frames done\n', ...
+% $$$             mfilename, iF, nOutFr);
+% $$$ end

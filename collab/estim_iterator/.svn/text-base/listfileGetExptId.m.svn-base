@@ -1,0 +1,16 @@
+function [exptName seriesName] = listfileGetExptid(listStruct, listN)
+%
+% customize this for your listfiles
+%
+%$Id$
+
+ls = listStruct;
+
+fNames = fieldnames(ls);
+assert(all(ismember({ 'ExptName', 'SeriesEstimNum' }, fNames)), ...
+       'Missing fields in listStruct');
+
+exptName = ls.ExptName{listN};
+seriesName = sprintf('estim%d', ls.SeriesEstimNum(listN));
+
+

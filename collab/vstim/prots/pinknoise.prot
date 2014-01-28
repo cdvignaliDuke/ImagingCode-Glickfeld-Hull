@@ -1,0 +1,4 @@
+StimulusType = pinknoise
+DecimationRatio = 2
+n   len  pad npix c    sf_c sf_0 tf_0 width seed
+1   256  8   64   1.0  0.02 0.12  4.0    64   3232

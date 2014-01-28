@@ -1,0 +1,2 @@
+set DISPLAY=127.0.0.1:0.0
+"D:\PROJECTS\TOOLBOXDEVELOPMENT\WORKING VERSION\SBTOOLBOX2\auxiliary\xppaut\windows\xppaut.exe" %1 %2 %3

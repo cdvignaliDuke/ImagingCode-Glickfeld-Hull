@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous
+END
+ftestc.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/ftestc.m
+END
+mtspecgramtrigc.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtspecgramtrigc.m
+END
+mtspectrumtrigc.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtspectrumtrigc.m
+END
+spsvd.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/spsvd.m
+END
+cohmatrixc.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/cohmatrixc.m
+END
+mtspecgramc.asv
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtspecgramc.asv
+END
+createdatamatc.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/createdatamatc.m
+END
+findpeaks.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/findpeaks.m
+END
+mtspecgramc.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtspecgramc.m
+END
+mtspectrumsegc.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtspectrumsegc.m
+END
+CrossSpecMat.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/CrossSpecMat.m
+END
+mtspectrumc.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtspectrumc.m
+END
+locsmooth.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/locsmooth.m
+END
+extractdatac.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/extractdatac.m
+END
+mtdspecgramc.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtdspecgramc.m
+END
+mtdspectrumc.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtdspectrumc.m
+END
+rmlinesmovingwinc.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/rmlinesmovingwinc.m
+END
+rmlinesc.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/rmlinesc.m
+END
+runline.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/runline.m
+END
+evoked.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/evoked.m
+END
+coherencysegc.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/coherencysegc.m
+END
+coherencyc.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/coherencyc.m
+END
+mtfftc.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/mtfftc.m
+END
+locdetrend.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/locdetrend.m
+END
+cohgramc.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/424/third/chronux_0_51/continuous/cohgramc.m
+END

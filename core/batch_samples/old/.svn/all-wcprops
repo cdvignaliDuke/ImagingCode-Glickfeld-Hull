@@ -1,0 +1,245 @@
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/571/core/batch_samples/old
+END
+batch_phase_correction.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_phase_correction.m
+END
+disp_tcourse_subset.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/571/core/batch_samples/old/disp_tcourse_subset.m
+END
+junk1.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/571/core/batch_samples/old/junk1.m
+END
+junk2.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/571/core/batch_samples/old/junk2.m
+END
+ExpInfo2txt.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/571/core/batch_samples/old/ExpInfo2txt.m
+END
+batch_pixOrimaps.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_pixOrimaps.m
+END
+batch_group_realign.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_group_realign.m
+END
+convert_leica_to_tiffstack090316.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/571/core/batch_samples/old/convert_leica_to_tiffstack090316.m
+END
+batch_realign_mouse090416pc.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_realign_mouse090416pc.m
+END
+batch_cellmaps.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_cellmaps.m
+END
+convert_leica_to_tiffstack090416.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/571/core/batch_samples/old/convert_leica_to_tiffstack090416.m
+END
+batch_stats_ori_mouse090316.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_stats_ori_mouse090316.m
+END
+batch_tcourse_mouse090416pc.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_tcourse_mouse090416pc.m
+END
+batch_stats_ori_mouse090416.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_stats_ori_mouse090416.m
+END
+PCA_analysis.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/571/core/batch_samples/old/PCA_analysis.m
+END
+batch_make_labelimgTM_mouse090316.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_make_labelimgTM_mouse090316.m
+END
+batch_make_labelimgTM_mouse090416.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_make_labelimgTM_mouse090416.m
+END
+PCA_analysis_m090416_13.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/reidlab/!svn/ver/571/core/batch_samples/old/PCA_analysis_m090416_13.m
+END
+batch_make_labelimgTM_mouse090616.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_make_labelimgTM_mouse090616.m
+END
+batch_realign_mouse090205.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_realign_mouse090205.m
+END
+batch_make_avg.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_make_avg.m
+END
+getBaseFilename.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/571/core/batch_samples/old/getBaseFilename.m
+END
+batch_tcourse_mouse090205.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_tcourse_mouse090205.m
+END
+batch_pixmaps.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_pixmaps.m
+END
+modify_filelist.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/571/core/batch_samples/old/modify_filelist.m
+END
+cell_based_orimap.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/571/core/batch_samples/old/cell_based_orimap.m
+END
+make_group_filelist.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/571/core/batch_samples/old/make_group_filelist.m
+END
+batch_group_make_labelimgTM.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_group_make_labelimgTM.m
+END
+Untitled.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/571/core/batch_samples/old/Untitled.m
+END
+batch_make_labelimgTM_mouse090416pc.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_make_labelimgTM_mouse090416pc.m
+END
+batch_stats_ori_mouse090205.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_stats_ori_mouse090205.m
+END
+batch_make_labelimgTM_mouse090205.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_make_labelimgTM_mouse090205.m
+END
+batch_reconstructions.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_reconstructions.m
+END
+filenameManager.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/571/core/batch_samples/old/filenameManager.m
+END
+convert_leica_to_tiffstack.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/reidlab/!svn/ver/571/core/batch_samples/old/convert_leica_to_tiffstack.m
+END
+batch_realign_mouse090316.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_realign_mouse090316.m
+END
+batch_print_maps.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_print_maps.m
+END
+batch_realign_mouse090416.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_realign_mouse090416.m
+END
+batch_tcourse_mouse090316.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_tcourse_mouse090316.m
+END
+batch_tcourse_mouse090416.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/reidlab/!svn/ver/571/core/batch_samples/old/batch_tcourse_mouse090416.m
+END

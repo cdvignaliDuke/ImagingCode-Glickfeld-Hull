@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/reidlab/!svn/ver/625/core/multicore
+END
+deletewithsemaphores.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/204/core/multicore/deletewithsemaphores.m
+END
+multicore 2007-12-07.zip
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/174/core/multicore/multicore%202007-12-07.zip
+END
+tempdir2.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/204/core/multicore/tempdir2.m
+END
+testfun.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/204/core/multicore/testfun.m
+END
+existfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/204/core/multicore/existfile.m
+END
+startmulticoremaster.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/625/core/multicore/startmulticoremaster.m
+END
+setfilesemaphore.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/204/core/multicore/setfilesemaphore.m
+END
+removefilesemaphore.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/204/core/multicore/removefilesemaphore.m
+END
+findfiles.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/204/core/multicore/findfiles.m
+END
+multicoredemo.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/204/core/multicore/multicoredemo.m
+END
+multicore.html
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/174/core/multicore/multicore.html
+END
+startmulticoreslave.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/204/core/multicore/startmulticoreslave.m
+END
+gethostname.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/204/core/multicore/gethostname.m
+END
+getusername.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/204/core/multicore/getusername.m
+END
+existfile.c
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/174/core/multicore/existfile.c
+END

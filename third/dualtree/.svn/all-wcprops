@@ -1,0 +1,365 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/reidlab/!svn/ver/435/third/dualtree
+END
+dwt2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/435/third/dualtree/dwt2D.m
+END
+cplxdual3D_plots.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/435/third/dualtree/cplxdual3D_plots.m
+END
+denoising_dtdwt.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/reidlab/!svn/ver/435/third/dualtree/denoising_dtdwt.m
+END
+den2.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/435/third/dualtree/den2.m
+END
+afb.m
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/reidlab/!svn/ver/435/third/dualtree/afb.m
+END
+den3.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/435/third/dualtree/den3.m
+END
+main_dtdwt.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/435/third/dualtree/main_dtdwt.m
+END
+dualtree3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/435/third/dualtree/dualtree3D.m
+END
+idwt2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/idwt2D.m
+END
+dwt.m
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/reidlab/!svn/ver/435/third/dualtree/dwt.m
+END
+denC2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/denC2D.m
+END
+pm4.m
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/reidlab/!svn/ver/435/third/dualtree/pm4.m
+END
+sfb2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/435/third/dualtree/sfb2D.m
+END
+sfb2D_A.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/435/third/dualtree/sfb2D_A.m
+END
+dualtree_eg1.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/reidlab/!svn/ver/435/third/dualtree/dualtree_eg1.m
+END
+cplxdual3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/435/third/dualtree/cplxdual3D.m
+END
+idualtree2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/435/third/dualtree/idualtree2D.m
+END
+dwt3D_plots.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/435/third/dualtree/dwt3D_plots.m
+END
+FSfarras.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/435/third/dualtree/FSfarras.m
+END
+cshift3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/435/third/dualtree/cshift3D.m
+END
+idwt.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/435/third/dualtree/idwt.m
+END
+NORMCOEF.M
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/435/third/dualtree/NORMCOEF.M
+END
+bishrink.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/435/third/dualtree/bishrink.m
+END
+sfb.m
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/reidlab/!svn/ver/435/third/dualtree/sfb.m
+END
+icplxdual2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/435/third/dualtree/icplxdual2D.m
+END
+dualtree2D_plots.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/435/third/dualtree/dualtree2D_plots.m
+END
+denR2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/denR2D.m
+END
+idualtree.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/435/third/dualtree/idualtree.m
+END
+denS2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/denS2D.m
+END
+afb3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/435/third/dualtree/afb3D.m
+END
+plotwav1D.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/435/third/dualtree/plotwav1D.m
+END
+cplxdual2D_plots.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/435/third/dualtree/cplxdual2D_plots.m
+END
+dualfilt1.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/435/third/dualtree/dualfilt1.m
+END
+dwt3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/435/third/dualtree/dwt3D.m
+END
+dualtree2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/435/third/dualtree/dualtree2D.m
+END
+cden2.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/435/third/dualtree/cden2.m
+END
+denoising_dwt.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/reidlab/!svn/ver/435/third/dualtree/denoising_dwt.m
+END
+idwt3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/idwt3D.m
+END
+normaliz_coefcalc_dual_tree.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/435/third/dualtree/normaliz_coefcalc_dual_tree.m
+END
+sfb3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/435/third/dualtree/sfb3D.m
+END
+cplxdual2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/435/third/dualtree/cplxdual2D.m
+END
+main_dwt.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/435/third/dualtree/main_dwt.m
+END
+dualtree.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/435/third/dualtree/dualtree.m
+END
+dwt2D_plots.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/435/third/dualtree/dwt2D_plots.m
+END
+idualtree3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/435/third/dualtree/idualtree3D.m
+END
+cshift2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/reidlab/!svn/ver/435/third/dualtree/cshift2D.m
+END
+rden2.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/435/third/dualtree/rden2.m
+END
+soft.m
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/435/third/dualtree/soft.m
+END
+unnormcoef.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/reidlab/!svn/ver/435/third/dualtree/unnormcoef.m
+END
+icplxdual3D.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/435/third/dualtree/icplxdual3D.m
+END
+pm.m
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/reidlab/!svn/ver/435/third/dualtree/pm.m
+END
+dualtree3D_plots.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/435/third/dualtree/dualtree3D_plots.m
+END
+pm4inv.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/pm4inv.m
+END
+afb2D.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/reidlab/!svn/ver/435/third/dualtree/afb2D.m
+END
+afb2D_A.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/reidlab/!svn/ver/435/third/dualtree/afb2D_A.m
+END
+farras.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/farras.m
+END
+expand.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/expand.m
+END
+cshift.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/cshift.m
+END
+symextend.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/reidlab/!svn/ver/435/third/dualtree/symextend.m
+END
+AntonB.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/reidlab/!svn/ver/435/third/dualtree/AntonB.m
+END

@@ -1,0 +1,215 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77
+END
+dfe.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/dfe.c
+END
+rsfe.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/rsfe.c
+END
+open.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/open.c
+END
+wref.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/wref.c
+END
+close.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/close.c
+END
+rsne.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/rsne.c
+END
+rdfmt.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/rdfmt.c
+END
+backspace.c
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/backspace.c
+END
+util.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/util.c
+END
+sfe.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/sfe.c
+END
+f2c.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/f2c.h
+END
+Version.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/Version.c
+END
+err.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/err.c
+END
+f2cstart.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/f2cstart.c
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/Makefile
+END
+local.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/local.h
+END
+wsfe.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/wsfe.c
+END
+endfile.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/endfile.c
+END
+fc77.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/fc77.c
+END
+fp.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/fp.h
+END
+inquire.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/inquire.c
+END
+wsne.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/wsne.c
+END
+due.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/due.c
+END
+fmtlib.c
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/fmtlib.c
+END
+iio.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/iio.c
+END
+fio.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/fio.h
+END
+lio.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/lio.c
+END
+wrtfmt.c
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/wrtfmt.c
+END
+fmt.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/fmt.c
+END
+lread.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/lread.c
+END
+rewind.c
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/rewind.c
+END
+lio.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/lio.h
+END
+fmt.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/fmt.h
+END
+uio.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/uio.c
+END
+sue.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/reidlab/!svn/ver/473/third/sbtoolbox2/auxiliary/xppaut/unix_mac/libI77/sue.c
+END

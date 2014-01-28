@@ -1,0 +1,1 @@
+function npix = deg2pix( a, myscreen, ind )% npix = deg2pix( a, myscreen )if nargin < 3    ind =1 ;endnpix = 2 * myscreen.Distance/ myscreen.PixelSize(ind) * tan( pi/180 * a/2 );return;

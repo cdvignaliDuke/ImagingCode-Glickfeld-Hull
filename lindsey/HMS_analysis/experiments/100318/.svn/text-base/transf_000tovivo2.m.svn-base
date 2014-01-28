@@ -1,0 +1,7 @@
+[transform_000to007 rev_transform_000to007 list_pairs_000to007 dist_list_000to007]=run_D3align_L_2('G:\users\lindsey\analysisLG\100318\Pairs\pair000zoom3topair007zoom3_pos.txt', 'G:\users\lindsey\analysisLG\100318\Pairs\pair007zoom3topair000zoom3_pos.txt',10000);
+[transform_007toref rev_transform_007toref list_pairs_007toref dist_list_007toref]=run_D3align_L_2('G:\users\lindsey\analysisLG\100318\Pairs\vitro_pair007_pos.txt', 'G:\users\lindsey\analysisLG\100318\Pairs\vitro_ref_pos.txt',10000);
+[transform_vivo1tovivo2 rev_transform_vivo1tovivo2 list_pairs_vivo1tovivo2 dist_list_vivo1tovivo2]=run_D3align_L_2('G:\users\lindsey\analysisLG\100318\vivo1_pos.txt', 'G:\users\lindsey\analysisLG\100318\vivo2_pos.txt',10000);
+coeffs_000toref=calculateComboTransf('G:\users\lindsey\analysisLG\100318\Pairs\coeffs_000to007','G:\users\lindsey\analysisLG\100318\Pairs\coeffs_007toref');
+coeffs_000tovivo1=calculateComboTransf(coeffs_000toref,'G:\users\lindsey\analysisLG\100318\automated alignment\transform');
+coeffs_000tovivo2=calculateComboTransf(coeffs_000tovivo1,'G:\users\lindsey\analysisLG\100318\coeffs_vivo1tovivo2');
+[r_m_out_tr g_m_out_tr b_m_out_tr]=readTIFandtransform('G:\users\lindsey\analysisLG\100318\Pairs\Pair000_zoom3_4umsteps_RGB.tif', coeffs_000tovivo2,[256 256 75],[.9 .9 4],[.86 .86 2]);

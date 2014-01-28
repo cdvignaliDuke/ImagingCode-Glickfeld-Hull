@@ -1,0 +1,77 @@
+10
+
+dir
+651
+http://svn.histed.org/reidlab/third/sbtoolbox2/tools/optimization/auxiliary
+http://svn.histed.org/reidlab
+
+
+
+2009-03-18T20:52:29.565615Z
+473
+histed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1225dd61-b246-0410-9f97-a7d3ee56a35d
+
+bfgs
+dir
+
+isres
+dir
+
+handleLowHighBoundsSB.m
+file
+
+
+
+
+2010-05-06T15:42:34.452198Z
+d3acf922fafe93e78b16276a3d64e91d
+2009-03-18T20:52:29.565615Z
+473
+histed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2818
+
+pswarm
+dir
+
+brent
+dir
+
+EvA2
+dir
+

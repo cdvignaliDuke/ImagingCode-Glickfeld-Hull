@@ -1,0 +1,30 @@
+function outStack = stack_groupproject(stack, nFrInGroup)
+%
+% computes average only of same class of input stack - no 32-bit math
+% supported now
+% 
+%$Id$
+
+[nRows,nCols,nInFrames] = size(stack);
+
+nOutFr = floor(nInFrames/nFrInGroup);
+
+%outDouble = repmat(0, [nRows,nCols,nOutFr]);
+% $$$ outMin = 0;
+% $$$ outMax = intmax(class(outStack(1,1,1)));
+
+outStack = repmat(0*stack(1,1,1), [nRows,nCols,nOutFr]);
+
+for iF = 1:nOutFr
+    inFrStart = (iF-1)*nFrInGroup + 1;
+    inFrNs = inFrStart:(inFrStart + nFrInGroup - 1);
+    tDoubleFr = mean(stack(:,:,inFrNs),3);
+    outStack(:,:,iF) = floor(tDoubleFr);
+
+    fprintf(1, '%s: %d/%d output frames done\n', ...
+            mfilename, iF, nOutFr);
+end
+
+
+
+    

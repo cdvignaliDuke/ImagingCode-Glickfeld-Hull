@@ -1,0 +1,1 @@
+function a = pix2deg( npix, myscreen, ind )% a = pix2deg( npix, myscreen )a = 2 * 180/pi*atan(npix / (2 * myscreen.Distance/ myscreen.PixelSize(ind)));return;

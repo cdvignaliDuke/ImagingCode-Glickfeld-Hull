@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/reidlab/!svn/ver/349/collab/estim-core
+END
+fig_stim_cellmeans.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/349/collab/estim-core/fig_stim_cellmeans.m
+END
+make_stim_avgmovie.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/297/collab/estim-core/make_stim_avgmovie.m
+END
+make_stim_pixmap.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/341/collab/estim-core/make_stim_pixmap.m
+END
+sub_kern_risefall.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/205/collab/estim-core/sub_kern_risefall.m
+END
+make_stim_cellmaskfig.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/349/collab/estim-core/make_stim_cellmaskfig.m
+END
+mouse080311estim6.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/reidlab/!svn/ver/204/collab/estim-core/mouse080311estim6.m
+END
+clipclip_zprof.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/reidlab/!svn/ver/95/collab/estim-core/clipclip_zprof.m
+END
+stim_make_frame_ns.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/320/collab/estim-core/stim_make_frame_ns.m
+END

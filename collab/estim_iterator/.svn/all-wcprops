@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/reidlab/!svn/ver/522/collab/estim_iterator
+END
+listfileGetExptId.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/191/collab/estim_iterator/listfileGetExptId.m
+END
+readStackComplete.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/394/collab/estim_iterator/readStackComplete.m
+END
+listfileGetEntry.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/394/collab/estim_iterator/listfileGetEntry.m
+END
+iter_quick_test.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/348/collab/estim_iterator/iter_quick_test.m
+END
+listfileGetAllData.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/522/collab/estim_iterator/listfileGetAllData.m
+END
+subGetDataPath.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/394/collab/estim_iterator/subGetDataPath.m
+END
+listfileGetStack.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/267/collab/estim_iterator/listfileGetStack.m
+END
+estimBaselineAnal2.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/348/collab/estim_iterator/estimBaselineAnal2.m
+END
+iterateStacksQuick.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/348/collab/estim_iterator/iterateStacksQuick.m
+END
+readListfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/reidlab/!svn/ver/394/collab/estim_iterator/readListfile.m
+END
+subLeicaGuessChanNos.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/reidlab/!svn/ver/394/collab/estim_iterator/subLeicaGuessChanNos.m
+END
+listfile.csv
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/394/collab/estim_iterator/listfile.csv
+END
+test.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/reidlab/!svn/ver/189/collab/estim_iterator/test.m
+END
+estimBaselineAnal.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/225/collab/estim_iterator/estimBaselineAnal.m
+END
+subReadRedImage.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/reidlab/!svn/ver/383/collab/estim_iterator/subReadRedImage.m
+END

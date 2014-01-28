@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/src
+END
+aind.f
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/src/aind.f
+END
+util.f
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/src/util.f
+END
+solveQPcompact.f
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/src/solveQPcompact.f
+END
+solveQPg.f
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/src/solveQPg.f
+END
+aindg.f
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/src/aindg.f
+END
+solveQPcompactg.f
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/src/solveQPcompactg.f
+END
+solveQP.f
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/reidlab/!svn/ver/473/third/sbtoolbox2/tools/solvers/auxiliary/quadprog/src/solveQP.f
+END

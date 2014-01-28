@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/reidlab/!svn/ver/647/third/CellSort%201.1
+END
+CellsortICA.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortICA.m
+END
+CellsortICA_Optimize.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortICA_Optimize.m
+END
+CellsortSegmentation.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortSegmentation.m
+END
+CellsortFindspikes.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortFindspikes.m
+END
+CellsortPCA.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortPCA.m
+END
+CellsortPlotPCspectrum.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortPlotPCspectrum.m
+END
+README.rtf
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/reidlab/!svn/ver/647/third/CellSort%201.1/README.rtf
+END
+CellsortChoosePCs.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortChoosePCs.m
+END
+CellsortApplyFilter.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortApplyFilter.m
+END
+CellsortICAplot.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/reidlab/!svn/ver/647/third/CellSort%201.1/CellsortICAplot.m
+END
