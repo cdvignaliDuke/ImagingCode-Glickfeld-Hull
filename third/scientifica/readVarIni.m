@@ -3,9 +3,10 @@ function varvalue=readVarIni(inistring,variablename);
 ind1=regexp([inistring ' '],variablename);
 ind2=regexp(inistring,'\n');
 
-if isempty(ind1)
-    varvalue=[];
-else
+varvalue=[];
+
+if ~isempty(ind1)
+
     varline=inistring(ind1(1):(ind2(ind2>ind1(1))));
     
     
@@ -22,9 +23,6 @@ else
             end
         end
     end
+    
+  
 end
-
-
-
-
-

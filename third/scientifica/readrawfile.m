@@ -53,7 +53,7 @@ if ~exist('frames') || isempty(frames)
     frames=framecount;   
 end
 
-if strcmp(recorded_ch,'both')
+if strcmp(recorded_ch,'both') || length(recorded_ch)<3
     
     fid=fopen(filename,'r','b');
     if exist('skipframes') && ~isempty(skipframes)
