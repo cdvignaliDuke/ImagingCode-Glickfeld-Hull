@@ -4,11 +4,11 @@ final_rate = 3;
 down = orig_rate./final_rate;
 nON = 150./down;
 nOFF = 150./down;
-nStim = 6;
-Az = [-30 0 30];
-El = [15 -15];
+nStim = 3;
+Az = [0 15 30];
+El = [0];
 
-date = '140116';
+date = '140209';
 mouse = 'G008';
 
 %% load data
