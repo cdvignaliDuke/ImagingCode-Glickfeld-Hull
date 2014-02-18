@@ -6,15 +6,20 @@ nON = 150./down;
 nOFF = 150./down;
 pre_win = [floor(0.75*nOFF) nOFF];
 post_win = [nOFF+1 nOFF+nON];
-nCond = 3;
-Az = [0 15 30];
-El = [0];
+nCond = 5;
+TF = [1 2 4 8 16];
+SF = [0.32 0.16 0.08 0.04 0.02];
+% Az = [0 15 30];
+% El = [0];
 
 date = '140209';
 mouse = 'G008';
 
 %% load data
 data = readrawfile;
+
+%if two-channel, choose just green channel
+data = data(:,:,:,1);
 
 %% reshape data
 %average signals in time
@@ -35,7 +40,7 @@ clear data_sub
 %% create resp matrix
 %if you need to resort by trial type for randomization, do it first.
 %code assumes same number of reps per stimulus
-
+siz = size(data_reg);
 nRep = size(data_reg,3)./((nON+nOFF)*nCond);
 roi_stim = zeros(siz(1), siz(2), nOFF+nON,nRep);
 start = 1;
@@ -99,7 +104,7 @@ ttest_mask(235:end,1:end) = 0;
 figure; imagesq(ttest_mask);
         
 %% create dF/F movie to find active boutons
-nRep = size(data_reg,3)./((nON+nOFF)*nStim);
+nRep = size(data_reg,3)./((nON+nOFF)*nCond);
 
 %find off and on frames
 base_ind = zeros(1,(length(pre_win(1):pre_win(2))*nCond*nRep));
@@ -132,10 +137,10 @@ local_max = zeros(siz(1), siz(2));
 border = 5;
 for iy = border:(siz(1)-border);
     for ix = border:(siz(2)-border);            
-        sub = stack_max_interp_sm(iy-2:iy+2,ix-2:ix+2);
-        sub_long = reshape(sub, [1 25]);
+        sub = stack_max_interp_sm(iy-3:iy+3,ix-3:ix+3);
+        sub_long = reshape(sub, [1 49]);
         [sub_long_order ind_order] = sort(sub_long);
-        if ind_order(end)==13
+        if ind_order(end)==25
             local_max(iy,ix) = 1;
         end
     end
@@ -176,4 +181,54 @@ for ipix = 1:n_pix
 end
 figure; tcOffsetPlot(data_TC)
 
+%% plot responses
+stim_mat = zeros(nCond,nRep,length(pre_win(1):post_win(2)));
+for iRep = 1:nRep
+    for iCond = 1:nCond 
+        stim_mat(iCond,iRep,:) = pre_win(1)+((iCond-1)*(nON+nOFF))+((iRep-1)*((nON+nOFF)*nCond)): nOFF+nON +((iCond-1)*(nON+nOFF))+((iRep-1)*((nON+nOFF)*nCond));
+    end
+end
 
+%for retinotopy
+for iCell = 7:15;
+    figure;
+    for iCond = 1:nCond
+        subplot(1,nCond,iCond)
+        rep_mat = zeros(length(pre_win(1):post_win(2)),nRep);
+        for iRep = 1:nRep
+            plot(pre_win(1)-post_win(1):post_win(2)-post_win(1),data_TC(squeeze(stim_mat(iCond,iRep,:))',iCell), 'k');
+            hold on
+            rep_mat(:,iRep) = data_TC(squeeze(stim_mat(iCond,iRep,:))',iCell);
+        end
+        plot(pre_win(1)-post_win(1):post_win(2)-post_win(1), mean(rep_mat,2), 'r');
+        hold on
+        ylim([min(data_TC(:,iCell),[],1) max(data_TC(:,iCell),[],1)])
+        stim_Az = rem(iCond,size(Az,2));
+        if stim_Az == 0
+            stim_Az = size(Az,2);
+        end
+        stim_El= ceil(iCond./size(Az,2));
+        title(['Az = ' num2str(Az(1,stim_Az)) ' El = ' num2str(El(1,stim_El))]);
+    end
+end
+
+%for speed
+for iCell = 7:15;
+    figure;
+    for iCond = 1:nCond
+        subplot(1,nCond,iCond)
+        rep_mat = zeros(length(pre_win(1):post_win(2)),nRep);
+        for iRep = 1:nRep
+            plot(pre_win(1)-post_win(1):post_win(2)-post_win(1),data_TC(squeeze(stim_mat(iCond,iRep,:))',iCell), 'k');
+            hold on
+            rep_mat(:,iRep) = data_TC(squeeze(stim_mat(iCond,iRep,:))',iCell);
+        end
+        plot(pre_win(1)-post_win(1):post_win(2)-post_win(1), mean(rep_mat,2), 'r');
+        hold on
+        ylim([min(data_TC(:,iCell),[],1) max(data_TC(:,iCell),[],1)])
+        stim_TF = TF(iCond);
+        stim_SF= SF(iCond);
+        stim_speed = stim_TF./stim_SF;
+        title(['Speed = ' num2str(stim_speed)]);
+    end
+end
