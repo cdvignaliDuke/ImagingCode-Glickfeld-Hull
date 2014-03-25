@@ -71,7 +71,13 @@ if strcmp(recorded_ch,'both') || length(recorded_ch)<3
                     refreshdisp(str,prevstr,fr);
                     prevstr=str;
                 end
+                try
                 data(:,fr)=fread(fid,prod([x y]),[num2str(prod([x y])) '*float32=>float32'],4*prod([x y]));
+                catch
+                    fr=fr-1;
+                    data=data(:,1:fr);
+                    break
+                end     
             end
             data=reshape(data,[x y fr]);
             
@@ -85,7 +91,13 @@ if strcmp(recorded_ch,'both') || length(recorded_ch)<3
                     refreshdisp(str,prevstr,fr);
                     prevstr=str;
                 end
+                try
                 data(:,fr)=fread(fid,prod([x y]),[num2str(prod([x y])) '*float32=>float32'],4*prod([x y]));
+                catch
+                    fr=fr-1;
+                    data=data(:,1:fr);
+                    break
+                end     
             end
             data=reshape(data,[x y fr]);
             
@@ -99,7 +111,13 @@ if strcmp(recorded_ch,'both') || length(recorded_ch)<3
                     refreshdisp(str,prevstr,fr);
                     prevstr=str;
                 end
+                try
                 data(:,fr)=fread(fid,prod([x y]),[num2str(prod([x y])) '*float32=>float32']);
+                catch
+                    fr=fr-1;
+                    data=data(:,1:fr);
+                    break
+                end     
             end
             data=reshape(data,[x y/2 2 fr]);
             data=permute(data,[1 2 4 3]);
@@ -119,7 +137,13 @@ if strcmp(recorded_ch,'both') || length(recorded_ch)<3
                         refreshdisp(str,prevstr,fr);
                         prevstr=str;
                     end
+                    try
                     data(:,fr)=fread(fid,prod([x y]),[num2str(prod([x y])) '*float32=>float32']);
+                    catch
+                    fr=fr-1;
+                    data=data(:,1:fr);
+                    break
+                end     
                 end
                 data=reshape(data,[x y fr]);
                
