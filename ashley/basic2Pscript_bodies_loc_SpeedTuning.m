@@ -16,8 +16,12 @@ El = [15];
 Dir = [0 45 90 135 180 225 270 315];
 trial_Dir = cell2mat(input.tGratingDirectionDeg);
 
-date = '140317';
+date = '140318';
 mouse = 'G023';
+
+%% IF CONCATINATING DATA SETS USE LOC SECTION OF 'basic2Pscript_ConcatinateFiles.m' 
+                            %FROM THIS POINT UNTIL END OF 'Set threshold
+                            %for running'
 %% Sum-up locomotion data for each trial and calculate speed (Stim ON only)
 
 %create a matrix including all counters
@@ -44,7 +48,9 @@ trialon_norun = (trialon_avgspeed_mat<4);
 norunTrials = find(trialon_norun);
 trialon_whichrun = trialon_avgspeed_mat(trialon_run);
 
-%% load 2P imaging data
+%% load 2P imaging data - IF CONCATINATING DATA SETS USE 2P SECTION OF 'basic2Pscript_ConcatinateFiles.m' 
+                            %FROM THIS POINT UNTIL END OF 'inde stim types' 
+    
 data = readrawfile;
 
 %% reshape data
@@ -63,9 +69,9 @@ figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
 clear data_sub
-
-%% create dF/F stack
+%%
 nRep = size(data_reg,3)./((nON+nOFF)*nStim);
+%% create dF/F stack
 
 %find off and on frames
 nOFF_ind = zeros(1,(nOFF*nStim*nRep));
@@ -90,7 +96,7 @@ end
 %average nON and nOFF for specific trials
 siz = size(data_reg);
 trial_nOFF_avg = zeros(siz(1), siz(2) ,size(nOFF_ind_firsts,2));
-trial_nOFF_avg = zeros(siz(1), siz(2) ,size(nON_ind_firsts,2));
+trial_non_avg = zeros(siz(1), siz(2) ,size(nON_ind_firsts,2));
 for itrial = 1:(nStim*nRep)
     trial_nOFF_avg(:,:,itrial) = mean(data_reg(:,:,(nOFF_ind_firsts(itrial): (nOFF_ind_firsts(itrial)+nOFF)-1)),3);
 end
@@ -104,7 +110,12 @@ dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
 max_dF = max(dFoverF_data,[],3);
 figure; imagesq(max_dF); colormap(gray)
 
-%calculate dF/F on a trial-by-trial basis
+%index stim types
+stim_ind = zeros(nStim,nRep);
+for idir = 1:nStim
+    stim_ind(idir,:) = find(trial_Dir==Dir(idir));
+end
+%% calculate dF/F on a trial-by-trial basis
 trial_dF_data = zeros(siz(1), siz(2) ,(nStim*nRep));
 for itrial =  1:(nStim*nRep)
     trial_dF_data(:,:,itrial) = trial_nON_avg(:,:,itrial)-trial_nOFF_avg(:,:,itrial);
@@ -125,9 +136,6 @@ for idir = 1:nStim
     stim_dFoverF_data(:,:,idir) = mean(trial_dFoverF_data(:,:,stim_ind(idir,:)),3);
 end
 
-iStim = 2;
-figure;imagesq(stim_dFoverF_data(:,:,iStim)); colormap(gray)
-
 allstim_max_dF = max(stim_dFoverF_data,[],3);
 figure;imagesq(allstim_max_dF); colormap(gray)
 %% use max dF/F to find ROIS
@@ -147,7 +155,9 @@ for icell = 1:nCell
 end;
 
 %% combine locomotion matrix with frame indices and dF/F means for each cell found
-trialon_LocMatrix = [trialNumbers', trialon_avgspeed_mat',trialon_run',nON_ind_firsts', trial_Dir',trialon_dFoverFcell];
+
+ trialon_LocMatrix = [trialNumbers', trialon_avgspeed_mat',trialon_run',nON_ind_firsts', trial_Dir',trialon_dFoverFcell];
+%trialon_LocMatrix = [trialNumbers', trialon_avgspeed_matAll',trialon_run',nON_ind_firsts', trial_Dir_All',trialon_dFoverFcell];
 
 %% which cells are modulated by which stimulus
 trialon_dFoverFcell_Dir = [trial_Dir',trialon_dFoverFcell(:,:)];
@@ -166,12 +176,12 @@ for icell = 1:nCell
 end
 
 % find cells' preferred orientation
-[cell_prefstim_dF, cell_prefstim_ind] = max(trialon_dFoverFcell_Diravg);
+[cell_prefstim_dF_run, cell_prefstim_ind_run] = max(trialon_dFoverFcell_Diravg);
 
-cell_prefstim_type = zeros(size(cell_prefstim_ind));
-cell_prefstim_type = Dir(cell_prefstim_ind);
-cell_pref135_ind = find(cell_prefstim_type==135);
-cell_pref45_ind = find(cell_prefstim_type==45);
+cell_prefstim_type_run = zeros(size(cell_prefstim_ind_run));
+cell_prefstim_type_run = Dir(cell_prefstim_ind_run);
+cell_pref135_ind = find(cell_prefstim_type_run==135);
+cell_pref45_ind = find(cell_prefstim_type_run==45);
 
 %% plot cells dF/F response by orientation 
 figure;
@@ -209,7 +219,7 @@ for icell = 1:nCell
     end
 end
 
-% plot no run trials
+% plot run vs. no run trials - all cells
 figure;
 for icell = 1:nCell
     plot(Dir, trialon_norun_dFoverFcell_Diravg(:,icell),'r');
@@ -221,24 +231,79 @@ for icell = 1:nCell
     hold on
 end
     
+
 %% cells' preferred stim
-% find cells' preferred orientation
-[cell_prefstim_dF, cell_prefstim_ind] = max(trialon_dFoverFcell_Diravg);
+% find cells' preferred orientation - run
+[cell_prefstim_dF_run, cell_prefstim_ind_run] = max(trialon_run_dFoverFcell_Diravg);
 
-cell_prefstim_type = Dir(cell_prefstim_ind);
+cell_prefstim_type_run = Dir(cell_prefstim_ind_run);
 
-% total number of cells that prefer each stimulus condition
+% total number of cells that prefer each stimulus condition - run
 for istim = 1:nStim
-    cell_prefX_ind = find(cell_prefstim_type==Dir(istim));
-    cell_totalpref(1,istim) = size(cell_prefX_ind,2);
+    cell_prefX_ind_run = find(cell_prefstim_type_run==Dir(istim));
+    cell_totalpref_run(1,istim) = size(cell_prefX_ind_run,2);
 end
 
-X = find(cell_prefstim_type==135)
+% plot run vs. no run trials - cells averaged by preferred stimulus - run
+cell_prefstim_avgR_run = zeros(nStim,nStim);
+for istimR = 1:nStim
+    for istim = 1:nStim
+        cell_prefstim_X = find(cell_prefstim_ind_run==istimR);
+        cell_prefstim_avgR_run(istim,istimR) = mean(trialon_run_dFoverFcell_Diravg(istim,cell_prefstim_X));
+    end
+end
+
+% find cells' preferred orientation - no run
+[cell_prefstim_dF_norun, cell_prefstim_ind_norun] = max(trialon_norun_dFoverFcell_Diravg);
+
+cell_prefstim_type_norun = Dir(cell_prefstim_ind_norun);
+
+% total number of cells that prefer each stimulus condition - norun
+for istim = 1:nStim
+    cell_prefX_ind_norun = find(cell_prefstim_type_norun==Dir(istim));
+    cell_totalpref_norun(1,istim) = size(cell_prefX_ind_norun,2);
+end
+
+% plot run vs. no run trials - cells averaged by preferred stimulus - norun
+cell_prefstim_avgR_norun = zeros(nStim,nStim);
+for istimR = 1:nStim
+    for istim = 1:nStim
+        cell_prefstim_X = find(cell_prefstim_ind_norun==istimR);
+        cell_prefstim_avgR_norun(istim,istimR) = mean(trialon_norun_dFoverFcell_Diravg(istim,cell_prefstim_X));
+    end
+end
+
 figure;
-plot(Dir,trialon_norun_dFoverFcell_Diravg(:,X),'r')
+for istim = 1:nStim
+    plot(Dir, cell_prefstim_avgR_run(istim,:));
+    hold on
+end
+hold on
+for istim = 1:nStim
+    plot(Dir, cell_prefstim_avgR_norun(istim,:),'r');
+    hold on
+end
+
+X = find(cell_prefstim_type_run==135);
+Y = trialon_norun_dFoverFcell_Diravg(:,X);
+nPref = size(Y,2);
+figure;
+plot(Dir,Y,'-r')
+hold on
+for icell = 1:nPref
+x(:,icell) = find(Y(:,icell)~=0);
+plot(Dir,trialon_norun_dFoverFcell_Diravg(x,X),'or')
 hold on
 plot(Dir,trialon_run_dFoverFcell_Diravg(:,X),'b')
 
+%% save some figs
+    sName = strcat('C:\Users\ashley\Documents\mworks\Figs\fig-', num2str(mouse),'-', num2str(date),'-','details', '.pdf');
+    epParams = { gcf, sName, ...
+             'FileFormat', 'pdf', ...
+             'Size', [12 12], ...
+             'PrintUI', false };
+         exportfig_print(epParams{:});
+         close
 %% analyze by stimulus type
 %find indices for each stim type
 stim_mat = zeros(nStim,nRep,(nON+nOFF));
@@ -272,20 +337,3 @@ for iCell = 3;
         title(['Az = ' num2str(Az(1,stim_Az)) ' El = ' num2str(El(1,stim_El))]);
     end
 end
-%% find start off and on frames for locomotion pulses
-data_TC
-sitm_mat
-trialon_avgspeed_mat
-stim_mat_locperrep
-stim_mat_locperon
-%find locomotion for each stim type and each repeat
-stim_mat_locperrep = zeros(nStim,1,nRep);
-for iRep = 1:nRep
-    for iStim = 1:nStim   
-        stim_mat_locperrep(iStim,:,iRep) = trialon_avgspeed_mat(iStim + (nStim*(iRep-1)));
-    end
-end
-
-stim_mat_locperon = zeros((nStim*nRep),nON);
-
-%1+((iStim-1)*(nON+nOFF))+((iRep-1)*((nON+nOFF)*nStim)): nON + nOFF + ((iStim-1)*(nON+nOFF))+((iRep-1)*((nON+nOFF)*nStim));
