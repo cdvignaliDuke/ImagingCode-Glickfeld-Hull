@@ -6,9 +6,15 @@ nON = 150./down;
 nOFF = 150./down;
 pre_win = [floor(0.75*nOFF) nOFF];
 post_win = [nOFF+1 nOFF+nON];
-nCond = 5;
-TF = [1 2 4 8 16];
-SF = [0.32 0.16 0.08 0.04 0.02];
+
+dirs = unique(cell2mat(input.tGratingDirectionDeg));
+nCond = length(dirs);
+
+alpha = .05./(nCond);
+b= 5;
+pix = 5;
+bouton_diam = 5;
+
 % Az = [0 15 30];
 % El = [0];
 
@@ -31,95 +37,88 @@ clear data
 data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 %% register
-data_avg = mean(data_sub(:,:,200:210),3);
+data_avg = mean(data_sub(:,:,1:100),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
 clear data_sub
 
-%% create resp matrix
-%if you need to resort by trial type for randomization, do it first.
-%code assumes same number of reps per stimulus
+%% sort data
+nRep_mat = zeros(1,nCond);
 siz = size(data_reg);
-nRep = size(data_reg,3)./((nON+nOFF)*nCond);
-roi_stim = zeros(siz(1), siz(2), nOFF+nON,nRep);
+data_sort = zeros(siz);
 start = 1;
-rep = 1;
-for iCond = 1:nCond; 
-    for iRep = 1:nRep;
-        roi_stim(:,:,:,rep) = data_reg(:,:,start:start-1+nON+nOFF);
+for iCond = 1:nCond
+    ids = find(cell2mat(input.tGratingDirectionDeg) == dirs(iCond));
+     nRep_mat(1,iCond) = length(ids);
+    for iRep = 1:length(ids)
+        trial = ids(iRep);
+        data_sort(:,:,start:start+nON+nOFF-1) = data_reg(:,:,1+((trial-1)*(nON+nOFF)):trial*(nON+nOFF));
         start = start+nON+nOFF;
-        rep = rep+1;
     end
 end
-resp_off = squeeze(mean(roi_stim(:,:,pre_win(1):pre_win(2),:),3));
-resp_on = squeeze(mean(roi_stim(:,:,post_win(1):post_win(2),:),3));
+
+%% create resp structure
+resp = struct;
+start = 1;
+for iCond = 1:nCond; 
+    resp(iCond).on = [];
+    resp(iCond).off = [];
+    roi_stim = zeros(siz(1),siz(2),nOFF+nON,nRep_mat(1,iCond));
+    for iRep = 1:nRep_mat(1,iCond);
+        roi_stim(:,:,:,iRep) = data_sort(:,:,start:start-1+nON+nOFF);
+        start = start+nON+nOFF;
+    end
+    resp(iCond).off = squeeze(mean(roi_stim(:,:,pre_win(1):pre_win(2),:),3));
+    resp(iCond).on = squeeze(mean(roi_stim(:,:,post_win(1):post_win(2),:),3));
+end
 
 %% pixel based ttest
-
-alpha = .05./(nCond);
 Info_ttest_mat = zeros(siz(1),siz(2),nCond);
-b= 5;
 
 f1 = fspecial('average');
-siz = size(resp_on);
-resp_on_long = reshape(resp_on, [siz(1) siz(2)*siz(3)]);
-resp_off_long = reshape(resp_off, [siz(1) siz(2)*siz(3)]);
-
-resp_on_sm = reshape(filter2(f1,resp_on_long),[siz(1) siz(2) siz(3)]);
-resp_off_sm = reshape(filter2(f1,resp_off_long),[siz(1) siz(2) siz(3)]);
-
-clear resp_on
-clear resp_off
-clear resp_on_long
-clear resp_off_long
+for iCond = 1:nCond
+    resp(iCond).on_long = reshape(resp(iCond).on, [siz(1) siz(2)*nRep_mat(1,iCond)]);
+    resp(iCond).off_long = reshape(resp(iCond).off, [siz(1) siz(2)*nRep_mat(1,iCond)]);
+    resp(iCond).on_sm = reshape(filter2(f1,resp(iCond).on_long),[siz(1) siz(2) nRep_mat(1,iCond)]);
+    resp(iCond).off_sm = reshape(filter2(f1,resp(iCond).off_long),[siz(1) siz(2) nRep_mat(1,iCond)]);
+end
 
 for iy = b+1:siz(1)-b
     fprintf([num2str(iy) ' '])
     for ix = b+1:siz(2)-b
-        start = 1;
         p_ttestB = zeros(1,1,nCond);
-        for iCond = 1:nCond
-            [h_ttestB1,p_ttestB1] = ttest(resp_off_sm(iy,ix,start:start-1+nRep),resp_on_sm(iy,ix,start:start-1+nRep),alpha,'left');
+        for iCond = 1:nCond;
+            [h_ttestB1,p_ttestB1] = ttest(resp(iCond).off_sm(iy,ix,:),resp(iCond).on_sm(iy,ix,:),alpha,'left');
             p_ttestB(1,1,iCond) = p_ttestB1;
-            start = start+nRep;
         end
     Info_ttest_mat(iy,ix,:) = p_ttestB;
     end
 end
 
-clear resp_on_sm
-clear resp_off_sm
-
-siz = size(Info_ttest_mat);
-Info_ttest_mat_long = reshape(Info_ttest_mat, [siz(1) siz(2)*siz(3)]);
-ttest_smooth = reshape(filter2(f1,Info_ttest_mat_long), [siz(1) siz(2) siz(3)]);
+Info_ttest_mat_long = interp2(reshape(Info_ttest_mat, [siz(1) siz(2)*nCond]));
+Info_ttest_smooth = filter2(f1,Info_ttest_mat_long);
+siz_interp = size(Info_ttest_smooth);
+Xi = 1:2:siz_interp(1);
+Yi = 1:2:siz_interp(2);
+ttest_smooth_siz = interp2(Info_ttest_smooth, Yi', Xi);
+ttest_smooth = min(reshape(ttest_smooth_siz, [siz(1) siz(2) nCond]),[],3);
 ttest_mask = min(ttest_smooth,[],3) < alpha;
 
-ttest_mask(1:5,1:end) = 0;
-ttest_mask(1:end, 1:5) = 0;
-ttest_mask(1:end, 251:end) = 0;
-ttest_mask(235:end,1:end) = 0;
+ttest_mask(1:b,1:end) = 0;
+ttest_mask(1:end, 1:b) = 0;
+ttest_mask(1:end, siz(2)-b:end) = 0;
+ttest_mask(siz(1)-b:end,1:end) = 0;
 
 figure; imagesq(ttest_mask);
         
-%% create dF/F movie to find active boutons
-nRep = size(data_reg,3)./((nON+nOFF)*nCond);
-
-%find off and on frames
-base_ind = zeros(1,(length(pre_win(1):pre_win(2))*nCond*nRep));
-start = 1;
-for iCond = 1:(nRep*nCond)
-    base_ind(1, start:start+length(pre_win(1):pre_win(2))-1) = pre_win(1)+((iCond-1)*(nON+nOFF)):pre_win(2) + ((iCond-1)*(nOFF+nON));
-    start = start+length(pre_win(1):pre_win(2));
+%% find dF/F for iCond to find active boutons
+resp_dFoverF = zeros(siz(1),siz(2),nCond);
+for iCond = 1:nCond
+    resp_dFoverF(:,:,iCond) = (mean(resp(iCond).on,3)-mean(resp(iCond).off,3))./(mean(resp(iCond).off,3));
 end
 
-base_avg = mean(data_reg(:,:,base_ind),3);
-
-%dF/F
-dF_data = bsxfun(@minus,data_reg, base_avg);
-dFoverF_data = bsxfun(@rdivide, dF_data, base_avg);
-max_dF = max(dFoverF_data,[],3);
+max_dF = max(resp_dFoverF,[],3);
 figure; imagesq(max_dF); colormap(gray)
 
 %% use max dF/F to find ROIS- local maxima
@@ -132,53 +131,44 @@ Xi = 1:2:siz2(1);
 Yi = 1:2:siz2(2);
 stack_max_interp_sm = interp2(max_interp_sm, Yi', Xi);
 
-siz = size(max_dF);
 local_max = zeros(siz(1), siz(2));
-border = 5;
-for iy = border:(siz(1)-border);
-    for ix = border:(siz(2)-border);            
-        sub = stack_max_interp_sm(iy-3:iy+3,ix-3:ix+3);
-        sub_long = reshape(sub, [1 49]);
+for iy = b+1:(siz(1)-b);
+    for ix = b+1:(siz(2)-b);            
+        sub = stack_max_interp_sm(iy-pix:iy+pix,ix-pix:ix+pix);
+        sub_long = reshape(sub, [1 (pix*2+1)^2]);
         [sub_long_order ind_order] = sort(sub_long);
-        if ind_order(end)==25
+        if ind_order(end)==ceil(((pix*2+1)^2)/2)
             local_max(iy,ix) = 1;
         end
     end
 end
-local_max_long = reshape(local_max, [siz(1)*siz(2) 1]);
-ind_local_max = find(local_max_long==1);
+ind_local_max = find(local_max == 1);
 figure; imagesq(local_max);
 
-siz = size(Info_ttest_mat);
-Info_ttest_mat_long = interp2(reshape(Info_ttest_mat, [siz(1) siz(2)*siz(3)]));
-Info_ttest_smooth = filter2(f1,Info_ttest_mat_long);
-siz_interp = size(Info_ttest_smooth);
-Xi = 1:2:siz_interp(1);
-Yi = 1:2:siz_interp(2);
-ttest_smooth_siz = interp2(Info_ttest_smooth, Yi', Xi);
-ttest_smooth = min(reshape(ttest_smooth_siz, [siz(1) siz(2) siz(3)]),[],3);
+%% combine ttest and local maxima
 ttest_long = reshape(ttest_smooth, [siz(1)*siz(2) 1]);
-alpha = 0.05/nCond;
 ind_highP = find(ttest_long(ind_local_max,:)>=(alpha));
 local_max_long(ind_local_max(ind_highP,:),:) = 0;
+local_max_sig = reshape(local_max_long, [siz(1) siz(2)]);
 
-local_max = reshape(local_max_long, [siz(1) siz(2)]);
-n_pix = sum(sum(local_max));
-[i, j] = find(local_max ==1);
+n_pix = sum(sum(local_max_sig));
+[i, j] = find(local_max_sig ==1);
 
 %expand local maxima
-FOV = zeros(size(local_max));
+pix_add = floor(bouton_diam/2);
+FOV = zeros(size(local_max_sig));
 for ipix = 1:n_pix
-    FOV(i(ipix)-2:i(ipix)+2,j(ipix)-2:j(ipix)+2) = 1;
+    FOV(i(ipix)-pix_add:i(ipix)+pix_add,j(ipix)-pix_add:j(ipix)+pix_add) = 1;
 end
 
 figure; imagesq(FOV)
 
-%timecourses
-data_TC = zeros(size(dFoverF_data,3),n_pix);
-for ipix = 1:n_pix
-    data_TC(:,ipix) = mean(mean(dFoverF_data(i(ipix)-2:i(ipix)+2,j(ipix)-2:j(ipix)+2,:),1),2);
-end
+%% Get timecourses
+
+boutons = bwlabel(FOV);
+figure; imagesq(boutons);
+data_TC = stackGetTimeCourses(data_reg,boutons);
+
 figure; tcOffsetPlot(data_TC)
 
 %% plot responses
