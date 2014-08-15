@@ -16,25 +16,35 @@ CD = ['D:\Ashley_temp' '\' ImgFolder];
 cd(CD);
 
 %% Parameters
-NumFrames = 1000;
 % frame_rate = input.frameImagingRateMs;
 orig_rate = 30;
 final_rate = 3;
 down = orig_rate./final_rate;
 nON = 150./down;
 nOFF = 150./down;
-nStim = 3;
-Az = [-30 -15 0 15 30];
-El = [15 0];
+nStim = 1;
+Az = [30];
+El = [10];
 
 %% load 2P imaging data 
+
+%set the number of parallel streams (I think we have up to 8 cores)
+tic
+ncores = 5;
+parpool = ncores;
+%set the size of the batch that each stream will read
+nbatch = 600;
+%create a parallel loop to load the data
 fName = '006_000_000';
-data = sbxread(fName,0,NumFrames);
-% data will be a 4D matrix [#pmts rows(y) columns(x) NumFrames]
-%choose pmt to look at 
+parfor i=1:5
+    data(:,:,:,:,i) =sbxread(fName,(i-1)*nbatch,nbatch);
+end
+%reshape z to make a 3d stack
 pmt = 1; %1 = green 2 = red
-data = data(pmt,:,:,:);
-data = squeeze(data);
+data = squeeze(data(pmt,:,:,:,:));
+siz = size(data);
+reshape(data,siz(1),siz(2),siz(3)*ncores);toc
+
     
 %data = readrawfile;
 
