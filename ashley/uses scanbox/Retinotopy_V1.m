@@ -1,8 +1,8 @@
 %% load data
 SubNum = '001';
-date = '140808';
-time = '1115';
-ImgFolder = '002';
+date = '140815';
+time = '006';
+ImgFolder = '006';
 mouse = 'AW01';
 
 % load MWorks file
@@ -16,21 +16,20 @@ CD = ['D:\Ashley_temp' '\' ImgFolder];
 cd(CD);
 
 %% Parameters
-NumFrames = 1800;
-frame_rate = input.frameImagingRateMs;
+NumFrames = 1000;
+% frame_rate = input.frameImagingRateMs;
 orig_rate = 30;
 final_rate = 3;
 down = orig_rate./final_rate;
-nON = 100./down;
-nOFF = 100./down;
+nON = 150./down;
+nOFF = 150./down;
 nStim = 3;
-Az = [0 15 30];
-El = [15];
-position = [1 2 3];
+Az = [-30 -15 0 15 30];
+El = [15 0];
 
 %% load 2P imaging data 
-fName = '002_000_000';
-data = single(sbxread(fName,0,NumFrames));
+fName = '006_000_000';
+data = sbxread(fName,0,NumFrames);
 % data will be a 4D matrix [#pmts rows(y) columns(x) NumFrames]
 %choose pmt to look at 
 pmt = 1; %1 = green 2 = red
@@ -62,26 +61,26 @@ figure; imagesq(data_avg); colormap(gray)
 
 %%chunk data set (1000 frames apiece) to load all at once without taking up
     %too much memory
-% data_reg1 = data_reg;
-% 
-% %chunk 2
-% NumFrames2 = 2000;
-% data = sbxread(fName,(NumFrames+1),NumFrames);
-% % data will be a 4D matrix [#pmts rows(y) columns(x) NumFrames]
-% %choose pmt to look at 
-% pmt = 1; %1 = green 2 = red
-% data = data(pmt,:,:,:);
-% data = squeeze(data);
-% data_down = stackGroupProject(data,down);
-% clear data
-% %remove negative data (by addition)
-% data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
-% clear data_down
-% % register
-% data_avg = mean(data_sub(:,:,20:30),3);
-% [out data_reg] = stackRegister(data_sub, data_avg);
-% clear data_sub
-% data_reg2 = data_reg;
+data_reg1 = data_reg;
+
+%chunk 2
+NumFrames2 = 2000;
+data = sbxread(fName,(NumFrames+1),NumFrames);
+% data will be a 4D matrix [#pmts rows(y) columns(x) NumFrames]
+%choose pmt to look at 
+pmt = 1; %1 = green 2 = red
+data = data(pmt,:,:,:);
+data = squeeze(data);
+data_down = stackGroupProject(data,down);
+clear data
+%remove negative data (by addition)
+data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
+clear data_down
+% register
+data_avg = mean(data_sub(:,:,20:30),3);
+[out data_reg] = stackRegister(data_sub, data_avg);
+clear data_sub
+data_reg2 = data_reg;
 % 
 % %chunk 3
 % NumFrames3 = 3000;
@@ -291,37 +290,37 @@ pos_mat = [trialAZ trialEL];
 pos1_ind = find((pos_mat(:,1)== Az(1)) & (pos_mat(:,2) == El(1)));
 pos2_ind = find((pos_mat(:,1)== Az(2)) & (pos_mat(:,2) == El(1)));
 pos3_ind = find((pos_mat(:,1)== Az(3)) & (pos_mat(:,2) == El(1)));
-% pos4_ind = find((pos_mat(:,1)== Az(4)) & (pos_mat(:,2) == El(1)));
-% pos5_ind = find((pos_mat(:,1)== Az(5)) & (pos_mat(:,2) == El(1)));
-% pos6_ind = find((pos_mat(:,1)== Az(1)) & (pos_mat(:,2) == El(2)));
-% pos7_ind = find((pos_mat(:,1)== Az(2)) & (pos_mat(:,2) == El(2)));
-% pos8_ind = find((pos_mat(:,1)== Az(3)) & (pos_mat(:,2) == El(2)));
-% pos9_ind = find((pos_mat(:,1)== Az(4)) & (pos_mat(:,2) == El(2)));
-% pos10_ind = find((pos_mat(:,1)== Az(5)) & (pos_mat(:,2) == El(2)));
+pos4_ind = find((pos_mat(:,1)== Az(4)) & (pos_mat(:,2) == El(1)));
+pos5_ind = find((pos_mat(:,1)== Az(5)) & (pos_mat(:,2) == El(1)));
+pos6_ind = find((pos_mat(:,1)== Az(1)) & (pos_mat(:,2) == El(2)));
+pos7_ind = find((pos_mat(:,1)== Az(2)) & (pos_mat(:,2) == El(2)));
+pos8_ind = find((pos_mat(:,1)== Az(3)) & (pos_mat(:,2) == El(2)));
+pos9_ind = find((pos_mat(:,1)== Az(4)) & (pos_mat(:,2) == El(2)));
+pos10_ind = find((pos_mat(:,1)== Az(5)) & (pos_mat(:,2) == El(2)));
 
 %find average response to a particular stimulus - full field
 pos1_respavg = mean(trialon_dFoverFall(:,:,pos1_ind),3);
 pos2_respavg = mean(trialon_dFoverFall(:,:,pos2_ind),3);
 pos3_respavg = mean(trialon_dFoverFall(:,:,pos3_ind),3);
-% pos4_respavg = mean(trialon_dFoverFall(:,:,pos4_ind),3);
-% pos5_respavg = mean(trialon_dFoverFall(:,:,pos5_ind),3);
-% pos6_respavg = mean(trialon_dFoverFall(:,:,pos6_ind),3);
-% pos7_respavg = mean(trialon_dFoverFall(:,:,pos7_ind),3);
-% pos8_respavg = mean(trialon_dFoverFall(:,:,pos8_ind),3);
-% pos9_respavg = mean(trialon_dFoverFall(:,:,pos9_ind),3);
-% pos10_respavg = mean(trialon_dFoverFall(:,:,pos10_ind),3);
+pos4_respavg = mean(trialon_dFoverFall(:,:,pos4_ind),3);
+pos5_respavg = mean(trialon_dFoverFall(:,:,pos5_ind),3);
+pos6_respavg = mean(trialon_dFoverFall(:,:,pos6_ind),3);
+pos7_respavg = mean(trialon_dFoverFall(:,:,pos7_ind),3);
+pos8_respavg = mean(trialon_dFoverFall(:,:,pos8_ind),3);
+pos9_respavg = mean(trialon_dFoverFall(:,:,pos9_ind),3);
+pos10_respavg = mean(trialon_dFoverFall(:,:,pos10_ind),3);
 
 %find max full-field response to stimulus
 pos1_val = sum(sum(pos1_respavg));
 pos2_val = sum(sum(pos2_respavg));
 pos3_val = sum(sum(pos3_respavg));
-% pos4_val = sum(sum(pos4_respavg));
-% pos5_val = sum(sum(pos5_respavg));
-% pos6_val = sum(sum(pos6_respavg));
-% pos7_val = sum(sum(pos7_respavg));
-% pos8_val = sum(sum(pos8_respavg));
-% pos9_val = sum(sum(pos9_respavg));
-% pos10_val = sum(sum(pos10_respavg));
+pos4_val = sum(sum(pos4_respavg));
+pos5_val = sum(sum(pos5_respavg));
+pos6_val = sum(sum(pos6_respavg));
+pos7_val = sum(sum(pos7_respavg));
+pos8_val = sum(sum(pos8_respavg));
+pos9_val = sum(sum(pos9_respavg));
+pos10_val = sum(sum(pos10_respavg));
 avg_responses_all = [pos1_val pos2_val pos3_val pos4_val pos5_val pos6_val pos7_val pos8_val pos9_val pos10_val]
 
     %plot that
