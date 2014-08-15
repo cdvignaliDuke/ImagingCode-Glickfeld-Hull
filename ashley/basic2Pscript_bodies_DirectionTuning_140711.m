@@ -1,6 +1,6 @@
 %% load MWorks file
 
-mworks = 'data-i023-140317-1616';
+mworks = 'data-i023-140506-1543';
 load (mworks);
 
 %% Parameters
@@ -10,46 +10,42 @@ final_rate = 3;
 down = orig_rate./final_rate;
 nON = 150./down;
 nOFF = 150./down;
-nStim = 8;
+nStim = 12;
 Az = [-30];
 El = [15];
-Dir = [0 45 90 135 180 225 270 315];
+Dir = [0 30 60 90 130 150 180 210 240 270 300 330];
 trial_Dir = cell2mat(input.tGratingDirectionDeg);
 
-date = '140317';
+date = '140506';
 mouse = 'G023';
 
-%% IF CONCATINATING DATA SETS USE LOC SECTION OF 'basic2Pscript_ConcatinateFiles.m' 
-                            %FROM THIS POINT UNTIL END OF 'Set threshold
-                            %for running'
 %% Sum-up locomotion data for each trial and calculate speed (Stim ON only)
 
 %create a matrix including all counters
-nCounter = floor(((input.nScansOn./frame_rate).*1000)./double(input.speedTimerIntervalMs));
-trial_loc_mat = zeros(nCounter,input.trialSinceReset);
+% nCounter = floor(((input.nScansOn./frame_rate).*1000)./double(input.speedTimerIntervalMs));
+% trial_loc_mat = zeros(nCounter,input.trialSinceReset);
+% 
+% for icount = 1:nCounter
+%     trial_loc_mat(icount, :) = cell2mat_padded(eval(['input.spCounter' num2str(icount)]));
+% end;
+% 
+% %sum locomotion for each trial (ON stimuli only)
+% trial_totalloc = sum(trial_loc_mat);
+% 
+% % Calculate speed for each trial in pulses/second
+% trialon_timeS = input.nScansOn./frame_rate;
+% trialon_avgspeed_mat = trial_totalloc./trialon_timeS;
+% 
+% %% Set threshold for locomotion and sort trials as running and not running
+% trialNumbers = 1:length(trialon_avgspeed_mat);
+% trialon_run = (trialon_avgspeed_mat>4);
+% runTrials = find(trialon_run);
+% trialon_LocMatrix = [trialNumbers', trialon_avgspeed_mat',trialon_run'];
+% trialon_norun = (trialon_avgspeed_mat<4);
+% norunTrials = find(trialon_norun);
+% trialon_whichrun = trialon_avgspeed_mat(trialon_run);
 
-for icount = 1:nCounter
-    trial_loc_mat(icount, :) = cell2mat_padded(eval(['input.spCounter' num2str(icount)]));
-end;
-
-%sum locomotion for each trial (ON stimuli only)
-trial_totalloc = sum(trial_loc_mat);
-
-% Calculate speed for each trial in pulses/second
-trialon_timeS = input.nScansOn./frame_rate;
-trialon_avgspeed_mat = trial_totalloc./trialon_timeS;
-
-%% Set threshold for locomotion and sort trials as running and not running
-trialNumbers = 1:length(trialon_avgspeed_mat);
-trialon_run = (trialon_avgspeed_mat>4);
-runTrials = find(trialon_run);
-trialon_LocMatrix = [trialNumbers', trialon_avgspeed_mat',trialon_run'];
-trialon_norun = (trialon_avgspeed_mat<4);
-norunTrials = find(trialon_norun);
-trialon_whichrun = trialon_avgspeed_mat(trialon_run);
-
-%% load 2P imaging data - IF CONCATINATING DATA SETS USE 2P SECTION OF 'basic2Pscript_ConcatinateFiles.m' 
-                            %FROM THIS POINT UNTIL END OF 'inde stim types' 
+%% load 2P imaging data 
     
 data = readrawfile;
 
@@ -64,7 +60,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 %% register
-data_avg = mean(data_sub(:,:,300:310),3);
+data_avg = mean(data_sub(:,:,200:210),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -85,6 +81,21 @@ nON_ind = setdiff(1:size(data_reg,3),nOFF_ind);
 nON_avg = mean(data_reg(:,:,nON_ind),3);
 nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
 
+%dF/F
+dF_data = bsxfun(@minus,data_reg, nOFF_avg);
+dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
+max_dF = max(dFoverF_data,[],3);
+figure; imagesq(max_dF); colormap(gray)
+
+%% use max dF/F to find ROIS
+
+bwout = imCellEditInteractive(max_dF);
+mask_cell = bwlabel(bwout);
+
+%timecourses
+data_TC = stackGetTimeCourses(dFoverF_data,mask_cell);
+figure; tcOffsetPlot(data_TC)
+%%
 % find on indices for the first frame of each stimulus start period and iti (Off) period
 for itrial = 1:(nStim*nRep)
     nON_ind_firsts(itrial) = nON_ind(1+(nON*(itrial-1)));
@@ -103,12 +114,6 @@ end
 for itrial = 1:(nStim*nRep)
     trial_nON_avg(:,:,itrial) = mean(data_reg(:,:,(nON_ind_firsts(itrial): (nON_ind_firsts(itrial)+nON)-1)),3);
 end
-
-%dF/F
-dF_data = bsxfun(@minus,data_reg, nOFF_avg);
-dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
-max_dF = max(dFoverF_data,[],3);
-figure; imagesq(max_dF); colormap(gray)
 
 %index stim types
 stim_ind = zeros(nStim,nRep);
