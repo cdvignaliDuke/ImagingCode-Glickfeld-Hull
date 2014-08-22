@@ -1,10 +1,10 @@
 %% load 2P imaging data
 SubNum = '001';
 date = '140815';
-time = '0937';
-ImgFolder = '001';
+time = '006';
+ImgFolder = '006';
 mouse = 'AW01';
-fName = '001_000_000';
+fName = '006_000_000';
 
 % load MWorks file
 CD = ['Z:\2P imaging\MWorks\' mouse '\' date];
@@ -18,7 +18,7 @@ cd(CD);
 
 %set the number of parallel streams (I think we have up to 8 cores)
 tic % tic and toc will tell you how long matlab took to load the data.
-ncores = 3;
+ncores = 5;
 parpool = ncores;
 %set the size of the batch that each stream will read
 nbatch = 600;
