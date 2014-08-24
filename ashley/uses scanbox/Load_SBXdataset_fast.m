@@ -18,10 +18,10 @@ cd(CD);
 
 %set the number of parallel streams (I think we have up to 8 cores)
 tic % tic and toc will tell you how long matlab took to load the data.
-ncores = 5;
+ncores = 6;
 parpool = ncores;
 %set the size of the batch that each stream will read
-nbatch = 600;
+nbatch = 500;
 %create a parallel loop to load the data
 parfor i=1:ncores
     data(:,:,:,:,i) = sbxread(fName, (i-1)*nbatch, nbatch);
