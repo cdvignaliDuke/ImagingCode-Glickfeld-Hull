@@ -5,11 +5,11 @@ final_rate = 3;
 down = orig_rate./final_rate;
 nON = 100./down;
 nOFF = 100./down;
-nStim = 3;
-Az = [0 15 30];
-El = [15];
-position = 1:3;
-FSpos = 3
+nStim = 6;
+Az = [-15 0 15];
+El = [0 15];
+position = 1:6;
+FSpos = 3;
 
 %% reshape data
 %average signals in time
@@ -29,7 +29,7 @@ figure; imagesq(data_avg); colormap(gray)
 clear data_sub
 
 %save data_reg
-save('data_reg', data_reg)
+save('registereddata', data_reg)
 
 %registered image
 data_avg = mean(data_reg(:,:,:),3);
@@ -93,9 +93,9 @@ pos_mat = [trialAZ trialEL];
 pos1_ind = find((pos_mat(:,1)== Az(1)) & (pos_mat(:,2) == El(1)));
 pos2_ind = find((pos_mat(:,1)== Az(2)) & (pos_mat(:,2) == El(1)));
 pos3_ind = find((pos_mat(:,1)== Az(3)) & (pos_mat(:,2) == El(1)));
-% pos4_ind = find((pos_mat(:,1)== Az(4)) & (pos_mat(:,2) == El(1)));
-% pos5_ind = find((pos_mat(:,1)== Az(5)) & (pos_mat(:,2) == El(1)));
-% pos6_ind = find((pos_mat(:,1)== Az(1)) & (pos_mat(:,2) == El(2)));
+pos4_ind = find((pos_mat(:,1)== Az(1)) & (pos_mat(:,2) == El(2)));
+pos5_ind = find((pos_mat(:,1)== Az(2)) & (pos_mat(:,2) == El(2)));
+pos6_ind = find((pos_mat(:,1)== Az(3)) & (pos_mat(:,2) == El(2)));
 % pos7_ind = find((pos_mat(:,1)== Az(2)) & (pos_mat(:,2) == El(2)));
 % pos8_ind = find((pos_mat(:,1)== Az(3)) & (pos_mat(:,2) == El(2)));
 % pos9_ind = find((pos_mat(:,1)== Az(4)) & (pos_mat(:,2) == El(2)));
@@ -105,9 +105,9 @@ pos3_ind = find((pos_mat(:,1)== Az(3)) & (pos_mat(:,2) == El(1)));
 pos1_respavg = mean(trialon_dFoverFall(:,:,pos1_ind),3);
 pos2_respavg = mean(trialon_dFoverFall(:,:,pos2_ind),3);
 pos3_respavg = mean(trialon_dFoverFall(:,:,pos3_ind),3);
-% pos4_respavg = mean(trialon_dFoverFall(:,:,pos4_ind),3);
-% pos5_respavg = mean(trialon_dFoverFall(:,:,pos5_ind),3);
-% pos6_respavg = mean(trialon_dFoverFall(:,:,pos6_ind),3);
+pos4_respavg = mean(trialon_dFoverFall(:,:,pos4_ind),3);
+pos5_respavg = mean(trialon_dFoverFall(:,:,pos5_ind),3);
+pos6_respavg = mean(trialon_dFoverFall(:,:,pos6_ind),3);
 % pos7_respavg = mean(trialon_dFoverFall(:,:,pos7_ind),3);
 % pos8_respavg = mean(trialon_dFoverFall(:,:,pos8_ind),3);
 % pos9_respavg = mean(trialon_dFoverFall(:,:,pos9_ind),3);
@@ -117,17 +117,27 @@ pos3_respavg = mean(trialon_dFoverFall(:,:,pos3_ind),3);
 figure;imagesq(pos1_respavg);colormap gray
 imagesq(pos2_respavg);colormap gray
 imagesq(pos3_respavg);colormap gray
+imagesq(pos4_respavg);colormap gray
+imagesq(pos5_respavg);colormap gray
+imagesq(pos6_respavg);colormap gray
 
 Retinotopy = figure;
 hold on
-subplot(3, 1, 1);
-imagesq(pos1_respavg); title('Az:0 El:15'); colormap gray; caxis([-.5 .5]); colorbar;
+subplot(2, 3, 1);
+imagesq(pos1_respavg); title('Az:-15 El:15'); colormap gray; caxis([-.5 .5]); colorbar;
 hold on
-subplot(3,1,2);
-imagesq(pos2_respavg); title('Az:15 El:15'); colormap gray; caxis([-.5 .5]); colorbar;
+subplot(2,3,2);
+imagesq(pos2_respavg); title('Az:0 El:15'); colormap gray; caxis([-.5 .5]); colorbar;
 hold on 
-subplot(3,1,3);
-imagesq(pos3_respavg); title('Az:30 El:15'); colormap gray; caxis([-.5 .5]); colorbar;
+subplot(2,3,3);
+imagesq(pos3_respavg); title('Az:15 El:15'); colormap gray; caxis([-.5 .5]); colorbar;
+subplot(2,3,4);
+imagesq(pos4_respavg); title('Az:-15 El:0'); colormap gray; caxis([-.5 .5]); colorbar;
+subplot(2,3,5);
+imagesq(pos5_respavg); title('Az:0 El:0'); colormap gray; caxis([-.5 .5]); colorbar;
+subplot(2,3,6);
+imagesq(pos6_respavg); title('Az:15 El:0'); colormap gray; caxis([-.5 .5]); colorbar;
+
 
 %save fig
 saveas(Retinotopy,'Retinotopy.fig')
@@ -152,14 +162,25 @@ pos3_cellavg = zeros(1,nCell);
 for icell = 1:nCell
     pos3_cellavg(:,icell) = mean(trialon_dFoverFcell(pos3_ind,icell));
 end
-
+pos4_cellavg = zeros(1,nCell);
+for icell = 1:nCell
+    pos4_cellavg(:,icell) = mean(trialon_dFoverFcell(pos4_ind,icell));
+end
+pos5_cellavg = zeros(1,nCell);
+for icell = 1:nCell
+    pos5_cellavg(:,icell) = mean(trialon_dFoverFcell(pos5_ind,icell));
+end
+pos6_cellavg = zeros(1,nCell);
+for icell = 1:nCell
+    pos6_cellavg(:,icell) = mean(trialon_dFoverFcell(pos6_ind,icell));
+end
 %matrix for all trials by all cells
- pos_cellavg_mat = [pos1_cellavg; pos2_cellavg; pos3_cellavg];
+ pos_cellavg_mat = [pos1_cellavg; pos2_cellavg; pos3_cellavg; pos4_cellavg; pos5_cellavg; pos6_cellavg];
  
 %strongest fluorescence by trial for each cell
 pos_max_ind = zeros(1,nCell);
 for icell = 1:nCell
-    pos_max_ind(:,icell) = find(pos_cellavg_mat(:,icell) == max(pos_cellavg_mat(:,icell)));
+    pos_max_ind(1,icell) = find(pos_cellavg_mat(:,icell) == max(pos_cellavg_mat(:,icell)));
 end
 
 pos_pref_totalcells = zeros(1,nStim);
@@ -172,4 +193,4 @@ end
 FSpos_ind = find(pos_max_ind == FSpos);
 
 %save variables
-save('analysis.mat')
+save('analysis')
