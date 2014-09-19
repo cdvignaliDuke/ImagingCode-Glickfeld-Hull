@@ -1,9 +1,9 @@
 %% load 2P imaging data
-SubNum = '004';
-date = '140917';
-time = '1629';
+SubNum = '510';
+date = '140909';
+time = '1147';
 ImgFolder = '008';
-mouse = 'AW04';
+mouse = '510';
 fName = '008_000_000';
 
 % load MWorks file
@@ -18,10 +18,10 @@ cd(CD);
 
 %set the number of parallel streams (I think we have up to 8 cores)
 tic % tic and toc will tell you how long matlab took to load the data.
-ncores = 6;
+ncores = 8;
 parpool = ncores;
 %set the size of the batch that each stream will read
-nbatch = 600;
+nbatch = 1125;
 %create a parallel loop to load the data
 parfor i=1:ncores
     data(:,:,:,:,i) = sbxread(fName, ((i-1)*nbatch), nbatch);

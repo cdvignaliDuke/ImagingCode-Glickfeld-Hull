@@ -1,10 +1,10 @@
 %% Parameters
-SubNum = '001';
-date = '140825';
-time = '011';
-ImgFolder = '011';
-mouse = 'AW01';
-fName = '011_000_000';
+SubNum = '510';
+date = '140903';
+time = '003';
+ImgFolder = '003';
+mouse = '510';
+fName = '003_000_000';
 experiment = 'Flashing Stim';
 
 
@@ -26,7 +26,8 @@ clear data_sub
 [out data_reg] = stackRegister(data, data_avg);
 clear data
 
-save ('data_reg.mat', 'data_reg')
+writetiff(data_reg(:,:,1:2000),'FStiff4500.tif');
+save ('analysis','-v7.3')
 %% call some mworks variables
 
 nTrials = input.trialSinceReset;

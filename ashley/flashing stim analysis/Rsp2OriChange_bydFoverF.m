@@ -1,10 +1,10 @@
 %% Load registered dataset, retinotopy, DSI, OSI, etc.
 SubNum = '001';
-date = '140825';
-time = '011';
-ImgFolder = '011';
+date = '140828';
+time = '009';
+ImgFolder = '009';
 mouse = 'AW01';
-fName = '011_000_000';
+fName = '009_000_000';
 experiment = 'Flashing Stim';
 
 %load retinotopy
@@ -12,11 +12,13 @@ retfile = ['Z:\2P imaging\Analysis\' mouse '\' experiment '\' date '\Retinotopy_
 load (retfile);
 clear data_reg
 
-%load registered data and cell timecourses
+%load registered data, cell timecourses, and mworks variables
 FSAfile = ['Z:\2P imaging\Analysis\' mouse '\' experiment '\' date '\FlashingStimAnalysis\analysis'];
 load(FSAfile);
 
-
+%set directory for saving 
+Save = ['Z:\2P imaging\Analysis\' mouse '\' experiment '\' date '\FlashingStimAnalysis\Rsp2OriChange'];
+cd(Save)
 %% call some mworks variables
 
 nTrials = input.trialSinceReset;
@@ -86,7 +88,7 @@ Changes = size(nChangeMag,2);
 %per full field
 for ideg = 1:Changes
     ChangeMag_ind = find(ChangeMag==nChangeMag(ideg));
-    dF1overF1_byChangeMag(1,ideg) = mean(TargetRspAll_mean(ChangeMag_ind));
+    dF1overF1all_byChangeMag(1,ideg) = mean(TargetRspAll_mean(ChangeMag_ind));
 end
 Rsp2TargetbyChangeMag = figure;
 hold on
@@ -96,6 +98,29 @@ xlabel('Ori change');
 hold on
 ylabel('dF/F1');
 hold on
-plot(dF1overF1_byChangeMag);
+plot(dF1overF1all_byChangeMag);
+saveas(Rsp2TargetbyChangeMag, 'Rsp2TargetbyChangeMag.fig');
 
 %per cell
+for icell = 1:nCell
+    for ideg = 1:Changes
+        ChangeMag_ind = find(ChangeMag==nChangeMag(ideg));
+        dF1overF1cell_byChangeMag(icell,ideg) = mean(TargetRspCell_mean(icell,ChangeMag_ind),2);
+    end
+end
+%sort cells by amount of dF/F for lowest change in orientation
+Cell_Rsp2TargetbyChangeMag = sortrows(dF1overF1cell_byChangeMag,1);
+
+Cell_Rsp2TargetbyChangeMag_fig = figure;
+colormap('hot');
+imagesc(Cell_Rsp2TargetbyChangeMag);
+c = colorbar;
+hold on
+title('Cell response to target stimulus by degree of orientation change');
+hold on
+xlabel('Ori change');
+hold on
+ylabel('Cell');
+hold on
+ylabel(c,'dF/F1');
+saveas(Cell_Rsp2TargetbyChangeMag_fig,'Cell_Rsp2TargetbyChangeMag_fig.fig');

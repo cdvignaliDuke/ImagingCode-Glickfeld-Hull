@@ -5,11 +5,11 @@ final_rate = 3;
 down = orig_rate./final_rate;
 nON = 100./down;
 nOFF = 100./down;
-nStim = 6;
-Az = [-15 0 15];
-El = [0 15];
+nStim = 3;
+Az = [-30 0 30];
+El = [10 -10];
 position = 1:6;
-FSpos = 3;
+FSpos = 1;
 
 %% reshape data
 %average signals in time
@@ -22,14 +22,15 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,60:70),3);
+data_avg = mean(data_sub(:,:,100:110),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
 clear data_sub
 
 %save data_reg
-save('registereddata', data_reg)
+writetiff(data_reg, 'Retinotopy_V1');
+save('registereddata', 'data_reg')
 
 %registered image
 data_avg = mean(data_reg(:,:,:),3);
@@ -121,8 +122,7 @@ imagesq(pos4_respavg);colormap gray
 imagesq(pos5_respavg);colormap gray
 imagesq(pos6_respavg);colormap gray
 
-Retinotopy = figure;
-hold on
+Retinotopy = figure; 
 subplot(2, 3, 1);
 imagesq(pos1_respavg); title('Az:-15 El:15'); colormap gray; caxis([-.5 .5]); colorbar;
 hold on
@@ -137,6 +137,7 @@ subplot(2,3,5);
 imagesq(pos5_respavg); title('Az:0 El:0'); colormap gray; caxis([-.5 .5]); colorbar;
 subplot(2,3,6);
 imagesq(pos6_respavg); title('Az:15 El:0'); colormap gray; caxis([-.5 .5]); colorbar;
+
 
 
 %save fig
