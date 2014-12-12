@@ -5,11 +5,11 @@ final_rate = 3;
 down = orig_rate./final_rate;
 nON = 100./down;
 nOFF = 100./down;
-nStim = 3;
-Az = [-30 0 30];
+nStim = 6;
+Az = [0 15 30];
 El = [10 -10];
 position = 1:6;
-FSpos = 1;
+FSpos = 3;
 
 %% reshape data
 %average signals in time
@@ -22,7 +22,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,100:110),3);
+data_avg = mean(data_sub(:,:,300:310),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -30,7 +30,6 @@ clear data_sub
 
 %save data_reg
 writetiff(data_reg, 'Retinotopy_V1');
-save('registereddata', 'data_reg')
 
 %registered image
 data_avg = mean(data_reg(:,:,:),3);

@@ -15,12 +15,21 @@ load (mworks);
 
 
 %set current directory for saving
+%create folders
+CD = ['Z:\2P imaging\Analysis\' mouse '\' date ];
+cd(CD);
+mkdir(ImgFolder);
+CD = ['Z:\2P imaging\Analysis\' mouse '\' date '\' ImgFolder];
+cd(CD);
+mkdir('FlashingStimAnalysis','Rsp2VisStim');
+%save path
 Save = ['Z:\2P imaging\Analysis\' mouse '\' date '\' ImgFolder '\FlashingStimAnalysis\Rsp2VisStim'];
 cd(Save)
+
 %%
 %name and convert some mworks variables
 cLeverDown = double(cell2mat(input.cLeverDown));
-nTrials = (input.trialSinceReset)-1;
+nTrials = (input.trialSinceReset);
 RateFRperMS = 30./1000;
 Block2ON = double(cell2mat(input.tBlock2TrialNumber));
 nTrials = input.trialSinceReset-1;
@@ -40,6 +49,31 @@ RateFRperMS = 30./1000;
 Block2ON = double(cell2mat(input.tBlock2TrialNumber));
 TrialOutcome = input.trialOutcomeCell;
 Cycles = unique(tCyclesOn);
+
+
+% % for fake mouse skip last trial
+% cLeverDown = double(cell2mat(input.cLeverDown));
+% nTrials = (input.trialSinceReset)-1;
+% RateFRperMS = 30./1000;
+% Block2ON = double(cell2mat(input.tBlock2TrialNumber));
+% Block2ON = Block2ON(:,1:end-1);
+% cLeverDown = double(cell2mat(input.cLeverDown));
+% cTargetOn = input.cTargetOn;
+% for itrial = 1:nTrials
+%     if isempty(cTargetOn{itrial})
+%         cTargetOn{itrial} = NaN;
+%     end
+% end
+% cTargetOn = (double(cell2mat_padded(cTargetOn)))'; %For now NaNs == 0, may need to change...
+% cLeverUp = double(cell2mat(input.cLeverUp));
+% tCyclesOn = double(cell2mat(input.tCyclesOn));
+% ONms = input.stimOnTimeMs;
+% OFFms = input.stimOffTimeMs;
+% RateFRperMS = 30./1000;
+% Block2ON = double(cell2mat(input.tBlock2TrialNumber));
+% TrialOutcome = input.trialOutcomeCell;
+% Cycles = unique(tCyclesOn);
+
 
 %% Tif for ImageJ Analysis
 %align frames for just those around the start of each trial
@@ -84,7 +118,7 @@ plot(TrStarttimecourse_mean,'r');
 
 %% Tif for just success and ignore trials
 
-% % for real behavior
+% for real behavior
 % SuccessTrials_log = strcmp(TrialOutcome,'success');
 % SuccessTrials_ind = find(SuccessTrials_log == 1);
 % IgnoreTrials_log = strcmp(TrialOutcome,'ignore');
@@ -103,17 +137,23 @@ plot(TrStarttimecourse_mean,'r');
 %     start = start+L;
 % end
 
+% writetiff(preLeverDownplus3visstim,'Rsp2VisStim.tif');
+% preLDP3VS04 = preLeverDownplus3visstim; 
+% clear preLeverDownplus3visstim
+% clear data_reg
+
 % for 'Fake Mouse success only'
 L = 10+ceil((RateFRperMS*350)*3);
-preLeverDownplus3visstim_005and006 = zeros(size(data_reg,1),size(data_reg,2),nTrials*L);
+preLeverDownplus3visstim = zeros(size(data_reg,1),size(data_reg,2),nTrials*L);
 start = 1;
 for itrial = 1:nTrials
     ind = cLeverDown(itrial)-10:cLeverDown(itrial)+(L-11);
-    preLeverDownplus3visstim_005and006(:,:,start:start+L-1) = data_reg(:,:,ind);
+    preLeverDownplus3visstim(:,:,start:start+L-1) = data_reg(:,:,ind);
     start = start+L;
 end
 
-writetiff(preLeverDownplus3visstim_005and006,'3VisStim_007.tif');
+writetiff(preLeverDownplus3visstim,'3VisStim.tif');
+
 
 % preLeverDownplus3visstim_2 = preLeverDownplus3visstim_007;
 % clear preLeverDownplus3visstim
@@ -125,15 +165,15 @@ writetiff(preLeverDownplus3visstim_005and006,'3VisStim_007.tif');
 % % clear preLeverDownplus3visstim_2;
 % writetiff(preLeverDownplus3visstim_005and006,'preLeverDownplus3visstim_005+006.tif');
 %% Cell responses
-siz1 = size(preLeverDownplus3visstim_005and006,1);
-siz2 = size(preLeverDownplus3visstim_005and006,2);
-tTrials = size(preLeverDownplus3visstim_005and006,3)./L;
-F_ind = zeros(1,tTrials.*10);
-start = 1;
-for itrial = 1:tTrials
-    F_ind(start:start+9) = (L.*(itrial-1)+1):(L.*(itrial-1)+1)+9;
-    start = start+10;
-end
+% siz1 = size(preLeverDownplus3visstim_005,1);
+% siz2 = size(preLeverDownplus3visstim_005,2);
+tTrials = size(preLeverDownplus3visstim,3)./L;
+% F_ind = zeros(1,tTrials.*10);
+% start = 1;
+% for itrial = 1:tTrials
+%     F_ind(start:start+9) = (L.*(itrial-1)+1):(L.*(itrial-1)+1)+9;
+%     start = start+10;
+% end
 
 % 
 % F = mean(preLeverDownplus3visstim_005and006(:,:,F_ind),3);
@@ -141,16 +181,16 @@ end
 % dFoverF_data = bsxfun(@rdivide, dF_data, F);
 
 for itrial = 1:tTrials
-    F_byTrial(:,:,itrial) = mean(preLeverDownplus3visstim_005and006(:,:,(L.*(itrial-1)+1):(L.*(itrial-1)+1)+9),3);
+    F_byTrial(:,:,itrial) = mean(preLeverDownplus3visstim(:,:,(L.*(itrial-1)+1):(L.*(itrial-1)+1)+9),3);
 end
-dF_data = zeros(size(preLeverDownplus3visstim_005and006));
+dF_data = zeros(size(preLeverDownplus3visstim));
 for itrial = 1:tTrials
     start1 = L.*(itrial-1)+1;
     start2 = L.*itrial;
-    dF_data(:,:,start1:start2) = bsxfun(@minus,preLeverDownplus3visstim_005and006(:,:,start1:start2),F_byTrial(:,:,itrial));
+    dF_data(:,:,start1:start2) = bsxfun(@minus,preLeverDownplus3visstim(:,:,start1:start2),F_byTrial(:,:,itrial));
 end
 
-dFoverF_data = zeros(size(preLeverDownplus3visstim_005and006));
+dFoverF_data = zeros(size(preLeverDownplus3visstim));
 for itrial = 1:tTrials
     start1 = L.*(itrial-1)+1;
     start2 = L.*itrial;
@@ -166,8 +206,8 @@ for itrial = 1:tTrials
 end
 clear last_ind
 
-% dF_lastframes = mean(dFoverF_data(:,:,max_ind),3);
-% figure; imagesq(dF_lastframes); colormap(gray)
+dF_lastframes = mean(dFoverF_data(:,:,last_ind),3);
+figure; imagesq(dF_lastframes); colormap(gray)
 
 max_dF_lastframes = max(dF_lastframes_mean_withintrial,[],3);
 figure; imagesq(max_dF_lastframes); colormap(gray)
@@ -198,7 +238,8 @@ mask_cell = bwlabel(bwout);
 data_TC = stackGetTimeCourses(dFoverF_data,mask_cell);
 figure; tcOffsetPlot(data_TC)
 
-
+data_TC_DirTuningMask = stackGetTimeCourses(dFoverF_data,mask_cell_DirTuning);
+figure; tcOffsetPlot(data_TC_DirTuningMask)
 
 %% 
 
@@ -267,177 +308,29 @@ visualresp_ind = find(first2last_ttest == 1);
 figure; plot(Cell_preLeverDownplus3visstim_trialmean(:,visualresp_ind))
 % figure; plot(Cell_preLeverDownplus3visstim_trialmean(:,visualresp_ind_FbyTrial))
 
-figure;
-start = 1;
-for icell = visualresp_ind
-    subplot(3,4,start);
-    plot(Cell_preLeverDownplus3visstim_trialmean(:,icell));
-    vline(10,'k');
-    vline(20.5,'k');
-    vline(31,'k');
-    title(['Cell ' num2str(icell)]);
-    start = start+1;
+
+save('Rsp2VisStimAnalysis.mat', 'mask_cell', 'data_TC', 'visualresp_ind');
+
+%% Direction tuning cell mask
+last_ind = zeros(1,20);
+data_TC_lastframes = zeros(tTrials,nCells);
+for itrial = 1:tTrials
+    last_ind = ((L.*itrial)-19:L.*itrial)';
+    for icell = 1:nCells
+        data_TC_lastframes(itrial,icell) = mean(data_TC_DirTuningMask(last_ind,icell),1);
+    end
 end
+clear last_ind
 
-figure;
-start = 1;
-for icell = visualresp_ind
-    subplot(3,3,start);
-    mask_cell_new = zeros(size(mask_cell));
-    mask_cell_new(find(mask_cell==icell)) = 1;
-    imagesc(mask_cell_new);
-    title(['Cell ' num2str(icell)]);
-    start = start + 1;
+first_ind = zeros(1,10);
+data_TC_firstframes = zeros(tTrials,nCells);
+for itrial = 1:tTrials
+    first_ind = (L.*(itrial-1))+1:((L.*(itrial-1))+1)+10;
+    for icell = 1:nCells
+        data_TC_firstframes(itrial,icell) = mean(data_TC_DirTuningMask(first_ind,icell),1);
+    end
 end
+clear first_ind
 
-%plot traces for 6 cells at a time
-figure;
-start = 1;
-for icell = 1:6
-    subplot(2,3,start);
-    plot(Cell_preLeverDownplus3visstim_trialmean(:,icell));
-    title(['Cell ' num2str(icell)]);
-    start = start+1;
-end
-
-figure;
-start = 1;
-for icell = 7:12
-    subplot(2,3,start);
-    plot(Cell_preLeverDownplus3visstim_trialmean(:,icell));
-    title(['Cell ' num2str(icell)]);
-    start = start+1;
-end
-
-figure;
-start = 1;
-for icell = 13:18
-    subplot(2,3,start);
-    plot(Cell_preLeverDownplus3visstim_trialmean(:,icell));
-    title(['Cell ' num2str(icell)]);
-    start = start+1;
-end
-
-figure;
-start = 1;
-for icell = 19:24
-    subplot(2,3,start);
-    plot(Cell_preLeverDownplus3visstim_trialmean(:,icell));
-    title(['Cell ' num2str(icell)]);
-    start = start+1;
-end
-
-figure;
-start = 1;
-for icell = 25:30
-    subplot(2,3,start);
-    plot(Cell_preLeverDownplus3visstim_trialmean(:,icell));
-    title(['Cell ' num2str(icell)]);
-    start = start+1;
-end
-
-figure;
-start = 1;
-for icell = 31:36
-    subplot(2,3,start);
-    plot(Cell_preLeverDownplus3visstim_trialmean(:,icell));
-    title(['Cell ' num2str(icell)]);
-    start = start+1;
-end
-
-figure;
-start = 1;
-for icell = 36:nCells
-    subplot(2,3,start);
-    plot(Cell_preLeverDownplus3visstim_trialmean(:,icell));
-    title(['Cell ' num2str(icell)]);
-    start = start+1;
-end
-
-%plot mask for cell of interest
-figure;
-mask_cell_20 = zeros(size(mask_cell));
-mask_cell_20(find(mask_cell==20)) = 1;
-imagesc(mask_cell_20);
-title('Cell 20');
-
-%plot mask for those 6 cells
-figure;
-start = 1;
-for icell = 1:6
-    subplot(2,3,start);
-    mask_cell_new = zeros(size(mask_cell));
-    mask_cell_new(find(mask_cell==icell)) = 1;
-    imagesc(mask_cell_new);
-    title(['Cell ' num2str(icell)]);
-    start = start + 1;
-end
-
-figure;
-start = 1;
-for icell = 7:12
-    subplot(2,3,start);
-    mask_cell_new = zeros(size(mask_cell));
-    mask_cell_new(find(mask_cell==icell)) = 1;
-    imagesc(mask_cell_new);
-    title(['Cell ' num2str(icell)]);
-    start = start + 1;
-end
-
-figure;
-start = 1;
-for icell = 13:18
-    subplot(2,3,start);
-    mask_cell_new = zeros(size(mask_cell));
-    mask_cell_new(find(mask_cell==icell)) = 1;
-    imagesc(mask_cell_new);
-    title(['Cell ' num2str(icell)]);
-    start = start + 1;
-end
-
-figure;
-start = 1;
-for icell = 19:24
-    subplot(2,3,start);
-    mask_cell_new = zeros(size(mask_cell));
-    mask_cell_new(find(mask_cell==icell)) = 1;
-    imagesc(mask_cell_new);
-    title(['Cell ' num2str(icell)]);
-    start = start + 1;
-end
-
-figure;
-start = 1;
-for icell = 25:30
-    subplot(2,3,start);
-    mask_cell_new = zeros(size(mask_cell));
-    mask_cell_new(find(mask_cell==icell)) = 1;
-    imagesc(mask_cell_new);
-    title(['Cell ' num2str(icell)]);
-    start = start + 1;
-end
-
-figure;
-start = 1;
-for icell = 31:36
-    subplot(2,3,start);
-    mask_cell_new = zeros(size(mask_cell));
-    mask_cell_new(find(mask_cell==icell)) = 1;
-    imagesc(mask_cell_new);
-    title(['Cell ' num2str(icell)]);
-    start = start + 1;
-end
-
-figure;
-start = 1;
-for icell = 36:nCells
-    subplot(2,3,start);
-    mask_cell_new = zeros(size(mask_cell));
-    mask_cell_new(find(mask_cell==icell)) = 1;
-    imagesc(mask_cell_new);
-    title(['Cell ' num2str(icell)]);
-    start = start + 1;
-end
-
-
-writetiff(Cell5_preLeverDownplus3visstim,'Cell5_3VisStim.tif');
+first2last_ttest = ttest(data_TC_firstframes,data_TC_lastframes);
+visualresp_ind = find(first2last_ttest == 1);

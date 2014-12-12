@@ -1,11 +1,11 @@
 %% Parameters
-SubNum = '004';
-date = '140923';
-time = '1509';
-ImgFolder = '005';
-mouse = 'AW04';
-fName = '005_000_000';
-experiment = 'Flashing Stim';
+% SubNum = '004';
+% date = '140923';
+% time = '1509';
+% ImgFolder = '005';
+% mouse = 'AW04';
+% fName = '005_000_000';
+% experiment = 'Flashing Stim';
 
 
 %%
@@ -20,17 +20,19 @@ data = data_sub;
 clear data_sub
 
 %register to averaged frames
-data_avg = mean(data(:,:,2000:2010),3);
+data_avg = mean(data(:,:,5000:5010),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data, data_avg);
 clear data
 
-writetiff(data_reg(:,:,1:2000),'FStiff4500.tif');
-save ('analysis','-v7.3')
+CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder '\FlashingStimAnalysis'];
+cd(CD);
+writetiff(data_reg,'FSall.tif');
+clear data_reg
 %% call some mworks variables
 
-nTrials = input.trialSinceReset-1;
+nTrials = input.trialSinceReset;
 cLeverDown = double(cell2mat(input.cLeverDown));
 cTargetOn = input.cTargetOn;
 for itrial = 1:nTrials
@@ -48,6 +50,13 @@ Block2ON = double(cell2mat(input.tBlock2TrialNumber));
 TrialOutcome = input.trialOutcomeCell;
 Cycles = unique(tCyclesOn);
 
+nTrials = 54;
+cLeverDown = cLeverDown(:,1:54);
+cTargetOn = cTargetOn(:,1:54);
+cLeverUp = cLeverUp(:,1:54);
+tCyclesOn = tCyclesOn(:,1:54);
+Block2ON = Block2ON(:,1:54);
+TrialOutcome = TrialOutcome(:,1:54);
 
 
 %% Find off and on indices for each trial
