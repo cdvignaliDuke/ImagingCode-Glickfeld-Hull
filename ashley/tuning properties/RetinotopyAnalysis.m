@@ -14,7 +14,7 @@ load (mworks);
 % Set current directory to temporary folder on Nuke - cannot analyze data from crash
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder ' - Retinotopy'];
 cd(CD);
-data = readtiff('Retinotopy_V1.tif');
+data_reg = readtiff('Retinotopy_V1.tif');
 %%
 
 orig_rate = 30;
@@ -43,7 +43,8 @@ nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
 %dF/F
 dF_data = bsxfun(@minus,data_reg, nOFF_avg);
 dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
-max_dF = max(dFoverF_data,[],3);
+% max_dF = max(dFoverF_data,[],3);
+max_dF = max(dF_data,[],3);
 figure; imagesq(max_dF); colormap(gray)
 
 %% use max dF/F to find ROIS
@@ -122,7 +123,7 @@ col_mat = strvcat('k', 'b', 'c', 'r', 'm', 'g');
 for icell = 1:nCells
     subplot(5,6,icell);
     for istim = 1:nStim
-        plot(retResp_mat(:,icell,istim,2),col_mat(istim,:));
+        plot(retResp_mat(:,icell,istim,1),col_mat(istim,:));
         hold on
     end
 end

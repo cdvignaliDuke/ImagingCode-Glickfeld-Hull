@@ -1,10 +1,9 @@
-mouse = '516';
-date = '141003';
-ImgFolder = '002+003+004';
+mouse = '607';
+date = '141209';
+ImgFolder = '002';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 load('dataStructDFoverF.mat')
-load('dataMasks.mat')
 
 %% Save behavior and imaging parameters sorted by cycles
 dataStructVar.cycTrialL = dataStructDFoverF.cycTrialL;
@@ -23,6 +22,6 @@ dataStructVar.maxCyclesOn = dataStructDFoverF.maxCyclesOn;
 dataStructVar.mouse = dataStructDFoverF.mouse;
 dataStructVar.date = dataStructDFoverF.date;
 dataStructVar.ImgFolder = dataStructDFoverF.ImgFolder;
-dataStructVar.maxDFoverF = dataStructDFoverF.maxDFoverF;
+
 
 save('dataStructVar.mat','dataStructVar');

@@ -16,6 +16,7 @@ for icyc = 1:siz
     clear thisData
 end
 
+
 for icyc = 1:siz
     thisData = dataStructDFoverF.cycData{icyc};
     FSfirstRsp_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.FSfirstRsp);
@@ -24,7 +25,7 @@ end
 
 for icyc = 1:siz
     thisData = dataStructDFoverF.cycData{icyc};
-    FScycMaxDF_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.FScycMaxDF{icyc});
+    FScycCorrDF_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.FScycCorrDF{icyc});
     clear thisData
 end
 
@@ -36,7 +37,7 @@ end
 
 dataTC.dirTuning = dirTuning_TC;
 dataTC.FSfirstRsp = FSfirstRsp_TC;
-dataTC.FScycMaxDF = FScycMaxDF_TC;
+dataTC.FScycCorrDF = FScycCorrDF_TC;
 dataTC.FScycTargetRsp = FScycTargetRsp_TC;
 
 save('dataTC.mat','dataTC')

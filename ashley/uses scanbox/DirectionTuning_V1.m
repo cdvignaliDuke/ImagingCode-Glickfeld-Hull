@@ -1,18 +1,10 @@
-%% Parameters
-orig_rate = 30;
-final_rate = 3;
-down = orig_rate./final_rate;
-nON = (input.nScansOn)./down;
-nOFF = (input.nScansOff)./down;
-nStim = input.gratingDirectionStepN;
-
 %load data
-SubNum = '516';
-date = '141003';
-time = '1210';
-ImgFolder = '005';
-mouse = '516';
-fName = '005_000_000';
+SubNum = '607';
+date = '141209';
+time = '1807';
+ImgFolder = '004';
+mouse = 'AW07';
+fName = '004_000_000';
 
 % load MWorks file
 % load MWorks file
@@ -22,7 +14,7 @@ mworks = ['data-' 'i' SubNum '-' date '-' time];
 load (mworks);
 
 % Set current directory to temporary folder on Nuke - cannot analyze data from crash
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder ' - Direction Selectivity'];
+CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 data = readtiff('DirectionTuning_V1.tif');
 
@@ -58,8 +50,8 @@ writetiff(data_reg, 'DirectionTuning_V1');
 %%
 nRep = size(data_reg,3)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
-DirectionDeg = cell2mat(input.tGratingDirectionDeg);
-Dirs = unique(DirectionDeg);
+% DirectionDeg = cell2mat(input.tGratingDirectionDeg);
+% Dirs = unique(DirectionDeg);
 %% create dF/F stack
 %find off and on frames
 nOFF_ind = zeros(1,(nOFF*nStim*nRep));
@@ -76,17 +68,32 @@ nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
 %dF/F
 dF_data = bsxfun(@minus,data_reg, nOFF_avg);
 dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
-max_dF = max(dFoverF_data,[],3);
+% max_dF = max(dFoverF_data,[],3);
 figure; imagesq(max_dF); colormap(gray)
 
 %% use max dF/F to find ROIS
 
-bwout = imCellEditInteractive(max_dF);
+b = 5;
+siz = size(data_reg);
+corr_map = zeros(siz(1),siz(2));
+for ix = b:siz(2)-b
+    for iy = b:siz(1)-b
+        TC = data_reg(iy,ix,:);
+        surround = (data_reg(iy-1,ix-1,:)+data_reg(iy-1,ix,:)+data_reg(iy-1,ix+1,:)+data_reg(iy,ix-1,:)+data_reg(iy,ix+1,:)+data_reg(iy+1,ix-1,:)+data_reg(iy+1,ix,:)+data_reg(iy+1,ix+1,:))/8;
+        R = corrcoef(TC,surround);
+        corr_map(iy,ix) = R(1,2);
+    end
+end
+figure; imagesq(corr_map); colormap(gray)
+
+bwout = imCellEditInteractive(corr_map);
 mask_cell = bwlabel(bwout);
 
 %timecourses
 data_TC = stackGetTimeCourses(dFoverF_data,mask_cell);
 figure; tcOffsetPlot(data_TC)
+
+save('mask&TCDir.mat','mask_cell','data_TC');
 
 %% dF/F (by cell) for each stimulus type
 

@@ -22,7 +22,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,300:310),3);
+data_avg = mean(data_sub(:,:,100:110),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -55,8 +55,12 @@ nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
 %dF/F
 dF_data = bsxfun(@minus,data_reg, nOFF_avg);
 dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
-max_dF = max(dFoverF_data,[],3);
+% max_dF = max(dFoverF_data,[],3);
 figure; imagesq(max_dF); colormap(gray)
+
+%% testing...
+
+max_dF = max(dF_data,[],3);
 
 %% use max dF/F to find ROIS
 

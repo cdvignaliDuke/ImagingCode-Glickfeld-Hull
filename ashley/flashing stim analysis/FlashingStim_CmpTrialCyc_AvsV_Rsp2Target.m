@@ -1,7 +1,7 @@
-mouse = '516';
-SubNum = '516';
-date = '141003';
-ImgFolder = '002+003+004';
+mouse = 'AW04';
+SubNum = '604';
+date = '140923';
+ImgFolder = '005+006+007';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 load('dataStructVar.mat');
@@ -59,10 +59,6 @@ for icyc = 1:siz
 end
     
 
-
-
-
-
 % Auditory vs visual
     %auditory and visual indexes
 for icyc = 1:siz
@@ -73,46 +69,6 @@ for icyc = 1:siz
     cycV_ind{1,icyc} = thisInd;
     clear thisInd    
 end  
-
-% for icyc = 1:siz
-%     thisData = dataTrialsCells_TarRsp{icyc};
-%     start = 1;
-%     thisIndTar = cycTar_ind{icyc};
-%     thisIndA = cycA_ind{icyc};
-%     thisInd = intersect(thisIndTar,thisIndA);
-%     thisDataAvgCells = [];
-%     for itrial = thisInd
-%         thisDataAvgCells(:,start) = mean(thisData(:,itrial,:),3);
-%         start = start+1;
-%     end
-%     if isempty(thisDataAvgCells)
-%         cycAvgTC_A{1,icyc} = [];
-%     else        
-%         thisDataAvgTrials = mean(thisDataAvgCells,2);
-%         cycAvgTC_A{1,icyc} = thisDataAvgTrials;
-%     end
-%     clear thisData thisDataAvgCells thisDataAvgTrials thisIndTar thisIndA thisInd
-% end
-% 
-% for icyc = 1:siz
-%     thisData = dataTrialsCells_TarRsp{icyc};
-%     start = 1;
-%     thisIndTar = cycTar_ind{icyc};
-%     thisIndA = cycV_ind{icyc};
-%     thisInd = intersect(thisIndTar,thisIndA);
-%     thisDataAvgCells = [];
-%     for itrial = thisInd
-%         thisDataAvgCells(:,start) = mean(thisData(:,itrial,:),3);
-%         start = start+1;
-%     end
-%     if isempty(thisDataAvgCells)
-%         cycAvgTC_V{1,icyc} = [];
-%     else        
-%         thisDataAvgTrials = mean(thisDataAvgCells,2);
-%         cycAvgTC_V{1,icyc} = thisDataAvgTrials;
-%     end
-%     clear thisData thisDataAvgCells thisDataAvgTrials thisIndTar thisIndA thisInd
-% end
 
 for icyc = 1:siz
     thisData = dataTrialsCells{icyc};
@@ -138,8 +94,8 @@ for icyc = 1:siz
     thisData = dataTrialsCells{icyc};
     start = 1;
     thisIndTar = cycTar_ind{icyc};
-    thisIndA = cycV_ind{icyc};
-    thisInd = intersect(thisIndTar,thisIndA);
+    thisIndV = cycV_ind{icyc};
+    thisInd = intersect(thisIndTar,thisIndV);
     thisDataAvgCells = [];
     for itrial = thisInd
         thisDataAvgCells(:,start) = mean(thisData(:,itrial,:),3);
@@ -162,121 +118,115 @@ for icyc = 1:siz
     plot(cycAvgTC_V{icyc},'g');
     hold on
     for i = 1:nCycles+1
-    v = 5+ (i-1)*10.5;
-    vline(v,'k');
-    end
-    axis([0 125 -0.05 0.2]);
-    hold on
-end
-
-
-
-%% FSfirstRsp dataset
-data = dataTC.FSfirstRsp;
-nCells = size(data{1},2);
-
-for icyc = 1:siz
-    for icell = 1:nCells
-        thisL = dataStructVar.cycTrialL{icyc};
-        thisData = data{icyc};
-        for itrial = 1:dataStructVar.cycNTrials{icyc}
-            thisMat(:,itrial,icell) = thisData(1+(thisL.*(itrial-1)):thisL.*itrial,icell);
-        end
-        dataTrialsCells{icyc} = thisMat;
-    end
-    clear thisL thisData thisMat
-end
-
-    %average response to target by cell by trial
-for icyc = 1:siz
-    thisRL = 40;
-    thisTarget = dataStructVar.cycTargetOn{icyc};
-    thisData = dataTrialsCells{icyc};
-    for itrial = dataStructVar.cycNTrials{icyc}
-        for icell = 1:nCells
-        if isnan(thisTarget(itrial))
-            thisTarRsp(:,itrial,icell) = NaN(thisRL,1,1);
-        else
-            thisInd = thisTarget-19:thisTarget+20;
-            thisTarRsp(:,itrial,icell) = thisData(thisInd,itrial,icell);
-        end
-        end
-    end
-    dataTrialsCells_TarRsp{1,icyc} = thisTarRsp;
-    clear thisRL thisTarget thisData thisInd thisTarRsp
-end
-
-% Auditory vs visual
-    %auditory and visual indexes
-for icyc = 1:siz
-    thisInd = find(dataStructVar.cycBlock2ON{icyc} == 1);
-    cycA_ind{1,icyc} = thisInd;
-    clear thisInd
-    thisInd = find(dataStructVar.cycBlock2ON{icyc} == 0);
-    cycV_ind{1,icyc} = thisInd;
-    clear thisInd    
-end
-
-    %avg all trials all cells
-for icyc = 1:siz
-    thisData = dataTrialsCells_TarRsp{icyc};
-    start = 1;
-    for itrial = cycA_ind{icyc}
-        thisDataAvgCells(:,start) = mean(thisData(:,itrial,:),3);
-        start = start+1;
-    end
-    thisDataAvgTrials = mean(thisDataAvgCells,2);
-    cycAvgTC_A{1,icyc} = thisDataAvgTrials;
-    clear thisData thisDataAvgCells thisDataAvgTrials
-end
-
-for icyc = 1:siz
-    thisData = dataTrialsCells_TarRsp{icyc};
-    start = 1;
-    for itrial = cycV_ind{icyc}
-        thisDataAvgCells(:,start) = mean(thisData(:,itrial,:),3);
-        start = start+1;
-    end
-    thisDataAvgTrials = mean(thisDataAvgCells,2);
-    cycAvgTC_V{1,icyc} = thisDataAvgTrials;
-    clear thisData thisDataAvgCells thisDataAvgTrials
-end    
-
-nCycles = max(dataStructVar.Cycles);
-figure;
-for icyc = 1:siz
-    plot(cycAvgTC_A{icyc},'r');
-    hold on
-    plot(cycAvgTC_V{icyc},'g');
-    hold on
-    for i = 1:nCycles+1
-    v = 5+ (i-1)*10.5;
+    v = 5+ ((i-1)*10.5);
     vline(v,'k');
     end
     axis([0 125 -0.05 0.05]);
     hold on
 end
 
-    %avg all auditory and visual trials
+figure;
 for icyc = 1:siz
-        thisData = dataTrialsCells_TarRsp{icyc};
-        thisInd = cycA_ind{icyc};
-    for icell = 1:nCells
-        thisAvg(:,icell) = squeeze(mean(thisData(:,thisInd,icell),2));
-        dataCells_A{icyc} = thisAvg;
-        clear thisAvg
+    subplot(2,4,icyc);
+    plot(cycAvgTC_A{icyc},'r');
+    hold on
+    plot(cycAvgTC_V{icyc},'g');
+    hold on
+    axis([0 125 -0.05 0.05]);
+    for i = 1:nCycles+1
+    v = 5+ (i-1)*10.5;
+    vline(v,'k');
     end
-    clear thisData thisInd
+    hold on
+end
+
+%% frames around target only
+
+    %avg response for each cycle type
+for icyc = 1:siz
+    thisData = cycAvgTC_A{icyc};
+    thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+    thisInd = thisTar-10:thisTar+19;
+    if isempty(thisData)
+        thisTrace = [];
+    else
+        thisTrace = thisData(thisInd,:);
+    end
+    cycAvgTC_ATar{1,icyc} = thisTrace;
+    clear thisData thisTar thisInd thisTrace
 end
 
 for icyc = 1:siz
-        thisData = dataTrialsCells_TarRsp{icyc};
-        thisInd = cycV_ind{icyc};
-    for icell = 1:nCells
-        thisAvg(:,icell) = squeeze(mean(thisData(:,thisInd,icell),2));
-        dataCells_V{icyc} = thisAvg;
-        clear thisAvg
+    thisData = cycAvgTC_V{icyc};
+    thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+    thisInd = thisTar-10:thisTar+19;
+    if isempty(thisData)
+        thisTrace = [];
+    else
+        thisTrace = thisData(thisInd,:);
     end
-    clear thisData thisInd
+    cycAvgTC_VTar{1,icyc} = thisTrace;
+    clear thisData thisTar thisInd thisTrace
 end
 
+    %avg response for all targets (not weighted)
+
+for icyc = 1:siz
+    thisData = dataTrialsCells{icyc};
+    thisIndA = cycA_ind{icyc};
+    thisIndTar = cycTar_ind{icyc};
+    thisInd = intersect(thisIndTar,thisIndA);
+    thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+    thisTarL = thisTar-10:thisTar+19;
+        if isempty(thisInd)
+            thisDataTrials_A = [];
+        else
+        thisDataTrials_A(:,thisInd) = mean(thisData(thisTarL,thisInd,:),3);
+        end
+    dataTrials_A{icyc} = thisDataTrials_A;
+    clear thisData thisInd thisTar thisTarInd thisDataTrials_A
+end
+
+meanDataTrials_A = mean((cell2mat(dataTrials_A)),2);
+
+for icyc = 1:siz
+    thisData = dataTrialsCells{icyc};
+    thisIndV = cycV_ind{icyc};
+    thisIndTar = cycTar_ind{icyc};
+    thisInd = intersect(thisIndTar,thisIndV);
+    thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+    thisTarL = thisTar-10:thisTar+19;
+        if isempty(thisInd)
+            thisDataTrials_V = [];
+        else
+        thisDataTrials_V(:,thisInd) = mean(thisData(thisTarL,thisInd,:),3);
+        end
+    dataTrials_V{icyc} = thisDataTrials_V;
+    clear thisData thisInd thisTar thisTarInd thisDataTrials_A
+end
+
+meanDataTrials_V = mean((cell2mat(dataTrials_V)),2);
+
+    %plots
+    
+figure;
+for icyc = 1:siz
+    plot(cycAvgTC_ATar{icyc},'r');
+    hold on
+    plot(cycAvgTC_VTar{icyc},'g');
+    hold on
+    vline(10,'k');
+    axis([0 35 -0.05 0.2]);
+    hold on
+end
+
+figure;
+for icyc = 1:siz
+    plot(meanDataTrials_A,'r');
+    hold on
+    plot(meanDataTrials_V,'g');
+    hold on
+    vline(10,'k');
+    axis([0 35 -0.05 0.05]);
+    hold on
+end

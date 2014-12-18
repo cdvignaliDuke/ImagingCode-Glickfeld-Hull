@@ -14,9 +14,9 @@ load('dataStructDFoverF.mat')
 siz = size(dataStructDFoverF.Cycles,2);
 
 % direction tuning dataset
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\003 - Direction Selectivity'];
+CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\004'];
 cd(CD);
-load('mask_cell_DirTuning.mat');
+load('mask&TCDir.mat');
 dirTuning = mask_cell;
 clear mask_cell
 
@@ -27,59 +27,117 @@ CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 
 for icyc = 1:siz
-    thisMax = dataStructDFoverF.maxDFoverF{icyc};
+    b = 5;
+    data_reg = dataStructDFoverF.cycData{icyc};
+    siz1 = size(data_reg);
+    thisCorrMap = zeros(siz1(1),siz1(2));
+    for ix = b:siz1(2)-b
+        for iy = b:siz1(1)-b
+            TC = data_reg(iy,ix,:);
+            surround = (data_reg(iy-1,ix-1,:)+data_reg(iy-1,ix,:)+data_reg(iy-1,ix+1,:)+data_reg(iy,ix-1,:)+data_reg(iy,ix+1,:)+data_reg(iy+1,ix-1,:)+data_reg(iy+1,ix,:)+data_reg(iy+1,ix+1,:))/8;
+            R = corrcoef(TC,surround);
+            thisCorrMap(iy,ix) = R(1,2);
+        end
+    end
+    corrMap{1,icyc} = thisCorrMap;
+    clear data_reg siz1 surround R TC thisCorrMap
+end
+
+
+for icyc = 1:siz
+    thisMax = corrMap{icyc};
     bwout = imCellEditInteractive(thisMax);
     thisMask = bwlabel(bwout);
-    FScycMaxDF{icyc} = thisMask;
+    FScycCorrDF{icyc} = thisMask;
     clear thisMask thisMax bwout
 end
 
-dataMasks.FScycMaxDF = FScycMaxDF;
+dataMasks.FScycCorrDF = FScycCorrDF;
 
 %flashing stim - average first response
-for icyc = 1:siz
-    thisData = dataStructDFoverF.cycData{icyc};
-    thisL = dataStructDFoverF.cycTrialL{icyc};
-    start = 1;
-    for itrial = 1:dataStructDFoverF.cycNTrials{icyc}
-        thisDatabyTrial = thisData(:,:,(1+(thisL.*(itrial-1)):thisL.*itrial));
-        firstsData(:,:,start:start+29) = thisDatabyTrial(:,:,1:30);
-        start = start+30;
-    end
-    maxDFoverF(:,:,icyc) = max(firstsData,[],3);
-    clear thisData thisL thisDatabyTrial firstsData
-end
-
-FSfirstRspMax = max(maxDFoverF,[],3);
-clear maxDFoverF
-bwout = imCellEditInteractive(FSfirstRspMax);
-FSfirstRsp = bwlabel(bwout);
-
-dataMasks.FSfirstRsp = FSfirstRsp;
-
-%flashing stim - target response
-for icyc = 1:siz
-    thisData = dataStructDFoverF.cycData{icyc};
-    thisL = dataStructDFoverF.cycTrialL{icyc};
-    start = 1;
-    for itrial = 1:dataStructDFoverF.cycNTrials{icyc}
-        thisDatabyTrial = thisData(:,:,(1+(thisL.*(itrial-1)):thisL.*itrial));
-        targetData(:,:,start:start+49) = thisDatabyTrial(:,:,thisL-49:thisL);
-        start = start+50;
-    end
-    cycTargetMax{icyc} = max(targetData,[],3);
-    clear thisData thisL thisDatabyTrial targetData
-end
-
-for icyc = 1:siz
-    thisMax = cycTargetMax{icyc};
-    bwout = imCellEditInteractive(thisMax);
-    thisMask = bwlabel(bwout);
-    FScycTargetRsp{icyc} = thisMask;
-    clear thisMask thisMax bwout
-end
-
-dataMasks.FScycTargetRsp = FScycTargetRsp;
+%     start = 1;
+% for icyc = 1:siz
+%     thisData = dataStructDFoverF.cycData{icyc};
+%     thisL = dataStructDFoverF.cycTrialL{icyc};
+% 
+%     for itrial = 1:dataStructDFoverF.cycNTrials{icyc}
+%         thisDatabyTrial = thisData(:,:,(1+(thisL.*(itrial-1)):thisL.*itrial));
+%         firstsData(:,:,start:start+29) = thisDatabyTrial(:,:,1:30);
+%         start = start+30;
+%     end
+%     clear thisData thisL thisDatabyTrial 
+% end
+% avgFirstsData = mean(avgFirstsData,3);
+% 
+% 
+% b = 5;
+% data_reg = avgFirstsData;
+% siz1 = size(data_reg);
+% corrMapFirsts = zeros(siz1(1),siz1(2));
+% for ix = b:siz1(2)-b
+%     for iy = b:siz1(1)-b
+%         TC = data_reg(iy,ix,:);
+%         surround = (data_reg(iy-1,ix-1,:)+data_reg(iy-1,ix,:)+data_reg(iy-1,ix+1,:)+data_reg(iy,ix-1,:)+data_reg(iy,ix+1,:)+data_reg(iy+1,ix-1,:)+data_reg(iy+1,ix,:)+data_reg(iy+1,ix+1,:))/8;
+%         R = corrcoef(TC,surround);
+%         corrMapFirsts(iy,ix) = R(1,2);
+%     end
+% end
+% clear data_reg surround R TC 
+% 
+% bwout = imCellEditInteractive(corrMapFirsts);
+% FSfirstRsp = bwlabel(bwout);
+% 
+% dataMasks.FSfirstRsp = FSfirstRsp;
+% 
+% %flashing stim - target response
+% for icyc = 1:siz
+%     thisData = dataStructDFoverF.cycData{icyc};
+%     thisL = dataStructDFoverF.cycTrialL{icyc};
+%     start = 1;
+%     for itrial = 1:dataStructDFoverF.cycNTrials{icyc}
+%         thisDatabyTrial = thisData(:,:,(1+(thisL.*(itrial-1)):thisL.*itrial));
+%         targetData(:,:,start:start+49) = thisDatabyTrial(:,:,thisL-49:thisL);
+%         start = start+50;
+%     end
+%     cycTargetMax{icyc} = max(targetData,[],3);
+%     clear thisData thisL thisDatabyTrial targetData
+% end
+% 
+% for icyc = 1:siz
+%     thisData = dataStructDFoverF.cycData{icyc};
+%     thisL = dataStructDFoverF.cycTrialL{icyc};
+%     start = 1;
+%     for itrial = 1:dataStructDFoverF.cycNTrials{icyc}
+%         thisDatabyTrial = thisData(:,:,(1+(thisL.*(itrial-1)):thisL.*itrial));
+%         targetData(:,:,start:start+49) = thisDatabyTrial(:,:,thisL-49:thisL);
+%         start = start+50;
+%     end
+%     clear thisData thisL thisDatabyTrial 
+%     b = 5;
+%     data_reg = targetData;
+%     siz = size(data_reg);
+%     thisCorrMap = zeros(siz(1),siz(2));
+%     for ix = b:siz(2)-b
+%         for iy = b:siz(1)-b
+%             TC = data_reg(iy,ix,:);
+%             surround = (data_reg(iy-1,ix-1,:)+data_reg(iy-1,ix,:)+data_reg(iy-1,ix+1,:)+data_reg(iy,ix-1,:)+data_reg(iy,ix+1,:)+data_reg(iy+1,ix-1,:)+data_reg(iy+1,ix,:)+data_reg(iy+1,ix+1,:))/8;
+%             R = corrcoef(TC,surround);
+%             thisCorrMap(iy,ix) = R(1,2);
+%         end
+%     end
+%     corrMapTarget{1,icyc} = thisCorrMap;
+%     clear data_reg siz surround R TC thisCorrMap targetData
+% end
+% 
+% for icyc = 1:siz
+%     thisMax = corrMapTarget{icyc};
+%     bwout = imCellEditInteractive(thisMax);
+%     thisMask = bwlabel(bwout);
+%     FScycTargetRsp{icyc} = thisMask;
+%     clear thisMask thisMax bwout
+% end
+% 
+% dataMasks.FScycTargetRsp = FScycTargetRsp;
 
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
