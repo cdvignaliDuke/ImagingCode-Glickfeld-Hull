@@ -1,7 +1,7 @@
-mouse = 'AW04';
-SubNum = '604';
-date = '140923';
-ImgFolder = '005+006+007';
+mouse = 'AW07';
+SubNum = '607';
+date = '141215';
+ImgFolder = '004';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 load('dataStructVar.mat');
@@ -118,10 +118,10 @@ for icyc = 1:siz
     plot(cycAvgTC_V{icyc},'g');
     hold on
     for i = 1:nCycles+1
-    v = 5+ ((i-1)*10.5);
+    v = 5+ ((i-1)*(dataStructVar.ONfr+dataStructVar.OFFfr));
     vline(v,'k');
     end
-    axis([0 125 -0.05 0.05]);
+    axis([0 125 -0.05 0.1]);
     hold on
 end
 
@@ -132,20 +132,88 @@ for icyc = 1:siz
     hold on
     plot(cycAvgTC_V{icyc},'g');
     hold on
-    axis([0 125 -0.05 0.05]);
+    axis([0 125 -0.02 0.06]);
     for i = 1:nCycles+1
-    v = 5+ (i-1)*10.5;
+    v = 5+ (i-1)*(dataStructVar.ONfr+dataStructVar.OFFfr);
     vline(v,'k');
     end
+    t = 5+(dataStructVar.ONfr+dataStructVar.OFFfr).*(icyc+1);
+    vline(t,'c');
     hold on
 end
 
 %% frames around target only
 
-    %avg response for each cycle type
+%     %avg response for each cycle type
+% for icyc = 1:siz
+%     thisData = cycAvgTC_A{icyc};
+%     thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+%     thisInd = thisTar-10:thisTar+19;
+%     if isempty(thisData)
+%         thisTrace = [];
+%     else
+%         thisTrace = thisData(thisInd,:);
+%     end
+%     cycAvgTC_ATar{1,icyc} = thisTrace;
+%     clear thisData thisTar thisInd thisTrace
+% end
+% 
+% for icyc = 1:siz
+%     thisData = cycAvgTC_V{icyc};
+%     thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+%     thisInd = thisTar-10:thisTar+19;
+%     if isempty(thisData)
+%         thisTrace = [];
+%     else
+%         thisTrace = thisData(thisInd,:);
+%     end
+%     cycAvgTC_VTar{1,icyc} = thisTrace;
+%     clear thisData thisTar thisInd thisTrace
+% end
+% 
+%     %avg response for all targets (not weighted)
+% 
+% for icyc = 1:siz
+%     thisData = dataTrialsCells{icyc};
+%     thisIndA = cycA_ind{icyc};
+%     thisIndTar = cycTar_ind{icyc};
+%     thisInd = intersect(thisIndTar,thisIndA);
+%     thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+%     thisTarL = thisTar-10:thisTar+19;
+%         if isempty(thisInd)
+%             thisDataTrials_A = [];
+%         else
+%         thisDataTrials_A(:,thisInd) = mean(thisData(thisTarL,thisInd,:),3);
+%         end
+%     dataTrials_A{icyc} = thisDataTrials_A;
+%     clear thisData thisInd thisTar thisTarInd thisDataTrials_A
+% end
+% 
+% meanDataTrials_A = mean((cell2mat(dataTrials_A)),2);
+% 
+% for icyc = 1:siz
+%     thisData = dataTrialsCells{icyc};
+%     thisIndV = cycV_ind{icyc};
+%     thisIndTar = cycTar_ind{icyc};
+%     thisInd = intersect(thisIndTar,thisIndV);
+%     thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+%     thisTarL = thisTar-10:thisTar+19;
+%         if isempty(thisInd)
+%             thisDataTrials_V = [];
+%         else
+%         thisDataTrials_V(:,thisInd) = mean(thisData(thisTarL,thisInd,:),3);
+%         end
+%     dataTrials_V{icyc} = thisDataTrials_V;
+%     clear thisData thisInd thisTar thisTarInd thisDataTrials_A
+% end
+% 
+% meanDataTrials_V = mean((cell2mat(dataTrials_V)),2);
+
+% for datasets that used FlashingStim_2P_Frames
+%     %avg response for each cycle type
 for icyc = 1:siz
     thisData = cycAvgTC_A{icyc};
-    thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+    thisTar = (dataStructVar.ONfr+dataStructVar.OFFfr).*(icyc+1);
     thisInd = thisTar-10:thisTar+19;
     if isempty(thisData)
         thisTrace = [];
@@ -158,7 +226,7 @@ end
 
 for icyc = 1:siz
     thisData = cycAvgTC_V{icyc};
-    thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+    thisTar = (dataStructVar.ONfr+dataStructVar.OFFfr).*(icyc+1);
     thisInd = thisTar-10:thisTar+19;
     if isempty(thisData)
         thisTrace = [];
@@ -169,14 +237,13 @@ for icyc = 1:siz
     clear thisData thisTar thisInd thisTrace
 end
 
-    %avg response for all targets (not weighted)
-
+%     %avg response for all targets (not weighted)
 for icyc = 1:siz
     thisData = dataTrialsCells{icyc};
     thisIndA = cycA_ind{icyc};
     thisIndTar = cycTar_ind{icyc};
     thisInd = intersect(thisIndTar,thisIndA);
-    thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+    thisTar = 5+(dataStructVar.ONfr+dataStructVar.OFFfr).*(icyc+1);
     thisTarL = thisTar-10:thisTar+19;
         if isempty(thisInd)
             thisDataTrials_A = [];
@@ -194,7 +261,7 @@ for icyc = 1:siz
     thisIndV = cycV_ind{icyc};
     thisIndTar = cycTar_ind{icyc};
     thisInd = intersect(thisIndTar,thisIndV);
-    thisTar = ceil(((dataStructVar.ONms+dataStructVar.OFFms).*dataStructVar.RateFRperMS).*(icyc+1));
+    thisTar = 5+(dataStructVar.ONfr+dataStructVar.OFFfr).*(icyc+1);
     thisTarL = thisTar-10:thisTar+19;
         if isempty(thisInd)
             thisDataTrials_V = [];
@@ -206,6 +273,8 @@ for icyc = 1:siz
 end
 
 meanDataTrials_V = mean((cell2mat(dataTrials_V)),2);
+
+
 
     %plots
     

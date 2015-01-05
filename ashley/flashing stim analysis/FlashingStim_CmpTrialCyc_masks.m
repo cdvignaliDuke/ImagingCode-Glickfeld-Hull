@@ -1,10 +1,10 @@
-mouse = 'AW04';
-SubNum = '604';
-date = '140923';
-ImgFolder = '005+006+007';
+mouse = 'AW07';
+SubNum = '607';
+date = '141215';
+ImgFolder = '004';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
-load('dataStructDFoverF.mat')
+%run FlahsingStim_dataStruct.m to organize data first
 
 %%
 % create structure dataMask for max dF/F for datasets: direction tuning,
@@ -14,7 +14,7 @@ load('dataStructDFoverF.mat')
 siz = size(dataStructDFoverF.Cycles,2);
 
 % direction tuning dataset
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\004'];
+CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\003'];
 cd(CD);
 load('mask&TCDir.mat');
 dirTuning = mask_cell;

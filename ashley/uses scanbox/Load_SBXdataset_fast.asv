@@ -39,7 +39,7 @@ cd(CD);
 %%
 
 %new datasets
-nframes = 27000;
+nframes = 6000;
 tic
 data = sbxread(fName,0,nframes);
 toc

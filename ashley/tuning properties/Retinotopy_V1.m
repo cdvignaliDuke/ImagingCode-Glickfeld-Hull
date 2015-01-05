@@ -3,8 +3,8 @@
 orig_rate = 30;
 final_rate = 3;
 down = orig_rate./final_rate;
-nON = 100./down;
-nOFF = 100./down;
+nON = (input.nScansOn)./down;
+nOFF = (input.nScansOff)./down;
 nStim = 6;
 Az = [0 15 30];
 El = [10 -10];
@@ -55,7 +55,7 @@ nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
 %dF/F
 dF_data = bsxfun(@minus,data_reg, nOFF_avg);
 dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
-% max_dF = max(dFoverF_data,[],3);
+max_dF = max(dFoverF_data,[],3);
 figure; imagesq(max_dF); colormap(gray)
 
 %% testing...

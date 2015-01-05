@@ -1,10 +1,10 @@
 %load data
 SubNum = '607';
-date = '141209';
-time = '1807';
-ImgFolder = '004';
+date = '141215';
+time = '1621';
+ImgFolder = '003';
 mouse = 'AW07';
-fName = '004_000_000';
+fName = '003_000_000';
 
 % load MWorks file
 % load MWorks file
@@ -16,8 +16,7 @@ load (mworks);
 % Set current directory to temporary folder on Nuke - cannot analyze data from crash
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
-data = readtiff('DirectionTuning_V1.tif');
-
+%used load_SBXdataset_fast.m to load data
 %% Parameters
 orig_rate = 30;
 final_rate = 3;
@@ -71,7 +70,7 @@ dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
 % max_dF = max(dFoverF_data,[],3);
 figure; imagesq(max_dF); colormap(gray)
 
-%% use max dF/F to find ROIS
+%% use correlation dF/F to find ROIS
 
 b = 5;
 siz = size(data_reg);

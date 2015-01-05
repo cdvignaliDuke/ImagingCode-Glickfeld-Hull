@@ -1,11 +1,11 @@
 %% Sort by and plot all trial lengths after loading experiment
 
-%cat all datasets
-date = '141209';
+
+date = '141215';
 mouse = 'AW07';
 SubNum = '607';
-ImgFolder = '002';
-time = '1744';
+ImgFolder = '004';
+time = '1635';
 
     % MWorks file
 CD = ['Z:\data\' mouse '\MWorks\' date];
@@ -14,8 +14,25 @@ mworks = ['data-' 'i' SubNum '-' date '-' time];
 load (mworks);
 
     % save in
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder '\FlashingStimAnalysis'];
+CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
+
+edit Load_SBXdataset_fast.m
+
+
+%remove negative data (by addition)
+data_sub = data-min(min(min(data,[],1),[],2),[],3);
+data = data_sub;
+clear data_sub
+
+%register to averaged frames
+data_avg = mean(data(:,:,3000:3010),3);
+figure; imagesq(data_avg); colormap(gray)
+
+[out data_reg] = stackRegister(data, data_avg);
+clear data
+data = data_reg;
+clear data_reg
 
 data = double(data);
 
@@ -36,8 +53,10 @@ cLeverUp = double(cell2mat(input.cLeverUp));
 cLeverUp = cLeverUp(1:end-1);
 tCyclesOn = double(cell2mat(input.tCyclesOn));
 tCyclesOn = tCyclesOn(1:end-1);
-ONms = input.stimOnTimeMs;
-OFFms = input.stimOffTimeMs;
+% ONms = input.stimOnTimeMs;
+% OFFms = input.stimOffTimeMs;
+ONfr = input.nFramesOn;
+OFFfr = input.nFramesOff;
 RateFRperMS = 30./1000;
 Block2ON = double(cell2mat(input.tBlock2TrialNumber));
 Block2ON = Block2ON(1:end-1);
@@ -124,16 +143,18 @@ end
         dataStruct.cycTrialOutcome(icyc) = cycTrialOutcome(icyc);
     end
     
-    dataStruct.ONms = ONms;
-    dataStruct.OFFms = OFFms;
+    dataStruct.ONfr = ONfr;
+    dataStruct.OFFfr = OFFfr;
+%     dataStruct.ONms = ONms;
+%     dataStruct.OFFms = OFFms;    
     dataStruct.RateFRperMS = RateFRperMS;
     dataStruct.Cycles = Cycles;
     dataStruct.minCyclesOn = minCyclesOn;
     dataStruct.maxCyclesOn = maxCyclesOn;
 
-date = '141209';
+date = '141215';
 mouse = 'AW07';
-ImgFolder = '002';    
+ImgFolder = '004';    
 dataStruct.mouse = mouse;
 dataStruct.date = date;
 dataStruct.ImgFolder = ImgFolder;    
@@ -184,8 +205,10 @@ dataStructDFoverF.cycTargetOn = dataStruct.cycTargetOn;
 dataStructDFoverF.cycLeverOn = dataStruct.cycLeverOn;
 dataStructDFoverF.cycBlock2ON = dataStruct.cycBlock2ON;
 dataStructDFoverF.cycTrialOutcome = dataStruct.cycTrialOutcome;
-dataStructDFoverF.ONms = dataStruct.ONms;
-dataStructDFoverF.OFFms = dataStruct.OFFms;
+% dataStructDFoverF.ONms = dataStruct.ONms;
+% dataStructDFoverF.OFFms = dataStruct.OFFms;
+dataStructDFoverF.ONfr = dataStruct.ONfr;
+dataStructDFoverF.OFFfr = dataStruct.OFFfr;
 dataStructDFoverF.RateFRperMS = dataStruct.RateFRperMS;
 dataStructDFoverF.Cycles = dataStruct.Cycles;
 dataStructDFoverF.minCyclesOn = dataStruct.minCyclesOn;

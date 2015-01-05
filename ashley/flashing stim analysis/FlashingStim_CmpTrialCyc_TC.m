@@ -1,9 +1,10 @@
-mouse = '516';
-date = '141003';
-ImgFolder = '002+003+004';
+mouse = 'AW07';
+SubNum = '607';
+date = '141215';
+ImgFolder = '004';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
-load('dataStructDFoverF.mat')
+%run FlahsingStim_dataStruct.m to organize data first
 load('dataMasks.mat')
 
 %% save timecourses for different masks along with relevant variables
@@ -16,12 +17,13 @@ for icyc = 1:siz
     clear thisData
 end
 
+% others
 
-for icyc = 1:siz
-    thisData = dataStructDFoverF.cycData{icyc};
-    FSfirstRsp_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.FSfirstRsp);
-    clear thisData
-end
+% for icyc = 1:siz
+%     thisData = dataStructDFoverF.cycData{icyc};
+%     FSfirstRsp_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.FSfirstRsp);
+%     clear thisData
+% end
 
 for icyc = 1:siz
     thisData = dataStructDFoverF.cycData{icyc};
@@ -29,15 +31,15 @@ for icyc = 1:siz
     clear thisData
 end
 
-for icyc = 1:siz
-    thisData = dataStructDFoverF.cycData{icyc};
-    FScycTargetRsp_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.FScycTargetRsp{icyc});
-    clear thisData
-end
+% for icyc = 1:siz
+%     thisData = dataStructDFoverF.cycData{icyc};
+%     FScycTargetRsp_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.FScycTargetRsp{icyc});
+%     clear thisData
+% end
 
 dataTC.dirTuning = dirTuning_TC;
-dataTC.FSfirstRsp = FSfirstRsp_TC;
+% dataTC.FSfirstRsp = FSfirstRsp_TC;
 dataTC.FScycCorrDF = FScycCorrDF_TC;
-dataTC.FScycTargetRsp = FScycTargetRsp_TC;
+% dataTC.FScycTargetRsp = FScycTargetRsp_TC;
 
 save('dataTC.mat','dataTC')
