@@ -139,15 +139,15 @@ for icell = 1:16
 end
 end
 
-data_TCavgTrialsCells = squeeze(mean(mean(data_TCtrialsSort,3),2));
+data_TCavgTrialsCells = squeeze(mean(mean(data_TCtrialsSort(:,:,2:end,:),3),2));
 figure;
 for istim = 1:nStim
     subplot(2,3,istim)
     hold on
-    plot(data_TCavgTrialsCells(nOFF-5:end,istim))
-    axis([0 (nOFF-(nOFF-5)+nON) -0.05 0.05]);
+    plot(data_TCavgTrialsCells(:,istim))
+    axis([0 (nOFF+nON) -0.05 0.05]);
     hold on
-    vline(nOFF-(nOFF-5),'c');
+    vline(nOFF,'c');
     hold on
 end
 

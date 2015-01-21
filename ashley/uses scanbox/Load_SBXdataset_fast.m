@@ -1,10 +1,10 @@
 %% load 2P imaging data
 SubNum = '607';
 date = '141215';
-time = '1635';
-ImgFolder = '004';
+time = '1613';
+ImgFolder = '002';
 mouse = 'AW07';
-fName = '004_000_000';
+fName = '002_000_000';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -15,6 +15,8 @@ load (mworks);
 % Set current directory to temporary folder on Nuke - cannot analyze data from crash
 CD = ['D:\Ashley_temp' '\' date '\' ImgFolder];
 cd(CD);
+imgMatFile = [fName '.mat'];
+load(imgMatFile);
 
 %%
 
@@ -39,7 +41,7 @@ cd(CD);
 %%
 
 %new datasets
-nframes = 27000;
+nframes = info.config.frames;
 tic
 data = sbxread(fName,0,nframes);
 toc

@@ -1,6 +1,6 @@
 mouse = 'AW07';
 date = '141215';
-ImgFolder = '004';
+ImgFolder = '005';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 %run FlahsingStim_dataStruct.m to organize data first

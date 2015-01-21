@@ -4,8 +4,8 @@
 date = '141215';
 mouse = 'AW07';
 SubNum = '607';
-ImgFolder = '004';
-time = '1635';
+ImgFolder = '005';
+time = '1655';
 
     % MWorks file
 CD = ['Z:\data\' mouse '\MWorks\' date];
@@ -26,7 +26,7 @@ data = data_sub;
 clear data_sub
 
 %register to averaged frames
-data_avg = mean(data(:,:,3000:3010),3);
+data_avg = mean(data(:,:,4000:4010),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data, data_avg);
@@ -154,7 +154,7 @@ end
 
 date = '141215';
 mouse = 'AW07';
-ImgFolder = '004';    
+ImgFolder = '005';    
 dataStruct.mouse = mouse;
 dataStruct.date = date;
 dataStruct.ImgFolder = ImgFolder;    

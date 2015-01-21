@@ -1,7 +1,7 @@
 mouse = 'AW07';
 SubNum = '607';
-date = '141209';
-ImgFolder = '002';
+date = '141215';
+ImgFolder = '005';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 load('dataStructVar.mat');

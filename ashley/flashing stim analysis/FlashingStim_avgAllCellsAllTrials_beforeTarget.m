@@ -93,7 +93,7 @@ end
 % trial, but cumulatively
 start = 1;
 for ilength = dataStructVar.Cycles
-    L(start) = ceil(5+ (ilength-1)*10.5);
+    L(start) = ceil(5+ (ilength-1)*11);
     start = start+1;
 end
 
