@@ -1,7 +1,7 @@
 mouse = 'AW07';
 SubNum = '607';
-date = '141215';
-ImgFolder = '005';
+date = '150121';
+ImgFolder = '003';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 %run FlahsingStim_dataStruct.m to organize data first
@@ -16,6 +16,14 @@ for icyc = 1:siz
     dirTuning_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.dirTuning);
     clear thisData
 end
+
+%retTuning
+for icyc = 1:siz
+    thisData = dataStructDFoverF.cycData{icyc};
+    retTuning_TC{icyc} = stackGetTimeCourses(thisData,dataMasks.retTuning);
+    clear thisData
+end
+
 
 % others
 
@@ -38,6 +46,7 @@ end
 % end
 
 dataTC.dirTuning = dirTuning_TC;
+dataTC.retTuning = retTuning_TC;
 % dataTC.FSfirstRsp = FSfirstRsp_TC;
 dataTC.FScycCorrDF = FScycCorrDF_TC;
 % dataTC.FScycTargetRsp = FScycTargetRsp_TC;

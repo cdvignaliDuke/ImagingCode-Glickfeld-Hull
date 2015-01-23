@@ -1,4 +1,4 @@
-% auditory vs. visual trace for average of all trials all cells up to, but
+% auditory vs. visual trace for average of all trials for negative up to, but
 % not including the target, this way there are many trials at least for low
 % numbers of cycles - this is an attempt to smooth the curves and reduce
 % noise
@@ -15,10 +15,10 @@ load('dataTC.mat');
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 
-%% dirTuning dataset
+%% retTuningNegative dataset
 %get average response to vis stim for each cycle
 siz = size(dataStructVar.Cycles,2);
-data = dataTC.retTuning;
+data = dataTC.retTuningNegative;
 nCells = size(data{1},2);
 
 for icyc = 1:siz
@@ -170,4 +170,3 @@ for icyc = 1:siz
     axis([0 v -0.05 0.05]);
     hold on
 end
-    

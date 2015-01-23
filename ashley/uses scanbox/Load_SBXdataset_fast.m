@@ -1,10 +1,10 @@
 %% load 2P imaging data
 SubNum = '607';
-date = '141215';
-time = '1613';
-ImgFolder = '002';
+date = '150121';
+time = '1832';
+ImgFolder = '001';
 mouse = 'AW07';
-fName = '002_000_000';
+fName = '001_000_000';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -52,37 +52,37 @@ data = squeeze(data);
 
 % % pre-yeti data (before 14/11/12)
 % %for splitting up data
-% %first half
+% first half
 % nframes = 27000;
 % half = nframes./2;
 % tic % tic and toc will tell you how long matlab took to load the data.
 % ncores = 6;
 % parpool = ncores;
-% %set the size of the batch that each stream will read
+% set the size of the batch that each stream will read
 % nbatch = half./ncores;
-% %create a parallel loop to load the data
+% create a parallel loop to load the data
 % parfor i=1:ncores
 %     data1(:,:,:,:,i) = sbxread1(fName, ((i-1)*nbatch), nbatch);
 % end
-% %reshape data to make a 3D stack
+% reshape data to make a 3D stack
 % pmt = 1; %1 = green 2 = red
 % data1 = squeeze(data1(pmt,:,:,:,:));
 % siz = size(data1);
 % data1 = reshape (data1, siz(1), siz(2), siz(3)*ncores);
 % toc
-% %second half
+% second half
 % tic
-% %create a parallel loop to load the data
+% create a parallel loop to load the data
 % parfor i=1:ncores
 %     data2(:,:,:,:,i) = sbxread1(fName, ((i-1)*nbatch)+half, nbatch);
 % end
-% %reshape data to make a 3D stack
+% reshape data to make a 3D stack
 % pmt = 1; %1 = green 2 = red
 % data2 = squeeze(data2(pmt,:,:,:,:));
 % siz = size(data2);
 % data2 = reshape (data2, siz(1), siz(2), siz(3)*ncores);
 % toc
-% 
+
 % %put together
 % data = cat(3,data1,data2);
 % clear data1

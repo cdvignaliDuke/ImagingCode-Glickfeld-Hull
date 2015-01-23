@@ -1,7 +1,7 @@
 mouse = 'AW07';
 SubNum = '607';
-date = '141215';
-ImgFolder = '005';
+date = '150121';
+ImgFolder = '003';
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 %run FlahsingStim_dataStruct.m to organize data first
@@ -21,6 +21,15 @@ dirTuning = mask_cell;
 clear mask_cell
 
 dataMasks.dirTuning = dirTuning;
+
+% retinotopy dataset
+CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\001'];
+cd(CD);
+load('mask&TCRet.mat');
+retTuning = mask_cell;
+clear mask_cell
+
+dataMasks.retTuning = retTuning;
 
 % flashing stim datasets
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];

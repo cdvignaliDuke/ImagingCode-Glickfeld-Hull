@@ -1,24 +1,15 @@
 %% Sort by and plot all trial lengths after loading experiment
 
-
-date = '141215';
-mouse = 'AW07';
-SubNum = '607';
-ImgFolder = '005';
-time = '1655';
-
-    % MWorks file
-CD = ['Z:\data\' mouse '\MWorks\' date];
-cd(CD);
-mworks = ['data-' 'i' SubNum '-' date '-' time]; 
-load (mworks);
-
-    % save in
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
-cd(CD);
-
 edit Load_SBXdataset_fast.m
 
+date = '150121';
+mouse = 'AW07';
+ImgFolder = '005';    
+dataStruct.mouse = mouse;
+dataStruct.date = date;
+dataStruct.ImgFolder = ImgFolder;    
+CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
+cd(CD);
 
 %remove negative data (by addition)
 data_sub = data-min(min(min(data,[],1),[],2),[],3);
@@ -26,7 +17,7 @@ data = data_sub;
 clear data_sub
 
 %register to averaged frames
-data_avg = mean(data(:,:,4000:4010),3);
+data_avg = mean(data(:,:,2000:2090),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data, data_avg);
@@ -152,14 +143,7 @@ end
     dataStruct.minCyclesOn = minCyclesOn;
     dataStruct.maxCyclesOn = maxCyclesOn;
 
-date = '141215';
-mouse = 'AW07';
-ImgFolder = '005';    
-dataStruct.mouse = mouse;
-dataStruct.date = date;
-dataStruct.ImgFolder = ImgFolder;    
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
-cd(CD);
+
 
 
 %% dF/F
@@ -220,7 +204,6 @@ dataStructDFoverF.ImgFolder = dataStruct.ImgFolder;
 
 CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
-save('dataStructDFoverF.mat','dataStructDFoverF');
 
 
     

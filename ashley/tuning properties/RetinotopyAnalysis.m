@@ -1,11 +1,10 @@
 SubNum = '607';
-date = '141215';
-time = '1613';
-ImgFolder = '002';
+date = '150121';
+time = '1832';
+ImgFolder = '001';
 mouse = 'AW07';
-fName = '002_000_000';
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
-cd(CD);
+fName = '001_000_000';
+
 
 
 % data_reg = readtiff('Retinotopy_V1.tif');
@@ -18,7 +17,7 @@ data_sub = data-min(min(min(data,[],1),[],2),[],3);
 clear data
 
 % register
-data_avg = mean(data_sub(:,:,100:110),3);
+data_avg = mean(data_sub(:,:,900:910),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -93,10 +92,16 @@ figure; imagesq(corr_map); colormap(gray)
 % mask_cell = bwlabel(bwout);
 bwout = imCellEditInteractive(corr_map);
 mask_cell = bwlabel(bwout);
+    %found with 0.9 and 3pixels
 
 %timecourses
 data_TC = stackGetTimeCourses(dFoverF_data,mask_cell);
 figure; tcOffsetPlot(data_TC)
+
+%save
+CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
+cd(CD);
+save('mask&TCRet.mat', 'data_TC', 'mask_cell');
 %%
 % find on indices for the first frame of each stimulus start period and iti (Off) period
 for itrial = 1:(nStim*nRep)
@@ -139,15 +144,15 @@ for icell = 1:16
 end
 end
 
-data_TCavgTrialsCells = squeeze(mean(mean(data_TCtrialsSort,3),2));
+data_TCavgTrialsCells = squeeze(mean(mean(data_TCtrialsSort(:,:,:,:),3),2));
 figure;
 for istim = 1:nStim
     subplot(2,3,istim)
     hold on
-    plot(data_TCavgTrialsCells(nOFF-5:end,istim))
-    axis([0 (nOFF-(nOFF-5)+nON) -0.05 0.05]);
+    plot(data_TCavgTrialsCells(:,istim))
+    axis([0 (nOFF+nON) -0.05 0.05]);
     hold on
-    vline(nOFF-(nOFF-5),'c');
+    vline(nOFF,'c');
     hold on
 end
 
