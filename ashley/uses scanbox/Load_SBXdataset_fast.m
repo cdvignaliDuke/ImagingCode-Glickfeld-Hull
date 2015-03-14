@@ -1,10 +1,10 @@
 %% load 2P imaging data
 SubNum = '607';
-date = '150121';
-time = '1832';
-ImgFolder = '001';
+date = '141215';
+time = '1621';
+ImgFolder = '003';
 mouse = 'AW07';
-fName = '001_000_000';
+fName = '003_000_000';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -13,30 +13,12 @@ mworks = ['data-' 'i' SubNum '-' date '-' time];
 load (mworks);
 
 % Set current directory to temporary folder on Nuke - cannot analyze data from crash
-CD = ['D:\Ashley_temp' '\' date '\' ImgFolder];
+CD = ['Z:\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
+% CD = ['D:\Ashley_temp\' date '\' ImgFolder];
+% cd(CD);
 imgMatFile = [fName '.mat'];
 load(imgMatFile);
-
-%%
-
-% %set the number of parallel streams (I think we have up to 8 cores)
-% tic % tic and toc will tell you how long matlab took to load the data.
-% nframes = 9000;
-% ncores = 6;
-% parpool = ncores;
-% %set the size of the batch that each stream will read
-% nbatch = nframes./ncores;
-% %create a parallel loop to load the data
-% parfor i=1:ncores
-%     data(:,:,:,:,i) = sbxread(fName, ((i-1)*nbatch), nbatch);
-% end
-% %reshape data to make a 3D stack
-% pmt = 1; %1 = green 2 = red
-% data = squeeze(data(pmt,:,:,:,:));
-% siz = size(data);
-% data = reshape (data, siz(1), siz(2), siz(3)*ncores);
-% toc
 
 %%
 
@@ -49,7 +31,29 @@ toc
 % data = squeeze(data(pmt,:,:,:,:));
 data = squeeze(data);
 
+%% pre-yeti data (before 14/11/12)
+% 
+% %set the number of parallel streams (I think we have up to 8 cores)
+% tic % tic and toc will tell you how long matlab took to load the data.
+% nframes = info.config.frames;
+% ncores = 6;
+% parpool = ncores;
+% %set the size of the batch that each stream will read
+% nbatch = nframes./ncores;
+% %create a parallel loop to load the data
+% parfor i=1:ncores
+%     data(:,:,:,:,i) = sbxread1(fName, ((i-1)*nbatch), nbatch);
+% end
+% %reshape data to make a 3D stack
+% pmt = 1; %1 = green 2 = red
+% data = squeeze(data(pmt,:,:,:,:));
+% siz = size(data);
+% data = reshape (data, siz(1), siz(2), siz(3)*ncores);
+% toc
 
+
+
+%%
 % % pre-yeti data (before 14/11/12)
 % %for splitting up data
 % first half
