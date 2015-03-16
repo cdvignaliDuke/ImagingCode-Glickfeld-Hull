@@ -11,14 +11,23 @@ figure; imagesq(data_avg); colormap(gray)
 clear data
 
 % get cells
-masksFolder = '005'; %changes according to dataset
+masksFolder = '003'; %changes according to dataset
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, masksFolder);
 
 cd(fileDirMasks);
 load('mask&TCDir.mat');
+load('npilMask&TCDir.mat');
+clear npilTC data_TC
 
 % get timecourses
 dataTC = stackGetTimeCourses(data_reg, mask_cell);
+
+% get neuropil timecourses
+npilTC = stackGetTimeCourses(data_reg,npilMask);
+
+% get neuropil subtraction
+dataTCsub = dataTC-npilTC;
+dataTCsub(dataTCsub<0) = 0;
 
 %save in
 try
@@ -32,7 +41,10 @@ catch
     cd(fileSave);
 end
 dataTimecourse.dataTC = dataTC;
+dataTimecourse.dataTCsub = dataTCsub;
+dataTimecourse.npilTC = npilTC;
 dataTimecourse.mouse = mouse;
 dataTimecourse.date = date;
 dataTimecourse.dataset = ImgFolder;
-save('dataTC.mat','dataTimecourse')
+save('Timecourses.mat','dataTimecourse')
+

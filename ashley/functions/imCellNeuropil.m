@@ -19,6 +19,18 @@ for i = 1:(length(unique(cellmask))-1)
     neuropil(tempmask == 1) = i;
 end
 
+cellsMaskCell = unique(cellmask);
+cellsNeuropil = unique(neuropil);
+missingcells = setdiff(cellsMaskCell,cellsNeuropil);
+
+if isempty(missingcells) == 0;
+    tempmask = zeros(size(cellmask));
+    for i = missingcells
+        neuropil(1,i) = i;
+    end
+    disp('Cells are missing neuropil, added as edge pixel')
+end
+
 f = neuropil;
 
 end

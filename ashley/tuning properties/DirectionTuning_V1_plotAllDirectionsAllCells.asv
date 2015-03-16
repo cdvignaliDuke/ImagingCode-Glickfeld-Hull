@@ -77,7 +77,7 @@ errbar = zeros(nStim,size(data_TC,2));
 for ifig = 1:ceil(size(data_TC,2)/15)
 figure;
 for iplot = 1:15
-    cell = baselineStimRespIndex_V(start);
+%     cell = baselineStimRespIndex_V(start);
     cell = start;
     ymax = .1;
     subplot(4,4,iplot);
@@ -103,9 +103,9 @@ for iplot = 1:15
     end
     start = start+1;
     hold on
-%     if ismember(cell,baselineStimRespIndex_V) > 0
-%         set(subplot(4,4,iplot),'color',[0.9 0.9 0.9])
-%     end
+    if ismember(cell,baselineStimRespIndex_V) > 0
+        set(subplot(4,4,iplot),'color',[0.9 0.9 0.9])
+    end
 end
 end
 

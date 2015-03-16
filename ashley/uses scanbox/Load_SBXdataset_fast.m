@@ -1,10 +1,10 @@
 %% load 2P imaging data
 SubNum = '607';
 date = '141215';
-time = '1621';
-ImgFolder = '003';
+time = '1635';
+ImgFolder = '004';
 mouse = 'AW07';
-fName = '003_000_000';
+fName = '004_000_000';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -50,7 +50,7 @@ data = squeeze(data);
 % siz = size(data);
 % data = reshape (data, siz(1), siz(2), siz(3)*ncores);
 % toc
-
+% 
 
 
 %%

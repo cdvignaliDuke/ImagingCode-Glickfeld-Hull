@@ -1,8 +1,8 @@
-SubNum = '516';
-date = '141003';
-time = '1156';
-ImgFolder = '002';
-mouse = '516';
+SubNum = '607';
+date = '141215';
+time = '1635';
+ImgFolder = '004';
+mouse = 'AW07';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -13,8 +13,12 @@ load (mworks);
 % load dataTC
 fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
 cd(fileSave);
-load('dataTC.mat');
-dataTC = dataTimecourse.dataTC;
+% load('dataTC.mat');
+load('Timecourses.mat');
+dataTC = dataTimecourse.dataTC - dataTimecourse.npilTC ;
+dataTC(dataTC<0) = 0;
+% dataTC = dataTimecourse.dataTCsub;
+
 
 %variables from mworks
 cLeverDown = cell2mat_padded(input.cLeverDown);
@@ -22,10 +26,10 @@ cTargetOn = cell2mat_padded(input.cTargetOn);
 tCyclesOn = cell2mat_padded(input.tCyclesOn);
 block2 = cell2mat_padded(input.tBlock2TrialNumber);
 cycles = unique(tCyclesOn);
-% cycTime = input.nFramesOn + input.nFramesOff;
-frameRateS = 30; %hard-coded for now, but should be available in scanbox-yeti datasets' info file
-RateFRperMS = frameRateS/1000;
-cycTime = ceil((input.stimOnTimeMs+input.stimOffTimeMs)*RateFRperMS);
+cycTime = input.nFramesOn + input.nFramesOff;
+% frameRateS = 30; %hard-coded for now, but should be available in scanbox-yeti datasets' info file
+% RateFRperMS = frameRateS/1000;
+% cycTime = ceil((input.stimOnTimeMs+input.stimOffTimeMs)*RateFRperMS);
 nTrials = input.trialSinceReset;
 
 % % special case where last trial take place within last 2 frames collected
@@ -52,7 +56,7 @@ for icyc = 1:length(cycles)
     cycDataDFoverF{icyc} = DataDFoverF;
 end
 
-save('cycDataDFoverF.mat','cycDataDFoverF');
+% save('cycDataDFoverF.mat','cycDataDFoverF');
 
 % plot average of all cells for like-cycle lengths
 figure;
@@ -134,4 +138,4 @@ for icyc = 1:length(cycles)
     hold on
 end
 
-save('cycDataDFoverF_cmlvNoTarget.mat', 'cycDataDFoverF_cmlvNoTarget', 'cycA_ind', 'cycV_ind');
+% save('cycDataDFoverF_cmlvNoTarget.mat', 'cycDataDFoverF_cmlvNoTarget', 'cycA_ind', 'cycV_ind');

@@ -1,7 +1,7 @@
 %% animal and experiment date
-SubNum = '516';
-mouse = '516';
-date = '141003';
+SubNum = '607';
+mouse = 'AW07';
+date = '141215';
 
 %% open notes pdf
 CD = ['Z:\data\' mouse '\two-photon imaging\' date];

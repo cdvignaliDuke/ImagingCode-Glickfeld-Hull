@@ -4,7 +4,7 @@ edit DirectionTuning_V1_plotAllDirectionsAllCells.m
 %% get neuropil signal
 
 load('mask&TCDir.mat');
-clear dataTC
+clear dataTC data_TC
 
 npilMask = imCellNeuropil(mask_cell,3,5);
 npilTC = stackGetTimeCourses(data_reg,npilMask);
@@ -51,6 +51,38 @@ end
 dFoverF_meanDirResp_sub = dFoverF_meanDirResp - dFoverF_meanDirResp_npil;
 dFoverFCellsTrials_sub = dFoverFCellsTrials - dFoverFNpilTrials;
 
+%% plot all neuropil
+cMap = colormap(jet(nStim));
+start = 1;
+for ifig = 1:ceil(size(data_TC,2)/15)
+figure;
+for iplot = 1:15
+    cell = start;
+    ymax = .1;
+    subplot(4,4,iplot);
+    for i = 1:nStim
+        plot(dFoverF_meanDirResp_npil(:,cell,i),'color',cMap(i,:));
+        hold on
+        vline(10,'k');
+        hold on
+        title(['neuropil' num2str(cell)]);
+        hold on
+        ymax_i = max(dFoverF_meanDirResp_npil(:,cell,i),[],1);
+        if ymax_i > ymax
+            ymax = ymax_i;
+        end
+        axis([0 20 -0.05 ymax]);
+        hold on
+        legendInfo{i} = [num2str(Dirs(i)) ' degrees'];
+        hold on
+    end
+    if iplot == 1
+        legend(legendInfo,'Location','SouthEast')
+    end
+    start = start+1;
+    hold on
+end
+end
 %% plot all cells
 cMap = colormap(jet(nStim));
 start = 1;
@@ -65,7 +97,7 @@ for iplot = 1:15
         hold on
         vline(10,'k');
         hold on
-        title(['cell' num2str(cell)]);
+        title(['cell - npil' num2str(cell)]);
         hold on
         ymax_i = max(dFoverF_meanDirResp_sub(:,cell,i),[],1);
         if ymax_i > ymax
