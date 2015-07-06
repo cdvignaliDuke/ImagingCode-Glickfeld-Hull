@@ -2,7 +2,7 @@
 
 edit Load_SBXdataset_fast.m
 
-date = '150121';
+date = '141215';
 mouse = 'AW07';
 ImgFolder = '005';    
 dataStruct.mouse = mouse;
@@ -156,13 +156,15 @@ for icyc = 1:siz
     cycF{1,icyc} = thisCycData;
     clear thisCycData
 end
+%pre-allocate before running...
 
 for icyc = 1:siz
+    thisCycData = zeros(size(cycData{1,icyc}));
+    thisData = dataStruct.cycData{icyc};
+    thisDataF = cycF{1,icyc};
     for itrial = 1:dataStruct.cycNTrials{icyc}
         start1 = dataStruct.cycTrialL{icyc}.*(itrial-1)+1;
         start2 = dataStruct.cycTrialL{icyc}.*(itrial);
-        thisData = dataStruct.cycData{icyc};
-        thisDataF = cycF{icyc};
         thisCycData(:,:,start1:start2) = bsxfun(@minus,thisData(:,:,start1:start2),thisDataF(:,:,itrial));
     end
     cycDF{1,icyc} = thisCycData;
@@ -170,12 +172,27 @@ for icyc = 1:siz
 end
 
 for icyc = 1:siz
+    thisCycData = zeros(size(cycData{1,icyc}));
+    thisDataDF = cycDF{1,icyc};
+    thisDataF = cycF{1,icyc};
     for itrial = 1:dataStruct.cycNTrials{icyc}
         start1 = dataStruct.cycTrialL{icyc}.*(itrial-1)+1;
         start2 = dataStruct.cycTrialL{icyc}.*(itrial);
-        thisDataDF = cycDF{icyc};
-        thisDataF = cycF{icyc};
         thisCycData(:,:,start1:start2) = bsxfun(@rdivide,thisDataDF(:,:,start1:start2),thisDataF(:,:,itrial));
+    end
+    cycDFoverF{1,icyc} = thisCycData;
+    clear thisCycData thisDataDF thisDataF
+end
+
+clear cycDFoverF
+for icyc = 1:siz
+    thisCycData = zeros(size(cycData{1,icyc}));
+    fakeData = ones(size(cycData{1,icyc}));
+    thisDataF = cycF{1,icyc};
+    for itrial = 1:dataStruct.cycNTrials{icyc}
+        start1 = dataStruct.cycTrialL{icyc}.*(itrial-1)+1;
+        start2 = dataStruct.cycTrialL{icyc}.*(itrial);
+        thisCycData(:,:,start1:start2) = bsxfun(@rdivide,fakeData(:,:,start1:start2),thisDataF(:,:,itrial));
     end
     cycDFoverF{1,icyc} = thisCycData;
     clear thisCycData thisDataDF thisDataF

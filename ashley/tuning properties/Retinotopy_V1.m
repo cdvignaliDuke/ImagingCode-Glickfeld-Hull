@@ -22,7 +22,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,100:110),3);
+data_avg = mean(data_sub(:,:,80:90),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -55,7 +55,7 @@ nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
 %dF/F
 dF_data = bsxfun(@minus,data_reg, nOFF_avg);
 dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
-max_dF = max(dFoverF_data,[],3);
+max_dF = max(dF_data,[],3);
 figure; imagesq(max_dF); colormap(gray)
 
 %% testing...
@@ -71,6 +71,31 @@ mask_cell = bwlabel(bwout);
 data_TC = stackGetTimeCourses(dFoverF_data,mask_cell);
 figure; tcOffsetPlot(data_TC)
 %%
+
+stimON_ind = nOFF+1:nOFF+nON:size(data_TC,1);
+stimOFF_ind = 1:nOFF+nON:size(data_TC,1);
+
+dFoverFCellsTrials = zeros(10+nON,size(data_TC,2),nTrials);
+for i = 1:nTrials
+    dFoverFCellsTrials(:,:,i) = data_TC(stimON_ind(i)-10:stimON_ind(i)+(nON-1),:);
+end
+
+dFoverFCells_meanTrials = zeros(10+nON,size(data_TC,2),nStim);
+for i = 1:nStim
+    ind = i:nStim:30;
+    dFoverFCells_meanTrials(:,:,i) = mean(dFoverFCellsTrials(:,:,ind),3);
+end
+
+figure;
+tcOffsetPlot(squeeze(mean(dFoverFCells_meanTrials,2)));
+
+figure;
+for i = 1:nStim
+    subplot(3,2,i)
+    plot(squeeze(mean(dFoverFCells_meanTrials(:,:,3),2)));
+    hold on
+end
+
 % find on indices for the first frame of each stimulus start period and iti (Off) period
 for itrial = 1:(nStim*nRep)
     nON_ind_firsts(itrial) = nON_ind(1+(nON*(itrial-1)));
