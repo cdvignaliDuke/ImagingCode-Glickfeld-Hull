@@ -7,6 +7,7 @@ BIN_SIZE = 1;   % if the ROI is large use large bin size (10)
 date = '150703';
 run = '_000_000';
 mouse = 'img24';
+holdT_min = 500000;
 
 %output directory
 out_base = 'Z:\home\lindsey\Analysis\2P\Jake';
@@ -37,49 +38,28 @@ else
 end
 % ---- parse behavior
 [lever, frame_info, trial_outcome] = parse_behavior_for_HAD(b_data.input, ...
-    f_frame, l_frame, ftimes.frame_times);
+    f_frame, l_frame, ftimes.frame_times, holdT_min);
 
-info = imfinfo(image_dest);
-[img, sz]  = get_movie_by_ROI(image_dest, info,[], [], BIN_SIZE, f_frame, l_frame);
-
-
+img = readtiff(image_dest);
+sz = size(img(:,:,1));
 %Obtain a df/f movie using Lindsey's baseline_times
-img_dfoverf = zeros(size(img));           %this could be problematic due to the frame skipping issue
-for iT=1:length(lever.baseline_timesMs);    %this could be problematic due to unremoved NaNs
+startT = round(b_data.input.counterTimesUs{1}(1)./1000);
+img_dfoverf = zeros(size(img));    %this could be problematic due to the frame skipping issue
+first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
+F_range = [];
+for iT=2:length(lever.baseline_timesMs)-1;    %this could be problematic due to unremoved NaNs
     if ~isnan(lever.baseline_timesMs(1,iT));
         F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
-        t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1)));
+    elseif isempty(F_range)
+        F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
     end
     F_avg= mean(img(:,:,F_range),3);
-    %t_df = img(:,:,t_range)-F_avg;
-    t_df = bsxfun(@minus, img(:,:,t_range), F_avg);
+    t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-startT):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-startT);
+    t_df = bsxfun(@minus, double(img(:,:,t_range)), F_avg);
     t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
     img_dfoverf(:,:,t_range) = t_dfoverf;
-end
-
-
-
-
-
-
-
-% remove avergae
-raw_img = img;
-avg_img = mean(img,2);
-std_img = std(img,[], 2);
-all_sd = std(img(:));
-for i=1:size(img,2)  % subtract average from movie
-    % df
-    img(:,i)  =  (img(:,i) - avg_img); %this is actually dF
-    % df/SD
-    %img(:,i)  =  (img(:,i) - avg_img)./all_sd; % I have no idea what this is.
-    % df/std
-    %img(:,i)  =  (img(:,i) - avg_img)./std_img;
-    % df/f
-    %img(:,i)  =  (img(:,i) - avg_img)./avg_img;
-end
-
-
+end 
+img_dfoverf = reshape(img_dfoverf,[sz(1)*sz(2) size(img,3)]); 
 % ---- do simple movie analysis
 func = @median;
 % func = @mean;
@@ -89,10 +69,15 @@ post_frames = 10;
 post_press_frames = 10;   
 rm_baseline_plot = 0; % 1 for removing baseline when plotiing
 
-ts = (-pre_frames:post_frames)*1000/round(Sampeling_rate);
+ts = (-pre_frames:post_frames)*1000/round(double(Sampeling_rate));
 tot_frame = pre_frames + post_frames+1;
 
 use_ev_success = trial_outcome.success_time;
+if strcmp(b_data.input.trialOutcomeCell{1}, 'success')
+    use_ev_success(1) = [];
+elseif strcmp(b_data.input.trialOutcomeCell{end}, 'success')
+    use_ev_success(end) = [];
+end
 %----- uncomment to use only events w/o lever press after release
 %     use_ev_success = remove_events_by_lever_state(use_ev_success,  ...
 %         lever.state, 10,ceil(post_frames*1000/Sampeling_rate), 0);
@@ -100,13 +85,27 @@ use_ev_success = trial_outcome.success_time;
 %     use_ev_success = remove_events_by_lever_state(use_ev_success,  ...
 %         lever.state, -ceil(pre_frames*1000/Sampeling_rate),0, 1);
 %
-success_movie = trigger_movie_by_event(img, frame_info, ...
+success_movie = trigger_movie_by_event(img_dfoverf, frame_info, ...
     use_ev_success, pre_frames, post_frames);
 avg_success_move = squeeze(func(success_movie,1));
 fig1 = figure; plot_movie(avg_success_move,sz,rm_baseline_plot, ts);
 title('Hits');
+figure;
+for i = 1:size(avg_success_move,2)
+    subplot(4,4,i)
+    imagesc(reshape(avg_success_move(:,i),[sz(1) sz(2)]))
+    clim([0 0.3])
+    title(num2str(i-pre_frames-1))
+    set(gca,'XTickLabel','','YTickLabel','')
+end
+suptitle('Hits')
 
 use_ev_fail = trial_outcome.early_time;
+if strcmp(b_data.input.trialOutcomeCell{1}, 'failure')
+    use_ev_fail(1) = [];
+elseif strcmp(b_data.input.trialOutcomeCell{end}, 'failure')
+    use_ev_fail(end) = [];
+end
 %----- uncomment to use only events w/o lever press after release
 %     use_ev_fail = remove_events_by_lever_state(use_ev_fail,  ...
 %         lever.state, 10,ceil(post_frames*1000/Sampeling_rate), 0);
@@ -116,11 +115,34 @@ use_ev_fail = trial_outcome.early_time;
 %
 
 % -----trigger movie by early release
-fail_movie = trigger_movie_by_event(img, frame_info, ...
+fail_movie = trigger_movie_by_event(img_dfoverf, frame_info, ...
     use_ev_fail, pre_frames, post_frames);
 avg_fail_move = squeeze(func(fail_movie,1));
 fig2 = figure; plot_movie(avg_fail_move,sz,rm_baseline_plot, ts);
 title('False Alarms');
+
+figure;
+for i = 1:size(avg_fail_move,2)
+    subplot(4,4,i)
+    imagesc(reshape(avg_fail_move(:,i),[sz(1) sz(2)]))
+    clim([0 0.3])
+    title(num2str(i-pre_frames-1))
+    set(gca,'XTickLabel','','YTickLabel','')
+end
+suptitle('False Alarms')
+
+figure;
+subplot(2,1,1) 
+imagesc(reshape(mean(avg_success_move(:,7:10),2),[sz(1) sz(2)]))
+clim([-.05 0.3])
+set(gca,'XTickLabel','','YTickLabel','')
+title('Hits')
+subplot(2,1,2) 
+imagesc(reshape(mean(avg_fail_move(:,7:10),2),[sz(1) sz(2)]))
+clim([-.05 0.3])
+set(gca,'XTickLabel','','YTickLabel','')
+title('False Alarms')
+
 % --- make color scale the same
 min_val = min([avg_fail_move(:);avg_success_move(:)]);
 max_val = max([avg_fail_move(:);avg_success_move(:)]);
@@ -204,5 +226,5 @@ clim([-12 30])
 %     _subset = success_movie(subset3,:,:);
 %     fig5 = figure; plot_movie(_subset,sz,rm_baseline_plot, ts);
 %     title('Hits - False Alarms');
-%     clim([-5 12])
+%     clim([-5 12])     
 
