@@ -49,8 +49,10 @@ for kk=1:length(days)
    
     
     %Obtain a df/f movie using Lindsey's baseline_times
-    img_dfoverf = zeros(size(img));           %this could be problematic due to the frame skipping issue
-    for iT=1:length(lever.baseline_timesMs);    %this could be problematic due to unremoved NaNs
+    img_dfoverf = zeros(size(img));    %this could be problematic due to the frame skipping issue
+    first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
+    %last_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'last');
+    for iT=first_baseline:length(lever.baseline_timesMs);    %this could be problematic due to unremoved NaNs
         if ~isnan(lever.baseline_timesMs(1,iT));
             F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
             t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1)));

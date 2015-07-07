@@ -259,8 +259,8 @@ baseline_timesMs(:,l_frame_trial_num)=NaN;
 
 %subtract the MWtime of camera start in order to align baseline_timesMS to
 %frame.counter
-baseline_timesMs = baseline_timesMs - first_time_baseline;
-%save it to the struct bc this baby is done
+baseline_timesMs = baseline_timesMs - first_time_baseline
+
 lever.baseline_timesMs = baseline_timesMs;  
  
 % remove all events that are not between first and last frame, adjust indices
