@@ -12,6 +12,7 @@ BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 % ----------
 %days = {'150320_img20'};
 days = {'150518_img24'};
+holdT_min = 300000;
 
 for kk=1:length(days)
     session = '';
@@ -42,51 +43,31 @@ for kk=1:length(days)
     end
     % ---- parse behavior
     [lever, frame_info, trial_outcome] = parse_behavior_for_HAD(b_data.input, ...
-        f_frame, l_frame, ftimes.frame_times);
+        f_frame, l_frame, ftimes.frame_times, holdT_min);
     
     info = imfinfo(image_dest);
     [img, sz]  = get_movie_by_ROI(image_dest, info,[], [], BIN_SIZE, f_frame, l_frame);
    
     
     %Obtain a df/f movie using Lindsey's baseline_times
-    img_dfoverf = zeros(size(img));    %this could be problematic due to the frame skipping issue
-    first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
-    %last_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'last');
-    for iT=first_baseline:length(lever.baseline_timesMs);    %this could be problematic due to unremoved NaNs
-        if ~isnan(lever.baseline_timesMs(1,iT));
-            F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
-            t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1)));
-        end
-        F_avg= mean(img(:,:,F_range),3);
-        %t_df = img(:,:,t_range)-F_avg;
-        t_df = bsxfun(@minus, img(:,:,t_range), F_avg);
-        t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
-        img_dfoverf(:,:,t_range) = t_dfoverf;
+    startT = round(b_data.input.counterTimesUs{1}(1)./1000);
+img_dfoverf = zeros(size(img));    %this could be problematic due to the frame skipping issue
+first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
+F_range = [];
+for iT=2:length(lever.baseline_timesMs)-1;    %this could be problematic due to unremoved NaNs
+    if ~isnan(lever.baseline_timesMs(1,iT));
+        F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
+    elseif isempty(F_range)
+        F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
     end
-       
-
-        
-        
-        
-        
-        
-    % remove avergae
-    raw_img = img;
-    avg_img = mean(img,2);
-    std_img = std(img,[], 2);
-    all_sd = std(img(:));
-    for i=1:size(img,2)  % subtract average from movie
-        % df
-        img(:,i)  =  (img(:,i) - avg_img); %this is actually dF
-        % df/SD
-        %img(:,i)  =  (img(:,i) - avg_img)./all_sd; % I have no idea what this is.
-        % df/std
-        %img(:,i)  =  (img(:,i) - avg_img)./std_img;
-        % df/f
-        %img(:,i)  =  (img(:,i) - avg_img)./avg_img;
-    end
-    
-    
+    F_avg= mean(img(:,:,F_range),3);
+    t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-startT):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-startT);
+    t_df = bsxfun(@minus, double(img(:,:,t_range)), F_avg);
+    t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
+    img_dfoverf(:,:,t_range) = t_dfoverf;
+end 
+img_dfoverf = reshape(img_dfoverf,[sz(1)*sz(2) size(img,3)]); 
+  
     % ---- do simple movie analysis
     func = @median;
     % func = @mean;
@@ -100,6 +81,12 @@ for kk=1:length(days)
     tot_frame = pre_frames + post_frames+1;
     
     use_ev_success = trial_outcome.success_time;
+    %get rid of first and last trials
+    if strcmp(b_data.input.trialOutcomeCell{1}, 'success')
+        use_ev_success(1) = [];
+    elseif strcmp(b_data.input.trialOutcomeCell{end}, 'success')
+        use_ev_success(end) = [];
+    end
     %----- uncomment to use only events w/o lever press after release
     %     use_ev_success = remove_events_by_lever_state(use_ev_success,  ...
     %         lever.state, 10,ceil(post_frames*1000/Sampeling_rate), 0);
@@ -114,6 +101,12 @@ for kk=1:length(days)
     title('Hits');
     
     use_ev_fail = trial_outcome.early_time;
+    %get rid of first and last trials
+    if strcmp(b_data.input.trialOutcomeCell{1}, 'failure')
+        use_ev_fail(1) = [];
+    elseif strcmp(b_data.input.trialOutcomeCell{end}, 'failure')
+        use_ev_fail(end) = [];
+    end
     %----- uncomment to use only events w/o lever press after release
     %     use_ev_fail = remove_events_by_lever_state(use_ev_fail,  ...
     %         lever.state, 10,ceil(post_frames*1000/Sampeling_rate), 0);
