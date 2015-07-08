@@ -40,9 +40,13 @@ end
 [lever, frame_info, trial_outcome] = parse_behavior_for_HAD(b_data.input, ...
     f_frame, l_frame, ftimes.frame_times, holdT_min);
 
+data_dest = [dest '_parse_behavior.mat'];
+save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'Sampeling_rate', 'holdT_min')
+
+%Obtain a df/f movie using Lindsey's baseline_times
 img = readtiff(image_dest);
 sz = size(img(:,:,1));
-%Obtain a df/f movie using Lindsey's baseline_times
+img = reshape(img,[sz(1)*sz(2) size(img,3)]);
 startT = round(b_data.input.counterTimesUs{1}(1)./1000);
 img_dfoverf = zeros(size(img));    %this could be problematic due to the frame skipping issue
 first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
@@ -53,13 +57,13 @@ for iT=2:length(lever.baseline_timesMs)-1;    %this could be problematic due to 
     elseif isempty(F_range)
         F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
     end
-    F_avg= mean(img(:,:,F_range),3);
+    F_avg= mean(img(:,F_range),3);
     t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-startT):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-startT);
-    t_df = bsxfun(@minus, double(img(:,:,t_range)), F_avg);
+    t_df = bsxfun(@minus, double(img(:,t_range)), F_avg);
     t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
-    img_dfoverf(:,:,t_range) = t_dfoverf;
+    img_dfoverf(:,t_range) = t_dfoverf;
 end 
-img_dfoverf = reshape(img_dfoverf,[sz(1)*sz(2) size(img,3)]); 
+
 % ---- do simple movie analysis
 func = @median;
 % func = @mean;
