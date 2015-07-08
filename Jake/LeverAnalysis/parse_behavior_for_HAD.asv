@@ -1,4 +1,4 @@
-function [lever, frame, trial_outcome] = parse_behavior_for_HAD(input, first_frame, last_frame, frame_times)
+function [lever, frame, trial_outcome] = parse_behavior_for_HAD(input, first_frame, last_frame, frame_times, holdT_min)
  
 % get the behavior data for hold and detect - code is very  very complicated.
 % lever.state =[]; % 1 if lever pressed 0 if not, in ms resolution
@@ -167,24 +167,23 @@ trial_outcome.change_orientation(react_time < 0) = NaN; % if respond before chan
  
 %LINDSEYS CODE to identify windows of at least 400ms between a lever release and
 %subsequent press. Only takes windows during the iti. 
-nTrials = input.trialSinceReset;    
+nTrials = length(input.trialOutcomeCell);    
 baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window
-holdT_min = 300000;
 for iT = 1:nTrials
     ind_press = fliplr(find(cell2mat(input.leverValues(iT))==1));      %finds locations of each lever press in the cell and flips L-R
     leverTimes = cell2mat(input.leverTimesUs(iT));   %time of each lever event
     if length(ind_press)>0             
         for i = 1:length(ind_press)      
             if ind_press(i) == 1                   %if this is the first lever event of the trial...   (also it must be a press)
-                if leverTimes(ind_press(i))- (cell2mat(input.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 100000   %and if this lever press occurs a certain amount of time after trial start...
-                    baseline_times(1,iT) = leverTimes(ind_press(i)) - holdT_min - 100000; 
+                if leverTimes(ind_press(i))- (cell2mat(input.tThisTrialStartTimeMs(iT)).*1000) > holdT_min + 100000   %and if this lever press occurs a certain amount of time after trial start...
+                    baseline_times(1,iT) = leverTimes(ind_press(i)) - holdT_min; 
                     baseline_times(2,iT) = leverTimes(ind_press(i));
                     break
                 elseif baseline_times(:,iT) == 0
                     baseline_times(:,iT) = [NaN; NaN];
                 end
             elseif leverTimes(ind_press(i))- leverTimes(ind_press(i)-1) > holdT_min + 100000
-               baseline_times(1,iT) = leverTimes(ind_press(i)) - holdT_min - 100000; 
+               baseline_times(1,iT) = leverTimes(ind_press(i)) - holdT_min; 
                baseline_times(2,iT) = leverTimes(ind_press(i));
                break
             elseif baseline_times(:,iT) == 0
@@ -259,8 +258,8 @@ baseline_timesMs(:,l_frame_trial_num)=NaN;
 
 %subtract the MWtime of camera start in order to align baseline_timesMS to
 %frame.counter
-baseline_timesMs = baseline_timesMs - first_time_baseline
-
+baseline_timesMs = baseline_timesMs - first_time_baseline;
+%save it to the struct bc this baby is done
 lever.baseline_timesMs = baseline_timesMs;  
  
 % remove all events that are not between first and last frame, adjust indices

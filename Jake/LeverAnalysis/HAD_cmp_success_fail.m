@@ -50,23 +50,34 @@ for kk=1:length(days)
    
     
     %Obtain a df/f movie using Lindsey's baseline_times
-    startT = round(b_data.input.counterTimesUs{1}(1)./1000);
-img_dfoverf = zeros(size(img));    %this could be problematic due to the frame skipping issue
-first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
-F_range = [];
-for iT=2:length(lever.baseline_timesMs)-1;    %this could be problematic due to unremoved NaNs
+   first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
+    for i = 1:length(b_data.input.counterTimesUs);   %finds the MWtime of the first counter
+        if find(~isempty(cell2mat(b_data.input.counterTimesUs(i))))==1;
+            StartT = b_data.input.counterTimesUs{i}(1)/1000;
+            break
+        end
+    end
+   img_dfoverf = zeros(size(img));    %this could be problematic due to the frame skipping issue
+     F_range = [];
+for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only looks at the first and last fully imaged trials
     if ~isnan(lever.baseline_timesMs(1,iT));
         F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
-    elseif isempty(F_range)
+    elseif isempty(F_range)  
         F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
     end
-    F_avg= mean(img(:,:,F_range),3);
-    t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-startT):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-startT);
-    t_df = bsxfun(@minus, double(img(:,:,t_range)), F_avg);
+    F_avg= mean(img(:,F_range),2);
+    
+    %need to write a smart t_range which includes all fully imaged trials
+    %before the first trial with a valid baseline
+    t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-StartT):(frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-StartT)-1);
+   %problematic bc it looks at times before the first counter then
+   %subtracts the time of the first counter
+   
+    t_df = bsxfun(@minus, double(img(:,t_range)), F_avg);
     t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
-    img_dfoverf(:,:,t_range) = t_dfoverf;
+    img_dfoverf(:,t_range) = t_dfoverf;
 end 
-img_dfoverf = reshape(img_dfoverf,[sz(1)*sz(2) size(img,3)]); 
+%remember to cut nondf/f frames (beginning and end) from movie
   
     % ---- do simple movie analysis
     func = @median;
@@ -94,7 +105,7 @@ img_dfoverf = reshape(img_dfoverf,[sz(1)*sz(2) size(img,3)]);
     %     use_ev_success = remove_events_by_lever_state(use_ev_success,  ...
     %         lever.state, -ceil(pre_frames*1000/Sampeling_rate),0, 1);
     %
-    success_movie = trigger_movie_by_event(img, frame_info, ...
+    success_movie = trigger_movie_by_event(img_dfoverf, frame_info, ...
         use_ev_success, pre_frames, post_frames);
     avg_success_move = squeeze(func(success_movie,1));
     fig1 = figure; plot_movie(avg_success_move,sz,rm_baseline_plot, ts);
@@ -116,7 +127,7 @@ img_dfoverf = reshape(img_dfoverf,[sz(1)*sz(2) size(img,3)]);
     %
     
     % -----trigger movie by early release
-    fail_movie = trigger_movie_by_event(img, frame_info, ...
+    fail_movie = trigger_movie_by_event(img_dfoverf, frame_info, ...
         use_ev_fail, pre_frames, post_frames);
     avg_fail_move = squeeze(func(fail_movie,1));
     fig2 = figure; plot_movie(avg_fail_move,sz,rm_baseline_plot, ts);

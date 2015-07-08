@@ -19,6 +19,9 @@ frame.counter = [];
 frame.times = [];
 frame.time_end =[];
 frame.counter_by_time = [];
+frame.f_frame_trial_num = [];
+frame.l_frame_trial_num = [];
+
  
 trial_outcome.success_time =[];
 trial_outcome.early_time =[];
@@ -261,6 +264,8 @@ baseline_timesMs(:,l_frame_trial_num)=NaN;
 baseline_timesMs = baseline_timesMs - first_time_baseline;
 %save it to the struct bc this baby is done
 lever.baseline_timesMs = baseline_timesMs;  
+frame.f_frame_trial_num = f_frame_trial_num;
+frame.l_frame_trial_num = l_frame_trial_num;
  
 % remove all events that are not between first and last frame, adjust indices
 if(exist('first_frame' ,'var') && exist('last_frame', 'var'))
