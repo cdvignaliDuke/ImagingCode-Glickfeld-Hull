@@ -14,6 +14,7 @@ lever.state =[];           %these are the output variables of the function
 lever.press= [];
 lever.release = [];
 lever.baseline_timesMs = [];
+lever.trial = [];
  
 frame.counter = [];
 frame.times = [];
@@ -92,6 +93,7 @@ for i=1:num_trials-1
     press_time =double(input.leverTimesUs{i}(press))/1000  -  START_EXP_TIME;
     lever.press = cat(1,  lever.press,  press_time');
     
+    lever.trial(end+1:end+length(release_time)) = i;
     %  ---------- calculate frame counter
     c_count = double(input.counterValues{i});       %counter values for this trial
     c_time =  double(input.counterTimesUs{i})/1000;    %counter times for this trial
