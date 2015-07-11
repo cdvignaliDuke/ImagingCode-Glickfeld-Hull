@@ -26,6 +26,7 @@ frame.l_frame_trial_num = [];
 trial_outcome.success_time =[];
 trial_outcome.early_time =[];
 trial_outcome.late_time =[];
+trial_outcome.ind_press_prerelease =[];
  
  
 num_trials = length(input.tThisTrialStartTimeMs);                %gets vectors for # of trials and trial start time
@@ -67,7 +68,7 @@ for i=1:num_trials-1
         
         if( j==1)
             if(lever_value(1) == pre_trial_state)
-                warning('check this perhaps a lever press/release was missed');
+                warning(['check this perhaps a lever press/release was missed on trial ' num2str(i)]);
             end
         end
         
@@ -87,10 +88,14 @@ for i=1:num_trials-1
     release = lever_value == 0;
     release_time =double(input.leverTimesUs{i}(release))/1000  -  START_EXP_TIME;
     lever.release(end+1:end+length(release_time)) = release_time';
+   
     
     press = ~release;
     press_time =double(input.leverTimesUs{i}(press))/1000  -  START_EXP_TIME;
-    lever.press = cat(1,  lever.press,  press_time');
+    lever.press(end+1:end+length(press_time)) = press_time';
+    
+%     lever.press = cat(1,  lever.press,  press_time');
+%     lever.trial_press = cat(1, lever.trial_press, ones(size(press_time')).*i);
     
     %  ---------- calculate frame counter
     c_count = double(input.counterValues{i});       %counter values for this trial
@@ -167,47 +172,6 @@ is_ignore =@(x)isequal(x, 'ignore');
 trial_outcome.late_time  = relase_time(find(cellfun(is_ignore,input.trialOutcomeCell)));
 trial_outcome.change_orientation = hold_start + req_hold;
 trial_outcome.change_orientation(react_time < 0) = NaN; % if respond before change then no change in orientation
- 
-%LINDSEYS CODE to identify windows of at least 400ms between a lever release and
-%subsequent press. Only takes windows during the iti. 
-nTrials = length(input.trialOutcomeCell);    
-baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window
-for iT = 1:nTrials
-    ind_press = fliplr(find(cell2mat(input.leverValues(iT))==1));      %finds locations of each lever press in the cell and flips L-R
-    leverTimes = cell2mat(input.leverTimesUs(iT));   %time of each lever event
-    if length(ind_press)>0             
-        for i = 1:length(ind_press)      
-            if ind_press(i) == 1                   %if this is the first lever event of the trial...   (also it must be a press)
-                if leverTimes(ind_press(i))- (cell2mat(input.tThisTrialStartTimeMs(iT)).*1000) > holdT_min + 100000   %and if this lever press occurs a certain amount of time after trial start...
-                    baseline_times(1,iT) = leverTimes(ind_press(i)) - holdT_min; 
-                    baseline_times(2,iT) = leverTimes(ind_press(i));
-                    break
-                elseif baseline_times(:,iT) == 0
-                    baseline_times(:,iT) = [NaN; NaN];
-                end
-            elseif leverTimes(ind_press(i))- leverTimes(ind_press(i)-1) > holdT_min + 100000
-               baseline_times(1,iT) = leverTimes(ind_press(i)) - holdT_min; 
-               baseline_times(2,iT) = leverTimes(ind_press(i));
-               break
-            elseif baseline_times(:,iT) == 0
-                baseline_times(:,iT) = [NaN; NaN];
-            end
-        end
-    else
-        baseline_times(:,iT) = [NaN; NaN];
-    end
-end
-ex_trials = length(find(isnan(baseline_times(1,:))));
-disp(['---' num2str(ex_trials) ' trials excluded by pre-press f criteria ---'])
-%get rid of NaNs in baseline_times
-baseline_times2 = [];
-% for i = 1:length(baseline_times);
-%     if isnan(baseline_times(1,i))==0 & isnan(baseline_times(2,i))==0
-%         baseline_times2 =[baseline_times2, baseline_times(:,i)];
-%     end
-% end
-%baseline_times = baseline_times2;  
-baseline_timesMs = round(baseline_times/1000); 
 
 % This is a very very problematic code, the camera sends codes even before
 % exqusition starts we detect that by a large gap between frames
@@ -228,6 +192,108 @@ if(~isempty(input.counterValues{1}))
         frame.counter_by_time = frame.counter_by_time - frame.counter_by_time(1)+1;
     end
 end
+
+% remove all events that are not between first and last frame, adjust indices
+if(exist('first_frame' ,'var') && exist('last_frame', 'var'))
+    
+    first_time=  find(frame.counter>= first_frame, 1, 'first');
+    last_time=  find(frame.counter<= last_frame, 1, 'last');
+    frame.counter =frame.counter(first_time:last_time);
+    lever.state = lever.state(first_time:last_time); % 1 if lever pressed 0 if not, in ms resolution
+    
+    inx = find(frame.counter_by_time>=first_frame & frame.counter_by_time<=last_frame);
+    frame.counter_by_time = frame.counter_by_time(inx) - first_frame+1;
+    frame.times = frame.times(inx) - first_time +1;
+    
+    
+    lever.press = remove_events_and_adjust_inx(lever.press, first_time, last_time);
+    lever.release = remove_events_and_adjust_inx(lever.release, first_time, last_time);
+    trial_outcome.success_time = remove_events_and_adjust_inx(    trial_outcome.success_time, first_time, last_time);
+    trial_outcome.early_time = remove_events_and_adjust_inx(trial_outcome.early_time, first_time, last_time);
+    trial_outcome.late_time = remove_events_and_adjust_inx(trial_outcome.late_time, first_time, last_time);
+    trial_outcome.change_orientation = remove_events_and_adjust_inx(trial_outcome.change_orientation, first_time, last_time);
+    
+    
+    if(~isempty(frame_times))  
+        first_time1=  find(counter_by_frame_times>= first_frame, 1, 'first');
+        last_time1=  find(counter_by_frame_times<= last_frame, 1, 'last');
+        
+        counter_by_frame_times = counter_by_frame_times(first_time1:last_time1);
+        min_l = min(length(counter_by_frame_times), length( frame.counter ));
+        bad_inx = find(abs(counter_by_frame_times(1:min_l) - frame.counter(1:min_l)) >=3);
+        if(length(bad_inx)/ min_l > 0.01)
+            warning('something wrong with the camera synchronization!!!!!')
+        end
+         % -- if exist use the frame times as extracted from the camera 
+        frame.counter = counter_by_frame_times' ;
+    end
+    frame.counter =frame.counter -  first_frame + 1;
+end
+
+%LINDSEYS CODE to identify windows of at least 400ms between a lever release and
+%subsequent press. Only takes windows during the iti. 
+nTrials = length(input.trialOutcomeCell);
+successIx = strcmp(input.trialOutcomeCell,'success');
+failureIx = strcmp(input.trialOutcomeCell,'failure');
+missIx = strcmp(input.trialOutcomeCell,'ignore');
+baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window
+firstCounterTime = round(input.counterTimesUs{1}(1));
+for iT = 1:nTrials-1
+    ind_press = find(cell2mat(input.leverValues(iT))==1);      %finds locations of each lever press in the cell and flips L-R
+    ind_release = find(cell2mat(input.leverValues(iT))==0);
+    leverTimes = cell2mat(input.leverTimesUs(iT));   %time of each lever event
+    trialStart = cell2mat(input.holdStartsMs(iT)).*1000;
+    ind_prerelease = leverTimes<=trialStart;
+    if sum(ind_prerelease,2) == 0
+        baseline_times(:,iT) = [NaN; NaN];
+        trial_outcome.ind_press_prerelease(iT) = NaN;
+    elseif sum(ind_prerelease,2) == 1
+        trial_outcome.ind_press_prerelease(iT) = 1;
+        if leverTimes(1)- (cell2mat(input.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 600000  %and if this lever press occurs a certain amount of time after trial start...
+            baseline_times(1,iT) = leverTimes(1) - holdT_min - 300000; 
+            baseline_times(2,iT) = leverTimes(1) - 300000;
+            continue
+        elseif baseline_times(:,iT) == 0
+            baseline_times(:,iT) = [NaN; NaN];
+        end
+    else
+        tag_prerelease = fliplr(find(ind_prerelease));
+        trial_outcome.ind_press_prerelease(iT) = tag_prerelease(1);
+        for i = 1:length(tag_prerelease)
+            ip = tag_prerelease(i);
+            if sum(ismember(ind_press,ip),2)
+                if ip == 1
+                    if leverTimes(1)- (cell2mat(input.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 600000  %and if this lever press occurs a certain amount of time after trial start...
+                        baseline_times(1,iT) = leverTimes(1) - holdT_min - 300000; 
+                        baseline_times(2,iT) = leverTimes(1) - 300000;
+                        break
+                    elseif baseline_times(:,iT) == 0
+                        baseline_times(:,iT) = [NaN; NaN];
+                    end
+                elseif ip>1    
+                	if leverTimes(ip)- leverTimes(ip-1) > holdT_min + 600000
+                       baseline_times(1,iT) = leverTimes(ip) - holdT_min - 300000; 
+                       baseline_times(2,iT) = leverTimes(ip) - 300000;
+                       break
+                    elseif baseline_times(:,iT) == 0
+                        baseline_times(:,iT) = [NaN; NaN];
+                    end
+                end
+            end
+        end
+    end
+end
+ex_trials = length(find(isnan(baseline_times(1,:))));
+disp(['---' num2str(ex_trials) ' trials excluded by pre-press f criteria ---'])
+%get rid of NaNs in baseline_times
+baseline_times2 = [];
+% for i = 1:length(baseline_times);
+%     if isnan(baseline_times(1,i))==0 & isnan(baseline_times(2,i))==0
+%         baseline_times2 =[baseline_times2, baseline_times(:,i)];
+%     end
+% end
+%baseline_times = baseline_times2;  
+baseline_timesMs = round(baseline_times/1000);
 
 %remove events from baseline_times which do not have associated frames. JH
 baseline_timesMs_cut = [];
@@ -266,54 +332,6 @@ baseline_timesMs = baseline_timesMs - first_time_baseline;
 lever.baseline_timesMs = baseline_timesMs;  
 frame.f_frame_trial_num = f_frame_trial_num;
 frame.l_frame_trial_num = l_frame_trial_num;
- 
-% remove all events that are not between first and last frame, adjust indices
-if(exist('first_frame' ,'var') && exist('last_frame', 'var'))
-    
-    first_time=  find(frame.counter>= first_frame, 1, 'first');
-    last_time=  find(frame.counter<= last_frame, 1, 'last');
-    frame.counter =frame.counter(first_time:last_time);
-    lever.state = lever.state(first_time:last_time); % 1 if lever pressed 0 if not, in ms resolution
-    
-    inx = find(frame.counter_by_time>=first_frame & frame.counter_by_time<=last_frame);
-    frame.counter_by_time = frame.counter_by_time(inx) - first_frame+1;
-    frame.times = frame.times(inx) - first_time +1;
-    
-    
-    lever.press = remove_events_and_adjust_inx(lever.press, first_time, last_time);
-    lever.release = remove_events_and_adjust_inx(lever.release, first_time, last_time);
-    trial_outcome.success_time = remove_events_and_adjust_inx(    trial_outcome.success_time, first_time, last_time);
-    trial_outcome.early_time = remove_events_and_adjust_inx(trial_outcome.early_time, first_time, last_time);
-    trial_outcome.late_time = remove_events_and_adjust_inx(trial_outcome.late_time, first_time, last_time);
-    trial_outcome.change_orientation = remove_events_and_adjust_inx(trial_outcome.change_orientation, first_time, last_time);
-    
-    
-    if(~isempty(frame_times))  
-        first_time1=  find(counter_by_frame_times>= first_frame, 1, 'first');
-        last_time1=  find(counter_by_frame_times<= last_frame, 1, 'last');
-        
-        counter_by_frame_times = counter_by_frame_times(first_time1:last_time1);
-        min_l = min(length(counter_by_frame_times), length( frame.counter ));
-        bad_inx = find(abs(counter_by_frame_times(1:min_l) - frame.counter(1:min_l)) >=3);
-        if(length(bad_inx)/ min_l > 0.01)
-            warning('something wrong with the camera synchronization!!!!!')
-        end
-         % -- if exist use the frame times as extracted from the camera 
-        frame.counter = counter_by_frame_times' ;
-    end
-    frame.counter =frame.counter -  first_frame + 1;
-end
-
- %find the free floating MWtime of the first camera pulse JH
-% for i = 1:length(input.counterTimesUs)
-%     if isempty(cell2mat(input.counterTimesUs(i)))==0
-%         break 
-%     end
-% end
-% trialNumFirstPulse = i;
-% f_pulse_MWtime = cell2mat(input.counterTimesUs(trialNumFirstPulse));
-% f_pulse_MWtime = f_pulse_MWtime(1)/1000;
-% l_pulse_MWtime = 
 
 
 return;

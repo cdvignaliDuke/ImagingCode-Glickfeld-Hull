@@ -11,11 +11,16 @@ function [ frame_times frame_count sub_input ] = get_frame_time_by_counters(inpu
     end
 
     % find end of collection
+    trial_end = 1;
     for i = 1:ntrials
         if find(input.counterValues{i}==nframes);
             trial_end = i;
             break
         end
+    end
+    % in case behavior ends before imaging
+    if trial_end == 1;
+        trial_end = ntrials;
     end
     
     % create structure with only imaged trials
