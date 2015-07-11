@@ -2,6 +2,7 @@
 date = '150703';
 run = '_000_000';
 mouse = 'img24';
+holdT_min  = 500000;
 
 %output directory
 out_base = 'Z:\home\lindsey\Analysis\2P\Jake';
@@ -9,139 +10,36 @@ run_name = [date '_' mouse '_run' run(length(run)-2:end)];
 out_path = fullfile(out_base,run_name);
 dest =  fullfile(out_path,run_name);
 
-image_dest  = [dest '_ROI.tif'];
-img = readtiff(image_dest);
-
-img_down = stackGroupProject(img,10);
-
-%prep for pca
-global stack
-stack = single(img_down);
-defaultopts = {'nComp',300,'BorderWidth',4};
-options = cell2struct(defaultopts(2:2:end),defaultopts(1:2:end),2);
-[ny,nx,nt]=size(stack);
-roi = imborder([ny,nx],options.BorderWidth,0); 
-fprintf('Masking edges... ');
-stack= bsxfun(@times,stack,single(roi));
-fprintf('Done\n');
-% compute thin svd using randomized algorithm
-pcs = stackFastPCA(1,options.nComp);
-% save extracted components 
-fprintf('Saving principal components\n');
-save([dest '_pca_usv.mat'],'-struct','pcs');
-
-%visualize pca components
-nt = size(pcs.v,1);
-figure;
-sm = stackFilter(pcs.U,1.5);
-ax=[];
-for pc = 1:25;                   % in order to visualize additional PCs simply alter the range (e.g. 26:50) Then subtract the appropriate amount from pc in the next line
-    ax(pc)=subplot(5,5,pc);
-    imagesc(sm(:,:,[pc]));
-end;
-colormap gray;
-
-%compute independent components
-PCuse = [2:100];
-mu = 0;
-nIC = 32;
-termtol = 1e-6;
-maxrounds = 400;
-mixedsig = pcs.v';
-mixedfilters = pcs.U;
-CovEvals = diag(pcs.s).^2;
-[ica_sig, ica_filters, ica_A, numiter] = CellsortICA(mixedsig, ...
-    mixedfilters, CovEvals, PCuse, mu, nIC,[],termtol,maxrounds);
-
-dt = 1/frGetFrameRate;
-tt = [0:nt-1]/frGetFrameRate;
-
-
-%% TC amd ROI code
-cs = permute(ica_filters,[2,3,1]);
-sm = stackFilter(cs,1.5);
-figure;
-ind = 1;
-sel = [1:32];    
-for ic = sel
-    subplot(8,4,ind);                 %change here too
-    imstretch(sm(:,:,ic),[.5 .99],1.5);
-    ind = ind+1;
-    text(.8,.1,num2str(ic),'fontsize',12,'color','w','fontweight','bold','unit','norm');
-end;
-
-%segment from ICs
-mask_cell = zeros(size(sm));
-for ic = sel
-    bwimgcell = imCellEditInteractive(sm(:,:,ic),[]);
-    mask_cell(:,:,ic) = bwlabel(bwimgcell);
-    close all
-end
-
-mask_cell_temp = reshape(mask_cell,[sz(1)*sz(2) nIC]);
-for ic = sel
-    ind = find(mask_cell_temp(:,ic));
-    mask_cell_temp(ind,ic)=1;
-end
-mask_cell_temp = reshape(mask_cell_temp,[sz(1)*sz(2) nIC]);
-
-data_tc = zeros(size(img_down,3), nIC);
-for ic = sel;
-    if sum(mask_cell_temp(:,ic),1)>0
-        data_tc(:,ic) = stackGetTimeCourses(img_down, reshape(mask_cell_temp(:,ic), [sz(1) sz(2)]));
-    end
-end
-data_corr = corrcoef(data_tc);
-
-sz = size(img);
-mask_all = zeros(1,sz(1)*sz(2));
-count = 0;
-for ic = 1:nIC
-    ind_new = find(mask_cell_temp(:,ic))';
-    if length(ind_new)>1
-        ind_old = find(mask_all);
-        overlap = ismember(ind_old,ind_new);
-        ind_both = find(overlap);
-        if length(ind_both)>1
-            ic_match = unique(mask_all(ind_old(ind_both)));
-            for im = 1:length(ic_match)
-                if data_corr(ic, ic_match(im))> 0.8
-                    count = count+1;
-                    mask_all(ind_new) = ic_match(im);
-                else
-                    mask_all(ind_new) = ic;
-                    mask_all(ind_old(ind_both)) = 0;
-                end
-            end
-        else
-             mask_all(ind_new) = ic;
-        end
-    end
-end
-figure; imagesc(reshape(mask_all,[sz(1) sz(2)]))
-
-start = 1;
-mask_final = zeros(size(mask_all));
-for ic = 1:max(mask_all,[],2)
-    ind = find(mask_all==ic);
-    if length(ind)>0
-        mask_final(ind)=start;
-        start= start+1;
-    end
-end
-    
-data_tc = stackGetTimeCourses(img, reshape(mask_final,[sz(1) sz(2)]));
-save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final');
-
 %load frame and lever info
-data_dest = [dest '_parse_behavior.mat'];
-load(data_dest)
 frame_info_dest = [dest '_frame_times.mat'];
 load(frame_info_dest);
+ftimes.frame_times = frame_times; clear frame_times;
 b_data.input = input; clear input;
+load([dest '_ROI_TCs.mat']);
+
+ifi = (ftimes.frame_times(end)-ftimes.frame_times(1))/length(ftimes.frame_times);
+Sampeling_rate = 1000/ifi;
+
+if(~exist('first_frame', 'var'))
+    f_frame =1;
+else
+    f_frame = first_frame;
+end
+
+if(~exist('last_frame', 'var'))
+    l_frame =length(ftimes.frame_times);
+else
+    l_frame = last_frame;
+end
+% ---- parse behavior
+[lever, frame_info, trial_outcome] = parse_behavior_for_HAD(b_data.input, ...
+    f_frame, l_frame, ftimes.frame_times, holdT_min);
+
+data_dest = [dest '_parse_behavior.mat'];
+save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'Sampeling_rate', 'holdT_min')
 
 %Obtain a df/f TC from baseline times
-data_tc = data_tc'; 
+data_tc = data_tc';
 startT = round(b_data.input.counterTimesUs{1}(1)./1000);
 tc_dfoverf = zeros(size(data_tc));    %this could be problematic due to the frame skipping issue
 first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
@@ -213,21 +111,201 @@ sem_fail = squeeze(std(fail_movie,1)./sqrt(size(fail_movie,1)));
 %average of all ROIs
 avg_fail_all = mean(avg_fail,1);
 sem_fail_all = std(avg_fail,1)./sqrt(size(avg_fail,1));
-tt =-pre_frames:post_frames;
+tt =((-pre_frames:post_frames).*double(ifi))./1000;
 figure; errorbar(tt,avg_success_all, sem_success_all,'k')
 hold on;
 errorbar(tt,avg_fail_all, sem_fail_all,'r')
+title(['Average release: Success- black; Failure- red; n = ' num2str(size(avg_success,1)) ' cells'])
+print([dest '_release_avgTCs.eps'], '-depsc');
+print([dest '_release_avgTCs.pdf'], '-dpdf');
 
 %average by ROI
 nCells = size(data_tc,1);
 z = ceil(sqrt(nCells));
 figure;
+avg_all = [avg_success avg_fail];
+ymax = max(max(avg_all,[],2),[],1);
+ymin = min(min(avg_all,[],2),[],1);
 for ic = 1:nCells
     subplot(z,z,ic)
     errorbar(tt,avg_success(ic,:), sem_success(ic,:),'k')
     hold on;
     errorbar(tt,avg_fail(ic,:), sem_fail(ic,:),'r')
-    ylim([-0.03 0.05])
+    ylim([ymin*1.1 ymax*1.1])
+    xlim([tt(1) tt(end)])
+end
+suptitle(['Average press- Success- black (n = ' num2str(size(success_movie,1)) ' trials); Failure- red (n = ' num2str(size(fail_movie,1)) ' trials)'])
+orient landscape
+print([dest '_release_avg_allTCs.eps'], '-depsc');
+print([dest '_release_avg_allTCs.pdf'], '-dpdf');
+save([dest '_release_resp_by_outcome.mat'],'fail_movie','success_movie');
+
+% ---- Trigger movie off all lever presses at trial start
+pre_frames = 10;
+post_frames = 10;
+
+pressTime = NaN(1,length(lever.baseline_timesMs));
+releaseTime = NaN(1,length(lever.baseline_timesMs));
+for iT = 2:length(lever.baseline_timesMs)-1
+    leverTimes = round((cell2mat(b_data.input.leverTimesUs(iT))-b_data.input.counterTimesUs{1}(1))./1000);
+    if ~isnan(trial_outcome.ind_press_prerelease(iT))
+        pressTime(1,iT) = leverTimes(trial_outcome.ind_press_prerelease(iT));
+        releaseTime(1,iT) = leverTimes(trial_outcome.ind_press_prerelease(iT)+1);
+    else
+        pressTime(1,iT) = NaN;
+        releaseTime(1,iT) = NaN;
+    end
 end
 
-save([dest '_resp_by_outcome.mat'],'fail_movie','success_movie');
+use_ev_press = pressTime;
+use_ev_press(isnan(use_ev_press)) = [];
+
+press_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    use_ev_press, pre_frames, post_frames);
+avg_press = squeeze(func(press_movie,1));
+sem_press = squeeze(std(press_movie,1)./sqrt(size(press_movie,1)));
+avg_press_all = squeeze(func(avg_press,1));
+sem_press_all = squeeze(std(avg_press,1)./sqrt(size(avg_press,1)));
+figure;
+tt =((-pre_frames:post_frames).*double(ifi))./1000;
+errorbar(tt, avg_press_all, sem_press_all, '-k')
+title(['Initiating press- all trials: n = ' num2str(size(press_movie,1))])
+print([dest '_press_avgTCs_alltrials.eps'], '-depsc');
+print([dest '_press_avgTCs_alltrials.pdf'], '-dpdf');
+
+figure;
+avg_all = [avg_press];
+ymax = max(max(avg_all,[],2),[],1);
+ymin = min(min(avg_all,[],2),[],1);
+for ic = 1:nCells
+    subplot(z,z,ic)
+    errorbar(tt,avg_press(ic,:), sem_press(ic,:),'k')
+    ylim([ymin*1.1 ymax*1.1])
+    xlim([tt(1) tt(end)])
+end
+title(['Initiating press- all trials: n = ' num2str(size(press_movie,1))])
+orient landscape
+print([dest '_press_avg_allTCs_alltrials.eps'], '-depsc');
+print([dest '_press_avg_allTCs_alltrials.pdf'], '-dpdf');
+
+%break up presses by hold time
+holdTime = releaseTime-pressTime;
+ind_200 = find(holdTime<200);
+ind_500 = find(holdTime<500);
+ind_both = find(ismember(ind_500,ind_200));
+ind_500(ind_both) = [];
+ind_long = find(holdTime>=500);
+ind_both = find(ismember(ind_long,ind_500));
+ind_long(ind_both) = [];
+
+use_200_press = pressTime(ind_200);
+use_500_press = pressTime(ind_500);
+use_long_press = pressTime(ind_long);
+
+press_200_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    use_200_press, pre_frames, post_frames);
+press_500_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    use_500_press, pre_frames, post_frames);
+press_long_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    use_long_press, pre_frames, post_frames);
+avg_200_press = squeeze(func(press_200_movie,1));
+sem_200_press = squeeze(std(press_200_movie,1)./sqrt(size(press_200_movie,1)));
+avg_200_press_all = squeeze(func(avg_200_press,1));
+sem_200_press_all = squeeze(std(avg_200_press,1)./sqrt(size(avg_200_press,1)));
+avg_500_press = squeeze(func(press_500_movie,1));
+sem_500_press = squeeze(std(press_500_movie,1)./sqrt(size(press_500_movie,1)));
+avg_500_press_all = squeeze(func(avg_500_press,1));
+sem_500_press_all = squeeze(std(avg_500_press,1)./sqrt(size(avg_500_press,1)));
+avg_long_press = squeeze(func(press_long_movie,1));
+sem_long_press = squeeze(std(press_long_movie,1)./sqrt(size(press_long_movie,1)));
+avg_long_press_all = squeeze(func(avg_long_press,1));
+sem_long_press_all = squeeze(std(avg_long_press,1)./sqrt(size(avg_long_press,1)));
+
+figure;
+tt =((-pre_frames:post_frames).*double(ifi))./1000;
+errorbar(tt, avg_long_press_all, sem_long_press_all, '-k')
+hold on;
+errorbar(tt, avg_200_press_all, sem_200_press_all, '-b')
+hold on;
+errorbar(tt, avg_500_press_all, sem_500_press_all, '-g')
+legend('hold>500ms', '200ms<hold<500ms', 'hold<200ms')
+title(['Initiating press-by hold length: Short n = ' num2str(size(press_200_movie,1)) '; Mid n = '  num2str(size(press_500_movie,1)) '; Long n = '  num2str(size(press_long_movie,1))])
+print([dest '_press_avgTCs_bylength.eps'], '-depsc');
+print([dest '_press_avgTCs_bylength.pdf'], '-dpdf');
+
+avg_all = [avg_200_press avg_500_press avg_long_press];
+ymax = max(max(avg_all,[],2),[],1);
+ymin = min(min(avg_all,[],2),[],1);
+figure;
+for ic = 1:nCells
+    subplot(z,z,ic)
+    errorbar(tt,avg_long_press(ic,:), sem_long_press(ic,:),'k')
+    hold on
+    errorbar(tt,avg_200_press(ic,:), sem_200_press(ic,:),'b')
+    hold on
+    errorbar(tt,avg_500_press(ic,:), sem_500_press(ic,:),'g')
+    ylim([ymin*1.1 ymax*1.1])
+    xlim([tt(1) tt(end)])
+end
+suptitle(['Initiating press-by hold length: Blue (Short) n = ' num2str(size(press_200_movie,1)) '; Green (Mid) n = '  num2str(size(press_500_movie,1)) '; Black (Long) n = '  num2str(size(press_long_movie,1))])
+orient landscape
+print([dest '_press_allTCs_bylength.eps'], '-depsc');
+print([dest '_press_allTCs_bylength.pdf'], '-dpdf');
+
+save([dest '_press_resp_by_hold.mat'],'press_200_movie','press_500_movie','press_long_movie','press_movie');
+
+%break up presses longer than 500 ms by outcome
+longHoldIx = zeros(1,length(b_data.input.trialOutcomeCell));
+longHoldIx(ind_long) = 1;
+successIx = strcmp(b_data.input.trialOutcomeCell,'success');
+failureIx = strcmp(b_data.input.trialOutcomeCell,'failure');
+
+longHold_success = find(and(longHoldIx,successIx));
+longHold_failure = find(and(longHoldIx,failureIx));
+
+use_press_success = pressTime(longHold_success);
+use_press_failure = pressTime(longHold_failure);
+
+press_success_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    use_press_success, pre_frames, post_frames);
+press_failure_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    use_press_failure, pre_frames, post_frames);
+
+avg_success_press = squeeze(func(press_success_movie,1));
+sem_success_press = squeeze(std(press_success_movie,1)./sqrt(size(press_success_movie,1)));
+avg_success_press_all = squeeze(func(avg_success_press,1));
+sem_success_press_all = squeeze(std(avg_success_press,1)./sqrt(size(avg_success_press,1)));
+avg_failure_press = squeeze(func(press_failure_movie,1));
+sem_failure_press = squeeze(std(press_failure_movie,1)./sqrt(size(press_failure_movie,1)));
+avg_failure_press_all = squeeze(func(avg_failure_press,1));
+sem_failure_press_all = squeeze(std(avg_failure_press,1)./sqrt(size(avg_failure_press,1)));
+
+figure;
+tt =((-pre_frames:post_frames).*double(ifi))./1000;
+errorbar(tt, avg_success_press_all, sem_success_press_all, '-k')
+hold on;
+errorbar(tt, avg_failure_press_all, sem_failure_press_all, '-r')
+hold on;
+
+title(['Average release: Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
+print([dest '_press_avgTCs_byoutcome.eps'], '-depsc');
+print([dest '_press_avgTCs_byoutcome.pdf'], '-dpdf');
+
+figure;
+avg_all = [avg_success_press avg_failure_press];
+ymax = max(max(avg_all,[],2),[],1);
+ymin = min(min(avg_all,[],2),[],1);
+for ic = 1:nCells
+    subplot(z,z,ic)
+    errorbar(tt,avg_success_press(ic,:), sem_success_press(ic,:),'k')
+    hold on
+    errorbar(tt,avg_failure_press(ic,:), sem_failure_press(ic,:),'r')
+    ylim([ymin*1.1 ymax*1.1])
+    xlim([tt(1) tt(end)])
+end
+suptitle(['Average release: Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
+orient landscape
+print([dest '_press_allTCs_byoutcome.eps'], '-depsc');
+print([dest '_press_allTCs_byoutcome.pdf'], '-dpdf');
+
+save([dest '_press_resp_by_outcome.mat'],'press_success_movie','press_failure_movie');
