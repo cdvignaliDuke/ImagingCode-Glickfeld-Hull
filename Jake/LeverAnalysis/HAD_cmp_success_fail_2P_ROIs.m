@@ -1,6 +1,6 @@
 %expt info
-date = '150703';
-run = '_000_000';
+date = '150704';
+run = '_000_001';
 mouse = 'img24';
 holdT_min  = 500000;
 
@@ -134,7 +134,7 @@ for ic = 1:nCells
     ylim([ymin*1.1 ymax*1.1])
     xlim([tt(1) tt(end)])
 end
-suptitle(['Average press- Success- black (n = ' num2str(size(success_movie,1)) ' trials); Failure- red (n = ' num2str(size(fail_movie,1)) ' trials)'])
+suptitle(['Average release: Success- black (n = ' num2str(size(success_movie,1)) ' trials); Failure- red (n = ' num2str(size(fail_movie,1)) ' trials)'])
 orient landscape
 print([dest '_release_avg_allTCs.eps'], '-depsc');
 print([dest '_release_avg_allTCs.pdf'], '-dpdf');
@@ -183,7 +183,7 @@ for ic = 1:nCells
     ylim([ymin*1.1 ymax*1.1])
     xlim([tt(1) tt(end)])
 end
-title(['Initiating press- all trials: n = ' num2str(size(press_movie,1))])
+suptitle(['Initiating press- all trials: n = ' num2str(size(press_movie,1))])
 orient landscape
 print([dest '_press_avg_allTCs_alltrials.eps'], '-depsc');
 print([dest '_press_avg_allTCs_alltrials.pdf'], '-dpdf');
@@ -287,7 +287,7 @@ hold on;
 errorbar(tt, avg_failure_press_all, sem_failure_press_all, '-r')
 hold on;
 
-title(['Average release: Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
+title(['Initiating press: Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
 print([dest '_press_avgTCs_byoutcome.eps'], '-depsc');
 print([dest '_press_avgTCs_byoutcome.pdf'], '-dpdf');
 
@@ -303,7 +303,7 @@ for ic = 1:nCells
     ylim([ymin*1.1 ymax*1.1])
     xlim([tt(1) tt(end)])
 end
-suptitle(['Average release: Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
+suptitle(['Initiating press: Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
 orient landscape
 print([dest '_press_allTCs_byoutcome.eps'], '-depsc');
 print([dest '_press_allTCs_byoutcome.pdf'], '-dpdf');
