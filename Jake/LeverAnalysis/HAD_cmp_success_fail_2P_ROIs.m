@@ -1,7 +1,7 @@
 %expt info
-date = '150704';
-run = '_000_001';
-mouse = 'img24';
+% date = '150704';
+% run = '_000_000';
+% mouse = 'img25';
 holdT_min  = 500000;
 
 %output directory
@@ -59,11 +59,11 @@ end
 
 % ---- do simple movie analysis
 func = @mean;
-pre_frames = 5;
-post_frames = 10;
+pre_release_frames = 5;
+post_release_frames = 10;
 
-ts = (-pre_frames:post_frames)*1000/round(double(Sampeling_rate));
-tot_frame = pre_frames + post_frames+1;
+ts = (-pre_release_frames:post_release_frames)*1000/round(double(Sampeling_rate));
+tot_frame = pre_release_frames + post_release_frames+1;
 
 %successes
 use_ev_success = trial_outcome.success_time;
@@ -80,7 +80,7 @@ end
 %         lever.state, -ceil(pre_frames*1000/Sampeling_rate),0, 1);
 %
 success_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_ev_success, pre_frames, post_frames);
+    use_ev_success, pre_release_frames, post_release_frames);
 avg_success = squeeze(func(success_movie,1));
 sem_success = squeeze(std(success_movie,1)./sqrt(size(success_movie,1)));
 
@@ -104,14 +104,14 @@ end
 
 % -----trigger movie by early release
 fail_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_ev_fail, pre_frames, post_frames);
+    use_ev_fail, pre_release_frames, post_release_frames);
 avg_fail = squeeze(func(fail_movie,1));
 sem_fail = squeeze(std(fail_movie,1)./sqrt(size(fail_movie,1)));
 
 %average of all ROIs
 avg_fail_all = mean(avg_fail,1);
 sem_fail_all = std(avg_fail,1)./sqrt(size(avg_fail,1));
-tt =((-pre_frames:post_frames).*double(ifi))./1000;
+tt =((-pre_release_frames:post_release_frames).*double(ifi))./1000;
 figure; errorbar(tt,avg_success_all, sem_success_all,'k')
 hold on;
 errorbar(tt,avg_fail_all, sem_fail_all,'r')
@@ -138,11 +138,11 @@ suptitle(['Average release: Success- black (n = ' num2str(size(success_movie,1))
 orient landscape
 print([dest '_release_avg_allTCs.eps'], '-depsc');
 print([dest '_release_avg_allTCs.pdf'], '-dpdf');
-save([dest '_release_resp_by_outcome.mat'],'fail_movie','success_movie');
+save([dest '_release_resp_by_outcome.mat'],'fail_movie','success_movie','pre_release_frames','post_release_frames','ifi');
 
 % ---- Trigger movie off all lever presses at trial start
-pre_frames = 10;
-post_frames = 10;
+pre_press_frames = 10;
+post_press_frames = 10;
 
 pressTime = NaN(1,length(lever.baseline_timesMs));
 releaseTime = NaN(1,length(lever.baseline_timesMs));
@@ -161,13 +161,13 @@ use_ev_press = pressTime;
 use_ev_press(isnan(use_ev_press)) = [];
 
 press_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_ev_press, pre_frames, post_frames);
+    use_ev_press, pre_press_frames, post_press_frames);
 avg_press = squeeze(func(press_movie,1));
 sem_press = squeeze(std(press_movie,1)./sqrt(size(press_movie,1)));
 avg_press_all = squeeze(func(avg_press,1));
 sem_press_all = squeeze(std(avg_press,1)./sqrt(size(avg_press,1)));
 figure;
-tt =((-pre_frames:post_frames).*double(ifi))./1000;
+tt =((-pre_press_frames:post_press_frames).*double(ifi))./1000;
 errorbar(tt, avg_press_all, sem_press_all, '-k')
 title(['Initiating press- all trials: n = ' num2str(size(press_movie,1))])
 print([dest '_press_avgTCs_alltrials.eps'], '-depsc');
@@ -203,11 +203,11 @@ use_500_press = pressTime(ind_500);
 use_long_press = pressTime(ind_long);
 
 press_200_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_200_press, pre_frames, post_frames);
+    use_200_press, pre_press_frames, post_press_frames);
 press_500_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_500_press, pre_frames, post_frames);
+    use_500_press, pre_press_frames, post_press_frames);
 press_long_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_long_press, pre_frames, post_frames);
+    use_long_press, pre_press_frames, post_press_frames);
 avg_200_press = squeeze(func(press_200_movie,1));
 sem_200_press = squeeze(std(press_200_movie,1)./sqrt(size(press_200_movie,1)));
 avg_200_press_all = squeeze(func(avg_200_press,1));
@@ -222,7 +222,7 @@ avg_long_press_all = squeeze(func(avg_long_press,1));
 sem_long_press_all = squeeze(std(avg_long_press,1)./sqrt(size(avg_long_press,1)));
 
 figure;
-tt =((-pre_frames:post_frames).*double(ifi))./1000;
+tt =((-pre_press_frames:post_press_frames).*double(ifi))./1000;
 errorbar(tt, avg_long_press_all, sem_long_press_all, '-k')
 hold on;
 errorbar(tt, avg_200_press_all, sem_200_press_all, '-b')
@@ -252,7 +252,7 @@ orient landscape
 print([dest '_press_allTCs_bylength.eps'], '-depsc');
 print([dest '_press_allTCs_bylength.pdf'], '-dpdf');
 
-save([dest '_press_resp_by_hold.mat'],'press_200_movie','press_500_movie','press_long_movie','press_movie');
+save([dest '_press_resp_by_hold.mat'],'press_200_movie','press_500_movie','press_long_movie','press_movie','pre_press_frames', 'post_press_frames');
 
 %break up presses longer than 500 ms by outcome
 longHoldIx = zeros(1,length(b_data.input.trialOutcomeCell));
@@ -267,9 +267,9 @@ use_press_success = pressTime(longHold_success);
 use_press_failure = pressTime(longHold_failure);
 
 press_success_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_press_success, pre_frames, post_frames);
+    use_press_success, pre_press_frames, post_press_frames);
 press_failure_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_press_failure, pre_frames, post_frames);
+    use_press_failure, pre_press_frames, post_press_frames);
 
 avg_success_press = squeeze(func(press_success_movie,1));
 sem_success_press = squeeze(std(press_success_movie,1)./sqrt(size(press_success_movie,1)));
@@ -281,7 +281,7 @@ avg_failure_press_all = squeeze(func(avg_failure_press,1));
 sem_failure_press_all = squeeze(std(avg_failure_press,1)./sqrt(size(avg_failure_press,1)));
 
 figure;
-tt =((-pre_frames:post_frames).*double(ifi))./1000;
+tt =((-pre_press_frames:post_press_frames).*double(ifi))./1000;
 errorbar(tt, avg_success_press_all, sem_success_press_all, '-k')
 hold on;
 errorbar(tt, avg_failure_press_all, sem_failure_press_all, '-r')
@@ -308,4 +308,22 @@ orient landscape
 print([dest '_press_allTCs_byoutcome.eps'], '-depsc');
 print([dest '_press_allTCs_byoutcome.pdf'], '-dpdf');
 
-save([dest '_press_resp_by_outcome.mat'],'press_success_movie','press_failure_movie');
+save([dest '_press_resp_by_outcome.mat'],'press_success_movie','press_failure_movie','pre_press_frames', 'post_press_frames');
+
+%compare single cell press and release responses
+avg_all = [avg_long_press avg_success];
+ymax = max(max(avg_all,[],2),[],1);
+ymin = min(min(avg_all,[],2),[],1);
+figure;
+for ic = 1:nCells
+    subplot(z,z,ic)
+    errorbar(tt,avg_long_press(ic,:), sem_long_press(ic,:),'c')
+    hold on
+    errorbar(tt(6:end),avg_success(ic,:), sem_success(ic,:),'k')
+    ylim([ymin*1.1 ymax*1.1])
+    xlim([tt(1) tt(end)])
+end
+suptitle(['Press (cyan: n = ' num2str(size(press_long_movie,1)) ' trials); Release (black n = '  num2str(size(success_movie,1)) ' trials)'])
+orient landscape
+print([dest '_press_release_allTCs.eps'], '-depsc');
+print([dest '_press_release_allTCs.pdf'], '-dpdf');
