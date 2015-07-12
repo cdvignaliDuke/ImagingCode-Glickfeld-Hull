@@ -1,4 +1,5 @@
 clear;
+tic
 %  go over all the movies in a session
 % 1. select an ROI
 % 2. stack all the movies to one tiff file
@@ -43,29 +44,32 @@ save([dest '_frame_times'],  'frame_times');
 
 % use first file to calculate ROI
 cd('C:\Users\jake\Documents\Repositories\ImagingCode-Glickfeld-Hull\Jake\LeverAnalysis');
+disp('please select desired ROI and then press "s"');
 [ROI_x, ROI_y] = get_movie_ROI(info{1}, 1, 1000); % get the ROI -  must be a rectangle   
+disp('THANKS');
 img = {};
 sz = {};
 
-
+%% MOTION CORRECTION AND ROI EXTRACTION
 if motion_correction == 1;
     % register image   motion correction
     data_stable = [];
     data = readtiff([DATA_DIR day '\'], [], num2str(all_files(1).name(1:end-4)));
-    for i = 1:length(stable_int)
-        data_stable = cat(3, data_stable, data(:,:,i));
-    end
-    data_avg = mean(data_stable,3);
-    figure; imagesq(data_avg); colormap(gray)
-    % dest =  fullfile(out_path,run_name);
-    % save([dest '_data_reg.mat'],  'data_reg');
+    data_stable = data(:,:,stable_int);
+    data_reg = mean(data_stable,3);
+    figure; imagesq(data_reg); colormap(gray)
+    disp('saving data_reg');
+    dest =  [image_dest day '_reg'];
+    save(dest, 'data_reg');
     
     data_reg_ROI = [];
-    for i=1:length(all_files)
-        if i > 1:
+    for i=1:length(all_files);
+        if i > 1;
+            disp(['reading tiff file' i]);
             data = readtiff([DATA_DIR day '\'], [], num2str(all_files(i).name(1:end-4)));
         end
-        [out data_reg_sec] = stackRegister(data, data_avg);
+        disp(['registering image file ' i]);
+        [out data_reg_sec] = stackRegister(data, data_reg);     %could make stack regist parallel to decrease time to process. 
         data_reg_sec = data_reg_sec(ROI_x,ROI_y,:);
         if i == 1;
             data_reg_ROI = data_reg_sec;
@@ -75,14 +79,14 @@ if motion_correction == 1;
     end
     disp('motion corrected ROI calculated. Now writing tif');
     %code for writing tiff after motion correction
-    nframes = size(data_reg,3); %16920
+    nframes = size(data_reg_ROI,3); %16920
     ncores = 9;
     parpool = ncores;
     %set the size of the batch that each stream will read
     nbatch = nframes./ncores;
     %create a parallel loop to load the data
-    parfor i=1:ncores
-        writetiff(data_reg_ROI(:,:,1+((i-1)*nbatch):i*nbatch),[file_dest num2str(i) '.tif']);
+    parfor i=1:ncores                              %will have to write something into HAD_cmp in order to stitch the batches back together. 
+        writetiff(data_reg_ROI(:,:,1+((i-1)*nbatch):i*nbatch),[image_dest day num2str(i) '.tif']); 
     end
     %writetiff(data_reg_ROI,[dest '_ROI.tif']);
     
@@ -108,3 +112,4 @@ elseif motion_correction == 0;
     end
 end
 cd(old_cd);
+toc

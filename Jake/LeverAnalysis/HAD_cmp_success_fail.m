@@ -57,7 +57,7 @@ for kk=1:length(days)
             break
         end
     end
-   img_dfoverf = zeros(size(img));    %this could be problematic due to the frame skipping issue
+   img_dfoverf = zeros(size(img));    
      F_range = [];
 for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only looks at the first and last fully imaged trials
     if ~isnan(lever.baseline_timesMs(1,iT));
