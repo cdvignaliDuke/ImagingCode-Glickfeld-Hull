@@ -1,28 +1,20 @@
-clear;
-%  go over all the movies in a session
-% 1. select an ROI
-% 2. stack all the movies to one tiff file
+%  prepares movie for timecourse analysis
+% 1. select an image ROI
+% 2. register images
+% 3. extract PCA/ICA components
+% 4. segment dendrite ROIs
+% 5. extract timecourses
+% 6. subtract neuropil
 
-base_dir =  '\\CRASH.dhe.duke.edu\data\home\jake\';
-SubNum = '925';
-date = '150704';
-run = '_000_000';
-time = '1937';
-mouse = 'img25';
-image_dest  = fullfile(base_dir, [date '_' mouse], mouse);
-BIN_SIZE =1;
-
-out_base = 'Z:\home\lindsey\Analysis\2P\Jake';
-run_name = [date '_' mouse '_run' run(length(run)-2:end)];
-out_path = fullfile(out_base,run_name);
+%% load data and associated info files
 % load MWorks file
- behav_dir = [base_dir '\Data\2P_imaging\behavior'];
+ behav_dir = [base_dir 'behavior'];
  cd(behav_dir);
  mworks = ['data-' 'i' SubNum '-' date '-' time '.mat']; 
  load (mworks);
 
 % find sbx info files
-data_dir = [base_dir '\Data\2P_imaging\' date '_' mouse '\' mouse];
+data_dir = [base_dir date '_' mouse '\' mouse];
 cd(data_dir);
 fName = [mouse run];
 imgMatFile = [fName '.mat'];
@@ -44,23 +36,24 @@ data = squeeze(data);
 data_sub = data-min(min(min(data,[],1),[],2),[],3);
 clear data
 
-% register
-data_avg = mean(data_sub(:,:,90:190),3);
-figure; imagesq(data_avg); colormap(gray)
-
+%% 1. select ROI 
 data_std = std(double(data_sub(:,:,1:1000)),[],3);
 % use first file to calculate ROI
 [ROI_x, ROI_y] = get_2P_ROI(data_std); % get the ROI -  must be a rectangle   
 
+
+%% 2. register images
+data_avg = mean(data_sub(:,:,90:190),3);
+figure; imagesq(data_avg); colormap(gray)
 [out data_reg] = stackRegister(data_sub, data_avg);
 clear data_sub
 
-dest =  fullfile(out_path,run_name);
 save([dest '_data_reg.mat'],  'data_reg');
 
 img = data_reg(ROI_x,ROI_y,:);
 writetiff(img,[dest '_ROI.tif']);
 
+%% 3. PCA and ICA
 img_down = stackGroupProject(img,10);
 
 %prep for pca
@@ -77,7 +70,8 @@ fprintf('Done\n');
 pcs = stackFastPCA(1,options.nComp);
 % save extracted components 
 fprintf('Saving principal components\n');
-save([dest '_pca_usv.mat'],'-struct','pcs');
+save([dest '_pca_usv.mat'],'pcs');
+
 
 %visualize pca components
 nt = size(pcs.v,1);
@@ -91,6 +85,7 @@ end;
 colormap gray;
 
 %compute independent components
+
 PCuse = [1:100];
 mu = 0;
 nIC = 32;
@@ -105,8 +100,6 @@ CovEvals = diag(pcs.s).^2;
 dt = 1/frGetFrameRate;
 tt = [0:nt-1]/frGetFrameRate;
 
-
-%% TC amd ROI code
 cs = permute(ica_filters,[2,3,1]);
 sm = stackFilter(cs,1.5);
 figure;
@@ -119,12 +112,10 @@ for ic = sel
     text(.8,.1,num2str(ic),'fontsize',12,'color','w','fontweight','bold','unit','norm');
 end;
 
-save([dest '_ICs.mat'],'sm');
-%% Start here!!
-load([dest '_ICs.mat']);
-img = readtiff([dest '_ROI.tif']);
-img_down = stackGroupProject(img,10);
-%segment from ICs
+save([dest '_ICs.mat'],'sm', 'ica_sig');
+
+%% 4. segment ROIs from ICs
+%segment
 nIC = 32;
 sel = [1:nIC];  
 mask_cell = zeros(size(sm));
@@ -134,6 +125,7 @@ for ic = sel
     close all
 end
 
+%consolidates all ROIs within IC into single ROI
 sz = size(img);
 mask_cell_temp = reshape(mask_cell,[sz(1)*sz(2) nIC]);
 for ic = sel
@@ -142,6 +134,7 @@ for ic = sel
 end
 mask_cell_temp = reshape(mask_cell_temp,[sz(1)*sz(2) nIC]);
 
+%get preliminary timecourses for segregating and grouping ROIs
 data_tc = zeros(size(img_down,3), nIC);
 for ic = sel;
     if sum(mask_cell_temp(:,ic),1)>0
@@ -150,6 +143,10 @@ for ic = sel;
 end
 data_corr = corrcoef(data_tc);
 
+
+%finds overlapping pixels of ROIs and based on correlations decides whether
+%to group them or to split them- if splitting, then overlapping pixels are
+%eliminated from both ROIs
 
 mask_all = zeros(1,sz(1)*sz(2));
 count = 0;
@@ -177,6 +174,7 @@ for ic = 1:nIC
 end
 figure; imagesc(reshape(mask_all,[sz(1) sz(2)]))
 
+%renumbers ROIs so in continuous ascending order
 start = 1;
 mask_final = zeros(size(mask_all));
 for ic = 1:max(mask_all,[],2)
@@ -191,5 +189,36 @@ figure; imagesc(reshape(mask_final,[sz(1) sz(2)]))
 print([dest '_mask_final.eps'], '-depsc');
 print([dest '_mask_final.pdf'], '-dpdf');
 
+%% 5. Extract timecourses
 data_tc = stackGetTimeCourses(img, reshape(mask_final,[sz(1) sz(2)]));
-save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final');
+
+sz = size(sm);
+save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz');
+
+
+%% 6. Neuropil subtraction
+%create masks, get timecourses
+nCells = max(unique(mask_final),[],2);
+npTC = zeros(size(data_tc));
+
+buf = 4;
+np = 6;
+neuropil = imCellNeuropil(mask_final,buf,np);
+neuropil = reshape(neuropil,[sz(1) sz(2) nCells]);
+for i = 1:nCells
+    npTC(:,i) = stackGetTimeCourses(img,neuropil(:,:,i));
+end
+
+%get weights by maximizing skew
+ii= 0.01:0.01:1;
+x = zeros(length(ii), nCells);
+tc_avg = tsmovavg(data_tc,'s',10,1);
+np_avg = tsmovavg(npTC,'s',10,1);
+for i = 1:100
+    x(i,:) = skewness(tc_avg-tcRemoveDC(np_avg.*ii(i)));
+end
+[max_skew ind] =  max(x,[],1);
+np_w = 0.01*ind;
+npSubTC = data_tc-bsxfun(@times,tcRemoveDC(npTC),np_w);
+
+save([dest '_npSubTCs.mat'],'npSubTC',  'neuropil');
