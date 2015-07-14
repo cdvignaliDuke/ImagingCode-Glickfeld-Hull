@@ -98,9 +98,9 @@ tt =((-pre_release_frames:post_release_frames).*double(ifi))./1000;
 figure; errorbar(tt,avg_success_all, sem_success_all,'k')
 hold on;
 errorbar(tt,avg_fail_all, sem_fail_all,'r')
-title(['Average release: ' tc_type ' Success- black; Failure- red; n = ' num2str(size(avg_success,1)) ' cells'])
-print([dest '_release_avgTCs_' tc_type '.eps'], '-depsc');
-print([dest '_release_avgTCs_' tc_type '.pdf'], '-dpdf');
+title(['Average release: Success- black; Failure- red; n = ' num2str(size(avg_success,1)) ' cells'])
+print([dest_sub '_release_avgTCs.eps'], '-depsc');
+print([dest_sub '_release_avgTCs.pdf'], '-dpdf');
 
 %average by ROI
 nCells = size(data_tc,1);
@@ -117,11 +117,11 @@ for ic = 1:nCells
     ylim([ymin*1.1 ymax*1.1])
     xlim([tt(1) tt(end)])
 end
-suptitle(['Average release: ' tc_type ' Success- black (n = ' num2str(size(success_movie,1)) ' trials); Failure- red (n = ' num2str(size(fail_movie,1)) ' trials)'])
+suptitle(['Average release: Success- black (n = ' num2str(size(success_movie,1)) ' trials); Failure- red (n = ' num2str(size(fail_movie,1)) ' trials)'])
 orient landscape
-print([dest '_release_avg_allTCs_' tc_type '.eps'], '-depsc');
-print([dest '_release_avg_allTCs_' tc_type '.pdf'], '-dpdf');
-save([dest '_release_resp_by_outcome_' tc_type '.mat'],'fail_movie','success_movie','pre_release_frames','post_release_frames','ifi');
+print([dest_sub '_release_avg_allTCs.eps'], '-depsc');
+print([dest_sub '_release_avg_allTCs.pdf'], '-dpdf');
+save([dest_sub '_release_resp_by_outcome.mat'],'fail_movie','success_movie','pre_release_frames','post_release_frames','ifi');
 
 % ---- Trigger movie off all lever presses at trial start
 pre_press_frames = 10;
@@ -152,9 +152,9 @@ sem_press_all = squeeze(std(avg_press,1)./sqrt(size(avg_press,1)));
 figure;
 tt =((-pre_press_frames:post_press_frames).*double(ifi))./1000;
 errorbar(tt, avg_press_all, sem_press_all, '-k')
-title(['Initiating press- ' tc_type ' all trials: n = ' num2str(size(press_movie,1))])
-print([dest '_press_avgTCs_alltrials_' tc_type '.eps'], '-depsc');
-print([dest '_press_avgTCs_alltrials_' tc_type '.pdf'], '-dpdf');
+title(['Initiating press- all trials: n = ' num2str(size(press_movie,1))])
+print([dest_sub '_press_avgTCs_alltrials.eps'], '-depsc');
+print([dest_sub '_press_avgTCs_alltrials.pdf'], '-dpdf');
 
 figure;
 avg_all = [avg_press];
@@ -166,10 +166,10 @@ for ic = 1:nCells
     ylim([ymin*1.1 ymax*1.1])
     xlim([tt(1) tt(end)])
 end
-suptitle(['Initiating press- ' tc_type ' all trials: n = ' num2str(size(press_movie,1))])
+suptitle(['Initiating press- all trials: n = ' num2str(size(press_movie,1))])
 orient landscape
-print([dest '_press_avg_allTCs_alltrials_' tc_type '.eps'], '-depsc');
-print([dest '_press_avg_allTCs_alltrials_' tc_type '.pdf'], '-dpdf');
+print([dest_sub '_press_avg_allTCs_alltrials.eps'], '-depsc');
+print([dest_sub '_press_avg_allTCs_alltrials.pdf'], '-dpdf');
 
 %break up presses by hold time
 holdTime = releaseTime-pressTime;
@@ -212,9 +212,9 @@ errorbar(tt, avg_200_press_all, sem_200_press_all, '-b')
 hold on;
 errorbar(tt, avg_500_press_all, sem_500_press_all, '-g')
 legend('hold>500ms', '200ms<hold<500ms', 'hold<200ms')
-title(['Initiating press-by hold length: ' tc_type ' Short n = ' num2str(size(press_200_movie,1)) '; Mid n = '  num2str(size(press_500_movie,1)) '; Long n = '  num2str(size(press_long_movie,1))])
-print([dest '_press_avgTCs_bylength_' tc_type '.eps'], '-depsc');
-print([dest '_press_avgTCs_bylength_' tc_type '.pdf'], '-dpdf');
+title(['Initiating press-by hold length: Short n = ' num2str(size(press_200_movie,1)) '; Mid n = '  num2str(size(press_500_movie,1)) '; Long n = '  num2str(size(press_long_movie,1))])
+print([dest_sub '_press_avgTCs_bylength.eps'], '-depsc');
+print([dest_sub '_press_avgTCs_bylength.pdf'], '-dpdf');
 
 avg_all = [avg_200_press avg_500_press avg_long_press];
 ymax = max(max(avg_all,[],2),[],1);
@@ -230,12 +230,12 @@ for ic = 1:nCells
     ylim([ymin*1.1 ymax*1.1])
     xlim([tt(1) tt(end)])
 end
-suptitle(['Initiating press-by hold length: ' tc_type ' Blue (Short) n = ' num2str(size(press_200_movie,1)) '; Green (Mid) n = '  num2str(size(press_500_movie,1)) '; Black (Long) n = '  num2str(size(press_long_movie,1))])
+suptitle(['Initiating press-by hold length: Blue (Short) n = ' num2str(size(press_200_movie,1)) '; Green (Mid) n = '  num2str(size(press_500_movie,1)) '; Black (Long) n = '  num2str(size(press_long_movie,1))])
 orient landscape
-print([dest '_press_allTCs_bylength_' tc_type '.eps'], '-depsc');
-print([dest '_press_allTCs_bylength_' tc_type '.pdf'], '-dpdf');
+print([dest_sub '_press_allTCs_bylength.eps'], '-depsc');
+print([dest_sub '_press_allTCs_bylength.pdf'], '-dpdf');
 
-save([dest '_press_resp_by_hold_' tc_type '.mat'],'press_200_movie','press_500_movie','press_long_movie','press_movie','pre_press_frames', 'post_press_frames');
+save([dest_sub '_press_resp_by_hold.mat'],'press_200_movie','press_500_movie','press_long_movie','press_movie','pre_press_frames', 'post_press_frames');
 
 %break up presses longer than 500 ms by outcome
 longHoldIx = zeros(1,length(b_data.input.trialOutcomeCell));
@@ -270,9 +270,9 @@ hold on;
 errorbar(tt, avg_failure_press_all, sem_failure_press_all, '-r')
 hold on;
 
-title(['Initiating press: ' tc_type ' Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
-print([dest '_press_avgTCs_byoutcome_' tc_type '.eps'], '-depsc');
-print([dest '_press_avgTCs_byoutcome_' tc_type '.pdf'], '-dpdf');
+title(['Initiating press: Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
+print([dest_sub '_press_avgTCs_byoutcome.eps'], '-depsc');
+print([dest_sub '_press_avgTCs_byoutcome.pdf'], '-dpdf');
 
 figure;
 avg_all = [avg_success_press avg_failure_press];
@@ -286,12 +286,12 @@ for ic = 1:nCells
     ylim([ymin*1.1 ymax*1.1])
     xlim([tt(1) tt(end)])
 end
-suptitle(['Initiating press: ' tc_type ' Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
+suptitle(['Initiating press: Success- black n = ' num2str(size(press_success_movie,1)) ' trials; Failure- red n = ' num2str(size(press_failure_movie,1)) ' trials'])
 orient landscape
-print([dest '_press_allTCs_byoutcome_' tc_type '.eps'], '-depsc');
-print([dest '_press_allTCs_byoutcome_' tc_type '.pdf'], '-dpdf');
+print([dest_sub '_press_allTCs_byoutcome.eps'], '-depsc');
+print([dest_sub '_press_allTCs_byoutcome.pdf'], '-dpdf');
 
-save([dest '_press_resp_by_outcome.mat'],'press_success_movie','press_failure_movie','pre_press_frames', 'post_press_frames');
+save([dest_sub '_press_resp_by_outcome.mat'],'press_success_movie','press_failure_movie','pre_press_frames', 'post_press_frames');
 
 %compare single cell press and release responses
 avg_all = [avg_long_press avg_success];
@@ -306,7 +306,7 @@ for ic = 1:nCells
     ylim([ymin*1.1 ymax*1.1])
     xlim([tt(1) tt(end)])
 end
-suptitle(['Press ' tc_type ' (cyan: n = ' num2str(size(press_long_movie,1)) ' trials); Release (black n = '  num2str(size(success_movie,1)) ' trials)'])
+suptitle(['Press (cyan: n = ' num2str(size(press_long_movie,1)) ' trials); Release (black n = '  num2str(size(success_movie,1)) ' trials)'])
 orient landscape
-print([dest '_press_release_allTCs_' tc_type '.eps'], '-depsc');
-print([dest '_press_release_allTCs_' tc_type '.pdf'], '-dpdf');
+print([dest_sub '_press_release_allTCs.eps'], '-depsc');
+print([dest_sub '_press_release_allTCs.pdf'], '-dpdf');

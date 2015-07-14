@@ -7,112 +7,112 @@
 % 6. subtract neuropil
 
 %% load data and associated info files
-% load MWorks file
- behav_dir = [base_dir 'behavior'];
- cd(behav_dir);
- mworks = ['data-' 'i' SubNum '-' date '-' time '.mat']; 
- load (mworks);
-
-% find sbx info files
-data_dir = [base_dir date '_' mouse '\' mouse];
-cd(data_dir);
-fName = [mouse run];
-imgMatFile = [fName '.mat'];
-load(imgMatFile);
-
-[frame_times frame_count input] = get_frame_time_by_counters(input, info);
-
-dest =  fullfile(out_path,run_name);
-save([dest '_frame_times.mat'],  'frame_times', 'input');
-
-%load and register dataset
-nframes = info.config.frames;
-tic
-data = sbxread(fName,0,nframes);
-toc
-data = squeeze(data);
-
-%remove negative data (by addition)
-data_sub = data-min(min(min(data,[],1),[],2),[],3);
-clear data
-
-%% 1. select ROI 
-data_std = std(double(data_sub(:,:,1:1000)),[],3);
-% use first file to calculate ROI
-[ROI_x, ROI_y] = get_2P_ROI(data_std); % get the ROI -  must be a rectangle   
-
-
-%% 2. register images
-data_avg = mean(data_sub(:,:,90:190),3);
-figure; imagesq(data_avg); colormap(gray)
-[out data_reg] = stackRegister(data_sub, data_avg);
-clear data_sub
-
-save([dest '_data_reg.mat'],  'data_reg');
-
-img = data_reg(ROI_x,ROI_y,:);
-writetiff(img,[dest '_ROI.tif']);
-
-%% 3. PCA and ICA
-img_down = stackGroupProject(img,10);
-
-%prep for pca
-global stack
-stack = single(img_down);
-defaultopts = {'nComp',300,'BorderWidth',4};
-options = cell2struct(defaultopts(2:2:end),defaultopts(1:2:end),2);
-[ny,nx,nt]=size(stack);
-roi = imborder([ny,nx],options.BorderWidth,0); 
-fprintf('Masking edges... ');
-stack= bsxfun(@times,stack,single(roi));
-fprintf('Done\n');
-% compute thin svd using randomized algorithm
-pcs = stackFastPCA(1,options.nComp);
-% save extracted components 
-fprintf('Saving principal components\n');
-save([dest '_pca_usv.mat'],'pcs');
-
-
-%visualize pca components
-nt = size(pcs.v,1);
-figure;
-sm = stackFilter(pcs.U,1.5);
-ax=[];
-for pc = 1:25;                   % in order to visualize additional PCs simply alter the range (e.g. 26:50) Then subtract the appropriate amount from pc in the next line
-    ax(pc)=subplot(5,5,pc);
-    imagesc(sm(:,:,[pc]));
-end;
-colormap gray;
-
-%compute independent components
-
-PCuse = [1:100];
-mu = 0;
-nIC = 32;
-termtol = 1e-6;
-maxrounds = 400;
-mixedsig = pcs.v';
-mixedfilters = pcs.U;
-CovEvals = diag(pcs.s).^2;
-[ica_sig, ica_filters, ica_A, numiter] = CellsortICA(mixedsig, ...
-    mixedfilters, CovEvals, PCuse, mu, nIC,[],termtol,maxrounds);
-
-dt = 1/frGetFrameRate;
-tt = [0:nt-1]/frGetFrameRate;
-
-cs = permute(ica_filters,[2,3,1]);
-sm = stackFilter(cs,1.5);
-figure;
-ind = 1;
-sel = [1:32];    
-for ic = sel
-    subplot(8,4,ind);                 %change here too
-    imstretch(sm(:,:,ic),[.5 .99],1.5);
-    ind = ind+1;
-    text(.8,.1,num2str(ic),'fontsize',12,'color','w','fontweight','bold','unit','norm');
-end;
-
-save([dest '_ICs.mat'],'sm', 'ica_sig');
+% % load MWorks file
+%  behav_dir = [base_dir 'behavior'];
+%  cd(behav_dir);
+%  mworks = ['data-' 'i' SubNum '-' date '-' time '.mat']; 
+%  load (mworks);
+% 
+% % find sbx info files
+% data_dir = [base_dir date '_' mouse '\' mouse];
+% cd(data_dir);
+% fName = [mouse run];
+% imgMatFile = [fName '.mat'];
+% load(imgMatFile);
+% 
+% [frame_times frame_count input] = get_frame_time_by_counters(input, info);
+% 
+% dest =  fullfile(out_path,run_name);
+% save([dest '_frame_times.mat'],  'frame_times', 'input');
+% 
+% %load and register dataset
+% nframes = info.config.frames;
+% tic
+% data = sbxread(fName,0,nframes);
+% toc
+% data = squeeze(data);
+% 
+% %remove negative data (by addition)
+% data_sub = data-min(min(min(data,[],1),[],2),[],3);
+% clear data
+% 
+% %% 1. select ROI 
+% data_std = std(double(data_sub(:,:,1:1000)),[],3);
+% % use first file to calculate ROI
+% [ROI_x, ROI_y] = get_2P_ROI(data_std); % get the ROI -  must be a rectangle   
+% 
+% 
+% %% 2. register images
+% data_avg = mean(data_sub(:,:,90:190),3);
+% figure; imagesq(data_avg); colormap(gray)
+% [out data_reg] = stackRegister(data_sub, data_avg);
+% clear data_sub
+% 
+% save([dest '_data_reg.mat'],  'data_reg');
+% 
+% img = data_reg(ROI_x,ROI_y,:);
+% writetiff(img,[dest '_ROI.tif']);
+% 
+% %% 3. PCA and ICA
+% img_down = stackGroupProject(img,10);
+% 
+% %prep for pca
+% global stack
+% stack = single(img_down);
+% defaultopts = {'nComp',300,'BorderWidth',4};
+% options = cell2struct(defaultopts(2:2:end),defaultopts(1:2:end),2);
+% [ny,nx,nt]=size(stack);
+% roi = imborder([ny,nx],options.BorderWidth,0); 
+% fprintf('Masking edges... ');
+% stack= bsxfun(@times,stack,single(roi));
+% fprintf('Done\n');
+% % compute thin svd using randomized algorithm
+% pcs = stackFastPCA(1,options.nComp);
+% % save extracted components 
+% fprintf('Saving principal components\n');
+% save([dest '_pca_usv.mat'],'pcs');
+% 
+% 
+% %visualize pca components
+% nt = size(pcs.v,1);
+% figure;
+% sm = stackFilter(pcs.U,1.5);
+% ax=[];
+% for pc = 1:25;                   % in order to visualize additional PCs simply alter the range (e.g. 26:50) Then subtract the appropriate amount from pc in the next line
+%     ax(pc)=subplot(5,5,pc);
+%     imagesc(sm(:,:,[pc]));
+% end;
+% colormap gray;
+% 
+% %compute independent components
+% 
+% PCuse = [1:100];
+% mu = 0;
+% nIC = 32;
+% termtol = 1e-6;
+% maxrounds = 400;
+% mixedsig = pcs.v';
+% mixedfilters = pcs.U;
+% CovEvals = diag(pcs.s).^2;
+% [ica_sig, ica_filters, ica_A, numiter] = CellsortICA(mixedsig, ...
+%     mixedfilters, CovEvals, PCuse, mu, nIC,[],termtol,maxrounds);
+% 
+% dt = 1/frGetFrameRate;
+% tt = [0:nt-1]/frGetFrameRate;
+% 
+% cs = permute(ica_filters,[2,3,1]);
+% sm = stackFilter(cs,1.5);
+% figure;
+% ind = 1;
+% sel = [1:32];    
+% for ic = sel
+%     subplot(8,4,ind);                 %change here too
+%     imstretch(sm(:,:,ic),[.5 .99],1.5);
+%     ind = ind+1;
+%     text(.8,.1,num2str(ic),'fontsize',12,'color','w','fontweight','bold','unit','norm');
+% end;
+% 
+% save([dest '_ICs.mat'],'sm', 'ica_sig');
 
 %% 4. segment ROIs from ICs
 %segment
@@ -127,12 +127,41 @@ end
 
 %consolidates all ROIs within IC into single ROI
 sz = size(img);
-mask_cell_temp = reshape(mask_cell,[sz(1)*sz(2) nIC]);
+mask_cell_temp = zeros(sz(1)*sz(2), nIC);
 for ic = sel
-    ind = find(mask_cell_temp(:,ic));
-    mask_cell_temp(ind,ic)=1;
+    if length(unique(reshape(mask_cell(:,:,ic),[1 sz(1)*sz(2)])))>2
+        data_tc_temp = stackGetTimeCourses(img_down,mask_cell(:,:,ic));
+        data_corr_temp = corrcoef(data_tc_temp);
+        ind_rem = 1:length(unique(reshape(mask_cell(:,:,ic),[1 sz(1)*sz(2)])))-1;
+        for i = 1:length(unique(reshape(mask_cell(:,:,ic),[1 sz(1)*sz(2)])))-1
+            ind = ind_rem(find(data_corr_temp(min(ind_rem,[],2),ind_rem)>0.8));
+            if length(ind)>1
+                for ii = ind
+                    if i == 1
+                        mask_cell_temp(find(mask_cell(:,:,ic)== ii),ic) = 1;
+                    else
+                        mask_cell_temp(find(mask_cell(:,:,ic)== ii),nIC) = 1;
+                    end
+                end
+            else
+                if i == 1
+                    mask_cell_temp(find(mask_cell(:,:,ic)== i),ic) = 1;
+                else
+                    mask_cell_temp(find(mask_cell(:,:,ic)== ind),nIC) = 1;
+                end  
+            end
+            ind_rem = ind_rem(~ismember(ind_rem,ind));
+            if ~isempty(ind_rem)
+                cat(3, mask_cell_temp, zeros(size(mask_cell_temp(:,:,1))));
+                nIC = nIC+1;
+            else
+                break
+            end
+        end
+    else
+        mask_cell_temp(find(mask_cell(:,:,ic)),ic) = 1;
+    end
 end
-mask_cell_temp = reshape(mask_cell_temp,[sz(1)*sz(2) nIC]);
 
 %get preliminary timecourses for segregating and grouping ROIs
 data_tc = zeros(size(img_down,3), nIC);
@@ -142,12 +171,13 @@ for ic = sel;
     end
 end
 data_corr = corrcoef(data_tc);
-
+figure; imagesc(data_corr)
 
 %finds overlapping pixels of ROIs and based on correlations decides whether
 %to group them or to split them- if splitting, then overlapping pixels are
 %eliminated from both ROIs
 
+mask_overlap = zeros(1,sz(1)*sz(2));
 mask_all = zeros(1,sz(1)*sz(2));
 count = 0;
 for ic = 1:nIC
@@ -165,6 +195,7 @@ for ic = 1:nIC
                 else
                     mask_all(ind_new) = ic;
                     mask_all(ind_old(ind_both)) = 0;
+                    mask_overlap(ind_old(ind_both)) = 1;
                 end
             end
         else
@@ -173,11 +204,17 @@ for ic = 1:nIC
     end
 end
 figure; imagesc(reshape(mask_all,[sz(1) sz(2)]))
+pause
 
-%renumbers ROIs so in continuous ascending order
+% removes ICs smaller than 200 pixels, renumbers ROIs so in continuous ascending order
 start = 1;
 mask_final = zeros(size(mask_all));
 for ic = 1:max(mask_all,[],2)
+    ind = find(mask_all==ic);
+    if length(ind)<200
+         mask_overlap(find(mask_all==ic)) = 1;
+         mask_all(ind) = 0;
+    end
     ind = find(mask_all==ic);
     if length(ind)>0
         mask_final(ind)=start;
@@ -186,6 +223,7 @@ for ic = 1:max(mask_all,[],2)
 end
 
 figure; imagesc(reshape(mask_final,[sz(1) sz(2)]))
+pause
 print([dest '_mask_final.eps'], '-depsc');
 print([dest '_mask_final.pdf'], '-dpdf');
 
@@ -193,7 +231,7 @@ print([dest '_mask_final.pdf'], '-dpdf');
 data_tc = stackGetTimeCourses(img, reshape(mask_final,[sz(1) sz(2)]));
 
 sz = size(sm);
-save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz');
+save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz', 'mask_cell', 'mask_cell_temp', 'data_corr', 'mask_overlap');
 
 
 %% 6. Neuropil subtraction
@@ -201,24 +239,26 @@ save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz');
 nCells = max(unique(mask_final),[],2);
 npTC = zeros(size(data_tc));
 
-buf = 4;
+buf = 8;
 np = 6;
-neuropil = imCellNeuropil(mask_final,buf,np);
-neuropil = reshape(neuropil,[sz(1) sz(2) nCells]);
+neuropil = squeeze(imCellNeuropil(mask_final,buf,np));
+np_mask = zeros(sz(1),sz(2),nCells);
 for i = 1:nCells
-    npTC(:,i) = stackGetTimeCourses(img,neuropil(:,:,i));
+    ind_both = and(neuropil(:,i),mask_overlap');
+    neuropil(ind_both,i) = 0;
+    np_mask(:,:,i) = reshape(neuropil(:,i),[sz(1) sz(2)]);
+    npTC(:,i) = stackGetTimeCourses(img,np_mask(:,:,i));
 end
 
 %get weights by maximizing skew
 ii= 0.01:0.01:1;
 x = zeros(length(ii), nCells);
-tc_avg = tsmovavg(data_tc,'s',10,1);
-np_avg = tsmovavg(npTC,'s',10,1);
+tc_avg = tsmovavg(data_tc,'s',1,1);
+np_avg = tsmovavg(npTC,'s',1,1);
 for i = 1:100
     x(i,:) = skewness(tc_avg-tcRemoveDC(np_avg.*ii(i)));
 end
 [max_skew ind] =  max(x,[],1);
 np_w = 0.01*ind;
 npSubTC = data_tc-bsxfun(@times,tcRemoveDC(npTC),np_w);
-
-save([dest '_npSubTCs.mat'],'npSubTC',  'neuropil');
+save([dest '_npSubTCs.mat'],'npSubTC',  'neuropil', 'np_w');
