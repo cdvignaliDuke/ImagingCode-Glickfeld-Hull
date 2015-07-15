@@ -237,7 +237,6 @@ successIx = strcmp(input.trialOutcomeCell,'success');
 failureIx = strcmp(input.trialOutcomeCell,'failure');
 missIx = strcmp(input.trialOutcomeCell,'ignore');
 baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window
-firstCounterTime = round(input.counterTimesUs{1}(1));
 for iT = 1:nTrials-1
     ind_press = find(cell2mat(input.leverValues(iT))==1);      %finds locations of each lever press in the cell and flips L-R
     ind_release = find(cell2mat(input.leverValues(iT))==0);

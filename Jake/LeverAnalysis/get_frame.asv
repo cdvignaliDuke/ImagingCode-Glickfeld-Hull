@@ -1,6 +1,5 @@
 function [bin_img ] = get_frame(image_dest, frame, info,ROI_x, ROI_y, BIN_SIZE)
-c_img =  double(imread(image_dest, frame, 'info', info)); %old format Mati wrote
-%c_img =  double(readtiff(image_dest));
+c_img =  double(readtif(image_dest);
 if(exist('ROI_x' , 'var') && exist('ROI_y' , 'var') &&   ~isempty(ROI_x) && ~isempty(ROI_y))
     c_img = c_img(ROI_x, ROI_y);
 end

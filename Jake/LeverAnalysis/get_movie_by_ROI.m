@@ -30,7 +30,7 @@ img = zeros(vec_sz, n_frame);
 % ------ main loop, read data from .tiff file
 for k = 1:n_frame
     
-    bin_img = get_frame(image_dest,  k+first_frame-1, info, ROI_x, ROI_y,BIN_SIZE);
+    bin_img = get_frame(image_dest, k+first_frame-1, info, ROI_x, ROI_y, BIN_SIZE);
     img(x_inx,k) = bin_img(:); % save everything as a vectors, in the ende reshape to matrix   
     
 end
