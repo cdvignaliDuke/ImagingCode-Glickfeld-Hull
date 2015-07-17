@@ -35,7 +35,7 @@ end
 
 % make all plots in the same color scale
 min_val = min(all_frames(:));
-max_val = max(all_frames(:));
+max_val = max(all_frames(:)<inf);  %added the condition that it must be less that inf  JH
 % ---- plot 
 montage(all_frames, 'Size', [d1 d2]);
 colormap jet;

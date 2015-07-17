@@ -243,7 +243,10 @@ for iT = 1:nTrials-1
     leverTimes = cell2mat(input.leverTimesUs(iT));   %time of each lever event
     trialStart = cell2mat(input.holdStartsMs(iT)).*1000;
     ind_prerelease = leverTimes<=trialStart;
-    if sum(ind_prerelease,2) == 0
+    if sum(ind_prerelease,2) == 0;
+        baseline_times(:,iT) = [NaN; NaN];
+        trial_outcome.ind_press_prerelease(iT) = NaN;
+    elseif isempty(ind_prerelease);
         baseline_times(:,iT) = [NaN; NaN];
         trial_outcome.ind_press_prerelease(iT) = NaN;
     elseif sum(ind_prerelease,2) == 1
