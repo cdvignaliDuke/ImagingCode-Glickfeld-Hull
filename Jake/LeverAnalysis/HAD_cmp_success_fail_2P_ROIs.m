@@ -10,7 +10,7 @@ frame_info_dest = [dest '_frame_times.mat'];
 load(frame_info_dest);
 ftimes.frame_times = frame_times; clear frame_times;
 b_data.input = input; clear input;
-
+load([dest '_ROI_TCs.mat']);
 %% 1. find frame and lever times
 ifi = (ftimes.frame_times(end)-ftimes.frame_times(1))/length(ftimes.frame_times);
 Sampeling_rate = 1000/ifi;
@@ -51,9 +51,10 @@ for iT=2:length(lever.baseline_timesMs)-1;    %this could be problematic due to 
     t_df = bsxfun(@minus, double(data_tc(:,t_range)), F_avg);
     t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
     tc_dfoverf(:,t_range) = t_dfoverf;
-end 
+end
 
-%% create event triggered movies
+%% Jake look here for code to make traces with errorbars
+%create event triggered movies
 func = @mean;
 pre_release_frames = 5;
 post_release_frames = 10;
@@ -71,9 +72,12 @@ end
 
 success_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
     use_ev_success, pre_release_frames, post_release_frames);
+
+%average and sem across trials
 avg_success = squeeze(func(success_movie,1));
 sem_success = squeeze(std(success_movie,1)./sqrt(size(success_movie,1)));
 
+%average and sem across cells (and trials)
 avg_success_all = mean(avg_success,1);
 sem_success_all = std(avg_success,1)./sqrt(size(avg_success,1));
 
@@ -88,13 +92,17 @@ end
 % -----trigger movie by early release
 fail_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
     use_ev_fail, pre_release_frames, post_release_frames);
+
+%average and sem across trials
 avg_fail = squeeze(func(fail_movie,1));
 sem_fail = squeeze(std(fail_movie,1)./sqrt(size(fail_movie,1)));
 
-%average of all ROIs
+%average and sem across ROIs (and trials)
 avg_fail_all = mean(avg_fail,1);
 sem_fail_all = std(avg_fail,1)./sqrt(size(avg_fail,1));
 tt =((-pre_release_frames:post_release_frames).*double(ifi))./1000;
+
+%figure: overlay average success/failure across ROIs
 figure; errorbar(tt,avg_success_all, sem_success_all,'k')
 hold on;
 errorbar(tt,avg_fail_all, sem_fail_all,'r')
@@ -102,7 +110,7 @@ title(['Average release: Success- black; Failure- red; n = ' num2str(size(avg_su
 print([dest_sub '_release_avgTCs.eps'], '-depsc');
 print([dest_sub '_release_avgTCs.pdf'], '-dpdf');
 
-%average by ROI
+%figure: average success/failure by ROI
 nCells = size(data_tc,1);
 z = ceil(sqrt(nCells));
 figure;
@@ -145,10 +153,16 @@ use_ev_press(isnan(use_ev_press)) = [];
 
 press_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
     use_ev_press, pre_press_frames, post_press_frames);
+
+%average and sem across trials
 avg_press = squeeze(func(press_movie,1));
 sem_press = squeeze(std(press_movie,1)./sqrt(size(press_movie,1)));
+
+%average and sem across ROIs (and trials)
 avg_press_all = squeeze(func(avg_press,1));
 sem_press_all = squeeze(std(avg_press,1)./sqrt(size(avg_press,1)));
+
+%figure: overlay average success/failure across ROIs
 figure;
 tt =((-pre_press_frames:post_press_frames).*double(ifi))./1000;
 errorbar(tt, avg_press_all, sem_press_all, '-k')
@@ -156,6 +170,7 @@ title(['Initiating press- all trials: n = ' num2str(size(press_movie,1))])
 print([dest_sub '_press_avgTCs_alltrials.eps'], '-depsc');
 print([dest_sub '_press_avgTCs_alltrials.pdf'], '-dpdf');
 
+%figure: average success/failure by ROI
 figure;
 avg_all = [avg_press];
 ymax = max(max(avg_all,[],2),[],1);
