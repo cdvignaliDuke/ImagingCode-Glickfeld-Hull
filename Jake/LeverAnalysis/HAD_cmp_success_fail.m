@@ -11,7 +11,7 @@ BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 
 % ----------
 %days = {'150320_img20'};
-days = {'150518_img25'};
+days = {'150517_img24'};
 holdT_min = 300000;
 
 for kk=1:length(days)
@@ -62,7 +62,7 @@ for kk=1:length(days)
 for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only looks at the first and last fully imaged trials
     if ~isnan(lever.baseline_timesMs(1,iT));
         F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
-    elseif isempty(F_range)  
+    elseif isempty(F_range)
         F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
     end
     F_avg= mean(img(:,F_range),2);
@@ -70,9 +70,12 @@ for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only 
     %need to write a smart t_range which includes all fully imaged trials
     %before the first trial with a valid baseline
     t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-StartT):(frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-StartT)-1);
-   %problematic bc it looks at times before the first counter then
-   %subtracts the time of the first counter
-   
+    if iT == frame_info.l_frame_trial_num-1;
+        t_range = t_range(1:(end-4)) + 4;
+    else t_range = t_range + 4;    %added this shift because we have a 1s anaylsis window post release but trial ends 600ms after release.
+    end
+    %problematic bc it looks at times before the first counter then
+    %subtracts the time of the first counter
     t_df = bsxfun(@minus, double(img(:,t_range)), F_avg);
     t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
     img_dfoverf(:,t_range) = t_dfoverf;
@@ -144,7 +147,7 @@ end
     figure(fig3);                             
     clim([-0.5 0.5]);
  
-    % -- Trigger movie off lever press IF subsequent hold time is >500ms
+    % -- Trigger movie off lever press IF subsequent hold time is >1000ms
     if lever.release(1) < lever.press(1)
         holdDuration = NaN(1, size((lever.release),2)-1);
         for i = 1:(length(holdDuration))
@@ -159,7 +162,7 @@ end
     
     longHoldInd = zeros(size(holdDuration));
     for i = 1:size(holdDuration, 2);
-        if holdDuration(i) > 500
+        if holdDuration(i) > 1000
             longHoldInd(i) = 1;
         end
     end
@@ -192,7 +195,7 @@ end
     %Hits
     subset1 = round(linspace(2,size(success_movie,1),10));
     success_subset = [];
-    success_subset = success_movie(subset1,:,:);
+    success_subset = success_movie(30:39,:,:);
     fig5 = figure; plot_movie(success_subset,sz,rm_baseline_plot, ts);
     title('Hits');
     clim([-0.5 0.5])   % NEED a smart way to do scaling
@@ -203,7 +206,7 @@ end
     fail_subset = success_movie(30:39,:,:);
     fig6 = figure; plot_movie(fail_subset,sz,rm_baseline_plot, ts);
     title('False Alarms');
-    clim([-12 30])
+    clim([-0.5 0.5])
     
     %Lever Presses
     %Hits-FAsNot sure this will be informative. Also will require a
