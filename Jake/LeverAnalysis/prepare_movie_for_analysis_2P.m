@@ -239,13 +239,13 @@ save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz', 'mask_cell', 'mask_cel
 nCells = max(unique(mask_final),[],2);
 npTC = zeros(size(data_tc));
 
-buf = 8;
+buf = 4;
 np = 6;
 neuropil = squeeze(imCellNeuropil(mask_final,buf,np));
 np_mask = zeros(sz(1),sz(2),nCells);
 for i = 1:nCells
-    ind_both = and(neuropil(:,i),mask_overlap');
-    neuropil(ind_both,i) = 0;
+%     ind_both = and(neuropil(:,i),mask_overlap');
+%     neuropil(ind_both,i) = 0;
     np_mask(:,:,i) = reshape(neuropil(:,i),[sz(1) sz(2)]);
     npTC(:,i) = stackGetTimeCourses(img,np_mask(:,:,i));
 end
