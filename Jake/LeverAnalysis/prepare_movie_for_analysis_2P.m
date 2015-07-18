@@ -118,12 +118,12 @@
 %segment
 nIC = 32;
 sel = [1:nIC];  
-mask_cell = zeros(size(sm));
-for ic = sel
-    bwimgcell = imCellEditInteractive(sm(:,:,ic),[]);
-    mask_cell(:,:,ic) = bwlabel(bwimgcell);
-    close all
-end
+% mask_cell = zeros(size(sm));
+% for ic = sel
+%     bwimgcell = imCellEditInteractive(sm(:,:,ic),[]);
+%     mask_cell(:,:,ic) = bwlabel(bwimgcell);
+%     close all
+% end
 
 %consolidates all ROIs within IC into single ROI
 sz = size(img);
@@ -134,7 +134,7 @@ for ic = sel
         data_corr_temp = corrcoef(data_tc_temp);
         ind_rem = 1:length(unique(reshape(mask_cell(:,:,ic),[1 sz(1)*sz(2)])))-1;
         for i = 1:length(unique(reshape(mask_cell(:,:,ic),[1 sz(1)*sz(2)])))-1
-            ind = ind_rem(find(data_corr_temp(min(ind_rem,[],2),ind_rem)>0.8));
+            ind = ind_rem(find(data_corr_temp(min(ind_rem,[],2),ind_rem)>0.75));
             if length(ind)>1
                 for ii = ind
                     if i == 1
@@ -173,6 +173,17 @@ end
 data_corr = corrcoef(data_tc);
 figure; imagesc(data_corr)
 
+%consolidate timecourses that are highly correlated
+[i j] = find(and(data_corr>0.75,data_corr<1));
+n = size(i,1);
+if n>1
+    for ii = 1:(n/2)
+        ind = find(mask_cell_temp(:,i(ii)));
+        mask_cell_temp(ind,j(ii)) = 1;
+        mask_cell_temp(ind,i(ii)) = 0;
+    end
+end
+
 %finds overlapping pixels of ROIs and based on correlations decides whether
 %to group them or to split them- if splitting, then overlapping pixels are
 %eliminated from both ROIs
@@ -189,7 +200,7 @@ for ic = 1:nIC
         if length(ind_both)>1
             ic_match = unique(mask_all(ind_old(ind_both)));
             for im = 1:length(ic_match)
-                if data_corr(ic, ic_match(im))> 0.8
+                if data_corr(ic, ic_match(im))> 0.75
                     count = count+1;
                     mask_all(ind_new) = ic_match(im);
                 else
@@ -204,7 +215,7 @@ for ic = 1:nIC
     end
 end
 figure; imagesc(reshape(mask_all,[sz(1) sz(2)]))
-pause
+
 
 % removes ICs smaller than 200 pixels, renumbers ROIs so in continuous ascending order
 start = 1;
@@ -223,14 +234,14 @@ for ic = 1:max(mask_all,[],2)
 end
 
 figure; imagesc(reshape(mask_final,[sz(1) sz(2)]))
-pause
+
 print([dest '_mask_final.eps'], '-depsc');
 print([dest '_mask_final.pdf'], '-dpdf');
 
 %% 5. Extract timecourses
 data_tc = stackGetTimeCourses(img, reshape(mask_final,[sz(1) sz(2)]));
 
-sz = size(sm);
+sz = size(mask_cell);
 save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz', 'mask_cell', 'mask_cell_temp', 'data_corr', 'mask_overlap');
 
 
