@@ -8,124 +8,126 @@
 
 %% load data and associated info files
 % % load MWorks file
-%  behav_dir = [base_dir 'behavior'];
-%  cd(behav_dir);
-%  mworks = ['data-' 'i' SubNum '-' date '-' time '.mat']; 
-%  load (mworks);
-% 
-% % find sbx info files
-% data_dir = [base_dir date '_' mouse '\' mouse];
-% cd(data_dir);
-% fName = [mouse run];
-% imgMatFile = [fName '.mat'];
-% load(imgMatFile);
-% 
-% [frame_times frame_count input] = get_frame_time_by_counters(input, info);
-% 
-% dest =  fullfile(out_path,run_name);
-% save([dest '_frame_times.mat'],  'frame_times', 'input');
-% 
-% %load and register dataset
-% nframes = info.config.frames;
-% tic
-% data = sbxread(fName,0,nframes);
-% toc
-% data = squeeze(data);
-% 
-% %remove negative data (by addition)
-% data_sub = data-min(min(min(data,[],1),[],2),[],3);
-% clear data
-% 
-% %% 1. select ROI 
-% data_std = std(double(data_sub(:,:,1:1000)),[],3);
-% % use first file to calculate ROI
-% [ROI_x, ROI_y] = get_2P_ROI(data_std); % get the ROI -  must be a rectangle   
-% 
-% 
-% %% 2. register images
-% data_avg = mean(data_sub(:,:,90:190),3);
-% figure; imagesq(data_avg); colormap(gray)
-% [out data_reg] = stackRegister(data_sub, data_avg);
-% clear data_sub
-% 
-% save([dest '_data_reg.mat'],  'data_reg');
-% 
-% img = data_reg(ROI_x,ROI_y,:);
-% writetiff(img,[dest '_ROI.tif']);
-% 
-% %% 3. PCA and ICA
-% img_down = stackGroupProject(img,10);
-% 
-% %prep for pca
-% global stack
-% stack = single(img_down);
-% defaultopts = {'nComp',300,'BorderWidth',4};
-% options = cell2struct(defaultopts(2:2:end),defaultopts(1:2:end),2);
-% [ny,nx,nt]=size(stack);
-% roi = imborder([ny,nx],options.BorderWidth,0); 
-% fprintf('Masking edges... ');
-% stack= bsxfun(@times,stack,single(roi));
-% fprintf('Done\n');
-% % compute thin svd using randomized algorithm
-% pcs = stackFastPCA(1,options.nComp);
-% % save extracted components 
-% fprintf('Saving principal components\n');
-% save([dest '_pca_usv.mat'],'pcs');
-% 
-% 
-% %visualize pca components
-% nt = size(pcs.v,1);
-% figure;
-% sm = stackFilter(pcs.U,1.5);
-% ax=[];
-% for pc = 1:25;                   % in order to visualize additional PCs simply alter the range (e.g. 26:50) Then subtract the appropriate amount from pc in the next line
-%     ax(pc)=subplot(5,5,pc);
-%     imagesc(sm(:,:,[pc]));
-% end;
-% colormap gray;
-% 
-% %compute independent components
-% 
-% PCuse = [1:100];
-% mu = 0;
-% nIC = 32;
-% termtol = 1e-6;
-% maxrounds = 400;
-% mixedsig = pcs.v';
-% mixedfilters = pcs.U;
-% CovEvals = diag(pcs.s).^2;
-% [ica_sig, ica_filters, ica_A, numiter] = CellsortICA(mixedsig, ...
-%     mixedfilters, CovEvals, PCuse, mu, nIC,[],termtol,maxrounds);
-% 
-% dt = 1/frGetFrameRate;
-% tt = [0:nt-1]/frGetFrameRate;
-% 
-% cs = permute(ica_filters,[2,3,1]);
-% sm = stackFilter(cs,1.5);
-% figure;
-% ind = 1;
-% sel = [1:32];    
-% for ic = sel
-%     subplot(8,4,ind);                 %change here too
-%     imstretch(sm(:,:,ic),[.5 .99],1.5);
-%     ind = ind+1;
-%     text(.8,.1,num2str(ic),'fontsize',12,'color','w','fontweight','bold','unit','norm');
-% end;
-% 
-% save([dest '_ICs.mat'],'sm', 'ica_sig');
+ behav_dir = [base_dir 'behavior'];
+ cd(behav_dir);
+ mworks = ['data-' 'i' subNum '-' date '-' time '.mat']; 
+ load (mworks);
+
+% find sbx info files
+data_dir = [base_dir date '_' mouse '\' mouse];
+cd(data_dir);
+fName = [mouse run];
+imgMatFile = [fName '.mat'];
+load(imgMatFile);
+
+[frame_times frame_count input] = get_frame_time_by_counters(input, info);
+
+dest =  fullfile(out_path,run_name);
+save([dest '_frame_times.mat'],  'frame_times', 'input');
+
+%load and register dataset
+nframes = info.config.frames;
+tic
+data = sbxread(fName,0,nframes);
+toc
+data = squeeze(data);
+
+%remove negative data (by addition)
+data_sub = data-min(min(min(data,[],1),[],2),[],3);
+clear data
+
+%% 1. select ROI 
+data_std = std(double(data_sub(:,:,1:1000)),[],3);
+% use first file to calculate ROI
+[ROI_x, ROI_y] = get_2P_ROI(data_std); % get the ROI -  must be a rectangle   
+
+
+%% 2. register images
+data_avg = mean(data_sub(:,:,90:190),3);
+figure; imagesq(data_avg); colormap(gray)
+[out data_reg] = stackRegister(data_sub, data_avg);
+clear data_sub
+
+save([dest '_data_reg.mat'],  'data_reg');
+
+img = data_reg(ROI_x,ROI_y,:);
+writetiff(img,[dest '_ROI.tif']);
+clear data_reg
+
+%% 3. PCA and ICA
+img_down = stackGroupProject(img,10);
+
+%prep for pca
+global stack
+stack = single(img_down);
+defaultopts = {'nComp',300,'BorderWidth',4};
+options = cell2struct(defaultopts(2:2:end),defaultopts(1:2:end),2);
+[ny,nx,nt]=size(stack);
+roi = imborder([ny,nx],options.BorderWidth,0); 
+fprintf('Masking edges... ');
+stack= bsxfun(@times,stack,single(roi));
+fprintf('Done\n');
+% compute thin svd using randomized algorithm
+pcs = stackFastPCA(1,options.nComp);
+% save extracted components 
+fprintf('Saving principal components\n');
+save([dest '_pca_usv.mat'],'pcs');
+
+
+%visualize pca components
+nt = size(pcs.v,1);
+figure;
+sm = stackFilter(pcs.U,1.5);
+ax=[];
+for pc = 1:25;                   % in order to visualize additional PCs simply alter the range (e.g. 26:50) Then subtract the appropriate amount from pc in the next line
+    ax(pc)=subplot(5,5,pc);
+    imagesc(sm(:,:,[pc]));
+end;
+colormap gray;
+
+%compute independent components
+
+PCuse = [1:40];
+mu = 0;
+nIC = 32;
+termtol = 1e-6;
+maxrounds = 400;
+mixedsig = pcs.v';
+mixedfilters = pcs.U;
+CovEvals = diag(pcs.s).^2;
+[ica_sig, ica_filters, ica_A, numiter] = CellsortICA(mixedsig, ...
+    mixedfilters, CovEvals, PCuse, mu, nIC,[],termtol,maxrounds);
+
+dt = 1/frGetFrameRate;
+tt = [0:nt-1]/frGetFrameRate;
+
+cs = permute(ica_filters,[2,3,1]);
+sm = stackFilter(cs,1.5);
+figure;
+ind = 1;
+sel = [1:32];    
+for ic = sel
+    subplot(8,4,ind);                 %change here too
+    imstretch(sm(:,:,ic),[.5 .99],1.5);
+    ind = ind+1;
+    text(.8,.1,num2str(ic),'fontsize',12,'color','w','fontweight','bold','unit','norm');
+end;
+
+save([dest '_ICs.mat'],'sm', 'ica_sig');
 
 %% 4. segment ROIs from ICs
-%segment
+
 nIC = 32;
 sel = [1:nIC];  
-% mask_cell = zeros(size(sm));
-% for ic = sel
-%     bwimgcell = imCellEditInteractive(sm(:,:,ic),[]);
-%     mask_cell(:,:,ic) = bwlabel(bwimgcell);
-%     close all
-% end
+mask_cell = zeros(size(sm));
+for ic = sel
+    bwimgcell = imCellEditInteractive(sm(:,:,ic),[]);
+    mask_cell(:,:,ic) = bwlabel(bwimgcell);
+    close all
+end
 
 %consolidates all ROIs within IC into single ROI
+thresh = 0.8; %correlation threshold for calling two dendrites one thing
 sz = size(img);
 mask_cell_temp = zeros(sz(1)*sz(2), nIC);
 for ic = sel
@@ -134,7 +136,7 @@ for ic = sel
         data_corr_temp = corrcoef(data_tc_temp);
         ind_rem = 1:length(unique(reshape(mask_cell(:,:,ic),[1 sz(1)*sz(2)])))-1;
         for i = 1:length(unique(reshape(mask_cell(:,:,ic),[1 sz(1)*sz(2)])))-1
-            ind = ind_rem(find(data_corr_temp(min(ind_rem,[],2),ind_rem)>0.75));
+            ind = ind_rem(find(data_corr_temp(min(ind_rem,[],2),ind_rem)>thresh));
             if length(ind)>1
                 for ii = ind
                     if i == 1
@@ -174,7 +176,7 @@ data_corr = corrcoef(data_tc);
 figure; imagesc(data_corr)
 
 %consolidate timecourses that are highly correlated
-[i j] = find(and(data_corr>0.75,data_corr<1));
+[i j] = find(and(data_corr>thresh,data_corr<1));
 n = size(i,1);
 if n>1
     for ii = 1:(n/2)
@@ -200,7 +202,7 @@ for ic = 1:nIC
         if length(ind_both)>1
             ic_match = unique(mask_all(ind_old(ind_both)));
             for im = 1:length(ic_match)
-                if data_corr(ic, ic_match(im))> 0.75
+                if data_corr(ic, ic_match(im))> thresh
                     count = count+1;
                     mask_all(ind_new) = ic_match(im);
                 else

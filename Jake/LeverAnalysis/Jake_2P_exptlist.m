@@ -1,0 +1,10 @@
+date_mat = strvcat('150703', '150703','150704','150704','150720','150723');
+run1_mat = strvcat('_000_000', '_000_001', '_000_001', '_000_000','_000_001','_000_000');
+mouse_mat = strvcat('img24','img25','img24','img25','img28','img27');
+subNum_mat = strvcat('924','925','924','925','928','927');
+time_mat = strvcat('1821', '2005','1845','1937','2015','1800');
+nrun_mat = [1; 1; 1; 1; 1; 2];
+run2_mat = strvcat('XXXXXXXX', 'XXXXXXXX', 'XXXXXXXX', 'XXXXXXXX','XXXXXXXX','_000_001');
+run_mat = cat(3,run1_mat,run2_mat);
+out_base = 'Z:\home\lindsey\Analysis\2P\Jake\';
+base_dir =  '\\CRASH.dhe.duke.edu\data\home\jake\Data\2P_imaging\';
