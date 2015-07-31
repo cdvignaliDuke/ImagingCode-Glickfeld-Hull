@@ -689,14 +689,14 @@ ylim([0.5 1.5])
 hline(1, '--k')
 set(gca, 'XTick', 1:2, 'XTickLabel', lever);
 ylabel('Normalized amplitude')
-title('All cells')
+title(['All cells- Release n = ' num2str(sum(~isnan(r_all),2)) ' cells; Press n = ' num2str(sum(~isnan(p_all),2))])
 subplot(2,2,4)
 xlim([0.5 2.5])
 ylim([0.5 1.5])
 hline(1, '--k')
 set(gca, 'XTick', 1:2, 'XTickLabel', lever);
 ylabel('Normalized amplitude')
-title('Responsive cells')
+title(['Responsive cells- Release n = ' num2str(sum(~isnan(r_RS),2)) ' cells; Press n = ' num2str(sum(~isnan(p_RS),2))])
 suptitle('Avg event waveform normalized to spont')
 print([out_base 'Summary_avg_event_norm2spont.eps'], '-depsc');
 print([out_base 'Summary_avg_event_norm2spont.pdf'], '-dpdf');
