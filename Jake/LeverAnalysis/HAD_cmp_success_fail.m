@@ -11,8 +11,8 @@ BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 
 % ----------
 %days = {'150320_img20'};
-days = {'150517_img24'};
-holdT_min = 300000;
+days = {'150716_img28'};
+holdT_min = 500000;
 
 for kk=1:length(days)
     session = '';
@@ -203,7 +203,7 @@ end
     %False Alarms   
     subset2 = round(linspace(2,size(fail_movie,1),10));
     fail_subset = [];
-    fail_subset = success_movie(30:39,:,:);
+    fail_subset = fail_movie(10:19,:,:);
     fig6 = figure; plot_movie(fail_subset,sz,rm_baseline_plot, ts);
     title('False Alarms');
     clim([-0.5 0.5])

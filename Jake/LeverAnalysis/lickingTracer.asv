@@ -1,0 +1,14 @@
+%spatial correlation scatter plot 
+
+img24 = [0.60, 0.81, 0.47];
+img25 = [0.93, 0.96, 0.80, 0.92, 0.79, 0.80];
+img27 = [0.76, 0.65, 0.64];
+%img28 = 
+
+valuesY = [img24, img25, img27];
+categoriesX = [1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3];
+
+corr = scatter( categoriesX, valuesY, 20, 'b', 'filled')
+xlim([0 4]);
+ylim([0 1]);
+corr.XTick = [0 1 2 3 4];

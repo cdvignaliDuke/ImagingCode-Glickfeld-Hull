@@ -8,7 +8,7 @@
 ROI_x =[];
 ROI_y = [];
 
-mati_code_cd = 'C:\Users\jake\Documents\MATLAB\MatiCode\Lever';
+mati_code_cd = 'C:\Users\jake\Documents\Repositories\ImagingCode-Glickfeld-Hull\Jake\LeverAnalysis';
 image_dest  = [DATA_DIR day '\'];
 old_cd = cd(image_dest);
 % get all files
@@ -50,11 +50,12 @@ for i=1:length(all_files)
 end
 
 % sterch values --- keep values betwee 0-255 
-min_v = min(shrink_img(:));
-max_v = max(shrink_img(:));
-shrink_img = 255*(shrink_img - min_v)/(max_v-min_v); 
-for i=1:size(shrink_img,2)
-    % ----- write tif file with ROI only    
+% min_v = min(shrink_img(:));
+% max_v = max(shrink_img(:));
+% shrink_img = 255*(shrink_img - min_v)/(max_v-min_v); 
+
+    % ----- write tif file with ROI only
+for i=1:size(shrink_img,2)    
     c_img = shrink_img(:,i);
     s_img = uint8(reshape(c_img,sz));
     mode= 'append';

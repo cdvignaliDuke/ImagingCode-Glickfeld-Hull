@@ -234,8 +234,8 @@ if isempty(cell2mat(input.leverTimesUs(40:50)));
     nTrials = length(input.trialOutcomeCell);
     baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window
     for iT = 1:nTrials-1;
-        baseline_times(1,iT) = round(input.tStartTrialWaitForPressTimeMs{iT}-1200); 
-        baseline_times(2,iT) = round(input.tStartTrialWaitForPressTimeMs{iT}-500);
+        baseline_times(1,iT) = input.tStartTrialWaitForPressTimeMs{iT}-1200; 
+        baseline_times(2,iT) = input.tStartTrialWaitForPressTimeMs{iT}-500;
     end
     
 else

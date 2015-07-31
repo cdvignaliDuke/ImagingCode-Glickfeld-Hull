@@ -6,8 +6,9 @@ DATA_DIR =  'C:\Users\jake\TempData\';
 FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
 BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 % ---------------
-
-days = {'150309_img16'};
+days = {'170725_img27'};
+%days = {'150716_img27', '150717_img27', '150718_img27', '150719_img27'};  
+%days = {'150719_img28', '150717_img28', '150716_img28'};
 
 for kk=1:length(days)
     ROI_name  =  days{kk};
@@ -46,6 +47,7 @@ for kk=1:length(days)
         roi_position{i} = [roi_position{i}; roi_position{i}(1,:)];
     end
     cluster.roi_mask =roi_mask;
+    cluster.roi_mask_combined = sum(roi_mask,1);
     cluster.roi_position = roi_position;
     cluster.num_cluster = num_cluster;
     close gcf;

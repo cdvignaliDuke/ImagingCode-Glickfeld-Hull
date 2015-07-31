@@ -4,9 +4,9 @@ tic
 % 1. select an ROI
 % 2. stack all the movies to one tiff file
 DATA_DIR =  'C:\Users\jake\TempData\';
-day = '150517_img24';
+day = '150725_img27';   %'150717_img28' '150719_img28'
 motion_correction =1;           %1 to register image   0 to take ROI without motion correction
-stable_int = [271:346];         %use imageJ to find a series of frames (~100) in which little movement occurs. Use this during motion correction
+stable_int = [400:500];         %use imageJ to find a series of frames (~100) in which little movement occurs. Use this during motion correction
 session = '';
 image_dest  = [DATA_DIR day '\'];
 BIN_SIZE =1;
@@ -41,6 +41,8 @@ frame_times = get_frame_time_by_movie_info(all_info);
 
 dest =  [image_dest day '_ROI'];
 save([dest '_frame_times'],  'frame_times');
+%------------------------------------------------------
+%------------------------------------------------------
 
 % use first file to calculate ROI
 cd('C:\Users\jake\Documents\Repositories\ImagingCode-Glickfeld-Hull\Jake\LeverAnalysis');
@@ -79,8 +81,8 @@ if motion_correction == 1;
     end
     disp('motion corrected ROI calculated. Now writing tif');
     %code for writing tiff after motion correction
-    nframes = size(data_reg_ROI,3); %16920
-    ncores = 9;
+    nframes = size(data_reg_ROI,3); %16920(9cores)    or  16936(8cores)
+    ncores = 10;
     parpool = ncores;
     %set the size of the batch that each stream will read
     nbatch = nframes./ncores;
