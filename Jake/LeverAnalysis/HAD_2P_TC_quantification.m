@@ -202,7 +202,7 @@ figure;
 subplot(2,2,1)
 mask_final_temp = zeros(size(mask_final));
 mask_final_temp(find(mask_final>0)) = 1;
-imagesq(reshape(mask_final, [sz(1) sz(2)]));
+imagesq(reshape(mask_final_temp, [sz(1) sz(2)]));
 
 all_resp = [success_resp_avg fail_resp_avg press_resp_avg];
 cmax = max(all_resp,[],2);
@@ -250,6 +250,7 @@ subplot(2,2,4)
 imagesq(press_mask);
 clim([cmin cmax]);
 set(gca, 'XTickLabel', '', 'YTickLabel', '', 'Xtick', 0,'Ytick',0)
+colorbar
 title('press')
 
 suptitle([mouse ' ' date ' cell responses']);

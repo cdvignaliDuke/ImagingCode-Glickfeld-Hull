@@ -292,6 +292,100 @@ title(['Release resp cells- p = ' num2str(chop(p_sfRL,2))])
 suptitle(['Summary of cell response amplitudes- Red: img24; Blue: img25; Green: img28; Magenta: img27'])
     print([out_base 'Summary_cell_response_amp_scatter.eps'], '-depsc');
     print([out_base 'Summary_cell_response_amp_scatter.pdf'], '-dpdf');
+
+%avg scatter of amplitudes by mouse
+figure;
+x = [-.05:.01:.2];
+y = x;
+col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm');
+subplot(2,3,1)
+for id = 1:length(date_mat)
+    scatter(mean(release_resp_all{id},2), mean(press_resp_all{id},2), col_mat(id,:))
+    hold on
+end
+plot(x,y,'-k')
+xlim([-.05 .1]);
+ylim([-.05 .1]);
+xlabel('Release dF/F')
+ylabel('Press dF/F')
+hold on
+vline(0,'--k')
+hline(0,'--k')
+title(['All cells'])
+subplot(2,3,2)
+for id = 1:length(date_mat)
+    scatter(mean(release_resp_RS{id},2), mean(press_resp_RS{id},2), col_mat(id,:))
+    hold on
+end
+plot(x,y,'-k')
+xlim([-.05 .1]);
+ylim([-.05 .1]);
+xlabel('Release dF/F')
+ylabel('Press dF/F')
+hold on
+vline(0,'--k')
+hline(0,'--k')
+title(['Resp cells'])
+subplot(2,3,3)
+for id = 1:length(date_mat)
+    scatter(mean(release_resp_RL{id},2), mean(press_resp_RL{id},2), col_mat(id,:))
+    hold on
+end
+plot(x,y,'-k')
+xlim([-.05 .1]);
+ylim([-.05 .1]);
+xlabel('Release dF/F')
+ylabel('Press dF/F')
+hold on
+vline(0,'--k')
+hline(0,'--k')
+title(['Release resp cells'])
+subplot(2,3,4)
+for id = 1:length(date_mat)
+    scatter(mean(success_resp_all{id},2), mean(fail_resp_all{id},2), col_mat(id,:))
+    hold on
+end
+plot(x,y,'-k')
+xlim([-.05 .1]);
+ylim([-.05 .1]);
+xlabel('Success dF/F')
+ylabel('Fail dF/F')
+hold on
+vline(0,'--k')
+hline(0,'--k')
+title(['All cells'])
+subplot(2,3,5)
+for id = 1:length(date_mat)
+    scatter(mean(success_resp_RS{id},2), mean(fail_resp_RS{id},2), col_mat(id,:))
+    hold on
+end
+plot(x,y,'-k')
+xlim([-.05 .1]);
+ylim([-.05 .1]);
+xlabel('Success dF/F')
+ylabel('Fail dF/F')
+hold on
+vline(0,'--k')
+hline(0,'--k')
+title(['Resp cells'])
+subplot(2,3,6)
+
+for id = 1:length(date_mat)
+    scatter(mean(success_resp_RL{id},2), mean(fail_resp_RL{id}), col_mat(id,:))
+    hold on
+end
+plot(x,y,'-k')
+xlim([-.05 .1]);
+ylim([-.05 .1]);
+xlabel('Success dF/F')
+ylabel('Fail dF/F')
+hold on
+vline(0,'--k')
+hline(0,'--k')
+title(['Release resp cells'])
+suptitle(['Summary of cell response amplitudes- Red: img24; Blue: img25; Green: img28; Magenta: img27'])
+    print([out_base 'Summary_avg_response_amp_scatter.eps'], '-depsc');
+    print([out_base 'Summary_avg_response_amp_scatter.pdf'], '-dpdf');
     
 %average timecourse for expts
 

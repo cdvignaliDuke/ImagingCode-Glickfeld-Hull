@@ -41,7 +41,7 @@ for ic = 1:nIC
 end
 
 %find all spontaneous events to get waveform
-min_iei = 10; %remove all events that occur within 650 ms
+min_iei = round(650./double(ifi)); %remove all events that occur within 650 ms
 data_start = round(300./double(ifi));
 data_end = round(700./double(ifi));
 events_ind_good = {};

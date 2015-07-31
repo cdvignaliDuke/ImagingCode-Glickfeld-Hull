@@ -61,17 +61,43 @@ for ic = 1:nCells
     press(ic).dfoverf_avg = mean(press(ic).dfoverf_chunk,1);
     press(ic).dfoverf_sem = std(press(ic).dfoverf_chunk,[],1)./sqrt(size(press(ic).dfoverf_chunk,1));        
     
-    release(ic).good_event_dfoverf_avg = mean([success(ic).good_event_dfoverf; fail(ic).good_event_dfoverf],1); 
+    release(ic).good_event_dfoverf = [success(ic).good_event_dfoverf; fail(ic).good_event_dfoverf]; 
+    release(ic).good_event_dfoverf_avg = mean(release(ic).good_event_dfoverf,1); 
     press(ic).good_event_dfoverf_peak = mean(press(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi))),1);
     success(ic).good_event_dfoverf_peak = mean(success(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi))),1);
     fail(ic).good_event_dfoverf_peak = mean(fail(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi))),1);
     release(ic).good_event_dfoverf_peak = mean([success(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi))); fail(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi)))],1);
+    events(ic).good_event_dfoverf_peak = mean(events(ic).dfoverf_chunk(:,data_start+ceil(100/double(ifi))),1);
+
+    press(ic).good_event_dfoverf_peaks = press(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi)));
+    success(ic).good_event_dfoverf_peaks = success(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi)));
+    fail(ic).good_event_dfoverf_peaks = fail(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi)));
+    release(ic).good_event_dfoverf_peaks = [success(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi))); fail(ic).good_event_dfoverf(:,data_start+ceil(100/double(ifi)))];
+    events(ic).good_event_dfoverf_peaks = events(ic).dfoverf_chunk(:,data_start+ceil(100/double(ifi)));    
 end
 save([dest_sub '_event_summary.mat'], 'data_start', 'data_end', 'press', 'release', 'success', 'fail', 'events');
 %% plots
 ts = [-data_start:data_end].*double(ifi);
 
-%% compare timecourse of aligned good events
+%% compare timecourse of aligned good events- evoked
+%overlay individual events
+figure
+for ic = 1:nCells
+    subplot(n,n2,ic)
+    ind = find(success(ic).good_event==1);
+    if length(ind)>0
+        plot(ts, success(ic).dfoverf_chunk(ind,:), 'k')
+        hold on
+    end
+    ind2 = find(fail(ic).good_event==1);
+    if length(ind2)>0
+        plot(ts, fail(ic).dfoverf_chunk(ind2,:), 'r')
+    end
+end
+suptitle([mouse ' ' date '- Good events- Black: success; Red: early'])
+print([dest_sub '_good_event_overlay.eps'], '-depsc');
+print([dest_sub '_good_event_overlay.pdf'], '-dpdf');
+
 %by cells
 figure; 
 for ic = 1:nCells
@@ -101,8 +127,8 @@ print([dest_sub '_good_event_dfoverf.pdf'], '-dpdf');
 
 %summary of peaks
 figure;
-resp_h = zeros(size(press_h));
-resp_h(find((press_h+release_h+success_h+fail_h))) = 1;
+ resp_h = zeros(size(press_h));
+ resp_h(find((press_h+release_h+success_h+fail_h))) = 1;
 all_release_peak = zeros(1,nCells);
 all_press_peak = zeros(1,nCells);
 all_success_peak = zeros(1,nCells);
@@ -466,467 +492,218 @@ print([dest_sub '_PSTH_amp_latency.eps'], '-depsc');
 print([dest_sub '_PSTH_amp_latency.pdf'], '-dpdf');
 
 save([dest_sub '_event_hist.mat'], 'success_ind_RS', 'success_rate_RS', 'fail_ind_RS', 'fail_rate_RS', 'success_ind_all', 'success_rate_all', 'fail_ind_all', 'fail_rate_all', 'all_success_hist', 'all_fail_hist', 'resp_success_hist', 'resp_fail_hist');
-% %plot at 3x lower samp rate
-% figure;
-% dx = squeeze(mean(reshape(x(1:30,:),[3,10,nCells]),1));
-% dy = squeeze(mean(reshape(y(1:30,:),[3,10,nCells]),1));
-% dts = squeeze(mean(reshape(ts(1,1:30),[3,10]),1));
-% figure;
-% errorbar(dts,mean(dx.*(1000/double(ifi)),2),std(dx.*(1000/double(ifi)),[],2)./sqrt(size(dx,2)),'k')
-% hold on
-% errorbar(dts,mean(dy.*(1000/double(ifi)),2),std(dy.*(1000/double(ifi)),[],2)./sqrt(size(dx,2)),'r')
-% xlabel('Time (ms)')
-% ylabel('Firing rate (Hz)')
-% suptitle('PSTH all events, all cells- black: success; red: fail')
-% print([dest_sub '_all_event_avgPSTH_3bin.eps'], '-depsc');
-% print([dest_sub '_all_event_avgPSTH_3bin.pdf'], '-dpdf');
-
-%% PSTH of press events
-% z = [];
-% sz1 = size(success_tc,1)-1;
-% sz_p = size(press(1).f_chunk,1);
-% for ic = 1:nCells
-%     press(ic).hist = zeros(sz1,sz_p);
-%     for ip = 1:sz_p
-%         spike_frames = press(ic).ind{ip};
-%         press(ic).hist(spike_frames,ip) = 1;
-%     end
-%     if size(press(ic).hist,2)>1
-%         z = [z mean(press(ic).hist,2)];
-%     end
-% end
-% 
-% figure;
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     errorbar(ts, mean(press(ic).hist.*(1000/double(ifi)),2), std(press(ic).hist.*(1000/double(ifi)),[],2)./sqrt(size(press(ic).hist,2)),'c')
-%     xlim([ts(1) ts(end)])
-%     if press_h(ic)
-%         title('Resp')
-%     end
-% end
-% suptitle('PSTH all events- Press')
-% print([dest_sub '_all_event_press_PSTH.eps'], '-depsc');
-% print([dest_sub '_all_event_press_PSTH.pdf'], '-dpdf');
-% 
-% figure;
-% subplot(2,1,1)
-% errorbar(ts,mean(z.*(1000/double(ifi)),2),std(z.*(1000/double(ifi)),[],2)./sqrt(size(z,2)),'c')
-% xlabel('Time (ms)')
-% ylabel('Firing rate (Hz)')
-% title(['All cells- n = ' num2str(size(z,2))])
-% 
-% z = [];
-% sz1 = size(success_tc,1)-1;
-% sz_p = size(press(1).f_chunk,1);
-% for ic = find(press_h)
-%     press(ic).hist = zeros(sz1,sz_p);
-%     for ip = 1:sz_p
-%         spike_frames = press(ic).ind{ip};
-%         press(ic).hist(spike_frames,ip) = 1;
-%     end
-%     if size(press(ic).hist,2)>1
-%         z = [z mean(press(ic).hist,2)];
-%     end
-% end
-% subplot(2,1,2)
-% errorbar(ts,mean(z.*(1000/double(ifi)),2),std(z.*(1000/double(ifi)),[],2)./sqrt(size(z,2)),'c')
-% xlabel('Time (ms)')
-% ylabel('Firing rate (Hz)')
-% title(['Press responsive cells- n = ' num2str(size(z,2))])
-% suptitle('PSTH all events- Press')
-% print([dest_sub '_press_avgPSTH.eps'], '-depsc');
-% print([dest_sub '_press_avgPSTH.pdf'], '-dpdf');
-
-% %plot at 3x lower samp rate
-% figure;
-% dz = squeeze(mean(reshape(z(1:30,:),[3,10,nCells]),1));
-% dts = squeeze(mean(reshape(ts(1,1:30),[3,10]),1));
-% figure;
-% errorbar(dts,mean(dz.*(1000/double(ifi)),2),std(dz.*(1000/double(ifi)),[],2)./sqrt(size(dz,2)),'c')
-% xlabel('Time (ms)')
-% ylabel('Firing rate (Hz)')
-% suptitle('PSTH all events, all cells- Press- binned')
-% print([dest_sub '_all_event_press_avgPSTH_3bin.eps'], '-depsc');
-% print([dest_sub '_all_event_press_avgPSTH_3bin.pdf'], '-dpdf');
 
 %% compare spontaneous and evoked event amplitudes and waveforms
 %compare amplitude distributions of triggered events
-% figure
-% a = [];
-% b = [];
-% c = [];
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     [Hsp] = cdfplot_LG(events(ic).dfoverf_peak);
-%     hold on
-%     set(Hsp, 'Color', 'b')
-%     if sum(success(ic).event,2)
-%         success_peak = success(ic).dfoverf_peak(find(success(ic).event==1),:);
-%         [Hsu] = cdfplot_LG(success_peak);
-%         hold on
-%         set(Hsu, 'Color', 'k')
-%     end
-%     if sum(fail(ic).event,2)
-%         fail_peak = fail(ic).dfoverf_peak(find(fail(ic).event==1),:);
-%         [Hfa] = cdfplot_LG(fail_peak);
-%         hold on
-%         set(Hfa, 'Color', 'r')
-%     end
-%     title([num2str(size(events(ic).dfoverf_peak,1)) ' spont; ' num2str(sum(success(ic).event,2)) ' success;' num2str(sum(fail(ic).event,2)) ' fail; ' num2str(sum(press(ic).event,2)) ' press'])
-%     a = [a; sum(success(ic).event,2)];
-%     b = [b; sum(fail(ic).event,2)];
-%     c = [c; size(events(ic).dfoverf_peak,1)];
-% end
-% suptitle('Amplitude distribution- all events')
-% print([dest_sub '_all_event_spontVrelease_ampdist.eps'], '-depsc');
-% print([dest_sub '_all_event_spontVrelease_ampdist.pdf'], '-dpdf');
-% 
-% d = [];
-% figure;
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     d = [d; sum(press(ic).event,2)];
-%     [Hsp] = cdfplot_LG(events(ic).dfoverf_peak);
-%     hold on
-%     set(Hsp, 'Color', 'b')
-%     press_peak = press(ic).dfoverf_peak(find(press(ic).event==1),:);
-%     [Hpr] = cdfplot_LG(press_peak);
-%     hold on
-%     set(Hpr, 'Color', 'c')
-%     title([num2str(size(events(ic).dfoverf_peak,1)) ' spont; ' num2str(sum(press(ic).event,2)) ' press'])
-% end
-% suptitle('Amplitude distribution- all events')
-% print([dest_sub 'all_event_spontVpress_ampdist.eps'], '-depsc');
-% print([dest_sub 'all_event_spontVpress_ampdist.pdf'], '-dpdf');
-% 
-% 
-% for ic = 1:nCells
-%     max_event = max([success(ic).dfoverf_peak(find(success(ic).event==1)); fail(ic).dfoverf_peak(find(fail(ic).event==1)); events(ic).dfoverf_peak; press(ic).dfoverf_peak(find(press(ic).event==1))],[],1);
-%     success(ic).peak_norm = success(ic).dfoverf_peak(find(success(ic).event==1))./max_event;
-%     fail(ic).peak_norm = fail(ic).dfoverf_peak(find(fail(ic).event==1))./max_event;
-%     event(ic).peak_norm = events(ic).dfoverf_peak./max_event;
-%     press(ic).peak_norm = press(ic).dfoverf_peak(find(press(ic).event==1))./max_event;
-% end
-% 
-% %chose n_min samples from success (fail is always 36, spont is 107) for
-% %each ROI- overlay CDFs and perform KS test- title has median ks test for
-% %each pairing.
-% for n_min = [5 10]
-%     figure;
-%     nrep = 100;
-%     kp_succVfail = zeros(1,nrep);
-%     kp_succVspont = zeros(1,nrep);
-%     kp_failVspont = zeros(1,nrep);
-%     tp_succVfail = zeros(1,nrep);
-%     tp_succVspont = zeros(1,nrep);
-%     tp_failVspont = zeros(1,nrep);
-%     for irep  = 1:nrep
-%         success_peak_norm = [];
-%         fail_peak_norm = [];
-%         spont_peak_norm = [];
-%         ncells = 0;
-%         for ic = 1:nCells
-%             if size(success(ic).peak_norm,1)>n_min-1
-%                 samp1 = randsample(sum(success(ic).event,2),n_min);
-%                 samp2 = randsample(sum(fail(ic).event,2),min(b,[],1));
-%                 samp3 = randsample(size(events(ic).dfoverf_peak,1),min(c,[],1));
-%                 success_peak_norm = [success_peak_norm; success(ic).peak_norm(samp1,:)];
-%                 fail_peak_norm = [fail_peak_norm; fail(ic).peak_norm(samp2,:)];
-%                 spont_peak_norm = [spont_peak_norm; event(ic).peak_norm(samp3,:)];
-%                 ncells = ncells+1;
-%             end
-%         end
-%         if and(size(success_peak_norm,1)>0,size(fail_peak_norm,1)>0)
-%             [h_succ] = cdfplot(success_peak_norm);
-%             set(h_succ,'Color','k')
-%             hold on;
-%             [h_fail] = cdfplot(fail_peak_norm);
-%             set(h_fail,'Color','r')
-%             hold on
-%             [h_spont] = cdfplot(spont_peak_norm);
-%             set(h_spont,'Color','b')
-%             [kh_succVfail kp_succVfail(:,irep)] = kstest2(success_peak_norm,fail_peak_norm);
-%             [kh_succVspont kp_succVspont(:,irep)] = kstest2(success_peak_norm,spont_peak_norm);
-%             [kh_failVspont kp_failVspont(:,irep)] = kstest2(spont_peak_norm,fail_peak_norm);
-%             [th_succVfail tp_succVfail(:,irep)] = ttest2(success_peak_norm,fail_peak_norm);
-%             [th_succVspont tp_succVspont(:,irep)] = ttest2(success_peak_norm,spont_peak_norm);
-%             [th_failVspont tp_failVspont(:,irep)] = ttest2(spont_peak_norm,fail_peak_norm);
-%         end
-%     end
-%     xk = sort(kp_succVfail,2);
-%     yk = sort(kp_failVspont,2);
-%     zk = sort(kp_succVspont,2);
-%     xt = sort(tp_succVfail,2);
-%     yt = sort(tp_failVspont,2);
-%     zt = sort(tp_succVspont,2);
-%     title([num2str(n_min) ' events; ' num2str(ncells) ' cells; succVfail = ' num2str(xk(50)) '; succVspont = ' num2str(zk(50)) '; failVspont = ' num2str(yk(50))])
-%     print([dest_sub '_all_event_ampdist_spontVrelease_resamp_' num2str(n_min) 'events.eps'], '-depsc');
-%     print([dest_sub '_all_event_ampdist_spontVrelease_resamp_' num2str(n_min) 'events.pdf'], '-dpdf');
-% end
-% 
-% 
-% %press vs spont
-% press_peak_norm = [];
-% spont_peak_norm = [];
-% for ic = 1:nCells
-%     samp1 = randsample(sum(press(ic).event,2),min(d,[],1));
-%     samp2 = randsample(size(events(ic).dfoverf_peak,1),min(c,[],1));
-%     press_peak_norm = [press_peak_norm; press(ic).peak_norm(samp1,:)];
-%     spont_peak_norm = [spont_peak_norm; event(ic).peak_norm(samp2,:)];
-% end
-% figure;
-% [h_pr] = cdfplot(press_peak_norm);
-% set(h_pr,'Color','c')
-% hold on;
-% [h_spont] = cdfplot(spont_peak_norm);
-% set(h_spont,'Color','b')
-% [h_prVsp p_prVsp] = kstest2(press_peak_norm, spont_peak_norm);
-% title(['Event amplitude distribution: Press V. Spont - p = ' num2str(p_prVsp)])
-% print([dest_sub '_all_event_ampdist_pressVspont.eps'], '-depsc');
-% print([dest_sub '_all_event_ampdist_pressVspont.pdf'], '-dpdf');
-% 
-% %combine success and fails
-% figure
-% x = [];
-% y = [];
-% ab = a+b;
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     [Hsp] = cdfplot_LG(events(ic).dfoverf_peak);
-%     hold on
-%     set(Hsp, 'Color', 'b')
-%     peaks = [success(ic).dfoverf_peak(find(success(ic).event==1)); fail(ic).dfoverf_peak(find(fail(ic).event==1))];
-%     [Hev] = cdfplot_LG(peaks);
-%     hold on
-%     set(Hev, 'Color', 'k')
-%     [h p] = kstest2(events(ic).dfoverf_peak,peaks);
-%     title([num2str(p) ' ' num2str(size(peaks,1))])
-%     samp1 = randsample(size(events(ic).dfoverf_peak,1), min(c,[],1));
-%     samp2 = randsample(size(peaks,1),min(ab,[],1));
-%     x = [x; events(ic).dfoverf_peak(samp1,:)./max(events(ic).dfoverf_peak,[],1)];
-%     y = [y; peaks(samp2,:)./max(peaks,[],1)];
-% end
-% suptitle('Amplitude distribution- all events')
-% print([dest_sub '_all_event_ampdist_spontVrelease.eps'], '-depsc');
-% print([dest_sub '_all_event_ampdist_spontVrelease.pdf'], '-dpdf');
-% 
-% figure
-% [Hsp_mean] = cdfplot_LG(x);
-% hold on
-% set(Hsp_mean, 'Color', 'b')
-% [Hev_mean] = cdfplot_LG(y);
-% hold on
-% set(Hev_mean, 'Color', 'k')
-% xlim([0 1])
-% [h p] = kstest2(x,y);
-% title(['Amplitude distribution- all events- Spont vs Evoked- p = ' num2str(p)])
-% print([dest_sub '_all_event_ampdist_spontVrelease_avg.eps'], '-depsc');
-% print([dest_sub '_all_event_ampdist_spontVrelease_avg.pdf'], '-dpdf');
-% 
-% %compare evoked, press and spont for good events only
-% a = [];
-% b = [];
-% c = [];
-% for ic = 1:nCells
-%     a = [a; nansum([success(ic).good_event fail(ic).good_event],2)];
-%     b = [b; size(events(ic).dfoverf_peak,1)];
-%     c = [c; nansum(press(ic).good_event,2)];
-% end
-% 
-% x = [];
-% y = [];
-% a = sort(a);
-% b = sort(b);
-% for s = 1:3:10
-%     ncells = 0;
-%     figure
-%     for ic = 1:nCells
-%         subplot(n,n2,ic)
-%         [Hsp] = cdfplot_LG(events(ic).dfoverf_peak);
-%         hold on
-%         set(Hsp, 'Color', 'b')
-%         peaks = [success(ic).dfoverf_peak(find(success(ic).good_event==1)); fail(ic).dfoverf_peak(find(fail(ic).good_event==1))];
-%         [Hev] = cdfplot_LG(peaks);
-%         hold on
-%         set(Hev, 'Color', 'k')
-%         [h p] = kstest2(events(ic).dfoverf_peak,peaks);
-%         title([num2str(p) ' ' num2str(size(peaks,1))])
-%         if size(peaks,1)>a(s)-1
-%             samp1 = randsample(size(events(ic).dfoverf_peak,1),b(1));
-%             samp2 = randsample(size(peaks,1),a(s));
-%             x = [x; events(ic).dfoverf_peak(samp1,:)./max(events(ic).dfoverf_peak,[],1)];
-%             y = [y; peaks(samp2,:)./max(peaks,[],1)];
-%             ncells = ncells+1;
-%         end
-%     end
-%     suptitle(['Amplitude distribution- good events- Spont (n = ' num2str(b(1)) ') vs Evoked (n = ' num2str(a(s)) ')'])
-% 
-%     print([dest_sub '_good_event_ampdist_releaseVspont_' num2str(a(s)) 'events.eps'], '-depsc');
-%     print([dest_sub '_good_event_ampdist_releaseVspont_' num2str(a(s)) 'events.pdf'], '-dpdf');
-% 
-%     figure
-%     [Hsp_mean] = cdfplot_LG(x);
-%     hold on
-%     set(Hsp_mean, 'Color', 'b')
-%     [Hev_mean] = cdfplot_LG(y);
-%     hold on
-%     set(Hev_mean, 'Color', 'k')
-%     xlim([0 1])
-%     [h p] = kstest2(x,y);
-%     title(['Amplitude distribution- good events- ' num2str(ncells) 'cells; Spont vs Evoked - P = ' num2str(p)])
-%     print([dest_sub '_good_event_allcells_ampdist_releaseVspont_' num2str(a(s)) 'events.eps'], '-depsc');
-%     print([dest_sub '_good_event_allcells_ampdist_releaseVspont_' num2str(a(s)) 'events.pdf'], '-dpdf');
-% end
-% 
-% %compare spontaneous and press distributions
-% x = [];
-% y = [];
-% b = sort(b);
-% figure
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     [Hsp] = cdfplot_LG(events(ic).dfoverf_peak);
-%     hold on
-%     set(Hsp, 'Color', 'b')
-%     peaks = press(ic).dfoverf_peak(find(press(ic).good_event==1));
-%     [Hpr] = cdfplot_LG(peaks);
-%     hold on
-%     set(Hpr, 'Color', 'c')
-%     if c(ic)>6
-%         [h p] = kstest2(events(ic).dfoverf_peak,peaks);
-%         title([num2str(p) ' ' num2str(size(peaks,1))])
-%         samp1 = randsample(size(events(ic).dfoverf_peak,1),b(1));
-%         samp2 = randsample(size(peaks,1),7);
-%         x = [x; events(ic).dfoverf_peak(samp1,:)./max(events(ic).dfoverf_peak,[],1)];
-%         y = [y; peaks(samp2,:)./max(peaks,[],1)];
-%     end
-% end
-% suptitle(['Amplitude distribution- good events- Spont (n = ' num2str(b(1)) ') vs Press (n = ' num2str(c(1)) ')'])
-% print([dest_sub '_good_event_ampdist_pressVspont.eps'], '-depsc');
-% print([dest_sub '_good_event_ampdist_pressVspont.pdf'], '-dpdf');
-% 
-% figure
-% [Hsp_mean] = cdfplot_LG(x);
-% hold on
-% set(Hsp_mean, 'Color', 'b')
-% [Hpr_mean] = cdfplot_LG(y);
-% hold on
-% set(Hpr_mean, 'Color', 'c')
-% xlim([0 1])
-% [h p] = kstest2(x,y);
-% title(['Amplitude distribution- good events; Spont vs Press - P = ' num2str(p)])
-% print([dest_sub '_good_event_allcells_ampdist_pressVspont.eps'], '-depsc');
-% print([dest_sub '_good_event_allcells_ampdist_pressVspont.pdf'], '-dpdf');
-% 
-% %compare evoked and spontaneous waveforms
-% figure;
-% spont_norm_avg = zeros(size(events(1).dfoverf_chunk,2),nCells);
-% evoked_norm_avg = zeros(size(success(1).dfoverf_chunk,2),nCells);
-% spont_norm_sem = zeros(size(events(1).dfoverf_chunk,2),nCells);
-% evoked_norm_sem = zeros(size(success(1).dfoverf_chunk,2),nCells);
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     max_amp = mean(events(ic).dfoverf_peak,1); %normalizing to the average spont, not max
-%     spont_norm = events(ic).dfoverf_chunk./max_amp;
-%     evoked_norm = [success(ic).dfoverf_chunk(find(success(ic).good_event==1),:)./max_amp;  fail(ic).dfoverf_chunk(find(fail(ic).good_event==1),:)./max_amp];
-%     spont_norm_avg(:,ic) = squeeze(mean(spont_norm,1));
-%     evoked_norm_avg(:,ic) = squeeze(mean(evoked_norm,1));
-%     spont_norm_sem(:,ic) = squeeze(std(spont_norm,[],1))./sqrt(size(spont_norm,1));
-%     evoked_norm_sem(:,ic) = squeeze(std(evoked_norm,[],1))./sqrt(size(evoked_norm,1));
-%     errorbar(spont_norm_avg(:,ic), spont_norm_sem(:,ic), 'b')
-%     hold on
-%     errorbar(evoked_norm_avg(:,ic), evoked_norm_sem(:,ic), 'k')
-%     title([num2str(size(spont_norm,1)) ' spont; ' num2str(size(evoked_norm,1)) ' evoked'])
-% end
-% suptitle(['Average good events- Spont and Evoked- norm to average Spont'])
-% print([dest_sub '_good_event_releaseVspont.eps'], '-depsc');
-% print([dest_sub '_good_event_releaseVspont.pdf'], '-dpdf');
-% 
-% evoked_renorm_avg = bsxfun(@rdivide, evoked_norm_avg, max(spont_norm_avg,[],1));
-% spont_renorm_avg = bsxfun(@rdivide, spont_norm_avg, max(spont_norm_avg,[],1));
-% figure;
-% errorbar(mean(evoked_renorm_avg,2), std(evoked_renorm_avg,[],2)./sqrt(nCells),'k')
-% hold on
-% errorbar(mean(spont_renorm_avg,2), std(spont_renorm_avg,[],2)./sqrt(nCells),'b')
-% title(['Average good events- Spont and Evoked- norm to average Spont'])
-% print([dest_sub '_good_event_avg_releaseVspont.eps'], '-depsc');
-% print([dest_sub '_good_event_avg_releaseVspont.pdf'], '-dpdf');
-% 
-% %split evoked back into success and fail
-% figure;
-% spont_norm_avg = zeros(size(events(1).dfoverf_chunk,2),nCells);
-% success_norm_avg = zeros(size(success(1).dfoverf_chunk,2),nCells);
-% fail_norm_avg = zeros(size(fail(1).dfoverf_chunk,2),nCells);
-% spont_norm_sem = zeros(size(events(1).dfoverf_chunk,2),nCells);
-% success_norm_sem = zeros(size(success(1).dfoverf_chunk,2),nCells);
-% fail_norm_sem = zeros(size(fail(1).dfoverf_chunk,2),nCells);
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     max_amp = mean(events(ic).dfoverf_peak,1); %normalizing to the average spont, not max
-%     spont_norm = events(ic).dfoverf_chunk./max_amp;
-%     success_norm = success(ic).dfoverf_chunk(find(success(ic).good_event==1),:)./max_amp;
-%     fail_norm = fail(ic).dfoverf_chunk(find(fail(ic).good_event==1),:)./max_amp;
-%     spont_norm_avg(:,ic) = squeeze(mean(spont_norm,1));
-%     success_norm_avg(:,ic) = squeeze(mean(success_norm,1));
-%     fail_norm_avg(:,ic) = squeeze(mean(fail_norm,1));
-%     spont_norm_sem(:,ic) = squeeze(std(spont_norm,[],1))./sqrt(size(spont_norm,1));
-%     success_norm_sem(:,ic) = squeeze(std(success_norm,[],1))./sqrt(size(success_norm,1));
-%     fail_norm_sem(:,ic) = squeeze(std(fail_norm,[],1))./sqrt(size(fail_norm,1));
-%     errorbar(spont_norm_avg(:,ic), spont_norm_sem(:,ic), 'b')
-%     hold on
-%     errorbar(success_norm_avg(:,ic), success_norm_sem(:,ic), 'k')
-%     hold on
-%     errorbar(fail_norm_avg(:,ic), fail_norm_sem(:,ic), 'r')
-%     title([num2str(size(spont_norm,1)) ' spont; ' num2str(size(success_norm,1)) ' success; ' num2str(size(fail_norm,1)) ' fail'])
-% end
-% suptitle(['Average good events- Spont and Evoked- norm to average Spont'])
-% print([dest_sub '_good_event_successVfailVspont.eps'], '-depsc');
-% print([dest_sub '_good_event_successVfailVspont.pdf'], '-dpdf');
-% 
-% success_renorm_avg = bsxfun(@rdivide, success_norm_avg, max(spont_norm_avg,[],1));
-% fail_renorm_avg = bsxfun(@rdivide, fail_norm_avg, max(spont_norm_avg,[],1));
-% spont_renorm_avg = bsxfun(@rdivide, spont_norm_avg, max(spont_norm_avg,[],1));
-% figure;
-% errorbar(nanmean(success_renorm_avg,2), nanstd(success_renorm_avg,[],2)./sqrt(nCells),'k')
-% hold on
-% errorbar(nanmean(fail_renorm_avg,2), nanstd(fail_renorm_avg,[],2)./sqrt(nCells),'r')
-% hold on
-% errorbar(nanmean(spont_renorm_avg,2), nanstd(spont_renorm_avg,[],2)./sqrt(nCells),'b')
-% title(['Average good events- Spont(' num2str(sum(~isnan(spont_norm_avg(1,:)),2)) ')/Success(' num2str(sum(~isnan(success_norm_avg(1,:)),2)) ')/Fail(' num2str(sum(~isnan(fail_norm_avg(1,:)),2)) ')- norm to average Spont'])
-% print([dest_sub '_good_event_avg_successVfailVspont.eps'], '-depsc');
-% print([dest_sub '_good_event_avg_successVfailVspont.pdf'], '-dpdf');
-% 
-% %compare press and spontaneous waveforms
-% figure;
-% spont_norm_avg = zeros(size(events(1).dfoverf_chunk,2),nCells);
-% press_norm_avg = zeros(size(press(1).dfoverf_chunk,2),nCells);
-% spont_norm_sem = zeros(size(events(1).dfoverf_chunk,2),nCells);
-% press_norm_sem = zeros(size(press(1).dfoverf_chunk,2),nCells);
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     max_amp = mean(events(ic).dfoverf_peak,1); %normalizing to the average spont, not max
-%     spont_norm = events(ic).dfoverf_chunk./max_amp;
-%     press_norm = press(ic).dfoverf_chunk(find(press(ic).good_event==1),:)./max_amp;
-%     spont_norm_avg(:,ic) = squeeze(mean(spont_norm,1));
-%     press_norm_avg(:,ic) = squeeze(mean(press_norm,1));
-%     spont_norm_sem(:,ic) = squeeze(std(spont_norm,[],1))./sqrt(size(spont_norm,1));
-%     press_norm_sem(:,ic) = squeeze(std(press_norm,[],1))./sqrt(size(press_norm,1));
-%     errorbar(spont_norm_avg(:,ic), spont_norm_sem(:,ic), 'b')
-%     hold on
-%     errorbar(press_norm_avg(:,ic), press_norm_sem(:,ic), 'c')
-%     title([num2str(size(spont_norm,1)) ' spont; ' num2str(size(press_norm,1)) ' press'])
-% end
-% suptitle(['Average good events- Spont and Press- norm to average Spont'])
-% print([dest_sub '_good_event_pressVspont.eps'], '-depsc');
-% print([dest_sub '_good_event_pressVspont.pdf'], '-dpdf');
-% 
-% press_renorm_avg = bsxfun(@rdivide, press_norm_avg, max(spont_norm_avg,[],1));
-% spont_renorm_avg = bsxfun(@rdivide, spont_norm_avg, max(spont_norm_avg,[],1));
-% figure;
-% errorbar(nanmean(press_renorm_avg,2), nanstd(press_renorm_avg,[],2)./sqrt(nCells),'c')
-% hold on
-% errorbar(nanmean(spont_renorm_avg,2), nanstd(spont_renorm_avg,[],2)./sqrt(nCells),'b')
-% title(['Average good events- Spont(' num2str(sum(~isnan(spont_norm_avg(1,:)),2)) ') and Press(' num2str(sum(~isnan(press_norm_avg(1,:)),2)) ')- norm to average Spont'])
-% print([dest_sub '_good_event_avg_pressVspont.eps'], '-depsc');
-% print([dest_sub '_good_event_avg_pressVspont.pdf'], '-dpdf');
+figure
+spontN = [];
+releaseN = [];
+pressN = [];
+for ic = 1:nCells
+    subplot(n,n2,ic)
+    [Hsp] = cdfplot_LG(events(ic).good_event_dfoverf_peaks);
+    hold on
+    set(Hsp, 'Color', 'b')
+    if size(release(ic).good_event_dfoverf_peaks,1)
+        [Hsu] = cdfplot(release(ic).good_event_dfoverf_peaks);
+        hold on
+        set(Hsu, 'Color', 'k')
+    end
+    if size(press(ic).good_event_dfoverf_peaks,1)
+        [Hsu] = cdfplot(press(ic).good_event_dfoverf_peaks);
+        hold on
+        set(Hsu, 'Color', 'c')
+    end
+    if resp_h(ic)
+        sig_str = '\bf';
+    else
+        sig_str = '';
+    end
+    title([sig_str num2str(size(events(ic).good_event_dfoverf_peaks,1)) ' spont; ' num2str(size(release(ic).good_event_dfoverf_peaks,1)) ' release;' num2str(size(press(ic).good_event_dfoverf_peaks,1)) ' press'])
+    spontN = [spontN; size(events(ic).good_event_dfoverf_peaks,1)];
+    releaseN = [releaseN; size(release(ic).good_event_dfoverf_peaks,1)];
+    pressN = [pressN; size(press(ic).good_event_dfoverf_peaks,1)];
+end
+suptitle('Amplitude distribution- all events')
+print([dest_sub '_good_event_spontVevoked_ampdist.eps'], '-depsc');
+print([dest_sub '_good_event_spontVevoked_ampdist.pdf'], '-dpdf');
+
+for ic = 1:nCells
+    max_event = max([events(ic).good_event_dfoverf_peaks; release(ic).good_event_dfoverf_peaks; press(ic).good_event_dfoverf_peaks],[],1);
+    release(ic).peak_norm = release(ic).good_event_dfoverf_peaks./max_event;
+    events(ic).peak_norm = events(ic).good_event_dfoverf_peaks./max_event;
+    press(ic).peak_norm = press(ic).good_event_dfoverf_peaks./max_event;
+end
+
+%collect events across cells- not keeping track of event number
+release_peak_norm = [];
+press_peak_norm = [];
+spont_peak_norm = [];
+for ic = 1:nCells 
+    release_peak_norm = [release_peak_norm; release(ic).peak_norm];
+    press_peak_norm = [press_peak_norm; press(ic).peak_norm];
+    spont_peak_norm = [spont_peak_norm; events(ic).peak_norm];
+end
+figure;
+subplot(1,2,1)
+[h_rel] = cdfplot(release_peak_norm);
+set(h_rel,'Color','k')
+hold on;
+[h_press] = cdfplot(press_peak_norm);
+set(h_press,'Color','c')
+hold on
+[h_spont] = cdfplot(spont_peak_norm);
+set(h_spont,'Color','b')
+[kh_relVpr kp_relVpr] = kstest2(release_peak_norm,press_peak_norm);
+[kh_relVspont kp_relVspont] = kstest2(release_peak_norm,spont_peak_norm);
+[kh_prVspont kp_prVspont] = kstest2(spont_peak_norm,press_peak_norm);
+title(['All cells- n = ' num2str(nCells) ' cells']) % rVp = ' num2str(chop(kp_relVpr,2)) '; rVs = ' num2str(chop(kp_relVspont,2)) '; pVs = ' num2str(chop(kp_prVspont,2))])
+
+release_peak_norm = [];
+press_peak_norm = [];
+spont_peak_norm = [];
+for ic = find(resp_h)
+    release_peak_norm = [release_peak_norm; release(ic).peak_norm];
+    press_peak_norm = [press_peak_norm; press(ic).peak_norm];
+    spont_peak_norm = [spont_peak_norm; events(ic).peak_norm];
+end
+subplot(1,2,2)
+[h_rel] = cdfplot(release_peak_norm);
+set(h_rel,'Color','k')
+hold on;
+[h_press] = cdfplot(press_peak_norm);
+set(h_press,'Color','c')
+hold on
+[h_spont] = cdfplot(spont_peak_norm);
+set(h_spont,'Color','b')
+[kh_relVpr kp_relVpr] = kstest2(release_peak_norm,press_peak_norm);
+[kh_relVspont kp_relVspont] = kstest2(release_peak_norm,spont_peak_norm);
+[kh_prVspont kp_prVspont] = kstest2(spont_peak_norm,press_peak_norm);
+title(['Resp cells- n = ' num2str(sum(resp_h,2)) ' cells']) %rVp = ' num2str(chop(kp_relVpr,2)) '; rVs = ' num2str(chop(kp_relVspont,2)) '; pVs = ' num2str(chop(kp_prVspont,2))])
+suptitle([date ' ' mouse 'peak event distribution- all good events'])
+print([dest_sub '_ampdist_spontVevoked.eps'], '-depsc');
+print([dest_sub '_ampdist_spontVevoked.pdf'], '-dpdf');
+
+%collect events across cells- 7 press/release events per cell
+release_peak_norm = [];
+press_peak_norm = [];
+spont_peak_norm = [];
+cell_list = [];
+for ic = 1:nCells 
+    if pressN(ic)>6
+        if releaseN(ic)>6
+            samp_r = randsample(size(release(ic).peak_norm,1),7);
+            samp_p = randsample(size(press(ic).peak_norm,1),7);
+            release_peak_norm = [release_peak_norm; release(ic).peak_norm(samp_r,:)];
+            press_peak_norm = [press_peak_norm; press(ic).peak_norm(samp_p,:)];
+            spont_peak_norm = [spont_peak_norm; events(ic).peak_norm];
+            cell_list = [cell_list ic];
+        end
+    end
+end
+figure;
+subplot(1,2,1)
+[h_rel] = cdfplot(release_peak_norm);
+set(h_rel,'Color','k')
+hold on;
+[h_press] = cdfplot(press_peak_norm);
+set(h_press,'Color','c')
+hold on
+[h_spont] = cdfplot(spont_peak_norm);
+set(h_spont,'Color','b')
+[kh_relVpr kp_relVpr] = kstest2(release_peak_norm,press_peak_norm);
+[kh_relVspont kp_relVspont] = kstest2(release_peak_norm,spont_peak_norm);
+[kh_prVspont kp_prVspont] = kstest2(spont_peak_norm,press_peak_norm);
+title(['All cells- n = ' num2str(length(cell_list)) ' cells' ])%rVp = ' num2str(chop(kp_relVpr,2)) '; rVs = ' num2str(chop(kp_relVspont,2)) '; pVs = ' num2str(chop(kp_prVspont,2))])
+
+release_peak_norm = [];
+press_peak_norm = [];
+spont_peak_norm = [];
+cell_list = [];
+for ic = find(resp_h) 
+    if pressN(ic)>6
+        if releaseN(ic)>6
+            samp_r = randsample(size(release(ic).peak_norm,1),7);
+            samp_p = randsample(size(press(ic).peak_norm,1),7);
+            release_peak_norm = [release_peak_norm; release(ic).peak_norm(samp_r,:)];
+            press_peak_norm = [press_peak_norm; press(ic).peak_norm(samp_p,:)];
+            spont_peak_norm = [spont_peak_norm; events(ic).peak_norm];
+            cell_list = [cell_list ic];
+        end
+    end
+end
+subplot(1,2,2)
+[h_rel] = cdfplot(release_peak_norm);
+set(h_rel,'Color','k')
+hold on;
+[h_press] = cdfplot(press_peak_norm);
+set(h_press,'Color','c')
+hold on
+[h_spont] = cdfplot(spont_peak_norm);
+set(h_spont,'Color','b')
+[kh_relVpr kp_relVpr] = kstest2(release_peak_norm,press_peak_norm);
+[kh_relVspont kp_relVspont] = kstest2(release_peak_norm,spont_peak_norm);
+[kh_prVspont kp_prVspont] = kstest2(spont_peak_norm,press_peak_norm);
+title(['Resp cells- n = ' num2str(length(cell_list)) ' cells' ])%rVp = ' num2str(chop(kp_relVpr,2)) '; rVs = ' num2str(chop(kp_relVspont,2)) '; pVs = ' num2str(chop(kp_prVspont,2))])
+suptitle([date ' ' mouse 'peak event distribution- at least 7 events per cell'])
+print([dest_sub '_ampdist_spontVevoked_min7events.eps'], '-depsc');
+print([dest_sub '_ampdist_spontVevoked_min7events.pdf'], '-dpdf');
+
+%compare evoked and spontaneous waveforms
+figure;
+spont_norm_avg = zeros(size(events(1).dfoverf_chunk,2),nCells);
+release_norm_avg = zeros(size(events(1).dfoverf_chunk,2),nCells);
+press_norm_avg = zeros(size(press(1).dfoverf_chunk,2),nCells);
+spont_norm_sem = zeros(size(events(1).dfoverf_chunk,2),nCells);
+press_norm_sem = zeros(size(press(1).dfoverf_chunk,2),nCells);
+release_norm_sem = zeros(size(events(1).dfoverf_chunk,2),nCells);
+for ic = 1:nCells
+    subplot(n,n2,ic)
+    max_amp = mean(events(ic).good_event_dfoverf_peaks,1); %normalizing to the average spont, not max
+    spont_norm{ic} = events(ic).dfoverf_chunk./max_amp;
+    release_norm{ic} = release(ic).good_event_dfoverf./max_amp;
+    press_norm{ic} = press(ic).good_event_dfoverf./max_amp;
+    spont_norm_avg(:,ic) = squeeze(mean(spont_norm{ic},1));
+    release_norm_avg(:,ic) = squeeze(mean(release_norm{ic},1));
+    press_norm_avg(:,ic) = squeeze(mean(press_norm{ic},1));
+    spont_norm_sem(:,ic) = squeeze(std(spont_norm{ic},[],1))./sqrt(size(spont_norm{ic},1));
+    release_norm_sem(:,ic) = squeeze(std(release_norm{ic},[],1))./sqrt(size(release_norm{ic},1));
+    press_norm_sem(:,ic) = squeeze(std(press_norm{ic},[],1))./sqrt(size(press_norm{ic},1));
+    errorbar(spont_norm_avg(:,ic), spont_norm_sem(:,ic), 'b')
+    hold on
+    errorbar(release_norm_avg(:,ic), release_norm_sem(:,ic), 'k')
+    hold on
+    errorbar(press_norm_avg(:,ic), press_norm_sem(:,ic), 'c')
+    title([num2str(sum(~isnan(spont_norm_avg(1,:)),2)) ' spont; ' num2str(sum(~isnan(release_norm_avg(1,:)),2)) ' release; ' num2str(sum(~isnan(press_norm_avg(1,:)),2)) ' press'])
+end
+suptitle(['Average good events- norm to average Spont'])
+print([dest_sub '_good_event_releaseVspontVpress.eps'], '-depsc');
+print([dest_sub '_good_event_releaseVspontVpress.pdf'], '-dpdf');
+
+%average all cells
+release_renorm_avg = bsxfun(@rdivide, release_norm_avg, max(spont_norm_avg,[],1));
+spont_renorm_avg = bsxfun(@rdivide, spont_norm_avg, max(spont_norm_avg,[],1));
+press_renorm_avg = bsxfun(@rdivide, press_norm_avg, max(spont_norm_avg,[],1));
+figure;
+subplot(1,2,1)
+errorbar(nanmean(release_renorm_avg,2), nanstd(release_renorm_avg,[],2)./sqrt(sum(~isnan(release_renorm_avg(1,:)),2)),'k')
+hold on
+errorbar(nanmean(spont_renorm_avg,2), nanstd(spont_renorm_avg,[],2)./sqrt(sum(~isnan(spont_renorm_avg(1,:)),2)),'b')
+hold on
+errorbar(nanmean(press_renorm_avg,2), nanstd(press_renorm_avg,[],2)./sqrt(sum(~isnan(press_renorm_avg(1,:)),2)),'c')
+title(['All cells- ' num2str(sum(~isnan(spont_norm_avg(1,:)),2)) ' spont; ' num2str(sum(~isnan(release_norm_avg(1,:)),2)) ' release; ' num2str(sum(~isnan(press_norm_avg(1,:)),2)) ' press'])
+
+subplot(1,2,2)
+errorbar(nanmean(release_renorm_avg(:,find(resp_h)),2), nanstd(release_renorm_avg(:,find(resp_h)),[],2)./sqrt(sum(~isnan(release_renorm_avg(1,find(resp_h))),2)),'k')
+hold on
+errorbar(nanmean(spont_renorm_avg(:,find(resp_h)),2), nanstd(spont_renorm_avg(:,find(resp_h)),[],2)./sqrt(sum(~isnan(spont_renorm_avg(1,find(resp_h))),2)),'b')
+hold on
+errorbar(nanmean(press_renorm_avg(:,find(resp_h)),2), nanstd(press_renorm_avg(:,find(resp_h)),[],2)./sqrt(sum(~isnan(press_renorm_avg(1,find(resp_h))),2)),'c')
+title(['Responsive cells- ' num2str(sum(~isnan(spont_norm_avg(1,find(resp_h))),2)) ' spont; ' num2str(sum(~isnan(release_norm_avg(1,find(resp_h))),2)) ' release; ' num2str(sum(~isnan(press_norm_avg(1,find(resp_h))),2)) ' press'])
+
+suptitle(['Average good events- Spont and Evoked- norm to average Spont'])
+print([dest_sub '_avg_releaseVspontVpress.eps'], '-depsc');
+print([dest_sub '_avg_releaseVspontVpress.pdf'], '-dpdf');
+
+save([dest_sub '_norm2spont.mat'], 'release_norm_avg', 'spont_norm_avg', 'press_norm_avg');
+
