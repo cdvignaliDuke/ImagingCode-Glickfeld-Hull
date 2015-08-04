@@ -1,6 +1,6 @@
 edit('FlashingStim_dataSortedByCycle_combineDatasets.m')
 
-dirFolder = '006';
+dirFolder = '007';
 fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileSave);
 % load('oriTuningPreferences.mat')
@@ -85,10 +85,10 @@ end
 %% noise correlations 
 % 
 %find mean response to baseline flash for each cell
-dataTrialStart = cycDataDFoverF_cmlvNoTarget{9};
-V_cycInd = cycV_ind{9};
+dataTrialStart = cycDataDFoverF_cmlvNoTarget{7};
+V_cycInd = cycV_ind{7};
 % A_cycInd = cycA_ind{7};
-AV_cycInd = cycAV_ind{9};
+AV_cycInd = cycAV_ind{7};
 
 cellGroup = baselineStimRespIndex_V;
 

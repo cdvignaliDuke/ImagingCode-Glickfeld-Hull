@@ -1,12 +1,12 @@
 %combine two datasets to have 3 trial types - vis only, aud only, and
 %vis+aud
-SubNum = '614';
-mouse = 'AW14';
-date = '150623';
+SubNum = '613';
+mouse = 'AW13';
+date = '150508';
 
 %% first dataset (_1) - vis only (V) and aud only (A)
-time = '1142';
-ImgFolder = '002';
+time = '1413';
+ImgFolder = '001';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -25,8 +25,8 @@ dataTC_1 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% second dataset (_2) - vis only (V) and vis + aud only (AV)
-time = '1158';
-ImgFolder = '003';
+time = '1430';
+ImgFolder = '002';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -45,8 +45,8 @@ dataTC_2 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% third dataset (_3) 
-time = '1217';
-ImgFolder = '004';
+time = '1446';
+ImgFolder = '003';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -143,10 +143,18 @@ for icyc = 1:length(cycles)
     Data = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
     DataDF = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
     DataDFoverF = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
-    for itrial = 1:length(ind)
-        Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
-        DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
-        DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+    if cLeverDown(end,1)+30 > size(dataTC,1)
+        for itrial = 1:length(ind)-1
+            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+        end
+    else
+        for itrial = 1:length(ind)
+            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+        end
     end
     cycData{icyc} = Data;
     cycDataDF{icyc} = DataDF;

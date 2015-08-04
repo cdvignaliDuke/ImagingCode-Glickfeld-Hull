@@ -168,6 +168,7 @@ for icyc = 1:length(cycles)
     cycAV_ind{icyc} = AV_indAll;
 end
 
+legendinfo = {'vis only','vis+aud'};
 figure;
 for icyc = 1:length(cycles)
     dataDFoverF = cycDataDFoverF_cmlvNoTarget{icyc};
@@ -176,21 +177,26 @@ for icyc = 1:length(cycles)
     V_avg = mean(mean(dataDFoverF(:,:,V_cycInd),3),2);
     AV_avg = mean(mean(dataDFoverF(:,:,AV_cycInd),3),2);
     subplot(3,3,icyc);
-    plot(V_avg,'g');
+    plot(V_avg(20:end,:),'g');
     hold on
-    plot(AV_avg,'m');
+    plot(AV_avg(20:end,:),'m');
     hold on
-    vline(30,'k')
+    vline(10,'k')
     hold on
     for i = 1:cycles(icyc)-1
-        L = (i*cycTime)+30;
+        L = (i*cycTime)+10;
         vline(L,'k:');
         hold on
     end
-    vline((cycles(icyc)*cycTime+30),'c');
+    vline((cycles(icyc)*cycTime+10),'c');
     hold on
-    title([num2str(cycles(icyc)) ' cycles; ' num2str(length(V_cycInd)) ' visual trials; ' num2str(length(AV_cycInd)) ' auditory trials'])
+    title([num2str(length(V_cycInd)) ' visual trials; ' num2str(length(AV_cycInd)) ' vis+aud trials'])
     hold on
+    xlim([0 length(V_avg(20:end,:))+5])
+    ylim([-0.05 0.05])
+    if icyc == 1
+        legend(legendinfo,'Location','SouthEast')
+    end
 end
 
 

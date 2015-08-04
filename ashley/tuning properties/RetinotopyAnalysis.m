@@ -17,15 +17,24 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data
 
 % register
-data_avg = mean(data_sub(:,:,400:410),3);
+data_avg = mean(data_sub(:,:,500:510),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
 clear data_sub
 
 %save data_reg
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
-cd(CD);
+try
+    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
+    cd(filedir);
+catch
+    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging');
+    cd(filedir)
+    mkdir(date,ImgFolder)
+    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
+    cd(filedir);
+end
+
 writetiff(data_reg, 'Retinotopy_V1');
 
 %registered image
@@ -37,7 +46,7 @@ figure; imagesq(data_avg); colormap(gray)
 
 
 %%
-data_reg = data_reg(:,:,1:540);
+% data_reg = data_reg(:,:,1:540);
 nRep = size(data_reg,3)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
 
@@ -59,7 +68,7 @@ dF_data = bsxfun(@minus,data_reg, nOFF_avg);
 dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
 % % max_dF = max(dFoverF_data,[],3);
 max_dF = max(dF_data,[],3);
-% figure; imagesq(max_dF); colormap(gray)
+figure; imagesq(max_dF); colormap(gray)
 
 % %find cells with correlation matrix
 % b = 5;
@@ -73,8 +82,10 @@ max_dF = max(dF_data,[],3);
 %         corr_map(iy,ix) = R(1,2);
 %     end
 % end
+% 
+% figure; imagesq(max_dF); colormap(gray)
+% figure; imagesq(corr_map); colormap(gray)
 
-figure; imagesq(max_dF); colormap(gray)
 
 %% use max dF/F to find ROIS
 
@@ -86,7 +97,7 @@ mask_cell = bwlabel(bwout);
     
 % save directory
 
-save('mask.mat','mask_cell');
+% save('mask.mat','mask_cell');
 
 %timecourses
 data_TC = stackGetTimeCourses(dFoverF_data,mask_cell);

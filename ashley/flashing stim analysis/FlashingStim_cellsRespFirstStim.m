@@ -31,7 +31,8 @@ nTrials = input.trialSinceReset;
 
 dataTrialStart = cycDataDFoverF_cmlvNoTarget{1};
 v_ind = cycV_ind{1};
-a_ind = cycA_ind{1};
+% a_ind = cycA_ind{1};
+a_ind = cycAV_ind{1};
 
 %plot cells
 cell = 1;

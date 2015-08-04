@@ -1,7 +1,7 @@
 %% animal and experiment date
-SubNum = '607';
-mouse = 'AW07';
-date = '141215';
+SubNum = '613';
+mouse = 'AW13';
+date = '150508';
 
 %% open notes pdf
 CD = ['Z:\data\' mouse '\two-photon imaging\' date];
@@ -40,3 +40,8 @@ edit DirectionTuning_V1_plotAllDirectionsAllCells.m
 edit DirectionTuning_V1_population.m
 
 %% Flashing Stim Analysis
+%load one dataset
+edit Load_SBXdataset_fast.m
+
+%get timecourse for cells (cells found in direction tuning dataset
+edit dataTC.m

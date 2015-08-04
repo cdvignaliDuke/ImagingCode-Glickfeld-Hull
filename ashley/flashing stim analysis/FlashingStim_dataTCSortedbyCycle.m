@@ -1,8 +1,8 @@
-SubNum = '607';
-date = '141215';
-time = '1635';
+SubNum = '618';
+date = '150526';
+time = '1520';
 ImgFolder = '004';
-mouse = 'AW07';
+mouse = 'AW18';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -15,9 +15,10 @@ fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
 cd(fileSave);
 % load('dataTC.mat');
 load('Timecourses.mat');
-dataTC = dataTimecourse.dataTC - dataTimecourse.npilTC ;
-dataTC(dataTC<0) = 0;
-% dataTC = dataTimecourse.dataTCsub;
+% dataTC = dataTimecourse.dataTC - dataTimecourse.npilTC ;
+% dataTC(dataTC<0) = 0;
+% dataTC = dataTimecourse.dataTC;
+dataTC = dataTimecourse.dataTCsub;
 
 
 %variables from mworks
@@ -136,6 +137,43 @@ for icyc = 1:length(cycles)
     hold on
     title([num2str(cycles(icyc)) ' cycles; ' num2str(length(V_ind)) ' visual trials; ' num2str(length(A_ind)) ' auditory trials'])
     hold on
+end
+
+figure;
+for icyc = 1:length(cycles)
+    dataDFoverF = cycDataDFoverF_cmlvNoTarget{icyc};
+    V_cycInd = cycV_ind{icyc};
+    A_cycInd = cycA_ind{icyc};
+    V_avg = mean(mean(dataDFoverF(:,:,V_cycInd),3),2);
+    A_avg = mean(mean(dataDFoverF(:,:,A_cycInd),3),2);
+    errbar_V = (std(mean(dataDFoverF(:,:,V_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,V_cycInd),3)));
+    errbar_A = (std(mean(dataDFoverF(:,:,A_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,A_cycInd),3)));
+    subplot(3,3,icyc);
+%     plot(V_avg(20:end,:),'g');
+%     hold on
+%     plot(A_avg(20:end,:),'r');
+%     hold on
+    shadedErrorBar([],V_avg,errbar_V,'g',1)
+    hold on
+    shadedErrorBar([],A_avg,errbar_A,'k',1)
+    hold on
+    vline(10,'k')
+    hold on
+    for i = 1:cycles(icyc)-1
+        L = (i*cycTime)+11;
+        vline(L,'k:');
+        hold on
+    end
+    vline((cycles(icyc)*cycTime+11),'c');
+    hold on
+    if icyc == 1
+        title([num2str(size(dataDFoverF,2)) ' cells'])
+    else
+        title([num2str(length(V_cycInd)) ' visual trials; ' num2str(length(A_cycInd)) ' aud trials'])
+    end
+    hold on
+    xlim([0 length(V_avg(20:end,:))+5])
+    ylim([-0.05 0.05])
 end
 
 % save('cycDataDFoverF_cmlvNoTarget.mat', 'cycDataDFoverF_cmlvNoTarget', 'cycA_ind', 'cycV_ind');

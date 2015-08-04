@@ -1,10 +1,10 @@
 %% load 2P imaging data
-SubNum = '516';
-date = '141003';
-time = '1210';
-ImgFolder = '005';
-mouse = '516';
-fName = '005_000_000';
+SubNum = '613';
+date = '150508';
+time = '1446';
+ImgFolder = '003';
+mouse = 'AW13';
+fName = '003_000_000';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -12,45 +12,49 @@ cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
 
-% Set current directory to temporary folder on Nuke - cannot analyze data from crash
-% CD = ['Z:\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
-% cd(CD);
-CD = ['D:\Ashley_temp\' date '\' ImgFolder];
+% Set current directory to imaging data location
+CD = ['Z:\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
+% CD = ['D:\Ashley_temp\' date '\' ImgFolder];
+% cd(CD);
 imgMatFile = [fName '.mat'];
 load(imgMatFile);
 
+% eyeMatFile = [fName '_eye.mat'];
+% load(eyeMatFile);
+
 %%
 
-% %new datasets
+%new datasets
+nframes = 13577;
 % nframes = info.config.frames;
-% tic
-% data = sbxread(fName,0,nframes);
-% toc
-% % pmt = 1; %1 = green 2 = red
-% % data = squeeze(data(pmt,:,:,:,:));
-% data = squeeze(data);
+tic
+data = sbxread(fName,0,nframes);
+toc
+% pmt = 1; %1 = green 2 = red
+% data = squeeze(data(pmt,:,:,:,:));
+data = squeeze(data);
 
 %% pre-yeti data (before 14/11/12)
-
-%set the number of parallel streams (I think we have up to 8 cores)
-tic % tic and toc will tell you how long matlab took to load the data.
-nframes = info.config.frames;
-ncores = 6;
-parpool = ncores;
-%set the size of the batch that each stream will read
-nbatch = nframes./ncores;
-%create a parallel loop to load the data
-parfor i=1:ncores
-    data(:,:,:,:,i) = sbxread1(fName, ((i-1)*nbatch), nbatch);
-end
-%reshape data to make a 3D stack
-pmt = 1; %1 = green 2 = red
-data = squeeze(data(pmt,:,:,:,:));
-siz = size(data);
-data = reshape (data, siz(1), siz(2), siz(3)*ncores);
-toc
-
+% 
+% %set the number of parallel streams (I think we have up to 8 cores)
+% tic % tic and toc will tell you how long matlab took to load the data.
+% nframes = info.config.frames;
+% ncores = 6;
+% parpool = ncores;
+% %set the size of the batch that each stream will read
+% nbatch = nframes./ncores;
+% %create a parallel loop to load the data
+% parfor i=1:ncores
+%     data(:,:,:,:,i) = sbxread1(fName, ((i-1)*nbatch), nbatch);
+% end
+% %reshape data to make a 3D stack
+% pmt = 1; %1 = green 2 = red
+% data = squeeze(data(pmt,:,:,:,:));
+% siz = size(data);
+% data = reshape (data, siz(1), siz(2), siz(3)*ncores);
+% toc
+% 
 
 
 %%

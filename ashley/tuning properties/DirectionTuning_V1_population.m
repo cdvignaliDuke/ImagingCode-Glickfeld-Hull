@@ -1,9 +1,9 @@
-SubNum = '608';
-date = '150217';
-time = '1553';
-ImgFolder = '003';
-mouse = 'AW08';
-fName = '003_000_000';
+SubNum = '516';
+date = '141003';
+time = '1210';
+ImgFolder = '005';
+mouse = '516';
+fName = '005_000_000';
 
 % load MWorks file
 % load MWorks file
@@ -63,7 +63,7 @@ end
 
 figure;
 for i = 1:nStim
-    plot(dFoverF_meanDirResp(:,100,i));
+    plot(dFoverF_meanDirResp(:,40,i));
     hold on
 end
 
@@ -87,10 +87,11 @@ end
 
 figure;
 for i = 1:nStim
-    subplot(4,2,i)
+    subplot(4,3,i)
     plot(meanCellResp2Stim_sortedByPref(:,i));
     hold on
     line = 0;
+    xlim([0 size(dFoverF_data,2)]);
     for iline = 1:nStim
         line = line+totalCellsPref(iline);
         vline(line,'k')

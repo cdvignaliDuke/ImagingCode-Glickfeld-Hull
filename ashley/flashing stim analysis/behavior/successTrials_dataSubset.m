@@ -92,5 +92,7 @@ for i = 1:18
 %     if strcmp(trialOutcome(1,start),'success') == 1
 %         set(subplot(5,5,i),'color',[0.9 0.9 0.9])
 %     end
+    xlim([0 length(cellsAvg(:,start))])
+    title(['Success Trial ' num2str(start)])
     start = start+1;
 end

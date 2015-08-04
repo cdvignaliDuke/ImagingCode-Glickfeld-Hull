@@ -1,10 +1,10 @@
 %% load 2P imaging data
-SubNum = '607';
-date = '141215';
-time = '1635';
-ImgFolder = '004';
-mouse = 'AW07';
-fName = '004_000_000';
+SubNum = '613';
+date = '150514';
+time = '1629';
+ImgFolder = '005';
+mouse = 'AW13';
+fName = '005_000_000';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -12,13 +12,16 @@ cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
 
-% Set current directory to temporary folder on Nuke - cannot analyze data from crash
+% Set current directory to imaging data location
 CD = ['Z:\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 % CD = ['D:\Ashley_temp\' date '\' ImgFolder];
 % cd(CD);
 imgMatFile = [fName '.mat'];
 load(imgMatFile);
+
+% eyeMatFile = [fName '_eye.mat'];
+% load(eyeMatFile);
 
 %%
 

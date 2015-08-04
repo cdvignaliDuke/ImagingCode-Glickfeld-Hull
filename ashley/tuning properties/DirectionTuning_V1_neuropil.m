@@ -21,13 +21,19 @@ for i = 1:nTrials
     dF_npil(indAll,:) = bsxfun(@minus,npilTC(indAll,:),mean(npilTC(indF,:),1));
     dFoverF_npil(indAll,:) = bsxfun(@rdivide,dF_npil(indAll,:),mean(npilTC(indF,:),1));
 end
-%% dF/F (by cell) for each stimulus type
+
+%% subtract neuropil from timecourse
+dataTC_sub = data_TC - npilTC;
+dataTCsubMin = min(min(dataTC_sub,[],2),[],1);
+dataTC_sub = dataTC_sub - dataTCsubMin;
+
+%% dF/F (by cell) of npil for each stimulus type
 
 % find on indices for the first frame of each stimulus start period and iti (Off) period
 
 stimON_ind = nOFF+1:nOFF+nON:size(dFoverF_npil,1);
 
-% sort data_TC into 20 frame (10 pre, 10 post) traces around stimON 
+% sort npil into 20 frame (10 pre, 10 post) traces around stimON 
 
 dFoverFNpilTrials = zeros(10+nON,size(dFoverF_npil,2),nTrials);
 for i = 1:nTrials
@@ -46,10 +52,43 @@ for i = 1:nStim
     plot(dFoverF_meanDirResp_npil(:,4,i));
     hold on
 end
-%% subtract neuropil timecourse from cell timecourse
 
-dFoverF_meanDirResp_sub = dFoverF_meanDirResp - dFoverF_meanDirResp_npil;
-dFoverFCellsTrials_sub = dFoverFCellsTrials - dFoverFNpilTrials;
+%% dF/F (by cell) of dataTC_sub for each stimulus type
+
+stimOFF_ind = 1:nOFF+nON:size(dataTC_sub,1);
+
+dF_dataTCsub = zeros(size(dataTC_sub));
+dFoverF_dataTCsub = zeros(size(dataTC_sub));
+for i = 1:nTrials
+    indAll = stimOFF_ind(i):stimOFF_ind(i)+(nOFF+nON-1);
+    indF = stimOFF_ind(i)+5:stimOFF_ind(i)+(nOFF-1);
+    dF_dataTCsub(indAll,:) = bsxfun(@minus,dataTC_sub(indAll,:),mean(dataTC_sub(indF,:),1));
+    dFoverF_dataTCsub(indAll,:) = bsxfun(@rdivide,dF_dataTCsub(indAll,:),mean(dataTC_sub(indF,:),1));
+end
+
+% find on indices for the first frame of each stimulus start period and iti (Off) period
+
+stimON_ind = nOFF+1:nOFF+nON:size(dFoverF_dataTCsub,1);
+
+% sort npil into 20 frame (10 pre, 10 post) traces around stimON 
+
+dFoverFdataTCsubTrials = zeros(10+nON,size(dFoverF_dataTCsub,2),nTrials);
+for i = 1:nTrials
+    dFoverFdataTCsubTrials(:,:,i) = dFoverF_dataTCsub(stimON_ind(i)-10:stimON_ind(i)+(nON-1),:);
+end
+
+dFoverF_meanDirResp_dataTCsub = zeros(size(dFoverFdataTCsubTrials,1),size(dFoverFdataTCsubTrials,2),nStim);
+for i = 1:nStim
+    trials = find(DirectionDeg == Dirs(i));
+    trials = trials(trials<=nTrials);
+    dFoverF_meanDirResp_dataTCsub(:,:,i) = mean(dFoverFdataTCsubTrials(:,:,trials),3);
+end
+
+figure;
+for i = 1:nStim
+    plot(dFoverF_meanDirResp_dataTCsub(:,4,i));
+    hold on
+end
 
 %% plot all neuropil
 cMap = colormap(jet(nStim));
@@ -93,13 +132,13 @@ for iplot = 1:15
     ymax = .1;
     subplot(4,4,iplot);
     for i = 1:nStim
-        plot(dFoverF_meanDirResp_sub(:,cell,i),'color',cMap(i,:));
+        plot(dFoverF_meanDirResp_dataTCsub(:,cell,i),'color',cMap(i,:));
         hold on
         vline(10,'k');
         hold on
         title(['cell - npil' num2str(cell)]);
         hold on
-        ymax_i = max(dFoverF_meanDirResp_sub(:,cell,i),[],1);
+        ymax_i = max(dFoverF_meanDirResp_dataTCsub(:,cell,i),[],1);
         if ymax_i > ymax
             ymax = ymax_i;
         end
@@ -118,12 +157,12 @@ end
 
 %% plot tuning curve all cells
 
-dFoverFDirResp_sub = zeros(nStim,size(data_TC,2));
+dFoverFDirResp_dataTCsub = zeros(nStim,size(data_TC,2));
 errbar = zeros(nStim,size(data_TC,2));
 for i = 1:nStim 
     trials = find(DirectionDeg == Dirs(i));
-    dFoverFDirResp_sub(i,:) = squeeze(mean(mean(dFoverFCellsTrials_sub(:,:,trials),1),3));
-    errbar(i,:) = std(mean(dFoverFCellsTrials_sub(:,:,trials),1),[],3)/sqrt(size(dFoverFCellsTrials_sub(:,:,trials),3));
+    dFoverFDirResp_dataTCsub(i,:) = squeeze(mean(mean(dFoverFdataTCsubTrials(:,:,trials),1),3));
+    errbar(i,:) = std(mean(dFoverFdataTCsubTrials(:,:,trials),1),[],3)/sqrt(size(dFoverFdataTCsubTrials(:,:,trials),3));
 end
 
 
@@ -135,9 +174,9 @@ for iplot = 1:15
     cell = start;
     ymax = .1;
     subplot(4,4,iplot);
-    errorbar(dFoverFDirResp_sub(:,cell),errbar(:,cell),'k');
+    errorbar(dFoverFDirResp_dataTCsub(:,cell),errbar(:,cell),'k');
     hold on
-    ymax_i = max(dFoverFDirResp_sub(:,cell),[],1);
+    ymax_i = max(dFoverFDirResp_dataTCsub(:,cell),[],1);
     if ymax_i > ymax
         ymax = ymax_i;
     end

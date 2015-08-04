@@ -1,8 +1,8 @@
-SubNum = '516';
-date = '141003';
-time = '1210';
+SubNum = '613';
+date = '150511';
+time = '1513';
 ImgFolder = '005';
-mouse = '516';
+mouse = 'AW13';
 
 % load MWorks file
 % load MWorks file
@@ -11,18 +11,20 @@ cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
 
-%load preferences
-fsFolder = '002+003+004';
-fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, fsFolder);
-cd(fileSave);
-load('cellSelectivityIndices.mat');
+% %load preferences
+% fsFolder = '004+005';
+% fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, fsFolder);
+% cd(fileSave);
+% load('cellSelectivityIndices.mat');
 
-%load data_TC
+% %load data_TC
 fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
 cd(fileSave);
-load('mask&TCDir.mat')
-% load('dataTC.mat')
-
+% load('mask&TCDir.mat')
+% % load('dataTC.mat')
+% edit DirectionTuning_V1.m
+load('neuropil.mat')
+data_TC = npSubTC;
 %%
 down = 10;
 nON = (input.nScansOn)./down;
@@ -71,16 +73,19 @@ for i = 1:nStim
 end
 
 %% 
+cellsPrefZero = find(dirPref_ind == 1 | dirPref_ind == 5);
+cellsPrefNinety = find(dirPref_ind == 3 | dirPref_ind == 7);
+
 cMap = colormap(jet(nStim));
 start = 1;
 errbar = zeros(nStim,size(data_TC,2));
 for ifig = 1:ceil(size(data_TC,2)/15)
 figure;
-for iplot = 1:15
-    cell = baselineStimRespIndex_V(start);
+for iplot = 1:31
+%     cell = baselineStimRespIndex_V(start);
     cell = start;
     ymax = .1;
-    subplot(4,4,iplot);
+    subplot(8,4,iplot);
     for i = 1:nStim
         plot(dFoverF_meanDirResp(:,cell,i),'color',cMap(i,:));
         hold on
@@ -98,14 +103,17 @@ for iplot = 1:15
         hold on
 
     end   
-    if iplot == 1
+    if ismember(cell,cellsPrefZero) > 0
+        set(subplot(8,4,iplot),'color',[0.9 0.9 0.9])
+    end
+    if ismember(cell,cellsPrefNinety) > 0
+        set(subplot(8,4,iplot),'color',[0.8 0.8 0.8])
+    end
+    if iplot == 15 & ifig == 1
         legend(legendInfo,'Location','SouthEast')
     end
     start = start+1;
     hold on
-%     if ismember(cell,baselineStimRespIndex_V) > 0
-%         set(subplot(4,4,iplot),'color',[0.9 0.9 0.9])
-%     end
 end
 end
 
@@ -121,11 +129,11 @@ end
 start = 1;
 for ifig = 1:ceil(size(data_TC,2)/15)
 figure;
-for iplot = 1:15
+for iplot = 1:31
 %     cell = baselineStimRespIndex_V(start);
     cell = start;
     ymax = .1;
-    subplot(4,4,iplot);
+    subplot(8,4,iplot);
     errorbar(dFoverFDirResp(:,cell),errbar(:,cell),'k');
     hold on
     ymax_i = max(dFoverFDirResp(:,cell),[],1);
@@ -136,11 +144,30 @@ for iplot = 1:15
     hold on
     axis([0 length(Dirs) -0.05 ymax]);
     hold on
-    if ismember(cell,baselineStimRespIndex_V) > 0
-        set(subplot(4,4,iplot),'color',[0.9 0.9 0.9])
-    end
+%     if ismember(cell,baselineStimRespIndex_V) > 0
+%         set(subplot(4,4,iplot),'color',[0.9 0.9 0.9])
+%     end
     hold on
     start = start+1;
 end
 end
 
+%% select cells
+cells = [ 9 18 29 36 40 41 44 50 55];
+figure;
+for iplot = 1:9
+%     cell = baselineStimRespIndex_V(start);
+    cell = cells(iplot);
+    ymax = .1;
+    subplot(3,3,iplot);
+    errorbar(dFoverFDirResp(:,cell),errbar(:,cell),'k');
+    hold on
+    ymax_i = max(dFoverFDirResp(:,cell),[],1);
+    if ymax_i > ymax
+        ymax = ymax_i;
+    end
+    title(['Cell ' num2str(cell)]);
+    hold on
+    axis([0 length(Dirs) -0.05 ymax]);
+    hold on
+end
