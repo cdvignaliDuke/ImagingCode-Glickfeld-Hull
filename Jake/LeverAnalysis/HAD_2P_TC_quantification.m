@@ -199,14 +199,17 @@ print([dest_sub '_press_release_avgTCs.eps'], '-depsc');
 print([dest_sub '_press_release_avgTCs.pdf'], '-dpdf');
 
 figure;
-subplot(2,2,1)
-mask_final_temp = zeros(size(mask_final));
-mask_final_temp(find(mask_final>0)) = 1;
-imagesq(reshape(mask_final_temp, [sz(1) sz(2)]));
-
 all_resp = [success_resp_avg fail_resp_avg press_resp_avg];
 cmax = max(all_resp,[],2);
 cmin = min(all_resp,[],2);
+subplot(2,2,1)
+mask_final_temp = zeros(size(mask_final));
+mask_final_temp(find(mask_final>0)) = -1;
+imagesq(reshape(mask_final_temp, [sz(1) sz(2)]));
+clim([cmin cmax]);
+set(gca, 'XTickLabel', '', 'YTickLabel', '', 'Xtick', 0,'Ytick',0)
+colorbar
+
 success_mask = mask_final;
 for ic = 1:nCells
     if success_h(ic)
@@ -221,6 +224,7 @@ imagesq(success_mask);
 clim([cmin cmax]);
 set(gca, 'XTickLabel', '', 'YTickLabel', '', 'Xtick', 0,'Ytick',0)
 title('success')
+colorbar
 
 fail_mask = mask_final;
 for ic = 1:nCells
@@ -236,6 +240,7 @@ imagesq(fail_mask);
 clim([cmin cmax])
 set(gca, 'XTickLabel', '', 'YTickLabel', '', 'Xtick', 0,'Ytick',0)
 title('failure')
+colorbar
 
 press_mask = mask_final;
 for ic = 1:nCells
