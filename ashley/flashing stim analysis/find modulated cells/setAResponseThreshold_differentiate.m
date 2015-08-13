@@ -98,11 +98,16 @@ end
 end
 datadiff(datadiff < 0.05) = 0;
 
-cell1 = 11
+%%
 
-figure;
+cell1 = 3;
+
 for i = 1:size(dataDFoverF,3)
-    subplot(5,3,i)
+if ismember(i,[1:15:nCells]) == 1
+    figure;
+    plotN = 1;
+end
+    subplot(5,3,plotN)
     
 plot(tsmovavg(squeeze(dataDFoverF(:,cell1,i)),'s',3,1),'k')
 hold on
@@ -112,7 +117,10 @@ plot(squeeze(datadiff(:,cell1,i)),'r')
 hline(0,'k:')
 vline(30,'k') 
 xlim([1 size(dataDFoverF,1)])
+title(['trial ' num2str(i) '; cell ' num2str(cell1)])
+plotN = plotN+1;
 end
+
 
 
 
@@ -158,6 +166,10 @@ ylim([1 size(dataDFoverF,3)])
 end
 end
 
+
+%% try downsampling
+
+squeeze(mean(reshape(timecourse, [5 siz(1)/5 siz(2)]),1))
 
 %%
     

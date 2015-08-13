@@ -1,12 +1,12 @@
 %combine two datasets to have 3 trial types - vis only, aud only, and
 %vis+aud
-SubNum = '614';
-mouse = 'AW14';
-date = '150623';
+SubNum = '613';
+mouse = 'AW13';
+date = '150511';
 
 %% first dataset (_1) - vis only (V) and aud only (A)
-time = '1142';
-ImgFolder = '002';
+time = '1420';
+ImgFolder = '001';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -25,8 +25,8 @@ dataTC_1 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% second dataset (_2) - vis only (V) and vis + aud only (AV)
-time = '1158';
-ImgFolder = '003';
+time = '1437';
+ImgFolder = '002';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -45,8 +45,8 @@ dataTC_2 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% third dataset (_3) 
-time = '1217';
-ImgFolder = '004';
+time = '1453';
+ImgFolder = '003';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -98,8 +98,14 @@ dataTC = cat(1,dataTC_1,dataTC_2,dataTC_3);
 addInd_2 = size(dataTC_1,1);
 addInd_3 = size(dataTC_1,1)+addInd_2;
 cLeverDown = cat(1,cell2mat_padded(input1.cLeverDown),(cell2mat_padded(input2.cLeverDown)+addInd_2),(cell2mat_padded(input3.cLeverDown)+addInd_3));
+cLeverUp = cat(1,cell2mat_padded(input1.cLeverUp),(cell2mat_padded(input2.cLeverUp)+addInd_2),(cell2mat_padded(input3.cLeverUp)+addInd_3));
 cTargetOn = cat(1,cell2mat_padded(input1.cTargetOn),(cell2mat_padded(input2.cTargetOn)+addInd_2),(cell2mat_padded(input3.cTargetOn)+addInd_3));
+cCatchOn = cat(1,cell2mat_padded(input1.cCatchOn),(cell2mat_padded(input2.cCatchOn)+addInd_2),(cell2mat_padded(input3.cCatchOn)+addInd_3));
+cCatchOn(cCatchOn == addInd_2 | cCatchOn == addInd_3) = 0;
 tCyclesOn = cat(1,cell2mat_padded(input1.tCyclesOn),cell2mat_padded(input2.tCyclesOn),cell2mat_padded(input3.tCyclesOn));
+nCyclesOn = cat(1,cell2mat_padded(input1.nCyclesOn),cell2mat_padded(input2.nCyclesOn),cell2mat_padded(input3.nCyclesOn));
+isFA = cat(1,cell2mat_padded(input1.tFalseAlarm),cell2mat_padded(input2.tFalseAlarm),cell2mat_padded(input3.tFalseAlarm));
+catchCycle = cat(1,cell2mat_padded(input1.catchCyclesOn),cell2mat_padded(input2.catchCyclesOn),cell2mat_padded(input3.catchCyclesOn));
 cycles = unique(tCyclesOn);
 cycTime = input1.nFramesOn + input1.nFramesOff;
 frameRateS = 30; %hard-coded for now, but should be available in scanbox-yeti datasets' info file
@@ -108,10 +114,28 @@ RateFRperMS = frameRateS/1000;
 nTrials = input1.trialSinceReset+input2.trialSinceReset+input3.trialSinceReset;
 trialOutcome = cat(2,input1.trialOutcomeCell,input2.trialOutcomeCell,input3.trialOutcomeCell);
 DirectionDeg = cell2mat_padded(cat(2,input1.gratingDirectionDeg,input2.gratingDirectionDeg,input3.gratingDirectionDeg));
-tooFastTime = input1.tooFastTimeMs*RateFRperMS;
-maxReactTime = input1.reactTimeMs*RateFRperMS;
+catchDirectionDeg = cell2mat_padded(cat(2,input1.tCatchGratingDirectionDeg,input2.tCatchGratingDirectionDeg,input3.tCatchGratingDirectionDeg));
+Dirs = unique(DirectionDeg);
+catchDirs = unique(catchDirectionDeg);
+isCatchTrial = catchDirectionDeg > 0;
+tooFastTime = input1.nFramesTooFast;
+maxReactTime = input1.nFramesReact;
 
 
+
+catchTrialOutcome = num2cell(NaN(length(nCyclesOn),1));
+catchIndex = find(isCatchTrial == 1);
+for i = 1:sum(isCatchTrial)
+    if isFA(catchIndex(i)) == 1
+        catchTrialOutcome{catchIndex(i),1} = 'FA';
+    elseif cCatchOn(catchIndex(i)) == 0
+        catchTrialOutcome{catchIndex(i),1} = 'failure';
+    elseif (cLeverUp(catchIndex(i)) - cCatchOn(catchIndex(i))) < tooFastTime
+        catchTrialOutcome{catchIndex(i),1} = 'failure';
+    elseif (cLeverUp(catchIndex(i)) - cCatchOn(catchIndex(i))) > maxReactTime
+        catchTrialOutcome{catchIndex(i),1} = 'CR';
+    end
+end
 
 block2 = cat(1,cell2mat_padded(input1.tBlock2TrialNumber),cell2mat_padded(input2.tBlock2TrialNumber),cell2mat_padded(input3.tBlock2TrialNumber));
 V_ind = find(block2 == 0);
@@ -143,10 +167,18 @@ for icyc = 1:length(cycles)
     Data = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
     DataDF = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
     DataDFoverF = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
-    for itrial = 1:length(ind)
-        Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
-        DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
-        DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+    if cLeverDown(end,1)+30 > size(dataTC,1)
+        for itrial = 1:length(ind)-1
+            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+        end
+    else
+        for itrial = 1:length(ind)
+            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+        end
     end
     cycData{icyc} = Data;
     cycDataDF{icyc} = DataDF;

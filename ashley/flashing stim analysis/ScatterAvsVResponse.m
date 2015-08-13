@@ -34,7 +34,7 @@ for icyc = 4:length(cycles)
 end
 
 %% color-code cells by orientation preference
-DirFolder = '006';
+DirFolder = '007';
 fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, DirFolder);
 cd(fileSave);
 % load('oriTuningPreferences.mat')

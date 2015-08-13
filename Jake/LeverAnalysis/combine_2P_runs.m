@@ -32,6 +32,9 @@ for id = 1:size(date_mat,1)
         success_tc_temp = success_tc;
         fail_tc_temp = fail_tc;
         press_tc_temp = press_tc;
+        load([dest '_frame_times.mat'])
+        temp_input = input;
+        temp_times = frame_times;
         for i = 2:nrun
             run = run_mat(id,:,i);
             run_name = [date '_' mouse '_run' run(length(run)-2:end)];
@@ -56,6 +59,9 @@ for id = 1:size(date_mat,1)
             success_tc_temp = cat(3, success_tc_temp, success_tc);
             fail_tc_temp = cat(3, fail_tc_temp, fail_tc);
             press_tc_temp = cat(3, press_tc_temp, press_tc);
+            load([dest '_frame_times.mat'])
+            temp_input = [temp_input input];
+            temp_times = [temp_times frame_times];
         end
         press_movie = press_movie_temp;
         press_long_movie =  press_long_movie_temp;
@@ -71,6 +77,8 @@ for id = 1:size(date_mat,1)
         success = concatenateStructures(success_temp);
         fail = concatenateStructures(fail_temp);
         press = concatenateStructures(press_temp);
+        input = concatenateDataBlocks(temp_input);
+        frame_times = temp_times;
         run = run_mat(id,:,1);
         run_name = [date '_' mouse '_run' run(length(run)-2:end) '-00' num2str(nrun-1)];
         out_path = fullfile(out_base,run_name);
@@ -80,5 +88,6 @@ for id = 1:size(date_mat,1)
         save([dest_sub '_release_movies.mat'], 'success_movie', 'fail_movie', 'pre_release_frames','post_release_frames','ifi');
         save([dest_sub '_spont_events'], 'events', 'data_tc_spont', 'fr_lever', 'thresh', 'events_rate');
         save([dest_sub '_evoked_events.mat'], 'success', 'fail', 'press', 'success_tc', 'fail_tc', 'press_tc')
+        save([dest '_frame_times.mat'], 'input', 'frame_times')
     end
 end

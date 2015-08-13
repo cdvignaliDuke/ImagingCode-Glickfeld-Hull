@@ -1,13 +1,16 @@
 edit FlashingStim_dataSortedByCycle_combineDatasets.m
-
+%%
 for icyc = 1:length(cycles)
     ind = find(tCyclesOn == cycles(icyc));   
     cycTrialOutcome{icyc} = trialOutcome(ind);
     cycDirectionDeg{icyc} = DirectionDeg(ind);
+    cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
+    cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
+    cycCatchCycle{icyc} = catchCycle(ind);
 end
 
 % Success_ind = find(strcmp('success',trialOutcome));
-Dirs = unique(DirectionDeg);
+
 % DirectionDeg_success_ind = DirectionDeg(Success_ind);
 % 
 % load('cellSelectivityIndices.mat')
@@ -64,107 +67,166 @@ notSlctvCells = setdiff([1:nCells],oriSlctvCellsAll);
 notRespCells = setdiff([1:nCells],baselineStimRespIndex_V);
 
 %% sort cell trials by target grating orientation (average each) (successes only)
-for icyc = 1:length(cycles)
-    tempdata = cycDataDFoverF{icyc};
-    cycdirs = cycDirectionDeg{icyc};
-    cycoutcome = cycTrialOutcome{icyc};
-    cycsuccess = find(strcmp(cycoutcome,'success'));
-    cycdirmean = zeros(size(tempdata,1),size(tempdata,2),length(Dirs));
-    for i = 1: length(Dirs)
-        ind = intersect(cycsuccess, find(cycdirs == Dirs(i)));
-        if isempty(ind)
-            cycdirmean = [];
-        else
-            cycdirmean(:,:,i) = mean(tempdata(:,:,ind),3);
-        end
-    end
-    cycTargetDirMean{icyc} = cycdirmean;
-end
+% for icyc = 1:length(cycles)
+%     tempdata = cycDataDFoverF{icyc};
+%     cycdirs = cycDirectionDeg{icyc};
+%     cycoutcome = cycTrialOutcome{icyc};
+%     cycsuccess = find(strcmp(cycoutcome,'success'));
+%     cycdirmean = zeros(size(tempdata,1),size(tempdata,2),length(Dirs));
+%     for i = 1: length(Dirs)
+%         ind = intersect(cycsuccess, find(cycdirs == Dirs(i)));
+%         if isempty(ind)
+%             cycdirmean = [];
+%         else
+%             cycdirmean(:,:,i) = mean(tempdata(:,:,ind),3);
+%         end
+%     end
+%     cycTargetDirMean{icyc} = cycdirmean;
+% end
 
 %% plot target response, ea cycle
-figure;
-for icyc = 1:length(cycles)
-    tempdata = cycTargetDirMean{icyc};
-    tempdatamean = squeeze(mean(tempdata,2));
+% figure;
+% for icyc = 1:length(cycles)
+%     tempdata = cycTargetDirMean{icyc};
+%     tempdatamean = squeeze(mean(tempdata,2));
+%     
+%     subplot(2,5,icyc)
+%     plot(tempdatamean(:,end))
+%     hold on
+%     vline(30,'k');
+%     hold on
+%     for i = 1:cycles(icyc)-1
+%         L = (i*cycTime)+30;
+%         vline(L,'k:');
+%         hold on
+%     end
+%     vline((cycles(icyc)*cycTime+30),'c');
+%     hold on
+% end
+%     
+% hold on
+% for i = 1: length(Dirs)
+%     legendInfo{i} = [num2str(Dirs(i)) ' degrees'];
+% end
+% legend(legendInfo,'Location','SouthEast')
+
+%% find each target resp
+
+for i = 1:length(Dirs)
+    ind = intersect(find(DirectionDeg == Dirs(i)),find(strcmp(trialOutcome,'success')));
+    targetData = zeros(60,size(dataTC,2),length(ind));
+    targetDataDF = zeros(60,size(dataTC,2),length(ind));
+    targetDataDFoverF = zeros(60,size(dataTC,2),length(ind));
+    targetBL = zeros(length(Dirs),size(dataTC,2),length(ind));
+    targetNorm = zeros(60,size(dataTC,2),length(ind));
     
-    subplot(2,5,icyc)
-    plot(tempdatamean(:,end))
-    hold on
-    vline(30,'k');
-    hold on
-    for i = 1:cycles(icyc)-1
-        L = (i*cycTime)+30;
-        vline(L,'k:');
-        hold on
+    if cTargetOn(ind(end),1)+40 > size(dataTC,1) 
+        for itrial = 1:length(ind)-1
+            targetData(:,:,itrial) = dataTC(cTargetOn(ind(itrial))-19:cTargetOn(ind(itrial))+40,:);
+            targetBaseline = dataTC(cLeverDown(ind(itrial))-29:cLeverDown(ind(itrial)),:);
+            targetDataDF(:,:,itrial) = bsxfun(@minus, targetData(:,:,itrial), mean(targetBaseline,1));
+            targetDataDFoverF(:,:,itrial) = bsxfun(@rdivide, targetDataDF(:,:,itrial), mean(targetBaseline,1));
+            targetBL(i,:,itrial) = mean(targetDataDFoverF(17:21,:,itrial),1);
+            targetNorm(:,:,itrial) = bsxfun(@minus,targetDataDFoverF(:,:,itrial),targetBL(i,:,itrial));
+        end
+    else
+        for itrial = 1:length(ind)
+            targetData(:,:,itrial) = dataTC(cTargetOn(ind(itrial))-19:cTargetOn(ind(itrial))+40,:);
+            targetBaseline = dataTC(cLeverDown(ind(itrial))-29:cLeverDown(ind(itrial)),:);
+            targetDataDF(:,:,itrial) = bsxfun(@minus, targetData(:,:,itrial), mean(targetBaseline,1));
+            targetDataDFoverF(:,:,itrial) = bsxfun(@rdivide, targetDataDF(:,:,itrial), mean(targetBaseline,1));
+            targetBL(i,:,itrial) = mean(targetDataDFoverF(17:21,:,itrial),1);
+            targetNorm(:,:,itrial) = bsxfun(@minus,targetDataDFoverF(:,:,itrial),targetBL(i,:,itrial));
+        end
     end
-    vline((cycles(icyc)*cycTime+30),'c');
+    
+    dirTargetData{i} = targetData;
+    dirTargetDataDF{i} = targetDataDF;
+    dirTargetDataDFoverF{i} = targetDataDFoverF;
+    dirTargetInd{i} = ind;
+    dirTargetNorm{i} = targetNorm;
+end
+
+%% Normalize target response
+% for icyc = 1:length(cycles)
+%     tempdata = cycTargetDirMean{icyc};
+%     targetindex = cycles(icyc)*cycTime+30;
+%     if isempty(tempdata) == 1
+%         targetBaselineF(icyc,:,:) = NaN(1,nCells,length(Dirs));
+%     else
+%         targetBaselineF(icyc,:,:) = mean(tempdata(targetindex-3:targetindex+2,:,:),1);
+%     end
+% end
+% 
+% for icyc = 1:length(cycles)
+%     tempdata = cycTargetDirMean{icyc};
+%     targetindex = cycles(icyc)*cycTime+30;
+%     if isempty(tempdata) == 1
+%         dirtraces(:,:,:,icyc) = NaN(40,nCells,length(Dirs));
+%     else
+%         tempdata = tempdata(targetindex-10:targetindex+29,:,:);
+%         tempdatasub = bsxfun(@minus,tempdata,targetBaselineF(icyc,:,:));
+%         for idir = 1:length(Dirs)
+%             dirtraces(:,:,idir,icyc) = tempdatasub(:,:,idir);
+%         end
+%     end
+% end
+
+%%
+figure;
+% colors = brewermap(length(Dirs),'*YlGn');
+colors = brewermap(length(Dirs)+15,'*YlGn');
+colorind = [3:2:length(Dirs)+12];
+colors = colors(colorind,:);
+
+for i = 1:length(Dirs)
+    tempdata = dirTargetNorm{i};
+    plot(nanmean(nanmean(tempdata,3),2),'Color',colors(i,:))
     hold on
 end
-    
 hold on
 for i = 1: length(Dirs)
     legendInfo{i} = [num2str(Dirs(i)) ' degrees'];
 end
-legend(legendInfo,'Location','SouthEast')
-
-%% Normalize target response
-for icyc = 1:length(cycles)
-    tempdata = cycTargetDirMean{icyc};
-    targetindex = cycles(icyc)*cycTime+30;
-    if isempty(tempdata) == 1
-        targetBaselineF(icyc,:,:) = NaN(1,nCells,length(Dirs));
-    else
-        targetBaselineF(icyc,:,:) = mean(tempdata(targetindex-3:targetindex+2,:,:),1);
-    end
-end
-
-for icyc = 1:length(cycles)
-    tempdata = cycTargetDirMean{icyc};
-    targetindex = cycles(icyc)*cycTime+30;
-    if isempty(tempdata) == 1
-        dirtraces(:,:,:,icyc) = NaN(40,nCells,length(Dirs));
-    else
-        tempdata = tempdata(targetindex-10:targetindex+29,:,:);
-        tempdatasub = bsxfun(@minus,tempdata,targetBaselineF(icyc,:,:));
-        for idir = 1:length(Dirs)
-            dirtraces(:,:,idir,icyc) = tempdatasub(:,:,idir);
-        end
-    end
-end
-
-%%
-targetDirMean = squeeze(nanmean(nanmean(dirtraces,4),2));
-
-figure;
-plot(targetDirMean)
-hold on
 legend(legendInfo,'Location','NorthWest')
 hold on
-vline(10,'k')
-        
+vline(20,'k')
+vline(20+tooFastTime,'k:')
+vline(20+maxReactTime,'k:')
+title([mouse ' - ' date '; target resp'])
+% set(gca,'Color','k')
 
-%% 
-% set cell types, length of trial
-
-cellGroup = 1:nCells;
+%%
+cellGroup = oriSlctvCellsAll;
 % cellsSubgroup1 = find(ismember(cellGroup,intersect(cellGroup,cellsPrefZero)));
 % cellsSubgroup2 = find(ismember(cellGroup,intersect(cellGroup,cellsPrefNinety)));
 % cellsSubgroup3 = find(ismember(cellGroup,intersect(cellGroup,setdiff([1:nCells],cat(1,cellsPrefZero,cellsPrefNinety)))));
-cellsSubgroup1 = cellsPrefZero;
+cellsSubgroup1 = cellsSelectZero;
 cellsSubgroup2 = setdiff(cellGroup,cat(1,cellsPrefZero,cellsPrefNinety));
-cellsSubgroup3 = cellsPrefNinety;
+cellsSubgroup3 = cellsSelectNinety;
 
 % mean response to target
-cellTargetDirMean = nanmean(dirtraces,4);
-cellTargetDirMean_point = squeeze(nanmean(cellTargetDirMean(21:25,:,:),1));
+cellTargetDirMean = zeros(60,nCells,length(Dirs));
+cellTargetDirMean_point = zeros(nCells,length(Dirs));
+cellTargetdirMean_diff = zeros(nCells,length(Dirs));
+for i = 1:length(Dirs)
+    cellTargetDirMean(:,:,i) = nanmean(dirTargetNorm{i},3);
+    cellTargetDirMean_point(:,i) = squeeze(nanmean(cellTargetDirMean(21:25,:,i),1));
+    cellTargetDirMean_diff(:,i) = squeeze(cellTargetDirMean(21,:,i)-cellTargetDirMean(25,:,i));
+end
 
-%% plot cell response to target by tuning preference
+% cellTargetDirMean = nanmean(dirtraces,4);
+% cellTargetDirMean_point = squeeze(nanmean(cellTargetDirMean(21:25,:,:),1));
 
-figure;
-colors = brewermap(length(Dirs),'*Spectral');
-% colors = brewermap(length(Dirs)+15,'*Greens');
-% colorind = [3:2:length(Dirs)+12];
-% colors = colors(colorind,:);
+%differential of response to target
+
+%% plot cell response to target by tuning preference (mean resp to target)
+
+celltargetrespfig = figure;
+% colors = brewermap(length(Dirs),'*YlGn');
+colors = brewermap(length(Dirs)+15,'*YlGn');
+colorind = [3:2:length(Dirs)+12];
+colors = colors(colorind,:);
 
 for idir = 1:length(Dirs)
     if idir == 1
@@ -200,7 +262,52 @@ for idir = 1:length(Dirs)
 end
 
 legend(legendInfo)
-title([mouse ' - ' date])
+title([mouse ' - ' date ';mean resp to target'])
+
+%% plot cell response to target by peak resp 
+
+celltargetrespfig = figure;
+% colors = brewermap(length(Dirs),'*YlGn');
+colors = brewermap(length(Dirs)+15,'*YlGn');
+colorind = [3:2:length(Dirs)+12];
+colors = colors(colorind,:);
+
+for idir = 1:length(Dirs)
+    if idir == 1
+        plot([1:length(cellsSubgroup1)],cellTargetDirMean_diff(cellsSubgroup1,idir),'ko','MarkerFaceColor', 'k')
+    else
+        plot([1:length(cellsSubgroup1)],cellTargetDirMean_diff(cellsSubgroup1,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
+    end
+    hold on
+end
+
+hold on
+vline(length(cellsSubgroup1),'k')
+
+for idir = 1:length(Dirs)
+    if idir == 1
+        plot([length(cellsSubgroup1)+1:length(cellsSubgroup1)+length(cellsSubgroup2)],cellTargetDirMean_diff(cellsSubgroup2,idir),'ko','MarkerFaceColor', 'k')
+    else
+        plot([length(cellsSubgroup1)+1:length(cellsSubgroup1)+length(cellsSubgroup2)],cellTargetDirMean_diff(cellsSubgroup2,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
+    end
+    hold on
+end
+
+hold on
+vline(length(cellsSubgroup1)+length(cellsSubgroup2),'k')
+
+for idir = 1:length(Dirs)
+    if idir == 1
+        plot([length(cellsSubgroup1)+length(cellsSubgroup2)+1:length(cellsSubgroup1)+length(cellsSubgroup2)+length(cellsSubgroup3)],cellTargetDirMean_diff(cellsSubgroup3,idir),'ko','MarkerFaceColor', 'k')
+    else
+        plot([length(cellsSubgroup1)+length(cellsSubgroup2)+1:length(cellsSubgroup1)+length(cellsSubgroup2)+length(cellsSubgroup3)],cellTargetDirMean_diff(cellsSubgroup3,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
+    end
+    hold on
+end
+
+legend(legendInfo)
+title([mouse ' - ' date ';target differential'])
+
 
 
 %%

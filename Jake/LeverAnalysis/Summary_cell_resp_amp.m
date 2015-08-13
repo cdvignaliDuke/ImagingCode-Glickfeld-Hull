@@ -300,8 +300,9 @@ y = x;
 col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm');
 subplot(2,3,1)
 for id = 1:length(date_mat)
-    scatter(mean(release_resp_all{id},2), mean(press_resp_all{id},2), col_mat(id,:))
+    errorbarxy(mean(release_resp_all{id},2), mean(press_resp_all{id},2), std(release_resp_all{id},[],2)./sqrt(size(release_resp_all{id},2)), std(press_resp_all{id},[],2)./sqrt(size(press_resp_all{id},2)),[],[],[], col_mat(id,:))
     hold on
+    scatter(mean(release_resp_all{id},2), mean(press_resp_all{id},2), col_mat(id,:))
 end
 plot(x,y,'-k')
 xlim([-.05 .1]);
@@ -314,8 +315,9 @@ hline(0,'--k')
 title(['All cells'])
 subplot(2,3,2)
 for id = 1:length(date_mat)
-    scatter(mean(release_resp_RS{id},2), mean(press_resp_RS{id},2), col_mat(id,:))
+    errorbarxy(mean(release_resp_RS{id},2), mean(press_resp_RS{id},2), std(release_resp_RS{id},[],2)./sqrt(size(release_resp_RS{id},2)), std(press_resp_RS{id},[],2)./sqrt(size(press_resp_RS{id},2)),[],[],[], col_mat(id,:))
     hold on
+    scatter(mean(release_resp_RS{id},2), mean(press_resp_RS{id},2), col_mat(id,:))
 end
 plot(x,y,'-k')
 xlim([-.05 .1]);
@@ -328,8 +330,9 @@ hline(0,'--k')
 title(['Resp cells'])
 subplot(2,3,3)
 for id = 1:length(date_mat)
-    scatter(mean(release_resp_RL{id},2), mean(press_resp_RL{id},2), col_mat(id,:))
+    errorbarxy(mean(release_resp_RL{id},2), mean(press_resp_RL{id},2), std(release_resp_RL{id},[],2)./sqrt(size(release_resp_RL{id},2)), std(press_resp_RL{id},[],2)./sqrt(size(press_resp_RL{id},2)),[],[],[], col_mat(id,:))
     hold on
+    scatter(mean(release_resp_RL{id},2), mean(press_resp_RL{id},2), col_mat(id,:))
 end
 plot(x,y,'-k')
 xlim([-.05 .1]);
@@ -342,8 +345,9 @@ hline(0,'--k')
 title(['Release resp cells'])
 subplot(2,3,4)
 for id = 1:length(date_mat)
-    scatter(mean(success_resp_all{id},2), mean(fail_resp_all{id},2), col_mat(id,:))
+    errorbarxy(mean(success_resp_all{id},2), mean(fail_resp_all{id},2), std(success_resp_all{id},[],2)./sqrt(size(success_resp_all{id},2)), std(fail_resp_all{id},[],2)./sqrt(size(fail_resp_all{id},2)),[],[],[], col_mat(id,:))
     hold on
+    scatter(mean(success_resp_all{id},2), mean(fail_resp_all{id},2), col_mat(id,:))
 end
 plot(x,y,'-k')
 xlim([-.05 .1]);
@@ -356,8 +360,10 @@ hline(0,'--k')
 title(['All cells'])
 subplot(2,3,5)
 for id = 1:length(date_mat)
-    scatter(mean(success_resp_RS{id},2), mean(fail_resp_RS{id},2), col_mat(id,:))
+    errorbarxy(mean(success_resp_RS{id},2), mean(fail_resp_RS{id},2), std(success_resp_RS{id},[],2)./sqrt(size(success_resp_RS{id},2)), std(fail_resp_RS{id},[],2)./sqrt(size(fail_resp_RS{id},2)),[],[],[], col_mat(id,:))
     hold on
+    hold on
+    scatter(mean(success_resp_RS{id},2), mean(fail_resp_RS{id},2), col_mat(id,:))
 end
 plot(x,y,'-k')
 xlim([-.05 .1]);
@@ -371,8 +377,9 @@ title(['Resp cells'])
 subplot(2,3,6)
 
 for id = 1:length(date_mat)
-    scatter(mean(success_resp_RL{id},2), mean(fail_resp_RL{id}), col_mat(id,:))
+    errorbarxy(mean(success_resp_RL{id},2), mean(fail_resp_RL{id}),  std(success_resp_RL{id},[],2)./sqrt(size(success_resp_RL{id},2)), std(fail_resp_RL{id},[],2)./sqrt(size(fail_resp_RL{id},2)),[],[],[], col_mat(id,:))
     hold on
+    scatter(mean(success_resp_RL{id},2), mean(fail_resp_RL{id}),col_mat(id,:))
 end
 plot(x,y,'-k')
 xlim([-.05 .1]);

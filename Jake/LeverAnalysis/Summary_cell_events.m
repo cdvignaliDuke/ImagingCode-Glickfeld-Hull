@@ -274,23 +274,27 @@ for id = [1:4 6]
     subplot(2,2,1)
     rp_peak = [release_event_peak{id}; press_event_peak{id}];
     rp_use = find(~isnan(mean(rp_peak,1)));
-    scatter(mean(rp_peak(1,rp_use),2), mean(rp_peak(2,rp_use),2), col_mat(id,:));
+    errorbarxy(mean(rp_peak(1,rp_use),2), mean(rp_peak(2,rp_use),2), std(rp_peak(1,rp_use),[],2)./sqrt(length(rp_use)), std(rp_peak(2,rp_use),[],2)./sqrt(length(rp_use)),[],[],[], col_mat(id,:));
     hold on
+    scatter(mean(rp_peak(1,rp_use),2), mean(rp_peak(2,rp_use),2),col_mat(id,:));
     subplot(2,2,2)
     sf_peak = [success_event_peak{id}; fail_event_peak{id}];
     sf_use = find(~isnan(mean(sf_peak,1)));
-    scatter(mean(sf_peak(1,sf_use),2), mean(sf_peak(2,sf_use),2), col_mat(id,:));
+    errorbarxy(mean(sf_peak(1,sf_use),2), mean(sf_peak(2,sf_use),2),std(sf_peak(1,sf_use),[],2)./sqrt(length(sf_use)), std(sf_peak(2,sf_use),[],2)./sqrt(length(sf_use)),[],[],[], col_mat(id,:));
     hold on
+    scatter(mean(sf_peak(1,sf_use),2), mean(sf_peak(2,sf_use),2),col_mat(id,:));
     subplot(2,2,3)
     rp_peak_RS = [release_event_peak_RS{id}; press_event_peak_RS{id}];
     rp_use_RS = find(~isnan(mean(rp_peak_RS,1)));
-    scatter(mean(rp_peak_RS(1,rp_use_RS),2), mean(rp_peak_RS(2,rp_use_RS),2), col_mat(id,:));
+    errorbarxy(mean(rp_peak_RS(1,rp_use_RS),2), mean(rp_peak_RS(2,rp_use_RS),2), std(rp_peak_RS(1,rp_use_RS),[],2)./sqrt(length(rp_use_RS)), std(rp_peak_RS(2,rp_use_RS),[],2)./sqrt(length(rp_use_RS)),[],[],[], col_mat(id,:));
     hold on
+    scatter(mean(rp_peak_RS(1,rp_use_RS),2), mean(rp_peak_RS(2,rp_use_RS),2), col_mat(id,:));
     subplot(2,2,4)
     sf_peak_RS = [success_event_peak_RS{id}; fail_event_peak_RS{id}];
     sf_use_RS = find(~isnan(mean(sf_peak_RS,1)));
-    scatter(mean(sf_peak_RS(1,sf_use_RS),2), mean(sf_peak_RS(2,sf_use_RS),2), col_mat(id,:));
+    errorbarxy(mean(sf_peak_RS(1,sf_use_RS),2), mean(sf_peak_RS(2,sf_use_RS),2), std(sf_peak_RS(1,sf_use_RS),[],2)./sqrt(length(sf_use_RS)), std(sf_peak_RS(2,sf_use_RS),[],2)./sqrt(length(sf_use_RS)),[],[],[], col_mat(id,:));
     hold on
+    scatter(mean(sf_peak_RS(1,sf_use_RS),2), mean(sf_peak_RS(2,sf_use_RS),2), col_mat(id,:));
 end
 x = 0:.1:1;
 y = x;
@@ -452,17 +456,21 @@ print([out_base 'Summary_rate_latency_scatter.pdf'], '-dpdf');
 figure;
 for id = 1:length(date_mat)
     subplot(2,2,1)
-    scatter(mean(success_rate{id},2), mean(fail_rate{id},2), col_mat(id,:))
+    errorbarxy(mean(success_rate{id},2), mean(fail_rate{id},2), std(success_rate{id},[],2)./sqrt(size(success_rate{id},2)),std(fail_rate{id},[],2)./sqrt(size(fail_rate{id},2)),[],[],[], col_mat(id,:))
     hold on
+    scatter(mean(success_rate{id},2), mean(fail_rate{id},2), col_mat(id,:))    
     subplot(2,2,2)
+    errorbarxy(mean(success_RS_rate{id},2), mean(fail_RS_rate{id},2), std(success_RS_rate{id},[],2)./sqrt(size(success_RS_rate{id},2)),std(fail_RS_rate{id},[],2)./sqrt(size(fail_RS_rate{id},2)),[],[],[], col_mat(id,:))
+    hold on
     scatter(mean(success_RS_rate{id},2), mean(fail_RS_rate{id},2), col_mat(id,:))
-    hold on
     subplot(2,2,3)
+    errorbarxy(mean(success_ind{id},2), mean(fail_ind{id},2), std(success_ind{id},[],2)./sqrt(size(success_ind{id},2)),std(fail_ind{id},[],2)./sqrt(size(fail_ind{id},2)),[],[],[], col_mat(id,:))
+    hold on
     scatter(mean(success_ind{id},2), mean(fail_ind{id},2), col_mat(id,:))
-    hold on
     subplot(2,2,4)
-    scatter(mean(success_RS_ind{id},2), mean(fail_RS_ind{id},2), col_mat(id,:))
+    errorbarxy(mean(success_RS_ind{id},2), mean(fail_RS_ind{id},2), std(success_RS_ind{id},[],2)./sqrt(size(success_RS_ind{id},2)),std(fail_RS_ind{id},[],2)./sqrt(size(fail_RS_ind{id},2)),[],[],[], col_mat(id,:))
     hold on
+    scatter(mean(success_RS_ind{id},2), mean(fail_RS_ind{id},2), col_mat(id,:))
 end
 x = 0:.1:10;
 y = x;
@@ -603,11 +611,13 @@ for id = 1:length(date_mat)
     temp_release_RS = release_norm_peak_RS{id};
     temp_press_RS = press_norm_peak_RS{id};
     use_cells_RS = find(~isnan(mean([temp_release_RS; temp_press_RS],1)));
+    errorbarxy(mean(temp_release(:,use_cells_all),2), mean(temp_press(:,use_cells_all),2), std(temp_release(:,use_cells_all),[],2)./sqrt(length(use_cells_all)), std(temp_press(:,use_cells_all),[],2)./sqrt(length(use_cells_all)),[],[],[], col_mat(id,:))
+    hold on;
     scatter(mean(temp_release(:,use_cells_all),2), mean(temp_press(:,use_cells_all),2), col_mat(id,:))
-    hold on;
     subplot(1,2,2)
-    scatter(mean(temp_release_RS(:,use_cells_RS),2), mean(temp_press_RS(:,use_cells_RS),2), col_mat(id,:))
+    errorbarxy(mean(temp_release_RS(:,use_cells_RS),2), mean(temp_press_RS(:,use_cells_RS),2), std(temp_release_RS(:,use_cells_RS),[],2)./sqrt(length(use_cells_RS)), std(temp_press_RS(:,use_cells_RS),[],2)./sqrt(length(use_cells_RS)),[],[],[], col_mat(id,:))
     hold on;
+    scatter(mean(temp_release_RS(:,use_cells_RS),2), mean(temp_press_RS(:,use_cells_RS),2), col_mat(id,:))
 end
 subplot(1,2,1)
 xlim([0.5 1.5])
@@ -673,14 +683,14 @@ for id = 1:length(date_mat)
     temp_press = press_norm_peak{id};
     temp_release_RS = release_norm_peak_RS{id};
     temp_press_RS = press_norm_peak_RS{id};
-    scatter(1, nanmean(temp_release,2), col_mat(id,:))
+    errorbar(1, nanmean(temp_release,2),nanstd(temp_release,[],2)./sqrt(size(temp_release,2)), ['o' col_mat(id,:)])
     hold on;
-    scatter(2, nanmean(temp_press,2), col_mat(id,:))
+    errorbar(2, nanmean(temp_press,2), nanstd(temp_press,[],2)./sqrt(size(temp_press,2)), ['o' col_mat(id,:)])
     hold on;
     subplot(2,2,4)
-    scatter(1, nanmean(temp_release_RS,2), col_mat(id,:))
+    errorbar(1, nanmean(temp_release_RS,2), nanstd(temp_release_RS,[],2)./sqrt(size(temp_release_RS,2)), ['o' col_mat(id,:)])
     hold on;
-    scatter(2, nanmean(temp_press_RS,2), col_mat(id,:))
+    errorbar(2, nanmean(temp_press_RS,2), nanstd(temp_press_RS,[],2)./sqrt(size(temp_press_RS,2)), ['o' col_mat(id,:)])
     hold on;
 end
 subplot(2,2,3)
