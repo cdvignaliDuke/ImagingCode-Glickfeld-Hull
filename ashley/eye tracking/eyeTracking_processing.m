@@ -1,126 +1,163 @@
-SubNum = '613';
-date = '150810';
-ImgFolder = '003';
-mouse = 'AW13';
-fName = '003_000_000';
+SubNum = '614';
+date = '150817';
+runs = ['002'; '003'];
+time_mat = ['1112'; '1147'];
+mouse = 'AW14';
 frame_rate = 15;
 calib = 1/26.6; %mm per pixel
-
-fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '-' ImgFolder];
-% % load MWorks file
-% CD = ['Z:\data\' mouse '\mworks\' date];
-% cd(CD);
-% mworks = ['data-' 'i' SubNum '-' date '-' time]; 
-% load (mworks);
-
-% Set current directory to crash folder
-CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\eye tracking\' date '\' ImgFolder];
-cd(CD);
+nrun = size(runs,1);
+%% load and combine mworks files
+for irun = 1:nrun
+    time = time_mat(irun,:);
+    fn_mworks = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' SubNum '-' date '-' time '.mat'];
+    if irun == 1
+        input = mwLoadData(fn_mworks, [], []);
+    else
+        input = [input mwLoadData(fn_mworks, [], [])];
+    end
+end
+input = concatenateDataBlocks(input);
+    
+runstr = runs(1,:);
+if nrun>1
+    for irun = 2:nrun
+        runstr = [runstr '-' runs(irun,:)];
+    end
+end
+fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '\' mouse '-' date '-' runstr];
 
 %% 
-fn = [fName '_eye.mat'];
-load(fn);          % should be a '*_eye.mat' file
-    
-data = squeeze(data);      % the raw images...
-xc = size(data,2)/2;       % image center
-yc = size(data,1)/2;
-W=40;
-
-rad_range = [15 25];
-data = data(yc-W:yc+W,xc-W:xc+W,:);
-warning off;
-
-A = cell(size(data,3),1);
-B = cell(size(data,3),1);
-for n = 1:size(data,3)
-    A{n} = [0,0];
-    B{n} = [0];
-end
-eye = struct('Centroid',A,'Area',B);
-
-for n = 1:size(data,3)
-    [center,radii,metric] = imfindcircles(squeeze(data(:,:,n)),rad_range,'Sensitivity',0.9);
-    if(isempty(center))
-        eye(n).Centroid = [NaN NaN];    % could not find anything...
-        eye(n).Area = NaN;
-    else
-        [~,idx] = max(metric);          % pick the circle with best score
-        eye(n).Centroid = center(idx,:);
-        eye(n).Area = pi*radii(idx)^2;
-    end
-    if mod(n,100)==0
-        fprintf('Frame %d/%d\n',n,size(data,3));
-    end
-end
-Centroid = cell2mat({eye.Centroid}');
-Area = cell2mat({eye.Area}');
-
-%% load mworks file
-time = '1516';
-fn_mworks = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' SubNum '-' date '-' time '.mat'];
-load(fn_mworks);
 min_hold = 2000;
 prepush_frames = 15;
 postpush_frames = ceil(min_hold*(frame_rate/1000));
-leverDownFrame = cell2mat(input.cLeverDown);
-ntrials = length(input.trialOutcomeCell);
+pretarget_frames = 15;
+posttarget_frames = ceil(4000*(frame_rate/1000));
 
-%% extract trial by trial data 
-%locked to press
-area_mat_down = zeros(prepush_frames+postpush_frames, ntrials);
-centroid_mat_down = zeros(prepush_frames+postpush_frames,2, ntrials);
-rad = sqrt(Area./(4*pi));
-for itrial = 1:ntrials
-    area_mat_down(:,itrial) = rad(1+leverDownFrame(itrial)-prepush_frames:leverDownFrame(itrial)+postpush_frames,:);
-    centroid_mat_down(:,:,itrial) = Centroid(1+leverDownFrame(itrial)-prepush_frames:leverDownFrame(itrial)+postpush_frames,:);
-    if (sum(isnan(area_mat_down(:,itrial)),1) > 1) & (sum(isnan(area_mat_down(:,itrial)),1) < size(area_mat_down,1))
-        nan_ind = find(isnan(area_mat_down(:,itrial)));
-        data_ind = find(~isnan(area_mat_down(:,itrial)));
-        if length(find(tsmovavg(isnan(area_mat_down(:,itrial)), 's', 5, 1) == 1))>0
-            area_mat_down(:,itrial) = NaN(prepush_frames+postpush_frames, 1);
-            centroid_mat_down(:,:,itrial) = NaN(prepush_frames+postpush_frames,2,1);
+%% Load and combine eye tracking data
+% Set current directory to crash folder
+Area = {};
+Centroid = {};
+Eye_data = {};
+for irun =  1:nrun
+    CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\eye tracking\' date '\' runs(irun,:)];
+    cd(CD);
+    fn = [runs(irun,:) '_000_000_eye.mat'];
+    load(fn);          % should be a '*_eye.mat' file
+    
+    data = squeeze(data);      % the raw images...
+    xc = size(data,2)/2;       % image center
+    yc = size(data,1)/2;
+    W=40;
+
+    rad_range = [5 25];
+    data = data(yc-W:yc+W,xc-W:xc+W,:);
+    warning off;
+
+    A = cell(size(data,3),1);
+    B = cell(size(data,3),1);
+    for n = 1:size(data,3)
+        A{n} = [0,0];
+        B{n} = [0];
+    end
+    eye = struct('Centroid',A,'Area',B);
+
+    for n = 1:size(data,3)
+        [center,radii,metric] = imfindcircles(squeeze(data(:,:,n)),rad_range,'Sensitivity',0.9);
+        if(isempty(center))
+            eye(n).Centroid = [NaN NaN];    % could not find anything...
+            eye(n).Area = NaN;
         else
-            for inan = 1:length(nan_ind)
-                gap = min(abs(nan_ind(inan)-data_ind),[],1);
-                good_ind = find(abs(nan_ind(inan)-data_ind) == gap);
-                area_mat_down(nan_ind(inan),itrial) = mean(area_mat_down(data_ind(good_ind),itrial),1);
-                centroid_mat_down(nan_ind(inan),:,itrial) = mean(centroid_mat_down(data_ind(good_ind),itrial),1);
-            end
+            [~,idx] = max(metric);          % pick the circle with best score
+            eye(n).Centroid = center(idx,:);
+            eye(n).Area = pi*radii(idx)^2;
+        end
+        if mod(n,100)==0
+            fprintf('Frame %d/%d\n',n,size(data,3));
         end
     end
+    Centroid{irun} = cell2mat({eye.Centroid}');
+    Area{irun} = cell2mat({eye.Area}');
+    Eye_data{irun} = data;
 end
 
-rad_mat_down = bsxfun(@times, area_mat_down, calib);
-centroid_mat_down = bsxfun(@times,centroid_mat_down,calib);
-%locked to target
-area_mat_target = zeros(pretarget_frames+posttarget_frames, ntrials);
-centroid_mat_target = zeros(pretarget_frames+posttarget_frames,2, ntrials);
+%% reset frame counter
+run_trials = input.trialsSinceReset;
+cLeverDown = cell2mat(input.cLeverDown);
+cTargetOn = celleqel2mat_padded(input.cTargetOn);
+cItiStart = cell2mat(input.cItiStart);
+Area_temp = [];
+Centroid_temp = [];
+Eye_data_temp = [];
+for irun = 1:nrun
+    if irun < nrun
+        offset = size(Area{irun},1);
+        startTrial = run_trials(irun)+1;
+        endTrial = run_trials(irun)+run_trials(irun+1);
+        cLeverDown(1,startTrial:endTrial) = cLeverDown(1,startTrial:endTrial)+offset;
+        cTargetOn(1,startTrial:endTrial) = cTargetOn(1,startTrial:endTrial)+offset;
+        cItiStart(1,startTrial:endTrial) = cItiStart(1,startTrial:endTrial)+offset;
+    end
+    Area_temp = [Area_temp; Area{irun}];
+    Centroid_temp = [Centroid_temp; Centroid{irun}];
+    Eye_data_temp = cat(3, Eye_data_temp, Eye_data{irun});
+end
+clear Eye_data;
+ntrials = length(input.trialOutcomeCell);
+
+%% no measurement frames
+figure; 
+x = find(isnan(Area_temp)); 
+for i = 1:length(x); 
+    subplot(4,4,i); 
+    imagesc(Eye_data_temp(:,:,x(i))); 
+    title(x(i))
+end
+print([fnout '_nanframes.pdf'], '-dpdf');
+
+%% Remove NaNs if sparse and align to start and target
+nanrun = ceil(500*(frame_rate/1000));
+Rad_temp = sqrt(Area_temp./pi);
+rad_mat_down = zeros(prepush_frames+postpush_frames, ntrials);
+centroid_mat_down = zeros(prepush_frames+postpush_frames,2, ntrials);
+nframes = size(Rad_temp,1);
 for itrial = 1:ntrials
-    if targetOnFrame(itrial)>0
-        area_mat_target(:,itrial) = rad(1+targetOnFrame(itrial)-pretarget_frames:targetOnFrame(itrial)+posttarget_frames,:);
-        centroid_mat_target(:,:,itrial) = Centroid(1+targetOnFrame(itrial)-pretarget_frames:targetOnFrame(itrial)+posttarget_frames,:);
-        if (sum(isnan(area_mat_target(:,itrial)),1) > 1) & (sum(isnan(area_mat_target(:,itrial)),1) < size(area_mat_target,1))
-            nan_ind = find(isnan(area_mat_target(:,itrial)));
-            data_ind = find(~isnan(area_mat_target(:,itrial)));
-            if length(find(tsmovavg(isnan(area_mat_target(:,itrial)), 's', 5, 1) == 1))>0
-                area_mat_target(:,itrial) = NaN(pretarget_frames+posttarget_frames, 1);
-                centroid_mat_target(:,:,itrial) = NaN(pretarget_frames+posttarget_frames,2,1);
+    if itrial == ntrials
+        crange = [double(input.cItiStart{itrial}):nframes];
+    else
+        if double(input.cItiStart{itrial})< 1
+            crange = [1:double(input.cItiStart{itrial+1}-1)];
+        else
+            crange = [double(input.cItiStart{itrial}): double(input.cItiStart{itrial+1}-1)];
+        end
+        if sum(isnan(Rad_temp(crange,1)),2)>0
+            if length(find(tsmovavg(isnan(Rad_temp(crange,1)), 's', nanrun, 1) == 1))> 0
+                Rad_temp(crange,1) = NaN(length(crange),1);
             else
+                nanind = find(isnan(Rad_temp(crange,1)));
+                dataind = find(~isnan(Rad_temp(crange,1)));
                 for inan = 1:length(nan_ind)
                     gap = min(abs(nan_ind(inan)-data_ind),[],1);
                     good_ind = find(abs(nan_ind(inan)-data_ind) == gap);
-                    area_mat_target(nan_ind(inan),itrial) = mean(area_mat_target(data_ind(good_ind),itrial),1);
-                    centroid_mat_target(nan_ind(inan),:,itrial) = mean(centroid_mat_target(data_ind(good_ind),itrial),1);
+                    Rad_temp(nan_ind(inan),1) = mean(Rad_temp(data_ind(good_ind),1),1);
+                    Centroid_temp(nan_ind(inan),:) = mean(Centroid_temp(data_ind(good_ind),:),1);
                 end
             end
         end
+    end
+    rad_mat_down(:,itrial) = Rad_temp(1+cLeverDown(itrial)-prepush_frames:cLeverDown(itrial)+postpush_frames,:);
+    centroid_mat_down(:,:,itrial) = Centroid_temp(1+cLeverDown(itrial)-prepush_frames:cLeverDown(itrial)+postpush_frames,:);
+    if cTargetOn(itrial)>0 & cTargetOn(itrial)+posttarget_frames < nframes
+        rad_mat_target(:,itrial) = Rad_temp(1+cTargetOn(itrial)-pretarget_frames:cTargetOn(itrial)+posttarget_frames,:);
+        centroid_mat_target(:,:,itrial) = Centroid_temp(1+cTargetOn(itrial)-pretarget_frames:cTargetOn(itrial)+posttarget_frames,:);
     else
-        area_mat_target(:,itrial) = NaN(pretarget_frames+posttarget_frames, 1);
+        rad_mat_target(:,itrial) = NaN(pretarget_frames+posttarget_frames, 1);
         centroid_mat_target(:,:,itrial) = NaN(pretarget_frames+posttarget_frames,2, 1);
     end
 end
-rad_mat_target = bsxfun(@times, area_mat_target, calib);
-centroid_mat_target = bsxfun(@times,centroid_mat_target,calib);
+rad_mat_down = bsxfun(@times, rad_mat_down, calib);
+centroid_mat_down = bsxfun(@times,centroid_mat_down,calib);
+rad_mat_target = bsxfun(@times, rad_mat_target, calib);
+centroid_mat_target = bsxfun(@times,centroid_mat_target,calib);        
 
 %% plot eye traces locked to events
 close all
@@ -266,6 +303,114 @@ ylim([0.9 1.1])
 suptitle('Align to lever down- Black: success; Red: missed')
 print([fnout '_avg_pressalign_SM.pdf'], '-dpdf');
 
+%hit and miss for V trials only
+b1Ix = find(cell2mat(input.tBlock2TrialNumber)==0);
+b2Ix = find(cell2mat(input.tBlock2TrialNumber));
+successIx = intersect(b1Ix, find(strcmp(input.trialOutcomeCell,'success')));
+missedIx = intersect(b1Ix, find(strcmp(input.trialOutcomeCell,'ignore')));
+
+figure;
+
+downTrS = sum(~isnan(rad_mat_down(1,successIx)),2);
+downTrM = sum(~isnan(rad_mat_down(1,missedIx)),2);
+subplot(3,2,1)
+shadedErrorBar(tt,nanmean(rad_mat_down(:,successIx),2), nanstd(rad_mat_down(:,successIx),[],2)./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,nanmean(rad_mat_down(:,missedIx),2), nanstd(rad_mat_down(:,missedIx),[],2)./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Pupil radius')
+ylim([(nanmean(rad_mat_down(1,:),2)).*[0.8 1.2]])
+subplot(3,2,2)
+shadedErrorBar(tt,nanmean(rad_mat_down_base(:,successIx),2), nanstd(rad_mat_down_base(:,successIx),[],2)./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,nanmean(rad_mat_down_base(:,missedIx),2), nanstd(rad_mat_down_base(:,missedIx),[],2)./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Pupil radius')
+ylim([0.8 1.2])
+subplot(3,2,3)
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down(:,1,successIx),[],3))./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Eye position- Horizontal')
+ylim([squeeze((nanmean(centroid_mat_down(1,1,:),3))).*[0.8 1.2]])
+subplot(3,2,4)
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,successIx),[],3))./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Eye position- Horizontal')
+ylim([0.8 1.2])
+subplot(3,2,5)
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down(:,2,successIx),[],3))./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Eye position- Vertical')
+ylim([squeeze((nanmean(centroid_mat_down(1,2,:),3))).*[0.8 1.2]])
+subplot(3,2,6)
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,successIx),[],3))./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Eye position- Vertical')
+ylim([0.8 1.2])
+suptitle('Align to press- Visual only- Black: success; Red: missed')
+print([fnout '_avg_pressalign_SM_Vonly.pdf'], '-dpdf');
+
+%hit and miss for A trials only
+successIx = intersect(b2Ix, find(strcmp(input.trialOutcomeCell,'success')));
+missedIx = intersect(b2Ix, find(strcmp(input.trialOutcomeCell,'ignore')));
+
+figure;
+
+downTrS = sum(~isnan(rad_mat_down(1,successIx)),2);
+downTrM = sum(~isnan(rad_mat_down(1,missedIx)),2);
+subplot(3,2,1)
+shadedErrorBar(tt,nanmean(rad_mat_down(:,successIx),2), nanstd(rad_mat_down(:,successIx),[],2)./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,nanmean(rad_mat_down(:,missedIx),2), nanstd(rad_mat_down(:,missedIx),[],2)./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Pupil radius')
+ylim([(nanmean(rad_mat_down(1,:),2)).*[0.8 1.2]])
+subplot(3,2,2)
+shadedErrorBar(tt,nanmean(rad_mat_down_base(:,successIx),2), nanstd(rad_mat_down_base(:,successIx),[],2)./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,nanmean(rad_mat_down_base(:,missedIx),2), nanstd(rad_mat_down_base(:,missedIx),[],2)./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Pupil radius')
+ylim([0.8 1.2])
+subplot(3,2,3)
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down(:,1,successIx),[],3))./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Eye position- Horizontal')
+ylim([squeeze((nanmean(centroid_mat_down(1,1,:),3))).*[0.8 1.2]])
+subplot(3,2,4)
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,successIx),[],3))./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Eye position- Horizontal')
+ylim([0.8 1.2])
+subplot(3,2,5)
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down(:,2,successIx),[],3))./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Eye position- Vertical')
+ylim([squeeze((nanmean(centroid_mat_down(1,2,:),3))).*[0.8 1.2]])
+subplot(3,2,6)
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,successIx),[],3))./sqrt(downTrS), '-k');
+hold on
+shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
+xlabel('Time (ms)')
+ylabel('Eye position- Vertical')
+ylim([0.8 1.2])
+suptitle('Align to press- Auditory only- Black: success; Red: missed')
+print([fnout '_avg_pressalign_SM_Aonly.pdf'], '-dpdf');
+
 %plot change in Pupil radius locked to target
 rad_mat_target_base = bsxfun(@rdivide, rad_mat_target, mean(rad_mat_down(1:15,:),1));
 centroid_mat_target_base = bsxfun(@rdivide, centroid_mat_target, mean(centroid_mat_down(1:15,:,:),1));
@@ -276,33 +421,33 @@ subplot(3,2,1)
 shadedErrorBar(tt,nanmean(rad_mat_target,2), nanstd(rad_mat_target,[],2)./sqrt(nonan_trials));
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([(nanmean(rad_mat_target(1,:),2)).*[0.9 1.1]])
+ylim([(nanmean(rad_mat_target(1,:),2)).*[0.8 1.2]])
 subplot(3,2,2)
 shadedErrorBar(tt,nanmean(rad_mat_target_base,2), nanstd(rad_mat_target_base,[],2)./sqrt(nonan_trials));
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([0.9 1.1])
+ylim([0.8 1.2])
 subplot(3,2,3)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,:),3)), squeeze(nanstd(centroid_mat_target(:,1,:),[],3))./sqrt(nonan_trials));
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.2]])
 subplot(3,2,4)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,:),3)), squeeze(nanstd(centroid_mat_target_base(:,1,:),[],3))./sqrt(nonan_trials));
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 subplot(3,2,5)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,:),3)), squeeze(nanstd(centroid_mat_target(:,2,:),[],3))./sqrt(nonan_trials));
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
 suptitle('Align to target')
-ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.2]])
 subplot(3,2,6)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,:),3)), squeeze(nanstd(centroid_mat_target_base(:,2,:),[],3))./sqrt(nonan_trials));
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 print([fnout '_avg_targetalign.pdf'], '-dpdf');
 
 %plot change in Pupil radius by block type
@@ -318,42 +463,42 @@ hold on
 shadedErrorBar(tt,nanmean(rad_mat_target(:,b2Ix),2), nanstd(rad_mat_target(:,b2Ix),[],2)./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([(nanmean(rad_mat_target(1,:),2)).*[0.9 1.1]])
+ylim([(nanmean(rad_mat_target(1,:),2)).*[0.8 1.2]])
 subplot(3,2,2)
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,b1Ix),2), nanstd(rad_mat_target_base(:,b1Ix),[],2)./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,b2Ix),2), nanstd(rad_mat_target_base(:,b2Ix),[],2)./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([0.9 1.1])
+ylim([0.8 1.2])
 subplot(3,2,3)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target(:,1,b1Ix),[],3))./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.2]])
 subplot(3,2,4)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b1Ix),[],3))./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 subplot(3,2,5)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target(:,2,b1Ix),[],3))./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.2]])
 subplot(3,2,6)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,2,b1Ix),[],3))./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 suptitle('Align to target- Black: visual; Green: auditory')
 print([fnout '_avg_targetalign_AV.pdf'], '-dpdf');
 
@@ -371,42 +516,42 @@ hold on
 shadedErrorBar(tt,nanmean(rad_mat_target(:,b2Ix),2), nanstd(rad_mat_target(:,b2Ix),[],2)./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([(nanmean(rad_mat_target(1,:),2)).*[0.9 1.1]])
+ylim([(nanmean(rad_mat_target(1,:),2)).*[0.8 1.2]])
 subplot(3,2,2)
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,b1Ix),2), nanstd(rad_mat_target_base(:,b1Ix),[],2)./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,b2Ix),2), nanstd(rad_mat_target_base(:,b2Ix),[],2)./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([0.9 1.1])
+ylim([0.8 1.2])
 subplot(3,2,3)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target(:,1,b1Ix),[],3))./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.2]])
 subplot(3,2,4)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b1Ix),[],3))./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 subplot(3,2,5)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target(:,2,b1Ix),[],3))./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.2]])
 subplot(3,2,6)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,2,b1Ix),[],3))./sqrt(targetTrB1), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-g');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 suptitle('Align to target- Success only Black: visual; Green: auditory')
 print([fnout '_avg_targetalign_AV_Sonly.pdf'], '-dpdf');
 
@@ -425,42 +570,42 @@ hold on
 shadedErrorBar(tt,nanmean(rad_mat_target(:,missedIx),2), nanstd(rad_mat_target(:,missedIx),[],2)./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([(nanmean(rad_mat_target(1,:),2)).*[0.9 1.1]])
+ylim([(nanmean(rad_mat_target(1,:),2)).*[0.8 1.2]])
 subplot(3,2,2)
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,successIx),2), nanstd(rad_mat_target_base(:,successIx),[],2)./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,missedIx),2), nanstd(rad_mat_target_base(:,missedIx),[],2)./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([0.9 1.1])
+ylim([0.8 1.2])
 subplot(3,2,3)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.2]])
 subplot(3,2,4)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 subplot(3,2,5)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.2]])
 subplot(3,2,6)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 suptitle('Align to target- Black: success; Red: missed')
 print([fnout '_avg_targetalign_SM.pdf'], '-dpdf');
 
@@ -480,42 +625,42 @@ hold on
 shadedErrorBar(tt,nanmean(rad_mat_target(:,missedIx),2), nanstd(rad_mat_target(:,missedIx),[],2)./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([(nanmean(rad_mat_target(1,:),2)).*[0.9 1.1]])
+ylim([(nanmean(rad_mat_target(1,:),2)).*[0.8 1.2]])
 subplot(3,2,2)
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,successIx),2), nanstd(rad_mat_target_base(:,successIx),[],2)./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,missedIx),2), nanstd(rad_mat_target_base(:,missedIx),[],2)./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([0.9 1.1])
+ylim([0.8 1.2])
 subplot(3,2,3)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.2]])
 subplot(3,2,4)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 subplot(3,2,5)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.2]])
 subplot(3,2,6)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 suptitle('Align to target- Visual only- Black: success; Red: missed')
 print([fnout '_avg_targetalign_SM_Vonly.pdf'], '-dpdf');
 
@@ -533,48 +678,48 @@ hold on
 shadedErrorBar(tt,nanmean(rad_mat_target(:,missedIx),2), nanstd(rad_mat_target(:,missedIx),[],2)./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([(nanmean(rad_mat_target(1,:),2)).*[0.9 1.1]])
+ylim([(nanmean(rad_mat_target(1,:),2)).*[0.8 1.2]])
 subplot(3,2,2)
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,successIx),2), nanstd(rad_mat_target_base(:,successIx),[],2)./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,missedIx),2), nanstd(rad_mat_target_base(:,missedIx),[],2)./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Pupil radius')
-ylim([0.9 1.1])
+ylim([0.8 1.2])
 subplot(3,2,3)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.2]])
 subplot(3,2,4)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Horizontal')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 subplot(3,2,5)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.9 1.3]])
+ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.2]])
 subplot(3,2,6)
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
 hold on
 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
 xlabel('Time (ms)')
 ylabel('Eye position- Vertical')
-ylim([0.9 1.3])
+ylim([0.8 1.2])
 suptitle('Align to target- Auditory only- Black: success; Red: missed')
 print([fnout '_avg_targetalign_SM_Aonly.pdf'], '-dpdf');
 
 %% plot pupil dynamics
 %normalize to max area (for whole experiment)
-rad_max = sqrt(max(Area,[],1)/(4*pi))*calib;
+rad_max = sqrt(max(Area_temp,[],1)/(pi))*calib;
 rad_mat_target_norm = rad_mat_target./rad_max;
 rad_mat_down_norm = rad_mat_down./rad_max;
 
@@ -584,7 +729,7 @@ reactTimes = cell2mat(input.reactTimesMs);
 figure;
 min_x = min(nanmean(rad_mat_target_norm(1:15,:),1),[],2)*0.9;
 max_x = max(nanmean(rad_mat_target_norm(1:15,:),1),[],2)*1.1;
-subplot(2,2,1)
+subplot(2,3,3)
 scatter(nanmean(rad_mat_target_norm(1:15,b1Ix),1), reactTimes(:,b1Ix),'ok');
 hold on
 successIx = intersect(b2Ix, find(strcmp(input.trialOutcomeCell,'success')));
@@ -594,7 +739,7 @@ xlim([min_x max_x])
 title('Pupil size before target')
 ylabel('React time (ms)')
 xlabel('Normalized pupil size')
-subplot(2,2,2)
+subplot(2,3,1)
 scatter(nanmean(rad_mat_down_norm(1:15,b1Ix),1), reactTimes(:,b1Ix),'ok');
 hold on
 scatter(nanmean(rad_mat_down_norm(1:15,b2Ix),1), reactTimes(:,b2Ix),'og');
@@ -603,10 +748,22 @@ xlim([min_x max_x])
 title('Pupil size before press')
 ylabel('React time (ms)')
 xlabel('Normalized pupil size')
+subplot(2,3,2)
+scatter(nanmean(rad_mat_down_norm(16:30,b1Ix),1), reactTimes(:,b1Ix),'ok');
+hold on
+scatter(nanmean(rad_mat_down_norm(16:30,b2Ix),1), reactTimes(:,b2Ix),'og');
+ylim([0 600])
+xlim([min_x max_x])
+title('Pupil size after press')
+ylabel('React time (ms)')
+xlabel('Normalized pupil size')
+
+success1Ix = intersect(b1Ix, find(strcmp(input.trialOutcomeCell,'success')));
+success2Ix = intersect(b2Ix, find(strcmp(input.trialOutcomeCell,'success')));
 [n, edges] = histcounts([nanmean(rad_mat_target_norm(1:15,success1Ix),1) nanmean(rad_mat_target_norm(1:15,success2Ix),1)],8);
 [n_b1, bin_b1] = histc(nanmean(rad_mat_target_norm(1:15,success1Ix),1),edges);
 [n_b2, bin_b2] = histc(nanmean(rad_mat_target_norm(1:15,success2Ix),1),edges);
-subplot(2,2,3)
+subplot(2,3,6)
 for i = 1:length(edges)
     ind = find(bin_b1 == i-1);
     ploterr(nanmean(nanmean(rad_mat_target_norm(1:15,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_target_norm(1:15,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), 'ok')
@@ -619,12 +776,10 @@ xlim([min_x max_x])
 ylabel('React time (ms)')
 xlabel('Normalized pupil size')
 title('Average before target')
-success1Ix = intersect(b1Ix, find(strcmp(input.trialOutcomeCell,'success')));
-success2Ix = intersect(b2Ix, find(strcmp(input.trialOutcomeCell,'success')));
 [n, edges] = histcounts([nanmean(rad_mat_down_norm(1:15,success1Ix),1) nanmean(rad_mat_down_norm(1:15,success2Ix),1)],8);
 [n_b1, bin_b1] = histc(nanmean(rad_mat_down_norm(1:15,success1Ix),1),edges);
 [n_b2, bin_b2] = histc(nanmean(rad_mat_down_norm(1:15,success2Ix),1),edges);
-subplot(2,2,4)
+subplot(2,3,4)
 for i = 1:length(edges)
     ind = find(bin_b1 == i-1);
     ploterr(nanmean(nanmean(rad_mat_down_norm(1:15,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_down_norm(1:15,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), 'ok')
@@ -637,12 +792,153 @@ xlim([min_x max_x])
 title('Average before press')
 ylabel('React time (ms)')
 xlabel('Normalized pupil size')
+[n, edges] = histcounts([nanmean(rad_mat_down_norm(16:30,success1Ix),1) nanmean(rad_mat_down_norm(16:30,success2Ix),1)],8);
+[n_b1, bin_b1] = histc(nanmean(rad_mat_down_norm(16:30,success1Ix),1),edges);
+[n_b2, bin_b2] = histc(nanmean(rad_mat_down_norm(16:30,success2Ix),1),edges);
+subplot(2,3,5)
+for i = 1:length(edges)
+    ind = find(bin_b1 == i-1);
+    ploterr(nanmean(nanmean(rad_mat_down_norm(16:30,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_down_norm(16:30,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), 'ok')
+    hold on;
+    ind = find(bin_b2 == i-1);
+    ploterr(nanmean(nanmean(rad_mat_down_norm(16:30,success2Ix(ind)),1),2), mean(reactTimes(:,success2Ix(ind)),2), std(nanmean(rad_mat_down_norm(16:30,success2Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success2Ix(ind)),[],2)./sqrt(length(ind)), 'og')
+end
+ylim([0 600])
+xlim([min_x max_x])
+title('Average after press')
+ylabel('React time (ms)')
+xlabel('Normalized pupil size')
 suptitle([mouse ' ' date ' Pupil size and react time'])
 print([fnout '_PupilvsReact.pdf'], '-dpdf');    
 
+%hit rate vs pupil size
+[n, edges] = histcounts([nanmean(rad_mat_down_norm(1:15,:),1)],5);
+smIx = strcmp(input.trialOutcomeCell,'success') + strcmp(input.trialOutcomeCell,'ignore');
+successIx = strcmp(input.trialOutcomeCell,'success');
+missedIx = strcmp(input.trialOutcomeCell,'ignore');
+sm1Ix = intersect(find(~isnan(rad_mat_down_norm(1,:))), intersect(b1Ix, find(smIx)));
+sm2Ix = intersect(find(~isnan(rad_mat_down_norm(1,:))), intersect(b2Ix, find(smIx)));
+[n_b1, bin_b1] = histc(nanmean(rad_mat_down_norm(1:15,sm1Ix),1),edges);
+[n_b2, bin_b2] = histc(nanmean(rad_mat_down_norm(1:15,sm2Ix),1),edges);
+figure;
+subplot(3,2,1)
+for i = 1:length(edges)
+    ind1 = find(bin_b1 == i);
+    if (sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2))>5
+        [pct1, err1] = binofit(sum(successIx(sm1Ix(ind1)),2), sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
+        ploterr(nanmean(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),2), pct1, std(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),[],2)./sqrt(length(ind1)), pct1-err1(1), 'ok')
+        hold on;
+    end
+    ind2 = find(bin_b2 == i);
+    if sum(successIx(sm2Ix(ind2)),2) + sum(missedIx(sm2Ix(ind2)),2)>5
+        [pct2, err2] = binofit(sum(successIx(sm2Ix(ind2)),2), sum(successIx(sm2Ix(ind2)),2) + sum(missedIx(sm2Ix(ind2)),2));
+        ploterr(nanmean(nanmean(rad_mat_down_norm(1:15,sm2Ix(ind2)),1),2), pct2, std(nanmean(rad_mat_down_norm(1:15,sm2Ix(ind2)),1),[],2)./sqrt(length(ind2)), pct2-err2(1), 'og')
+        hold on
+    end
+end
+xlim([0 1])
+ylim([0 1])
+xlabel('Normalized pupil radius')
+ylabel('Hit rate')
 
+tGratingDirection = cell2mat(input.tGratingDirectionDeg);
+Oris = unique(tGratingDirection);
+nOri = length(Oris);
+colmat = strvcat('k', 'b', 'g', 'y', 'r', 'm');
+for iOri = 2:nOri
+    ori_ind = find(tGratingDirection(sm1Ix) == Oris(iOri));
+    ori_rad_mat = zeros(1,length(edges));
+    ori_hit_mat = zeros(1,length(edges));
+    ori_n_mat = zeros(1,length(edges));
+    for  i = 1:length(edges)
+        ind1 = intersect(ori_ind, find(bin_b1 == i));
+        ori_rad_mat(:,i) = nanmean(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),2);
+        ori_hit_mat(:,i) = sum(successIx(sm1Ix(ind1)),2)/(sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
+        x = (sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
+        if isempty(x)
+            x = 0;
+        end
+        ori_n_mat(:,i) = x;
+    end
+    subplot(3,2,3)
+    plot(ori_rad_mat, ori_hit_mat,['-o' colmat(iOri-1,:)])
+    hold on
+    subplot(3,2,4)
+    plot(ori_rad_mat, ori_n_mat,['-o' colmat(iOri-1,:)])
+    hold on;
+end
+subplot(3,2,3)
+ylim([0 1])
+xlim([0 1])
+xlabel('Normalized pupil radius')
+ylabel('Hit rate')
+title('Visual')
+legend(num2str(chop(Oris(2:end)',2)))
+subplot(3,2,4)
+ylim([0 30])
+xlim([0 1])
+xlabel('Normalized pupil radius')
+ylabel('Number of trials')
+
+tVolume = double(celleqel2mat_padded(input.tSoundTargetAmplitude));
+Vols = unique(tVolume);
+nVol = length(Vols);
+
+for iVol = 2:nVol
+    vol_ind = find(tVolume(sm2Ix) == Vols(iVol));
+    vol_rad_mat = zeros(1,length(edges));
+    vol_hit_mat = zeros(1,length(edges));
+    vol_n_mat = zeros(1,length(edges));
+    for  i = 1:length(edges)
+        ind2 = intersect(vol_ind, find(bin_b2 == i));
+        vol_rad_mat(:,i) = nanmean(nanmean(rad_mat_down_norm(1:15,sm2Ix(ind2)),1),2);
+        vol_hit_mat(:,i) = sum(successIx(sm2Ix(ind2)),2)/(sum(successIx(sm2Ix(ind2)),2) + sum(missedIx(sm2Ix(ind2)),2));
+        x = (sum(successIx(sm2Ix(ind2)),2) + sum(missedIx(sm2Ix(ind2)),2));
+        if isempty(x)
+            x = 0;
+        end
+        vol_n_mat(:,i) = x;
+    end
+    subplot(3,2,5)
+    plot(vol_rad_mat, vol_hit_mat,['-o' colmat(iVol-1,:)])
+    hold on
+    subplot(3,2,6)
+    plot(vol_rad_mat, vol_n_mat,['-o' colmat(iVol-1,:)])
+    hold on;
+end
+subplot(3,2,5)
+ylim([0 1])
+xlim([0 1])
+xlabel('Normalized pupil radius')
+ylabel('Hit rate')
+title('Auditory')
+legend(num2str(chop(Vols(2:end)',2)))
+subplot(3,2,6)
+ylim([0 30])
+xlim([0 1])
+xlabel('Normalized pupil radius')
+ylabel('Number of trials')
+
+subplot(3,2,2)
+for iVol = 2:nVol
+    vol_ind = find(tVolume == Vols(iVol));
+    plot(Vols(iVol),sum(successIx(vol_ind),2)/(sum(successIx(vol_ind),2) + sum(missedIx(vol_ind),2)), 'og');
+    hold on
+end
+for iOri = 2:nOri
+    ori_ind = find(tGratingDirection == Oris(iOri));
+    plot(Oris(iOri)./Oris(end),sum(successIx(ori_ind),2)/(sum(successIx(ori_ind),2) + sum(missedIx(ori_ind),2)), 'ok');
+    hold on
+end
+ylim([0 1])
+xlim([0 1])
+xlabel('Change (%)')
+ylabel('Hit rate')
+suptitle([mouse ' ' date ' Pupil size and Hit rate'])
+print([fnout '_pupilvHR.pdf'], '-dpdf');
+        
 %distribution of pupil size
-rad_all = sqrt(Area/(4*pi))*calib;
+rad_all = (sqrt(Area_temp./pi))*calib;
 cleverup = cell2mat(input.cLeverUp);
 cleverdown = cell2mat(input.cLeverDown);
 tr_frames = [];
@@ -670,4 +966,6 @@ hist(rad_all(tr_frames,:)./max(rad_all,[],1),50)
 xlim([0 1])
 title('Trial Frames- norm to max pupil size')
 print([fnout '_pupil_size_hist.pdf'], '-dpdf');
-save([fnout '_pupil.mat'], 'Area', 'Centroid', 'frame_rate')
+
+%% saving
+save([fnout '_pupil.mat'], 'Area', 'Centroid', 'frame_rate', 'rad_mat_down','centroid_mat_down','rad_mat_target', 'centroid_mat_target' )
