@@ -1,5 +1,5 @@
 edit Load_SBXdataset_fast.m
-%%
+
 data_sub = data-min(min(min(data,[],1),[],2),[],3);
 data = data_sub;
 clear data_sub
@@ -8,7 +8,7 @@ clear data_sub
 % figure; imagesq(data_avg); colormap(gray)
 
 %get direction tuning registration image and get cells
-dirFolder = '005';
+dirFolder = '006';
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileDirMasks);
 load('regImg.mat');
@@ -27,11 +27,11 @@ dataTC = stackGetTimeCourses(data_reg, mask_cell);
 buf = 4;
 np = 6;
 nCells = size(dataTC,2);
-for i = 1:nCells
-    npTC(:,i) = stackGetTimeCourses(data_reg,squeeze(neuropil(:,:,i)));
-end
+% for i = 1:nCells
+%     npTC(:,i) = stackGetTimeCourses(data_reg,squeeze(neuropil(:,:,i)));
+% end
 
-% npTC = stackGetTimeCourses(data_reg,neuropil);
+npTC = stackGetTimeCourses(data_reg,neuropil);
 
 
 dataTC_mavg = tsmovavg(dataTC,'s',10,1);

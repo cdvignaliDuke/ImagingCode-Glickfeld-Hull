@@ -4,9 +4,9 @@ for icyc = 1:length(cycles)
     ind = find(tCyclesOn == cycles(icyc));   
     cycTrialOutcome{icyc} = trialOutcome(ind);
     cycDirectionDeg{icyc} = DirectionDeg(ind);
-%     cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
-%     cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
-%     cycCatchCycle{icyc} = catchCycle(ind);
+    cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
+    cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
+    cycCatchCycle{icyc} = catchCycle(ind);
 end
 
 % Success_ind = find(strcmp('success',trialOutcome));
@@ -197,7 +197,7 @@ title([mouse ' - ' date '; target resp'])
 % set(gca,'Color','k')
 
 %%
-cellGroup = 1:nCells;
+cellGroup = oriSlctvCellsAll;
 % cellsSubgroup1 = find(ismember(cellGroup,intersect(cellGroup,cellsPrefZero)));
 % cellsSubgroup2 = find(ismember(cellGroup,intersect(cellGroup,cellsPrefNinety)));
 % cellsSubgroup3 = find(ismember(cellGroup,intersect(cellGroup,setdiff([1:nCells],cat(1,cellsPrefZero,cellsPrefNinety)))));

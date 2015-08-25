@@ -1,6 +1,6 @@
 edit('FlashingStim_dataSortedByCycle_combineDatasets.m')
-%%
-dirFolder = '005';
+
+dirFolder = '006';
 fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileSave);
 % load('oriTuningPreferences.mat')
@@ -52,35 +52,35 @@ notRespCells = setdiff([1:nCells],baselineStimRespIndex_V);
 
 %%
 % plot cells that are orientation or direction selective, prefer zero
-% % degrees orientation, and significantly respond to baseline stim
-% figure;
-% for icyc = 1:length(cycles)
-%     dataDFoverF = cycDataDFoverF_cmlvNoTarget{icyc};
-%     V_cycInd = cycV_ind{icyc};
-%     A_cycInd = cycA_ind{icyc};
-%     AV_cycInd = cycAV_ind{icyc};
-%     V_avg = mean(mean(dataDFoverF(:,respCellsSelectZero,V_cycInd),3),2);
-%     A_avg = mean(mean(dataDFoverF(:,respCellsSelectZero,A_cycInd),3),2);
-%     AV_avg = mean(mean(dataDFoverF(:,respCellsSelectZero,AV_cycInd),3),2);
-%     subplot(3,3,icyc);
-%     plot(V_avg,'g');
-%     hold on
-%     plot(A_avg,'r');
-%     hold on
-%     plot(AV_avg,'m');
-%     hold on
-%     vline(30,'k')
-%     hold on
-%     for i = 1:cycles(icyc)-1
-%         L = (i*cycTime)+30;
-%         vline(L,'k:');
-%         hold on
-%     end
-%     vline((cycles(icyc)*cycTime+30),'c');
-%     hold on
-%     title([num2str(cycles(icyc)) ' cycles; ' num2str(length(V_cycInd)) ' vis; ' num2str(length(AV_cycInd)) ' aud+vis'])
-%     hold on
-% end
+% degrees orientation, and significantly respond to baseline stim
+figure;
+for icyc = 1:length(cycles)
+    dataDFoverF = cycDataDFoverF_cmlvNoTarget{icyc};
+    V_cycInd = cycV_ind{icyc};
+    A_cycInd = cycA_ind{icyc};
+    AV_cycInd = cycAV_ind{icyc};
+    V_avg = mean(mean(dataDFoverF(:,respCellsSelectZero,V_cycInd),3),2);
+    A_avg = mean(mean(dataDFoverF(:,respCellsSelectZero,A_cycInd),3),2);
+    AV_avg = mean(mean(dataDFoverF(:,respCellsSelectZero,AV_cycInd),3),2);
+    subplot(3,3,icyc);
+    plot(V_avg,'g');
+    hold on
+    plot(A_avg,'r');
+    hold on
+    plot(AV_avg,'m');
+    hold on
+    vline(30,'k')
+    hold on
+    for i = 1:cycles(icyc)-1
+        L = (i*cycTime)+30;
+        vline(L,'k:');
+        hold on
+    end
+    vline((cycles(icyc)*cycTime+30),'c');
+    hold on
+    title([num2str(cycles(icyc)) ' cycles; ' num2str(length(V_cycInd)) ' vis; ' num2str(length(AV_cycInd)) ' aud+vis'])
+    hold on
+end
 
 %% noise correlations 
 % 
@@ -90,8 +90,7 @@ V_cycInd = cycV_ind{7};
 % A_cycInd = cycA_ind{7};
 AV_cycInd = cycAV_ind{7};
 
-cellGroup = 1:nCells;
-cellGroupName = 'all'
+cellGroup = baselineStimRespIndex_V;
 
 % V_cellAvgResp = squeeze(mean(dataTrialStart(end-29:end,cellGroup,V_cycInd),1))';
 % % A_cellAvgResp = squeeze(mean(dataTrialStart(:,cellsPrefZero,A_cycInd),1))';
@@ -195,8 +194,6 @@ for i = 1:length(oriGroupBorders)
 end
 set(gca,'XTick',oriGroupBorders)
 set(gca,'XTickLabel',oriGroupBorders)
-ha = axes('Position',[0 0 1 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off');
-text(0.5, 1,['\bf ' mouse ' ' date '; ' cellGroupName ' cells'],'HorizontalAlignment','center','VerticalAlignment', 'top')
 
 %%
 %bin cells by orientation preference
