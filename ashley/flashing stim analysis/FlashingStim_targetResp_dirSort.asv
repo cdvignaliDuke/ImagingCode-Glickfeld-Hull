@@ -19,7 +19,7 @@ end
 % cellsSlctvZero = intersect(cellsPrefZero,dirSlctvCells);
 
 %% color-code cells by orientation preference
-DirFolder = '006';
+DirFolder = '005';
 fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, DirFolder);
 cd(fileSave);
 % load('oriTuningPreferences.mat')
@@ -113,14 +113,19 @@ notRespCells = setdiff([1:nCells],baselineStimRespIndex_V);
 %% find each target resp
 
 for i = 1:length(Dirs)
-    ind = intersect(find(DirectionDeg == Dirs(i)),find(strcmp(trialOutcome,'success')));
-    targetData = zeros(60,size(dataTC,2),length(ind));
-    targetDataDF = zeros(60,size(dataTC,2),length(ind));
-    targetDataDFoverF = zeros(60,size(dataTC,2),length(ind));
-    targetBL = zeros(length(Dirs),size(dataTC,2),length(ind));
-    targetNorm = zeros(60,size(dataTC,2),length(ind));
-    
-    if cTargetOn(ind(end),1)+40 > size(dataTC,1) 
+    ind = intersect(find(DirectionDeg == Dirs(i)),find(strcmp(trialOutcome,'success')));    
+    if isempty(ind) == 1;
+        dirTargetData{i} = [];
+        dirTargetDataDF{i} = [];
+        dirTargetDataDFoverF{i} = [];
+        dirTargetInd{i} = ind;
+        dirTargetNorm{i} = [];
+    elseif cTargetOn(ind(end),1)+40 > size(dataTC,1) 
+        targetData = zeros(60,size(dataTC,2),length(ind));
+        targetDataDF = zeros(60,size(dataTC,2),length(ind));
+        targetDataDFoverF = zeros(60,size(dataTC,2),length(ind));
+        targetBL = zeros(length(Dirs),size(dataTC,2),length(ind));
+        targetNorm = zeros(60,size(dataTC,2),length(ind));
         for itrial = 1:length(ind)-1
             targetData(:,:,itrial) = dataTC(cTargetOn(ind(itrial))-19:cTargetOn(ind(itrial))+40,:);
             targetBaseline = dataTC(cLeverDown(ind(itrial))-29:cLeverDown(ind(itrial)),:);
@@ -129,7 +134,18 @@ for i = 1:length(Dirs)
             targetBL(i,:,itrial) = mean(targetDataDFoverF(17:21,:,itrial),1);
             targetNorm(:,:,itrial) = bsxfun(@minus,targetDataDFoverF(:,:,itrial),targetBL(i,:,itrial));
         end
+        dirTargetData{i} = targetData;
+        dirTargetDataDF{i} = targetDataDF;
+        dirTargetDataDFoverF{i} = targetDataDFoverF;
+        dirTargetInd{i} = ind;
+        dirTargetNorm{i} = targetNorm;        
     else
+
+        targetData = zeros(60,size(dataTC,2),length(ind));
+        targetDataDF = zeros(60,size(dataTC,2),length(ind));
+        targetDataDFoverF = zeros(60,size(dataTC,2),length(ind));
+        targetBL = zeros(length(Dirs),size(dataTC,2),length(ind));
+        targetNorm = zeros(60,size(dataTC,2),length(ind));
         for itrial = 1:length(ind)
             targetData(:,:,itrial) = dataTC(cTargetOn(ind(itrial))-19:cTargetOn(ind(itrial))+40,:);
             targetBaseline = dataTC(cLeverDown(ind(itrial))-29:cLeverDown(ind(itrial)),:);
@@ -138,13 +154,13 @@ for i = 1:length(Dirs)
             targetBL(i,:,itrial) = mean(targetDataDFoverF(17:21,:,itrial),1);
             targetNorm(:,:,itrial) = bsxfun(@minus,targetDataDFoverF(:,:,itrial),targetBL(i,:,itrial));
         end
+        dirTargetData{i} = targetData;
+        dirTargetDataDF{i} = targetDataDF;
+        dirTargetDataDFoverF{i} = targetDataDFoverF;
+        dirTargetInd{i} = ind;
+        dirTargetNorm{i} = targetNorm;        
     end
     
-    dirTargetData{i} = targetData;
-    dirTargetDataDF{i} = targetDataDF;
-    dirTargetDataDFoverF{i} = targetDataDFoverF;
-    dirTargetInd{i} = ind;
-    dirTargetNorm{i} = targetNorm;
 end
 
 %% Normalize target response
@@ -210,9 +226,15 @@ cellTargetDirMean = zeros(60,nCells,length(Dirs));
 cellTargetDirMean_point = zeros(nCells,length(Dirs));
 cellTargetdirMean_diff = zeros(nCells,length(Dirs));
 for i = 1:length(Dirs)
-    cellTargetDirMean(:,:,i) = nanmean(dirTargetNorm{i},3);
-    cellTargetDirMean_point(:,i) = squeeze(nanmean(cellTargetDirMean(21:25,:,i),1));
-    cellTargetDirMean_diff(:,i) = squeeze(cellTargetDirMean(21,:,i)-cellTargetDirMean(25,:,i));
+    if isempty(dirTargetNorm{i}) == 1
+        cellTargetDirMean(:,:,i) = zeros(60,nCells);
+        cellTargetDirMean_point(:,i) = zeros(nCells,1);
+        cellTargetDirMean_diff(:,i) = zeros(nCells,1);
+    else
+        cellTargetDirMean(:,:,i) = nanmean(dirTargetNorm{i},3);
+        cellTargetDirMean_point(:,i) = squeeze(nanmean(cellTargetDirMean(21:25,:,i),1));
+        cellTargetDirMean_diff(:,i) = squeeze(cellTargetDirMean(21,:,i)-cellTargetDirMean(25,:,i));
+    end
 end
 
 % cellTargetDirMean = nanmean(dirtraces,4);
@@ -225,7 +247,7 @@ end
 celltargetrespfig = figure;
 % colors = brewermap(length(Dirs),'*YlGn');
 colors = brewermap(length(Dirs)+15,'*YlGn');
-colorind = [3:2:length(Dirs)+12];
+colorind = [1:2:length(Dirs)+10];
 colors = colors(colorind,:);
 
 for idir = 1:length(Dirs)

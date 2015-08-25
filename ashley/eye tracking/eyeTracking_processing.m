@@ -1,20 +1,41 @@
-SubNum = '614';
-date = '150623';
-ImgFolder = '004';
-mouse = 'AW14';
-fName = '004_000_000';
-
-fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '-' ImgFolder];
-% % load MWorks file
-% CD = ['Z:\data\' mouse '\mworks\' date];
+% SubNum = '614';
+% date = '150623';
+% ImgFolder = '004';
+% mouse = 'AW14';
+% fName = '004_000_000';
+% 
+% fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '-' ImgFolder];
+% % % load MWorks file
+% % CD = ['Z:\data\' mouse '\mworks\' date];
+% % cd(CD);
+% % mworks = ['data-' 'i' SubNum '-' date '-' time]; 
+% % load (mworks);
+% 
+% % Set current directory to crash folder
+% CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
 % cd(CD);
-% mworks = ['data-' 'i' SubNum '-' date '-' time]; 
-% load (mworks);
 
-% Set current directory to crash folder
-CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
+SubNum = '614';
+date = '150811';
+time = '1115';
+ImgFolder = '001';
+mouse = 'AW14';
+fName = '001_000_000';
+
+% load MWorks file
+CD = ['Y:\home\andrew\Behavior\Data'];
+% CD = ['Z:\data\' mouse '\mworks\' date];
 cd(CD);
+mworks = ['data-' 'i' SubNum '-' date '-' time]; 
+load (mworks);
 
+% Set current directory to imaging data location
+CD = ['Z:\data\' mouse '\eye tracking\' date '\' ImgFolder];
+cd(CD);
+% CD = ['D:\Ashley_temp\' date '\' ImgFolder];
+% cd(CD);
+imgMatFile = [fName '.mat'];
+load(imgMatFile);
 %% 
 fn = [fName '_eye.mat'];
 load(fn);          % should be a '*_eye.mat' file
@@ -38,8 +59,10 @@ for n = 1:size(data,3)
     B{n} = [0];
 end
 
+data = double(data);
+
 eye = struct('Centroid',A,'Area',B);
-for(n=1:size(data,3))
+for n = 1:size(data,3)
     [center,radii,metric] = imfindcircles(squeeze(data(:,:,n)),rad_range,'Sensitivity',0.9);
     if(isempty(center))
         eye(n).Centroid = [NaN NaN];    % could not find anything...
@@ -57,6 +80,8 @@ end
 
 Centroid = cell2mat({eye.Centroid}');
 Area = cell2mat({eye.Area}');
+
+
 
 %% load mworks file
 time = '1217';

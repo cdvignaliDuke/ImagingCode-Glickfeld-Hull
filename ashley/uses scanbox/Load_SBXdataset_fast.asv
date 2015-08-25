@@ -1,10 +1,10 @@
 %% load 2P imaging data
 SubNum = '614';
 date = '150701';
-time = '1556';
-ImgFolder = '002';
+time = '1659';
+ImgFolder = '006';
 mouse = 'AW14';
-fName = '002_000_000';
+fName = '006_000_000';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];

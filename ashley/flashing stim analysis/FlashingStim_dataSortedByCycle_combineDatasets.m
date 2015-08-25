@@ -1,11 +1,11 @@
 %combine two datasets to have 3 trial types - vis only, aud only, and
 %vis+aud
-SubNum = '613';
-mouse = 'AW13';
-date = '150511';
+SubNum = '614';
+mouse = 'AW14';
+date = '150626';
 
 %% first dataset (_1) - vis only (V) and aud only (A)
-time = '1420';
+time = '1458';
 ImgFolder = '001';
 
 % load MWorks file
@@ -25,7 +25,7 @@ dataTC_1 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% second dataset (_2) - vis only (V) and vis + aud only (AV)
-time = '1437';
+time = '1514';
 ImgFolder = '002';
 
 % load MWorks file
@@ -45,7 +45,7 @@ dataTC_2 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% third dataset (_3) 
-time = '1453';
+time = '1532';
 ImgFolder = '003';
 
 % load MWorks file
@@ -120,6 +120,8 @@ catchDirs = unique(catchDirectionDeg);
 isCatchTrial = catchDirectionDeg > 0;
 tooFastTime = input1.nFramesTooFast;
 maxReactTime = input1.nFramesReact;
+minCyclesOn = input1.minCyclesOn;
+maxCyclesOn = input1.maxCyclesOn;
 
 
 
