@@ -1,5 +1,10 @@
+<<<<<<< HEAD
+% edit Load_SBXdataset_fast.m
+%%
+=======
 edit Load_SBXdataset_fast.m
 
+>>>>>>> dc5ba783cd06c3e4a429c56228b1976645a15044
 data_sub = data-min(min(min(data,[],1),[],2),[],3);
 data = data_sub;
 clear data_sub

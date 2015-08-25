@@ -2,17 +2,10 @@
 %vis+aud
 SubNum = '613';
 mouse = 'AW13';
-<<<<<<< HEAD
 date = '150508';
 
 %% first dataset (_1) - vis only (V) and aud only (A)
 time = '1413';
-=======
-date = '150511';
-
-%% first dataset (_1) - vis only (V) and aud only (A)
-time = '1420';
->>>>>>> dc5ba783cd06c3e4a429c56228b1976645a15044
 ImgFolder = '001';
 
 % load MWorks file
@@ -32,11 +25,7 @@ dataTC_1 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% second dataset (_2) - vis only (V) and vis + aud only (AV)
-<<<<<<< HEAD
 time = '1430';
-=======
-time = '1437';
->>>>>>> dc5ba783cd06c3e4a429c56228b1976645a15044
 ImgFolder = '002';
 
 % load MWorks file
@@ -56,11 +45,7 @@ dataTC_2 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% third dataset (_3) 
-<<<<<<< HEAD
 time = '1446';
-=======
-time = '1453';
->>>>>>> dc5ba783cd06c3e4a429c56228b1976645a15044
 ImgFolder = '003';
 
 % load MWorks file
@@ -135,6 +120,8 @@ catchDirs = unique(catchDirectionDeg);
 isCatchTrial = catchDirectionDeg > 0;
 tooFastTime = input1.nFramesTooFast;
 maxReactTime = input1.nFramesReact;
+minCyclesOn = input1.minCyclesOn;
+maxCyclesOn = input1.maxCyclesOn;
 
 
 
@@ -257,6 +244,17 @@ for icyc = 1:length(cycles)
     cycV_ind{icyc} = V_indAll;
 %     cycA_ind{icyc} = A_indAll;
     cycAV_ind{icyc} = AV_indAll;
+end
+
+for icyc = 1:length(cycles)
+    ind = sort(cat(1,cycV_ind{icyc},cycAV_ind{icyc}));   
+    cycTrialOutcome{icyc} = trialOutcome(ind);
+    cycDirectionDeg{icyc} = DirectionDeg(ind);
+    if sum(catchIndex) > 0
+    cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
+    cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
+    cycCatchCycle{icyc} = catchCycle(ind);
+    end
 end
 
 % legendinfo = {'vis only','aud only','vis+aud'};

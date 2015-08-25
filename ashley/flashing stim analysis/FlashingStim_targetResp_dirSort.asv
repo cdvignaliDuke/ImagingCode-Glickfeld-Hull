@@ -4,9 +4,9 @@ for icyc = 1:length(cycles)
     ind = find(tCyclesOn == cycles(icyc));   
     cycTrialOutcome{icyc} = trialOutcome(ind);
     cycDirectionDeg{icyc} = DirectionDeg(ind);
-%     cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
-%     cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
-%     cycCatchCycle{icyc} = catchCycle(ind);
+    cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
+    cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
+    cycCatchCycle{icyc} = catchCycle(ind);
 end
 
 % Success_ind = find(strcmp('success',trialOutcome));
@@ -19,7 +19,7 @@ end
 % cellsSlctvZero = intersect(cellsPrefZero,dirSlctvCells);
 
 %% color-code cells by orientation preference
-DirFolder = '005';
+DirFolder = '006';
 fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, DirFolder);
 cd(fileSave);
 % load('oriTuningPreferences.mat')
@@ -244,47 +244,47 @@ end
 
 %% plot cell response to target by tuning preference (mean resp to target)
 
-celltargetrespfig = figure;
-% colors = brewermap(length(Dirs),'*YlGn');
-colors = brewermap(length(Dirs)+15,'*YlGn');
-colorind = [1:2:length(Dirs)+10];
-colors = colors(colorind,:);
-
-for idir = 1:length(Dirs)
-    if idir == 1
-        plot([1:length(cellsSubgroup1)],cellTargetDirMean_point(cellsSubgroup1,idir),'ko','MarkerFaceColor', 'k')
-    else
-        plot([1:length(cellsSubgroup1)],cellTargetDirMean_point(cellsSubgroup1,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
-    end
-    hold on
-end
-
-hold on
-vline(length(cellsSubgroup1),'k')
-
-for idir = 1:length(Dirs)
-    if idir == 1
-        plot([length(cellsSubgroup1)+1:length(cellsSubgroup1)+length(cellsSubgroup2)],cellTargetDirMean_point(cellsSubgroup2,idir),'ko','MarkerFaceColor', 'k')
-    else
-        plot([length(cellsSubgroup1)+1:length(cellsSubgroup1)+length(cellsSubgroup2)],cellTargetDirMean_point(cellsSubgroup2,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
-    end
-    hold on
-end
-
-hold on
-vline(length(cellsSubgroup1)+length(cellsSubgroup2),'k')
-
-for idir = 1:length(Dirs)
-    if idir == 1
-        plot([length(cellsSubgroup1)+length(cellsSubgroup2)+1:length(cellsSubgroup1)+length(cellsSubgroup2)+length(cellsSubgroup3)],cellTargetDirMean_point(cellsSubgroup3,idir),'ko','MarkerFaceColor', 'k')
-    else
-        plot([length(cellsSubgroup1)+length(cellsSubgroup2)+1:length(cellsSubgroup1)+length(cellsSubgroup2)+length(cellsSubgroup3)],cellTargetDirMean_point(cellsSubgroup3,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
-    end
-    hold on
-end
-
-legend(legendInfo)
-title([mouse ' - ' date ';mean resp to target'])
+% celltargetrespfig = figure;
+% % colors = brewermap(length(Dirs),'*YlGn');
+% colors = brewermap(length(Dirs)+15,'*YlGn');
+% colorind = [1:2:length(Dirs)+10];
+% colors = colors(colorind,:);
+% 
+% for idir = 1:length(Dirs)
+%     if idir == 1
+%         plot([1:length(cellsSubgroup1)],cellTargetDirMean_point(cellsSubgroup1,idir),'ko','MarkerFaceColor', 'k')
+%     else
+%         plot([1:length(cellsSubgroup1)],cellTargetDirMean_point(cellsSubgroup1,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
+%     end
+%     hold on
+% end
+% 
+% hold on
+% vline(length(cellsSubgroup1),'k')
+% 
+% for idir = 1:length(Dirs)
+%     if idir == 1
+%         plot([length(cellsSubgroup1)+1:length(cellsSubgroup1)+length(cellsSubgroup2)],cellTargetDirMean_point(cellsSubgroup2,idir),'ko','MarkerFaceColor', 'k')
+%     else
+%         plot([length(cellsSubgroup1)+1:length(cellsSubgroup1)+length(cellsSubgroup2)],cellTargetDirMean_point(cellsSubgroup2,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
+%     end
+%     hold on
+% end
+% 
+% hold on
+% vline(length(cellsSubgroup1)+length(cellsSubgroup2),'k')
+% 
+% for idir = 1:length(Dirs)
+%     if idir == 1
+%         plot([length(cellsSubgroup1)+length(cellsSubgroup2)+1:length(cellsSubgroup1)+length(cellsSubgroup2)+length(cellsSubgroup3)],cellTargetDirMean_point(cellsSubgroup3,idir),'ko','MarkerFaceColor', 'k')
+%     else
+%         plot([length(cellsSubgroup1)+length(cellsSubgroup2)+1:length(cellsSubgroup1)+length(cellsSubgroup2)+length(cellsSubgroup3)],cellTargetDirMean_point(cellsSubgroup3,idir),'Color',colors(idir,:),'LineStyle','none','Marker','o','MarkerFaceColor', colors(idir,:))
+%     end
+%     hold on
+% end
+% 
+% legend(legendInfo)
+% title([mouse ' - ' date ';mean resp to target'])
 
 %% plot cell response to target by peak resp 
 
