@@ -1,10 +1,10 @@
 clear all
 close all
-SubNum = '613';
+SubNum = '614';
 date = '150818';
 runs = ['001'; '002'];
-time_mat = ['1259'; '1335'];
-mouse = 'AW13';
+time_mat = ['1141'; '1216'];
+mouse = 'AW14';
 frame_rate = 15;
 calib = 1/26.6; %mm per pixel
 nrun = size(runs,1);
@@ -32,6 +32,8 @@ fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '\' mou
 min_hold = 2000;
 prepush_frames = 15;
 postpush_frames = ceil(min_hold*(frame_rate/1000));
+prerelease_frames = 15;
+postrelease_frames = ceil(1500*(frame_rate/1000));
 pretarget_frames = 15;
 posttarget_frames = ceil(4000*(frame_rate/1000));
 
@@ -93,6 +95,7 @@ end
 %% reset frame counter
 run_trials = input.trialsSinceReset;
 cLeverDown = cell2mat(input.cLeverDown);
+cLeverUp = cell2mat(input.cLeverUp);
 cTargetOn = celleqel2mat_padded(input.cTargetOn);
 cItiStart = cell2mat(input.cItiStart);
 Area_temp = [];
@@ -104,12 +107,13 @@ for irun = 1:nrun
         startTrial = run_trials(irun)+1;
         endTrial = run_trials(irun)+run_trials(irun+1);
         cLeverDown(1,startTrial:endTrial) = cLeverDown(1,startTrial:endTrial)+offset;
+        cLeverUp(1,startTrial:endTrial) = cLeverUp(1,startTrial:endTrial)+offset;
         cTargetOn(1,startTrial:endTrial) = cTargetOn(1,startTrial:endTrial)+offset;
         cItiStart(1,startTrial:endTrial) = cItiStart(1,startTrial:endTrial)+offset;
     end
     Area_temp = [Area_temp; Area{irun}];
     Centroid_temp = [Centroid_temp; Centroid{irun}];
-    Eye_data_temp = cat(3, Eye_data_temp, Eye_data{irun});
+    %Eye_data_temp = cat(3, Eye_data_temp, Eye_data{irun});
 end
 clear Eye_data;
 ntrials = length(input.trialOutcomeCell);
@@ -136,6 +140,8 @@ nanrun = ceil(500*(frame_rate/1000));
 Rad_temp = sqrt(Area_temp./pi);
 rad_mat_down = zeros(prepush_frames+postpush_frames, ntrials);
 centroid_mat_down = zeros(prepush_frames+postpush_frames,2, ntrials);
+rad_mat_up = zeros(prerelease_frames+postrelease_frames, ntrials);
+centroid_mat_up = zeros(prerelease_frames+postrelease_frames,2, ntrials);
 nframes = size(Rad_temp,1);
 for itrial = 1:ntrials
     if itrial == ntrials
@@ -163,6 +169,8 @@ for itrial = 1:ntrials
     end
     rad_mat_down(:,itrial) = Rad_temp(1+cLeverDown(itrial)-prepush_frames:cLeverDown(itrial)+postpush_frames,:);
     centroid_mat_down(:,:,itrial) = Centroid_temp(1+cLeverDown(itrial)-prepush_frames:cLeverDown(itrial)+postpush_frames,:);
+    rad_mat_up(:,itrial) = Rad_temp(1+cLeverUp(itrial)-prerelease_frames:cLeverUp(itrial)+postrelease_frames,:);
+    centroid_mat_up(:,:,itrial) = Centroid_temp(1+cLeverUp(itrial)-prerelease_frames:cLeverUp(itrial)+postrelease_frames,:);
     if cTargetOn(itrial)>0 & cTargetOn(itrial)+posttarget_frames < nframes
         rad_mat_target(:,itrial) = Rad_temp(1+cTargetOn(itrial)-pretarget_frames:cTargetOn(itrial)+posttarget_frames,:);
         centroid_mat_target(:,:,itrial) = Centroid_temp(1+cTargetOn(itrial)-pretarget_frames:cTargetOn(itrial)+posttarget_frames,:);
@@ -173,10 +181,12 @@ for itrial = 1:ntrials
 end
 rad_mat_down = bsxfun(@times, rad_mat_down, calib);
 centroid_mat_down = bsxfun(@times,centroid_mat_down,calib);
+rad_mat_up = bsxfun(@times, rad_mat_up, calib);
+centroid_mat_up = bsxfun(@times,centroid_mat_up,calib);
 rad_mat_target = bsxfun(@times, rad_mat_target, calib);
 centroid_mat_target = bsxfun(@times,centroid_mat_target,calib);        
 
-%% plot eye traces locked to events
+%% plot eye traces align to press
 close all
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
@@ -185,7 +195,8 @@ set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 holdIx = find(cell2mat(input.holdTimesMs)>min_hold);
 rad_mat_down_base = bsxfun(@rdivide, rad_mat_down, mean(rad_mat_down(1:15,:),1));
 centroid_mat_down_base = bsxfun(@rdivide, centroid_mat_down, mean(centroid_mat_down(1:15,:,:),1));
-%plot change in eye area
+
+%plot change in eye area align to press
 figure;
 tt = (1-prepush_frames:postpush_frames)*(1000/frame_rate);
 subplot(3,2,1)
@@ -428,7 +439,53 @@ ylim([0.8 1.4])
 suptitle('Align to press- Auditory only- Black: success; Red: missed')
 print([fnout '_avg_pressalign_SM_Aonly.pdf'], '-dpdf');
 
-%plot change in Pupil radius locked to target
+%% plot change in pupil radius locked to lever up
+rad_mat_up_base = bsxfun(@rdivide, rad_mat_up, mean(rad_mat_down(1:15,:),1));
+centroid_mat_up_base = bsxfun(@rdivide, centroid_mat_up, mean(centroid_mat_down(1:15,:,:),1));
+
+tt = (1-prerelease_frames:postrelease_frames).*(1000/frame_rate);
+
+FIx = find(strcmp(input.trialOutcomeCell, 'failure'));
+SIx = find(strcmp(input.trialOutcomeCell, 'success'));
+MIx = find(strcmp(input.trialOutcomeCell, 'ignore'));
+FIxlong = intersect(find(cell2mat(input.tCyclesOn)>3), FIx);
+SIxlong = intersect(find(cell2mat(input.tCyclesOn)>3), SIx);
+b1Ix = find(cell2mat(input.tBlock2TrialNumber)==0);
+b2Ix = find(cell2mat(input.tBlock2TrialNumber)==1);
+Fb1Ix = intersect(b1Ix, FIxlong);
+Fb2Ix = intersect(b2Ix, FIxlong);
+Sb1Ix = intersect(b1Ix, SIxlong);
+Sb2Ix = intersect(b2Ix, SIxlong);
+
+figure;
+subplot(2,2,1)
+shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Fb1Ix),2), nanstd(rad_mat_up_base(:,Fb1Ix),[],2)/sqrt(length(Fb1Ix)), 'r');
+hold on
+shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Sb1Ix),2), nanstd(rad_mat_up_base(:,Sb1Ix),[],2)/sqrt(length(Sb1Ix)), 'k'); 
+title(['Visual trials: ' num2str(length(Sb1Ix)) ' Successes; ' num2str(length(Fb1Ix)) ' Earlies']) 
+xlim([-500 1500])
+subplot(2,2,2)
+shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Fb2Ix),2), nanstd(rad_mat_up_base(:,Fb2Ix),[],2)/sqrt(length(Fb2Ix)), 'r');
+hold on
+shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Sb2Ix),2), nanstd(rad_mat_up_base(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+title(['Auditory trials: ' num2str(length(Sb2Ix)) ' Successes; ' num2str(length(Fb2Ix)) ' Earlies']) 
+xlim([-500 1500])
+subplot(2,2,3)
+shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Fb1Ix),2), nanstd(rad_mat_up_base(:,Fb1Ix),[],2)/sqrt(length(Fb1Ix)), 'k');
+hold on
+shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Fb2Ix),2), nanstd(rad_mat_up_base(:,Fb2Ix),[],2)/sqrt(length(Fb2Ix)), 'g'); 
+title(['Early trials: ' num2str(length(Fb1Ix)) ' Visual; ' num2str(length(Fb2Ix)) ' Auditory']) 
+xlim([-500 1500])
+subplot(2,2,4)
+shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Sb1Ix),2), nanstd(rad_mat_up_base(:,Sb1Ix),[],2)/sqrt(length(Sb1Ix)), 'k');
+hold on
+shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Sb2Ix),2), nanstd(rad_mat_up_base(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'g'); 
+alignYaxes
+title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
+xlim([-500 1500])
+print([fnout '_avg_releasealign_SM_AV.pdf'], '-dpdf');
+
+%% plot change in Pupil radius locked to target
 rad_mat_target_base = bsxfun(@rdivide, rad_mat_target, mean(rad_mat_down(1:15,:),1));
 centroid_mat_target_base = bsxfun(@rdivide, centroid_mat_target, mean(centroid_mat_down(1:15,:,:),1));
 figure;

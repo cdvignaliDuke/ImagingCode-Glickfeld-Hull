@@ -9,14 +9,14 @@ time = '1420';
 ImgFolder = '001';
 
 % load MWorks file
-CD = ['Z:\data\' mouse '\mworks\' date];
+CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\mworks\' date];
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
 input1 = input;
 
 %load timecourse
-fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
+fileSave = fullfile('\\CRASH.dhe.duke.edu\data\home\ashley\analysis\',mouse,'two-photon imaging', date, ImgFolder);
 cd(fileSave);
 % load('dataTC.mat');
 load('Timecourses.mat')
@@ -29,14 +29,14 @@ time = '1437';
 ImgFolder = '002';
 
 % load MWorks file
-CD = ['Z:\data\' mouse '\mworks\' date];
+CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\mworks\' date];
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
 input2 = input;
 
 %load timecourse
-fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
+fileSave = fullfile('\\CRASH.dhe.duke.edu\data\home\ashley\analysis\',mouse,'two-photon imaging', date, ImgFolder);
 cd(fileSave);
 % load('dataTC.mat');
 load('Timecourses.mat')
@@ -49,14 +49,14 @@ time = '1453';
 ImgFolder = '003';
 
 % load MWorks file
-CD = ['Z:\data\' mouse '\mworks\' date];
+CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\mworks\' date];
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
 input3 = input;
 
 %load timecourse
-fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
+fileSave = fullfile('\\CRASH.dhe.duke.edu\data\home\ashley\analysis\',mouse,'two-photon imaging', date, ImgFolder);
 cd(fileSave);
 % load('dataTC.mat');
 load('Timecourses.mat')
@@ -65,34 +65,6 @@ dataTC_3 = dataTimecourse.dataTCsub;
 clear input dataTimecourse
 %% combine dataTCs
 dataTC = cat(1,dataTC_1,dataTC_2,dataTC_3);
-% dataTC = cat(1,dataTC_1,dataTC_2);
-%% mworks variables - 2 datasets
-% addInd_2 = size(dataTC_1,1);
-% cLeverDown = cat(1,cell2mat_padded(input1.cLeverDown),(cell2mat_padded(input2.cLeverDown)+addInd_2));
-% cTargetOn = cat(1,cell2mat_padded(input1.cTargetOn),(cell2mat_padded(input2.cTargetOn)+addInd_2));
-% tCyclesOn = cat(1,cell2mat_padded(input1.tCyclesOn),cell2mat_padded(input2.tCyclesOn));
-% cycles = unique(tCyclesOn);
-% cycTime = input1.nFramesOn + input1.nFramesOff;
-% frameRateS = 30; %hard-coded for now, but should be available in scanbox-yeti datasets' info file
-% RateFRperMS = frameRateS/1000;
-% % cycTime = ceil((input1.stimOnTimeMs+input1.stimOffTimeMs)*RateFRperMS);
-% nTrials = input1.trialSinceReset+input2.trialSinceReset;
-% trialOutcome = cat(2,input1.trialOutcomeCell,input2.trialOutcomeCell);
-% DirectionDeg = cell2mat_padded(cat(2,input1.gratingDirectionDeg,input2.gratingDirectionDeg));
-% tooFastTime = input1.tooFastTimeMs*RateFRperMS;
-% maxReactTime = input1.reactTimeMs*RateFRperMS;
-% reactTimesMs = cell2mat_padded(cat(2,input1.reactTimesMs,input2.reactTimesMs));
-% successReactTime = reactTimesMs(strcmp(trialOutcome,'success'))*RateFRperMS;
-% meanSuccessReactTime = mean(successReactTime,1);
-% 
-% 
-% block2 = cat(1,cell2mat_padded(input1.tBlock2TrialNumber),cell2mat_padded(input2.tBlock2TrialNumber));
-% V_ind = find(block2 == 0);
-% % AorAV_ind = find(block2 == 1);
-% % A_dataset_ind = AorAV_ind <= input1.trialSinceReset;
-% % A_ind = AorAV_ind(A_dataset_ind == 1);
-% % AV_ind = AorAV_ind(A_dataset_ind == 0);
-% AV_ind = find(block2 == 1);
 
 %% mworks variables - 3 datasets
 addInd_2 = size(dataTC_1,1);
@@ -162,7 +134,7 @@ AV_ind = find(block2 == 1);
 % 
 % % save('dataTC.mat','dataTC');
 
-%% analysis
+%% divide up data by cycle- align to lever down
 
 for icyc = 1:length(cycles)
     ind = find(tCyclesOn == cycles(icyc));
@@ -187,127 +159,61 @@ for icyc = 1:length(cycles)
     cycDataDFoverF{icyc} = DataDFoverF;
 end
 
+%% Align data to lever up
+Data = zeros(105,size(dataTC,2),length(trialOutcome));
+DataDF = zeros(105,size(dataTC,2),length(trialOutcome));
+DataDFoverF = zeros(105,size(dataTC,2),length(trialOutcome));
+if cLeverUp(end,1)+30 > size(dataTC,1)
+    for itrial = 1:length(trialOutcome)-1
+        Data(:,:,itrial) = dataTC(cLeverUp(itrial)-30:cLeverUp(itrial)+74,:);
+        DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
+        DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+    end
+else
+    for itrial = 1:length(trialOutcome)
+        Data(:,:,itrial) = dataTC(cLeverUp(itrial)-30:cLeverUp(itrial)+74,:);
+        DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
+        DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+    end
+end
+
+DataDFoverFavg = squeeze(mean(DataDFoverF,2));
+FIx = find(strcmp(trialOutcome, 'failure'));
+SIx = find(strcmp(trialOutcome, 'success'));
+FIxlong = intersect(find(tCyclesOn>3), FIx);
+SIxlong = intersect(find(tCyclesOn>3), SIx);
+Fb1Ix = intersect(V_ind, FIxlong);
+Fb2Ix = intersect(AV_ind, FIxlong);
+Sb1Ix = intersect(V_ind, SIxlong);
+Sb2Ix = intersect(AV_ind, SIxlong);
+
 figure;
-for icyc = 1:length(cycles)
-    DataDFoverF = cycDataDFoverF{icyc};
-    trials = find(tCyclesOn == cycles(icyc));
-    V_cycInd = find(ismember(trials,V_ind));
-%     A_cycInd = find(ismember(trials,A_ind));
-    AV_cycInd = find(ismember(trials,AV_ind));
-    V_avg = mean(mean(DataDFoverF(:,:,V_cycInd),3),2);
-%     A_avg = mean(mean(DataDFoverF(:,:,A_cycInd),3),2);
-    AV_avg = mean(mean(DataDFoverF(:,:,AV_cycInd),3),2);
-    subplot(3,4,icyc);
-    plot(V_avg,'g');
-    hold on
-%     plot(A_avg,'r');
-    hold on
-    plot(AV_avg,'m');
-    hold on
-%     title([num2str(cycles(icyc)) ' cycles; ' num2str(length(V_ind)) ' visual trials; ' num2str(length(A_ind)) ' auditory trials']);
-    hold on
-    vline(30,'k');
-    hold on
-    for i = 1:cycles(icyc)-1
-        L = (i*cycTime)+30;
-        vline(L,'k:');
-        hold on
-    end
-    vline((cycles(icyc)*cycTime+30),'c');
-    hold on
-end
-
-L = zeros(size(cycles));
-for icyc = 1:length(cycles)
-    dataDFoverF_cmlvNoTarget = [];
-    V_indAll = [];
-%     A_indAll = [];
-    AV_indAll = [];
-    running_ind = 0;
-    L = ceil(30+ (cycles(icyc))*cycTime);
-    cyc_ind = icyc:length(cycles);
-    for i = cyc_ind
-        dataDFoverF = cycDataDFoverF{i};
-        dataDFoverF_NoTarget = zeros(L,size(dataDFoverF,2),size(dataDFoverF,3));
-        dataDFoverF_NoTarget = dataDFoverF(1:L,:,:);
-        dataDFoverF_cmlvNoTarget = cat(3,dataDFoverF_cmlvNoTarget,dataDFoverF_NoTarget);
-        trials = find(tCyclesOn == cycles(i));
-        V_cycInd = find(ismember(trials,V_ind));
-%         A_cycInd = find(ismember(trials,A_ind));
-        AV_cycInd = find(ismember(trials,AV_ind));
-        V_indAll = cat(1,V_indAll, V_cycInd+running_ind);
-%         A_indAll = cat(1,A_indAll, A_cycInd+running_ind);
-        AV_indAll = cat(1,AV_indAll,AV_cycInd+running_ind);
-        running_ind = length(trials)+running_ind;
-    end        
-    cycDataDFoverF_cmlvNoTarget{icyc} = dataDFoverF_cmlvNoTarget; 
-    cycV_ind{icyc} = V_indAll;
-%     cycA_ind{icyc} = A_indAll;
-    cycAV_ind{icyc} = AV_indAll;
-end
-
-for icyc = 1:length(cycles)
-    ind = sort(cat(1,cycV_ind{icyc},cycAV_ind{icyc}));   
-    cycTrialOutcome{icyc} = trialOutcome(ind);
-    cycDirectionDeg{icyc} = DirectionDeg(ind);
-    if sum(catchIndex) > 0
-    cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
-    cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
-    cycCatchCycle{icyc} = catchCycle(ind);
-    end
-end
-
-% legendinfo = {'vis only','aud only','vis+aud'};
-figure;
-for icyc = 1:length(cycles)
-    dataDFoverF = cycDataDFoverF_cmlvNoTarget{icyc};
-    V_cycInd = cycV_ind{icyc};
-%     A_cycInd = cycA_ind{icyc};
-    AV_cycInd = cycAV_ind{icyc};
-    V_avg = mean(mean(dataDFoverF(:,:,V_cycInd),3),2);
-%     A_avg = mean(mean(dataDFoverF(:,:,A_cycInd),3),2);
-    AV_avg = mean(mean(dataDFoverF(:,:,AV_cycInd),3),2);
-    errbar_V = (std(mean(dataDFoverF(:,:,V_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,V_cycInd),3)));
-%     errbar_A = (std(mean(dataDFoverF(:,:,A_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,A_cycInd),3)));
-    errbar_AV = (std(mean(dataDFoverF(:,:,AV_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,AV_cycInd),3)));
-    subplot(3,4,icyc);
-%     plot(V_avg(20:end,:),'g');
-%     hold on
-%     plot(A_avg(20:end,:),'r');
-%     hold on
-%     plot(AV_avg(20:end,:),'m');
-%     hold on
-    errorbar(V_avg(20:end,:),errbar_V(20:end,:),'g')
-    hold on
-%     errorbar(A_avg(20:end,:),errbar_A(20:end,:),'b')
-    hold on
-    errorbar(AV_avg(20:end,:),errbar_AV(20:end,:),'k')
-    hold on
-    vline(10,'k')
-    hold on
-    for i = 1:cycles(icyc)-1
-        L = (i*cycTime)+11;
-        vline(L,'k:');
-        hold on
-    end
-    vline((cycles(icyc)*cycTime+11),'c');
-    hold on
-    if icyc == 1
-        title([num2str(size(dataDFoverF,2)) ' cells'])
-    else
-%     title([num2str(length(V_cycInd)) ' visual trials; ' num2str(length(A_cycInd)) ' auditory trials; ' num2str(length(AV_cycInd)) ' vis+aud trials'])
-    title([num2str(length(V_cycInd)) ' visual trials; ' num2str(length(AV_cycInd)) ' vis+aud trials'])
-    end
-    hold on
-    xlim([0 length(V_avg(20:end,:))+5])
-    ylim([-0.05 0.05])
-%     if icyc == 1
-%         legend(legendinfo,'Location','SouthEast')
-%     end
-end
+tt = [-30:74].*(1000/30);
+subplot(2,2,1)
+shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Fb1Ix),2), nanstd(DataDFoverFavg(:,Fb1Ix),[],2)/sqrt(length(Fb1Ix)), 'r');
+hold on
+shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Sb1Ix),2), nanstd(DataDFoverFavg(:,Sb1Ix),[],2)/sqrt(length(Sb1Ix)), 'k'); 
+title(['Visual trials: ' num2str(length(Sb1Ix)) ' Successes; ' num2str(length(Fb1Ix)) ' Earlies']) 
+xlim([-500 1500])
+subplot(2,2,2)
+shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Fb2Ix),2), nanstd(DataDFoverFavg(:,Fb2Ix),[],2)/sqrt(length(Fb2Ix)), 'r');
+hold on
+shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Sb2Ix),2), nanstd(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+title(['Auditory trials: ' num2str(length(Sb2Ix)) ' Successes; ' num2str(length(Fb2Ix)) ' Earlies']) 
+xlim([-500 1500])
+subplot(2,2,3)
+shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Fb1Ix),2), nanstd(DataDFoverFavg(:,Fb1Ix),[],2)/sqrt(length(Fb1Ix)), 'k');
+hold on
+shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Fb2Ix),2), nanstd(DataDFoverFavg(:,Fb2Ix),[],2)/sqrt(length(Fb2Ix)), 'g'); 
+title(['Early trials: ' num2str(length(Fb1Ix)) ' Visual; ' num2str(length(Fb2Ix)) ' Auditory']) 
+xlim([-500 1500])
+subplot(2,2,4)
+shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Sb1Ix),2), nanstd(DataDFoverFavg(:,Sb1Ix),[],2)/sqrt(length(Sb1Ix)), 'k');
+hold on
+shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Sb2Ix),2), nanstd(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'g'); 
+alignYaxes
+title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
+xlim([-500 1500])
 
 
-% fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
-% cd(fileSave);
-% save('cycDataDFoverF_cmlvNoTarget.mat', 'cycDataDFoverF_cmlvNoTarget', 'cycA_ind', 'cycV_ind');
 
