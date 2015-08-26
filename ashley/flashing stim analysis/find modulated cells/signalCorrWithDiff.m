@@ -87,10 +87,12 @@ drivencells = find(any(dataavgtrials >0.05,1));
 % % end
 
 %%
-datadiff = zeros(size(tempdata1));
-for icell = 1:size(tempdata1,2)
-for itrial = 1:size(tempdata1,3)
-    datadiff(2:end,icell,itrial) = diff(squeeze(tempdata1(:,icell,itrial)));
+V_cycInd = cycV_ind{end-1};
+AV_cycInd = cycAV_ind{end-1};
+datadiff = zeros(size(cycDataDFoverF_cmlvNoTarget{end-1}));
+for icell = 1:size(cycDataDFoverF_cmlvNoTarget{end-1},2)
+for itrial = 1:size(cycDataDFoverF_cmlvNoTarget{end-1},3)
+    datadiff(2:end,icell,itrial) = diff(squeeze(cycDataDFoverF_cmlvNoTarget{end-1}(:,icell,itrial)));
 end
 end
 datadiff(datadiff < 0.05) = 0;

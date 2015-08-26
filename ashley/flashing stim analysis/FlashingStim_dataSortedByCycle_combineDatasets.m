@@ -1,19 +1,12 @@
 %combine two datasets to have 3 trial types - vis only, aud only, and
 %vis+aud
-SubNum = '613';
-mouse = 'AW13';
-<<<<<<< HEAD
-date = '150508';
+SubNum = '614';
+mouse = 'AW14';
+date = '150623';
 
 %% first dataset (_1) - vis only (V) and aud only (A)
-time = '1413';
-=======
-date = '150511';
-
-%% first dataset (_1) - vis only (V) and aud only (A)
-time = '1420';
->>>>>>> dc5ba783cd06c3e4a429c56228b1976645a15044
-ImgFolder = '001';
+time = '1142';
+ImgFolder = '002';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -32,12 +25,8 @@ dataTC_1 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% second dataset (_2) - vis only (V) and vis + aud only (AV)
-<<<<<<< HEAD
-time = '1430';
-=======
-time = '1437';
->>>>>>> dc5ba783cd06c3e4a429c56228b1976645a15044
-ImgFolder = '002';
+time = '1158';
+ImgFolder = '003';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -56,12 +45,8 @@ dataTC_2 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% third dataset (_3) 
-<<<<<<< HEAD
-time = '1446';
-=======
-time = '1453';
->>>>>>> dc5ba783cd06c3e4a429c56228b1976645a15044
-ImgFolder = '003';
+time = '1217';
+ImgFolder = '004';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -257,6 +242,17 @@ for icyc = 1:length(cycles)
     cycV_ind{icyc} = V_indAll;
 %     cycA_ind{icyc} = A_indAll;
     cycAV_ind{icyc} = AV_indAll;
+end
+
+for icyc = 1:length(cycles)
+    ind = sort(cat(1,cycV_ind{icyc},cycAV_ind{icyc}));   
+    cycTrialOutcome{icyc} = trialOutcome(ind);
+    cycDirectionDeg{icyc} = DirectionDeg(ind);
+    if sum(catchIndex) > 0
+    cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
+    cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
+    cycCatchCycle{icyc} = catchCycle(ind);
+    end
 end
 
 % legendinfo = {'vis only','aud only','vis+aud'};

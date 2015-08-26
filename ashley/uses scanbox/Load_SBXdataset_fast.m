@@ -1,10 +1,10 @@
 %% load 2P imaging data
 SubNum = '613';
-date = '150508';
-time = '1446';
-ImgFolder = '003';
+date = '150504';
+time = '1518';
+ImgFolder = '006';
 mouse = 'AW13';
-fName = '003_000_000';
+fName = '006_000_000';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -26,8 +26,8 @@ load(imgMatFile);
 %%
 
 %new datasets
-nframes = 13577;
-% nframes = info.config.frames;
+% nframes = 13577;
+nframes = info.config.frames;
 tic
 data = sbxread(fName,0,nframes);
 toc

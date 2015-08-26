@@ -62,7 +62,7 @@ end
 dataavgtrials = squeeze(mean(dataDFoverF(:,:,V_cycInd),3));
 drivencells = find(any(dataavgtrials >0.05,1));
 %%
-CYC = cycles(10);
+CYC = cycles(end-1);
 cellgroup = 1:nCells;
 downS = 1;    
 
@@ -75,7 +75,7 @@ tempOutcome = cycTrialOutcome{CYC};
 tempVind = intersect(cycV_ind{CYC},find(strcmp(tempOutcome,'success') == 1));
 tempAVind = intersect(cycAV_ind{CYC},find(strcmp(tempOutcome,'success') == 1));
 
-%%
+%% corr on one cell
 cell1 = drivencells(5);
 trialcorrV = corr(squeeze(tempdata(:,tempVind,cell1)));
 trialcorrV = tril(trialcorrV,-1);
@@ -100,10 +100,35 @@ colorbar
 caxis([-1 1]);
 axis('square')
 
+%% corrcoef on one cell
+cell1 = drivencells(5);
+trialcorrV = corrcoef(squeeze(tempdata(:,tempVind,cell1)));
+trialcorrV = tril(trialcorrV,-1);
+avgTrialcorrV = mean(mean(trialcorrV(trialcorrV ~= 0),2),1);
+
+trialcorrAV = corrcoef(squeeze(tempdata(:,tempAVind,cell1)));
+trialcorrAV = tril(trialcorrAV,-1);
+avgTrialcorrAV = mean(mean(trialcorrAV(trialcorrAV ~= 0),2),1);
+
+figure;
+colormap(brewermap([],'*RdBu'))
+subplot(1,2,1);
+imagesc(trialcorrV)
+title([{['avg corr bw vis trials = ' num2str(avgTrialcorrV)]},{[num2str(length(tempVind)) ' trials']}])
+colorbar 
+caxis([-1 1]);
+axis('square')
+subplot(1,2,2);
+imagesc(trialcorrAV)
+title([{['avg corr bw aud trials = ' num2str(avgTrialcorrAV)]},{[num2str(length(tempAVind)) ' trials']}])
+colorbar 
+caxis([-1 1]);
+axis('square')
+
 %%
-avgTrialcorrV = zeros(nCells,1);
-avgTrialcorrAV = zeros(nCells,1);
-for icell = 1:length(cellgroup)
+avgTrialcorrV = zeros(length(cells),1);
+avgTrialcorrAV = zeros(length(cells),1);
+for icell = 1:length(cells)
     trialcorrV = corr(squeeze(tempdata(:,tempVind,icell)));
     trialcorrV = tril(trialcorrV,-1);
     avgTrialcorrV(icell,:) = mean(mean(trialcorrV(trialcorrV ~= 0),2),1);
@@ -117,6 +142,6 @@ avgTrialcorrV_norm = avgTrialcorrV/max(avgTrialcorrV);
 avgTrialcorrAV_norm = avgTrialcorrAV/max(avgTrialcorrV);
 
 figure;
-scatter(cellGroup,avgTrialcorrV_norm,'go')
+scatter(cells,avgTrialcorrV_norm,'go')
 hold on
-scatter(cellgroup,avgTrialcorrAV_norm,'ko')
+scatter(cells,avgTrialcorrAV_norm,'ko')
