@@ -1,11 +1,12 @@
-clear all
+%clear all
 close all
 SubNum = '614';
-date = '150818';
-runs = ['001'; '002'];
-time_mat = ['1141'; '1216'];
+date = '150623';
+runs = ['004'];
+time_mat = ['1217'];
 mouse = 'AW14';
-frame_rate = 15;
+eyeFolder = 'two-photon imaging';
+frame_rate = 30;
 calib = 1/26.6; %mm per pixel
 nrun = size(runs,1);
 %% load and combine mworks files
@@ -26,7 +27,7 @@ if nrun>1
         runstr = [runstr '-' runs(irun,:)];
     end
 end
-fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '\' mouse '-' date '-' runstr];
+fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '_' date '\' mouse '-' date '-' runstr];
 
 %% 
 min_hold = 2000;
@@ -43,7 +44,7 @@ Area = {};
 Centroid = {};
 Eye_data = {};
 for irun =  1:nrun
-    CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\eye tracking\' date '\' runs(irun,:)];
+    CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\' eyeFolder '\' date '\' runs(irun,:)];
     cd(CD);
     fn = [runs(irun,:) '_000_000_eye.mat'];
     load(fn);          % should be a '*_eye.mat' file
@@ -51,9 +52,9 @@ for irun =  1:nrun
     data = squeeze(data);      % the raw images...
     xc = size(data,2)/2;       % image center
     yc = size(data,1)/2;
-    W=40;
+    W=20;
 
-    rad_range = [15 30];
+    rad_range = [8 15];
     data = data(yc-W:yc+W,xc-W:xc+W,:);
     warning off;
     
@@ -66,14 +67,14 @@ for irun =  1:nrun
     eye = struct('Centroid',A,'Area',B);
     radii = [];
     for n = 1:size(data,3)
-        if ~isempty(radii)
-            rad_range = [radii-3 radii+3];
-            rad_range(find(rad_range<15)) = 15;
-            rad_range(find(rad_range>30)) = 30;
-        else
-            rad_range = [15 30];
-        end
-        [center,radii,metric] = imfindcircles(squeeze(data(:,:,n)),round(rad_range),'Sensitivity',0.9,'Method', 'TwoStage');
+%         if ~isempty(radii)
+%             rad_range = [radii-3 radii+3];
+%             rad_range(find(rad_range<15)) = 15;
+%             rad_range(find(rad_range>30)) = 30;
+%         else
+%             rad_range = [15 30];
+%         end
+        [center,radii,metric] = imfindcircles(squeeze(data(:,:,n)),rad_range,'Sensitivity',0.9);
         if(isempty(center))
             eye(n).Centroid = [NaN NaN];    % could not find anything...
             eye(n).Area = NaN;
@@ -113,17 +114,22 @@ for irun = 1:nrun
     end
     Area_temp = [Area_temp; Area{irun}];
     Centroid_temp = [Centroid_temp; Centroid{irun}];
-    %Eye_data_temp = cat(3, Eye_data_temp, Eye_data{irun});
+    Eye_data_temp = cat(3, Eye_data_temp, Eye_data{irun});
 end
 clear Eye_data;
 ntrials = length(input.trialOutcomeCell);
 
 %% no measurement frames
 figure; 
-x = find((Area_temp>1200));
+x = find((Area_temp>400));
+if length(x)>100
+    minx = 100;
+else
+    minx = length(x);
+end
 start = 1;
-frames = sort(randsample(length(x),100));
-for i = 1:100
+frames = sort(randsample(length(x),minx));
+for i = 1:minx
     subplot(10,10,start);
     imagesq(Eye_data_temp(:,:,x(frames(i)))); 
     title(x(frames(i)))
@@ -452,37 +458,45 @@ FIxlong = intersect(find(cell2mat(input.tCyclesOn)>3), FIx);
 SIxlong = intersect(find(cell2mat(input.tCyclesOn)>3), SIx);
 b1Ix = find(cell2mat(input.tBlock2TrialNumber)==0);
 b2Ix = find(cell2mat(input.tBlock2TrialNumber)==1);
-Fb1Ix = intersect(b1Ix, FIxlong);
-Fb2Ix = intersect(b2Ix, FIxlong);
-Sb1Ix = intersect(b1Ix, SIxlong);
-Sb2Ix = intersect(b2Ix, SIxlong);
+Fb1Ix = intersect(b1Ix, FIx);
+Fb2Ix = intersect(b2Ix, FIx);
+Sb1Ix = intersect(b1Ix, SIx);
+Sb2Ix = intersect(b2Ix, SIx);
 
 figure;
 subplot(2,2,1)
 shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Fb1Ix),2), nanstd(rad_mat_up_base(:,Fb1Ix),[],2)/sqrt(length(Fb1Ix)), 'r');
 hold on
 shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Sb1Ix),2), nanstd(rad_mat_up_base(:,Sb1Ix),[],2)/sqrt(length(Sb1Ix)), 'k'); 
+hold on
+vline(0,'k')
 title(['Visual trials: ' num2str(length(Sb1Ix)) ' Successes; ' num2str(length(Fb1Ix)) ' Earlies']) 
-xlim([-500 1500])
+xlim([-200 1500])
 subplot(2,2,2)
 shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Fb2Ix),2), nanstd(rad_mat_up_base(:,Fb2Ix),[],2)/sqrt(length(Fb2Ix)), 'r');
 hold on
 shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Sb2Ix),2), nanstd(rad_mat_up_base(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+hold on
+vline(0,'k')
 title(['Auditory trials: ' num2str(length(Sb2Ix)) ' Successes; ' num2str(length(Fb2Ix)) ' Earlies']) 
-xlim([-500 1500])
+xlim([-200 1500])
 subplot(2,2,3)
 shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Fb1Ix),2), nanstd(rad_mat_up_base(:,Fb1Ix),[],2)/sqrt(length(Fb1Ix)), 'k');
 hold on
 shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Fb2Ix),2), nanstd(rad_mat_up_base(:,Fb2Ix),[],2)/sqrt(length(Fb2Ix)), 'g'); 
+hold on
+vline(0,'k')
 title(['Early trials: ' num2str(length(Fb1Ix)) ' Visual; ' num2str(length(Fb2Ix)) ' Auditory']) 
-xlim([-500 1500])
+xlim([-200 1500])
 subplot(2,2,4)
 shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Sb1Ix),2), nanstd(rad_mat_up_base(:,Sb1Ix),[],2)/sqrt(length(Sb1Ix)), 'k');
 hold on
 shadedErrorBar(tt, nanmean(rad_mat_up_base(:,Sb2Ix),2), nanstd(rad_mat_up_base(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'g'); 
+hold on
+vline(0,'k')
 alignYaxes
 title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
-xlim([-500 1500])
+xlim([-200 1500])
 print([fnout '_avg_releasealign_SM_AV.pdf'], '-dpdf');
 
 %% plot change in Pupil radius locked to target
@@ -1165,4 +1179,4 @@ title('Trial Frames- norm to max pupil size')
 print([fnout '_pupil_size_hist.pdf'], '-dpdf');
 
 %% saving
-save([fnout '_pupil.mat'], 'Area', 'Centroid', 'frame_rate', 'rad_mat_down','centroid_mat_down','rad_mat_target', 'centroid_mat_target' )
+save([fnout '_pupil.mat'], 'Area', 'Centroid', 'frame_rate', 'rad_mat_down','centroid_mat_down','rad_mat_target', 'centroid_mat_target','rad_mat_up','centroid_mat_up' )
