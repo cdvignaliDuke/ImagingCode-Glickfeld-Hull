@@ -27,16 +27,17 @@ cTargetOn = celleqel2mat_padded(input.cTargetOn);
 cItiStart = cell2mat(input.cItiStart);
 
 dataTC = [];
+offset = 0;
 for irun = 1:nrun
     ImgFolder = runs(irun,:);
     fnTC = fullfile('\\CRASH.dhe.duke.edu\data\home\ashley\analysis\',mouse,'two-photon imaging', date, ImgFolder);
     cd(fnTC);
     load('Timecourses.mat')
-    dataTC = cat(2, dataTC, dataTimecourse.dataTCsub);
+    dataTC = cat(1, dataTC, dataTimecourse.dataTCsub);
+    offset = offset+size(dataTimecourse.dataTCsub,1);
     if irun < nrun
-        offset = size(dataTimecourse.dataTCsub,3);
-        startTrial = run_trials(irun)+1;
-        endTrial = run_trials(irun)+run_trials(irun+1);
+        startTrial = sum(run_trials(1, 1:irun),2)+1;
+        endTrial = sum(run_trials(1,1:irun+1),2);
         cLeverDown(1,startTrial:endTrial) = cLeverDown(1,startTrial:endTrial)+offset;
         cLeverUp(1,startTrial:endTrial) = cLeverUp(1,startTrial:endTrial)+offset;
         cTargetOn(1,startTrial:endTrial) = cTargetOn(1,startTrial:endTrial)+offset;
@@ -63,7 +64,7 @@ for icyc = 1:length(cycles)
     Data = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
     DataDF = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
     DataDFoverF = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
-    if cLeverDown(end,1)+30 > size(dataTC,1)
+    if cLeverDown(end)+30 > size(dataTC,1)
         for itrial = 1:length(ind)-1
             Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
             DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
@@ -148,7 +149,7 @@ hold on
 vline(0,'k')
 alignYaxes
 title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
-suptitle('Align to lever release')
+suptitle([date ' ' mouse ' ' runstr '- align to lever release'])
 print([fnout 'release_align_SE_AV.pdf'], '-dpdf')
 
 %% Align data to target on
@@ -166,8 +167,9 @@ end
 DataDFoverFavg = squeeze(mean(DataDFoverF,2));
 
 figure;
-for idir = 2:length(Dirs)
-    subplot(4,2,idir-1)
+n = length(Dirs);
+for idir = 2:n
+    subplot(ceil(n/2),2,idir-1)
     ind1 = intersect(Sb1Ix, find(tGratingDirectionDeg==Dirs(idir)));
     ind2 = intersect(Mb1Ix, find(tGratingDirectionDeg==Dirs(idir)));
     if length(ind1)>2
@@ -186,19 +188,20 @@ for idir = 2:length(Dirs)
     end
     ylim([-0.02 0.04])
     xlim([-500 1500])
-    vline(550,'k')
+    vline([0 550],'--k')
     hold on
     title([num2str(Dirs(idir)) 'deg- success: ' num2str(length(ind1)) '; miss: ' num2str(length(ind2))])
 end
-subplot(4,2,7)
+subplot(ceil(n/2),2,idir)
 shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Sb1Ix),2), nanstd(DataDFoverFavg(:,Sb1Ix),[],2)./length(Sb1Ix), '-k');
 hold on;
 shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Mb1Ix),2), nanstd(DataDFoverFavg(:,Mb1Ix),[],2)./length(Mb1Ix), '-r');
 xlim([-500 1500])
-vline(550,'k')
+ylim([-0.02 0.04])
+vline([0 550],'--k')
 hold on
 title('All visual')
-subplot(4,2,8)
+subplot(ceil(n/2),2,idir+1)
 shadedErrorBar(tt, nanmean(DataDFoverFavg(:,Sb2Ix),2), nanstd(DataDFoverFavg(:,Sb2Ix),[],2)./length(Sb2Ix), '-k');
 hold on;
 if length(Mb2Ix) > 2
@@ -207,44 +210,42 @@ else
     plot(tt, nanmean(DataDFoverFavg(:,Mb2Ix),2), '-r')
 end
 xlim([-500 1500])
-vline(550,'k')
+ylim([-0.02 0.04])
+vline([0 550],'--k')
 hold on
 title('All auditory')
-suptitle('Align to target')
+suptitle([date ' ' mouse ' ' runstr '- align to target'])
 print([fnout 'target_align_SM_AV.pdf'], '-dpdf')
 
-
-reactIx = intersect(find(reactTime>100), find(reactTime<500));
+reactIx = {};
+reactIx{1,1} = intersect(V_ind, intersect(find(reactTime>100), find(reactTime<250)));
+reactIx{2,1} = intersect(V_ind, intersect(find(reactTime>300), find(reactTime<400)));
 figure;
 colmat = strvcat('m', 'b');
 nbin = 2;
 subplot(2,1,1)
-reactTimeSub = NaN(size(reactTime)); 
-reactTimeSub(:,intersect(reactIx,V_ind)) = reactTime(intersect(reactIx,V_ind));
-[nv, cv, bv] = histcounts(reactTimeSub,nbin);
 y = -.01:.01:.03;
-for ibin = 1:nbin
-    ind = find(bv == ibin);
-    shadedErrorBar(tt, nanmean(DataDFoverFavg(:,ind),2), nanstd(DataDFoverFavg(:,ind),[],2)./length(ind), colmat(ibin,:));
+for ibin = 1:2
+    shadedErrorBar(tt, nanmean(DataDFoverFavg(:,reactIx{ibin,1}),2), nanstd(DataDFoverFavg(:,reactIx{ibin,1}),[],2)./length(reactIx{ibin,1}), colmat(ibin,:));
     hold on
-    vline(mean(reactTime(1,ind),2),colmat(ibin,:));
+    vline(mean(reactTime(1,reactIx{ibin,1}),2),colmat(ibin,:));
     hold on
 end
 vline([-660; -330; 0; 330],'--k')
-title(['Visual: ' num2str(nv) ' trials'])
+xlim([-1000 1500])
+title(['Visual: ' num2str(length(reactIx{1,1})) ' ' num2str(length(reactIx{2,1})) ' trials'])
 
 subplot(2,1,2)
-reactTimeSub = NaN(size(reactTime)); 
-reactTimeSub(:,intersect(reactIx,AV_ind)) = reactTime(intersect(reactIx,AV_ind));
-[na, ca, ba] = histcounts(reactTimeSub,nbin);
-for ibin = 1:nbin
-    ind = find(ba == ibin);
-    shadedErrorBar(tt, nanmean(DataDFoverFavg(:,ind),2), nanstd(DataDFoverFavg(:,ind),[],2)./length(ind), colmat(ibin,:));
+reactIx{1,2} = intersect(AV_ind, intersect(find(reactTime>100), find(reactTime<200)));
+reactIx{2,2} = intersect(AV_ind, intersect(find(reactTime>300), find(reactTime<400)));
+for ibin = 1:2
+    shadedErrorBar(tt, nanmean(DataDFoverFavg(:,reactIx{ibin,2}),2), nanstd(DataDFoverFavg(:,reactIx{ibin,2}),[],2)./length(reactIx{ibin,2}), colmat(ibin,:));
     hold on
-    vline(mean(reactTime(1,ind),2),colmat(ibin,:));
+    vline(mean(reactTime(1,reactIx{ibin,2}),2),colmat(ibin,:));
     hold on
 end
 vline([-660; -330; 0; 330],'--k')
-title(['Auditory: ' num2str(na) ' trials']) 
-suptitle('Fast (magenta) and slow(blue) react times- all success')
+xlim([-1000 1500])
+title(['Auditory: ' num2str(length(reactIx{1,2})) ' ' num2str(length(reactIx{2,2})) ' trials']) 
+suptitle([date ' ' mouse ' ' runstr '- fast (magenta) and slow(blue) react times- all success'])
 print([fnout 'target_align_byreact.pdf'], '-dpdf')
