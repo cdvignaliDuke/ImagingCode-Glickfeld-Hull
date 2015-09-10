@@ -1,7 +1,7 @@
 %clear all
 close all
 SubNum = '614';
-date = '150623';
+date = '150626';
 runs = ['004'];
 time_mat = ['1217'];
 mouse = 'AW14';
@@ -27,7 +27,7 @@ if nrun>1
         runstr = [runstr '-' runs(irun,:)];
     end
 end
-fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '_' date '\' mouse '-' date '-' runstr];
+fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '\' mouse '-' date '-' runstr];
 
 %% 
 min_hold = 2000;
@@ -52,9 +52,9 @@ for irun =  1:nrun
     data = squeeze(data);      % the raw images...
     xc = size(data,2)/2;       % image center
     yc = size(data,1)/2;
-    W=20;
+    W=25;
 
-    rad_range = [8 15];
+    rad_range = [7 12];
     data = data(yc-W:yc+W,xc-W:xc+W,:);
     warning off;
     
@@ -67,13 +67,6 @@ for irun =  1:nrun
     eye = struct('Centroid',A,'Area',B);
     radii = [];
     for n = 1:size(data,3)
-%         if ~isempty(radii)
-%             rad_range = [radii-3 radii+3];
-%             rad_range(find(rad_range<15)) = 15;
-%             rad_range(find(rad_range>30)) = 30;
-%         else
-%             rad_range = [15 30];
-%         end
         [center,radii,metric] = imfindcircles(squeeze(data(:,:,n)),rad_range,'Sensitivity',0.9);
         if(isempty(center))
             eye(n).Centroid = [NaN NaN];    % could not find anything...
@@ -82,7 +75,6 @@ for irun =  1:nrun
             [~,idx] = max(metric);          % pick the circle with best score
             eye(n).Centroid = center(idx,:);
             eye(n).Area = pi*radii(idx)^2;
-            radii = radii(idx);
         end
         if mod(n,100)==0
             fprintf('Frame %d/%d\n',n,size(data,3));
@@ -121,7 +113,7 @@ ntrials = length(input.trialOutcomeCell);
 
 %% no measurement frames
 figure; 
-x = find((Area_temp>400));
+x = find(isnan(Area_temp));
 if length(x)>100
     minx = 100;
 else
@@ -134,9 +126,7 @@ for i = 1:minx
     imagesq(Eye_data_temp(:,:,x(frames(i)))); 
     title(x(frames(i)))
     hold on
-    plot(Centroid_temp(x(frames(i)),1), Centroid_temp(x(frames(i)),2), 'ok')
-    hold on
-    plot(Centroid_temp(x(frames(i)),1)+sqrt(Area_temp(x(frames(i)),1)/pi), Centroid_temp(x(frames(i)),2), 'ok')
+    plot(Centroid_temp(x(frames(i)),1), Centroid_temp(x(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(x(frames(i)),1)/pi))
     start = start+1;
 end
 print([fnout '_nanframes.pdf'], '-dpdf');
@@ -854,10 +844,11 @@ success2Ix = intersect(b2Ix, find(strcmp(input.trialOutcomeCell,'success')));
 subplot(2,3,6)
 for i = 1:length(edges)
     ind = find(bin_b1 == i-1);
-    ploterr(nanmean(nanmean(rad_mat_target_norm(1:15,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_target_norm(1:15,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), 'ok')
+    errorbarxy(nanmean(nanmean(rad_mat_target_norm(1:15,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_target_norm(1:15,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), {'ok', 'k', 'k'});
     hold on;
     ind = find(bin_b2 == i-1);
-    ploterr(nanmean(nanmean(rad_mat_target_norm(1:15,success2Ix(ind)),1),2), mean(reactTimes(:,success2Ix(ind)),2), std(nanmean(rad_mat_target_norm(1:15,success2Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success2Ix(ind)),[],2)./sqrt(length(ind)), 'og')
+    errorbarxy(nanmean(nanmean(rad_mat_target_norm(1:15,success2Ix(ind)),1),2), mean(reactTimes(:,success2Ix(ind)),2), std(nanmean(rad_mat_target_norm(1:15,success2Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success2Ix(ind)),[],2)./sqrt(length(ind)), {'og', 'g', 'g'});
+    hold on;
 end
 ylim([0 600])
 xlim([min_x max_x])
@@ -870,10 +861,11 @@ title('Average before target')
 subplot(2,3,4)
 for i = 1:length(edges)
     ind = find(bin_b1 == i-1);
-    ploterr(nanmean(nanmean(rad_mat_down_norm(1:15,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_down_norm(1:15,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), 'ok')
+    errorbarxy(nanmean(nanmean(rad_mat_down_norm(1:15,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_down_norm(1:15,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), {'ok', 'k', 'k'})
     hold on;
     ind = find(bin_b2 == i-1);
-    ploterr(nanmean(nanmean(rad_mat_down_norm(1:15,success2Ix(ind)),1),2), mean(reactTimes(:,success2Ix(ind)),2), std(nanmean(rad_mat_down_norm(1:15,success2Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success2Ix(ind)),[],2)./sqrt(length(ind)), 'og')
+    errorbarxy(nanmean(nanmean(rad_mat_down_norm(1:15,success2Ix(ind)),1),2), mean(reactTimes(:,success2Ix(ind)),2), std(nanmean(rad_mat_down_norm(1:15,success2Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success2Ix(ind)),[],2)./sqrt(length(ind)), {'og', 'g', 'g'})
+    hold on;
 end
 ylim([0 600])
 xlim([min_x max_x])
@@ -886,10 +878,11 @@ xlabel('Normalized pupil size')
 subplot(2,3,5)
 for i = 1:length(edges)
     ind = find(bin_b1 == i-1);
-    ploterr(nanmean(nanmean(rad_mat_down_norm(16:30,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_down_norm(16:30,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), 'ok')
+    errorbarxy(nanmean(nanmean(rad_mat_down_norm(16:30,success1Ix(ind)),1),2), mean(reactTimes(:,success1Ix(ind)),2), std(nanmean(rad_mat_down_norm(16:30,success1Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success1Ix(ind)),[],2)./sqrt(length(ind)), {'ok', 'k', 'k'})
     hold on;
     ind = find(bin_b2 == i-1);
-    ploterr(nanmean(nanmean(rad_mat_down_norm(16:30,success2Ix(ind)),1),2), mean(reactTimes(:,success2Ix(ind)),2), std(nanmean(rad_mat_down_norm(16:30,success2Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success2Ix(ind)),[],2)./sqrt(length(ind)), 'og')
+    errorbarxy(nanmean(nanmean(rad_mat_down_norm(16:30,success2Ix(ind)),1),2), mean(reactTimes(:,success2Ix(ind)),2), std(nanmean(rad_mat_down_norm(16:30,success2Ix(ind)),1),[],2)./sqrt(length(ind)), std(reactTimes(:,success2Ix(ind)),[],2)./sqrt(length(ind)), {'og', 'g', 'g'})
+    hold on;
 end
 ylim([0 600])
 xlim([min_x max_x])
@@ -914,13 +907,13 @@ for i = 1:length(edges)
     ind1 = find(bin_b1 == i);
     if (sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2))>5
         [pct1, err1] = binofit(sum(successIx(sm1Ix(ind1)),2), sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
-        ploterr(nanmean(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),2), pct1, std(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),[],2)./sqrt(length(ind1)), pct1-err1(1), 'ok')
+        errorbarxy(nanmean(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),2), pct1, std(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),[],2)./sqrt(length(ind1)), pct1-err1(1), {'ok', 'k', 'k'})
         hold on;
     end
     ind2 = find(bin_b2 == i);
     if sum(successIx(sm2Ix(ind2)),2) + sum(missedIx(sm2Ix(ind2)),2)>5
         [pct2, err2] = binofit(sum(successIx(sm2Ix(ind2)),2), sum(successIx(sm2Ix(ind2)),2) + sum(missedIx(sm2Ix(ind2)),2));
-        ploterr(nanmean(nanmean(rad_mat_down_norm(1:15,sm2Ix(ind2)),1),2), pct2, std(nanmean(rad_mat_down_norm(1:15,sm2Ix(ind2)),1),[],2)./sqrt(length(ind2)), pct2-err2(1), 'og')
+        errorbarxy(nanmean(nanmean(rad_mat_down_norm(1:15,sm2Ix(ind2)),1),2), pct2, std(nanmean(rad_mat_down_norm(1:15,sm2Ix(ind2)),1),[],2)./sqrt(length(ind2)), pct2-err2(1), {'og', 'g', 'g'})
         hold on
     end
 end
@@ -932,27 +925,33 @@ ylabel('Hit rate')
 tGratingDirection = cell2mat(input.tGratingDirectionDeg);
 Oris = unique(tGratingDirection);
 nOri = length(Oris);
-colmat = strvcat('k', 'b', 'g', 'y', 'r', 'm');
-ori_rad_mat = zeros(nOri,length(edges));
-ori_hit_mat = zeros(nOri,length(edges));
-ori_n_mat = zeros(nOri,length(edges));
+M = nOri+1;
+R = fliplr(linspace(0,1,M)) .';
+colmat = flipud(horzcat(R, zeros(size(R)), zeros(size(R))));
+ori_rad_mat = NaN(nOri,length(edges));
+ori_hit_mat = NaN(nOri,length(edges));
+ori_n_mat = NaN(nOri,length(edges));
 for iOri = 2:nOri
     ori_ind = find(tGratingDirection(sm1Ix) == Oris(iOri));
     for  i = 1:length(edges)
         ind1 = intersect(ori_ind, find(bin_b1 == i));
-        ori_rad_mat(iOri,i) = nanmean(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),2);
-        ori_hit_mat(iOri,i) = sum(successIx(sm1Ix(ind1)),2)/(sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
-        x = (sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
-        if isempty(x)
-            x = 0;
+        if length(ind1>1)
+            ori_rad_mat(iOri,i) = nanmean(nanmean(rad_mat_down_norm(1:15,sm1Ix(ind1)),1),2);
+            ori_hit_mat(iOri,i) = sum(successIx(sm1Ix(ind1)),2)/(sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
+            x = (sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
+            if isempty(x)
+                x = 0;
+            end
+            ori_n_mat(iOri,i) = x;
+        else
+            ori_n_mat(iOri,i) = NaN;
         end
-        ori_n_mat(iOri,i) = x;
     end
     subplot(3,2,3)
-    plot(ori_rad_mat(iOri,:), ori_hit_mat(iOri,:),['-o' colmat(iOri-1,:)])
+    plot(ori_rad_mat(iOri,:), ori_hit_mat(iOri,:), '-', 'Color', colmat(iOri,:), 'Marker', 'o')
     hold on
     subplot(3,2,4)
-    plot(ori_rad_mat(iOri,:), ori_n_mat(iOri,:),['-o' colmat(iOri-1,:)])
+    plot(ori_rad_mat(iOri,:), ori_n_mat(iOri,:), '-',  'Color', colmat(iOri,:), 'Marker', 'o')
     hold on;
 end
 subplot(3,2,3)
@@ -971,7 +970,9 @@ ylabel('Number of trials')
 tVolume = chop(double(celleqel2mat_padded(input.tSoundTargetAmplitude)),2);
 Vols = unique(tVolume);
 nVol = length(Vols);
-
+M = nVol+1;
+R = fliplr(linspace(0,1,M)) .';
+colmat = flipud(horzcat(R, zeros(size(R)), zeros(size(R))));
 vol_rad_mat = zeros(nVol,length(edges));
 vol_hit_mat = zeros(nVol,length(edges));
 vol_n_mat = zeros(nVol,length(edges));
@@ -988,10 +989,10 @@ for iVol = 2:nVol
         vol_n_mat(iVol,i) = x;
     end
     subplot(3,2,5)
-    plot(vol_rad_mat(iVol,:), vol_hit_mat(iVol,:),['-o' colmat(iVol-1,:)])
+    plot(vol_rad_mat(iVol,:), vol_hit_mat(iVol,:), '-', 'Color', colmat(iVol,:), 'Marker', 'o')
     hold on
     subplot(3,2,6)
-    plot(vol_rad_mat(iVol,:), vol_n_mat(iVol,:),['-o' colmat(iVol-1,:)])
+    plot(vol_rad_mat(iVol,:), vol_n_mat(iVol,:), '-', 'Color', colmat(iVol,:), 'Marker', 'o')
     hold on;
 end
 subplot(3,2,5)
@@ -1006,6 +1007,7 @@ ylim([0 max(max(vol_n_mat,[],1),[],2)])
 xlim([0 1])
 xlabel('Normalized pupil radius')
 ylabel('Number of trials')
+
 
 subplot(3,2,2)
 for iVol = 2:nVol
@@ -1040,13 +1042,13 @@ for i = 1:length(edges)
     ind1 = find(bin_b1 == i);
     if (sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2))>5
         [pct1, err1] = binofit(sum(successIx(sm1Ix(ind1)),2), sum(successIx(sm1Ix(ind1)),2) + sum(missedIx(sm1Ix(ind1)),2));
-        ploterr(nanmean(nanmean(rad_mat_target_norm(1:15,sm1Ix(ind1)),1),2), pct1, std(nanmean(rad_mat_target_norm(1:15,sm1Ix(ind1)),1),[],2)./sqrt(length(ind1)), pct1-err1(1), 'ok')
+        errorbarxy(nanmean(nanmean(rad_mat_target_norm(1:15,sm1Ix(ind1)),1),2), pct1, std(nanmean(rad_mat_target_norm(1:15,sm1Ix(ind1)),1),[],2)./sqrt(length(ind1)), pct1-err1(1), {'ok', 'k', 'k'})
         hold on;
     end
     ind2 = find(bin_b2 == i);
     if sum(successIx(sm2Ix(ind2)),2) + sum(missedIx(sm2Ix(ind2)),2)>5
         [pct2, err2] = binofit(sum(successIx(sm2Ix(ind2)),2), sum(successIx(sm2Ix(ind2)),2) + sum(missedIx(sm2Ix(ind2)),2));
-        ploterr(nanmean(nanmean(rad_mat_target_norm(1:15,sm2Ix(ind2)),1),2), pct2, std(nanmean(rad_mat_target_norm(1:15,sm2Ix(ind2)),1),[],2)./sqrt(length(ind2)), pct2-err2(1), 'og')
+        errorbarxy(nanmean(nanmean(rad_mat_target_norm(1:15,sm2Ix(ind2)),1),2), pct2, std(nanmean(rad_mat_target_norm(1:15,sm2Ix(ind2)),1),[],2)./sqrt(length(ind2)), pct2-err2(1), {'og', 'g', 'g'})
         hold on
     end
 end
@@ -1058,7 +1060,9 @@ ylabel('Hit rate')
 tGratingDirection = cell2mat(input.tGratingDirectionDeg);
 Oris = unique(tGratingDirection);
 nOri = length(Oris);
-colmat = strvcat('k', 'b', 'g', 'y', 'r', 'm');
+M = nOri+1;
+R = fliplr(linspace(0,1,M)) .';
+colmat = flipud(horzcat(R, zeros(size(R)), zeros(size(R))));
 ori_rad_mat = zeros(nOri,length(edges));
 ori_hit_mat = zeros(nOri,length(edges));
 ori_n_mat = zeros(nOri,length(edges));
@@ -1075,10 +1079,10 @@ for iOri = 2:nOri
         ori_n_mat(iOri,i) = x;
     end
     subplot(3,2,3)
-    plot(ori_rad_mat(iOri,:), ori_hit_mat(iOri,:),['-o' colmat(iOri-1,:)])
+    plot(ori_rad_mat(iOri,:), ori_hit_mat(iOri,:),'-', 'Color', colmat(iOri,:), 'Marker', 'o')
     hold on
     subplot(3,2,4)
-    plot(ori_rad_mat(iOri,:), ori_n_mat(iOri,:),['-o' colmat(iOri-1,:)])
+    plot(ori_rad_mat(iOri,:), ori_n_mat(iOri,:),'-', 'Color', colmat(iOri,:), 'Marker', 'o')
     hold on;
 end
 subplot(3,2,3)
@@ -1094,6 +1098,9 @@ xlim([0 1])
 xlabel('Normalized pupil radius')
 ylabel('Number of trials')
 
+M = nVol+1;
+R = fliplr(linspace(0,1,M)) .';
+colmat = flipud(horzcat(R, zeros(size(R)), zeros(size(R))));
 vol_rad_mat = zeros(nVol,length(edges));
 vol_hit_mat = zeros(nVol,length(edges));
 vol_n_mat = zeros(nVol,length(edges));
@@ -1110,10 +1117,10 @@ for iVol = 2:nVol
         vol_n_mat(iVol,i) = x;
     end
     subplot(3,2,5)
-    plot(vol_rad_mat(iVol,:), vol_hit_mat(iVol,:),['-o' colmat(iVol-1,:)])
+    plot(vol_rad_mat(iVol,:), vol_hit_mat(iVol,:),'-', 'Color', colmat(iVol,:), 'Marker', 'o')
     hold on
     subplot(3,2,6)
-    plot(vol_rad_mat(iVol,:), vol_n_mat(iVol,:),['-o' colmat(iVol-1,:)])
+    plot(vol_rad_mat(iVol,:), vol_n_mat(iVol,:),'-', 'Color', colmat(iVol,:), 'Marker', 'o')
     hold on;
 end
 subplot(3,2,5)

@@ -5,7 +5,6 @@ mouse = 'AW14';
 date = '150623';
 time_mat = ['1217'];
 runs = ['004'];
-ImgFolder = '004';
 nrun = size(runs,1);
 frame_rate = 30;
 
@@ -16,7 +15,7 @@ if nrun>1
     end
 end
 fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '\' mouse '-' date '-' runstr];
-%% load and combine mworks data
+%% load and combine mworks data and timecourses
 input = [];
 for irun = 1:nrun
     time = time_mat(irun,:);
@@ -35,9 +34,15 @@ cLeverUp = cell2mat(input.cLeverUp);
 cTargetOn = celleqel2mat_padded(input.cTargetOn);
 cItiStart = cell2mat(input.cItiStart);
 
+dataTC = [];
 for irun = 1:nrun
+    ImgFolder = runs(irun,:);
+    fnTC = fullfile('\\CRASH.dhe.duke.edu\data\home\ashley\analysis\',mouse,'two-photon imaging', date, ImgFolder);
+    cd(fnTC);
+    load('Timecourses.mat')
+    dataTC = cat(2, dataTC, dataTimecourse.dataTCsub);
     if irun < nrun
-        offset = size(Area{irun},1);
+        offset = size(dataTimecourse.dataTCsub,3);
         startTrial = run_trials(irun)+1;
         endTrial = run_trials(irun)+run_trials(irun+1);
         cLeverDown(1,startTrial:endTrial) = cLeverDown(1,startTrial:endTrial)+offset;
@@ -46,6 +51,7 @@ for irun = 1:nrun
         cItiStart(1,startTrial:endTrial) = cItiStart(1,startTrial:endTrial)+offset;
     end
 end
+
 ntrials = length(input.trialOutcomeCell);
 trialOutcome = cell2mat(input.trialOutcomeCell);
 tCyclesOn = cell2mat(input.tCyclesOn);
@@ -54,16 +60,8 @@ V_ind = find(cell2mat(input.tBlock2TrialNumber) == 0);
 AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
 cycTime = input.nFramesOn+input.nFramesOff;
 
-%% load and combine timecourse
-dataTC = [];
-for irun = 1:nrun
-    fnTC = fullfile('\\CRASH.dhe.duke.edu\data\home\ashley\analysis\',mouse,'two-photon imaging', date, ImgFolder);
-    cd(fnTC);
-    % load('dataTC.mat');
-    load('Timecourses.mat')
-    dataTC = cat(2, dataTC, dataTimecourse.dataTCsub);
-end
-
+tGratingDirectionDeg = chop(cell2mat(input.tGratingDirectionDeg),4);
+Dirs = unique(tGratingDirectionDeg);
 clear dataTimecourse
 
 %% divide up data by cycle- align to lever down
@@ -112,12 +110,16 @@ end
 DataDFoverFavg = squeeze(mean(DataDFoverF,2));
 FIx = find(strcmp(input.trialOutcomeCell, 'failure'));
 SIx = find(strcmp(input.trialOutcomeCell, 'success'));
+MIx = find(strcmp(input.trialOutcomeCell, 'ignore'));
 FIxlong = intersect(find(tCyclesOn>3), FIx);
 SIxlong = intersect(find(tCyclesOn>3), SIx);
+MIxlong = intersect(find(tCyclesOn>3), MIx);
 Fb1Ix = intersect(V_ind, FIx);
 Fb2Ix = intersect(AV_ind, FIx);
 Sb1Ix = intersect(V_ind, SIx);
 Sb2Ix = intersect(AV_ind, SIx);
+Mb1Ix = intersect(V_ind, MIx);
+Mb2Ix = intersect(AV_ind, MIx);
 
 figure;
 tt = [-30:74].*(1000/30);
@@ -156,5 +158,34 @@ title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2I
 xlim([-200 500])
 
 
+%% Align data to target on up
+Data = zeros(105,size(dataTC,2),ntrials);
+DataDF = zeros(105,size(dataTC,2),ntrials);
+DataDFoverF = zeros(105,size(dataTC,2),ntrials);
+
+for itrial = 1:ntrials-1
+    if ~isnan(cTargetOn(itrial))
+        Data(:,:,itrial) = dataTC(cTargetOn(itrial)-30:cTargetOn(itrial)+74,:);
+        DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
+        DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+    end
+end
+
+DataDFoverFavg = squeeze(mean(DataDFoverF,2));
+figure;
+for idir = 1:length(Dirs)
+    subplot(3,3,idir)
+    ind1 = intersect(Sb1Ix, find(tGratingDirectionDeg==Dirs(idir)));
+    ind2 = intersect(Mb1Ix, find(tGratingDirectionDeg==Dirs(idir)));
+    plot(tt, nanmean(DataDFoverFavg(:,ind1),2), '-k');
+    hold on;
+    plot(tt, nanmean(DataDFoverFavg(:,ind2),2), '-r');
+    ylim([-0.02 0.04])
+    hold on
+    vline(0,'k')
+    hold on
+    vline(550,'k')
+    title([num2str(length(ind1)) ' - ' num2str(length(ind2))])
+end
 
    
