@@ -20,7 +20,7 @@ set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 %% find sets of cells
-DirFolder = '006';
+DirFolder = '005';
 run('cellSets.m')
 
 %% sort trials by direction change
@@ -120,9 +120,9 @@ for i = 1:length(catchDirs)
 end
 
 %% ***************************************************
-cells =targetdrivencells;
-cellgroupname = 'target driven cells';
-figBaseName = 'avgDFoverFpretarget_targetdriven_all';
+cells =cellsSelectZero;
+cellgroupname = 'pref 90, ori or dir selective';
+figBaseName = 'avgDFoverFpretarget_90orislctv_all';
 
 %***************************
 
@@ -183,7 +183,36 @@ colorsC = colorsC(1:end-2,:);
 colorsT = brewermap(length(Dirs)+15,'*YlGn');
 colorindT = [3:2:length(Dirs)+12];
 colorsT = colorsT(colorindT(1:length(Dirs)),:);
-
+%%
+meanTargetRespNorm1 = meanTargetRespNorm;
+errTargetResp1 = errTargetResp;
+cellgroupname1 = cellgroupname;
+% meanTargetRespNorm2 = meanTargetRespNorm;
+% errTargetResp2 = errTargetResp;
+% cellgroupname2 = cellgroupname;
+% meanTargetRespNorm3 = meanTargetRespNorm;
+% errTargetResp3 = errTargetResp;
+% cellgroupname3 = cellgroupname;
+% meanTargetRespNorm4 = meanTargetRespNorm;
+% errTargetResp4 = errTargetResp;
+% cellgroupname4 = cellgroupname;
+%% plot all target responses
+% figName = '_avgresp2target';
+% figure;
+% for i = 1:length(Dirs)
+%     if i == 1
+%         lineprops.col = {'k'};
+%     else
+%         lineprops.col = {colorsT(i,:)};
+%     end
+% %     subplot(1,2,i)    
+%     mseb([-19:40],meanTargetRespNorm(:,i),errTargetResp(:,i)',lineprops,1);
+% %     ylim([-0.01 0.03])    
+%     hold on
+% end
+% legend(legendInfoTarget,'Location', 'NorthWest')
+% title({[mouse '; ' date]; 'target resp'; cellgroupname})
+% print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
 %% plot all target responses
 figName = '_avgresp2target';
 figure;
@@ -202,9 +231,70 @@ legend(legendInfoTarget,'Location', 'NorthWest')
 title({[mouse '; ' date]; 'target resp'; cellgroupname})
 print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
 
-%% plot all catch responses
-figName = 'FACR_avgresp2catch';
+
+%% 
 figure;
+subplot(2,2,1)
+for i = 1:length(Dirs)
+    if i == 1
+        lineprops.col = {'k'};
+    else
+        lineprops.col = {colorsT(i,:)};
+    end
+%     subplot(1,2,i)    
+    mseb([-19:40],meanTargetRespNorm1(:,i),errTargetResp1(:,i)',lineprops,1);
+%     ylim([-0.01 0.03])    
+    hold on
+end
+legend(legendInfoTarget,'Location', 'NorthWest')
+title({[mouse '; ' date]; 'target resp'; cellgroupname1})
+
+subplot(2,2,2)
+for i = 1:length(Dirs)
+    if i == 1
+        lineprops.col = {'k'};
+    else
+        lineprops.col = {colorsT(i,:)};
+    end
+%     subplot(1,2,i)    
+    mseb([-19:40],meanTargetRespNorm2(:,i),errTargetResp2(:,i)',lineprops,1);
+%     ylim([-0.01 0.03])    
+    hold on
+end
+title({[mouse '; ' date]; 'target resp'; cellgroupname2})
+
+subplot(2,2,3)
+for i = 1:length(Dirs)
+    if i == 1
+        lineprops.col = {'k'};
+    else
+        lineprops.col = {colorsT(i,:)};
+    end
+%     subplot(1,2,i)    
+    mseb([-19:40],meanTargetRespNorm3(:,i),errTargetResp3(:,i)',lineprops,1);
+%     ylim([-0.01 0.03])    
+    hold on
+end
+title({[mouse '; ' date]; 'target resp'; cellgroupname3})
+
+subplot(2,2,4)
+for i = 1:length(Dirs)
+    if i == 1
+        lineprops.col = {'k'};
+    else
+        lineprops.col = {colorsT(i,:)};
+    end
+%     subplot(1,2,i)    
+    mseb([-19:40],meanTargetRespNorm4(:,i),errTargetResp4(:,i)',lineprops,1);
+%     ylim([-0.01 0.03])    
+    hold on
+end
+title({[mouse '; ' date]; 'target resp'; cellgroupname4})
+
+print([fnout ['\' 'combinetargetresp' '.pdf']], '-dpdf')
+%% plot all catch responses
+figure;
+subplot(2,2,1)
 for i = 1:length(catchDirs)
     if i == 1
         lineprops.col = {'k'};
@@ -212,13 +302,12 @@ for i = 1:length(catchDirs)
         lineprops.col = {colorsC(i,:)};
     end
 %     subplot(1,2,i)
-    mseb([-19:40],meanCatchRespNorm(:,i),errCatchResp(:,i)',lineprops,1);
+    mseb([-19:40],meanCatchRespNorm1(:,i),errCatchResp1(:,i)',lineprops,1);
 %     ylim([-0.01 0.03])
     hold on
 end
 legend(legendInfoCatch,'Location', 'NorthWest')
-title({[mouse '; ' date]; 'catch resp'; cellgroupname})
-print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
+title({[mouse '; ' date]; 'catch resp'; cellgroupname1})
 %% overlay catch and target responses
 figName = 'FACR_catchVStargetresp';
 figure;
@@ -227,7 +316,7 @@ for i = 1:length(ind)-1
     lineprops.col = {colorsT(i,:)};
     subplot(1,2,i)
     mseb([-19:40],meanTargetRespNorm(:,ind(i+1)),errTargetResp(:,ind(i+1))',lineprops,1);
-    ylim([-0.01 0.1])
+    ylim([-0.01 0.05])
     legend({'target' 'catch'})
     hold on
 end
@@ -237,7 +326,7 @@ for i = 1:length(catchDirs)-1
     lineprops.col = {colorsC(1,:)};
     subplot(1,2,i)
     mseb([-19:40],meanCatchRespNorm(:,i+1),errCatchResp(:,i+1)',lineprops,1);
-    ylim([-0.01 0.1])
+    ylim([-0.01 0.05])
     legend({'target' 'catch'})
     title([num2str(catchDirs(i+1)) ' degrees'])
     hold on

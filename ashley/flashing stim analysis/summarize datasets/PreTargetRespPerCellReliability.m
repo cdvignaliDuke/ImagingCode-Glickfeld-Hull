@@ -20,11 +20,11 @@ set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 %% find sets of cells
-DirFolder = '006';
+DirFolder = '005';
 run('cellSets.m')
 %%
 cells = drivencells;
-cellgroupname = 'drivencells';
+cellgroupname = 'driven cells';
 figBaseName = 'respreli_drivencells_success';
 %%
 cellsSubgroup1 = find(ismember(cells,intersect(cells,cellsPrefZero)));
@@ -44,13 +44,13 @@ for icyc = 1:length(cycles)
     temptrialcorrV = zeros(length(V_cycInd),length(V_cycInd),length(cells));
     temptrialcorrAV = zeros(length(AV_cycInd),length(AV_cycInd),length(cells));
     for icell = 1:length(cells)
-        temptrialcorrV(:,:,icell) = corr(squeeze(data(:,cells(icell),V_cycInd)));
+        temptrialcorrV(:,:,icell) = corr(squeeze(data(end-(cycTime*2):end,cells(icell),V_cycInd)));
         temptrialcorrV(:,:,icell) = tril(temptrialcorrV(:,:,icell),-1);
         Vvector = temptrialcorrV(:,:,icell);
         Vvector = Vvector(:);
         trialcorrVmean(icyc,icell) = mean(Vvector(Vvector ~=0));
         trialcorrVerr(icyc,icell) = (std(Vvector(Vvector ~=0)))/(sqrt(length(Vvector(Vvector ~=0))));
-        temptrialcorrAV(:,:,icell) = corr(squeeze(data(:,cells(icell),AV_cycInd)));
+        temptrialcorrAV(:,:,icell) = corr(squeeze(data(end-(cycTime*2):end,cells(icell),AV_cycInd)));
         temptrialcorrAV(:,:,icell) = tril(temptrialcorrAV(:,:,icell),-1);
         AVvector = temptrialcorrAV(:,:,icell);
         AVvector = AVvector(:);
@@ -83,8 +83,8 @@ for icyc = 1:length(cycles)
     xlabel('visual')
     ylabel('auditory')
     title({[num2str(length(V_cycInd)) 'visual & ']; [num2str(length(AV_cycInd)) 'aud trials; ' num2str(icyc) ' cyc']});
-    xlim([-0.1 0.8])
-    ylim([-0.1 0.8])
+    xlim([-0.1 0.3])
+    ylim([-0.1 0.3])
     axis('square')
 end
 

@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 % edit Load_SBXdataset_fast.m
 %%
-=======
-edit Load_SBXdataset_fast.m
 
->>>>>>> dc5ba783cd06c3e4a429c56228b1976645a15044
 data_sub = data-min(min(min(data,[],1),[],2),[],3);
 data = data_sub;
 clear data_sub
@@ -32,11 +28,11 @@ dataTC = stackGetTimeCourses(data_reg, mask_cell);
 buf = 4;
 np = 6;
 nCells = size(dataTC,2);
-% for i = 1:nCells
-%     npTC(:,i) = stackGetTimeCourses(data_reg,squeeze(neuropil(:,:,i)));
-% end
+for i = 1:nCells
+    npTC(:,i) = stackGetTimeCourses(data_reg,squeeze(neuropil(:,:,i)));
+end
 
-npTC = stackGetTimeCourses(data_reg,neuropil);
+% npTC = stackGetTimeCourses(data_reg,neuropil);
 
 
 dataTC_mavg = tsmovavg(dataTC,'s',10,1);

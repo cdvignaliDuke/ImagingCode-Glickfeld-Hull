@@ -20,12 +20,12 @@ set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 %% find sets of cells
-DirFolder = '006';
+DirFolder = '005';
 run('cellSets.m')
 %%
 cells = oriSlctvCellsAll;
-cellgroupname = 'ori selective cells';
-figBaseName = 'noiseCorr_orislctvcells_success';
+cellgroupname = 'ori or dir selective cells';
+figBaseName = 'noiseCorr_orislctv_success';
 %% set data
 CYC = find(cycles == 8);
 data = cycDataDFoverF_cmlvNoTarget{CYC};
@@ -225,7 +225,7 @@ errorbar(avgrSC_V_START_byOri,errrSC_V_START_byOri,'g')
 hold on
 errorbar(avgrSC_AV_START_byOri,errrSC_AV_START_byOri,'k')
 % xlim([0 5])
-ylim([-0.3 0.3])
+ylim([-0.3 0.5])
 xlabel('Orientation Preference')
 ylabel('noise corr')
 title('beginning of trial')
@@ -237,7 +237,7 @@ errorbar(avgrSC_V_END_byOri,errrSC_V_END_byOri,'g')
 hold on
 errorbar(avgrSC_AV_END_byOri,errrSC_AV_END_byOri,'k')
 % xlim([0 5])
-ylim([-0.3 0.3])
+ylim([-0.3 0.5])
 xlabel('Orientation Preference')
 ylabel('noise corr')
 title('end of trial')

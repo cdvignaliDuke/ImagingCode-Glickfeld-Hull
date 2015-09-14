@@ -23,9 +23,9 @@ set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 DirFolder = '006';
 run('cellSets.m')
 %%
-cells = oriSlctvCellsAll;
-cellgroupname = 'ori or dir selective';
-figName = 'avgDFoverFpretarget_orislctv_success';
+cells = cellsSelectZero;
+cellgroupname = 'pref 0, ori or dir selective';
+figName = 'avgDFoverFpretarget_0orislctv_success';
 %%
 figure;
 for icyc = 1:length(cycles)

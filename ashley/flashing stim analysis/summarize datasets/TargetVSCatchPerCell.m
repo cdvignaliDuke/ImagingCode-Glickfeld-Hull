@@ -3,16 +3,16 @@
 % cells selective for 90 deg, 0 deg, driven by baseline stim, "driven
 % cells", non-selective cells, target driven cells
 %%
-fnout = ['Z:\Analysis\' mouse '\two-photon imaging\' date '\TargetandCatchAvgTraces'];
+fnout = ['Z:\Analysis\' mouse '\two-photon imaging\' date '\TargetvsCatchPerCell'];
 try
     cd(fnout)
 catch
     try
         cd(['Z:\Analysis\' mouse '\two-photon imaging\' date]);
-        mkdir('TargetandCatchAvgTraces')
+        mkdir('TargetvsCatchPerCell')
     catch
         cd(['Z:\Analysis\' mouse '\two-photon imaging\']);
-        mkdir(date,'TargetandCatchAvgTraces')
+        mkdir(date,'TargetvsCatchPerCell')
     end
 end
 
@@ -120,9 +120,9 @@ for i = 1:length(catchDirs)
 end
 
 %% ***************************************************
-cells =1:nCells;
-cellgroupname = 'all cells';
-figBaseName = 'avgDFoverFpretarget_allcells_all';
+cells =targetdrivencells;
+cellgroupname = 'target driven cells';
+figBaseName = 'resp2targetvscatch_targetdriven_all';
 
 %***************************
 
@@ -172,9 +172,15 @@ errCatchResp = bsxfun(@minus,errCatchResp,mean(meanCatchRespNorm(17:21,:),1));
 meanTargetRespNorm_cellsDiff = squeeze(mean(meanTargetRespNorm_cells(23:27,:,:),1)) - squeeze(mean(meanTargetRespNorm_cells(18:22,:,:),1));
 meanCatchRespNorm_cellsDiff = squeeze(mean(meanCatchRespNorm_cells(23:27,:,:),1)) - squeeze(mean(meanCatchRespNorm_cells(18:22,:,:),1));
 
+figName = 'catch vs target resp';
 figure;
 scatter(meanTargetRespNorm_cellsDiff(:,end),meanCatchRespNorm_cellsDiff(:,end))
 hold on
 refline([1,0]);
 xlabel('target')
 ylabel('catch')
+xlim([-0.01 0.06])
+ylim([-0.01 0.06])
+
+title([mouse '; ' date '; ' cellgroupname])
+print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')

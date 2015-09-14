@@ -23,9 +23,9 @@ set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 DirFolder = '006';
 run('cellSets.m')
 %%
-cells = oriSlctvCellsAll;
-cellgroupname = 'ori or dir selective';
-figName = 'scatteravgDFoverFpretarget_orislctv_success';
+cells = 1:nCells;
+cellgroupname = 'all cells';
+figName = 'scatteravgDFoverFpretarget_allcells_success';
 
 %%
 cellsSubgroup1 = find(ismember(cells,intersect(cells,cellsPrefZero)));
@@ -42,14 +42,14 @@ for icyc = 4:length(cycles)
 
     tempdata = tempdata(end-29:end,:,:); %%%%% CHANGE THIS TO SELECT FRAMES TO ANALYZE
     
-    V_ind = cycV_ind{icyc};
-    AV_ind = cycAV_ind{icyc};
+%     V_ind = cycV_ind{icyc};
+%     AV_ind = cycAV_ind{icyc};
     V_cycInd = intersect(cycV_ind{icyc},find(strcmp(cycTrialOutcome{icyc},'success')));
     AV_cycInd = intersect(cycAV_ind{icyc},find(strcmp(cycTrialOutcome{icyc},'success')));
-    V_avg = squeeze(mean(mean(tempdata(:,cells,V_ind),3),1));
-    AV_avg = squeeze(mean(mean(tempdata(:,cells,AV_ind),3),1));
-    errbar_V = (std(squeeze(mean(tempdata(:,cells,V_ind),1)),[],2))./(sqrt(size(tempdata(:,cells,V_ind),3)));
-    errbar_AV = (std(squeeze(mean(tempdata(:,cells,AV_ind),1)),[],2))./(sqrt(size(tempdata(:,cells,AV_ind),3)));
+    V_avg = squeeze(mean(mean(tempdata(:,cells,V_cycInd),3),1));
+    AV_avg = squeeze(mean(mean(tempdata(:,cells,AV_cycInd),3),1));
+    errbar_V = (std(squeeze(mean(tempdata(:,cells,V_cycInd),1)),[],2))./(sqrt(size(tempdata(:,cells,V_cycInd),3)));
+    errbar_AV = (std(squeeze(mean(tempdata(:,cells,AV_cycInd),1)),[],2))./(sqrt(size(tempdata(:,cells,AV_cycInd),3)));
     subplot(2,4,start)
     ploterr(V_avg(:,cellsSubgroup1),AV_avg(:,cellsSubgroup1),errbar_V(cellsSubgroup1,:),errbar_AV(cellsSubgroup1,:),'go');
     hold on
@@ -66,7 +66,7 @@ for icyc = 4:length(cycles)
     refline(1,0);
     xlabel('visual')
     ylabel('auditory')
-    title({[num2str(length(V_ind)) 'visual & ']; [num2str(length(AV_ind)) 'aud trials; ' num2str(icyc) ' cyc']});
+    title({[num2str(length(V_cycInd)) 'visual & ']; [num2str(length(AV_cycInd)) 'aud trials; ' num2str(icyc) ' cyc']});
     xlim([-0.1 0.3])
     ylim([-0.1 0.3])
     axis('square')

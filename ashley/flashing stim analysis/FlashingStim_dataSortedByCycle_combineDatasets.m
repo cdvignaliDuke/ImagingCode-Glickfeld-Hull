@@ -2,11 +2,11 @@
 %vis+aud
 SubNum = '614';
 mouse = 'AW14';
-date = '150623';
+date = '150626';
 
 %% first dataset (_1) - vis only (V) and aud only (A)
-time = '1142';
-ImgFolder = '002';
+time = '1458';
+ImgFolder = '001';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -25,8 +25,8 @@ dataTC_1 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% second dataset (_2) - vis only (V) and vis + aud only (AV)
-time = '1158';
-ImgFolder = '003';
+time = '1514';
+ImgFolder = '002';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
@@ -45,8 +45,8 @@ dataTC_2 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% third dataset (_3) 
-time = '1217';
-ImgFolder = '004';
+time = '1532';
+ImgFolder = '003';
 
 % load MWorks file
 CD = ['Z:\data\' mouse '\mworks\' date];
