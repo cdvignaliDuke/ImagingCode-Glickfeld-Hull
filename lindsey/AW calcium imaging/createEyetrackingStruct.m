@@ -2,11 +2,11 @@ function mouse = createEyetrackingStruct(doPlot);
     close all
     AWEyeDatasets
     av = behavParamsAV;
+    rc = behavConstsAV;
     min_hold = 2000;
     pre_event_time = 1000;
     post_release_time = 1500;
     post_target_time = 4000;
-    fnout_summary = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\'];
     s = zeros(1,2);
     for iexp = 1:5 %size(expt,2)
         SubNum = expt(iexp).SubNum;
@@ -33,7 +33,7 @@ function mouse = createEyetrackingStruct(doPlot);
         %% load and combine mworks files
             for irun = 1:nrun
                 time = time_mat(irun,:);
-                fn_mworks = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' SubNum '-' date_name '-' time '.mat'];
+                fn_mworks = fullfile(rc.pathStr, ['data-i' SubNum '-' date_name '-' time '.mat']);
                 if irun == 1
                     input = mwLoadData(fn_mworks, [], []);
                 else
@@ -48,7 +48,7 @@ function mouse = createEyetrackingStruct(doPlot);
                     runstr = [runstr '-' runs(irun,:)];
                 end
             end
-            fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse_name '-' date_name '\' mouse_name '-' date_name '-' runstr];
+            fnout = fullfile(rc.eyeOutputDir, [mouse_name '-' date_name], [mouse_name '-' date_name '-' runstr]);
             load([fnout '_pupil.mat']);
 
 
@@ -971,7 +971,11 @@ function mouse = createEyetrackingStruct(doPlot);
             
        end
     end
-   save(fullfile(fnout_summary, [date '_i613_i614_EyeSummary.mat']), 'mouse');
+    mouse_str = [];
+    for imouse = 1:size(av,2)
+        mouse_str = [mouse_str 'i' num2str(av(imouse).mouse) '_'];  
+    end
+   save(fullfile(rc.eyeOutputDir, [date '_' mouse_str 'EyeSummary.mat']), 'mouse');
 
 end
 

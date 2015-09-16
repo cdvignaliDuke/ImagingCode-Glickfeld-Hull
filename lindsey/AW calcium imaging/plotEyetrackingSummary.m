@@ -1,6 +1,10 @@
-
-fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' date '_i613_i614_EyeSummary.mat'];
-load(fnout)
+rc = behavConstsAV;
+mouse_str = [];
+for imouse = 1:size(av,2)
+    mouse_str = [mouse_str 'i' num2str(av(imouse).mouse) '_'];  
+end
+fnout = fullfile(rc.eyeOutputDir, [date '_' mouse_str]);
+load([fnout 'EyeSummary.mat'])
 av = behavParamsAV;
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
@@ -34,7 +38,7 @@ for imouse = 1:size(av.mouse,2)
         end
     end
 end
-save(fnout, 'mouse');
+save([fnout 'EyeSummary.mat'], 'mouse');
 close all
 x = -2:0.01:2;
 y = x;
