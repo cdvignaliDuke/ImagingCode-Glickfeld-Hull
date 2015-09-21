@@ -40,6 +40,18 @@ cellsSelectNinety_ori = intersect(oriSlctvCells,cellsPrefNinety);
 cellsSelectNinety = union(cellsSelectNinety_dir,cellsSelectNinety_ori);
 cellsPrefRespNinety = intersect(baselineStimRespIndex_V,cellsPrefNinety);
 
+cellsPref45 = find(dirPref_ind == 2 | dirPref_ind == 6);
+cellsSelect45_dir = intersect(dirSlctvCells,cellsPref45);
+cellsSelect45_ori = intersect(oriSlctvCells,cellsPref45);
+cellsSelect45 = union(cellsSelect45_dir,cellsSelect45_ori);
+cellsPrefResp45 = intersect(baselineStimRespIndex_V,cellsPref45);
+
+cellsPref135 = find(dirPref_ind == 4 | dirPref_ind == 8);
+cellsSelect135_dir = intersect(dirSlctvCells,cellsPref135);
+cellsSelect135_ori = intersect(oriSlctvCells,cellsPref135);
+cellsSelect135 = union(cellsSelect135_dir,cellsSelect135_ori);
+cellsPrefResp135 = intersect(baselineStimRespIndex_V,cellsPref135);
+
 nCells = size(cycDataDFoverF_cmlvNoTarget{7},2);
 oriSlctvCellsAll = union(oriSlctvCells,dirSlctvCells);
 notSlctvCells = setdiff([1:nCells],oriSlctvCellsAll);

@@ -1,11 +1,11 @@
 %combine two datasets to have 3 trial types - vis only, aud only, and
 %vis+aud
-SubNum = '614';
-mouse = 'AW14';
-date = '150626';
+SubNum = '613';
+mouse = 'AW13';
+date = '150511';
 
 %% first dataset (_1) - vis only (V) and aud only (A)
-time = '1458';
+time = '1413';
 ImgFolder = '001';
 
 % load MWorks file
@@ -25,7 +25,7 @@ dataTC_1 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% second dataset (_2) - vis only (V) and vis + aud only (AV)
-time = '1514';
+time = '1430';
 ImgFolder = '002';
 
 % load MWorks file
@@ -45,7 +45,7 @@ dataTC_2 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% third dataset (_3) 
-time = '1532';
+time = '1446';
 ImgFolder = '003';
 
 % load MWorks file
