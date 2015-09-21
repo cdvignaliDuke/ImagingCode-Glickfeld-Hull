@@ -1,6 +1,6 @@
 function mouse = createEyetrackingStruct(doPlot);
     close all
-    AWEyeDatasets
+    AWEyeDatasets_AW
     av = behavParamsAV;
     rc = behavConstsAV;
     min_hold = 2000;
@@ -8,7 +8,8 @@ function mouse = createEyetrackingStruct(doPlot);
     post_release_time = 1500;
     post_target_time = 4000;
     s = zeros(1,2);
-    for iexp = 1:5 %size(expt,2)
+    for iexp = 1:size(expt,2)
+        disp(num2str(iexp))
         SubNum = expt(iexp).SubNum;
         date_name = expt(iexp).date;
         runs = expt(iexp).runs;
@@ -48,8 +49,14 @@ function mouse = createEyetrackingStruct(doPlot);
                     runstr = [runstr '-' runs(irun,:)];
                 end
             end
-            fnout = fullfile(rc.eyeOutputDir, [mouse_name '-' date_name], [mouse_name '-' date_name '-' runstr]);
-            load([fnout '_pupil.mat']);
+            if rc.name == 'ashley'
+                fnout = fullfile(rc.eyeOutputDir, [mouse_name '-' date_name '-' runstr]);
+                fnin = fullfile(rc.eyeInputDir,mouse_name,'behavior','eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
+            else
+                fnout = fullfile(rc.eyeOutputDir, [mouse_name '-' date_name], [mouse_name '-' date_name '-' runstr]);
+                fnin = fnout;
+            end
+            load([fnin '_pupil.mat']);
 
 
             %% plot eye traces align to press
