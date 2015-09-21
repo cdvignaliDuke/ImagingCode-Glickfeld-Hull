@@ -1,14 +1,15 @@
 mouse = 'AW36';
 subN = '636';
-date = '150911';
-time = '1420';
-experimentname = 'msFRONT_100exp_10Hz_FSAVnaive_s3_1';
+date = '150915';
+time = '1027';
+experimentname = 'msFront_AW36_FSAV_30degsz_30HZ_30degAzS4_1';
 
 cd('Y:\home\andrew\Behavior\Data')
 load(['data-i' subN '-' date '-' time]);
 
-cd(['Z:\data\AW36\widefield imaging\' date '_' mouse '\' experimentname]);
-data = double(readtiff([experimentname '_MMStack.ome.tif']));
+cd(['Y:\home\shiva\Data\' subN '\widefield imaging\' date '_' subN '\' experimentname]);
+% cd(['Z:\data\AW36\widefield imaging\' date '_' mouse '\' experimentname]);
+data = double(readtiff([experimentname 'tiff.tif']));
 
 
 %% find dF/F for entire frame - only one cycle used
