@@ -54,6 +54,80 @@ for icyc = 1:length(cycles)
     cycDataDFoverF{icyc} = DataDFoverF;
 end
 
+
+%% divide data up cumulatively by cycle, align to lever down (must run data 
+% divided by cycle (previous section) first
+L = zeros(size(cycles));
+for icyc = 1:length(cycles)
+    dataDFoverF_cmlvNoTarget = [];
+    V_indAll = [];
+    AV_indAll = [];
+    running_ind = 0;
+    L = ceil(30+ (cycles(icyc))*cycTime);
+    cyc_ind = icyc:length(cycles);
+    for i = cyc_ind
+        dataDFoverF = cycDataDFoverF{i};
+        dataDFoverF_NoTarget = zeros(L,size(dataDFoverF,2),size(dataDFoverF,3));
+        dataDFoverF_NoTarget = dataDFoverF(1:L,:,:);
+        dataDFoverF_cmlvNoTarget = cat(3,dataDFoverF_cmlvNoTarget,dataDFoverF_NoTarget);
+        trials = find(tCyclesOn == cycles(i));
+        V_cycInd = find(ismember(trials,V_ind));
+        AV_cycInd = find(ismember(trials,AV_ind));
+        V_indAll = cat(2,V_indAll, V_cycInd+running_ind);
+        AV_indAll = cat(2,AV_indAll,AV_cycInd+running_ind);
+        running_ind = length(trials)+running_ind;
+    end        
+    cycDataDFoverF_cmlvNoTarget{icyc} = dataDFoverF_cmlvNoTarget; 
+    cycV_ind{icyc} = V_indAll;
+    cycAV_ind{icyc} = AV_indAll;
+end
+
+for icyc = 1:length(cycles)
+    ind = sort(cat(2,cycV_ind{icyc},cycAV_ind{icyc}));   
+    cycTrialOutcome{icyc} = trialOutcome(ind);
+    cycDirectionDeg{icyc} = DirectionDeg(ind);
+    if expt(iexp).catch == 1
+    cycCatchDirectionDeg{icyc} = catchDirectionDeg(ind);
+    cycCatchTrialOutcome{icyc} = catchTrialOutcome(ind);
+    cycCatchCycle{icyc} = catchCycle(ind);
+    end
+end
+
+figure;
+for icyc = 1:length(cycles)
+    dataDFoverF = cycDataDFoverF_cmlvNoTarget{icyc};
+    V_cycInd = cycV_ind{icyc};
+    AV_cycInd = cycAV_ind{icyc};
+    V_avg = mean(mean(dataDFoverF(:,:,V_cycInd),3),2);
+    AV_avg = mean(mean(dataDFoverF(:,:,AV_cycInd),3),2);
+    errbar_V = (std(mean(dataDFoverF(:,:,V_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,V_cycInd),3)));
+    errbar_AV = (std(mean(dataDFoverF(:,:,AV_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,AV_cycInd),3)));
+    subplot(3,4,icyc);
+
+    errorbar(V_avg(20:end,:),errbar_V(20:end,:),'g')
+    hold on
+    hold on
+    errorbar(AV_avg(20:end,:),errbar_AV(20:end,:),'k')
+    hold on
+    vline(10,'k')
+    hold on
+    for i = 1:cycles(icyc)-1
+        L = (i*cycTime)+11;
+        vline(L,'k:');
+        hold on
+    end
+    vline((cycles(icyc)*cycTime+11),'c');
+    hold on
+    if icyc == 1
+        title([num2str(size(dataDFoverF,2)) ' cells'])
+    else
+    title([num2str(length(V_cycInd)) ' visual trials; ' num2str(length(AV_cycInd)) ' vis+aud trials'])
+    end
+    hold on
+    xlim([0 length(V_avg(20:end,:))+5])
+    ylim([-0.05 0.05])
+
+end
 %% Align data to lever up
 Data = zeros(105,size(dataTC,2),ntrials);
 DataDF = zeros(105,size(dataTC,2),ntrials);

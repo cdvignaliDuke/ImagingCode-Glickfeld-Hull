@@ -70,11 +70,12 @@ for irun = 1:nrun
 end
 
 ntrials = length(input.trialOutcomeCell);
-trialOutcome = cell2mat(input.trialOutcomeCell);
+trialOutcome = input.trialOutcomeCell;
 tCyclesOn = cell2mat(input.tCyclesOn);
 nCyclesOn = cell2mat(input.nCyclesOn);
 
 cycles = unique(tCyclesOn);
+block2 = cell2mat(input.tBlock2TrialNumber);
 V_ind = find(cell2mat(input.tBlock2TrialNumber) == 0);
 AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
 cycTime = input.nFramesOn+input.nFramesOff;
@@ -90,6 +91,7 @@ if expt(iexp).catch == 1;
     catchDirectionDeg = cell2mat_padded(input.tCatchGratingDirectionDeg);
     catchDirs = unique(catchDirectionDeg);
     isCatchTrial = catchDirectionDeg > 0;
+
     catchTrialOutcome = num2cell(NaN(length(nCyclesOn),1));
     catchIndex = find(isCatchTrial == 1);
     for i = 1:sum(isCatchTrial)
@@ -103,6 +105,7 @@ if expt(iexp).catch == 1;
             catchTrialOutcome{catchIndex(i),1} = 'CR';
         end
     end
+
 end
 
 clear dataTimecourse
@@ -115,4 +118,5 @@ end
 
 save([mouse '-' expt(iexp).date '-' runstr '-comboInputDataTC.mat'],'dataTC','input');
 save([mouse '-' expt(iexp).date '-' runstr '-comboInputDataTCplusVar.mat']);
+clear catchCycle catchDirectionDeg catchDirs isCatchTrial catchTrialOutcome catchIndex
 end
