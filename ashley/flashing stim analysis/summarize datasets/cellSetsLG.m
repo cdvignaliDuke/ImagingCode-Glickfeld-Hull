@@ -1,6 +1,5 @@
-fileSave = fullfile('Z:\home\ashley\Analysis\',mouse,'two-photon imaging', date, dir);
+fileSave = fullfile(rc.ashleyAnalysis,mouse_name,folder, date_name, dir_run);
 cd(fileSave);
-% load('oriTuningPreferences.mat')
 load('TuningPreferences.mat')
 
 % dataTrialStart = cycDataDFoverF_cmlvNoTarget{4};
@@ -36,7 +35,7 @@ cellsSelect{iOri} = union(cellsSelect_dir{iOri},cellsSelect_ori{iOri});
 % cellsPrefResp{iOri} = intersect(baselineStimRespIndex_V,cellsPref{iOri});
 end
 
-nCells = size(Data,2);
+nCells = size(dataTC,2);
 oriSlctvCellsAll = union(oriSlctvCells,dirSlctvCells);
 notSlctvCells = setdiff([1:nCells],oriSlctvCellsAll);
 % notRespCells = setdiff([1:nCells],baselineStimRespIndex_V);
