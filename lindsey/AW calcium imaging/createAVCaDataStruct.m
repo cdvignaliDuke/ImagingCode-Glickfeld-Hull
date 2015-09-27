@@ -5,7 +5,10 @@ function mouse = createAVCaDataStruct(doPlot);
     rc = behavConstsAV;
     pre_event_time = 1000;
     post_event_time = 3000;
-    trans_win_time = [100 200];
+    prepre_win_time = [-150 -80];
+    pre_win_time = [-70 0];
+    post_win_time = [30 100];
+    trans_win_time = [150 225];
     mid_win_time = [400 500];
     late_win_time = [1000 1100];
     s = zeros(1,2);
@@ -29,6 +32,12 @@ function mouse = createAVCaDataStruct(doPlot);
         s(:,imouse) = s(:,imouse)+1;
         pre_event_frames = ceil(pre_event_time*(frame_rate/1000));
         post_event_frames = ceil(post_event_time*(frame_rate/1000));
+        prepre_win_frames = pre_event_frames+round(prepre_win_time.*(frame_rate/1000));
+        prepre_win = prepre_win_frames(1):prepre_win_frames(2);
+        pre_win_frames = pre_event_frames+round(pre_win_time.*(frame_rate/1000));
+        pre_win = pre_win_frames(1):pre_win_frames(2);
+        post_win_frames = pre_event_frames+round(post_win_time.*(frame_rate/1000));
+        post_win = post_win_frames(1):post_win_frames(2);
         trans_win_frames = pre_event_frames+round(trans_win_time.*(frame_rate/1000));
         trans_win = trans_win_frames(1):trans_win_frames(2);
         mid_win_frames = pre_event_frames+round(mid_win_time.*(frame_rate/1000));
@@ -125,6 +134,8 @@ function mouse = createAVCaDataStruct(doPlot);
         %find direction with maximum hits and misses
         Sb1IxMatch = [];
         Mb1IxMatch = [];
+        nS = zeros(1,length(Dirs));
+        nM = zeros(1,length(Dirs));
         for iDir = 1:length(Dirs)
             dirIx = find(tGratingDirectionDeg==Dirs(iDir));
             Sb1IxDir = intersect(dirIx,Sb1Ix);
@@ -145,8 +156,8 @@ function mouse = createAVCaDataStruct(doPlot);
         if isfield(input, 'tSoundTargetAmplitude')
             tSoundTargetAmplitude = cell2mat_padded(input.tSoundTargetAmplitude)';
             Amps = unique(tSoundTargetAmplitude);
-            Sb1IxMatch = [];
-            Mb1IxMatch = [];
+            Sb2IxMatch = [];
+            Mb2IxMatch = [];
             if length(Amps)>2
                 for iAmp = 1:length(Amps)
                     ampIx = find(tSoundTargetAmplitude==Amps(iAmp));
@@ -191,6 +202,14 @@ function mouse = createAVCaDataStruct(doPlot);
         mouse(imouse).expt(s(:,imouse)).align(3).name = 'target';
         mouse(imouse).expt(s(:,imouse)).align(4).name = 'prevStim';
         mouse(imouse).expt(s(:,imouse)).align(5).name = 'prevBaseStim';
+        mouse(imouse).expt(s(:,imouse)).win(1).name = 'pre';
+        mouse(imouse).expt(s(:,imouse)).win(2).name = 'trans';
+        mouse(imouse).expt(s(:,imouse)).win(3).name = 'mid';
+        mouse(imouse).expt(s(:,imouse)).win(4).name = 'late';
+        mouse(imouse).expt(s(:,imouse)).win(1).frames = pre_win;
+        mouse(imouse).expt(s(:,imouse)).win(2).name = trans_win;
+        mouse(imouse).expt(s(:,imouse)).win(3).name = mid_win;
+        mouse(imouse).expt(s(:,imouse)).win(4).name = late_win;
         for i = 1:5
             mouse(imouse).expt(s(:,imouse)).align(i).av(1).name = 'visual';
             mouse(imouse).expt(s(:,imouse)).align(i).av(2).name = 'auditory';
@@ -212,40 +231,74 @@ function mouse = createAVCaDataStruct(doPlot);
         
         %% Align data to lever up
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        DataF = zeros(1,size(dataTC,2),ntrials);
         DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         for itrial = 1:max(find(cLeverUp+post_event_frames-1 <  size(dataTC,1)),[],2)
             Data(:,:,itrial) = dataTC(cLeverUp(itrial)-pre_event_frames:cLeverUp(itrial)+post_event_frames-1,:);
-            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
+            DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
             DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
         end
         
         DataDFoverFavg = squeeze(mean(DataDFoverF(:,:,:),2));
         
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(trans_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(trans_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(trans_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(trans_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(mid_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(mid_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(mid_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(mid_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(late_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).late_resp = [mean(mean(DataDFoverF(late_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).late_resp = [mean(mean(DataDFoverF(late_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(late_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(late_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).late_resp = [mean(mean(DataDFoverF(late_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).late_resp = [mean(mean(DataDFoverF(late_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(late_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).resp = DataDFoverF(:,:,Sb1Ix);
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).resp = DataDFoverF(:,:,Mb1IxMatch);        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).resp = DataDFoverF(:,:,Fb1Ix);
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).resp = DataDFoverF(:,:,Sb1IxMatch);
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).resp = DataDFoverF(:,:,Sb2Ix);
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).resp = DataDFoverF(:,:,Mb2IxMatch);       
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).resp = DataDFoverF(:,:,Fb2Ix);
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).resp = DataDFoverF(:,:,Sb2IxMatch);
+        
+        DataDFoverFpre = mean(DataDFoverF(pre_win,:,:),1) - mean(DataDFoverF(prepre_win,:,:),1);
+        DataDFoverFpost = mean(DataDFoverF(post_win,:,:),1) - mean(DataDFoverF(prepre_win,:,:),1);
+        DataDFoverFtrans = mean(DataDFoverF(trans_win,:,:),1) - mean(DataDFoverF(prepre_win,:,:),1);
+        DataDFoverFmid = mean(DataDFoverF(mid_win,:,:),1) - mean(DataDFoverF(prepre_win,:,:),1);
+        DataDFoverFlate = mean(DataDFoverF(late_win,:,:),1) - mean(DataDFoverF(prepre_win,:,:),1);
+        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).pre_resp = [mean(DataDFoverFpre(:,:,Sb1Ix),3); std(DataDFoverFpre(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).pre_resp = [mean(DataDFoverFpre(:,:,Mb1IxMatch),3); std(DataDFoverFpre(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).pre_resp = [mean(DataDFoverFpre(:,:,Fb1Ix),3); std(DataDFoverFpre(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).pre_resp = [mean(DataDFoverFpre(:,:,Sb1IxMatch),3); std(DataDFoverFpre(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).pre_resp = [mean(DataDFoverFpre(:,:,Sb2Ix),3); std(DataDFoverFpre(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).pre_resp = [mean(DataDFoverFpre(:,:,Mb2IxMatch),3); std(DataDFoverFpre(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).pre_resp = [mean(DataDFoverFpre(:,:,Fb2Ix),3); std(DataDFoverFpre(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).pre_resp = [mean(DataDFoverFpre(:,:,Sb2IxMatch),3); std(DataDFoverFpre(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).post_resp = [mean(DataDFoverFpost(:,:,Sb1Ix),3); std(DataDFoverFpost(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).post_resp = [mean(DataDFoverFpost(:,:,Mb1IxMatch),3); std(DataDFoverFpost(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).post_resp = [mean(DataDFoverFpost(:,:,Fb1Ix),3); std(DataDFoverFpost(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).post_resp = [mean(DataDFoverFpost(:,:,Sb1IxMatch),3); std(DataDFoverFpost(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).post_resp = [mean(DataDFoverFpost(:,:,Sb2Ix),3); std(DataDFoverFpost(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).post_resp = [mean(DataDFoverFpost(:,:,Mb2IxMatch),3); std(DataDFoverFpost(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).post_resp = [mean(DataDFoverFpost(:,:,Fb2Ix),3); std(DataDFoverFpost(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).post_resp = [mean(DataDFoverFpost(:,:,Sb2IxMatch),3); std(DataDFoverFpost(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).trans_resp = [mean(DataDFoverFtrans(:,:,Sb1Ix),3); std(DataDFoverFtrans(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).trans_resp = [mean(DataDFoverFtrans(:,:,Mb1IxMatch),3); std(DataDFoverFtrans(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).trans_resp = [mean(DataDFoverFtrans(:,:,Fb1Ix),3); std(DataDFoverFtrans(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).trans_resp = [mean(DataDFoverFtrans(:,:,Sb1IxMatch),3); std(DataDFoverFtrans(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).trans_resp = [mean(DataDFoverFtrans(:,:,Sb2Ix),3); std(DataDFoverFtrans(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).trans_resp = [mean(DataDFoverFtrans(:,:,Mb2IxMatch),3); std(DataDFoverFtrans(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).trans_resp = [mean(DataDFoverFtrans(:,:,Fb2Ix),3); std(DataDFoverFtrans(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).trans_resp = [mean(DataDFoverFtrans(:,:,Sb2IxMatch),3); std(DataDFoverFtrans(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).mid_resp = [mean(DataDFoverFmid(:,:,Sb1Ix),3); std(DataDFoverFmid(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).mid_resp = [mean(DataDFoverFmid(:,:,Mb1IxMatch),3); std(DataDFoverFmid(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).mid_resp = [mean(DataDFoverFmid(:,:,Fb1Ix),3); std(DataDFoverFmid(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).mid_resp = [mean(DataDFoverFmid(:,:,Sb1IxMatch),3); std(DataDFoverFmid(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).mid_resp = [mean(DataDFoverFmid(:,:,Sb2Ix),3); std(DataDFoverFmid(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).mid_resp = [mean(DataDFoverFmid(:,:,Mb2IxMatch),3); std(DataDFoverFmid(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).mid_resp = [mean(DataDFoverFmid(:,:,Fb2Ix),3); std(DataDFoverFmid(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).mid_resp = [mean(DataDFoverFmid(:,:,Sb2IxMatch),3); std(DataDFoverFmid(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).late_resp = [mean(DataDFoverFlate(:,:,Sb1Ix),3); std(DataDFoverFlate(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).late_resp = [mean(DataDFoverFlate(:,:,Mb1IxMatch),3); std(DataDFoverFlate(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(3).late_resp = [mean(DataDFoverFlate(:,:,Fb1Ix),3); std(DataDFoverFlate(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(5).late_resp = [mean(DataDFoverFlate(:,:,Sb1IxMatch),3); std(DataDFoverFlate(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).late_resp = [mean(DataDFoverFlate(:,:,Sb2Ix),3); std(DataDFoverFlate(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).late_resp = [mean(DataDFoverFlate(:,:,Mb2IxMatch),3); std(DataDFoverFlate(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(3).late_resp = [mean(DataDFoverFlate(:,:,Fb2Ix),3); std(DataDFoverFlate(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(5).late_resp = [mean(DataDFoverFlate(:,:,Sb2IxMatch),3); std(DataDFoverFlate(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        
         
         if doPlot
             figure;
@@ -285,9 +338,47 @@ function mouse = createAVCaDataStruct(doPlot);
             title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
             suptitle([date_name ' ' mouse_name ' ' runstr '- align to lever release'])
             print([fnout 'release_align_SE_AV.pdf'], '-dpdf')
+            
+            figure;
+            tt = [-pre_event_frames:post_event_frames-1].*(1000/frame_rate);
+            subplot(2,2,1)
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), std(DataDFoverFavg(:,Mb1IxMatch),[],2)/sqrt(length(Mb1IxMatch)), 'r');
+            hold on
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb1IxMatch),2), std(DataDFoverFavg(:,Sb1IxMatch),[],2)/sqrt(length(Sb1IxMatch)), 'k');
+            xlim([-500 1500])
+            hold on
+            vline(0,'k')
+            title(['Visual trials: ' num2str(length(Sb1IxMatch)) ' Successes; ' num2str(length(Mb1IxMatch)) ' Misses']) 
+            subplot(2,2,2)
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'r');
+            hold on
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
+            xlim([-500 1500])
+            hold on
+            vline(0,'k')
+            title(['Auditory trials: ' num2str(length(Sb2IxMatch)) ' Successes; ' num2str(length(Mb2IxMatch)) ' Misses']) 
+            subplot(2,2,3)
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), std(DataDFoverFavg(:,Mb1IxMatch),[],2)/sqrt(length(Mb1IxMatch)), 'g');
+            hold on
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'k'); 
+            xlim([-500 1500])
+            hold on
+            vline(0,'k')
+            title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2IxMatch)) ' Auditory']) 
+            subplot(2,2,4)
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb1IxMatch),2), std(DataDFoverFavg(:,Sb1IxMatch),[],2)/sqrt(length(Sb1IxMatch)), 'g');
+            hold on
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
+            xlim([-500 1500])
+            hold on
+            vline(0,'k')
+            alignYaxes
+            title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2IxMatch)) ' Auditory']) 
+            suptitle([date_name ' ' mouse_name ' ' runstr '- align to lever release'])
+            print([fnout 'release_align_SM_AV.pdf'], '-dpdf')
         end
         
-        %% Align data to previous stim
+        %% Align data to postvious stim
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         Data_CR = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
@@ -302,47 +393,61 @@ function mouse = createAVCaDataStruct(doPlot);
                 Data(:,:,itrial) = dataTC(cTargetOn(itrial)-pre_event_frames:cTargetOn(itrial)+post_event_frames-1,:);
                 Data_CR(:,:,itrial) = dataTC(cTargetOn(itrial)-pre_event_frames-cycTime:cTargetOn(itrial)+post_event_frames-cycTime-1,:);
             end
-            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
-            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
-            DataDF_CR(:,:,itrial) = bsxfun(@minus, Data_CR(:,:,itrial), mean(Data_CR(1:pre_event_frames,:,itrial),1));
-            DataDFoverF_CR(:,:,itrial) = bsxfun(@rdivide, DataDF_CR(:,:,itrial), mean(Data_CR(1:pre_event_frames,:,itrial),1));
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), DataF(:,:,itrial));
+            DataDF_CR(:,:,itrial) = bsxfun(@minus, Data_CR(:,:,itrial), DataF(:,:,itrial));
+            DataDFoverF_CR(:,:,itrial) = bsxfun(@rdivide, DataDF_CR(:,:,itrial), DataF(:,:,itrial));
         end
         
         DataDFoverFavg = squeeze(mean(DataDFoverF(:,:,:),2));
         DataDFoverFavg_CR = squeeze(mean(DataDFoverF_CR(:,:,:),2));
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(trans_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(trans_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(4).trans_resp = [mean(mean(DataDFoverF_CR(trans_win,:,Rb1Ix),1),3) std(mean(DataDFoverF_CR(trans_win,:,Rb1Ix),1),[],3)./sqrt(length(Rb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(trans_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(trans_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(4).trans_resp = [mean(mean(DataDFoverF_CR(trans_win,:,Rb2Ix),1),3) std(mean(DataDFoverF_CR(trans_win,:,Rb2Ix),1),[],3)./sqrt(length(Rb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(mid_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(mid_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(4).mid_resp = [mean(mean(DataDFoverF_CR(mid_win,:,Rb1Ix),1),3) std(mean(DataDFoverF_CR(mid_win,:,Rb1Ix),1),[],3)./sqrt(length(Rb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(mid_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(mid_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(4).mid_resp = [mean(mean(DataDFoverF_CR(mid_win,:,Rb2Ix),1),3) std(mean(DataDFoverF_CR(mid_win,:,Rb2Ix),1),[],3)./sqrt(length(Rb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(late_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).late_resp = [mean(mean(DataDFoverF(late_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).late_resp = [mean(mean(DataDFoverF(late_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(late_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(4).late_resp = [mean(mean(DataDFoverF_CR(late_win,:,Rb1Ix),1),3) std(mean(DataDFoverF_CR(late_win,:,Rb1Ix),1),[],3)./sqrt(length(Rb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(late_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).late_resp = [mean(mean(DataDFoverF(late_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).late_resp = [mean(mean(DataDFoverF(late_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(late_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(4).late_resp = [mean(mean(DataDFoverF_CR(late_win,:,Rb2Ix),1),3) std(mean(DataDFoverF_CR(late_win,:,Rb2Ix),1),[],3)./sqrt(length(Rb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).resp = DataDFoverF(:,:,Sb1Ix);
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).resp = DataDFoverF(:,:,Mb1IxMatch);        
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).resp = DataDFoverF(:,:,Fb1Ix);
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(4).resp = DataDFoverF(:,:,Rb1Ix);
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).resp = DataDFoverF(:,:,Sb1IxMatch);
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).resp = DataDFoverF(:,:,Sb2Ix);
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).resp = DataDFoverF(:,:,Mb2IxMatch);       
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).resp = DataDFoverF(:,:,Fb2Ix);
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(4).resp = DataDFoverF(:,:,Rb2Ix);
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).resp = DataDFoverF(:,:,Sb2IxMatch);
         
+        DataDFoverFtrans = mean(DataDFoverF(trans_win,:,:),1) - mean(DataDFoverF(post_win,:,:),1);
+        DataDFoverFmid = mean(DataDFoverF(mid_win,:,:),1) - mean(DataDFoverF(post_win,:,:),1);
+        DataDFoverFlate = mean(DataDFoverF(late_win,:,:),1) - mean(DataDFoverF(post_win,:,:),1);
         
-        if doPlot 
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).trans_resp = [mean(DataDFoverFtrans(:,:,Sb1Ix),3); std(DataDFoverFtrans(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).trans_resp = [mean(DataDFoverFtrans(:,:,Mb1IxMatch),3); std(DataDFoverFtrans(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).trans_resp = [mean(DataDFoverFtrans(:,:,Fb1Ix),3); std(DataDFoverFtrans(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).trans_resp = [mean(DataDFoverFtrans(:,:,Sb1IxMatch),3); std(DataDFoverFtrans(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).trans_resp = [mean(DataDFoverFtrans(:,:,Sb2Ix),3); std(DataDFoverFtrans(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).trans_resp = [mean(DataDFoverFtrans(:,:,Mb2IxMatch),3); std(DataDFoverFtrans(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).trans_resp = [mean(DataDFoverFtrans(:,:,Fb2Ix),3); std(DataDFoverFtrans(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).trans_resp = [mean(DataDFoverFtrans(:,:,Sb2IxMatch),3); std(DataDFoverFtrans(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).mid_resp = [mean(DataDFoverFmid(:,:,Sb1Ix),3); std(DataDFoverFmid(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).mid_resp = [mean(DataDFoverFmid(:,:,Mb1IxMatch),3); std(DataDFoverFmid(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).mid_resp = [mean(DataDFoverFmid(:,:,Fb1Ix),3); std(DataDFoverFmid(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).mid_resp = [mean(DataDFoverFmid(:,:,Sb1IxMatch),3); std(DataDFoverFmid(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).mid_resp = [mean(DataDFoverFmid(:,:,Sb2Ix),3); std(DataDFoverFmid(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).mid_resp = [mean(DataDFoverFmid(:,:,Mb2IxMatch),3); std(DataDFoverFmid(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).mid_resp = [mean(DataDFoverFmid(:,:,Fb2Ix),3); std(DataDFoverFmid(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).mid_resp = [mean(DataDFoverFmid(:,:,Sb2IxMatch),3); std(DataDFoverFmid(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).late_resp = [mean(DataDFoverFlate(:,:,Sb1Ix),3); std(DataDFoverFlate(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).late_resp = [mean(DataDFoverFlate(:,:,Mb1IxMatch),3); std(DataDFoverFlate(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).late_resp = [mean(DataDFoverFlate(:,:,Fb1Ix),3); std(DataDFoverFlate(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).late_resp = [mean(DataDFoverFlate(:,:,Sb1IxMatch),3); std(DataDFoverFlate(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).late_resp = [mean(DataDFoverFlate(:,:,Sb2Ix),3); std(DataDFoverFlate(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).late_resp = [mean(DataDFoverFlate(:,:,Mb2IxMatch),3); std(DataDFoverFlate(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).late_resp = [mean(DataDFoverFlate(:,:,Fb2Ix),3); std(DataDFoverFlate(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).late_resp = [mean(DataDFoverFlate(:,:,Sb2IxMatch),3); std(DataDFoverFlate(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        
+%         figure
+%         subplot(2,2,1)
+%         plot(1:size(DataDFoverFavg,1), mean(DataDFoverFavg(:,Sb1Ix),2), 'k')
+%         hold on
+%         plot(trans_win, ones(length(trans_win))*.005, 'r')
+        
+        if doPlot
             %Hit vs FA
             figure;
             tt = [-pre_event_frames:post_event_frames-1].*(1000/frame_rate);
@@ -381,7 +486,7 @@ function mouse = createAVCaDataStruct(doPlot);
             title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
             suptitle([date_name ' ' mouse_name ' ' runstr '- align to prev stim'])
             print([fnout 'prevStim_align_SE_AV.pdf'], '-dpdf')
-           
+            
             %Hit vs Miss
             figure;
             tt = [-pre_event_frames:post_event_frames-1].*(1000/frame_rate);
@@ -398,17 +503,17 @@ function mouse = createAVCaDataStruct(doPlot);
             vline(0,'k')
             title(['Visual trials: ' num2str(length(Sb1IxMatch)) ' Successes; ' num2str(length(Mb1IxMatch)) ' Misses']) 
             subplot(2,2,2)
-            if length(Mb2Ix)>2
-                shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2Ix),2), std(DataDFoverFavg(:,Mb2Ix),[],2)/sqrt(length(Mb2Ix)), 'r');
+            if length(Mb2IxMatch)>2
+                shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'r');
             else
-                plot(tt, mean(DataDFoverFavg(:,Mb2Ix),2), 'r');
+                plot(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), 'r');
             end
             hold on
-            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2Ix),2), std(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
             xlim([-500 1500])
             hold on
             vline(0,'k')
-            title(['Auditory trials: ' num2str(length(Sb2Ix)) ' Successes; ' num2str(length(Mb2Ix)) ' Misses']) 
+            title(['Auditory trials: ' num2str(length(Sb2IxMatch)) ' Successes; ' num2str(length(Mb2IxMatch)) ' Misses']) 
             subplot(2,2,3)
             if length(Mb1IxMatch)>2
                 shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), std(DataDFoverFavg(:,Mb1IxMatch),[],2)/sqrt(length(Mb1IxMatch)), 'g');
@@ -416,24 +521,24 @@ function mouse = createAVCaDataStruct(doPlot);
                 plot(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), 'g');
             end
             hold on
-            if length(Mb2Ix)>2
-                shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2Ix),2), std(DataDFoverFavg(:,Mb2Ix),[],2)/sqrt(length(Mb2Ix)), 'k'); 
+            if length(Mb2IxMatch)>2
+                shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'k'); 
             else
-                plot(tt, mean(DataDFoverFavg(:,Mb2Ix),2), 'r');
+                plot(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), 'r');
             end
             xlim([-500 1500])
             hold on
             vline(0,'k')
-            title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2Ix)) ' Auditory']) 
+            title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2IxMatch)) ' Auditory']) 
             subplot(2,2,4)
             shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb1IxMatch),2), std(DataDFoverFavg(:,Sb1IxMatch),[],2)/sqrt(length(Sb1IxMatch)), 'g');
             hold on
-            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2Ix),2), std(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
             xlim([-500 1500])
             hold on
             vline(0,'k')
             alignYaxes
-            title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
+            title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2IxMatch)) ' Auditory']) 
             suptitle([date_name ' ' mouse_name ' ' runstr '- align to previous stim'])
             print([fnout 'prevStim_align_SM_AV.pdf'], '-dpdf')
         end
@@ -478,7 +583,7 @@ function mouse = createAVCaDataStruct(doPlot);
                 alignYaxes
                 title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
                 suptitle([date_name ' ' mouse_name ' ' runstr '- align to previous stim on- ' num2str(Oris(iOri)) ' deg select: n = ' num2str(length(cellsSelect{iOri}))])
-                print([fnout 'prevStimOn_align_SE_AV_' num2str(Oris(iOri)) 'pref.pdf'], '-dpdf')
+                print([fnout 'prevStim_align_SE_AV_' num2str(Oris(iOri)) 'pref.pdf'], '-dpdf')
             end
             for iOri = 1:nOri
                 DataDFoverFavg = squeeze(mean(DataDFoverF(:,cellsSelect{iOri},:),2));
@@ -497,17 +602,17 @@ function mouse = createAVCaDataStruct(doPlot);
                 vline(0,'k')
                 title(['Visual trials: ' num2str(length(Sb1IxMatch)) ' Successes; ' num2str(length(Mb1IxMatch)) ' Misses']) 
                 subplot(2,2,2)
-                if length(Mb2Ix)>2
-                    shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2Ix),2), std(DataDFoverFavg(:,Mb2Ix),[],2)/sqrt(length(Mb2Ix)), 'r');
+                if length(Mb2IxMatch)>2
+                    shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'r');
                 else
-                    plot(tt, mean(DataDFoverFavg(:,Mb2Ix),2), 'r');
+                    plot(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), 'r');
                 end
                 hold on
-                shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2Ix),2), std(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+                shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
                 xlim([-500 1500])
                 hold on
                 vline(0,'k')
-                title(['Auditory trials: ' num2str(length(Sb2Ix)) ' Successes; ' num2str(length(Mb2Ix)) ' Misses']) 
+                title(['Auditory trials: ' num2str(length(Sb2IxMatch)) ' Successes; ' num2str(length(Mb2IxMatch)) ' Misses']) 
                 subplot(2,2,3)
                 if length(Mb1IxMatch)>2
                     shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), std(DataDFoverFavg(:,Mb1IxMatch),[],2)/sqrt(length(Mb1IxMatch)), 'g');
@@ -515,26 +620,26 @@ function mouse = createAVCaDataStruct(doPlot);
                     plot(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), 'g');
                 end
                 hold on
-                if length(Mb2Ix)>2
-                    shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2Ix),2), std(DataDFoverFavg(:,Mb2Ix),[],2)/sqrt(length(Mb2Ix)), 'k'); 
+                if length(Mb2IxMatch)>2
+                    shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'k'); 
                 else
-                    plot(tt, mean(DataDFoverFavg(:,Mb2Ix),2), 'k');
+                    plot(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), 'k');
                 end
                 xlim([-500 1500])
                 hold on
                 vline(0,'k')
-                title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2Ix)) ' Auditory']) 
+                title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2IxMatch)) ' Auditory']) 
                 subplot(2,2,4)
                 shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb1IxMatch),2), std(DataDFoverFavg(:,Sb1IxMatch),[],2)/sqrt(length(Sb1IxMatch)), 'g');
                 hold on
-                shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2Ix),2), std(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+                shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
                 xlim([-500 1500])
                 hold on
                 vline(0,'k')
                 alignYaxes
-                title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
+                title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2IxMatch)) ' Auditory']) 
                 suptitle([date_name ' ' mouse_name ' ' runstr '- align to previous stim on- ' num2str(Oris(iOri)) ' deg select: n = ' num2str(length(cellsSelect{iOri}))])
-                print([fnout 'prevStimOn_align_SM_AV_' num2str(Oris(iOri)) 'pref.pdf'], '-dpdf')
+                print([fnout 'prevStim_align_SM_AV_' num2str(Oris(iOri)) 'pref.pdf'], '-dpdf')
             end
         end
         
@@ -548,44 +653,53 @@ function mouse = createAVCaDataStruct(doPlot);
         for itrial = 1:max(find(cStimOn+post_event_frames-1 <  size(dataTC,1)),[],2)
             Data(:,:,itrial) = dataTC(cStimOn(itrial)-pre_event_frames:cStimOn(itrial)+post_event_frames-1,:);
             Data_CR(:,:,itrial) = dataTC(cStimOn(itrial)-pre_event_frames-cycTime:cStimOn(itrial)+post_event_frames-cycTime-1,:);
-            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
-            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
-            DataDF_CR(:,:,itrial) = bsxfun(@minus, Data_CR(:,:,itrial), mean(Data_CR(1:pre_event_frames,:,itrial),1));
-            DataDFoverF_CR(:,:,itrial) = bsxfun(@rdivide, DataDF_CR(:,:,itrial), mean(Data_CR(1:pre_event_frames,:,itrial),1));
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), DataF(:,:,itrial));
+            DataDF_CR(:,:,itrial) = bsxfun(@minus, Data_CR(:,:,itrial), DataF(:,:,itrial));
+            DataDFoverF_CR(:,:,itrial) = bsxfun(@rdivide, DataDF_CR(:,:,itrial), DataF(:,:,itrial));
         end
         
         DataDFoverFavg = squeeze(mean(DataDFoverF(:,:,:),2));
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(trans_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(trans_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(4).trans_resp = [mean(mean(DataDFoverF_CR(trans_win,:,Rb1Ix),1),3) std(mean(DataDFoverF_CR(trans_win,:,Rb1Ix),1),[],3)./sqrt(length(Rb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(trans_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(trans_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(4).trans_resp = [mean(mean(DataDFoverF_CR(trans_win,:,Rb2Ix),1),3) std(mean(DataDFoverF_CR(trans_win,:,Rb2Ix),1),[],3)./sqrt(length(Rb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).trans_resp = [mean(mean(DataDFoverF(trans_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(trans_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(mid_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(mid_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(4).mid_resp = [mean(mean(DataDFoverF_CR(mid_win,:,Rb1Ix),1),3) std(mean(DataDFoverF_CR(mid_win,:,Rb1Ix),1),[],3)./sqrt(length(Rb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(mid_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(mid_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(4).mid_resp = [mean(mean(DataDFoverF_CR(mid_win,:,Rb2Ix),1),3) std(mean(DataDFoverF_CR(mid_win,:,Rb2Ix),1),[],3)./sqrt(length(Rb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).mid_resp = [mean(mean(DataDFoverF(mid_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(mid_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb1Ix),1),3) std(mean(DataDFoverF(late_win,:,Sb1Ix),1),[],3)./sqrt(length(Sb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(2).late_resp = [mean(mean(DataDFoverF(late_win,:,Mb1IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Mb1IxMatch),1),[],3)./sqrt(length(Mb1IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(3).late_resp = [mean(mean(DataDFoverF(late_win,:,Fb1Ix),1),3) std(mean(DataDFoverF(late_win,:,Fb1Ix),1),[],3)./sqrt(length(Fb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(4).late_resp = [mean(mean(DataDFoverF_CR(late_win,:,Rb1Ix),1),3) std(mean(DataDFoverF_CR(late_win,:,Rb1Ix),1),[],3)./sqrt(length(Rb1Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(5).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb1IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Sb1IxMatch),1),[],3)./sqrt(length(Sb1IxMatch))]; 
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(1).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb2Ix),1),3) std(mean(DataDFoverF(late_win,:,Sb2Ix),1),[],3)./sqrt(length(Sb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).late_resp = [mean(mean(DataDFoverF(late_win,:,Mb2IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Mb2IxMatch),1),[],3)./sqrt(length(Mb2IxMatch))];        
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).late_resp = [mean(mean(DataDFoverF(late_win,:,Fb2Ix),1),3) std(mean(DataDFoverF(late_win,:,Fb2Ix),1),[],3)./sqrt(length(Fb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(4).late_resp = [mean(mean(DataDFoverF_CR(late_win,:,Rb2Ix),1),3) std(mean(DataDFoverF_CR(late_win,:,Rb2Ix),1),[],3)./sqrt(length(Rb2Ix))];
-        mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).late_resp = [mean(mean(DataDFoverF(late_win,:,Sb2IxMatch),1),3) std(mean(DataDFoverF(late_win,:,Sb2IxMatch),1),[],3)./sqrt(length(Sb2IxMatch))]; 
-       
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(1).resp = DataDFoverF(:,:,Sb1Ix);
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(2).resp = DataDFoverF(:,:,Mb1IxMatch);        
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(3).resp = DataDFoverF(:,:,Fb1Ix);
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(4).resp = DataDFoverF(:,:,Rb1Ix);
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(5).resp = DataDFoverF(:,:,Sb1IxMatch);
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(1).resp = DataDFoverF(:,:,Sb2Ix);
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(2).resp = DataDFoverF(:,:,Mb2IxMatch);       
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(3).resp = DataDFoverF(:,:,Fb2Ix);
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(4).resp = DataDFoverF(:,:,Rb2Ix);
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(5).resp = DataDFoverF(:,:,Sb2IxMatch);
+        
+        DataDFoverFtrans = mean(DataDFoverF(trans_win,:,:),1) - mean(DataDFoverF(post_win,:,:),1);
+        DataDFoverFmid = mean(DataDFoverF(mid_win,:,:),1) - mean(DataDFoverF(post_win,:,:),1);
+        DataDFoverFlate = mean(DataDFoverF(late_win,:,:),1) - mean(DataDFoverF(post_win,:,:),1);
+        
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(1).trans_resp = [mean(DataDFoverFtrans(:,:,Sb1Ix),3); std(DataDFoverFtrans(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(2).trans_resp = [mean(DataDFoverFtrans(:,:,Mb1IxMatch),3); std(DataDFoverFtrans(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(3).trans_resp = [mean(DataDFoverFtrans(:,:,Fb1Ix),3); std(DataDFoverFtrans(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(5).trans_resp = [mean(DataDFoverFtrans(:,:,Sb1IxMatch),3); std(DataDFoverFtrans(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(1).trans_resp = [mean(DataDFoverFtrans(:,:,Sb2Ix),3); std(DataDFoverFtrans(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(2).trans_resp = [mean(DataDFoverFtrans(:,:,Mb2IxMatch),3); std(DataDFoverFtrans(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(3).trans_resp = [mean(DataDFoverFtrans(:,:,Fb2Ix),3); std(DataDFoverFtrans(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(5).trans_resp = [mean(DataDFoverFtrans(:,:,Sb2IxMatch),3); std(DataDFoverFtrans(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(1).mid_resp = [mean(DataDFoverFmid(:,:,Sb1Ix),3); std(DataDFoverFmid(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(2).mid_resp = [mean(DataDFoverFmid(:,:,Mb1IxMatch),3); std(DataDFoverFmid(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(3).mid_resp = [mean(DataDFoverFmid(:,:,Fb1Ix),3); std(DataDFoverFmid(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(5).mid_resp = [mean(DataDFoverFmid(:,:,Sb1IxMatch),3); std(DataDFoverFmid(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(1).mid_resp = [mean(DataDFoverFmid(:,:,Sb2Ix),3); std(DataDFoverFmid(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(2).mid_resp = [mean(DataDFoverFmid(:,:,Mb2IxMatch),3); std(DataDFoverFmid(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(3).mid_resp = [mean(DataDFoverFmid(:,:,Fb2Ix),3); std(DataDFoverFmid(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(5).mid_resp = [mean(DataDFoverFmid(:,:,Sb2IxMatch),3); std(DataDFoverFmid(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(1).late_resp = [mean(DataDFoverFlate(:,:,Sb1Ix),3); std(DataDFoverFlate(:,:,Sb1Ix),[],3)./sqrt(length(Sb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(2).late_resp = [mean(DataDFoverFlate(:,:,Mb1IxMatch),3); std(DataDFoverFlate(:,:,Mb1IxMatch),[],3)./sqrt(length(Mb1IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(3).late_resp = [mean(DataDFoverFlate(:,:,Fb1Ix),3); std(DataDFoverFlate(:,:,Fb1Ix),[],3)./sqrt(length(Fb1Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(1).outcome(5).late_resp = [mean(DataDFoverFlate(:,:,Sb1IxMatch),3); std(DataDFoverFlate(:,:,Sb1IxMatch),[],3)./sqrt(length(Sb1IxMatch))]; 
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(1).late_resp = [mean(DataDFoverFlate(:,:,Sb2Ix),3); std(DataDFoverFlate(:,:,Sb2Ix),[],3)./sqrt(length(Sb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(2).late_resp = [mean(DataDFoverFlate(:,:,Mb2IxMatch),3); std(DataDFoverFlate(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(3).late_resp = [mean(DataDFoverFlate(:,:,Fb2Ix),3); std(DataDFoverFlate(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
+        mouse(imouse).expt(s(:,imouse)).align(5).av(2).outcome(5).late_resp = [mean(DataDFoverFlate(:,:,Sb2IxMatch),3); std(DataDFoverFlate(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        
             %Hit vs FA
         if doPlot    
             figure;
@@ -624,7 +738,7 @@ function mouse = createAVCaDataStruct(doPlot);
             alignYaxes
             title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
             suptitle([date_name ' ' mouse_name ' ' runstr '- align to prev base stim'])
-            print([fnout 'prevStim_align_SE_AV.pdf'], '-dpdf')
+            print([fnout 'prevBaseStim_align_SE_AV.pdf'], '-dpdf')
             
             %Hit vs Miss
             figure;
@@ -642,17 +756,17 @@ function mouse = createAVCaDataStruct(doPlot);
             vline(0,'k')
             title(['Visual trials: ' num2str(length(Sb1IxMatch)) ' Successes; ' num2str(length(Mb1IxMatch)) ' Misses']) 
             subplot(2,2,2)
-            if length(Mb2Ix)>2
-                shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2Ix),2), std(DataDFoverFavg(:,Mb2Ix),[],2)/sqrt(length(Mb2Ix)), 'r');
+            if length(Mb2IxMatch)>2
+                shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'r');
             else
-                plot(tt, mean(DataDFoverFavg(:,Mb2Ix),2), 'r');
+                plot(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), 'r');
             end
             hold on
-            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2Ix),2), std(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
             xlim([-500 1500])
             hold on
             vline(0,'k')
-            title(['Auditory trials: ' num2str(length(Sb2Ix)) ' Successes; ' num2str(length(Mb2Ix)) ' Misses']) 
+            title(['Auditory trials: ' num2str(length(Sb2IxMatch)) ' Successes; ' num2str(length(Mb2IxMatch)) ' Misses']) 
             subplot(2,2,3)
             if length(Mb1IxMatch)>2
                 shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), std(DataDFoverFavg(:,Mb1IxMatch),[],2)/sqrt(length(Mb1IxMatch)), 'g');
@@ -660,26 +774,26 @@ function mouse = createAVCaDataStruct(doPlot);
                 plot(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), 'g');
             end
             hold on
-            if length(Mb2Ix)>2
-                shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2Ix),2), std(DataDFoverFavg(:,Mb2Ix),[],2)/sqrt(length(Mb2Ix)), 'k'); 
+            if length(Mb2IxMatch)>2
+                shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'k'); 
             else
-                plot(tt, mean(DataDFoverFavg(:,Mb2Ix),2), 'r');
+                plot(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), 'r');
             end
             xlim([-500 1500])
             hold on
             vline(0,'k')
-            title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2Ix)) ' Auditory']) 
+            title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2IxMatch)) ' Auditory']) 
             subplot(2,2,4)
             shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb1IxMatch),2), std(DataDFoverFavg(:,Sb1IxMatch),[],2)/sqrt(length(Sb1IxMatch)), 'g');
             hold on
-            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2Ix),2), std(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+            shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
             xlim([-500 1500])
             hold on
             vline(0,'k')
             alignYaxes
-            title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
+            title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2IxMatch)) ' Auditory']) 
             suptitle([date_name ' ' mouse_name ' ' runstr '- align to previous base stim'])
-            print([fnout 'prevStim_align_SM_AV.pdf'], '-dpdf')
+            print([fnout 'prevBaseStim_align_SM_AV.pdf'], '-dpdf')
         end
         
         if doPlot
@@ -722,7 +836,7 @@ function mouse = createAVCaDataStruct(doPlot);
                 alignYaxes
                 title(['Success trials: ' num2str(length(Sb1Ix)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
                 suptitle([date_name ' ' mouse_name ' ' runstr '- align to previous base stim on- ' num2str(Oris(iOri)) ' deg select: n = ' num2str(length(cellsSelect{iOri}))])
-                print([fnout 'prevBaseStimOn_align_SE_AV_' num2str(Oris(iOri)) 'pref.pdf'], '-dpdf')
+                print([fnout 'prevBaseStim_align_SE_AV_' num2str(Oris(iOri)) 'pref.pdf'], '-dpdf')
             end
             for iOri = 1:nOri
                 DataDFoverFavg = squeeze(mean(DataDFoverF(:,cellsSelect{iOri},:),2));
@@ -741,17 +855,17 @@ function mouse = createAVCaDataStruct(doPlot);
                 vline(0,'k')
                 title(['Visual trials: ' num2str(length(Sb1IxMatch)) ' Successes; ' num2str(length(Mb1IxMatch)) ' Misses']) 
                 subplot(2,2,2)
-                if length(Mb2Ix)>2
-                    shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2Ix),2), std(DataDFoverFavg(:,Mb2Ix),[],2)/sqrt(length(Mb2Ix)), 'r');
+                if length(Mb2IxMatch)>2
+                    shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'r');
                 else
-                    plot(tt, mean(DataDFoverFavg(:,Mb2Ix),2), 'r');
+                    plot(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), 'r');
                 end
                 hold on
-                shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2Ix),2), std(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+                shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
                 xlim([-500 1500])
                 hold on
                 vline(0,'k')
-                title(['Auditory trials: ' num2str(length(Sb2Ix)) ' Successes; ' num2str(length(Mb2Ix)) ' Misses']) 
+                title(['Auditory trials: ' num2str(length(Sb2IxMatch)) ' Successes; ' num2str(length(Mb2IxMatch)) ' Misses']) 
                 subplot(2,2,3)
                 if length(Mb1IxMatch)>2
                     shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), std(DataDFoverFavg(:,Mb1IxMatch),[],2)/sqrt(length(Mb1IxMatch)), 'g');
@@ -759,26 +873,26 @@ function mouse = createAVCaDataStruct(doPlot);
                     plot(tt, mean(DataDFoverFavg(:,Mb1IxMatch),2), 'g');
                 end
                 hold on
-                if length(Mb2Ix)>2
-                    shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2Ix),2), std(DataDFoverFavg(:,Mb2Ix),[],2)/sqrt(length(Mb2Ix)), 'k'); 
+                if length(Mb2IxMatch)>2
+                    shadedErrorBar(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), std(DataDFoverFavg(:,Mb2IxMatch),[],2)/sqrt(length(Mb2IxMatch)), 'k'); 
                 else
-                    plot(tt, mean(DataDFoverFavg(:,Mb2Ix),2), 'k');
+                    plot(tt, mean(DataDFoverFavg(:,Mb2IxMatch),2), 'k');
                 end
                 xlim([-500 1500])
                 hold on
                 vline(0,'k')
-                title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2Ix)) ' Auditory']) 
+                title(['Missed trials: ' num2str(length(Mb1IxMatch)) ' Visual; ' num2str(length(Mb2IxMatch)) ' Auditory']) 
                 subplot(2,2,4)
                 shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb1IxMatch),2), std(DataDFoverFavg(:,Sb1IxMatch),[],2)/sqrt(length(Sb1IxMatch)), 'g');
                 hold on
-                shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2Ix),2), std(DataDFoverFavg(:,Sb2Ix),[],2)/sqrt(length(Sb2Ix)), 'k'); 
+                shadedErrorBar(tt, mean(DataDFoverFavg(:,Sb2IxMatch),2), std(DataDFoverFavg(:,Sb2IxMatch),[],2)/sqrt(length(Sb2IxMatch)), 'k'); 
                 xlim([-500 1500])
                 hold on
                 vline(0,'k')
                 alignYaxes
-                title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2Ix)) ' Auditory']) 
+                title(['Success trials: ' num2str(length(Sb1IxMatch)) ' Visual; ' num2str(length(Sb2IxMatch)) ' Auditory']) 
                 suptitle([date_name ' ' mouse_name ' ' runstr '- align to previous base stim on- ' num2str(Oris(iOri)) ' deg select: n = ' num2str(length(cellsSelect{iOri}))])
-                print([fnout 'prevBaseStimOn_align_SM_AV_' num2str(Oris(iOri)) 'pref.pdf'], '-dpdf')
+                print([fnout 'prevBaseStim_align_SM_AV_' num2str(Oris(iOri)) 'pref.pdf'], '-dpdf')
             end
         end
     end
