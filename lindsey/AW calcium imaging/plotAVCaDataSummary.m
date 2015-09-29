@@ -949,3 +949,74 @@ for imouse = 1:size({av.mouse},2)
         end
     end
 end
+
+imouse = 2;
+iexp = 1;
+base_dirs = zeros(1,size(mouse(imouse).expt(iexp).target,2));
+for iDir = 1:size(mouse(imouse).expt(iexp).target,2)
+    base_dirs(1,iDir) = chop(mouse(imouse).expt(iexp).target(iDir).name,2);
+end
+
+i = 4;
+ii = 1;
+iii = 1;
+for imouse = 1:size(av,2)
+    for iexp = 1:size(mouse(imouse).expt,2)
+        figure;
+        nDir = size(mouse(imouse).expt(iexp).target,2);
+        Dirs = zeros(1,nDir);
+        dir_ind = [];
+        for iDir = 1:nDir
+            Dirs(1,iDir) = chop(mouse(imouse).expt(iexp).target(iDir).name,2);
+            if find(base_dirs == Dirs(1,iDir))
+                dir_ind = [dir_ind iDir];
+            end
+        end
+        for iOri = 1:4
+            ind = mouse(imouse).expt(iexp).cells(iOri+1).ind;
+            resp_mat = zeros(nDir,3);
+            for iDir = 1:nDir
+                resp_avg = squeeze(mean(mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).target(iDir).trans_resp(1,ind),2));
+                resp_sem = squeeze(std(mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).target(iDir).trans_resp(1,ind),[],2)./sqrt(length(ind)));
+                resp_mat(iDir,:) = [mouse(imouse).expt(iexp).target(iDir).name resp_avg resp_sem];
+            end
+            for iDir = 1:length(base_dirs)
+                targ = dir_ind(iDir);
+                if iexp == 1
+                    mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp = mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).target(targ).trans_resp(1,ind);
+                else
+                    mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp = [mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).target(targ).trans_resp(1,ind)];
+                end
+            end
+            subplot(2,2,iOri)
+            errorbar(resp_mat(:,1), resp_mat(:,2), resp_mat(:,3),'-ok');
+            title([num2str(mouse(imouse).expt(iexp).cells(iOri+1).name) ' deg pref'])
+            xlabel('Target Orientation (deg)')
+            ylabel('dF/F')
+            ylim([-0.02 0.03])
+        end
+        suptitle(['i' num2str(av(imouse).mouse)  ' Expt #' mouse(imouse).expt(iexp).date])
+        fn = fullfile(rc.caOutputDir, mouse_name, date_name, [date_name '_' mouse_name '_']);
+        print([fn 'prevstim_align_OriTuning.pdf'], '-dpdf')
+    end
+    figure;
+    for iOri = 1:4
+        subplot(2,2,iOri)
+        resp_mat = zeros(size(base_dirs,2),2);
+        for iDir = 1:size(base_dirs,2)
+            resp_avg = squeeze(mean(mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp,2));
+            sz = size(mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp,2);
+            resp_sem = squeeze(std(mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp,[],2)./sqrt(sz));
+            resp_mat(iDir,:) = [resp_avg resp_sem];
+        end
+        errorbar(base_dirs, resp_mat(:,1), resp_mat(:,2),'-ok');
+        title([num2str(mouse(imouse).expt(iexp).cells(iOri+1).name) ' deg pref'])
+        xlabel('Target Orientation (deg)')
+        ylabel('dF/F')
+        ylim([-0.01 0.02])
+    end
+    alignYaxes
+    suptitle(['i' num2str(av(imouse).mouse)])
+    fn = fullfile(rc.caOutputDir, [date '_i' num2str(av(imouse).mouse)]);
+    print([fn '_prevstim_align_OriTuning.pdf'], '-dpdf')
+end

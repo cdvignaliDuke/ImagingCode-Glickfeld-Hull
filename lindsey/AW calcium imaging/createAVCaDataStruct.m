@@ -30,6 +30,7 @@ function mouse = createAVCaDataStruct(doPlot);
         values = textscan(str, '%f', 'delimiter', ',', 'EmptyValue', NaN);
         imouse = find(values{1} == str2num(SubNum));
         s(:,imouse) = s(:,imouse)+1;
+        mouse(imouse).expt(s(:,imouse)).date = date_name;
         pre_event_frames = ceil(pre_event_time*(frame_rate/1000));
         post_event_frames = ceil(post_event_time*(frame_rate/1000));
         prepre_win_frames = pre_event_frames+round(prepre_win_time.*(frame_rate/1000));
@@ -187,6 +188,10 @@ function mouse = createAVCaDataStruct(doPlot);
                 
         
         %names of fields
+        for iDir = 1:length(Dirs)
+            mouse(imouse).expt(s(:,imouse)).target(iDir).name = Dirs(iDir);
+            mouse(imouse).expt(s(:,imouse)).target(iDir).ind = find(tGratingDirectionDeg==Dirs(iDir));
+        end
         mouse(imouse).expt(s(:,imouse)).cells(1).name = 'all';
         mouse(imouse).expt(s(:,imouse)).cells(2).name = '0';
         mouse(imouse).expt(s(:,imouse)).cells(3).name = '45';
@@ -378,7 +383,7 @@ function mouse = createAVCaDataStruct(doPlot);
             print([fnout 'release_align_SM_AV.pdf'], '-dpdf')
         end
         
-        %% Align data to postvious stim
+        %% Align data to previous stim
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         Data_CR = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
@@ -440,6 +445,15 @@ function mouse = createAVCaDataStruct(doPlot);
         mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(2).late_resp = [mean(DataDFoverFlate(:,:,Mb2IxMatch),3); std(DataDFoverFlate(:,:,Mb2IxMatch),[],3)./sqrt(length(Mb2IxMatch))];        
         mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(3).late_resp = [mean(DataDFoverFlate(:,:,Fb2Ix),3); std(DataDFoverFlate(:,:,Fb2Ix),[],3)./sqrt(length(Fb2Ix))];
         mouse(imouse).expt(s(:,imouse)).align(4).av(2).outcome(5).late_resp = [mean(DataDFoverFlate(:,:,Sb2IxMatch),3); std(DataDFoverFlate(:,:,Sb2IxMatch),[],3)./sqrt(length(Sb2IxMatch))]; 
+        
+        for iDir = 1:length(Dirs)
+            if iDir == 1
+                ind = intersect(mouse(imouse).expt(s(:,imouse)).target(iDir).ind, Sb2Ix);
+            else
+                ind = intersect(mouse(imouse).expt(s(:,imouse)).target(iDir).ind, Sb1Ix);
+            end
+            mouse(imouse).expt(s(:,imouse)).align(4).av(1).outcome(1).target(iDir).trans_resp = [mean(DataDFoverFtrans(:,:,ind),3); std(DataDFoverFtrans(:,:,ind),[],3)./sqrt(length(ind))];
+        end
         
 %         figure
 %         subplot(2,2,1)
