@@ -34,7 +34,7 @@ for i = 1:length(Dirs)
         dirTargetDataDFoverF{i} = [];
         dirTargetInd{i} = ind;
 %         dirTargetNorm{i} = [];
-    elseif cTargetOn(ind(end),1)+40 > size(dataTC,1) 
+    elseif cTargetOn(1,ind(end))+40 > size(dataTC,1) 
         targetData = zeros(60,size(dataTC,2),length(ind));
         targetDataDF = zeros(60,size(dataTC,2),length(ind));
         targetDataDFoverF = zeros(60,size(dataTC,2),length(ind));
@@ -129,14 +129,14 @@ figBaseName = 'avgDFoverFpretarget_targetdriven_all';
 %% find mean response for each target and catch direction
 meanTargetRespNorm_cells = zeros(60,length(cells),length(Dirs));
 meanTargetRespNorm = zeros(60,length(Dirs));
-meanCatchRespNorm_cells = zeros(60,length(cells),length(catchDirs));
-meanCatchRespNorm = zeros(60,length(catchDirs));
+% meanCatchRespNorm_cells = zeros(60,length(cells),length(catchDirs));
+% meanCatchRespNorm = zeros(60,length(catchDirs));
 errTargetResp_cells = zeros(60,length(cells),length(Dirs));
 errTargetResp = zeros(60,length(Dirs));
-errCatchResp_cells = zeros(60,length(cells),length(catchDirs));
-errCatchResp = zeros(60,length(catchDirs));
+% errCatchResp_cells = zeros(60,length(cells),length(catchDirs));
+% errCatchResp = zeros(60,length(catchDirs));
 nTrialsTarget = zeros(1,length(Dirs));
-nTrialsCatch = zeros(1,length(catchDirs));
+% nTrialsCatch = zeros(1,length(catchDirs));
 
 for i = 1:length(Dirs)
     tempdataTarget = dirTargetDataDFoverF{i};
@@ -153,32 +153,32 @@ meanTargetRespNorm = bsxfun(@minus,meanTargetRespNorm,mean(meanTargetRespNorm(17
 errTargetResp_cells = bsxfun(@minus,errTargetResp_cells,mean(meanTargetRespNorm_cells(17:21,:,:),1));
 errTargetResp = bsxfun(@minus,errTargetResp,mean(meanTargetRespNorm(17:21,:),1));
 
-for i = 1:length(catchDirs)
-    tempdataCatch = dirCatchDataDFoverF{i};
-    if ~isempty(tempdataCatch)
-        meanCatchRespNorm_cells(:,:,i) = mean(tempdataCatch(:,cells,:),3);
-        meanCatchRespNorm(:,i) = mean(mean(tempdataCatch(:,cells,:),3),2);
-        errCatchResp_cells(:,:,i) = (std(tempdataCatch(:,cells,:),0,3))./(sqrt(size(tempdataCatch(:,cells,:),3)));
-        errCatchResp(:,i) = (squeeze(std(meanCatchRespNorm_cells(:,:,i),0,2)))./(sqrt(size(tempdataCatch(:,cells,:),2)));
-        nTrialsCatch(:,i) = size(tempdataCatch,3);
-    end
-end
-meanCatchRespNorm_cells = bsxfun(@minus,meanCatchRespNorm_cells,mean(meanCatchRespNorm_cells(17:21,:,:),1));
-meanCatchRespNorm = bsxfun(@minus,meanCatchRespNorm,mean(meanCatchRespNorm(17:21,:),1));
-errCatchResp_cells = bsxfun(@minus,errCatchResp_cells,mean(meanCatchRespNorm_cells(17:21,:,:),1));
-errCatchResp = bsxfun(@minus,errCatchResp,mean(meanCatchRespNorm(17:21,:),1));
+% for i = 1:length(catchDirs)
+%     tempdataCatch = dirCatchDataDFoverF{i};
+%     if ~isempty(tempdataCatch)
+%         meanCatchRespNorm_cells(:,:,i) = mean(tempdataCatch(:,cells,:),3);
+%         meanCatchRespNorm(:,i) = mean(mean(tempdataCatch(:,cells,:),3),2);
+%         errCatchResp_cells(:,:,i) = (std(tempdataCatch(:,cells,:),0,3))./(sqrt(size(tempdataCatch(:,cells,:),3)));
+%         errCatchResp(:,i) = (squeeze(std(meanCatchRespNorm_cells(:,:,i),0,2)))./(sqrt(size(tempdataCatch(:,cells,:),2)));
+%         nTrialsCatch(:,i) = size(tempdataCatch,3);
+%     end
+% end
+% meanCatchRespNorm_cells = bsxfun(@minus,meanCatchRespNorm_cells,mean(meanCatchRespNorm_cells(17:21,:,:),1));
+% meanCatchRespNorm = bsxfun(@minus,meanCatchRespNorm,mean(meanCatchRespNorm(17:21,:),1));
+% errCatchResp_cells = bsxfun(@minus,errCatchResp_cells,mean(meanCatchRespNorm_cells(17:21,:,:),1));
+% errCatchResp = bsxfun(@minus,errCatchResp,mean(meanCatchRespNorm(17:21,:),1));
 
 %% legend and color coding
-for i = 1: length(catchDirs)
-    legendInfoCatch{i} = [num2str(catchDirs(i)) ' degrees; ' num2str(nTrialsCatch(i)) ' trials'];
-end
+% for i = 1: length(catchDirs)
+%     legendInfoCatch{i} = [num2str(catchDirs(i)) ' degrees; ' num2str(nTrialsCatch(i)) ' trials'];
+% end
 for i = 1: length(Dirs)
     legendInfoTarget{i} = [num2str(Dirs(i)) ' degrees; ' num2str(nTrialsTarget(i)) ' trials'];
 end
 legendInfoTarget{1} = 'aud., 0 degrees';
 
-colorsC = brewermap(length(catchDirs)+2,'*Blues');
-colorsC = colorsC(1:end-2,:);
+% colorsC = brewermap(length(catchDirs)+2,'*Blues');
+% colorsC = colorsC(1:end-2,:);
 
 colorsT = brewermap(length(Dirs)+15,'*YlGn');
 colorindT = [3:2:length(Dirs)+12];

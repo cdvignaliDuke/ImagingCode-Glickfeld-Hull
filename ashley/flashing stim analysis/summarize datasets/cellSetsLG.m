@@ -1,4 +1,5 @@
-fileSave = fullfile(rc.ashleyAnalysis,mouse_name,folder, date_name, dir_run);
+% fileSave = fullfile(rc.ashley,Analysis,mouse_name,folder, date_name, dir_run);
+fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, DirFolder);
 cd(fileSave);
 load('TuningPreferences.mat')
 

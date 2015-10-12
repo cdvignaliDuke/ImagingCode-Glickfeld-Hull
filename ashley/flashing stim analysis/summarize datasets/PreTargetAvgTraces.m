@@ -1,7 +1,10 @@
-% run(FlashingStim_dataSortedByCycle_combineDatasets.m)
+iexp = 3;
 %%
-% cells selective for 90 deg, 0 deg, driven by baseline stim, "driven
-% cells", non-selective cells
+ialign = 1;
+run('divideupdatabyalignment.m')
+%% find sets of cells
+DirFolder = expt(iexp).dirtuning;
+run('cellSets.m')
 %%
 fnout = ['Z:\Analysis\' mouse '\two-photon imaging\' date '\PreTargetAvgTraces'];
 try
@@ -19,9 +22,7 @@ end
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
-%% find sets of cells
-DirFolder = '006';
-run('cellSets.m')
+
 %%
 cells = cellsSelectZero;
 cellgroupname = 'pref 0, ori or dir selective';

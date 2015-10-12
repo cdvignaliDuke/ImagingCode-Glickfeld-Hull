@@ -9,7 +9,7 @@ catch
 end
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
-date = expt(iexp).date;
+dateofexp = expt(iexp).date;
 runs = expt(iexp).runs;
 nrun = size(runs,1);
 expFolder = expt(iexp).folder;
@@ -25,28 +25,34 @@ if nrun>1
     end
 end
 % fnout = fullfile('Z:\home\lindsey\Analysis\2P', mouse, date, [date '_' mouse '_' runstr '_']);
-fnout = ['Z:\Analysis\' mouse '\' expFolder '\' date '\' runstr];
+fnout = ['Z:\Analysis\' mouse '\' expFolder '\' dateofexp '\' runstr];
 
 load([fnout '\' mouse '-' expt(iexp).date '-' runstr '-comboInputDataTCplusVar.mat'])
 
+%%
+prepress_frames = 30;
+posttarget_frames = 30;
+
+%%
+if ialign == 1
 %% divide up data by cycle- align to lever down
 
 for icyc = 1:length(cycles)
     ind = find(tCyclesOn == cycles(icyc));
-    Data = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
-    DataDF = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
-    DataDFoverF = zeros(cycTime.*(cycles(icyc)+1)+60,size(dataTC,2),length(ind));
-    if cLeverDown(end)+30 > size(dataTC,1)
+    Data = zeros(cycTime.*(cycles(icyc)+1)+prepress_frames+posttarget_frames,size(dataTC,2),length(ind));
+    DataDF = zeros(cycTime.*(cycles(icyc)+1)+prepress_frames+posttarget_frames,size(dataTC,2),length(ind));
+    DataDFoverF = zeros(cycTime.*(cycles(icyc)+1)+prepress_frames+posttarget_frames,size(dataTC,2),length(ind));
+    if cLeverDown(end)+prepress_frames > size(dataTC,1)
         for itrial = 1:length(ind)-1
-            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
+            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-prepress_frames:cLeverDown(ind(itrial))+(posttarget_frames-1)+(cycTime.*(cycles(icyc)+1)),:);
             DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
             DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
         end
     else
         for itrial = 1:length(ind)
-            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-30:cLeverDown(ind(itrial))+29+(cycTime.*(cycles(icyc)+1)),:);
-            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
-            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-prepress_frames:cLeverDown(ind(itrial))+(posttarget_frames-1)+(cycTime.*(cycles(icyc)+1)),:);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:prepress_frames,:,itrial),1));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:prepress_frames,:,itrial),1));
         end
     end
     cycData{icyc} = Data;
@@ -63,7 +69,7 @@ for icyc = 1:length(cycles)
     V_indAll = [];
     AV_indAll = [];
     running_ind = 0;
-    L = ceil(30+ (cycles(icyc))*cycTime);
+    L = ceil(prepress_frames+ (cycles(icyc))*cycTime);
     cyc_ind = icyc:length(cycles);
     for i = cyc_ind
         dataDFoverF = cycDataDFoverF{i};
@@ -102,7 +108,7 @@ for icyc = 1:length(cycles)
     AV_avg = mean(mean(dataDFoverF(:,:,AV_cycInd),3),2);
     errbar_V = (std(mean(dataDFoverF(:,:,V_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,V_cycInd),3)));
     errbar_AV = (std(mean(dataDFoverF(:,:,AV_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,:,AV_cycInd),3)));
-    subplot(3,4,icyc);
+%     subplot(3,4,icyc);
 
     errorbar(V_avg(20:end,:),errbar_V(20:end,:),'g')
     hold on
@@ -125,9 +131,10 @@ for icyc = 1:length(cycles)
     end
     hold on
     xlim([0 length(V_avg(20:end,:))+5])
-    ylim([-0.05 0.05])
+%     ylim([-0.05 0.05])
 
 end
+else
 %% Align data to lever up
 Data = zeros(105,size(dataTC,2),ntrials);
 DataDF = zeros(105,size(dataTC,2),ntrials);
@@ -1280,3 +1287,4 @@ xlim([-1000 1500])
 title(['Auditory: ' num2str(length(reactIx{1,2})) ' ' num2str(length(reactIx{2,2})) ' trials']) 
 suptitle([date ' ' mouse ' ' runstr '- fast (magenta) and slow(blue) react times- all success'])
 print([fnout 'target_align_byreact.pdf'], '-dpdf')
+end
