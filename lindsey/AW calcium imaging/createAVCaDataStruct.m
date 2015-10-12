@@ -14,7 +14,7 @@ function mouse = createAVCaDataStruct(doPlot);
     s = zeros(1,2);
     mouse = struct;
     for iexp = 1:size(expt,2)
-        disp(num2str(iexp))
+        
         SubNum = expt(iexp).SubNum;
         date_name = expt(iexp).date;
         runs = expt(iexp).runs;
@@ -25,6 +25,7 @@ function mouse = createAVCaDataStruct(doPlot);
         nrun = size(runs,1);
         dir_run = expt(iexp).dirtuning;
         doCatch = expt(iexp).catch;
+        disp([num2str(date_name) ' i' num2str(SubNum)])
         
         str = sprintf('%f,', av.mouse);
         values = textscan(str, '%f', 'delimiter', ',', 'EmptyValue', NaN);
@@ -233,7 +234,183 @@ function mouse = createAVCaDataStruct(doPlot);
         end
         
         
+        %% Align data to lever down
+        Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        DataF = zeros(1,size(dataTC,2),ntrials);
+        DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        for itrial = 1:max(find(cLeverDown+post_event_frames-1 <  size(dataTC,1)),[],2)
+            Data(:,:,itrial) = dataTC(cLeverDown(itrial)-pre_event_frames:cLeverDown(itrial)+post_event_frames-1,:);
+            DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
+        end
+        S1Ix = intersect(V_ind, intersect(find(tCyclesOn>5), SIx));
+        S2Ix = intersect(AV_ind, intersect(find(tCyclesOn>5), SIx));
+        SBIx = intersect(find(tCyclesOn>5), SIx);
+        V_S_DFoverF_int = squeeze(sum(DataDFoverF(61:100,:,S1Ix),1));
+        AV_S_DFoverF_int = squeeze(sum(DataDFoverF(61:100,:,S2Ix),1));
+        S_DFoverF_int = squeeze(sum(DataDFoverF(61:100,:,SBIx),1));
+        [h_int, p_int] = ttest2(V_S_DFoverF_int,AV_S_DFoverF_int,'dim',2,'tail', 'both');
+        up_cells = find(mean(S_DFoverF_int,2)>0);
+        down_cells = find(mean(S_DFoverF_int,2)<0);
+        sig_int = find(h_int);
+        n = ceil(sqrt(length(sig_int)));
+        if (n^2)-n > length(sig_int)
+            n2 = n-1;
+        else
+            n2 = n;
+        end
+        if doPlot
+            figure;
+            for i =  1:length(sig_int)
+                tt = [-pre_event_frames:post_event_frames-1].*(1000/frame_rate);
+                subplot(n,n2,i)
+                shadedErrorBar(tt, mean(DataDFoverF(:,sig_int(i),S1Ix),3), std(DataDFoverF(:,sig_int(i),S1Ix),[],3)./sqrt(length(S1Ix)), 'g');
+                hold on;
+                shadedErrorBar(tt, mean(DataDFoverF(:,sig_int(i),S2Ix),3), std(DataDFoverF(:,sig_int(i),S2Ix),[],3)./sqrt(length(S2Ix)), 'k');
+                title(['Cell #' num2str(sig_int(i)) ' - pref ' num2str(cellSelLookup(sig_int(i))) ' deg'])
+            end
+            suptitle([date_name ' ' mouse_name ' ' runstr '- align to lever press- significantly different late integral'])
+            print([fnout 'press_align_S_AV_sigModCells.pdf'], '-dpdf')
+
+            figure;
+            for iOri = 1:4
+                sig_cells = intersect(cellsPref{iOri},sig_int);
+                subplot(3,2,iOri)
+                if length(sig_cells)>2
+                    shadedErrorBar(tt, mean(mean(DataDFoverF(:,sig_cells,S1Ix),3),2), std(mean(DataDFoverF(:,sig_cells,S1Ix),3),[],2)./sqrt(length(sig_cells)), 'g');
+                    hold on;
+                    shadedErrorBar(tt, mean(mean(DataDFoverF(:,sig_cells,S2Ix),3),2), std(mean(DataDFoverF(:,sig_cells,S2Ix),3),[],2)./sqrt(length(sig_cells)), 'k');
+                else
+                    plot(tt, mean(mean(DataDFoverF(:,sig_cells,S1Ix),3),2), 'g');
+                    hold on
+                    plot(tt, mean(mean(DataDFoverF(:,sig_cells,S2Ix),3),2), 'k');
+                end
+                title([num2str(Oris(iOri)) ' deg- n = ' num2str(length(sig_cells)) ' cells'])
+            end
+            subplot(3,2,5)
+            tt = [-pre_event_frames:post_event_frames-1].*(1000/frame_rate);
+            shadedErrorBar(tt, mean(mean(DataDFoverF(:,sig_int,S1Ix),3),2), std(mean(DataDFoverF(:,sig_int,S1Ix),3),[],2)./sqrt(length(sig_int)), 'g');
+            hold on;
+            shadedErrorBar(tt, mean(mean(DataDFoverF(:,sig_int,S2Ix),3),2), std(mean(DataDFoverF(:,sig_int,S2Ix),3),[],2)./sqrt(length(sig_int)), 'k');
+            title(['All cells- n = ' num2str(length(sig_int)) ' cells'])
+            suptitle([date_name ' ' mouse_name ' ' runstr '- align to lever press- significantly different late integral'])
+            print([fnout 'press_align_S_AV_sigModCellsAvg.pdf'], '-dpdf')
+
+            int_mat = abs([mean(V_S_DFoverF_int,2) mean(AV_S_DFoverF_int,2)]);
+            int_met = (int_mat(:,1)-int_mat(:,2))./(int_mat(:,1)+int_mat(:,2));
+
+            figure;
+            for iOri = 1:4
+                ori_up_cells = intersect(cellsSelect{iOri},up_cells);
+                met_avg(iOri) = mean(int_met(ori_up_cells,:),1);
+                subplot(3,2,iOri)
+                hist(int_met(ori_up_cells,:),20)
+                [h, p_ori] = ttest(int_met(ori_up_cells,:));
+                title([num2str(Oris(iOri)) ' deg; Avg mod: ' num2str(chop(met_avg(iOri),2)) '; p = ' num2str(chop(p_ori,2))])
+            end
+            subplot(3,2,5)
+            hist(int_met(up_cells,:),20)
+            h1 = findobj(gca,'Type','patch');
+            set(h1,'facealpha',0.75);
+            [h, p_sig] = ttest(int_met(up_cells,:));
+            title(['Up cells; Avg mod: ' num2str(chop(mean(int_met(up_cells,:),1),2)) '; p = ' num2str(chop(p_sig,2))])
+            sig_up_cells = intersect(up_cells, sig_int);
+            subplot(3,2,6)
+            hist(int_met(sig_up_cells,:),20)
+            h1 = findobj(gca,'Type','patch');
+            set(h1,'facealpha',0.75);
+            [h, p_sig] = ttest(int_met(sig_up_cells,:));
+            title(['Sig up cells; Avg mod: ' num2str(chop(mean(int_met(sig_up_cells,:),1),2)) '; p = ' num2str(chop(p_sig,2))])
+            suptitle([date_name ' ' mouse_name ' ' runstr '- align to lever press- up cells-  integral over cycles 4-6'])
+            print([fnout 'press_align_S_AV_integralHist_upcells.pdf'], '-dpdf')
+
+            figure;
+            for iOri = 1:4
+                ori_down_cells = intersect(cellsSelect{iOri},down_cells);
+                met_avg(iOri) = mean(int_met(ori_down_cells,:),1);
+                subplot(3,2,iOri)
+                hist(int_met(ori_down_cells,:),20)
+                [h, p_ori] = ttest(int_met(ori_down_cells,:));
+                title([num2str(Oris(iOri)) ' deg; Avg mod: ' num2str(chop(met_avg(iOri),2)) '; p = ' num2str(chop(p_ori,2))])
+            end
+            subplot(3,2,5)
+            hist(int_met(down_cells,:),20)
+            h1 = findobj(gca,'Type','patch');
+            set(h1,'facealpha',0.75);
+            [h, p_sig] = ttest(int_met(down_cells,:));
+            title(['Up cells; Avg mod: ' num2str(chop(mean(int_met(down_cells,:),1),2)) '; p = ' num2str(chop(p_sig,2))])
+            sig_down_cells = intersect(down_cells, sig_int);
+            subplot(3,2,6)
+            hist(int_met(sig_down_cells,:),20)
+            h1 = findobj(gca,'Type','patch');
+            set(h1,'facealpha',0.75);
+            [h, p_sig] = ttest(int_met(sig_down_cells,:));
+            title(['Sig down cells; Avg mod: ' num2str(chop(mean(int_met(sig_down_cells,:),1),2)) '; p = ' num2str(chop(p_sig,2))])
+            suptitle([date_name ' ' mouse_name ' ' runstr '- align to lever press- down cells- integral over cycles 4-6'])
+            print([fnout 'press_align_S_AV_integralHist_downcells.pdf'], '-dpdf')
+
+            [h_var, p_var] = vartest2(V_S_DFoverF_int,AV_S_DFoverF_int,'dim',2,'tail', 'both');
+            sig_var = find(h_var);
+            var_mat = [var(V_S_DFoverF_int,[],2) var(AV_S_DFoverF_int,[],2)];
+            var_met = (var_mat(:,1)-var_mat(:,2))./(var_mat(:,1)+var_mat(:,2));
+
+            figure;
+            for iOri = 1:4
+                met_avg(iOri) = mean(var_met(cellsSelect{iOri},:),1);
+                subplot(3,2,iOri)
+                hist(var_met(cellsSelect{iOri},:))
+                h = findobj(gca,'Type','patch');
+                set(h,'FaceColor','b','EdgeColor','b','facealpha',0.75)
+                hold on;
+                hist(var_met(intersect(cellsSelect{iOri},sig_var),:))
+                h1 = findobj(gca,'Type','patch');
+                set(h1,'facealpha',0.75);
+                xlim([-.6 .6])
+                [h, p_ori] = ttest(var_met(cellsSelect{iOri},:));
+                title([num2str(Oris(iOri)) ' deg; Avg mod: ' num2str(chop(met_avg(iOri),2)) '; p = ' num2str(chop(p_ori,2))])
+            end
+            subplot(3,2,5)
+            hist(var_met,20)
+            h = findobj(gca,'Type','patch');
+            set(h,'FaceColor','b','EdgeColor','b','facealpha',0.75)
+            hold on;
+            hist(var_met(sig_var,:),20)
+            h1 = findobj(gca,'Type','patch');
+            set(h1,'facealpha',0.75);
+            xlim([-.6 .6])
+            [h, p_all] = ttest(var_met);
+            title(['All cells; Avg mod: ' num2str(chop(mean(var_met,1),2)) '; p = ' num2str(chop(p_all,2))])
+            suptitle([date_name ' ' mouse_name ' ' runstr '- align to lever press- variance over cycles 4-6'])
+            print([fnout 'press_align_S_AV_varianceHist.pdf'], '-dpdf')
+        end
+
+        mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).late_int = sum(DataDFoverF(61:100,:,S1Ix),1); 
+        mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).late_int = sum(DataDFoverF(61:100,:,S2Ix),1); 
+%         start = 1;
+%         figure;
+%         for i = 1:length(sig_var)
+%             if start>16
+%                 figure;
+%                 start = 1;
+%             end
+%             subplot(4,4,start)
+%             if  var_met(sig_var(i),:) > 0
+%                 shadedErrorBar(tt, mean(DataDFoverF(:,sig_var(i),S1Ix),3), std(DataDFoverF(:,sig_var(i),S1Ix),[],3), 'g');
+%                 hold on;
+%                 shadedErrorBar(tt, mean(DataDFoverF(:,sig_var(i),S2Ix),3), std(DataDFoverF(:,sig_var(i),S2Ix),[],3), 'k');
+%             else
+%                 shadedErrorBar(tt, mean(DataDFoverF(:,sig_var(i),S2Ix),3), std(DataDFoverF(:,sig_var(i),S2Ix),[],3), 'k');
+%                 hold on;
+%                 shadedErrorBar(tt, mean(DataDFoverF(:,sig_var(i),S1Ix),3), std(DataDFoverF(:,sig_var(i),S1Ix),[],3), 'g');
+%             end
+%             title(['Cell #' num2str(sig_var(i)) ' - pref: ' num2str(cellPrefLookup(sig_var(i))) ' deg- met: ' num2str(chop(var_met(sig_var(i),:),2))])
+%             start = start+1;
+%         end
         
+        
+
         %% Align data to lever up
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataF = zeros(1,size(dataTC,2),ntrials);

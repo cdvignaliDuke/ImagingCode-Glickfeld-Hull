@@ -28,15 +28,21 @@ load('TuningPreferences.mat')
 % baselineStimRespIndex_V = find(baselineStimRespTtest_V == 1);
 nOri = length(unique(oriPref_ind));
 Oris = 0:180/nOri:180-(180/nOri);
+nCells = size(dataTC,2);
+cellPrefLookup = nan(1,nCells);
+cellSelLookup = nan(1,nCells);
 for iOri = 1:nOri
 cellsPref{iOri} = find(dirPref_ind == iOri | dirPref_ind == iOri+4);
 cellsSelect_dir{iOri} = intersect(dirSlctvCells,cellsPref{iOri});
 cellsSelect_ori{iOri} = intersect(oriSlctvCells,cellsPref{iOri});
 cellsSelect{iOri} = union(cellsSelect_dir{iOri},cellsSelect_ori{iOri});
 % cellsPrefResp{iOri} = intersect(baselineStimRespIndex_V,cellsPref{iOri});
+cellPrefLookup(1,cellsPref{iOri}) = Oris(iOri);
+cellSelLookup(1,cellsSelect{iOri}) = Oris(iOri);
 end
 
-nCells = size(dataTC,2);
+
 oriSlctvCellsAll = union(oriSlctvCells,dirSlctvCells);
 notSlctvCells = setdiff([1:nCells],oriSlctvCellsAll);
 % notRespCells = setdiff([1:nCells],baselineStimRespIndex_V);
+
