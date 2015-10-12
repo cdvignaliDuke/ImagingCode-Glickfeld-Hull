@@ -1,13 +1,14 @@
 %% load 2P imaging data
 SubNum = '613';
-date = '150504';
-time = '1457';
-ImgFolder = '004';
+date = '150511';
+time = '1513';
+ImgFolder = '005';
 mouse = 'AW13';
-fName = '004_000_000';
+fName = '005_000_000';
 
 % load MWorks file
-CD = ['Z:\data\' mouse '\mworks\' date];
+% CD = ['Z:\data\' mouse '\mworks\' date];
+CD = 'Y:\home\andrew\Behavior\Data';
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);

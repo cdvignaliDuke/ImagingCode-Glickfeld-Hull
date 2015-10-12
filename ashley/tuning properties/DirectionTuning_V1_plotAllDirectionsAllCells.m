@@ -153,7 +153,7 @@ end
 end
 
 %% select cells
-cells = [ 9 18 29 36 40 41 44 50 55];
+cells = [ 9 165];
 figure;
 for iplot = 1:9
 %     cell = baselineStimRespIndex_V(start);
@@ -171,3 +171,34 @@ for iplot = 1:9
     axis([0 length(Dirs) -0.05 ymax]);
     hold on
 end
+%%
+cells = [33 121];
+col = {'y','c'};
+legendInfo = [];
+figure;
+for icell = 1:length(cells)
+    errorbar(Dirs,dFoverFDirResp(:,cells(icell)),errbar(:,cells(icell)),[col{icell} 'o'],'MarkerSize', 10)
+    legendInfo{icell} = ['Cell ' num2str(cells(icell))];
+    hold on
+end
+ylim([-0.1 0.4]) 
+xlim([-10 Dirs(end)+5])
+xlabel('Direction')
+ylabel('dF/F')
+set(gca,'XTick',Dirs)
+legend(legendInfo)
+title('Select Cell Tuning')
+axis square
+
+set(0,'defaultfigurepaperorientation','portrait');
+set(0,'defaultfigurepapersize',[8.5 11]);
+set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+
+print(['Z:\Analysis\temp figs\150924retreatposter' '\'  date mouse '_selectcelltuning'], '-dpdf')
+
+%     print([fnout '\'  date '_' figNameBase '_STDrsplastcyc_audVSvis'], '-dpdf'
+
+
+    
+    
+    

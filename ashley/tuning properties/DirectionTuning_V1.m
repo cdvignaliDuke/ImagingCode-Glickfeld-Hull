@@ -55,9 +55,13 @@ clear data_sub
 %save data_reg
 writetiff(data_reg, 'DirectionTuning_V1');
 
+
 %%
 nRep = size(data_reg,3)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
+%%
+%write tifs for sorted frames
+run('sortTrialsAvg_writetiffs.m')
 %% create dF/F stack
 
 nOFF_ind = zeros(1,(nOFF*nStim*nRep));
@@ -77,7 +81,7 @@ dFoverF = bsxfun(@rdivide,dF_data,nOFF_avg);
 
 max_dF = max(dF_data,[],3);
 maxDFoverF = max(dFoverF,[],3);
-figure; imagesq(max_dF); colormap(gray)
+figure; imagesq(maxDFoverF); colormap(gray)
 
 bwout = imCellEditInteractive(max_dF);
 mask_cell = bwlabel(bwout);
@@ -85,7 +89,25 @@ mask_cell = bwlabel(bwout);
 data_TC = stackGetTimeCourses(data_reg,mask_cell);
 figure; tcOffsetPlot(data_TC)
 
+% xcalib = size(data_reg,2)/500;
+% ycalib = size(data_reg,1)/250;
+% scalebar50umx = 50*xcalib;
+% 
+% scalebarimg = zeros(size(max_dF));
+% scalebarimg(size(data_reg,1)-60-5:size(data_reg,1)-60,size(data_reg,2)-200-scalebar50umx:size(data_reg,2)-200) = 0.5;
+% figure;imagesq(scalebarimg);colormap(gray)
+% writetiff(scalebarimg,'scalebar')
+% 
+% max_dF_wSB = cat(3,max_dF,scalebarimg);
+% writetiff(max_dF,'maxDF')
 
+%% specific cell mask
+% mask_cell33 = double(mask_cell == 33);
+% mask_cell121 = double(mask_cell == 121);
+% figure;imagesq(mask_cell121);colormap(gray)
+% 
+% writetiff(mask_cell33,'mask_cell33')
+% writetiff(mask_cell121,'mask_cell121')
 
 %% use correlation dF/F to find ROIS
 

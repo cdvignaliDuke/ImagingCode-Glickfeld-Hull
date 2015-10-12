@@ -107,7 +107,7 @@ if expt(iexp).catch == 1;
     end
 
 end
-
+nCells = size(dataTC,2);
 clear dataTimecourse
 
 try
