@@ -1,16 +1,16 @@
 tic
 %combine two datasets to have 3 trial types - vis only, aud only, and
 %vis+aud
-SubNum = '613';
-mouse = 'AW13';
-date = '150511';
+SubNum = '616';
+mouse = 'AW16';
+date = '151028';
 
 %% first dataset (_1) - vis only (V) and aud only (A)
-time = '1413';
-ImgFolder = '001';
+time = '1041';
+ImgFolder = '002';
 
 % load MWorks file
-CD = ['Z:\data\' mouse '\mworks\' date];
+CD = 'Y:\home\andrew\Behavior\Data';
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
@@ -26,11 +26,11 @@ dataTC_1 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% second dataset (_2) - vis only (V) and vis + aud only (AV)
-time = '1430';
-ImgFolder = '002';
+time = '1115';
+ImgFolder = '004';
 
 % load MWorks file
-CD = ['Z:\data\' mouse '\mworks\' date];
+CD = 'Y:\home\andrew\Behavior\Data';
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
@@ -46,11 +46,11 @@ dataTC_2 = dataTimecourse.dataTCsub;
 
 clear input dataTimecourse
 %% third dataset (_3) 
-time = '1446';
-ImgFolder = '003';
+time = '1130';
+ImgFolder = '005';
 
 % load MWorks file
-CD = ['Z:\data\' mouse '\mworks\' date];
+CD = 'Y:\home\andrew\Behavior\Data';
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
@@ -98,15 +98,15 @@ dataTC = cat(1,dataTC_1,dataTC_2,dataTC_3);
 %% mworks variables - 3 datasets
 addInd_2 = size(dataTC_1,1);
 addInd_3 = size(dataTC_1,1)+addInd_2;
-cLeverDown = cat(1,cell2mat_padded(input1.cLeverDown),(cell2mat_padded(input2.cLeverDown)+addInd_2),(cell2mat_padded(input3.cLeverDown)+addInd_3));
-cLeverUp = cat(1,cell2mat_padded(input1.cLeverUp),(cell2mat_padded(input2.cLeverUp)+addInd_2),(cell2mat_padded(input3.cLeverUp)+addInd_3));
-cTargetOn = cat(1,cell2mat_padded(input1.cTargetOn),(cell2mat_padded(input2.cTargetOn)+addInd_2),(cell2mat_padded(input3.cTargetOn)+addInd_3));
-cCatchOn = cat(1,cell2mat_padded(input1.cCatchOn),(cell2mat_padded(input2.cCatchOn)+addInd_2),(cell2mat_padded(input3.cCatchOn)+addInd_3));
+cLeverDown = cat(2,cell2mat_padded(input1.cLeverDown),(cell2mat_padded(input2.cLeverDown)+addInd_2),(cell2mat_padded(input3.cLeverDown)+addInd_3));
+cLeverUp = cat(2,cell2mat_padded(input1.cLeverUp),(cell2mat_padded(input2.cLeverUp)+addInd_2),(cell2mat_padded(input3.cLeverUp)+addInd_3));
+cTargetOn = cat(2,cell2mat_padded(input1.cTargetOn),(cell2mat_padded(input2.cTargetOn)+addInd_2),(cell2mat_padded(input3.cTargetOn)+addInd_3));
+cCatchOn = cat(2,cell2mat_padded(input1.cCatchOn),(cell2mat_padded(input2.cCatchOn)+addInd_2),(cell2mat_padded(input3.cCatchOn)+addInd_3));
 cCatchOn(cCatchOn == addInd_2 | cCatchOn == addInd_3) = 0;
-tCyclesOn = cat(1,cell2mat_padded(input1.tCyclesOn),cell2mat_padded(input2.tCyclesOn),cell2mat_padded(input3.tCyclesOn));
-nCyclesOn = cat(1,cell2mat_padded(input1.nCyclesOn),cell2mat_padded(input2.nCyclesOn),cell2mat_padded(input3.nCyclesOn));
-isFA = cat(1,cell2mat_padded(input1.tFalseAlarm),cell2mat_padded(input2.tFalseAlarm),cell2mat_padded(input3.tFalseAlarm));
-catchCycle = cat(1,cell2mat_padded(input1.catchCyclesOn),cell2mat_padded(input2.catchCyclesOn),cell2mat_padded(input3.catchCyclesOn));
+tCyclesOn = cat(2,cell2mat_padded(input1.tCyclesOn),cell2mat_padded(input2.tCyclesOn),cell2mat_padded(input3.tCyclesOn));
+nCyclesOn = cat(2,cell2mat_padded(input1.nCyclesOn),cell2mat_padded(input2.nCyclesOn),cell2mat_padded(input3.nCyclesOn));
+isFA = cat(2,cell2mat_padded(input1.tFalseAlarm),cell2mat_padded(input2.tFalseAlarm),cell2mat_padded(input3.tFalseAlarm));
+catchCycle = cat(2,cell2mat_padded(input1.catchCyclesOn),cell2mat_padded(input2.catchCyclesOn),cell2mat_padded(input3.catchCyclesOn));
 cycles = unique(tCyclesOn);
 cycTime = input1.nFramesOn + input1.nFramesOff;
 frameRateS = 30; %hard-coded for now, but should be available in scanbox-yeti datasets' info file

@@ -46,7 +46,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,100:110),3);
+data_avg = mean(data_sub(:,:,600:610),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -61,6 +61,7 @@ nRep = size(data_reg,3)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
 %%
 %write tifs for sorted frames
+VSR = 2;
 run('sortTrialsAvg_writetiffs.m')
 %% create dF/F stack
 
@@ -83,7 +84,10 @@ max_dF = max(dF_data,[],3);
 maxDFoverF = max(dFoverF,[],3);
 figure; imagesq(maxDFoverF); colormap(gray)
 
-bwout = imCellEditInteractive(max_dF);
+%get rid of bright patch to make gui easier to use
+maxDFoverF(:,750:end,:) = 0;
+
+bwout = imCellEditInteractive(maxDFoverF);
 mask_cell = bwlabel(bwout);
 
 data_TC = stackGetTimeCourses(data_reg,mask_cell);
@@ -143,8 +147,12 @@ buf = 4;
 np = 6;
 neuropil = imCellNeuropil(mask_cell,buf,np);
 
+npTC = zeros(size(data_TC));
 for i = 1:size(data_TC,2)
-    npTC(:,i) = stackGetTimeCourses(data_reg,squeeze(neuropil(:,:,i)));
+    tempNPmask = squeeze(neuropil(:,:,i));
+    if sum(sum(tempNPmask)) > 0
+    npTC(:,i) = stackGetTimeCourses(data_reg,tempNPmask);
+    end
 end
 
 %get weights by maximizing skew
@@ -221,7 +229,7 @@ DirRespPerCell = dFoverF_meanONDirResp;
 % DirRespPerCell = dFoverF_meanONDirResp./dFoverF_meanOFFDirResp;
 
 figure;
-plot(DirRespPerCell(4,:))
+plot(DirRespPerCell(10,:))
 
 %% find direction preference
 

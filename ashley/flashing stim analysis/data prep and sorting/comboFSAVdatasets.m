@@ -28,7 +28,28 @@ for irun = 1:nrun
     if irun == 1
         input = mwLoadData(fn_mworks, [], []);
     else
-        input = [input mwLoadData(fn_mworks, [], [])];
+        try
+            input = [input mwLoadData(fn_mworks, [], [])];
+        catch
+            input2 = mwLoadData(fn_mworks, [], []);
+            inpNames1 = fieldnames(input);
+            inpNames2 = fieldnames(input2);
+            inpLong = gt(length(inpNames1),length(inpNames2));
+            if inpLong == 1
+                inpPlusInd = ismember(inpNames1,inpNames2);
+                inpPlus = inpNames1(~inpPlusInd);
+                for i = 1:length(inpPlus)
+                    input2.(genvarname(inpPlus(i))) = cell(1,80);
+                end
+            else
+                inpPlusInd = ismember(inpNames2,inpNames1);
+                inpPlus = inpNames2(~inpPlusInd);
+                for i = 1:length(inpPlus)
+                    input.(char(genvarname(inpPlus(i)))) = cell(1,80);
+                end
+            end
+            input = [input input2];
+        end
     end
 end
 input = concatenateDataBlocks(input);
@@ -63,7 +84,7 @@ for irun = 1:nrun
         cStimOn(1,startTrial:endTrial) = cStimOn(1,startTrial:endTrial)+offset;
         cItiStart(1,startTrial:endTrial) = cItiStart(1,startTrial:endTrial)+offset;
         if expt(iexp).catch == 1;
-            cCatchOn(1,startTrial:endTrial) = cCatchOn(1,startTrial:endTrial)+offset;
+            cCatchOn(1,startTrial:endTrial) = isFA(1,startTrial:endTrial)+offset;
             isFA(1,startTrial:endTrial) = cCatchOn(1,startTrial:endTrial)+offset;
         end
     end
@@ -76,8 +97,13 @@ nCyclesOn = cell2mat(input.nCyclesOn);
 
 cycles = unique(tCyclesOn);
 block2 = cell2mat(input.tBlock2TrialNumber);
-V_ind = find(cell2mat(input.tBlock2TrialNumber) == 0);
-AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
+try
+    V_ind = find(celleqel2mat_padded(input.tGratingDirectionDeg) > 0);
+    AV_ind = find(celleqel2mat_padded(input.tSoundTargetAmplitude) > 0);
+catch 
+    V_ind = find(cell2mat(input.tBlock2TrialNumber) == 0);
+    AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
+end
 cycTime = input.nFramesOn+input.nFramesOff;
 tooFastTime = input.nFramesTooFast;
 maxReactTime = input.nFramesReact;
@@ -114,6 +140,7 @@ try
     cd([fnout '\' runstr])
 catch
     mkdir(fnout,runstr)
+    cd([fnout '\' runstr])
 end
 
 save([mouse '-' expt(iexp).date '-' runstr '-comboInputDataTC.mat'],'dataTC','input');

@@ -35,6 +35,11 @@ posttarget_frames = 30;
 
 %%
 if ialign == 1
+    
+%% are there high motion trials that need to be thrown out?
+% if expt.motionTestBimodal == 1
+%     
+% end
 %% divide up data by cycle- align to lever down
 
 for icyc = 1:length(cycles)

@@ -1,32 +1,32 @@
-% run(FlashingStim_dataSortedByCycle_combineDatasets.m)
+iexp = 11;
 %%
-% cells selective for 90 deg, 0 deg, driven by baseline stim, "driven
-% cells", non-selective cells, target driven cells
+ialign = 1;
+run('divideupdatabyalignment.m')
+%% find sets of cells
+DirFolder = expt(iexp).dirtuning;
+run('cellSets.m')
 %%
-fnout = ['Z:\Analysis\' mouse '\two-photon imaging\' date '\TargetandCatchAvgTraces'];
+fnout = ['Z:\Analysis\' mouse '\two-photon imaging\' date '\PreTargetAvgTraces'];
 try
     cd(fnout)
 catch
     try
         cd(['Z:\Analysis\' mouse '\two-photon imaging\' date]);
-        mkdir('TargetandCatchAvgTraces')
+        mkdir('PreTargetAvgTraces')
     catch
         cd(['Z:\Analysis\' mouse '\two-photon imaging\']);
-        mkdir(date,'TargetandCatchAvgTraces')
+        mkdir(date,'PreTargetAvgTraces')
     end
 end
 
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
-%% find sets of cells
-DirFolder = '005';
-run('cellSets.m')
 
 %% sort trials by direction change
 for i = 1:length(Dirs)
-%     ind = intersect(find(DirectionDeg == Dirs(i)),find(strcmp(trialOutcome,'success')));    
-    ind = intersect(find(DirectionDeg == Dirs(i)),find(strcmp(trialOutcome,'success') | strcmp(trialOutcome,'ignore')));    
+    ind = intersect(find(DirectionDeg == Dirs(i)),find(strcmp(trialOutcome,'success')));    
+%     ind = intersect(find(DirectionDeg == Dirs(i)),find(strcmp(trialOutcome,'success') | strcmp(trialOutcome,'ignore')));    
 %         ind = intersect(find(DirectionDeg == Dirs(i)),find(strcmp(trialOutcome,'ignore')));    
     if isempty(ind) == 1;
         dirTargetData{i} = [];
@@ -34,7 +34,7 @@ for i = 1:length(Dirs)
         dirTargetDataDFoverF{i} = [];
         dirTargetInd{i} = ind;
 %         dirTargetNorm{i} = [];
-    elseif cTargetOn(ind(end),1)+40 > size(dataTC,1) 
+    elseif cTargetOn(1,ind(end))+40 > size(dataTC,1) 
         targetData = zeros(60,size(dataTC,2),length(ind));
         targetDataDF = zeros(60,size(dataTC,2),length(ind));
         targetDataDFoverF = zeros(60,size(dataTC,2),length(ind));
@@ -87,8 +87,8 @@ targetdrivencells = find(meanSub >0.05);
 %% sort trials by catch direction change
 
 for i = 1:length(catchDirs)
-    ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'CR') | strcmp(catchTrialOutcome,'FA')));
-%     ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'CR')));
+%     ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'CR') | strcmp(catchTrialOutcome,'FA')));
+    ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'FA')));
     if isempty(ind) == 1
             dirCatchData{i} = [];
             dirCatchDataDF{i} = [];
@@ -120,9 +120,9 @@ for i = 1:length(catchDirs)
 end
 
 %% ***************************************************
-cells =cellsSelectZero;
-cellgroupname = 'pref 90, ori or dir selective';
-figBaseName = 'avgDFoverFpretarget_90orislctv_all';
+cells = 1:nCells;
+cellgroupname = 'all cells';
+figBaseName = 'avgDFoverFpretarget_allcells_successignore';
 
 %***************************
 
@@ -294,15 +294,15 @@ title({[mouse '; ' date]; 'target resp'; cellgroupname4})
 print([fnout ['\' 'combinetargetresp' '.pdf']], '-dpdf')
 %% plot all catch responses
 figure;
-subplot(2,2,1)
+% subplot(2,2,1)
 for i = 1:length(catchDirs)
     if i == 1
         lineprops.col = {'k'};
     else
         lineprops.col = {colorsC(i,:)};
     end
-%     subplot(1,2,i)
-    mseb([-19:40],meanCatchRespNorm1(:,i),errCatchResp1(:,i)',lineprops,1);
+%     subplot(2,2,i)
+    mseb([-19:40],meanCatchRespNorm(:,i),errCatchResp(:,i)',lineprops,1);
 %     ylim([-0.01 0.03])
     hold on
 end
@@ -316,7 +316,7 @@ for i = 1:length(ind)-1
     lineprops.col = {colorsT(i,:)};
     subplot(1,2,i)
     mseb([-19:40],meanTargetRespNorm(:,ind(i+1)),errTargetResp(:,ind(i+1))',lineprops,1);
-    ylim([-0.01 0.05])
+%     ylim([-0.01 0.05])
     legend({'target' 'catch'})
     hold on
 end
@@ -326,7 +326,7 @@ for i = 1:length(catchDirs)-1
     lineprops.col = {colorsC(1,:)};
     subplot(1,2,i)
     mseb([-19:40],meanCatchRespNorm(:,i+1),errCatchResp(:,i+1)',lineprops,1);
-    ylim([-0.01 0.05])
+%     ylim([-0.01 0.05])
     legend({'target' 'catch'})
     title([num2str(catchDirs(i+1)) ' degrees'])
     hold on

@@ -1,9 +1,9 @@
 clear all
 close all
-fnouttemp = ['Z:\Analysis\temp figs\150924retreatposter']; %
+% fnouttemp = ['Z:\Analysis\temp figs\150924retreatposter']; %
 awFSAVdatasets
 % for iexp = 1:size(expt,2)
-iexp = 1;
+iexp = 8;
     
 %%
 ialign = 1;
@@ -44,12 +44,12 @@ responsedelay_frames = 3;
 %% find sets of cells
 DirFolder = expt(iexp).dirtuning;
 run('cellSetsLG.m')
-drivencells = find(any(mean(cycDataDFoverF_cmlvNoTarget{end},3) >0.05,1));% iexp = 3;
+drivencells = find(any(mean(cycDataDFoverF_cmlvNoTarget{end},3) >0.05,1));% 
 
 %% set cycle length
 CYC = find(cycles == 5);
 tempdata = cycDataDFoverF_cmlvNoTarget{CYC};
-cells = [33 121];
+cells = [114 135 138 189];
 
 %% plot figure for select cycle data, all cells, all trials, aud vs vis
 figure;
@@ -105,7 +105,7 @@ ylabel('dF/F')
 
 end
 suptitle({[mouse '-' dateofexp '-' runstr];[num2str(CYC) ' cycles']; ['mean driven cells, success trials']; 'gr = vis, bl = aud'})
-print([fnouttemp '\' mouse '-' dateofexp '_' num2str(CYC) ' cycles_selectcells'], '-dpdf');
+% print([fnouttemp '\' mouse '-' dateofexp '_' num2str(CYC) ' cycles_selectcells'], '-dpdf');
 
 %% plot tuned response to targets
 run('FSAV_targetresp.m')

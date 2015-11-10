@@ -9,7 +9,7 @@ clear data_sub
 % figure; imagesq(data_avg); colormap(gray)
 
 %get direction tuning registration image and get cells
-dirFolder = '006';
+dirFolder = '007';
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileDirMasks);
 load('regImg.mat');
@@ -28,8 +28,14 @@ dataTC = stackGetTimeCourses(data_reg, mask_cell);
 buf = 4;
 np = 6;
 nCells = size(dataTC,2);
+
+
+npTC = zeros(size(dataTC));
 for i = 1:nCells
-    npTC(:,i) = stackGetTimeCourses(data_reg,squeeze(neuropil(:,:,i)));
+    tempNPmask = squeeze(neuropil(:,:,i));
+    if sum(sum(tempNPmask)) > 0
+    npTC(:,i) = stackGetTimeCourses(data_reg,tempNPmask);
+    end
 end
 
 % npTC = stackGetTimeCourses(data_reg,neuropil);

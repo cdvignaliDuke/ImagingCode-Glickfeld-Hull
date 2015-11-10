@@ -1,4 +1,4 @@
-iexp = 3;
+iexp = 11;
 %%
 ialign = 1;
 run('divideupdatabyalignment.m')
@@ -24,9 +24,9 @@ set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 
 %%
-cells = cellsSelectZero;
-cellgroupname = 'pref 0, ori or dir selective';
-figName = 'avgDFoverFpretarget_0orislctv_success';
+cells = 1:nCells;
+cellgroupname = 'all cells';
+figName = 'avgDFoverFpretarget_allcells_success';
 %%
 figure;
 for icyc = 1:length(cycles)

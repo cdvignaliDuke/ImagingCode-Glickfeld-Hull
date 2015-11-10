@@ -8,7 +8,6 @@ nStim = input.gratingElevationStepN.*input.gratingAzimuthStepN;
 
 
 % data_reg = readtiff('Retinotopy_V1.tif');
-down = 10;
 data_down = stackGroupProject(data,down);
 clear data
 
@@ -17,7 +16,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data
 
 % register
-data_avg = mean(data_sub(:,:,500:510),3);
+data_avg = mean(data_sub(:,:,200:210),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -37,18 +36,21 @@ end
 
 writetiff(data_reg, 'Retinotopy_V1');
 
-%registered image
-data_avg = mean(data_reg(:,:,:),3);
-figure; imagesq(data_avg); colormap(gray)
+% %registered image
+% data_avg = mean(data_reg(:,:,:),3);
+% figure; imagesq(data_avg); colormap(gray)
 
 % data_reg = readtiff('Retinotopy_V1.tif');
-
-
 
 %%
 % data_reg = data_reg(:,:,1:540);
 nRep = size(data_reg,3)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
+
+%%
+%write tifs for sorted frames
+VSR = 1;
+run('sortTrialsAvg_writetiffs.m')
 
 %% create dF/F stack
 %find off and on frames
@@ -147,7 +149,7 @@ end
 %plot
 figure;
 Az_locMat = repmat(1:input.gratingAzimuthStepN,1,(nStim/input.gratingAzimuthStepN));
-El_locMat = repmat(1:input.gratingElevationStepN,1,(nStim/input.gratingElevationStepN));
+El_locMat = [1 1 1 2 2 2];
 for istim = 1:nStim
 	subplot(input.gratingAzimuthStepN,input.gratingElevationStepN,istim);
     for icell = 1:nCells

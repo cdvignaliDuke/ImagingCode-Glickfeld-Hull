@@ -1,7 +1,7 @@
 close all
 clear all
 % iexp = 1;
-fnouttemp = ['Z:\Analysis\temp figs\150924retreatposter']; %
+% fnouttemp = ['Z:\Analysis\temp figs\150924retreatposter']; %
 awFSAVdatasets
 av = behavParamsAV;
 analysisName = {'PreTarget_respIntegral_Cells'; 'PreTarget_respAmp2basestim1_Cells'; 'PreTarget_respAmp2basestimlast_Cells';'PreTarget_std_Cells'};
@@ -71,6 +71,9 @@ meanIntegral_AV{iexp} = mean(mean(tempdata(cells,AV_cycInd),2),1);
 errorbarxy(meanIntegral_V{iexp},meanIntegral_AV{iexp}, std(unique(reshape(tempdata(cells,V_cycInd),1,[])))/sqrt(length(unique(reshape(tempdata(cells,V_cycInd),1,[])))), std(unique(reshape(tempdata(cells,AV_cycInd),1,[])))/sqrt(length(unique(reshape(tempdata(cells,AV_cycInd),1,[])))), {['o' colS], colS, colS});
 hold on
 
+
+str1 = ['\leftarrow ' num2str(expt(iexp).SubNum) '-' num2str(expt(iexp).date)];
+text(meanIntegral_V{iexp},meanIntegral_AV{iexp},str1)
 
 plot([-10:0.1:20],[-10:0.1:20],'k--')
 hold on
