@@ -1,14 +1,14 @@
-mouse = 'AW36';
-subN = '636';
-date = '150911';
-time = '1420';
-experimentname = 'msFRONT_100exp_10Hz_FSAVnaive_s3_1';
+mouse = 'AW33';
+subN = '633';
+date = '150915';
+time = '1418';
+experimentname = 'msFront_FSAV_30degsize_30Hz_633_1_MMStack.ome';
 
-cd('Y:\home\andrew\Behavior\Data')
+cd('Z:\home\andrew\Behavior\Data')
 load(['data-i' subN '-' date '-' time]);
 
-cd(['Z:\data\AW36\widefield imaging\' date '_' mouse '\' experimentname]);
-data = double(readtiff([experimentname '_MMStack.ome.tif']));
+cd(['S:\Data\' subN '\Widefield imaging\' date '_' subN '\' experimentname]);
+data = double(readtiff([experimentname '.tif']));
 
 
 %% find dF/F for entire frame - only one cycle used
@@ -70,9 +70,9 @@ set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 
-filesave = 'Z:\Analysis\AW36\widefield imaging\150911';
+filesave = ['S:\Analysis\' subN '\Widefield imaging\' date];
 
-print([filesave ['\' [mouse ' avg all trials, rough ROIs,10Hz_new' date] '.pdf']], '-dpdf')    
+print([filesave ['\' [mouse ' avg all trials, rough ROIs,30Hz_new' date] '.pdf']], '-dpdf')    
 
 %% plot aud vs vis trials timecourses
 
@@ -93,8 +93,7 @@ title([mouse ' Naive FS-AV - ' num2str(imgrate) 'Hz, v = gr, a = bl trials']);
 xlabel('frames')
 ylabel('dF/F')
 
-filesave = 'Z:\Analysis\AW36\widefield imaging\150911';
 
-print([filesave ['\' [mouse ' avg all trials, avg ROIs,10Hz_new,VvsA' date] '.pdf']], '-dpdf')    
+print([filesave ['\' [mouse ' avg all trials, avg ROIs,30Hz_new,VvsA' date] '.pdf']], '-dpdf')    
 
 
