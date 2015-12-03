@@ -10,7 +10,7 @@ Az = [0 15 30];
 El = [10 -10];
 position = 1:6;
 FSpos = 3;
-
+filesave = fullfile('Z:\Analysis',mouse,'two-photon imaging',date,ImgFolder);
 %% reshape data
 %average signals in time
 
@@ -22,13 +22,20 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,80:90),3);
+data_avg = mean(data_sub(:,:,500:510),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
 clear data_sub
 
 %save data_reg
+try
+    cd(filesave)
+catch
+    cd(fullfile('Z:\Analysis',mouse,'two-photon imaging'))
+    mkdir(date,ImgFolder)
+    cd(filesave)
+end
 writetiff(data_reg, 'Retinotopy_V1');
 
 %registered image

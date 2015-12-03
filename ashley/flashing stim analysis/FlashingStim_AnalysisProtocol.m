@@ -1,14 +1,18 @@
 %% animal and experiment date
-SubNum = '613';
-mouse = 'AW13';
-date = '150508';
+SubNum = '616';
+mouse = 'AW16';
+date = '151019';
 
 %% open notes pdf
 CD = ['Z:\data\' mouse '\two-photon imaging\' date];
 cd(CD);
-notes = ['2P Notes - ' SubNum ' ' date '.pdf'];
-open(notes);
-
+try
+    notes = ['2P Notes - ' SubNum ' ' date '.pdf'];
+    open(notes);
+catch
+    notes = ['2P Notes - ' SubNum ' ' date '.xlsx'];
+    open(notes);
+end
 %% Retinotopy
 
 %load retinotopy dataset

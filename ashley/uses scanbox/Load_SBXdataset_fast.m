@@ -1,13 +1,14 @@
 %% load 2P imaging data
-SubNum = '613';
-date = '150504';
-time = '1457';
-ImgFolder = '004';
-mouse = 'AW13';
-fName = '004_000_000';
+SubNum = '616';
+date = '151019';
+time = '1147';
+ImgFolder = '005';
+mouse = 'AW16';
+fName = '005_000_000';
 
 % load MWorks file
-CD = ['Z:\data\' mouse '\mworks\' date];
+% CD = ['Z:\data\' mouse '\mworks\' date];
+CD = 'Y:\home\andrew\Behavior\Data';
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
@@ -99,8 +100,8 @@ data = squeeze(data);
 %%
 
 %reshape image for with resonnant scan correction
-info.S = sparseint;
-for i = 1:nframes
-    dataSquish(:,:,i) = data(:,:,i)*info.S;
-end
-figure; imagesc(squeeze(mean(data(:,:,:),3))*info.S),truesize, axis off;
+% info.S = sparseint;
+% for i = 1:nframes
+%     dataSquish(:,:,i) = data(:,:,i)*info.S;
+% end
+% figure; imagesc(squeeze(mean(data(:,:,:),3))*info.S),truesize, axis off;

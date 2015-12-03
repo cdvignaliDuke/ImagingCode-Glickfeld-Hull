@@ -46,7 +46,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,100:110),3);
+data_avg = mean(data_sub(:,:,600:610),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -55,9 +55,14 @@ clear data_sub
 %save data_reg
 writetiff(data_reg, 'DirectionTuning_V1');
 
+
 %%
 nRep = size(data_reg,3)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
+%%
+%write tifs for sorted frames
+VSR = 2;
+run('sortTrialsAvg_writetiffs.m')
 %% create dF/F stack
 
 nOFF_ind = zeros(1,(nOFF*nStim*nRep));
@@ -77,15 +82,36 @@ dFoverF = bsxfun(@rdivide,dF_data,nOFF_avg);
 
 max_dF = max(dF_data,[],3);
 maxDFoverF = max(dFoverF,[],3);
-figure; imagesq(max_dF); colormap(gray)
+figure; imagesq(maxDFoverF); colormap(gray)
 
-bwout = imCellEditInteractive(max_dF);
+%get rid of bright patch to make gui easier to use
+maxDFoverF(:,750:end,:) = 0;
+
+bwout = imCellEditInteractive(maxDFoverF);
 mask_cell = bwlabel(bwout);
 
 data_TC = stackGetTimeCourses(data_reg,mask_cell);
 figure; tcOffsetPlot(data_TC)
 
+% xcalib = size(data_reg,2)/500;
+% ycalib = size(data_reg,1)/250;
+% scalebar50umx = 50*xcalib;
+% 
+% scalebarimg = zeros(size(max_dF));
+% scalebarimg(size(data_reg,1)-60-5:size(data_reg,1)-60,size(data_reg,2)-200-scalebar50umx:size(data_reg,2)-200) = 0.5;
+% figure;imagesq(scalebarimg);colormap(gray)
+% writetiff(scalebarimg,'scalebar')
+% 
+% max_dF_wSB = cat(3,max_dF,scalebarimg);
+% writetiff(max_dF,'maxDF')
 
+%% specific cell mask
+% mask_cell33 = double(mask_cell == 33);
+% mask_cell121 = double(mask_cell == 121);
+% figure;imagesq(mask_cell121);colormap(gray)
+% 
+% writetiff(mask_cell33,'mask_cell33')
+% writetiff(mask_cell121,'mask_cell121')
 
 %% use correlation dF/F to find ROIS
 
@@ -121,8 +147,12 @@ buf = 4;
 np = 6;
 neuropil = imCellNeuropil(mask_cell,buf,np);
 
+npTC = zeros(size(data_TC));
 for i = 1:size(data_TC,2)
-    npTC(:,i) = stackGetTimeCourses(data_reg,squeeze(neuropil(:,:,i)));
+    tempNPmask = squeeze(neuropil(:,:,i));
+    if sum(sum(tempNPmask)) > 0
+    npTC(:,i) = stackGetTimeCourses(data_reg,tempNPmask);
+    end
 end
 
 %get weights by maximizing skew
@@ -199,7 +229,7 @@ DirRespPerCell = dFoverF_meanONDirResp;
 % DirRespPerCell = dFoverF_meanONDirResp./dFoverF_meanOFFDirResp;
 
 figure;
-plot(DirRespPerCell(4,:))
+plot(DirRespPerCell(10,:))
 
 %% find direction preference
 

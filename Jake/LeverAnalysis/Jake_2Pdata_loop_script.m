@@ -11,9 +11,13 @@ for id = 1:size(date_mat,1)
         run = run_mat(id,:,irun);
         disp([date ' ' mouse])
         run_name = [date '_' mouse '_run' run(length(run)-2:end)];
+        if irun == 1;
+            run1_name = [date '_' mouse '_run' run(length(run)-2:end)];
+        end
         out_path = fullfile(out_base,run_name);
         dest =  fullfile(out_path,run_name);
         dest_sub = fullfile([dest '_nosub'], [run_name '_nosub']);
+        prepare_movie_for_analysis_2P
         HAD_cmp_success_fail_2P_ROIs
         HAD_2P_event_detection 
     end
