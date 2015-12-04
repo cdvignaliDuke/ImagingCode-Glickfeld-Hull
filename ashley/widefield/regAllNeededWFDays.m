@@ -12,22 +12,18 @@ while true
     else
         % do the one we found
         dateStr = xd.DateStr{indexRowN};
-        fprintf('Starting subject %s, date %s', ...
+        fprintf('Starting subject %s, date %s\n', ...
         mouse, dateStr);
         eval(['i' mouse '_paths'])
-        pn_img_folder = dir(fullfile(data_folder,[dateStr '_' mouse],[mouse behav_run '*']));
-        pn_img_data = dir(fullfile(data_folder,[dateStr '_' mouse],pn_img_folder.name(1,:),[mouse behav_run '*']));
-        %img_data = readtiff(fullfile(data_folder,[dateStr '_' mouse],pn_img_folder.name(irun,:), pn_img_data.name(irun,:)));
-
-        %img_avg = mean(img_data, 3);
-        load('Z:\home\lindsey\Analysis\Widefield_imaging\633\633_151103_reg_data.mat')
+        img_avg = imread(fullfile(data_folder,[dateStr '_' mouse],[mouse behav_run num2str(xd.ImgDataRun1(indexRowN))],[mouse behav_run num2str(xd.ImgDataRun1(indexRowN)) '_MMStack.ome.tif']));
+        
         roi_avg = readtiff(fullfile(anal_pn, mouse, [mouse '_' roi_date '_roi_data_avg.tif']));
-        AVG = img_avg;
+        AVG = double(img_avg);
         AVG(find(AVG>1e5)) = 0;
         AVG = (AVG./max(max(abs(AVG)))); % AVG can't have any depth
         target = roi_avg;
         target(find(target>1e5)) = 0;
-        target = (target./max(max(abs(target))))-.5; % Used to be plus 0.5
+        target = (target./max(max(abs(target)))); % Used to be plus 0.5
 
         [input_points, base_points] = cpselect(AVG,target,'Wait', true) 
         save(fullfile(anal_pn, mouse, [mouse '_' dateStr '_reg_data.mat']), 'img_avg', 'roi_avg', 'input_points', 'base_points')

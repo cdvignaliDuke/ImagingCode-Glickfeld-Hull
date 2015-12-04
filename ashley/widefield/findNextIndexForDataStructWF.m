@@ -15,10 +15,10 @@ xd = frm_xls2frm(rc.indexFilename, [], rc.indexTextCols);
 indexRowN = []; % this is returned if no data found
 
 %compile all dates previously in structure
-dates = [];
+dates = cell(1,length(dS));
 if isfield(dS, 'date')
     for id = 1:length(dS)
-        dates = [dates dS(id).date];
+        dates{id} = dS(id).date;
     end
 end
 

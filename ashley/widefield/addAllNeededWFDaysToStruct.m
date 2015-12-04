@@ -3,6 +3,7 @@ function addAllNeededWFDaysToStruct(mouse)
 while true
     close all;
     rc = behavConstsWF(mouse);
+    event_buffer_time = 2000;
     if ~exist(fullfile(rc.structOutput, [mouse '_dSStruct.mat']))
         dS = struct;
         dayN = 1;
@@ -26,32 +27,16 @@ while true
 
         % use imaging data to determine number of runs
         eval(['i' mouse '_paths'])
-        pn_img_folder = dir(fullfile(data_folder,[dateStr '_' mouse],[mouse behav_run '*']));
-        nrun = size(pn_img_folder.name,1);
-
-        % load behavioral data for each run 
-        xd = frm_xls2frm(rc.indexFilename);
-        pn_behav_data = dir(fullfile(behav_folder,['data-i' mouse '-' dateStr '*']));
-        if size(pn_behav_data,1) == nrun
-            behav_runs = pn_behav_data.name;
-        else
-            for irun = 1:nrun
-                if isnan(eval(['xd.MatFileRun' num2str(irun) '(indexRowN)']))
-                    error('Need to log dates for mat files')
-                else
-                    timeStr = num2str(eval(['xd.MatFileRun' num2str(irun) '(indexRowN)']));
-                    pn_behav_data = dir(fullfile(behav_folder,['data-i' mouse '-' dateStr '-' timeStr '*']));
-                    if size(pn_behav_data)~= 1 
-                        error('Erong mat file time logged')
-                    else 
-                        behav_runs(irun,:) = pn_behav_data.name;
-                    end
-                end
-            end
+        nrun = str2num(xd.Runs{indexRowN});
+        runs = [];
+        for irun = 1:nrun
+            runs = [runs eval(['xd.ImgDataRun' num2str(irun) '(indexRowN)'])];
         end
 
+        % load behavioral data for each run 
         for irun = 1:nrun
-            fn_mworks = fullfile(behav_folder,behav_runs(irun,:));
+            timeStr = num2str(eval(['xd.MatFileRun' num2str(irun) '(indexRowN)']));
+            fn_mworks = fullfile(behav_folder,['data-i' mouse '-' dateStr '-' timeStr '.mat']);
             if irun == 1
                 input = mwLoadData(fn_mworks, [], []);
             else
@@ -69,14 +54,13 @@ while true
         cItiStart = cell2mat(input.cItiStart);
 
         %if timecourses don't exist load imaging data and account for counter offset
-        if exist(fullfile(rc.structOutput, [mouse '_' roi_date '_roi_TC.mat']), 'file')
-            load(fullfile(rc.structOutput, [mouse '_' roi_date '_roi_TC.mat']), 'roi_TC')
+        if exist(fullfile(rc.structOutput, [mouse '_' dateStr '_roi_TC.mat']), 'file')
+            load(fullfile(rc.structOutput, [mouse '_' dateStr '_roi_TC.mat']), 'roi_TC')
         else
             img_data = [];   
             offset = 0;
             for irun = 1:nrun
-                pn_img_data = dir(fullfile(data_folder,[dateStr '_' mouse],pn_img_folder.name(irun,:),[mouse behav_run '*']));
-                temp_data = readtiff(fullfile(data_folder,[dateStr '_' mouse],pn_img_folder.name(irun,:), pn_img_data.name(irun,:)));
+                temp_data = readtiff(fullfile(data_folder,[dateStr '_' mouse],[mouse behav_run num2str(runs(irun))], [mouse behav_run num2str(runs(irun)) '_MMStack.ome.tif']));
                 img_data = cat(3,img_data,temp_data); 
                 offset = offset+size(temp_data,3);
                 if irun < nrun
@@ -95,21 +79,31 @@ while true
             load(fullfile(rc.structOutput, [mouse '_' dateStr '_reg_data.mat']), 'img_avg', 'roi_avg', 'input_points', 'base_points')
             sz_target  = size(roi_avg);
             mytform    = maketform('affine',input_points(1:3,:), base_points(1:3,:));
-            registered = imtransform(img_data,mytform,'XData',[1 sz_target(2)],'YData',[1 sz_target(1)]);    
+            
+            numWorkers = 10;
+            pool = parpool(numWorkers);
+            sz_orig = size(img_data);
+            registered = zeros(sz_orig(1),sz_orig(2), sz_orig(3)./numWorkers,numWorkers);
+            tic
+            parfor i = 1:numWorkers
+                registered(:,:,:,i) = imtransform(img_data(:,:,1+((sz_orig(3)./numWorkers)*(i-1)):(sz_orig(3)./numWorkers)*i),mytform,'XData',[1 sz_target(2)],'YData',[1 sz_target(1)]);   
+            end
+            toc
+            delete(gcp)
+            registered = reshape(registered, sz_orig);
             clear img_data;
 
             %extract timecourses
             load(fullfile(rc.structOutput, [mouse '_' roi_date '_roi_masks.mat']))
             roi_TC = stackGetTimeCourses(registered, mask_cell_V);
-            save(fullfile(rc.structOutput, [mouse '_' roi_date '_roi_TC.mat']), 'roi_TC')
+            save(fullfile(rc.structOutput, [mouse '_' dateStr '_roi_TC.mat']), 'roi_TC')
             clear registered
         end
         
         %align ROIs to events
         nROI = size(roi_TC,2);
         ntrials = length(cLeverDown);
-        frame_rate = 30;
-        event_buffer_time = 2000;
+        frame_rate = str2num(xd.FrameRate{indexRowN});
         event_buffer_frames = ceil(event_buffer_time*(frame_rate./1000));
         pressAlign = zeros(2*event_buffer_frames,nROI,ntrials);
         targetAlign = zeros(2*event_buffer_frames,nROI,ntrials);
@@ -143,6 +137,7 @@ while true
         dS(dayN).reactTimeMs = input.reactTimeMs;
         dS(dayN).stimOnTimeMs = input.stimOnTimeMs;
         dS(dayN).eventBufferFrames = event_buffer_frames;
+        dS(dayN).frameRate = frame_rate;
         
         save(fullfile(rc.structOutput, [mouse '_dSStruct.mat']), 'dS'); 
     end 
