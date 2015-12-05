@@ -133,7 +133,7 @@ while true
         dS(dayN).trialOutcomeCell = input.trialOutcomeCell;
         dS(dayN).holdTimesMs = cell2mat_padded(input.holdTimesMs);
         dS(dayN).reactTimesMs = cell2mat_padded(input.reactTimesMs);
-        dS(dayN).reactTimesMs = cell2mat_padded(input.tTotalReqHoldTimeMs);
+        dS(dayN).reqHoldTimesMs = cell2mat_padded(input.tTotalReqHoldTimeMs);
         dS(dayN).reactTimeMs = input.reactTimeMs;
         dS(dayN).stimOnTimeMs = input.stimOnTimeMs;
         dS(dayN).eventBufferFrames = event_buffer_frames;
