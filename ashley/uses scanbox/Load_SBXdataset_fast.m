@@ -1,7 +1,7 @@
 %% load 2P imaging data
 SubNum = '616';
-date = '151019';
-time = '1147';
+date = '151118';
+time = '1138';
 ImgFolder = '005';
 mouse = 'AW16';
 fName = '005_000_000';

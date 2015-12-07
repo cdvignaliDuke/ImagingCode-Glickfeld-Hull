@@ -1,5 +1,5 @@
 ialign = 1;
-awFSAVdatasets;
+awFSAVdatasets_longStimON;
 for iexp = 1:size(expt,2)
 % iexp = 5;
 divideupdatabyalignment

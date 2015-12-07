@@ -1,5 +1,6 @@
-% fileSave = fullfile(rc.ashley,Analysis,mouse_name,folder, date_name, dir_run);
-fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, DirFolder);
+rc = behavConstsAV;
+fileSave = fullfile(rc.caOutputDir,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
+% fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, DirFolder);
 cd(fileSave);
 load('TuningPreferences.mat')
 

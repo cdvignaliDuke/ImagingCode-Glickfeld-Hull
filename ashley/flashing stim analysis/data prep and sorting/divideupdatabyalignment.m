@@ -1,7 +1,7 @@
 % choose dataset to run
 % close all
 % clear all
-awFSAVdatasets
+awFSAVdatasets_longStimON
 try
     iexp
 catch
@@ -30,10 +30,9 @@ fnout = ['Z:\Analysis\' mouse '\' expFolder '\' dateofexp '\' runstr];
 load([fnout '\' mouse '-' expt(iexp).date '-' runstr '-comboInputDataTCplusVar.mat'])
 
 %%
-prepress_frames = 30;
-posttarget_frames = 30;
 
-%%
+
+%% align to press (trial start)
 if ialign == 1
     
 %% are there high motion trials that need to be thrown out?
@@ -41,6 +40,8 @@ if ialign == 1
 %     
 % end
 %% divide up data by cycle- align to lever down
+prepress_frames = 30;
+posttarget_frames = 30;
 
 for icyc = 1:length(cycles)
     ind = find(tCyclesOn == cycles(icyc));
@@ -139,6 +140,31 @@ for icyc = 1:length(cycles)
 %     ylim([-0.05 0.05])
 
 end
+%% align to target and catch stim, sort by direction degree
+elseif ialign == 2
+    for icyc = 1:length(cycles)
+    ind = find(tCyclesOn == cycles(icyc));
+    Data = zeros(cycTime.*(cycles(icyc)+1)+prepress_frames+posttarget_frames,size(dataTC,2),length(ind));
+    DataDF = zeros(cycTime.*(cycles(icyc)+1)+prepress_frames+posttarget_frames,size(dataTC,2),length(ind));
+    DataDFoverF = zeros(cycTime.*(cycles(icyc)+1)+prepress_frames+posttarget_frames,size(dataTC,2),length(ind));
+    if cLeverDown(end)+prepress_frames > size(dataTC,1)
+        for itrial = 1:length(ind)-1
+            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-prepress_frames:cLeverDown(ind(itrial))+(posttarget_frames-1)+(cycTime.*(cycles(icyc)+1)),:);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:30,:,itrial),1));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:30,:,itrial),1));
+        end
+    else
+        for itrial = 1:length(ind)
+            Data(:,:,itrial) = dataTC(cLeverDown(ind(itrial))-prepress_frames:cLeverDown(ind(itrial))+(posttarget_frames-1)+(cycTime.*(cycles(icyc)+1)),:);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), mean(Data(1:prepress_frames,:,itrial),1));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:prepress_frames,:,itrial),1));
+        end
+    end
+    cycData{icyc} = Data;
+    cycDataDF{icyc} = DataDF;
+    cycDataDFoverF{icyc} = DataDFoverF;
+end
+    
 else
 %% Align data to lever up
 Data = zeros(105,size(dataTC,2),ntrials);

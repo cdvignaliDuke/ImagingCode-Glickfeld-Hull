@@ -23,7 +23,28 @@ for iexp = 1:size(expt,2)
         if irun == 1
             input = mwLoadData(fn_mworks, [], []);
         else
-            input = [input mwLoadData(fn_mworks, [], [])];
+            try
+                input = [input mwLoadData(fn_mworks, [], [])];
+            catch
+                input2 = mwLoadData(fn_mworks, [], []);
+                inpNames1 = fieldnames(input);
+                inpNames2 = fieldnames(input2);
+                inpLong = gt(length(inpNames1),length(inpNames2));
+                if inpLong == 1
+                    inpPlusInd = ismember(inpNames1,inpNames2);
+                    inpPlus = inpNames1(~inpPlusInd);
+                    for i = 1:length(inpPlus)
+                        input2.(genvarname(inpPlus(i))) = cell(1,80);
+                    end
+                else
+                    inpPlusInd = ismember(inpNames2,inpNames1);
+                    inpPlus = inpNames2(~inpPlusInd);
+                    for i = 1:length(inpPlus)
+                        input.(char(genvarname(inpPlus(i)))) = cell(1,80);
+                    end
+                end
+                input = [input input2];
+            end
         end
     end
     input = concatenateDataBlocks(input);
@@ -35,7 +56,7 @@ for iexp = 1:size(expt,2)
         end
     end
 %     fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '\' mouse '-' date '-' runstr];
-    fnout = ['Z:\Analysis\' mouse '\behavior\eye tracking\' date '\' mouse '-' date '-' runstr];
+    fnout = ['Z:\Analysis\' mouse '\eye tracking\' date '\' mouse '-' date '-' runstr];
 
     %% 
     prepush_frames = ceil(pre_event_time*(frame_rate/1000));
@@ -143,6 +164,13 @@ for iexp = 1:size(expt,2)
 %         plot(Centroid_temp(x(frames(i)),1), Centroid_temp(x(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(x(frames(i)),1)/pi))
         start = start+1;
     end
+try
+    cd(['Z:\Analysis\' mouse '\eye tracking\' date])
+catch
+    cd(['Z:\Analysis\' mouse])
+    mkdir('eye tracking',date)
+    cd(['Z:\Analysis\' mouse '\eye tracking\' date])
+end
     print([fnout '_nanframes.pdf'], '-dpdf');
 
 
@@ -163,12 +191,19 @@ for iexp = 1:size(expt,2)
         imagesq(Eye_data_temp(:,:,y(frames(i)))); 
         title(y(frames(i)))
         hold on
-        viscircles(Centroid_temp(y(frames(i),:)),Radius_temp(y(frames(i))),'EdgeColor','w');
+%         viscircles(Centroid_temp(y(frames(i),:)),Radius_temp(y(frames(i))),'EdgeColor','w');
         viscircles(Centroid_temp(y(frames(i)),:),sqrt(Area_temp(y(frames(i)))/pi),'EdgeColor','w');
-        plot(Centroid_temp(y(frames(i)),1), Centroid_temp(y(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(y(frames(i)),1)/pi))
+%         plot(Centroid_temp(y(frames(i)),1), Centroid_temp(y(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(y(frames(i)),1)/pi))
         start = start+1;
     end
-        print([fnout '_plotradcir.pdf'], '-dpdf');
+try
+    cd(['Z:\Analysis\' mouse '\eye tracking\' date])
+catch
+    cd(['Z:\Analysis\' mouse])
+    mkdir('eye tracking',date)
+    cd(['Z:\Analysis\' mouse '\eye tracking\' date])
+end
+print([fnout '_plotradcir_measuredframes.pdf'], '-dpdf');
 
      %% Remove NaNs if sparse and align to push, release and target
     nanrun = ceil(500*(frame_rate/1000));
@@ -195,11 +230,11 @@ for iexp = 1:size(expt,2)
                 else
                     nanind = find(isnan(Rad_temp(crange,1)));
                     dataind = find(~isnan(Rad_temp(crange,1)));
-                    for inan = 1:length(nan_ind)
-                        gap = min(abs(nan_ind(inan)-data_ind),[],1);
-                        good_ind = find(abs(nan_ind(inan)-data_ind) == gap);
-                        Rad_temp(nan_ind(inan),1) = mean(Rad_temp(data_ind(good_ind),1),1);
-                        Centroid_temp(nan_ind(inan),:) = mean(Centroid_temp(data_ind(good_ind),:),1);
+                    for inan = 1:length(nanind)
+                        gap = min(abs(nanind(inan)-dataind),[],1);
+                        good_ind = find(abs(nanind(inan)-dataind) == gap);
+                        Rad_temp(nanind(inan),1) = mean(Rad_temp(dataind(good_ind),1),1);
+                        Centroid_temp(nanind(inan),:) = mean(Centroid_temp(dataind(good_ind),:),1);
                     end
                 end
             end

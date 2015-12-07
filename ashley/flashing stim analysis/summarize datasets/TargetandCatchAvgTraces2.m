@@ -1,4 +1,4 @@
-iexp = 11;
+iexp = 5;
 %%
 ialign = 1;
 run('divideupdatabyalignment.m')
@@ -6,16 +6,16 @@ run('divideupdatabyalignment.m')
 DirFolder = expt(iexp).dirtuning;
 run('cellSets.m')
 %%
-fnout = ['Z:\Analysis\' mouse '\two-photon imaging\' date '\PreTargetAvgTraces'];
+fnout = ['Z:\Analysis\' mouse '\two-photon imaging\' date '\TargetVSCatch'];
 try
     cd(fnout)
 catch
     try
         cd(['Z:\Analysis\' mouse '\two-photon imaging\' date]);
-        mkdir('PreTargetAvgTraces')
+        mkdir('TargetVSCatch')
     catch
         cd(['Z:\Analysis\' mouse '\two-photon imaging\']);
-        mkdir(date,'PreTargetAvgTraces')
+        mkdir(date,'TargetVSCatch')
     end
 end
 
@@ -88,7 +88,7 @@ targetdrivencells = find(meanSub >0.05);
 
 for i = 1:length(catchDirs)
 %     ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'CR') | strcmp(catchTrialOutcome,'FA')));
-    ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'FA')));
+    ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'CR')));
     if isempty(ind) == 1
             dirCatchData{i} = [];
             dirCatchDataDF{i} = [];
@@ -187,15 +187,6 @@ colorsT = colorsT(colorindT(1:length(Dirs)),:);
 meanTargetRespNorm1 = meanTargetRespNorm;
 errTargetResp1 = errTargetResp;
 cellgroupname1 = cellgroupname;
-% meanTargetRespNorm2 = meanTargetRespNorm;
-% errTargetResp2 = errTargetResp;
-% cellgroupname2 = cellgroupname;
-% meanTargetRespNorm3 = meanTargetRespNorm;
-% errTargetResp3 = errTargetResp;
-% cellgroupname3 = cellgroupname;
-% meanTargetRespNorm4 = meanTargetRespNorm;
-% errTargetResp4 = errTargetResp;
-% cellgroupname4 = cellgroupname;
 %% plot all target responses
 % figName = '_avgresp2target';
 % figure;
@@ -229,69 +220,11 @@ for i = 1:length(Dirs)
 end
 legend(legendInfoTarget,'Location', 'NorthWest')
 title({[mouse '; ' date]; 'target resp'; cellgroupname})
-print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
+% print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
 
 
 %% 
-figure;
-subplot(2,2,1)
-for i = 1:length(Dirs)
-    if i == 1
-        lineprops.col = {'k'};
-    else
-        lineprops.col = {colorsT(i,:)};
-    end
-%     subplot(1,2,i)    
-    mseb([-19:40],meanTargetRespNorm1(:,i),errTargetResp1(:,i)',lineprops,1);
-%     ylim([-0.01 0.03])    
-    hold on
-end
-legend(legendInfoTarget,'Location', 'NorthWest')
-title({[mouse '; ' date]; 'target resp'; cellgroupname1})
 
-subplot(2,2,2)
-for i = 1:length(Dirs)
-    if i == 1
-        lineprops.col = {'k'};
-    else
-        lineprops.col = {colorsT(i,:)};
-    end
-%     subplot(1,2,i)    
-    mseb([-19:40],meanTargetRespNorm2(:,i),errTargetResp2(:,i)',lineprops,1);
-%     ylim([-0.01 0.03])    
-    hold on
-end
-title({[mouse '; ' date]; 'target resp'; cellgroupname2})
-
-subplot(2,2,3)
-for i = 1:length(Dirs)
-    if i == 1
-        lineprops.col = {'k'};
-    else
-        lineprops.col = {colorsT(i,:)};
-    end
-%     subplot(1,2,i)    
-    mseb([-19:40],meanTargetRespNorm3(:,i),errTargetResp3(:,i)',lineprops,1);
-%     ylim([-0.01 0.03])    
-    hold on
-end
-title({[mouse '; ' date]; 'target resp'; cellgroupname3})
-
-subplot(2,2,4)
-for i = 1:length(Dirs)
-    if i == 1
-        lineprops.col = {'k'};
-    else
-        lineprops.col = {colorsT(i,:)};
-    end
-%     subplot(1,2,i)    
-    mseb([-19:40],meanTargetRespNorm4(:,i),errTargetResp4(:,i)',lineprops,1);
-%     ylim([-0.01 0.03])    
-    hold on
-end
-title({[mouse '; ' date]; 'target resp'; cellgroupname4})
-
-print([fnout ['\' 'combinetargetresp' '.pdf']], '-dpdf')
 %% plot all catch responses
 figure;
 % subplot(2,2,1)
@@ -333,4 +266,4 @@ for i = 1:length(catchDirs)-1
 end
 
 suptitle([mouse '; ' date '; ' cellgroupname])
-print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
+% print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')

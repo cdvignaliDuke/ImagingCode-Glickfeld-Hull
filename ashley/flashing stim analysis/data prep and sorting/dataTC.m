@@ -9,7 +9,7 @@ clear data_sub
 % figure; imagesq(data_avg); colormap(gray)
 
 %get direction tuning registration image and get cells
-dirFolder = '007';
+dirFolder = '005';
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileDirMasks);
 load('regImg.mat');

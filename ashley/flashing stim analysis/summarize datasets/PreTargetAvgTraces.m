@@ -1,4 +1,4 @@
-iexp = 11;
+iexp = 5;
 %%
 ialign = 1;
 run('divideupdatabyalignment.m')
