@@ -7,7 +7,7 @@ function mouse = createEyetrackingStruct(doPlot);
     pre_event_time = 1000;
     post_release_time = 1500;
     post_target_time = 4000;
-    s = zeros(1,2);
+    s = zeros(1,3);
     for iexp = 1:size(expt,2)
         disp(num2str(iexp))
         SubNum = expt(iexp).SubNum;
@@ -38,7 +38,28 @@ function mouse = createEyetrackingStruct(doPlot);
                 if irun == 1
                     input = mwLoadData(fn_mworks, [], []);
                 else
-                    input = [input mwLoadData(fn_mworks, [], [])];
+                    try
+                        input = [input mwLoadData(fn_mworks, [], [])];
+                    catch
+                        input2 = mwLoadData(fn_mworks, [], []);
+                        inpNames1 = fieldnames(input);
+                        inpNames2 = fieldnames(input2);
+                        inpLong = gt(length(inpNames1),length(inpNames2));
+                        if inpLong == 1
+                            inpPlusInd = ismember(inpNames1,inpNames2);
+                            inpPlus = inpNames1(~inpPlusInd);
+                            for i = 1:length(inpPlus)
+                                input2.(genvarname(inpPlus(i))) = cell(1,80);
+                            end
+                        else
+                            inpPlusInd = ismember(inpNames2,inpNames1);
+                            inpPlus = inpNames2(~inpPlusInd);
+                            for i = 1:length(inpPlus)
+                                input.(char(genvarname(inpPlus(i)))) = cell(1,80);
+                            end
+                        end
+                        input = [input input2];
+                    end
                 end
             end
             input = concatenateDataBlocks(input);
@@ -50,10 +71,10 @@ function mouse = createEyetrackingStruct(doPlot);
                 end
             end
             if rc.name == 'ashley'
-                fnout = fullfile(rc.eyeOutputDir, [mouse_name '-' date_name '-' runstr]);
-                fnin = fullfile(rc.eyeInputDir,mouse_name,'behavior','eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
+                fnout = fullfile(rc.eyeOutputDir,mouse_name,'eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
+                fnin = fullfile(rc.eyeInputDir,mouse_name,'eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
             else
-                fnout = fullfile(rc.eyeOutputDir, [mouse_name '-' date_name], [mouse_name '-' date_name '-' runstr]);
+                fnout = fullfile(rc.eyeOutputDir,'eye tracking',date_name,[mouse_name '-' date_name], [mouse_name '-' date_name '-' runstr]);
                 fnin = fnout;
             end
             load([fnin '_pupil.mat']);

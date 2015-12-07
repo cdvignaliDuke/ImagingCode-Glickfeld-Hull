@@ -1,8 +1,8 @@
 close all
 clear all
 % iexp = 1;
-% fnouttemp = ['Z:\Analysis\temp figs\150924retreatposter']; %
-awFSAVdatasets
+fnouttemp = []; %
+awFSAVdatasets_longStimON
 av = behavParamsAV;
 analysisName = {'PreTarget_respIntegral_Cells'; 'PreTarget_respAmp2basestim1_Cells'; 'PreTarget_respAmp2basestimlast_Cells';'PreTarget_std_Cells'};
 figName = {'integralScatterFig';'respfirststimScatterFig';'resplaststimScatterFig';'stdScatterFig'};
@@ -14,7 +14,7 @@ respfirststimScatterFig = figure;
 resplaststimScatterFig = figure;
 stdScatterFig = figure;
 
-for iexp = 1:size(expt,2)
+for iexp = 2:size(expt,2)
     imouse = find(strcmp(cellfun(@num2str,{av.mouse},'UniformOutput',0), expt(iexp).SubNum));
     col = av(imouse).col_str;
     colS = av(imouse).sec_col_str;

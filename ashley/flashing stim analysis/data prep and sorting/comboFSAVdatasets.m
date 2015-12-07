@@ -1,4 +1,4 @@
-awFSAVdatasets
+awFSAVdatasets_longStimON
 for iexp = 1:size(expt,2)
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
@@ -84,8 +84,8 @@ for irun = 1:nrun
         cStimOn(1,startTrial:endTrial) = cStimOn(1,startTrial:endTrial)+offset;
         cItiStart(1,startTrial:endTrial) = cItiStart(1,startTrial:endTrial)+offset;
         if expt(iexp).catch == 1;
-            cCatchOn(1,startTrial:endTrial) = isFA(1,startTrial:endTrial)+offset;
-            isFA(1,startTrial:endTrial) = cCatchOn(1,startTrial:endTrial)+offset;
+            cCatchOn(1,startTrial:endTrial) = cCatchOn(1,startTrial:endTrial)+offset;
+            isFA(1,startTrial:endTrial) = isFA(1,startTrial:endTrial)+offset;
         end
     end
 end

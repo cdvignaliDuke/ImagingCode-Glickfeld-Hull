@@ -11,7 +11,7 @@ function mouse = createAVCaDataStruct(doPlot);
     trans_win_time = [150 225];
     mid_win_time = [400 500];
     late_win_time = [1000 1100];
-    s = zeros(1,2);
+    s = zeros(1,3);
     mouse = struct;
     for iexp = 1:size(expt,2)
         
@@ -54,7 +54,7 @@ function mouse = createAVCaDataStruct(doPlot);
                 runstr = [runstr '-' runs(irun,:)];
             end
         end
-        fnout = fullfile(rc.caOutputDir, mouse_name, date_name, [date_name '_' mouse_name '_' runstr '_']);
+        fnout = fullfile(rc.caOutputDir, mouse_name, folder, date_name, [date_name '_' mouse_name '_' runstr '_']);
         
         % load and combine mworks data and timecourses
         input = [];
@@ -64,7 +64,28 @@ function mouse = createAVCaDataStruct(doPlot);
             if irun == 1
                 input = mwLoadData(fn_mworks, [], []);
             else
-                input = [input mwLoadData(fn_mworks, [], [])];
+                try
+                    input = [input mwLoadData(fn_mworks, [], [])];
+                catch
+                    input2 = mwLoadData(fn_mworks, [], []);
+                    inpNames1 = fieldnames(input);
+                    inpNames2 = fieldnames(input2);
+                    inpLong = gt(length(inpNames1),length(inpNames2));
+                    if inpLong == 1
+                        inpPlusInd = ismember(inpNames1,inpNames2);
+                        inpPlus = inpNames1(~inpPlusInd);
+                        for i = 1:length(inpPlus)
+                            input2.(genvarname(inpPlus(i))) = cell(1,80);
+                        end
+                    else
+                        inpPlusInd = ismember(inpNames2,inpNames1);
+                        inpPlus = inpNames2(~inpPlusInd);
+                        for i = 1:length(inpPlus)
+                            input.(char(genvarname(inpPlus(i)))) = cell(1,80);
+                        end
+                    end
+                    input = [input input2];
+                end
             end
         end
         input = concatenateDataBlocks(input);
@@ -80,7 +101,7 @@ function mouse = createAVCaDataStruct(doPlot);
         offset = 0;
         for irun = 1:nrun
             ImgFolder = runs(irun,:);
-            fnTC = fullfile(rc.ashleyAnalysis, mouse_name,folder, date_name, ImgFolder);
+            fnTC = fullfile(rc.caOutputDir, mouse_name,folder, date_name, ImgFolder);
             cd(fnTC);
             load('Timecourses.mat')
             dataTC = cat(1, dataTC, dataTimecourse.dataTCsub);
@@ -132,6 +153,9 @@ function mouse = createAVCaDataStruct(doPlot);
         Mb2Ix = intersect(AV_ind, MIxlong);
         Rb1Ix = intersect(Ix,intersect(V_ind, find(tCyclesOn>3)));
         Rb2Ix = intersect(Ix,intersect(AV_ind, find(tCyclesOn>3)));
+        
+        
+        
         
         %find direction with maximum hits and misses
         Sb1IxMatch = [];
@@ -1091,7 +1115,7 @@ function mouse = createAVCaDataStruct(doPlot);
     for imouse = 1:size(av,2)
         mouse_str = [mouse_str 'i' num2str(av(imouse).mouse) '_'];  
     end
-   save(fullfile(rc.caOutputDir, [date '_' mouse_str 'CaSummary.mat']), 'mouse');
+   save(fullfile(rc.caOutputDir, [date '_' mouse_str 'CaSummary.mat']), 'mouse','-v7.3');
 end
 
         
