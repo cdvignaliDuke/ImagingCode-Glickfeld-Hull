@@ -262,12 +262,12 @@ function mouse = createAVCaDataStruct(doPlot);
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataF = zeros(1,size(dataTC,2),ntrials);
         DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
-        DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        DataDFoverF_sub = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         for itrial = 1:max(find(cLeverDown+post_event_frames-1 <  size(dataTC,1)),[],2)
             Data(:,:,itrial) = dataTC(cLeverDown(itrial)-pre_event_frames:cLeverDown(itrial)+post_event_frames-1,:);
             DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
             DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
-            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
+            DataDFoverF_sub(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
         end
         S1Ix = intersect(V_ind, intersect(find(tCyclesOn>5), SIx));
         S2Ix = intersect(AV_ind, intersect(find(tCyclesOn>5), SIx));
