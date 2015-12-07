@@ -115,29 +115,16 @@ expt(9).catch = 1;
 expt(9).dirtuning = '006';
 expt(9).motionTestBimodal = 1;
 
-%% AW16 151109
+%% AW16 151105
 expt(10).SubNum = '616';
 expt(10).mouse = 'AW16';
-expt(10).date = '151109';
-expt(10).time_mat = ['1102'; '1119'; '1137'];
-expt(10).runs = ['001'; '002'; '004'];
+expt(10).date = '151105';
+expt(10).time_mat = ['1255'; '1311'; '1330'];
+expt(10).runs = ['004'; '005'; '007'];
 expt(10).nrun = size(expt(10).runs,1);
 expt(10).frame_rate = 30;
 expt(10).folder = 'two-photon imaging';
 expt(10).catch = 1;
-expt(10).dirtuning = '007';
-expt(10).motionTestBimodal = 1;
-
-%% AW16 151105
-expt(11).SubNum = '616';
-expt(11).mouse = 'AW16';
-expt(11).date = '151105';
-expt(11).time_mat = ['1255'; '1311'; '1330'];
-expt(11).runs = ['004'; '005'; '007'];
-expt(11).nrun = size(expt(11).runs,1);
-expt(11).frame_rate = 30;
-expt(11).folder = 'two-photon imaging';
-expt(11).catch = 1;
-expt(11).dirtuning = '008';
-expt(11).motionTestBimodal = 0;
+expt(10).dirtuning = '008';
+expt(10).motionTestBimodal = 0;
 
