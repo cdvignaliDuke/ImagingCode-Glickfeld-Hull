@@ -1,6 +1,7 @@
 mouse = '633';
 roi_date = '151103';
 roi_time = '1346';
+roi_rate = 10;
 data_pn = 'Z:\home\shiva\Data\';
 data_folder = fullfile(data_pn,mouse, 'Widefield imaging');
 behav_folder = 'Z:\home\andrew\Behavior\Data';

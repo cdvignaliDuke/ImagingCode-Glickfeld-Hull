@@ -55,7 +55,7 @@ while true
 
         %if timecourses don't exist load imaging data and account for counter offset
         if exist(fullfile(rc.structOutput, [mouse '_' dateStr '_roi_TC.mat']), 'file')
-            load(fullfile(rc.structOutput, [mouse '_' dateStr '_roi_TC.mat']), 'roi_TC')
+            load(fullfile(rc.structOutput, [mouse '_' dateStr '_roi_TC.mat']))
         else
             img_data = [];   
             offset = 0;
@@ -76,7 +76,7 @@ while true
             clear temp_data
 
             %register to retinotopy dataset
-            load(fullfile(rc.structOutput, [mouse '_' dateStr '_reg_data.mat']), 'img_avg', 'roi_avg', 'input_points', 'base_points')
+            load(fullfile(rc.structOutput, [mouse '_' dateStr '_reg_data.mat']))
             sz_target  = size(roi_avg);
             mytform    = maketform('affine',input_points(1:3,:), base_points(1:3,:));
             
@@ -92,37 +92,49 @@ while true
             delete(gcp)
             registered = reshape(registered, sz_orig);
             clear img_data;
-
+            
             %extract timecourses
             load(fullfile(rc.structOutput, [mouse '_' roi_date '_roi_masks.mat']))
-            roi_TC = stackGetTimeCourses(registered, mask_cell_V);
-            save(fullfile(rc.structOutput, [mouse '_' dateStr '_roi_TC.mat']), 'roi_TC')
+            reg_avg = mean(registered,3);
+            mask_cell_V(find(reg_avg==0)) = 0;
+            roiTC = stackGetTimeCourses(registered, mask_cell_V);
+            roiTC_np = zeros(size(roiTC));
+            nROI = size(roiTC,2);
+            for i = 1:nROI
+                np = np_V(:,:,i);
+                np(find(reg_avg==0)) = 0;
+                roiTC_np(:,i) = stackGetTimeCourses(registered, np);
+            end
+            save(fullfile(rc.structOutput, [mouse '_' dateStr '_roi_TC.mat']), 'roiTC', 'roiTC_np')
             clear registered
         end
         
         %align ROIs to events
-        nROI = size(roi_TC,2);
+        nROI = size(roiTC,2);
         ntrials = length(cLeverDown);
         frame_rate = str2num(xd.FrameRate{indexRowN});
         event_buffer_frames = ceil(event_buffer_time*(frame_rate./1000));
-        pressAlign = zeros(2*event_buffer_frames,nROI,ntrials);
-        targetAlign = zeros(2*event_buffer_frames,nROI,ntrials);
-        releaseAlign = zeros(2*event_buffer_frames,nROI,ntrials);
+        pressAlign = zeros(2*event_buffer_frames,nROI,2,ntrials);
+        targetAlign = zeros(2*event_buffer_frames,nROI,2,ntrials);
+        releaseAlign = zeros(2*event_buffer_frames,nROI,2,ntrials);
         for itrial = 1:ntrials
-            if cLeverDown(itrial)-event_buffer_frames>0 & cLeverDown(itrial)+event_buffer_frames<size(roi_TC,1)
-                pressAlign(:,:,itrial) = roi_TC(cLeverDown(itrial)-event_buffer_frames:cLeverDown(itrial)+event_buffer_frames-1,:);
+            if cLeverDown(itrial)-event_buffer_frames>0 & cLeverDown(itrial)+event_buffer_frames<size(roiTC,1)
+                pressAlign(:,:,1,itrial) = roiTC(cLeverDown(itrial)-event_buffer_frames:cLeverDown(itrial)+event_buffer_frames-1,:);
+                pressAlign(:,:,2,itrial) = roiTC_np(cLeverDown(itrial)-event_buffer_frames:cLeverDown(itrial)+event_buffer_frames-1,:);
             else
-                pressAlign(:,:,itrial) = nan(2*event_buffer_frames,nROI);
+                pressAlign(:,:,:,itrial) = nan(2*event_buffer_frames,nROI,2);
             end
-            if ~isnan(cTargetOn(itrial)) & cTargetOn(itrial)+event_buffer_frames<size(roi_TC,1)
-                targetAlign(:,:,itrial) = roi_TC(cTargetOn(itrial)-event_buffer_frames:cTargetOn(itrial)+event_buffer_frames-1,:);
+            if ~isnan(cTargetOn(itrial)) & cTargetOn(itrial)+event_buffer_frames<size(roiTC,1)
+                targetAlign(:,:,1,itrial) = roiTC(cTargetOn(itrial)-event_buffer_frames:cTargetOn(itrial)+event_buffer_frames-1,:);
+                targetAlign(:,:,2,itrial) = roiTC_np(cTargetOn(itrial)-event_buffer_frames:cTargetOn(itrial)+event_buffer_frames-1,:);
             else
-                targetAlign(:,:,itrial) = nan(2*event_buffer_frames,nROI);
+                targetAlign(:,:,:,itrial) = nan(2*event_buffer_frames,nROI,2);
             end
-            if cLeverUp(itrial)+event_buffer_frames<size(roi_TC,1)
-                releaseAlign(:,:,itrial) = roi_TC(cLeverUp(itrial)-event_buffer_frames:cLeverUp(itrial)+event_buffer_frames-1,:);
+            if cLeverUp(itrial)+event_buffer_frames<size(roiTC,1)
+                releaseAlign(:,:,1,itrial) = roiTC(cLeverUp(itrial)-event_buffer_frames:cLeverUp(itrial)+event_buffer_frames-1,:);
+                releaseAlign(:,:,2,itrial) = roiTC_np(cLeverUp(itrial)-event_buffer_frames:cLeverUp(itrial)+event_buffer_frames-1,:);
             else
-                releaseAlign(:,:,itrial) = nan(2*event_buffer_frames,nROI);
+                releaseAlign(:,:,:,itrial) = nan(2*event_buffer_frames,nROI,2);
             end
         end
         
