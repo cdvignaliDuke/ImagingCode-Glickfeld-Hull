@@ -5,11 +5,23 @@ while true
     f_win = [event_buffer_time/3:2*(event_buffer_time/3)];
     xd = frm_xls2frm(rc.indexFilename, [], rc.indexTextCols); 
     eval(['i' mouse '_paths'])
+    load(fullfile(rc.structOutput, [mouse '_' roi_date '_roi_masks.mat']))
+    sz = size(mask_cell);
+    pre_press_SIx_cat = zeros(sz(1), sz(2), xd.nRows);
+    post_press_SIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    pre_target_SIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    post_target_SIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    post_release_SIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    pre_press_MIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    post_press_MIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    pre_target_MIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    post_target_MIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    pre_press_FIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    post_press_FIx_cat= zeros(sz(1), sz(2), xd.nRows);
+    post_release_FIx_cat= zeros(sz(1), sz(2), xd.nRows);
     for iD = 1:xd.nRows
         dateStr = xd.DateStr{iD};
-        if exist(fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_pressAlignSIx.tif']))
-            continue
-        else
+        if ~exist(fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_pressAlignSIx.tif']))
             if ~exist(fullfile(rc.structOutput,dateStr))
                 mkdir(fullfile(rc.structOutput,dateStr))
             end
@@ -47,7 +59,7 @@ while true
             img_data = [];   
             offset = 0;
             for irun = 1:nrun
-                temp_data = readtiff(fullfile(data_folder,[dateStr '_' mouse],[mouse behav_run num2str(runs(irun))], [mouse behav_run num2str(runs(irun)) '_MMStack.ome.tif']));
+                temp_data = readtiff(fullfile(data_folder,[dateStr '_' mouse_name],[behav_run num2str(runs(irun))], [behav_run num2str(runs(irun)) suffix '.tif']));
                 img_data = cat(3,img_data,temp_data); 
                 offset = offset+size(temp_data,3);
                 if irun < nrun
@@ -107,6 +119,8 @@ while true
             failureIx = find(strcmp(input.trialOutcomeCell,'failure'));
             missedIx = find(strcmp(input.trialOutcomeCell,'ignore'));
             
+            save(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_outcomeIx.mat']),'successIx', 'failureIx', 'missedIx');
+            
             pressAlign_dFoverF_SIx = squeeze(mean(pressAlign_dFoverF(:,:,:,successIx),4));
             pressAlign_dFoverF_FIx = squeeze(mean(pressAlign_dFoverF(:,:,:,failureIx),4));
             pressAlign_dFoverF_MIx = squeeze(mean(pressAlign_dFoverF(:,:,:,missedIx),4));
@@ -131,14 +145,22 @@ while true
             releaseAlign_dFoverF_FIx_reg = imtransform(releaseAlign_dFoverF_FIx,mytform,'XData',[1 sz_target(2)],'YData',[1 sz_target(1)]);
             clear pressAlign_dFoverF_SIx pressAlign_dFoverF_MIx pressAlign_dFoverF_FIx releaseAlign_dFoverF_SIx releaseAlign_dFoverF_FIx targetAlign_dFoverF_SIx targetAlign_dFoverF_MIx
             
-            writetiff(pressAlign_dFoverF_SIx_reg, fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_pressAlignSIx.tif']));
-            writetiff(pressAlign_dFoverF_MIx_reg, fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_pressAlignMIx.tif']));
-            writetiff(pressAlign_dFoverF_FIx_reg, fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_pressAlignFIx.tif']));
-            writetiff(targetAlign_dFoverF_SIx_reg, fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_targetAlignSIx.tif']));
-            writetiff(targetAlign_dFoverF_MIx_reg, fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_targetAlignMIx.tif']));
-            writetiff(releaseAlign_dFoverF_SIx_reg, fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_releaseAlignSIx.tif']));
-            writetiff(releaseAlign_dFoverF_FIx_reg, fullfile(rc.structOutput,dateStr, [mouse '_' dateStr '_releaseAlignFIx.tif']));
-            clear pressAlign_dFoverF_SIx_reg pressAlign_dFoverF_MIx_reg pressAlign_dFoverF_FIx_reg releaseAlign_dFoverF_SIx_reg releaseAlign_dFoverF_FIx_reg targetAlign_dFoverF_SIx_reg targetAlign_dFoverF_MIx_reg
+            writetiff(pressAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignSIx.tif']));
+            writetiff(pressAlign_dFoverF_MIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignMIx.tif']));
+            writetiff(pressAlign_dFoverF_FIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignFIx.tif'])); 
+            writetiff(targetAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_targetAlignSIx.tif']));   
+            writetiff(targetAlign_dFoverF_MIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_targetAlignMIx.tif'])); 
+            writetiff(releaseAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignSIx.tif']));    
+            writetiff(releaseAlign_dFoverF_FIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignFIx.tif'])); 
+        else
+            load(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_outcomeIx.mat']),'successIx', 'failureIx', 'missedIx');
+            pressAlign_dFoverF_SIx_reg = readtiff(pressAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignSIx.tif']));
+            pressAlign_dFoverF_MIx_reg = readtiff(pressAlign_dFoverF_MIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignMIx.tif']));
+            pressAlign_dFoverF_FIx_reg = readtiff(pressAlign_dFoverF_FIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignFIx.tif'])); 
+            targetAlign_dFoverF_SIx_reg = readtiff(targetAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_targetAlignSIx.tif']));   
+            targetAlign_dFoverF_MIx_reg = readtiff(targetAlign_dFoverF_MIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_targetAlignMIx.tif'])); 
+            releaseAlign_dFoverF_SIx_reg = readtiff(releaseAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignSIx.tif']));    
+            releaseAlign_dFoverF_FIx_reg = readtiff(releaseAlign_dFoverF_FIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignFIx.tif'])); 
         end
         pre_press_SIx_cat(:,:,iD) = mean(pressAlign_dFoverF_SIx_reg(:,:,51:60),3);
         post_press_SIx_cat(:,:,iD) = mean(pressAlign_dFoverF_SIx_reg(:,:,61:70),3);
@@ -154,8 +176,8 @@ while true
         pre_press_FIx_cat(:,:,iD) = mean(pressAlign_dFoverF_FIx_reg(:,:,51:60),3);
         post_press_FIx_cat(:,:,iD) = mean(pressAlign_dFoverF_FIx_reg(:,:,61:70),3);
         post_release_FIx_cat(:,:,iD) = mean(releaseAlign_dFoverF_FIx_reg(:,:,65:74),3);
+        clear pressAlign_dFoverF_SIx_reg pressAlign_dFoverF_MIx_reg pressAlign_dFoverF_FIx_reg releaseAlign_dFoverF_SIx_reg releaseAlign_dFoverF_FIx_reg targetAlign_dFoverF_SIx_reg targetAlign_dFoverF_MIx_reg
     end
-    disp('No more records to do');
     if ~exist(fullfile(rc.structOutput,'summary'))
         mkdir(fullfile(rc.structOutput,'summary'));
     end

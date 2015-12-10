@@ -4,8 +4,8 @@
 %assign them to areas 'area_list'
 
 %% Read files and load image stack
-cd(fullfile(data_folder, [roi_date '_' mouse], [mouse roi_run]));
-imageStack = [mouse roi_run '_MMStack.ome'];
+cd(fullfile(roi_folder, [roi_date '_' mouse], [mouse roi_run]));
+imageStack = [roi_run suffix];
 roi_data = double(readtiff([imageStack '.tif']));
 roi_data_avg = mean(roi_data,3);
 writetiff(roi_data_avg, fullfile(anal_pn, mouse, [mouse '_' roi_date '_roi_data_avg.tif']));

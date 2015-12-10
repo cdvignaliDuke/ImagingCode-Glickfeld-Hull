@@ -60,7 +60,7 @@ while true
             img_data = [];   
             offset = 0;
             for irun = 1:nrun
-                temp_data = readtiff(fullfile(data_folder,[dateStr '_' mouse],[mouse behav_run num2str(runs(irun))], [mouse behav_run num2str(runs(irun)) '_MMStack.ome.tif']));
+                temp_data = readtiff(fullfile(data_folder,[dateStr '_' mouse_name],[behav_run num2str(runs(irun))], [behav_run num2str(runs(irun)) suffix '.tif']));
                 img_data = cat(3,img_data,temp_data); 
                 offset = offset+size(temp_data,3);
                 if irun < nrun
