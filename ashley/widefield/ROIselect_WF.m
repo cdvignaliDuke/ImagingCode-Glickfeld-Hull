@@ -4,7 +4,7 @@
 %assign them to areas 'area_list'
 
 %% Read files and load image stack
-cd(fullfile(roi_folder, [roi_date '_' mouse], [mouse roi_run]));
+cd(fullfile(roi_folder, [roi_date '_' mouse], roi_run));
 imageStack = [roi_run suffix];
 roi_data = double(readtiff([imageStack '.tif']));
 roi_data_avg = mean(roi_data,3);
@@ -36,16 +36,18 @@ for i = 1:nTrials
 end
 avg_dFoverF = mean(trial_dFoverF,4);
 avg_resp = mean(avg_dFoverF(:,:,nOffs+2:nOffs+10),3);
+avg_ves_resp = mean(avg_dFoverF(:,:,nOffs+10:nOffs+30),3);
+writetiff(avg_ves_resp, fullfile(anal_pn, mouse, [mouse '_' roi_date '_roi_avg_ves_resp.tif']));
 %% Convert vessel traces on imageJ to vessel map and subtract from ROI mask
 
 vasc_map = readtiff(fullfile(anal_pn,mouse, [mouse '_' roi_date '_vessel_trace.tif']));
 figure; imagesc(vasc_map);
-vasc_mask = zeros(size(vasc_map)); vasc_mask(find(vasc_map > 60)) = 1;
+vasc_mask = zeros(size(vasc_map)); vasc_mask(find(vasc_map ==0)) = 1;
 figure; imagesc(vasc_mask); colormap(gray)
 
 %% Subtract vasculature from DF image, select and store ROI
-figure; imagesc(reg_norm); colormap(gray);
-clim([0 .9])
+figure; imagesc(avg_resp); colormap(gray);
+clim([0 .05])
 %adjust number of ROIs to choose
 nROI = 8;
 for i = 1:nROI
@@ -63,7 +65,7 @@ mask_cell = bwlabel(roi_cluster);
 figure; imagesc(mask_cell);
 
 %adjust list of areas to track
-area_list = strvcat('LM','V1','VC','AL','RS','RL','PM','S1');
+area_list = strvcat('LM','V1','VC','AL','RL','PM','S1','AM');
 ind = find(vasc_mask); 
 mask_cell_V = mask_cell;
 mask_cell_V(ind) = 0;

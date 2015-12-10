@@ -15,7 +15,12 @@ while true
         fprintf('Starting subject %s, date %s\n', ...
         mouse, dateStr);
         eval(['i' mouse '_paths'])
-        img_avg = imread(fullfile(data_folder,[dateStr '_' mouse],[mouse behav_run num2str(xd.ImgDataRun1(indexRowN))],[mouse behav_run num2str(xd.ImgDataRun1(indexRowN)) '_MMStack.ome.tif']));
+        if mouse == '633'
+            data_folder = fullfile(data_folder, [dateStr '_' mouse]);
+        else
+            data_folder = fullfile(data_folder, dateStr);
+        end
+        img_avg = imread(fullfile(data_folder,[behav_run num2str(xd.ImgDataRun1(indexRowN))],[behav_run num2str(xd.ImgDataRun1(indexRowN)) '_MMStack.ome.tif']));
         
         roi_avg = readtiff(fullfile(anal_pn, mouse, [mouse '_' roi_date '_roi_data_avg.tif']));
         AVG = double(img_avg);
