@@ -106,23 +106,23 @@ while true
             frame_rate = str2num(xd.FrameRate{indexRowN});
             event_buffer_frames = ceil(event_buffer_time*(frame_rate./1000));
             f_win_frames = ceil(f_win.*(frame_rate./1000));
-            sz = size(img_data);
+            sz = size(registered);
             pressAlign = zeros(sz(1), sz(2), 2*event_buffer_frames,ntrials);
             targetAlign = zeros(sz(1), sz(2), 2*event_buffer_frames,ntrials);
             releaseAlign = zeros(sz(1), sz(2), 2*event_buffer_frames,ntrials);
             for itrial = 1:ntrials
                 if cLeverDown(itrial)-event_buffer_frames>0 & cLeverDown(itrial)+event_buffer_frames<sz(3)
-                    pressAlign(:,:,:,itrial) = img_data(:,:,cLeverDown(itrial)-event_buffer_frames:cLeverDown(itrial)+event_buffer_frames-1);
+                    pressAlign(:,:,:,itrial) = registered(:,:,cLeverDown(itrial)-event_buffer_frames:cLeverDown(itrial)+event_buffer_frames-1);
                 else
                     pressAlign(:,:,:,itrial) = nan(sz(1), sz(2), 2*event_buffer_frames);
                 end
                 if ~isnan(cTargetOn(itrial)) & cTargetOn(itrial)+event_buffer_frames<sz(3)
-                    targetAlign(:,:,:,itrial) = img_data(:,:,cTargetOn(itrial)-event_buffer_frames:cTargetOn(itrial)+event_buffer_frames-1);
+                    targetAlign(:,:,:,itrial) = registered(:,:,cTargetOn(itrial)-event_buffer_frames:cTargetOn(itrial)+event_buffer_frames-1);
                 else
                     targetAlign(:,:,:,itrial) = nan(sz(1), sz(2), 2*event_buffer_frames);
                 end
                 if cLeverUp(itrial)+event_buffer_frames<sz(3)
-                    releaseAlign(:,:,:,itrial) = img_data(:,:,cLeverUp(itrial)-event_buffer_frames:cLeverUp(itrial)+event_buffer_frames-1);
+                    releaseAlign(:,:,:,itrial) = registered(:,:,cLeverUp(itrial)-event_buffer_frames:cLeverUp(itrial)+event_buffer_frames-1);
                 else
                     releaseAlign(:,:,:,itrial) = nan(sz(1), sz(2), 2*event_buffer_frames);
                 end

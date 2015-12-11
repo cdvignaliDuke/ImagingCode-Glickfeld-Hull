@@ -154,13 +154,13 @@ while true
             writetiff(releaseAlign_dFoverF_FIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignFIx.tif'])); 
         else
             load(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_outcomeIx.mat']),'successIx', 'failureIx', 'missedIx');
-            pressAlign_dFoverF_SIx_reg = readtiff(pressAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignSIx.tif']));
-            pressAlign_dFoverF_MIx_reg = readtiff(pressAlign_dFoverF_MIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignMIx.tif']));
-            pressAlign_dFoverF_FIx_reg = readtiff(pressAlign_dFoverF_FIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignFIx.tif'])); 
-            targetAlign_dFoverF_SIx_reg = readtiff(targetAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_targetAlignSIx.tif']));   
-            targetAlign_dFoverF_MIx_reg = readtiff(targetAlign_dFoverF_MIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_targetAlignMIx.tif'])); 
-            releaseAlign_dFoverF_SIx_reg = readtiff(releaseAlign_dFoverF_SIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignSIx.tif']));    
-            releaseAlign_dFoverF_FIx_reg = readtiff(releaseAlign_dFoverF_FIx_reg, fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignFIx.tif'])); 
+            pressAlign_dFoverF_SIx_reg = readtiff(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignSIx.tif']));
+            pressAlign_dFoverF_MIx_reg = readtiff(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignMIx.tif']));
+            pressAlign_dFoverF_FIx_reg = readtiff(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_pressAlignFIx.tif'])); 
+            targetAlign_dFoverF_SIx_reg = readtiff(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_targetAlignSIx.tif']));   
+            targetAlign_dFoverF_MIx_reg = readtiff(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_targetAlignMIx.tif'])); 
+            releaseAlign_dFoverF_SIx_reg = readtiff(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignSIx.tif']));    
+            releaseAlign_dFoverF_FIx_reg = readtiff(fullfile(rc.structOutput, dateStr,[mouse '_' dateStr '_releaseAlignFIx.tif'])); 
         end
         pre_press_SIx_cat(:,:,iD) = mean(pressAlign_dFoverF_SIx_reg(:,:,51:60),3);
         post_press_SIx_cat(:,:,iD) = mean(pressAlign_dFoverF_SIx_reg(:,:,61:70),3);

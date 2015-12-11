@@ -1,5 +1,4 @@
-function learningSummaryWF(mouse)
-    doPlot = 0;
+function learningSummaryWF(mouse,doPlot)
     rc = behavConstsWF(mouse);
     eval(['i' mouse '_paths'])
     load(fullfile(rc.structOutput, [mouse '_dSStruct.mat']))
