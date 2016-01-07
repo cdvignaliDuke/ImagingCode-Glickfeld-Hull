@@ -6,6 +6,7 @@ cut2 = 3500;
 range = [15000 40000];
 
 for ic = 1:nIC
+    ic = 15
     diff_x = diff(data_tc(:,ic));
     %cut = std(diff_x)*5.85;
     cut = thresh(ic);

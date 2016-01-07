@@ -4,9 +4,9 @@ tic
 % 1. select an ROI
 % 2. stack all the movies to one tiff file
 DATA_DIR =  'C:\Users\jake\TempData\';
-day = '150725_img27';   %'150717_img28' '150719_img28'
+day = '151212_img32';   %'150717_img28' '150719_img28'
 motion_correction =1;           %1 to register image   0 to take ROI without motion correction
-stable_int = [400:500];         %use imageJ to find a series of frames (~100) in which little movement occurs. Use this during motion correction
+stable_int = [1:50];         %use imageJ to find a series of frames (~100) in which little movement occurs. Use this during motion correction
 session = '';
 image_dest  = [DATA_DIR day '\'];
 BIN_SIZE =1;

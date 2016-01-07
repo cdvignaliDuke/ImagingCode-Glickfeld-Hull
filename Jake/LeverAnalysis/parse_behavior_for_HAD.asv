@@ -26,6 +26,7 @@ frame.l_frame_trial_num = [];
 trial_outcome.success_time =[];
 trial_outcome.early_time =[];
 trial_outcome.late_time =[];
+trial_outcome.tooFastCorrects =[];
 trial_outcome.ind_press_prerelease =[];
  
  
@@ -100,7 +101,7 @@ for i=1:num_trials-1
     %  ---------- calculate frame counter
     c_count = double(input.counterValues{i});       %counter values for this trial
     c_time =  double(input.counterTimesUs{i})/1000;    %counter times for this trial
-    
+   
     frame.times(end+1:end+length(c_time)) = c_time;
     frame.counter_by_time(end+1:end+length(c_count)) = c_count;     %you now have two vectors. One of counter times the other of the associated counter value
     c_time = round(c_time);
@@ -109,7 +110,7 @@ for i=1:num_trials-1
     end
     for j=1:length(c_count)
         d_frame = c_count(j) - pre_frame_count;                     %d_frame and time equal a specific counter value or time within this trial minus the frames or time before the trial
-        d_time = c_time(j) - pre_frame_time;                               
+        d_time  = c_time(j) - pre_frame_time;                               
         update_inx = (pre_frame_time:c_time(j)) -  START_EXP_TIME+1;          %update_inx is all the time points associated with a specific frame aligned to experiment start time
         
         if(d_frame >1)  %missed a frame, set NaN
@@ -152,7 +153,7 @@ end
 %  trial_outcome.success_time =[]; % time of lever release (and sound)in success trials
 %  trial_outcome.early_time =[]; % time of lever release (and sound)in early release trials
 %  trial_outcome.late_time =[];  % time of error sound in late release trials
-% trial_outcome.change_orientation = [];
+% trial_outcome.change_orientation = []; 
  
 % trial outcome input.trialOutcomeCell
 hold_start = double(cell2mat(input.holdStartsMs)) - START_EXP_TIME;
@@ -163,11 +164,18 @@ req_hold = double(cell2mat(input.tTotalReqHoldTimeMs));
 rnd_hold = double(cell2mat(input.tRandReqHoldTimeMs));
  
 has_reward = ~cellfun(@isempty, input.juiceTimesMsCell );
- 
+tooFastCorrects = zeros(size(input.reactTimesMs)); 
+for i = 1:length(input.reactTimesMs)
+    if react_time(i) < 176   %Removes tooFastCorrects from the successful trials count. 
+        has_reward(i)=0;
+    end
+    tooFastCorrects(i) = react_time(i)>0 & react_time(i)<176; %definition of and isolation of tooFastCorrects
+end
+
 relase_time = hold_start + hold_time;
 trial_outcome.success_time  = relase_time(has_reward);
+trial_outcome.tooFastCorrects = relase_time(1,find(tooFastCorrects)); %isolates correct trials with reaction times >0 but <200ms. Stores them as a matrix of their release times.
 trial_outcome.early_time = relase_time(hold_time<req_hold ); % do not use too early trial with orientation change
-%trial_outcome.late_time = relase_time(~has_reward & hold_time>req_hold+double(input.tooFastTimeMs));
 is_ignore =@(x)isequal(x, 'ignore');
 trial_outcome.late_time  = relase_time(find(cellfun(is_ignore,input.trialOutcomeCell)));
 trial_outcome.change_orientation = hold_start + req_hold;
@@ -185,6 +193,10 @@ if(~isempty(input.counterValues{1}))
         warning('realigning camera frames');
         assert(length(too_large) ==1); % very  strong assertion, just to be sure
         init_time = round(frame.times(too_large+1));
+        if isnan(frame.counter(init_time)); %added by JH 12/13/15 because new datasets were failing
+            init_time=init_time+1;
+            disp('entered new forloop')
+        end
         frame.counter = frame.counter - frame.counter(init_time);
         frame.counter(1:init_time) = NaN;
         frame.times = frame.times(too_large+1:end);
@@ -203,7 +215,7 @@ if(exist('first_frame' ,'var') && exist('last_frame', 'var'))
     
     inx = find(frame.counter_by_time>=first_frame & frame.counter_by_time<=last_frame);
     frame.counter_by_time = frame.counter_by_time(inx) - first_frame+1;
-    frame.times = frame.times(inx) - first_time +1;
+    frame.times = frame.times(inx) - first_time+1;
     
     
     lever.press = remove_events_and_adjust_inx(lever.press, first_time, last_time);
@@ -230,81 +242,88 @@ if(exist('first_frame' ,'var') && exist('last_frame', 'var'))
     frame.counter =frame.counter -  first_frame + 1;
 end
 
-if isempty(cell2mat(input.leverTimesUs(40:50)));
-    nTrials = length(input.trialOutcomeCell);
-    baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window
-    for iT = 1:nTrials-1;
-        baseline_times(1,iT) = input.tStartTrialWaitForPressTimeMs{iT}-1200; 
-        baseline_times(2,iT) = input.tStartTrialWaitForPressTimeMs{iT}-500;
-    end
-    
-else
-%LINDSEYS CODE to identify windows of at least 400ms between a lever release and
-%subsequent press. Only takes windows during the iti. 
+%Determine baseline times: Time windows in which to take an F for df/f
 nTrials = length(input.trialOutcomeCell);
-successIx = strcmp(input.trialOutcomeCell,'success');
-failureIx = strcmp(input.trialOutcomeCell,'failure');
-missIx = strcmp(input.trialOutcomeCell,'ignore');
-baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window
-for iT = 1:nTrials-1
-    ind_press = find(cell2mat(input.leverValues(iT))==1);      %finds locations of each lever press in the cell and flips L-R
-    ind_release = find(cell2mat(input.leverValues(iT))==0);
-    leverTimes = cell2mat(input.leverTimesUs(iT));   %time of each lever event
-    trialStart = cell2mat(input.holdStartsMs(iT)).*1000;
-    ind_prerelease = leverTimes<=trialStart;
-    if sum(ind_prerelease,2) == 0;
-        baseline_times(:,iT) = [NaN; NaN];
-        trial_outcome.ind_press_prerelease(iT) = NaN;
-    elseif isempty(ind_prerelease);
-        baseline_times(:,iT) = [NaN; NaN];
-        trial_outcome.ind_press_prerelease(iT) = NaN;
-    elseif sum(ind_prerelease,2) == 1
-        trial_outcome.ind_press_prerelease(iT) = 1;
-        if leverTimes(1)- (cell2mat(input.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 600000  %and if this lever press occurs a certain amount of time after trial start...
-            baseline_times(1,iT) = leverTimes(1) - holdT_min - 300000; 
-            baseline_times(2,iT) = leverTimes(1) - 300000;
-            continue
-        elseif baseline_times(:,iT) == 0
-            baseline_times(:,iT) = [NaN; NaN];
+baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window during the iti
+baseline_times_holdMs = zeros(2,nTrials); %alternate window for F during the lever hold
+if isempty(cell2mat(input.leverTimesUs(40:50)));  %if no lever event occurs durign that trial   i.e. Reward only condition
+    for iT = 1:nTrials-1;
+        baseline_times(1,iT) = round(input.tStartTrialWaitForPressTimeMs{iT}-1200);  %in reward only conditions the window for F is the last 700ms of the iti
+        baseline_times(2,iT) = round(input.tStartTrialWaitForPressTimeMs{iT}-500);
+        if  input.holdTimesMs{iT} > 599   %if fake mouse holds the lever for more than 600ms baseline times will be a 400ms window during the hold 
+            baseline_times_holdMs(1,iT) = input.holdStartsMs{iT} + 200;
+            baseline_times_holdMs(2,iT) = input.holdStartsMs{iT} + 600;
+        elseif input.holdTimesMs{iT} <= 599;
+            baseline_times_holdMs(:,iT) = NaN;
         end
-    else
-        tag_prerelease = fliplr(find(ind_prerelease));
-        trial_outcome.ind_press_prerelease(iT) = tag_prerelease(1);
-        for i = 1:length(tag_prerelease)
-            ip = tag_prerelease(i);
-            if sum(ismember(ind_press,ip),2)
-                if ip == 1
-                    if leverTimes(1)- (cell2mat(input.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 600000  %and if this lever press occurs a certain amount of time after trial start...
-                        baseline_times(1,iT) = leverTimes(1) - holdT_min - 300000; 
-                        baseline_times(2,iT) = leverTimes(1) - 300000;
-                        break
-                    elseif baseline_times(:,iT) == 0
-                        baseline_times(:,iT) = [NaN; NaN];
-                    end
-                elseif ip>1    
-                	if leverTimes(ip)- leverTimes(ip-1) > holdT_min + 600000
-                       baseline_times(1,iT) = leverTimes(ip) - holdT_min - 300000; 
-                       baseline_times(2,iT) = leverTimes(ip) - 300000;
-                       break
-                    elseif baseline_times(:,iT) == 0
-                        baseline_times(:,iT) = [NaN; NaN];
+    end
+else
+    %LINDSEYS CODE to identify windows of at least 400ms between a lever release and
+    %subsequent press. Only takes windows during the iti.
+    %sometimes, even when the solenoid is on, the first lever press can
+    %occur roughly 1ms before the iti ends and the trial begins. 
+    successIx = strcmp(input.trialOutcomeCell,'success');
+    failureIx = strcmp(input.trialOutcomeCell,'failure');
+    missIx = strcmp(input.trialOutcomeCell,'ignore');
+    for iT = 1:nTrials-1
+        ind_press = find(cell2mat(input.leverValues(iT))==1);      %finds locations of each lever press in the cell. Only really necessary for sessions without a solenoid
+        ind_release = find(cell2mat(input.leverValues(iT))==0);
+        leverTimes = cell2mat(input.leverTimesUs(iT));   %time of each lever event
+        trialStart = cell2mat(input.holdStartsMs(iT)).*1000;
+        ind_prerelease = leverTimes<=trialStart;   %misnomer. Lever events that occur during the iti. Again only relevant in sessions w/o solenoid
+        if  input.holdTimesMs{iT} > 599 ==1   %if mouse holds the lever for more than 600ms baseline times will be a 400ms window during the hold
+            baseline_times_holdMs(1,iT) = input.holdStartsMs{iT} + input.holdTimesMs{iT} - 200;
+            baseline_times_holdMs(2,iT) = input.holdStartsMs{iT} + input.holdTimesMs{iT};
+        elseif input.holdTimesMs{iT} <= 599 ==1;
+            baseline_times_holdMs(:,iT) = NaN;
+        end
+        if sum(ind_prerelease,2) == 0;
+            baseline_times(:,iT) = [NaN; NaN];
+            trial_outcome.ind_press_prerelease(iT) = NaN;
+        elseif isempty(ind_prerelease);
+            baseline_times(:,iT) = [NaN; NaN];
+            trial_outcome.ind_press_prerelease(iT) = NaN;
+        elseif sum(ind_prerelease,2) == 1
+            trial_outcome.ind_press_prerelease(iT) = 1;
+            if leverTimes(1)- (cell2mat(input.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 600000  %Mainly relevant for non-solenoid trials. First lever event must occur 1sec or more after the start of the trials in order to collect a baseline time from that iti
+                baseline_times(1,iT) = leverTimes(1) - holdT_min - 300000;
+                baseline_times(2,iT) = leverTimes(1) - 300000;
+                continue
+            elseif baseline_times(:,iT) == 0
+                baseline_times(:,iT) = [NaN; NaN];
+            end
+        else
+            tag_prerelease = fliplr(find(ind_prerelease)); %again I think this is most relevant for non-solenoid trials as on solenoid trials find(ind_prerelease)=1
+            trial_outcome.ind_press_prerelease(iT) = tag_prerelease(1);
+            for i = 1:length(tag_prerelease)
+                ip = tag_prerelease(i);
+                if sum(ismember(ind_press,ip),2)
+                    if ip == 1
+                        if leverTimes(1)- (cell2mat(input.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 600000; 
+                            baseline_times(1,iT) = leverTimes(1) - holdT_min - 300000;
+                            baseline_times(2,iT) = leverTimes(1) - 300000;
+                            break
+                        elseif baseline_times(:,iT) == 0
+                            baseline_times(:,iT) = [NaN; NaN];
+                        end
+                    elseif ip>1
+                        if leverTimes(ip)- leverTimes(ip-1) > holdT_min + 600000
+                            baseline_times(1,iT) = leverTimes(ip) - holdT_min - 300000;
+                            baseline_times(2,iT) = leverTimes(ip) - 300000;
+                            break
+                        elseif baseline_times(:,iT) == 0
+                            baseline_times(:,iT) = [NaN; NaN];
+                        end
                     end
                 end
             end
         end
     end
 end
-end
+ex_trials_hold = length(find(isnan(baseline_times_holdMs(1,:))));   %reports the number of trials w/o acceptable criteria for the two windows
+disp(['---' num2str(ex_trials_hold) ' trials excluded by hold f criteria ---']) 
 ex_trials = length(find(isnan(baseline_times(1,:))));
-disp(['---' num2str(ex_trials) ' trials excluded by pre-press f criteria ---'])
-%get rid of NaNs in baseline_times
-baseline_times2 = [];
-% for i = 1:length(baseline_times);
-%     if isnan(baseline_times(1,i))==0 & isnan(baseline_times(2,i))==0
-%         baseline_times2 =[baseline_times2, baseline_times(:,i)];
-%     end
-% end
-%baseline_times = baseline_times2;  
+disp(['---' num2str(ex_trials) ' trials excluded by pre-press f criteria ---']) 
 if isempty(cell2mat(input.leverTimesUs(40:50)));
     baseline_timesMs = baseline_times;
 else
@@ -312,7 +331,6 @@ else
 end
 
 %remove events from baseline_times which do not have associated frames. JH
-baseline_timesMs_cut = [];
 for t = 1:length(baseline_timesMs)
     if baseline_timesMs(1,t)<first_time_baseline;
         baseline_timesMs(:,t)=NaN;
@@ -320,32 +338,43 @@ for t = 1:length(baseline_timesMs)
         baseline_timesMs(:,t)=NaN;
     end
 end
-disp( [num2str(sum(~isnan(baseline_timesMs(1,:)))) ' usable baseline windows within frame times']);
-
+disp( [num2str(sum(~isnan(baseline_timesMs(1,:)))) ' usable baseline_prepress windows within frame times']);
+for t = 1:length(baseline_times_holdMs)
+    if baseline_times_holdMs(1,t)<first_time_baseline;
+        baseline_times_holdMs(:,t)=NaN;
+    elseif baseline_times_holdMs(2,t)>last_time_baseline;
+        baseline_times_holdMs(:,t)=NaN;
+    end
+end
+disp( [num2str(sum(~isnan(baseline_times_holdMs(1,:)))) ' usable baseline_hold windows within frame times']);
 %convert 1st and last trials baseline_times to NaNs  
 for i = 1:length(input.counterValues);
-    if isempty(cell2mat(input.counterValues(i))) ==0;
+    if isempty(cell2mat(input.counterValues(i))) ==0; %look for trials that have counter values
     imat = cell2mat(input.counterValues(i));
-    if imat(end) >= last_frame
+    if imat(end) >= last_frame;  %finds the trials num (i) which is the last imaged trial (will be incompletely imaged) 
         break
     end
     end
 end
-l_frame_trial_num = i;
-for i = 1:length(input.counterValues);
-       if isempty(cell2mat(input.counterValues(i))) ==0;
+l_frame_trial_num = i;   %store trial num of the last imaged trial
+for i = 1:length(input.counterValues); %finds the first trial to be imaged (will be incompletely imaged)
+       if length(input.counterValues{i}) > 1 %isempty(cell2mat(input.counterValues(i))) ==0; Old IF statement. Failed because trial 1 sometimes has a value of zero in input.counterValues.
            break
        end
 end
 f_frame_trial_num = i;
 baseline_timesMs(:,f_frame_trial_num)=NaN;            %the first and last trials with camera pulses will be incompletely imaged. Therefore they are unusable baseline_times
 baseline_timesMs(:,l_frame_trial_num)=NaN;
+baseline_times_holdMs(:,f_frame_trial_num)=NaN;            
+baseline_times_holdMs(:,l_frame_trial_num)=NaN;
 
 %subtract the MWtime of camera start in order to align baseline_timesMS to
 %frame.counter
 baseline_timesMs = baseline_timesMs - first_time_baseline;
+baseline_times_holdMs = baseline_times_holdMs - first_time_baseline;
 %save it to the struct bc this baby is done
 lever.baseline_timesMs = baseline_timesMs;  
+lever.baseline_times_holdMs = baseline_times_holdMs;  
 frame.f_frame_trial_num = f_frame_trial_num;
 frame.l_frame_trial_num = l_frame_trial_num;
 

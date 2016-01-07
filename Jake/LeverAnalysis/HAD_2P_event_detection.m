@@ -10,9 +10,10 @@ load([dest '_frame_times.mat'])
 %% 1- Find periods with no lever activity and detect "spontaneous" events
 %extract spontaneous windows
 
+%thresh = [2650, 2615, 3217, 4212, 4375, 4375, 7588, 3870, 6154, 6566,6600,4945,5643,2200,6225,6125,6175,5560,3370,3390,1550,6537,5305]; % manually selected thresholds for each IC in this dataset
 pre_buffer = ceil(300/double(ifi));
 post_buffer = ceil(1000/double(ifi));
-fr_lever = [];
+fr_lever = [];   %fr_lever will be a series of frame numbers corresponding to lever events +&- the buffers
 for ipress = 1:length(lever.press)    %this could be problematic due to unremoved NaNs
     fr_lever = [fr_lever frame_info.counter(round(lever.press(ipress)))-pre_buffer:frame_info.counter(round(lever.press(ipress)))+post_buffer];
 end 
@@ -23,10 +24,10 @@ end
 fr_lever = unique(fr_lever);
 fr_lever(find(fr_lever<1)) = [];
 fr_lever(find(fr_lever>size(data_tc,1))) = [];
-fr_lever(find(fr_lever>length(frame_times))) = [];
+fr_lever(find(fr_lever>length(frame_times))) = [];  %only looks at values that correspond to actual frames. 
 
 data_tc_spont = data_tc; 
-data_tc_spont(fr_lever,:) = [];
+data_tc_spont(fr_lever,:) = [];  %removes frames surrounding lever events 
 
 %find all events to get rate
 events = [];
@@ -37,13 +38,13 @@ for ic = 1:nIC
     events_diff_x(:,ic) = diff(data_tc_spont(:,ic),[],1);
     events_ind{ic} = find(events_diff_x(:,ic)>thresh(ic));
     events_ind{ic}(find(diff(events_ind{ic})==1)+1)=[];
-    events_rate(1,ic) = length(events_ind{ic})./((double(ifi)./1000)*size(data_tc_spont,1));
+    events_rate(1,ic) = length(events_ind{ic})./((double(ifi)./1000)*size(data_tc_spont,1)); 
 end
 
 %find all spontaneous events to get waveform
 min_iei = round(650./double(ifi)); %remove all events that occur within 650 ms
-data_start = round(300./double(ifi));
-data_end = round(700./double(ifi));
+data_start = round(300./double(ifi));  
+data_end = round(700./double(ifi));    %looks at frames 300ms before and 700ms after the spont events
 events_ind_good = {};
 for ic = 1:nIC
     double_events = find(diff(events_ind{ic})<min_iei);
@@ -57,7 +58,7 @@ for ic = 1:nIC
         else
             ind_out = [ind_out ii];
         end
-    end
+    end   %event.f_chunk will consist of frame ranges before and after a spont event that are sufficently far away from the begining or end of imaging
     events_ind_good{ic}(ind_out)=[];
     events(ic).f_base = mean(events(ic).f_chunk(:,data_start-round(50./double(ifi)):data_start+1),2); %13:15),2); %
     events(ic).df_chunk = bsxfun(@minus, events(ic).f_chunk, events(ic).f_base);
@@ -179,7 +180,7 @@ end
 %find presses
 pre_buffer = ceil(1000/double(ifi));
 post_buffer = ceil(1000/double(ifi));
-press_fr = [];
+press_fr = [];  %press fr will equal a series of frame numbers around each lever press
 press_tc = [];
 ind_long = intersect(find(cell2mat(input.holdTimesMs)>=500),find(~isnan(trial_outcome.ind_press_prerelease)));
 for ip = 1:length(ind_long)
@@ -196,31 +197,31 @@ end
 
 %find all events around the press
 press = [];
-win_press_start = round(300./double(ifi));
+win_press_start = round(300./double(ifi));  %why this window?
 win_press_end = round(100./double(ifi));
 for ic = 1:nIC
-    press_diff = diff(squeeze(press_tc(:,ic,:)),[],1);
+    press_diff = diff(squeeze(press_tc(:,ic,:)),[],1);   %calcium traces for time around the lever press. Lever press happens in the center.
     press(ic).f_chunk = [];
     press(ic).ind = {};
     press(ic).good_ind = {};
     for ip = 1:size(press_diff,2)
-        ind = find(press_diff(:,ip)>thresh(ic));
-        ind(find(diff(ind)==1)+1)=[];
+        ind = find(press_diff(:,ip)>thresh(ic));  %finds all calcium events around a lever press that are > threshold for that neuron
+        ind(find(diff(ind)==1)+1)=[];     %events must be separated by at least one frame. 
         double_events = find(diff(ind)<min_iei);
         ind_good = ind;
         ind_good([double_events (double_events+1)])=[];
         press(ic).ind{ip} = ind;
         press(ic).good_ind{ip} = ind_good;
-        if intersect(find(ind>pre_buffer-win_press_start), find(ind<pre_buffer+win_press_end))
+        if intersect(find(ind>pre_buffer-win_press_start), find(ind<pre_buffer+win_press_end))  %if there are events within the window
             wind = press_fr(ip,pre_buffer-win_press_start:pre_buffer+win_press_end);
-            if intersect(find(ind_good>pre_buffer-win_press_start), find(ind_good<pre_buffer+win_press_end))
-                ii = ind_good(intersect(find(ind_good>pre_buffer-win_press_start), find(ind_good<pre_buffer+win_press_end)));
+            if intersect(find(ind_good>pre_buffer-win_press_start), find(ind_good<pre_buffer+win_press_end))  %if ind_good has an event within the window
+                ii = ind_good(intersect(find(ind_good>pre_buffer-win_press_start), find(ind_good<pre_buffer+win_press_end))); % ii = events within the window
                 if size(ii,1)>1
                     [minn, ind] = min(abs(ii-pre_buffer),[],1);
                     ii = ii(ind);
                 end
                 press(ic).event_ind(:,ip) = ii;                 
-                first_event = press_fr(ip,press(ic).event_ind(:,ip));
+                first_event = press_fr(ip,press(ic).event_ind(:,ip)); 
                 press(ic).good_event(:,ip) = 1;
                 press(ic).event(:,ip) = 1;
                 else
@@ -234,14 +235,21 @@ for ic = 1:nIC
                 press(ic).good_event(:,ip) = 0;
                 press(ic).event(:,ip) = 1;
             end
+            if and(ip == 1, (first_event-data_start)<1)
+                    press(ic).f_chunk = NaN(1,[data_start+data_end+1]);
+                    continue
+            end
             press(ic).f_chunk = [press(ic).f_chunk; data_tc(first_event-data_start:first_event+data_end,ic)']; %data_tc(press_fr(ip,:),ic)']; %
-        else
+        else   %if there is no event within the window then produce a random fake event (not counting fake events as real, using them as place holders only)
             press(ic).event_ind(:,ip) = NaN;
             wind = press_fr(ip,pre_buffer-win_press_start:pre_buffer+win_press_end);
+            if (wind(1)-data_start)<1
+                wind = wind(find((wind-data_start)==1):length(wind));
+            end
             first_event = wind(randsample(length(wind),1));
             press(ic).good_event(:,ip) = NaN;
             press(ic).event(:,ip) = 0;
-            press(ic).f_chunk = [press(ic).f_chunk; data_tc(first_event-data_start:first_event+data_end,ic)']; %data_tc(press_fr(ip,:),ic)']; %
+            press(ic).f_chunk = [press(ic).f_chunk; data_tc([first_event-data_start]:[first_event+data_end],ic)']; %data_tc(press_fr(ip,:),ic)']; %
         end
     end
     press(ic).f_base = mean(press(ic).f_chunk(:,data_start-round(50./double(ifi)):data_start+1),2); %13:15),2); %

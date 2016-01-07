@@ -40,7 +40,7 @@ clear data
 %% 1. select ROI 
 data_std = std(double(data_sub(:,:,1:1000)),[],3);
 % use first file to calculate ROI
-if run == 1
+if irun == 1
     [ROI_x, ROI_y] = get_2P_ROI(data_std); % get the ROI -  must be a rectangle 
     save([dest '_ROI_xy.mat'],  'ROI_x', 'ROI_y');
 else

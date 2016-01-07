@@ -1,4 +1,8 @@
 %clear;
+%replaced by Cluster_roi_lever
+
+
+
 clear
 WRITE_VEDIO = 0;
 BIN_SIZE = 1;   % if the ROI is large use large bin size (10)

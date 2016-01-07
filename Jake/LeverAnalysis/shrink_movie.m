@@ -1,5 +1,7 @@
  function shrink_movie(day, BIN_SIZE)  
-
+%Bins the data so you can run ClusterVermis and Cluster_roi_lever to get
+%TCs
+ 
  if(~exist('BIN_SIZE', 'var'))
      BIN_SIZE =20;
  end

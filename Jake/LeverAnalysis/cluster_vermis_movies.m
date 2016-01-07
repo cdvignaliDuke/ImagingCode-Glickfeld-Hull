@@ -1,4 +1,4 @@
-%clear;
+%Use this function to draw ROIs after running ShrinkMovie. 
 clear
 
 BIN_SIZE = 1;  
@@ -6,7 +6,7 @@ DATA_DIR =  'C:\Users\jake\TempData\';
 FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
 BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 % ---------------
-days = {'170725_img27'};
+days = {'151212_img32'};
 %days = {'150716_img27', '150717_img27', '150718_img27', '150719_img27'};  
 %days = {'150719_img28', '150717_img28', '150716_img28'};
 
@@ -52,5 +52,4 @@ for kk=1:length(days)
     cluster.num_cluster = num_cluster;
     close gcf;
     save([image_dest(1:end-4) 'cluster'], 'cluster');
-    
 end

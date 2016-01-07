@@ -1,4 +1,5 @@
-%clear;
+%generates frame by frame movies of an ROI. Heatmaps. 
+%redefines df/f using lever.baslineTimes
 clear
 WRITE_VEDIO = 0;
 BIN_SIZE = 1;   % if the ROI is large use large bin size (10)
@@ -11,14 +12,14 @@ BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 
 % ----------
 %days = {'150320_img20'};
-days = {'150716_img28'};
+days = {'151211_img32'};
 holdT_min = 500000;
 
 for kk=1:length(days)
     session = '';
     ROI_name  =  days{kk};
     
-    image_dest  = [DATA_DIR days{kk} '\' session '\' ROI_name '_ROI.tif'];
+    image_dest  = [DATA_DIR days{kk} '\' session ROI_name '_ROI.tif'];
     frame_info_dest = [image_dest(1:end-4) '_frame_times.mat'];
     % ---- load behavior file
     bfile = dir([BEHAVE_DIR 'data-*i9' days{kk}(end-1:end) '-' days{kk}(1:6) '*' ]);
@@ -74,7 +75,7 @@ for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only 
         t_range = t_range(1:(end-4)) + 4;
     else t_range = t_range + 4;    %added this shift because we have a 1s anaylsis window post release but trial ends 600ms after release.
     end
-    %problematic bc it looks at times before the first counter then
+    %problematic bcimg it looks at times before the first counter then
     %subtracts the time of the first counter
     t_df = bsxfun(@minus, double(img(:,t_range)), F_avg);
     t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
