@@ -6,7 +6,7 @@ DATA_DIR =  'C:\Users\jake\TempData\';
 FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
 BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 % ---------------
-days = {'151212_img32'};
+days = {'150706_img24'};
 %days = {'150716_img27', '150717_img27', '150718_img27', '150719_img27'};  
 %days = {'150719_img28', '150717_img28', '150716_img28'};
 

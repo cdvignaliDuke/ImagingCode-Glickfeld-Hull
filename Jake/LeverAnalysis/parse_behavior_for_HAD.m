@@ -246,7 +246,7 @@ end
 nTrials = length(input.trialOutcomeCell);
 baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window during the iti
 baseline_times_holdMs = zeros(2,nTrials); %alternate window for F during the lever hold
-if isempty(cell2mat(input.leverTimesUs(40:50)));  %if no lever event occurs durign that trial   i.e. Reward only condition
+if isempty(cell2mat(input.leverTimesUs(40:50)));  %if no lever event occurs durign that trial   i.e. REWARD ONLY CONDITION
     for iT = 1:nTrials-1;
         baseline_times(1,iT) = round(input.tStartTrialWaitForPressTimeMs{iT}-1200);  %in reward only conditions the window for F is the last 700ms of the iti
         baseline_times(2,iT) = round(input.tStartTrialWaitForPressTimeMs{iT}-500);
@@ -262,6 +262,7 @@ else
     %subsequent press. Only takes windows during the iti.
     %sometimes, even when the solenoid is on, the first lever press can
     %occur roughly 1ms before the iti ends and the trial begins. 
+    %Altered so that it finds windows during the hold. 
     successIx = strcmp(input.trialOutcomeCell,'success');
     failureIx = strcmp(input.trialOutcomeCell,'failure');
     missIx = strcmp(input.trialOutcomeCell,'ignore');

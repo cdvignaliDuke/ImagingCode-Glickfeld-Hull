@@ -16,7 +16,7 @@ FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
 BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 mask = 0;      %set to 1 in order to take all ROIs as one combined mask.  Set to 0 to take TCs of each ROI separately 
 % -----------
-days = {'151212_img32'};
+days = {'150521_img24'};
 
 %days = {'150514_img24', '150518_img24', '150519_img24', '150521_img24' '150706_img24'} ;
 %days = {'150517_img25', '150518_img25', '150514_img25', '150515_img25'};
@@ -401,6 +401,11 @@ for kk=1:length(days)
         title('tooFast success hold condition');
         axis tight;
         legend(cellstr(num2str([1:cluster.num_cluster]')));
+        
+        disp(['day/animal: ' num2str(ROI_name)])
+        disp(['# of successful trials = ' num2str(size(success_roi_hold,1))])
+        disp(['# of failed trials = ' num2str(size(fail_roi_hold,1))])
+        disp(['# of tooFast_successes = ' num2str(size(tooFast_roi_hold,1))])
     end
 end
 if mask == 1;

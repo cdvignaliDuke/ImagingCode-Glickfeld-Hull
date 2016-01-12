@@ -12,7 +12,7 @@ BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 
 % ----------
 %days = {'150320_img20'};
-days = {'151211_img32'};
+days = {'150706_img24'};
 holdT_min = 500000;
 
 for kk=1:length(days)
