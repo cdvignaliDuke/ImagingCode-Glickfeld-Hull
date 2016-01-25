@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 rc = behavConstsAV;
-fileSave = fullfile(rc.caOutputDir,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
-% fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, DirFolder);
-=======
-% fileSave = fullfile(rc.ashley,Analysis,mouse_name,folder, date_name, dir_run);
-fileSave = fullfile('Z:\analysis\',mouse_name,'two-photon imaging', date, DirFolder);
->>>>>>> e877de840bbf5cb2efe9a502275235a7d20bd4ab
+fileSave = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
 cd(fileSave);
 load('TuningPreferences.mat')
 

@@ -101,7 +101,7 @@ function mouse = createAVCaDataStruct(doPlot);
         offset = 0;
         for irun = 1:nrun
             ImgFolder = runs(irun,:);
-            fnTC = fullfile(rc.caOutputDir, mouse_name,folder, date_name, ImgFolder);
+            fnTC = fullfile(rc.ashleyAnalysis, mouse_name,folder, date_name, ImgFolder);
             cd(fnTC);
             load('Timecourses.mat')
             dataTC = cat(1, dataTC, dataTimecourse.dataTCsub);
