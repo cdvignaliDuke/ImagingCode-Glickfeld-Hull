@@ -1,7 +1,7 @@
 % choose dataset to run
 % close all
 % clear all
-awFSAVdatasets_longStimON
+% awFSAVdatasets_V1axonsAL
 try
     iexp
 catch
@@ -140,6 +140,7 @@ for icyc = 1:length(cycles)
 %     ylim([-0.05 0.05])
 
 end
+title([expt(iexp).SubNum '-' expt(iexp).date])
 %% align to target and catch stim, sort by direction degree
 elseif ialign == 2
     for icyc = 1:length(cycles)

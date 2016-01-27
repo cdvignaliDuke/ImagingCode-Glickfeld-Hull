@@ -1,10 +1,14 @@
-iexp = 5;
-%%
+iexp =1;
+awFSAVdatasets_AL
+cellgroupname = 'nCells';
+figName = ['avgDFoverFpretarget_' cellgroupname '_success'];
+
 ialign = 1;
 run('divideupdatabyalignment.m')
 %% find sets of cells
 DirFolder = expt(iexp).dirtuning;
 run('cellSets.m')
+drivencells
 %%
 fnout = ['Z:\Analysis\' mouse '\two-photon imaging\' date '\PreTargetAvgTraces'];
 try
@@ -24,9 +28,11 @@ set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 
 %%
-cells = 1:nCells;
-cellgroupname = 'all cells';
-figName = 'avgDFoverFpretarget_allcells_success';
+if length(eval(cellgroupname)) == 1
+    cells = 1:eval(cellgroupname);
+else
+    cells = eval(cellgroupname);
+end
 %%
 figure;
 for icyc = 1:length(cycles)
@@ -72,84 +78,91 @@ suptitle([mouse '; ' date '; ' cellgroupname])
 
 print([fnout ['\' figName '.pdf']], '-dpdf')
 %%
-% cells = drivencells;
-% cellgroupname = 'driven cells';
-% 
-% figure;
-% for icyc = 1:length(cycles)
-%     dataDFoverF = cycDataDFoverF_cmlvNoTarget{icyc};
-%     V1_cycInd = intersect(cycV_ind{icyc},find(strcmp(cycTrialOutcome{icyc},'success')));
-%     V2_cycInd = intersect(cycV_ind{icyc},find(strcmp(cycTrialOutcome{icyc},'ignore')));
-%     V1_avg = mean(mean(dataDFoverF(:,cells,V1_cycInd),3),2);
-%     V2_avg = mean(mean(dataDFoverF(:,cells,V2_cycInd),3),2);
-%     errbar_V1 = (std(mean(dataDFoverF(:,cells,V1_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,cells,V1_cycInd),3)));
-%     errbar_V2 = (std(mean(dataDFoverF(:,cells,V2_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,cells,V2_cycInd),3)));
-%     
-%     subplot(3,4,icyc);
-%     errorbar(V1_avg(20:end,:),errbar_V1(20:end,:),'g')
-%     hold on
-%     hold on
-%     errorbar(V2_avg(20:end,:),errbar_V2(20:end,:),'k')
-%     hold on
-%     vline(10,'k')
-%     hold on
-%     
-%     for i = 1:cycles(icyc)-1
-%         L = (i*cycTime)+11;
-%         vline(L,'k:');
-%         hold on
-%     end
-%     vline((cycles(icyc)*cycTime+11),'c');
-%     hold on
-%     
-%     if icyc == 1
-%         title([num2str(size(dataDFoverF,2)) ' cells'])
-%     else
-%     title([num2str(length(V1_cycInd)) ' vis success trials; ' num2str(length(V2_cycInd)) ' vis ignore trials'])
-%     end
-%     hold on
-%     xlim([0 length(V1_avg(20:end,:))+5])
-% %     ylim([-0.05 0.05])
-% end
-% suptitle([mouse '; ' date '; ' cellgroupname])
-% %%
-% cells = drivencells;
-% cellgroupname = 'driven cells';
-% 
-% figure;
-% for icyc = 1:length(cycles)
-%     dataDFoverF = cycDataDFoverF_cmlvNoTarget{icyc};
-%     AV1_cycInd = intersect(cycAV_ind{icyc},find(strcmp(cycTrialOutcome{icyc},'success')));
-%     AV2_cycInd = intersect(cycAV_ind{icyc},find(strcmp(cycTrialOutcome{icyc},'ignore')));
-%     AV1_avg = mean(mean(dataDFoverF(:,cells,AV1_cycInd),3),2);
-%     AV2_avg = mean(mean(dataDFoverF(:,cells,AV2_cycInd),3),2);
-%     errbar_AV1 = (std(mean(dataDFoverF(:,cells,AV1_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,cells,AV1_cycInd),3)));
-%     errbar_AV2 = (std(mean(dataDFoverF(:,cells,AV2_cycInd),2),[],3))/(sqrt(size(dataDFoverF(:,cells,AV2_cycInd),3)));
-%     
-%     subplot(3,4,icyc);
-%     errorbar(AV1_avg(20:end,:),errbar_AV1(20:end,:),'g')
-%     hold on
-%     hold on
-%     errorbar(AV2_avg(20:end,:),errbar_AV2(20:end,:),'k')
-%     hold on
-%     vline(10,'k')
-%     hold on
-%     
-%     for i = 1:cycles(icyc)-1
-%         L = (i*cycTime)+11;
-%         vline(L,'k:');
-%         hold on
-%     end
-%     vline((cycles(icyc)*cycTime+11),'c');
-%     hold on
-%     
-%     if icyc == 1
-%         title([num2str(size(dataDFoverF,2)) ' cells'])
-%     else
-%     title([num2str(length(AV1_cycInd)) ' vis+aud success trials; ' num2str(length(AV2_cycInd)) ' vis+aud ignore trials'])
-%     end
-%     hold on
-%     xlim([0 length(AV1_avg(20:end,:))+5])
-% %     ylim([-0.05 0.05])
-% end
-% suptitle([mouse '; ' date '; ' cellgroupname])
+if length(cells) > 12
+    c = randperm(length(cells),12);
+    cells = cells(c);
+end
+
+CYC = 6;
+
+subpC = 4;
+if length(cells) >= subpC;
+    subpR = ceil(length(cells)/subpC);
+else
+    subpR = 1;
+end
+
+cellsavgFig = figure;
+cellsalltrialsFig = figure;
+for icell = 1:length(cells)
+    dataDFoverF = cycDataDFoverF_cmlvNoTarget{CYC};
+    V_cycInd = intersect(cycV_ind{CYC},find(strcmp(cycTrialOutcome{CYC},'success')));
+    AV_cycInd = intersect(cycAV_ind{CYC},find(strcmp(cycTrialOutcome{CYC},'success')));
+%     V_cycInd = intersect(cycV_ind{CYC},find(strcmp(cycTrialOutcome{CYC},'ignore')));
+%     AV_cycInd = intersect(cycAV_ind{CYC},find(strcmp(cycTrialOutcome{CYC},'ignore')));
+%     V_cycInd = intersect(cycV_ind{CYC},find(strcmp(cycTrialOutcome{CYC},'failure')));
+%     AV_cycInd = intersect(cycAV_ind{CYC},find(strcmp(cycTrialOutcome{CYC},'failure')));
+    V_avg = squeeze(mean(dataDFoverF(:,cells(icell),V_cycInd),3));
+    AV_avg = squeeze(mean(dataDFoverF(:,cells(icell),AV_cycInd),3));
+    errbar_V = (std(dataDFoverF(:,cells(icell),V_cycInd),[],3))/(sqrt(size(dataDFoverF(:,cells(icell),V_cycInd),3)));
+    errbar_AV = (std(dataDFoverF(:,cells(icell),AV_cycInd),[],3))/(sqrt(size(dataDFoverF(:,cells(icell),AV_cycInd),3)));
+    
+    figure(cellsavgFig)
+    subplot(subpR,subpC,icell);
+    errorbar(V_avg(20:end,:),errbar_V(20:end,:),'g')
+    hold on
+    hold on
+    errorbar(AV_avg(20:end,:),errbar_AV(20:end,:),'k')
+    hold on
+    vline(10,'k')
+    hold on
+    
+    for i = 1:cycles(icyc)-1
+        L = (i*cycTime)+11;
+        vline(L,'k:');
+        hold on
+    end
+    vline((cycles(icyc)*cycTime+11),'c');
+    hold on
+    
+    if icyc == 1
+        title([num2str(length(cells)) ' cells'])
+    else
+    title({[num2str(length(V_cycInd)) ' visual trials; ']; [num2str(length(AV_cycInd)) ' vis+aud trials']; ['cell#' num2str(cells(icell))] })
+    end
+    hold on
+    xlim([0 length(V_avg(20:end,:))+5])
+%     ylim([-0.05 0.05])
+
+    figure(cellsalltrialsFig)
+    subplot(subpR,subpC,icell);
+    plot(squeeze(dataDFoverF(:,cells(icell),V_cycInd)),'g')
+    hold on
+    plot(squeeze(dataDFoverF(:,cells(icell),AV_cycInd)),'k')
+    hold on
+    vline(10,'k')
+    hold on
+    
+    for i = 1:cycles(icyc)-1
+        L = (i*cycTime)+11;
+        vline(L,'k:');
+        hold on
+    end
+    vline((cycles(icyc)*cycTime+11),'c');
+    hold on
+    
+    if icyc == 1
+        title([num2str(length(cells)) ' cells'])
+    else
+    title({[num2str(length(V_cycInd)) ' visual trials; ']; [num2str(length(AV_cycInd)) ' vis+aud trials']; ['cell#' num2str(cells(icell))] })
+    end
+    hold on
+    xlim([0 length(V_avg(20:end,:))+5])
+end
+suptitle([mouse '; ' date '; ' cellgroupname])
+
+figure(cellsavgFig)
+print([fnout ['\avgDFoverFpretarget_' cellgroupname '.pdf']], '-dpdf')
+
+figure(cellsalltrialsFig)
+print([fnout ['\allTrialspretarget_' cellgroupname '.pdf']], '-dpdf')

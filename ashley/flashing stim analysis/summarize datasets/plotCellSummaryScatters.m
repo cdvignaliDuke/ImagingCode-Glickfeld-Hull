@@ -14,7 +14,7 @@ respfirststimScatterFig = figure;
 resplaststimScatterFig = figure;
 stdScatterFig = figure;
 
-for iexp = 2:size(expt,2)
+for iexp = 6:size(expt,2)
     imouse = find(strcmp(cellfun(@num2str,{av.mouse},'UniformOutput',0), expt(iexp).SubNum));
     col = av(imouse).col_str;
     colS = av(imouse).sec_col_str;
@@ -86,7 +86,7 @@ axis square
 xlabel('Vis Tr Resp')
 ylabel('Aud Tr Resp')
 
-mouse_str = cellfun(@num2str,{av.mouse},'UniformOutput',0);
+mouse_str = unique(cellfun(@num2str,{expt(iexp).SubNum},'UniformOutput',0));
 title([{['summary of mice - ' strjoin(mouse_str)] ; 'response integral, aud vs vis'; ['success trials' num2str(CYC) ' cycles']; 'gr = vis, blk = aud'}])
 
 
@@ -119,7 +119,7 @@ axis square
 xlabel('Vis Tr Resp')
 ylabel('Aud Tr Resp')
 
-mouse_str = cellfun(@num2str,{av.mouse},'UniformOutput',0);
+mouse_str = unique(cellfun(@num2str,{expt(iexp).SubNum},'UniformOutput',0));
 title([{['summary of mice - ' strjoin(mouse_str)] ; 'respo to first stim, aud vs vis'; ['success trials']; 'gr = vis, blk = aud'}])
 
 %% resp 2 last cyc scatter
@@ -151,7 +151,7 @@ axis square
 xlabel('Vis Tr Resp')
 ylabel('Aud Tr Resp')
 
-mouse_str = cellfun(@num2str,{av.mouse},'UniformOutput',0);
+mouse_str = unique(cellfun(@num2str,{expt(iexp).SubNum},'UniformOutput',0));
 title([{['summary of mice - ' strjoin(mouse_str)] ; 'respo to last stim, aud vs vis'; ['success trials' num2str(CYC) ' cycles']; 'gr = vis, blk = aud'}])
 
 %% resp to last stim std
@@ -176,7 +176,7 @@ ylim([0 0.1]);
 axis square
 xlabel('Vis Tr Resp (dF/F)')
 ylabel('Aud Tr Resp (dF/F)')
-mouse_str = cellfun(@num2str,{av.mouse},'UniformOutput',0);
+mouse_str = unique(cellfun(@num2str,{expt(iexp).SubNum},'UniformOutput',0));
 title([{['summary of mice - ' strjoin(mouse_str)] ; 'std, aud vs vis'; ['success trials' num2str(CYC) ' cycles']; 'gr = vis, blk = aud'}])
 
 end
@@ -186,7 +186,7 @@ for ianalysis = 1:4
     figNameBase = analysisName{ianalysis};
     figure(eval(genvarname(figName{ianalysis})))
 if ~isempty(fnouttemp)
-    print([fnouttemp '\'  date '-' mouse dateofexp '_' figNameBase '_audVSvis_cellssummary'], '-dpdf');
+    print([fnouttemp '\'  date '-' mouse dateofexp '_' figNameBase '_' num2str(CYC) 'cyc_audVSvis_cellssummary'], '-dpdf');
 else
     print([fnout '\'  date '_' figNameBase '_audVSvis'], '-dpdf');
 end

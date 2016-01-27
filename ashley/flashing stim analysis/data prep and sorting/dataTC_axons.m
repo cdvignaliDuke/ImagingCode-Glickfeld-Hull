@@ -1,9 +1,8 @@
 % edit Load_SBXdataset_fast.m
 %%
-
-awFSAVdatasets_AL
+awFSAVdatasets_V1axonsPM
 % for iexp = 1:size(expt,2)
-    iexp = 1;
+    iexp = 4;
 
 for irun = 1:expt(iexp).nrun;
 
@@ -14,7 +13,7 @@ ImgFolder = expt(iexp).runs(irun,:);
 mouse = expt(iexp).mouse;
 fName = [ImgFolder '_000_000'];
 
-Load_SBXdataPlusMWorksData    
+Load_SBXdataPlusMWorksData
     
 data_sub = data-min(min(min(data,[],1),[],2),[],3);
 data = data_sub;
@@ -24,7 +23,7 @@ clear data_sub
 % figure; imagesq(data_avg); colormap(gray)
 
 %get direction tuning registration image and get cells
-dirFolder = '005';
+dirFolder = expt(iexp).dirtuning;
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileDirMasks);
 load('regImg.mat');
@@ -37,16 +36,16 @@ clear data
 
 
 % get timecourses
-dataTC = stackGetTimeCourses(data_reg, mask_cell);
+dataTC = stackGetTimeCourses(data_reg, mask_boutons);
 
 % get neuropil timecourses
 buf = 4;
 np = 6;
-nCells = size(dataTC,2);
+nBoutons = size(dataTC,2);
 
 
 npTC = zeros(size(dataTC));
-for i = 1:nCells
+for i = 1:nBoutons
     tempNPmask = squeeze(neuropil(:,:,i));
     if sum(sum(tempNPmask)) > 0
     npTC(:,i) = stackGetTimeCourses(data_reg,tempNPmask);
@@ -64,7 +63,7 @@ npTC_mavg = tsmovavg(npTC,'s',10,1);
 % npTC_down = reshape(mean(reshape(npTC',size(npTC',1),down,size(npTC',2)/down),2),size(npTC',1),size(npTC',2)/down)';
 
 ii= 0.01:0.01:1;
-x = zeros(length(ii), nCells);
+x = zeros(length(ii), nBoutons);
 for i = 1:100
     x(i,:) = skewness(dataTC_mavg-tcRemoveDC(npTC_mavg*ii(i)));
 end
@@ -94,4 +93,5 @@ dataTimecourse.dataset = ImgFolder;
 save('Timecourses.mat','dataTimecourse')
 clear data_reg dataTimecourse
 end
+% end
 

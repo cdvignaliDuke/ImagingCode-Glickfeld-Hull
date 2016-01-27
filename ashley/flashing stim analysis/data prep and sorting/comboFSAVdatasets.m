@@ -1,5 +1,7 @@
-awFSAVdatasets_longStimON
+clear all
+awFSAVdatasets_AL
 for iexp = 1:size(expt,2)
+%     iexp = 1;
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
 date = expt(iexp).date;

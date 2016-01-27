@@ -1,12 +1,11 @@
 % edit Load_SBXdataset_fast.m
 %%
 
-awFSAVdatasets_AL
+awFSAVdatasets_longStimON
 % for iexp = 1:size(expt,2)
-    iexp = 1;
+    iexp = 2;
 
-for irun = 1:expt(iexp).nrun;
-
+for irun = 2:expt(iexp).nrun;
 SubNum = expt(iexp).SubNum;
 date = expt(iexp).date;
 time = expt(iexp).time_mat(irun,:);
@@ -14,7 +13,9 @@ ImgFolder = expt(iexp).runs(irun,:);
 mouse = expt(iexp).mouse;
 fName = [ImgFolder '_000_000'];
 
-Load_SBXdataPlusMWorksData    
+Load_SBXdataPlusMWorksData
+
+    
     
 data_sub = data-min(min(min(data,[],1),[],2),[],3);
 data = data_sub;
@@ -24,7 +25,7 @@ clear data_sub
 % figure; imagesq(data_avg); colormap(gray)
 
 %get direction tuning registration image and get cells
-dirFolder = '005';
+dirFolder = expt(iexp).dirtuning;
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileDirMasks);
 load('regImg.mat');
@@ -69,7 +70,7 @@ for i = 1:100
     x(i,:) = skewness(dataTC_mavg-tcRemoveDC(npTC_mavg*ii(i)));
 end
 [max_skew ind] =  max(x,[],1);
-skew(buf,:) = max_skew;
+% skew(buf,:) = max_skew;
 np_w = 0.01*ind;
 dataTCsub = dataTC-bsxfun(@times,tcRemoveDC(npTC),np_w);
 

@@ -1,21 +1,3 @@
-% %load data
-% 
-% SubNum = '613';
-% date = '150511';
-% time = '1513';
-% ImgFolder = '005';
-% mouse = 'AW13';
-% % fName = '003_000_000';
-% % 
-% % % load MWorks file
-% % load MWorks file
-% CD = ['Z:\data\' mouse '\mworks\' date];
-% cd(CD);
-% mworks = ['data-' 'i' SubNum '-' date '-' time]; 
-% load (mworks);
-
-
-% analysis folder
 try
     filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
     cd(filedir);
@@ -27,17 +9,13 @@ catch
     cd(filedir);
 end
 
-% data_reg = readtiff('DirectionTuning_V1.tif');
-%used load_SBXdataset_fast.m to load data
 %% Parameters
 down = 10;
 nON = double(input.nScansOn)./down;
 nOFF = double(input.nScansOff)./down;
-nStim = double(input.gratingDirectionStepN);
+nStim = double(input.dotDirectionStepN);
 
-%% downsample and register data
-
-%average signals in time
+%%
 data_down = stackGroupProject(data,down);
 clear data
 
@@ -46,31 +24,21 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,600:610),3);
+data_avg = mean(data_sub(:,:,400:410),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
 clear data_sub
 
-%%
+%save data_reg
+writetiff(data_reg, 'DirectionTuning_movDots');
 
+%%
 nRep = size(data_reg,3)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
-
-if (mod(nRep,1)) >0
-    nframes = floor(nRep)*((nON+nOFF)*nStim)
-    data_reg = data_reg(:,:,1:nframes);
-    nRep = size(data_reg,3)./((nON+nOFF)*nStim);
-    nTrials = (nStim.*nRep);
-end
-%%
-%save data_reg
-writetiff(data_reg, 'DirectionTuning_V1');
-
-
 %%
 %write tifs for sorted frames
-VSR = 2;
+VSR = 3;
 run('sortTrialsAvg_writetiffs.m')
 %% create dF/F stack
 
@@ -96,7 +64,7 @@ figure; imagesq(maxDFoverF); colormap(gray)
 %get rid of bright patch to make gui easier to use
 % maxDFoverF(:,750:end,:) = 0;
 
-%save max DF/F
+%save max dF/F
 writetiff(maxDFoverF, 'maxDFoverF');
 
 bwout = imCellEditInteractive(maxDFoverF);
@@ -105,48 +73,6 @@ mask_cell = bwlabel(bwout);
 data_TC = stackGetTimeCourses(data_reg,mask_cell);
 figure; tcOffsetPlot(data_TC)
 
-% xcalib = size(data_reg,2)/500;
-% ycalib = size(data_reg,1)/250;
-% scalebar50umx = 50*xcalib;
-% 
-% scalebarimg = zeros(size(max_dF));
-% scalebarimg(size(data_reg,1)-60-5:size(data_reg,1)-60,size(data_reg,2)-200-scalebar50umx:size(data_reg,2)-200) = 0.5;
-% figure;imagesq(scalebarimg);colormap(gray)
-% writetiff(scalebarimg,'scalebar')
-% 
-% max_dF_wSB = cat(3,max_dF,scalebarimg);
-% writetiff(max_dF,'maxDF')
-
-%% specific cell mask
-% mask_cell33 = double(mask_cell == 33);
-% mask_cell121 = double(mask_cell == 121);
-% figure;imagesq(mask_cell121);colormap(gray)
-% 
-% writetiff(mask_cell33,'mask_cell33')
-% writetiff(mask_cell121,'mask_cell121')
-
-%% use correlation dF/F to find ROIS
-
-% %use max dF if too many cells
-% b = 5;
-% siz = size(data_reg);
-% corr_map = zeros(siz(1),siz(2));
-% for ix = b:siz(2)-b
-%     for iy = b:siz(1)-b
-%         TC = data_reg(iy,ix,:);
-%         surround = (data_reg(iy-1,ix-1,:)+data_reg(iy-1,ix,:)+data_reg(iy-1,ix+1,:)+data_reg(iy,ix-1,:)+data_reg(iy,ix+1,:)+data_reg(iy+1,ix-1,:)+data_reg(iy+1,ix,:)+data_reg(iy+1,ix+1,:))/8;
-%         R = corrcoef(TC,surround);
-%         corr_map(iy,ix) = R(1,2);
-%     end
-% end
-% figure; imagesq(corr_map); colormap(gray)
-% 
-% bwout = imCellEditInteractive(corr_map);
-% mask_cell = bwlabel(bwout);
-
-% %timecourses
-% data_TC = stackGetTimeCourses(data_reg,mask_cell);
-% figure; tcOffsetPlot(data_TC)
 %%
 fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
 cd(fileSave);
@@ -183,16 +109,17 @@ cd(fileSave);
 save('neuropil.mat','neuropil','npTC','npSubTC');
 
 data_TC = npSubTC;
+
 %%
 orig_rate = 30;
 final_rate = 3;
 down = orig_rate./final_rate;
 nON = (input.nScansOn)./down;
 nOFF = (input.nScansOff)./down;
-nStim = input.gratingDirectionStepN;
+nStim = input.dotDirectionStepN;
 nRep = size(data_TC,1)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
-DirectionDeg = cell2mat(input.tGratingDirectionDeg);
+DirectionDeg = cell2mat(input.tDotDirectionDeg);
 Dirs = unique(DirectionDeg);
 
 %% dF/F by trial
@@ -207,6 +134,7 @@ for i = 1:nTrials
     dF_data(indAll,:) = bsxfun(@minus,data_TC(indAll,:),mean(data_TC(indF,:),1));
     dFoverF_data(indAll,:) = bsxfun(@rdivide,dF_data(indAll,:),mean(data_TC(indF,:),1));
 end
+
 %% dF/F (by cell) for each stimulus type
 
 % find on indices for the first frame of each stimulus start period and iti (Off) period
@@ -319,11 +247,12 @@ end
 %% save tuning info
 save('TuningPreferences.mat','oriPref_ind','dirPref_ind','dirSlctvCells','oriSlctvCells','dFoverFDirResp')
 
+
 %% plot cell tuning
 % plot responses to each direction
 cellsPrefZero = find(dirPref_ind == 1 | dirPref_ind == 5);
 cellsPrefNinety = find(dirPref_ind == 3 | dirPref_ind == 7);
-cMap = colormap(jet(nStim));
+cMap = colormap(jet(4));
 start = 1;
 errbar = zeros(nStim,size(data_TC,2));
 for ifig = 1:ceil(size(data_TC,2)/15)
@@ -390,6 +319,3 @@ for iplot = 1:31
     start = start+1;
 end
 end
-
-
-

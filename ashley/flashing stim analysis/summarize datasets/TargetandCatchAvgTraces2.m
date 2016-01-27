@@ -1,4 +1,6 @@
-iexp = 5;
+iexp = 1;
+awFSAVdatasets_AL
+% for iexp = 1:size(expt,2)
 %%
 ialign = 1;
 run('divideupdatabyalignment.m')
@@ -88,7 +90,7 @@ targetdrivencells = find(meanSub >0.05);
 
 for i = 1:length(catchDirs)
 %     ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'CR') | strcmp(catchTrialOutcome,'FA')));
-    ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'CR')));
+    ind = intersect(find(catchDirectionDeg == catchDirs(i)),find(strcmp(catchTrialOutcome,'FA')));
     if isempty(ind) == 1
             dirCatchData{i} = [];
             dirCatchDataDF{i} = [];
@@ -120,9 +122,13 @@ for i = 1:length(catchDirs)
 end
 
 %% ***************************************************
-cells = 1:nCells;
-cellgroupname = 'all cells';
-figBaseName = 'avgDFoverFpretarget_allcells_successignore';
+% cells = 1:nCells;
+% cellgroupname = 'all cells';
+% figBaseName = 'avgDFoverFpretarget_allcells_successignore';
+
+cells = cellsSelect45;
+cellgroupname = 'sltv 45';
+figBaseName = 'avgDFoverFpretarget_sltv45_success';
 
 %***************************
 
@@ -220,7 +226,7 @@ for i = 1:length(Dirs)
 end
 legend(legendInfoTarget,'Location', 'NorthWest')
 title({[mouse '; ' date]; 'target resp'; cellgroupname})
-% print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
+print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
 
 
 %% 
@@ -266,4 +272,5 @@ for i = 1:length(catchDirs)-1
 end
 
 suptitle([mouse '; ' date '; ' cellgroupname])
-% print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
+print([fnout ['\' figBaseName figName '.pdf']], '-dpdf')
+% end
