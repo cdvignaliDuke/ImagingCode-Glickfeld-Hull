@@ -889,78 +889,100 @@ for imouse = 1:size({av.mouse},2)
             for ii = 1:2
                 for iii = [1 2 3 5]
                     mouse(imouse).align(i).av(ii).outcome(iii).resp = [];
+                    mouse(imouse).align(i).av(ii).outcome(iii).cells(iOri).resp = [];
                     mouse(imouse).align(i).av(ii).outcome(iii).n = 0;
                     for iexp = 1:size(mouse(imouse).expt,2)
                         ind = mouse(imouse).expt(iexp).cells(iOri).ind;
                         mouse(imouse).align(i).av(ii).outcome(iii).resp = cat(2, mouse(imouse).align(i).av(ii).outcome(iii).resp, mean(mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).resp(:,ind,:),3));
                         mouse(imouse).align(i).av(ii).outcome(iii).n = mouse(imouse).align(i).av(ii).outcome(iii).n + mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).n;
+                        mouse(imouse).align(i).av(ii).outcome(iii).cells(iOri).resp = cat(2, mouse(imouse).align(i).av(ii).outcome(iii).cells(iOri).resp, mean(mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).resp(:,ind,:),3));
                     end
                 end
             end
             nCells = size(mouse(imouse).align(i).av(1).outcome(1).resp,2);
-            figure;
-            tt = [-pre_event_frames:post_event_frames-1].*(1000/frame_rate);
-            S1 = mean(mouse(imouse).align(i).av(1).outcome(1).resp,2);
-            F1 = mean(mouse(imouse).align(i).av(1).outcome(3).resp,2);
-            S2 = mean(mouse(imouse).align(i).av(2).outcome(1).resp,2);
-            F2 = mean(mouse(imouse).align(i).av(2).outcome(3).resp,2);
-            S1M = mean(mouse(imouse).align(i).av(1).outcome(5).resp,2);
-            M1M = mean(mouse(imouse).align(i).av(1).outcome(2).resp,2);
-            S2M = mean(mouse(imouse).align(i).av(2).outcome(5).resp,2);
-            M2M = mean(mouse(imouse).align(i).av(2).outcome(2).resp,2);
-            S1s = std(mouse(imouse).align(i).av(1).outcome(1).resp,[],2)./sqrt(nCells);
-            F1s = std(mouse(imouse).align(i).av(1).outcome(3).resp,[],2)./sqrt(nCells);
-            S2s = std(mouse(imouse).align(i).av(2).outcome(1).resp,[],2)./sqrt(nCells);
-            F2s = std(mouse(imouse).align(i).av(2).outcome(3).resp,[],2)./sqrt(nCells);
-            S1Ms = std(mouse(imouse).align(i).av(1).outcome(5).resp,[],2)./sqrt(nCells);
-            M1Ms = std(mouse(imouse).align(i).av(1).outcome(2).resp,[],2)./sqrt(nCells);
-            S2Ms = std(mouse(imouse).align(i).av(2).outcome(5).resp,[],2)./sqrt(nCells);
-            M2Ms = std(mouse(imouse).align(i).av(2).outcome(2).resp,[],2)./sqrt(nCells);
-            subplot(2,2,1)
-            shadedErrorBar(tt,S1,S1s, 'k');
-            hold on
-            shadedErrorBar(tt,F1,F1s, 'r');
-            hold on
-            vline(0)
-            title(['Visual: Hits (' num2str(mouse(imouse).align(i).av(1).outcome(1).n) ') vs FAs (' num2str(mouse(imouse).align(i).av(1).outcome(3).n) ')'])
-            subplot(2,2,2)
-            shadedErrorBar(tt,S2,S2s, 'k');
-            hold on
-            shadedErrorBar(tt,F2,F2s, 'r');
-            hold on
-            vline(0)
-            title(['Auditory: Hits (' num2str(mouse(imouse).align(i).av(2).outcome(1).n) ') vs FAs (' num2str(mouse(imouse).align(i).av(2).outcome(3).n) ')'])
-            subplot(2,2,3)
-            shadedErrorBar(tt,S1M,S1Ms, 'k');
-            hold on
-            shadedErrorBar(tt,M1M,M1Ms, 'r');
-            hold on
-            vline(0)
-            title(['Visual: Hits (' num2str(mouse(imouse).align(i).av(1).outcome(5).n) ') vs Misses (' num2str(mouse(imouse).align(i).av(1).outcome(2).n) ')'])
-            subplot(2,2,4)
-            shadedErrorBar(tt,S2M,S2Ms, 'k');
-            hold on
-            shadedErrorBar(tt,M2M,M2Ms, 'r');
-            hold on
-            vline(0)
-            title(['Auditory: Hits (' num2str(mouse(imouse).align(i).av(2).outcome(5).n) ') vs Misses (' num2str(mouse(imouse).align(i).av(2).outcome(2).n) ')'])
-            suptitle(['i' num2str(av(imouse).mouse) '- Align to ' mouse(imouse).align(i).name '; ' mouse(imouse).cells(iOri).name ' pref cells: n = ' num2str(nCells) ' cells'])
-            print([fnout mouse(imouse).align(i).name '_align_TC_' mouse(imouse).cells(iOri).name 'prefcells.pdf'], '-dpdf')
+%             figure;
+%             tt = [-30:90-1].*(1000/30);
+%             S1 = mean(mouse(imouse).align(i).av(1).outcome(1).resp,2);
+%             F1 = mean(mouse(imouse).align(i).av(1).outcome(3).resp,2);
+%             S2 = mean(mouse(imouse).align(i).av(2).outcome(1).resp,2);
+%             F2 = mean(mouse(imouse).align(i).av(2).outcome(3).resp,2);
+%             S1M = mean(mouse(imouse).align(i).av(1).outcome(5).resp,2);
+%             M1M = mean(mouse(imouse).align(i).av(1).outcome(2).resp,2);
+%             S2M = mean(mouse(imouse).align(i).av(2).outcome(5).resp,2);
+%             M2M = mean(mouse(imouse).align(i).av(2).outcome(2).resp,2);
+%             S1s = std(mouse(imouse).align(i).av(1).outcome(1).resp,[],2)./sqrt(nCells);
+%             F1s = std(mouse(imouse).align(i).av(1).outcome(3).resp,[],2)./sqrt(nCells);
+%             S2s = std(mouse(imouse).align(i).av(2).outcome(1).resp,[],2)./sqrt(nCells);
+%             F2s = std(mouse(imouse).align(i).av(2).outcome(3).resp,[],2)./sqrt(nCells);
+%             S1Ms = std(mouse(imouse).align(i).av(1).outcome(5).resp,[],2)./sqrt(nCells);
+%             M1Ms = std(mouse(imouse).align(i).av(1).outcome(2).resp,[],2)./sqrt(nCells);
+%             S2Ms = std(mouse(imouse).align(i).av(2).outcome(5).resp,[],2)./sqrt(nCells);
+%             M2Ms = std(mouse(imouse).align(i).av(2).outcome(2).resp,[],2)./sqrt(nCells);
+%             subplot(2,2,1)
+%             shadedErrorBar(tt,S1,S1s, 'k');
+%             hold on
+%             shadedErrorBar(tt,F1,F1s, 'r');
+%             hold on
+%             vline(0)
+%             title(['Visual: Hits (' num2str(mouse(imouse).align(i).av(1).outcome(1).n) ') vs FAs (' num2str(mouse(imouse).align(i).av(1).outcome(3).n) ')'])
+%             subplot(2,2,2)
+%             shadedErrorBar(tt,S2,S2s, 'k');
+%             hold on
+%             shadedErrorBar(tt,F2,F2s, 'r');
+%             hold on
+%             vline(0)
+%             title(['Auditory: Hits (' num2str(mouse(imouse).align(i).av(2).outcome(1).n) ') vs FAs (' num2str(mouse(imouse).align(i).av(2).outcome(3).n) ')'])
+%             subplot(2,2,3)
+%             shadedErrorBar(tt,S1M,S1Ms, 'k');
+%             hold on
+%             shadedErrorBar(tt,M1M,M1Ms, 'r');
+%             hold on
+%             vline(0)
+%             title(['Visual: Hits (' num2str(mouse(imouse).align(i).av(1).outcome(5).n) ') vs Misses (' num2str(mouse(imouse).align(i).av(1).outcome(2).n) ')'])
+%             subplot(2,2,4)
+%             shadedErrorBar(tt,S2M,S2Ms, 'k');
+%             hold on
+%             shadedErrorBar(tt,M2M,M2Ms, 'r');
+%             hold on
+%             vline(0)
+%             title(['Auditory: Hits (' num2str(mouse(imouse).align(i).av(2).outcome(5).n) ') vs Misses (' num2str(mouse(imouse).align(i).av(2).outcome(2).n) ')'])
+%             suptitle(['i' num2str(av(imouse).mouse) '- Align to ' mouse(imouse).align(i).name '; ' mouse(imouse).cells(iOri).name ' pref cells: n = ' num2str(nCells) ' cells'])
+%             %print([fnout mouse(imouse).align(i).name '_align_TC_' mouse(imouse).cells(iOri).name 'prefcells.pdf'], '-dpdf')
         end
     end
 end
 
-imouse = 2;
-iexp = 1;
-base_dirs = zeros(1,size(mouse(imouse).expt(iexp).target,2));
-for iDir = 1:size(mouse(imouse).expt(iexp).target,2)
-    base_dirs(1,iDir) = chop(mouse(imouse).expt(iexp).target(iDir).name,2);
+for iOri = 2:size(mouse(imouse).expt(1).cells,2)
+    for imouse = 1:size({av.mouse},2)
+        i = 4;
+        if size(mouse(imouse).expt,2)>0
+            mouse(imouse).align(i).name = mouse(imouse).expt(1).align(i).name;
+            mouse(imouse).cells(iOri).name = mouse(imouse).expt(1).cells(iOri).name;
+        end
+            
+
+base_dirs = [];
+i = 4;
+ii = 1;
+iii = 1;
+for imouse = 1
+    for iexp = 1 %:size(mouse(imouse).expt,2)
+        nDir = size(mouse(imouse).expt(iexp).target,2);
+        Dirs = zeros(1,nDir);
+        dir_ind = [];
+        for iDir = 1:nDir
+            Dirs(1,iDir) = chop(mouse(imouse).expt(iexp).target(iDir).name,2);
+        end
+        base_dirs = [base_dirs Dirs];
+    end
 end
+base_dirs = unique(base_dirs);
 
 i = 4;
 ii = 1;
 iii = 1;
-for imouse = 1:size(av,2)
+align = struct;
+for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
         figure;
         nDir = size(mouse(imouse).expt(iexp).target,2);
@@ -968,9 +990,6 @@ for imouse = 1:size(av,2)
         dir_ind = [];
         for iDir = 1:nDir
             Dirs(1,iDir) = chop(mouse(imouse).expt(iexp).target(iDir).name,2);
-            if find(base_dirs == Dirs(1,iDir))
-                dir_ind = [dir_ind iDir];
-            end
         end
         for iOri = 1:4
             ind = mouse(imouse).expt(iexp).cells(iOri+1).ind;
@@ -981,11 +1000,17 @@ for imouse = 1:size(av,2)
                 resp_mat(iDir,:) = [mouse(imouse).expt(iexp).target(iDir).name resp_avg resp_sem];
             end
             for iDir = 1:length(base_dirs)
-                targ = dir_ind(iDir);
-                if iexp == 1
-                    mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp = mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).target(targ).trans_resp(1,ind);
+                if find(Dirs == base_dirs(iDir));
+                    dir_ind = find(Dirs == base_dirs(iDir));
+                    if iexp == 1
+                        mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp = mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).target(dir_ind).trans_resp(1,ind);
+                    else
+                        mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp = [mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).target(dir_ind).trans_resp(1,ind)];
+                    end
                 else
-                    mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp = [mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp mouse(imouse).expt(iexp).align(i).av(ii).outcome(iii).target(targ).trans_resp(1,ind)];
+                    if iexp == 1
+                        mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp = [];
+                    end
                 end
             end
             subplot(2,2,iOri)
@@ -996,8 +1021,8 @@ for imouse = 1:size(av,2)
             ylim([-0.02 0.03])
         end
         suptitle(['i' num2str(av(imouse).mouse)  ' Expt #' mouse(imouse).expt(iexp).date])
-        fn = fullfile(rc.caOutputDir, mouse_name, date_name, [date_name '_' mouse_name '_']);
-        print([fn 'prevstim_align_OriTuning.pdf'], '-dpdf')
+        %fn = fullfile(rc.caOutputDir, mouse_name, date_name, [date_name '_' mouse_name '_']);
+        %print([fn 'prevstim_align_OriTuning.pdf'], '-dpdf')
     end
     figure;
     for iOri = 1:4
@@ -1007,7 +1032,16 @@ for imouse = 1:size(av,2)
             resp_avg = squeeze(mean(mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp,2));
             sz = size(mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp,2);
             resp_sem = squeeze(std(mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp,[],2)./sqrt(sz));
-            resp_mat(iDir,:) = [resp_avg resp_sem];
+            if isempty(resp_avg)
+                resp_mat(iDir,:) = [NaN NaN];
+            else
+                resp_mat(iDir,:) = [resp_avg resp_sem];
+            end
+            if imouse == 1;
+                align(i).target(iDir).cells(iOri+1).trans_resp = mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp;
+            else
+                align(i).target(iDir).cells(iOri+1).trans_resp = [align(i).target(iDir).cells(iOri+1).trans_resp mouse(imouse).align(i).av(ii).outcome(iii).target(iDir).cells(iOri+1).trans_resp];
+            end
         end
         errorbar(base_dirs, resp_mat(:,1), resp_mat(:,2),'-ok');
         title([num2str(mouse(imouse).expt(iexp).cells(iOri+1).name) ' deg pref'])
@@ -1017,6 +1051,28 @@ for imouse = 1:size(av,2)
     end
     alignYaxes
     suptitle(['i' num2str(av(imouse).mouse)])
-    fn = fullfile(rc.caOutputDir, [date '_i' num2str(av(imouse).mouse)]);
-    print([fn '_prevstim_align_OriTuning.pdf'], '-dpdf')
+    %fn = fullfile(rc.caOutputDir, [date '_i' num2str(av(imouse).mouse)]);
+    %print([fn '_prevstim_align_OriTuning.pdf'], '-dpdf')
 end
+
+ figure;
+for iOri = 1:4
+    subplot(2,2,iOri)
+    resp_mat = zeros(size(base_dirs,2),2);
+    for iDir = 1:size(base_dirs,2)
+        resp_avg = squeeze(mean(align(i).target(iDir).cells(iOri+1).trans_resp,2));
+        sz = size(align(i).target(iDir).cells(iOri+1).trans_resp,2);
+        resp_sem = squeeze(std(align(i).target(iDir).cells(iOri+1).trans_resp,[],2)./sqrt(sz));
+        if isempty(resp_avg)
+            resp_mat(iDir,:) = [NaN NaN];
+        else
+            resp_mat(iDir,:) = [resp_avg resp_sem];
+        end
+    end
+    errorbar(base_dirs, resp_mat(:,1), resp_mat(:,2),'-ok');
+    title([num2str(mouse(imouse).expt(iexp).cells(iOri+1).name) ' deg pref; n = ' num2str(sz)])
+    xlabel('Target Orientation (deg)')
+    ylabel('dF/F')
+    ylim([-0.01 0.02])
+end
+alignYaxes

@@ -12,8 +12,8 @@ function mouse = createAVCaDataStruct(doPlot);
     post_event_time = 3000;
     prepre_win_time = [-150 -80];
     pre_win_time = [-70 0];
-    post_win_time = [30 100];
-    trans_win_time = [150 225];
+    post_win_time = [0 100];
+    trans_win_time = [150 250];
     mid_win_time = [400 500];
     late_win_time = [1000 1100];
     s = zeros(1,3);
@@ -101,7 +101,8 @@ function mouse = createAVCaDataStruct(doPlot);
         cTargetOn = celleqel2mat_padded(input.cTargetOn);
         cStimOn = celleqel2mat_padded(input.cStimOn);
         cItiStart = cell2mat(input.cItiStart);
-
+        reactTimes = cell2mat(input.reactTimesMs);
+        
         dataTC = [];
         offset = 0;
         for irun = 1:nrun
@@ -145,7 +146,7 @@ function mouse = createAVCaDataStruct(doPlot);
         end
         
         FIx = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'failure')));
-        SIx = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'success')));
+        SIx = intersect(intersect(Ix, find(reactTimes>200)), find(strcmp(input.trialOutcomeCell, 'success')));
         MIx = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'ignore')));
         FIxlong = intersect(find(tCyclesOn>3), FIx);
         SIxlong = intersect(find(tCyclesOn>3), SIx);
