@@ -1,6 +1,11 @@
 function mouse = createAVCaDataStruct(doPlot);
     close all
-    awFSAVdatasets
+    datasetStr = ['longStimON'];
+    if strcmp(datasetStr,'')
+        awFSAVdatasets
+    else
+        eval(['awFSAVdatasets' '_' datasetStr])
+    end
     av = behavParamsAV;
     rc = behavConstsAV;
     pre_event_time = 1000;
@@ -262,12 +267,12 @@ function mouse = createAVCaDataStruct(doPlot);
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataF = zeros(1,size(dataTC,2),ntrials);
         DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
-        DataDFoverF_sub = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         for itrial = 1:max(find(cLeverDown+post_event_frames-1 <  size(dataTC,1)),[],2)
             Data(:,:,itrial) = dataTC(cLeverDown(itrial)-pre_event_frames:cLeverDown(itrial)+post_event_frames-1,:);
             DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
             DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
-            DataDFoverF_sub(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
         end
         S1Ix = intersect(V_ind, intersect(find(tCyclesOn>5), SIx));
         S2Ix = intersect(AV_ind, intersect(find(tCyclesOn>5), SIx));
@@ -1115,7 +1120,7 @@ function mouse = createAVCaDataStruct(doPlot);
     for imouse = 1:size(av,2)
         mouse_str = [mouse_str 'i' num2str(av(imouse).mouse) '_'];  
     end
-   save(fullfile(rc.caOutputDir, [date '_' mouse_str 'CaSummary.mat']), 'mouse','-v7.3');
+   save(fullfile(rc.caOutputDir, [date '_' mouse_str 'CaSummary' datasetStr '.mat']), 'mouse','-v7.3');
 end
 
         
