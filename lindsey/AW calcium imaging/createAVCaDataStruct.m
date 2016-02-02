@@ -16,7 +16,10 @@ function mouse = createAVCaDataStruct(doPlot);
     trans_win_time = [150 250];
     mid_win_time = [400 500];
     late_win_time = [1000 1100];
-    s = zeros(1,3);
+    nMice = length(unique({expt.SubNum}));
+    str = unique({expt.SubNum});
+    values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
+    s = zeros(1,nMice);
     mouse = struct;
     for iexp = 1:size(expt,2)
         
@@ -32,9 +35,9 @@ function mouse = createAVCaDataStruct(doPlot);
         doCatch = expt(iexp).catch;
         disp([num2str(date_name) ' i' num2str(SubNum)])
         
-        str = sprintf('%f,', av.mouse);
-        values = textscan(str, '%f', 'delimiter', ',', 'EmptyValue', NaN);
-        imouse = find(values{1} == str2num(SubNum));
+%         str = sprintf('%f,', av.mouse);
+%         values = textscan(str, '%f', 'delimiter', ',', 'EmptyValue', NaN);
+        imouse = find(values == str2num(SubNum));
         s(:,imouse) = s(:,imouse)+1;
         mouse(imouse).expt(s(:,imouse)).date = date_name;
         pre_event_frames = ceil(pre_event_time*(frame_rate/1000));
@@ -281,6 +284,8 @@ function mouse = createAVCaDataStruct(doPlot);
         V_S_DFoverF_int = squeeze(sum(DataDFoverF(61:100,:,S1Ix),1));
         AV_S_DFoverF_int = squeeze(sum(DataDFoverF(61:100,:,S2Ix),1));
         S_DFoverF_int = squeeze(sum(DataDFoverF(61:100,:,SBIx),1));
+    
+    if length(S1Ix) > 1 & length(S2Ix) > 1
         [h_int, p_int] = ttest2(V_S_DFoverF_int,AV_S_DFoverF_int,'dim',2,'tail', 'both');
         up_cells = find(mean(S_DFoverF_int,2)>0);
         down_cells = find(mean(S_DFoverF_int,2)<0);
@@ -305,7 +310,7 @@ function mouse = createAVCaDataStruct(doPlot);
             print([fnout 'press_align_S_AV_sigModCells.pdf'], '-dpdf')
 
             figure;
-            for iOri = 1:4
+            for iOri = 1:length(Oris)
                 sig_cells = intersect(cellsPref{iOri},sig_int);
                 subplot(3,2,iOri)
                 if length(sig_cells)>2
@@ -332,7 +337,7 @@ function mouse = createAVCaDataStruct(doPlot);
             int_met = (int_mat(:,1)-int_mat(:,2))./(int_mat(:,1)+int_mat(:,2));
 
             figure;
-            for iOri = 1:4
+            for iOri = 1:length(Oris)
                 ori_up_cells = intersect(cellsSelect{iOri},up_cells);
                 met_avg(iOri) = mean(int_met(ori_up_cells,:),1);
                 subplot(3,2,iOri)
@@ -357,7 +362,7 @@ function mouse = createAVCaDataStruct(doPlot);
             print([fnout 'press_align_S_AV_integralHist_upcells.pdf'], '-dpdf')
 
             figure;
-            for iOri = 1:4
+            for iOri = 1:length(Oris)
                 ori_down_cells = intersect(cellsSelect{iOri},down_cells);
                 met_avg(iOri) = mean(int_met(ori_down_cells,:),1);
                 subplot(3,2,iOri)
@@ -387,7 +392,7 @@ function mouse = createAVCaDataStruct(doPlot);
             var_met = (var_mat(:,1)-var_mat(:,2))./(var_mat(:,1)+var_mat(:,2));
 
             figure;
-            for iOri = 1:4
+            for iOri = 1:length(Oris)
                 met_avg(iOri) = mean(var_met(cellsSelect{iOri},:),1);
                 subplot(3,2,iOri)
                 hist(var_met(cellsSelect{iOri},:))
@@ -415,6 +420,7 @@ function mouse = createAVCaDataStruct(doPlot);
             suptitle([date_name ' ' mouse_name ' ' runstr '- align to lever press- variance over cycles 4-6'])
             print([fnout 'press_align_S_AV_varianceHist.pdf'], '-dpdf')
         end
+    end
 
         mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).late_int = sum(DataDFoverF(61:100,:,S1Ix),1); 
         mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).late_int = sum(DataDFoverF(61:100,:,S2Ix),1); 
