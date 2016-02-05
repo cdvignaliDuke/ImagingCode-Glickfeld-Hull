@@ -1,19 +1,23 @@
 %% run this after doing direction tuning analysis (need cell mask)
-SubNum = '614';
-date = '150626';
-taskTime = '1458';
-taskFolder = '001';
-mouse = 'AW14';
-taskFName = '001_000_000';
-dirFolder = '005';
+SubNum = '626';
+date = '160120';
+mouse = 'AW26';
 
-retTime = '1553';
-retFolder = '004';
-retFName = '004_000_000';
+taskTime = '1057';
+taskFolder = '004';
+taskFName = '004_000_000';
+
+retTime = '1147';
+retFolder = '008';
+retFName = '008_000_000';
+
+dirTime = '1201';
+dirFolder = '010';
 
 taskRespCutoff = 0.05;
 retRespCutoff = 0.3;
 
 FOV_taskDrivenResp
 FOV_retDrivenResp
+FOV_dirDrivenResp
 

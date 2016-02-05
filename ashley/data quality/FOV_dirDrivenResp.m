@@ -1,14 +1,13 @@
-SubNum = '626';
-date = '160203';
-time = '1151';
-ImgFolder = '005';
-mouse = 'AW26';
-fName = '005_000_000';
-dirFolder = '005';
+% SubNum = '626';
+% date = '160202';
+% dirTime = '1435';
+% dirFolder = '008';
+% mouse = 'AW26';
+% dirFolder = '008';
 
 % load MWorks file
 CD = 'Y:\home\andrew\Behavior\Data';
-mworks = ['data-' 'i' SubNum '-' date '-' time]; 
+mworks = ['data-' 'i' SubNum '-' date '-' dirTime]; 
 load (fullfile(CD,mworks));
 
 down = 10;
@@ -16,7 +15,7 @@ nON = input.nScansOn/down;
 nOFF = input.nScansOff/down;
 nStim = input.gratingDirectionStepN;
 
-data_reg = readtiff(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,ImgFolder,'DirectionTuning_V1.tif'));
+data_reg = readtiff(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,dirFolder,'DirectionTuning_V1.tif'));
 
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileDirMasks);
