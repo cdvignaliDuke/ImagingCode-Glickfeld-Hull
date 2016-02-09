@@ -54,24 +54,30 @@ clear data_sub
 
 %get direction tuning registration image and get cells
 
-fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
-cd(fileDirMasks);
-load('regImg.mat');
-load('mask&TCDir.mat');
-clear data_TC
+% fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
+% cd(fileDirMasks);
+% load('regImg.mat');
+% load('mask&TCDir.mat');
+% clear data_TC
+
+load(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'regImg.mat'))
 
 [out data_reg] = stackRegister(data, data_avg);
 clear data
 end
 
-fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
-cd(fileDirMasks);
-load('mask&TCDir.mat');
-clear data_TC
+% fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
+% cd(fileDirMasks);
+% load('mask&TCDir.mat');
+% clear data_TC
+
+%load mask from task dataset
+load(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'taskDrivenPixelsMask_targetandanticipation.mat'));
 
 %figure out new mask based on this dataset?
+dataTC = stackGetTimeCourses(data_reg,Kmask_ant);
 
-dataTC = stackGetTimeCourses(data_reg,mask_cell);
+% dataTC = stackGetTimeCourses(data_reg,mask_cell);
 
 %% get trials sorted by stim type
 tAz = double(cell2mat(input.tGratingAzimuthDeg));
@@ -80,14 +86,19 @@ Az = unique(tAz);
 El = unique(tEl);
 nTrials = length(tAz);
 %% get dF/F
-data = reshape(dataTC,nON+nOFF,nTrials,size(dataTC,2));
+if size(dataTC,1) == nTrials*(nON+nOFF)
+    data = reshape(dataTC,nON+nOFF,nTrials,size(dataTC,2));
+else
+    dataTC = dataTC(1:nTrials*(nON+nOFF),:);
+    data = reshape(dataTC,nON+nOFF,nTrials,size(dataTC,2));
+end
+
 F = mean(data(nOFF-4:nOFF,:,:),1);
 dF = bsxfun(@minus,data,F);
 dFoverF = bsxfun(@rdivide,dF,F);
 
 %% find responsive cells
-gratingRespCells = find(any(squeeze(mean(dFoverF(nOFF+1:nON+nOFF,:,:),1)) > retRespCutoff,1));
-dFoverFmean = mean(dFoverF(:,:,gratingRespCells),3);
+dFoverFmean = mean(dFoverF(:,:,:),3);
 %% responsive cells average for all directions
 gratingCoord = {};
 meanResp2Coord = zeros(size(dFoverFmean,1),nStim);
@@ -112,7 +123,7 @@ hold on
 vline(nOFF,'k:')
 xlabel('frames')
 ylabel('dF/F')
-title({'retinotopy driven resp'; [mouse '-' date]; ['respCutoff=' num2str(retRespCutoff)]; ['nCells = ' num2str(length(gratingRespCells)) '/' num2str(size(dataTC,2))]})
+title({'retinotopy driven resp'; [mouse '-' date]; 'anticipation mask used'})
 
 %%
 set(0,'defaultfigurepaperorientation','portrait');
