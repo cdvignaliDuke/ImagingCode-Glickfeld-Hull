@@ -121,7 +121,7 @@ function mouse = createAVCaDataStruct(datasetStr);
         AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
         cycTime = input.nFramesOn+input.nFramesOff;
 
-        tGratingDirectionDeg = chop(cell2mat(input.tGratingDirectionDeg),4);
+        tGratingDirectionDeg = chop(celleqel2mat_padded(input.tGratingDirectionDeg),4);
         Dirs = unique(tGratingDirectionDeg);
         clear dataTimecourse
         
@@ -266,12 +266,19 @@ function mouse = createAVCaDataStruct(datasetStr);
             DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
         end
         DataDFoverF_LD = DataDFoverF;
-         
+        sz = size(DataDFoverF);
         for iav = 1:2
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = DataDFoverF(:,:,eval(['Sb' num2str(iav) 'Ix']));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = DataDFoverF(:,:,eval(['Mb' num2str(iav) 'IxMatch']));        
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,eval(['Fb' num2str(iav) 'Ix']));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = DataDFoverF(:,:,eval(['Sb' num2str(iav) 'IxMatch']));
+            if length(eval(['Sb' num2str(iav) 'Ix']))>0
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = DataDFoverF(:,:,eval(['Sb' num2str(iav) 'Ix']));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = DataDFoverF(:,:,eval(['Mb' num2str(iav) 'IxMatch']));        
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,eval(['Fb' num2str(iav) 'Ix']));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = DataDFoverF(:,:,eval(['Sb' num2str(iav) 'IxMatch']));
+            else
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = NaN(sz(1), sz(2));
+            end
         end
         
         %% Align data to previous stim
@@ -297,16 +304,25 @@ function mouse = createAVCaDataStruct(datasetStr);
         end
         
         
-        for iav = 1:2        
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = DataDFoverF(:,:,eval(['Sb' num2str(iav) 'Ix']));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = DataDFoverF(:,:,eval(['Mb' num2str(iav) 'IxMatch']));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,eval(['Fb' num2str(iav) 'Ix']));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).resp = DataDFoverF_CR(:,:,eval(['Rb' num2str(iav) 'Ix']));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = DataDFoverF(:,:,eval(['Sb' num2str(iav) 'IxMatch']));
+        for iav = 1:2
+            if length(eval(['Sb' num2str(iav) 'Ix']))>0
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = DataDFoverF(:,:,eval(['Sb' num2str(iav) 'Ix']));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = DataDFoverF(:,:,eval(['Mb' num2str(iav) 'IxMatch']));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,eval(['Fb' num2str(iav) 'Ix']));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).resp = DataDFoverF_CR(:,:,eval(['Rb' num2str(iav) 'Ix']));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = DataDFoverF(:,:,eval(['Sb' num2str(iav) 'IxMatch']));
+            else
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).resp = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = NaN(sz(1), sz(2));
+            end
         end
         
         DataDFoverFsub = mean(DataDFoverF(trans_win,:,:),1)-mean(DataDFoverF(pre_win,:,:),1);
         DataDFoverF_LDsub = mean(DataDFoverF_LD(trans_win,:,:),1)-mean(DataDFoverF_LD(pre_win,:,:),1);
+        mouse(imouse).expt(s(:,imouse)).align(ialign).ttest = zeros(size(dataTC,2), length(Dirs));
         for iDir = 1:length(Dirs)
             iav = 1;
             vInd = find(tGratingDirectionDeg==Dirs(iDir));
@@ -322,7 +338,7 @@ function mouse = createAVCaDataStruct(datasetStr);
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).stimResp{iDir} = DataDFoverF(:,:,indS);
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).stimResp{iDir} = DataDFoverF(:,:,indMM);        
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).stimResp{iDir} = DataDFoverF(:,:,indSM);
-            [h, p] = ttest(squeeze(mean(DataDFoverF(pre_win,:,indS),1)), squeeze(mean(DataDFoverF(trans_win,:,indS),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)-1));
+            [h, p] = ttest(squeeze(mean(DataDFoverF(pre_win,:,indS),1)), squeeze(mean(DataDFoverF(trans_win,:,indS),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).ttest(:,iDir) = h;
         end
         
@@ -346,10 +362,10 @@ function mouse = createAVCaDataStruct(datasetStr);
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).stimResp{iAmp} = DataDFoverF(:,:,indMM);        
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).stimResp{iAmp} = DataDFoverF(:,:,indSM);
         end
-        [h, p] = ttest(squeeze(mean(DataDFoverF_LD(pre_win,:,SIx),1)), squeeze(mean(DataDFoverF_LD(trans_win,:,SIx),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)-1));
+        [h, p] = ttest(squeeze(mean(DataDFoverF_LD(pre_win,:,SIx),1)), squeeze(mean(DataDFoverF_LD(trans_win,:,SIx),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)));
         mouse(imouse).expt(s(:,imouse)).align(1).ttest = h;
         base_ind = find(mouse(imouse).expt(s(:,imouse)).align(1).ttest);
-        resp_ind = find(sum(mouse(imouse).expt(s(:,imouse)).align(4).ttest,2)>=1);
+        resp_ind = find(sum(mouse(imouse).expt(s(:,imouse)).align(2).ttest,2)>=1);
         mouse(imouse).expt(s(:,imouse)).cells(1).ind = unique([base_ind; resp_ind]);
     end
     
