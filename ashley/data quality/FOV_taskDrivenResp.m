@@ -56,6 +56,7 @@ data = squeeze(data);
 taskAz = num2str(input.gratingAzimuthDeg);
 taskEl = num2str(input.gratingElevationDeg);
 posStr = [taskAz '/' taskEl ' - Az/El'];
+sizeStr = [num2str(input.gratingHeightDeg) 'x' num2str(input.gratingWidthDeg)];
     
 CYC = 4:input.maxCyclesOn;
 prePushFrames = 30;
@@ -94,8 +95,8 @@ end
 data_avg = mean(data(:,:,dataAvgFrames),3);
 figure; imagesc(data_avg);colormap gray
 
-beep 
-pause(60)
+% beep 
+% pause(60)
 
 save(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'regImg'),'data_avg');
 
@@ -132,6 +133,13 @@ title('smoothed cutoff')
 subplot(1,4,4)
 imagesc(Kmask_ant); colormap gray
 title('mask')
+
+set(0,'defaultfigurepaperorientation','portrait');
+set(0,'defaultfigurepapersize',[8.5 11]);
+set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+
+print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVant_mask'), '-dpdf');
+
 writetiff(maxdFoverF,fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVant'));
 
 %max dF/F image for anticipation period frames
@@ -163,6 +171,9 @@ title('smoothed cutoff')
 subplot(1,4,4)
 imagesc(Kmask_tar); colormap gray
 title('mask')
+
+print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVtar_mask'), '-dpdf');
+
 writetiff(maxdFoverF,fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVtar'));
 
 save(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'taskDrivenPixelsMask_targetandanticipation'), 'Kmask_tar','Kmask_ant')
@@ -212,7 +223,7 @@ for i = 1:CYC(1)-1
 end
 xlabel('frames')
 ylabel('dF/F')
-title({'task driven resp'; [mouse '-' date]; [num2str(trCycLengthMs) 'ms/tr;']; [num2str(nTrials_ant) ' trials'];posStr})
+title({'task driven resp'; [mouse '-' date]; [num2str(trCycLengthMs) 'ms/tr;']; [num2str(nTrials_ant) ' trials'];[posStr '; ' sizeStr]})
 %%
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
@@ -269,7 +280,7 @@ hold on
 vline(preTargetFrames,'k')
 xlabel('frames')
 ylabel('dF/F')
-title({'target driven resp'; [mouse '-' date]; [num2str(trCycLengthMs) 'ms/tr;']; [num2str(nTrials_tar) ' success trials'];posStr})
+title({'target driven resp'; [mouse '-' date]; [num2str(trCycLengthMs) 'ms/tr;']; [num2str(nTrials_tar) ' success trials'];[posStr '; ' sizeStr]})
 %%
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);

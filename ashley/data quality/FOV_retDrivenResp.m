@@ -80,6 +80,7 @@ dataTC = stackGetTimeCourses(data_reg,Kmask_ant);
 % dataTC = stackGetTimeCourses(data_reg,mask_cell);
 
 %% get trials sorted by stim type
+sZ = num2str(input.gratingDiameterDeg);
 tAz = double(cell2mat(input.tGratingAzimuthDeg));
 tEl = double(cell2mat(input.tGratingElevationDeg));
 Az = unique(tAz);
@@ -123,7 +124,7 @@ hold on
 vline(nOFF,'k:')
 xlabel('frames')
 ylabel('dF/F')
-title({'retinotopy driven resp'; [mouse '-' date]; 'anticipation mask used'})
+title({['retinotopy driven resp - ' sZ ' deg']; [mouse '-' date]; 'anticipation mask used'})
 
 %%
 set(0,'defaultfigurepaperorientation','portrait');
