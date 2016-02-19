@@ -410,10 +410,10 @@ function mouse = createAVCaDataStruct(datasetStr);
                 indSM = intersect(aInd, Sb2IxMatch);
                 indMM = intersect(aInd, Mb2IxMatch);
             end
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).stimResp{iDir} = DataDFoverF(:,:,indS);
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).stimResp{iDir} = DataDFoverF(:,:,indM);        
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).stimResp{iDir} = DataDFoverF(:,:,indSM);
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).stimResp{iDir} = DataDFoverF(:,:,indMM);
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).stimResp{iAmp} = DataDFoverF(:,:,indS);
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).stimResp{iAmp} = DataDFoverF(:,:,indM);        
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).stimResp{iAmp} = DataDFoverF(:,:,indSM);
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).stimResp{iAmp} = DataDFoverF(:,:,indMM);
         end
         
         %find cells that are responsive to at least of of the target
