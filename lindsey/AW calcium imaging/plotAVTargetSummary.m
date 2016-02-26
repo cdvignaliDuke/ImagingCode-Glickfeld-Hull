@@ -2,7 +2,6 @@ function plotAVTargetSummary(datasetStr)
 %takes mouse structure and plots transient responses to target and base
 %stimuli
 close all
-av = behavParamsAV;
 eval(['awFSAVdatasets' datasetStr])
 titleStr = datasetStr;
 if strcmp(titleStr, '')
@@ -11,18 +10,29 @@ else
     titleStr = titleStr(2:end);
 end
 rc = behavConstsAV;
+if strcmp(rc.name,'ashley')
+    dataGroup = ['awFSAVdatasets' datasetStr];
+else
+    dataGroup = [];
+end
+av = behavParamsAV;
+% str = unique({expt.SubNum});
+% values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
+% mouse_str = [];
+% for imouse = 1:size(str,2)
+%     mouse_str = [mouse_str 'i' str{imouse} '_'];  
+% end
 str = unique({expt.SubNum});
 values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
-mouse_str = [];
-for imouse = 1:size(str,2)
-    mouse_str = [mouse_str 'i' str{imouse} '_'];  
-end
-load(fullfile(rc.caOutputDir, [mouse_str 'CaSummary' datasetStr '.mat']));
+mouse_str = ['i' strjoin(str,'_i')];
+mouse_ind = find(intersect(cell2mat({av.mouse}),values));
+load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' datasetStr '.mat']));
 pre_win = mouse(1).expt(1).win(1).frames;
 trans_win = mouse(1).expt(1).win(2).frames;
 pre_event_frames = mouse(1).expt(1).pre_event_frames;
 post_event_frames = mouse(1).expt(1).post_event_frames;
-fnout = fullfile(rc.caOutputDir, [date '_' mouse_str]);
+titleStr = [titleStr mouse(1).expt(1).cells(1).name]; 
+fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' date '_' mouse_str]); %% maybe lose mouse_str
 
 nexp = 0;
 for imouse = 1:size(mouse,2)
@@ -39,6 +49,7 @@ end
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+% set(0,'DefaultaxesFontSize', 16)
 figure;
 i = 1;
 tt = -pre_event_frames:post_event_frames-1;
