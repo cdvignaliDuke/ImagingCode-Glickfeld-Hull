@@ -46,7 +46,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,600:610),3);
+data_avg = mean(data_sub(:,:,700:710),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -317,7 +317,7 @@ for i = 1:nStim
 end
 
 %% save tuning info
-save('TuningPreferences.mat','oriPref_ind','dirPref_ind','dirSlctvCells','oriSlctvCells','dFoverFDirResp')
+save('TuningPreferences.mat','oriPref_ind','dirPref_ind','dirSlctvCells','oriSlctvCells','dFoverFDirResp','dFoverF_meanDirResp')
 
 %% plot cell tuning
 % plot responses to each direction

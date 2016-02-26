@@ -3,9 +3,9 @@
 
 awFSAVdatasets_longStimON
 % for iexp = 1:size(expt,2)
-    iexp = 2;
+    iexp = 5;
 
-for irun = 2:expt(iexp).nrun;
+for irun = 1:expt(iexp).nrun;
 SubNum = expt(iexp).SubNum;
 date = expt(iexp).date;
 time = expt(iexp).time_mat(irun,:);

@@ -110,21 +110,21 @@ expt(3).dirtuning = '007';
 expt(3).rettuning = {'006'; '1724'};
 expt(3).motionTestBimodal = 0;
 
-%% AW26 160125 - suppressed avg response, very few cells, good behavior
-expt(4).SubNum = '626';
-expt(4).mouse = 'AW26';
-expt(4).date = '160125';
-expt(4).img_loc  = {'V1';'L2/3'};
-expt(4).img_strct  = {'cells'};
-expt(4).time_mat = ['1416'; '1432'; '1449'; '1505'];
-expt(4).runs = ['001'; '002'; '003'; '004'];
-expt(4).nrun = size(expt(4).runs,1);
-expt(4).frame_rate = 30;
-expt(4).folder = 'two-photon imaging';
-expt(4).catch = 1;
-expt(4).dirtuning = '006';
-expt(4).rettuning = {'005';'1522'};
-expt(4).motionTestBimodal = 0;
+% %% AW26 160125 - suppressed avg response, very few cells, good behavior
+% expt(4).SubNum = '626';
+% expt(4).mouse = 'AW26';
+% expt(4).date = '160125';
+% expt(4).img_loc  = {'V1';'L2/3'};
+% expt(4).img_strct  = {'cells'};
+% expt(4).time_mat = ['1416'; '1432'; '1449'; '1505'];
+% expt(4).runs = ['001'; '002'; '003'; '004'];
+% expt(4).nrun = size(expt(4).runs,1);
+% expt(4).frame_rate = 30;
+% expt(4).folder = 'two-photon imaging';
+% expt(4).catch = 1;
+% expt(4).dirtuning = '006';
+% expt(4).rettuning = {'005';'1522'};
+% expt(4).motionTestBimodal = 0;
 
 % %% AW26 160127 - suppressed avg response, very few cells, high miss rate
 % expt(4).SubNum = '626';
@@ -143,20 +143,20 @@ expt(4).motionTestBimodal = 0;
 % expt(4).motionTestBimodal = 0;
 
 %% AW26 160202 **BEST AW26 V1 dataset - suppressed avg response, very few cells, miss rate somewhat high (could cut beginning trials)
-expt(5).SubNum = '626';
-expt(5).mouse = 'AW26';
-expt(5).date = '160202';
-expt(5).img_loc  = {'V1';'L2/3'};
-expt(5).img_strct  = {'cells'};
-expt(5).time_mat = ['1335'; '1350'; '1407'];
-expt(5).runs = ['003'; '004'; '006'];
-expt(5).nrun = size(expt(5).runs,1);
-expt(5).frame_rate = 30;
-expt(5).folder = 'two-photon imaging';
-expt(5).catch = 1;
-expt(5).dirtuning = '008';
-expt(5).rettuning = {'007';'1424'};
-expt(5).motionTestBimodal = 0;
+expt(4).SubNum = '626';
+expt(4).mouse = 'AW26';
+expt(4).date = '160202';
+expt(4).img_loc  = {'V1';'L2/3'};
+expt(4).img_strct  = {'cells'};
+expt(4).time_mat = ['1335'; '1350'; '1407'];
+expt(4).runs = ['003'; '004'; '006'];
+expt(4).nrun = size(expt(4).runs,1);
+expt(4).frame_rate = 30;
+expt(4).folder = 'two-photon imaging';
+expt(4).catch = 1;
+expt(4).dirtuning = '008';
+expt(4).rettuning = {'007';'1424'};
+expt(4).motionTestBimodal = 0;
 
 % %% AW26 160121 - suppressed avg response, no cells, good behavior
 % expt(6).SubNum = '626';

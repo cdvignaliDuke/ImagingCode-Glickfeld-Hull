@@ -1,4 +1,3 @@
-bxSumFig = figure;
 %% concatenate input structures
 mworksLocation = 'Y:\home\andrew\Behavior\Data';
 
@@ -58,8 +57,8 @@ end
 
 
 %% plot hit rates
-figure(bxSumFig);
-subplot(2,1,1);
+figure(exptSummary);
+subplot(3,3,3);
 xAxis_V = oris(2:end);
 xAxis_AV = 100;
 % try 
@@ -80,8 +79,8 @@ xlabel('Orientation change (deg)')
 ylabel('Hit rate')
 xtick = oris;
 set(ax,'XTick',xtick)
-title({[mouse '-' date];'hit rate summary'})
-legend({'vis';'aud'},'Location','southeastoutside')
+title('hit rate summary')
+legend({'vis';'aud'},'Location','southeast')
 
 %% calc cumulative FA, miss, and correct
 lag = 10;
@@ -90,8 +89,8 @@ cumMiss = tsmovavg(cumsum(missedIx)./(1:length(failureIx)),'s',lag,2);
 cumSuccess = tsmovavg(cumsum(successIx)./(1:length(failureIx)),'s',lag,2);
 
 %% calc cumulative FA, miss, and correct
-figure(bxSumFig)
-subplot(2,1,2);
+figure(exptSummary)
+subplot(3,3,6);
 ax = gca;
 plot(cumFA,'c')
 hold on
@@ -100,15 +99,17 @@ hold on
 plot(cumSuccess,'k')
 ylim([0 1])
 xtick = cumsum(input_temp.trialsSinceReset);
-xlabel('trial number')
+xlabel('trial number - ea data chunk')
 set(ax,'XTick',xtick)
 ylabel('smoothed percent')
-title({[mouse '-' date];'cumulative summary'})
-legend({'FA';'miss';'hit'}, 'Location', 'southeastoutside')
+title('cumulative summary')
+rStr = horzcat({'FA ';'miss ';'hit '} ,cellfun(@num2str,[{pctEarly};{pctMiss};{avgHR}],'UniformOutput',false));
+avgRates = arrayfun(@(r) [rStr{r,:}], 1:size(rStr,1),'Unif',false);
+legend(avgRates, 'Location', 'north')
 
 %% save fig
-figure(bxSumFig)
-print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'bxSummary'), '-dpdf');
+% figure(bxSumFig)
+% print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'bxSummary'), '-dpdf');
 
 %% if there are catch trials...
 

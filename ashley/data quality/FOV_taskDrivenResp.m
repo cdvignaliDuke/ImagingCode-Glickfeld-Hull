@@ -97,8 +97,12 @@ figure; imagesc(data_avg);colormap gray
 
 % beep 
 % pause(60)
-
-save(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'regImg'),'data_avg');
+if exist(fullfile('Z:\analysis\',mouse,'two-photon imaging', date),'file')
+    save(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'regImg'),'data_avg');
+else
+    mkdir(fullfile('Z:\analysis\',mouse,'two-photon imaging'),date)
+    save(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'regImg'),'data_avg');
+end
 
 [out data_reg_ant] = stackRegister(data(:,:,frameInd_ant), data_avg);
 [out data_reg_tar] = stackRegister(data(:,:,frameInd_tar), data_avg);
@@ -120,25 +124,25 @@ K = filter2(fspecial('average',5),IMG)/255;
 Kmask_ant = K;
 Kmask_ant(Kmask_ant < filterCutoff) = 0;
 Kmask_ant(Kmask_ant > 0) = 1;
-figure; 
-subplot(1,4,1)
+figure(exptSummary); 
+subplot(3,3,1)
 imagesc(maxdFoverF); colormap gray
 title('anticipation maxdFoverF')
-subplot(1,4,2)
+subplot(3,3,2)
 imagesc(IMG); colormap gray
 title('cutoff maxdFoverF')
-subplot(1,4,3)
+subplot(3,3,4)
 imagesc(K);colormap gray
 title('smoothed cutoff')
-subplot(1,4,4)
+subplot(3,3,5)
 imagesc(Kmask_ant); colormap gray
 title('mask')
 
-set(0,'defaultfigurepaperorientation','portrait');
-set(0,'defaultfigurepapersize',[8.5 11]);
-set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+% set(0,'defaultfigurepaperorientation','portrait');
+% set(0,'defaultfigurepapersize',[8.5 11]);
+% set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 
-print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVant_mask'), '-dpdf');
+% print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVant_mask'), '-dpdf');
 
 writetiff(maxdFoverF,fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVant'));
 
@@ -213,7 +217,8 @@ dFoverF_trMean_ant = squeeze(mean(dFoverF_ant,2));
 % 
 % print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVant'), '-dpdf');
 %%
-figure;
+figure(exptSummary);
+subplot(3,3,8)
 plot(mean(dFoverF_trMean_ant,2),'LineWidth',3)
 hold on
 vline(prePushFrames,'k')
@@ -223,13 +228,13 @@ for i = 1:CYC(1)-1
 end
 xlabel('frames')
 ylabel('dF/F')
-title({'task driven resp'; [mouse '-' date]; [num2str(trCycLengthMs) 'ms/tr;']; [num2str(nTrials_ant) ' trials'];[posStr '; ' sizeStr]})
+title({'task driven resp';  [num2str(trCycLengthMs) 'ms/tr; ' num2str(nTrials_ant) ' trials']})
 %%
-set(0,'defaultfigurepaperorientation','portrait');
-set(0,'defaultfigurepapersize',[8.5 11]);
-set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
-
-print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVant_all'), '-dpdf');
+% set(0,'defaultfigurepaperorientation','portrait');
+% set(0,'defaultfigurepapersize',[8.5 11]);
+% set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+% 
+% print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVant_all'), '-dpdf');
 
 
 
@@ -274,19 +279,21 @@ dFoverF_trMean_tar = squeeze(mean(dFoverF_tar,2));
 % 
 % print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVtar'), '-dpdf');
 %%
-figure;
+figure(exptSummary);
+subplot(3,3,9)
 plot(mean(dFoverF_trMean_tar,2),'LineWidth',3)
 hold on
 vline(preTargetFrames,'k')
 xlabel('frames')
 ylabel('dF/F')
-title({'target driven resp'; [mouse '-' date]; [num2str(trCycLengthMs) 'ms/tr;']; [num2str(nTrials_tar) ' success trials'];[posStr '; ' sizeStr]})
+title({'target driven resp'; [num2str(trCycLengthMs) 'ms/tr; ' num2str(nTrials_tar) ' success trials']})
 %%
-set(0,'defaultfigurepaperorientation','portrait');
-set(0,'defaultfigurepapersize',[8.5 11]);
-set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
-
-print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVtar_all'), '-dpdf');
+% set(0,'defaultfigurepaperorientation','portrait');
+% set(0,'defaultfigurepapersize',[8.5 11]);
+% set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+% 
+% print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVtar_all'), '-dpdf');
 %%
-
+suptitle([mouse '-' date '; ' posStr '; ' sizeStr])
+disp(['task-' expt(iexp).date]);
 toc

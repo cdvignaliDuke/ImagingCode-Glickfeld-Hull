@@ -116,19 +116,22 @@ end
 %% plot
 colors = brewermap(double(nStim),'Spectral');
 colors = num2cell(colors,2);
-retFig = figure;
+figure(exptSummary);
+
+retFig = subplot(3,3,7);
 retFig = plot(meanResp2Coord,'LineWidth',3);
 set(retFig, {'color'},colors);
-legend(gratingCoord, 'Location', 'southeastoutside')
+legend(gratingCoord, 'Location', 'northwest')
 hold on
 vline(nOFF,'k:')
 xlabel('frames')
 ylabel('dF/F')
-title({['retinotopy driven resp - ' sZ ' deg']; [mouse '-' date]; 'anticipation mask used'})
+title(['retinotopy driven resp - ' sZ ' deg'])
 
 %%
-set(0,'defaultfigurepaperorientation','portrait');
-set(0,'defaultfigurepapersize',[8.5 11]);
-set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
-
-print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'avgRespRet'), '-dpdf');
+% set(0,'defaultfigurepaperorientation','portrait');
+% set(0,'defaultfigurepapersize',[8.5 11]);
+% set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+% 
+% print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'avgRespRet'), '-dpdf');
+disp(['ret-' expt(iexp).date]);

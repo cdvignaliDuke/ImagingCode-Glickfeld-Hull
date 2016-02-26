@@ -15,6 +15,24 @@ expt(1).dirtuning = '007';
 expt(1).rettuning = {'005';'1145'};
 expt(1).motionTestBimodal = 0;
 
+% %% AW13 150521
+% expt(2).SubNum = '613';
+% expt(2).mouse = 'AW13';
+% expt(2).date = '150521';
+% expt(2).img_loc  = {'PM';'L2/3'};
+% expt(2).img_strct  = {'axons'};
+% expt(2).time_mat = ['1517'; '1534'; '1551'];
+% expt(2).runs = ['001'; '002'; '004'];
+% expt(2).nrun = size(expt(2).runs,1);
+% expt(2).frame_rate = 30;
+% expt(2).folder = 'two-photon imaging';
+% expt(2).catch = 1;
+% expt(2).dirtuning = '006';
+% expt(2).rettuning = {'005';'1608'};
+% expt(2).motionTestBimodal = 0;
+% expt(2).z = 100;
+
+
 % %% AW16 151207 FA rate high
 % 
 % expt(2).SubNum = '616';
