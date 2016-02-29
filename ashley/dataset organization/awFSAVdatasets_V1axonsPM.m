@@ -12,6 +12,7 @@ expt(1).frame_rate = 30;
 expt(1).folder = 'two-photon imaging';
 expt(1).catch = 1;
 expt(1).dirtuning = '007';
+expt(1).dirtuning_time = '1150';
 expt(1).rettuning = {'005';'1145'};
 expt(1).motionTestBimodal = 0;
 

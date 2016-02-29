@@ -43,6 +43,7 @@ expt(1).frame_rate = 30;
 expt(1).folder = 'two-photon imaging';
 expt(1).catch = 1;
 expt(1).dirtuning = '005';
+expt(1).dirtuning_time = '1145';
 expt(1).rettuning = {'004';'1140'};
 expt(1).motionTestBimodal = 0;
 
@@ -92,6 +93,7 @@ expt(2).frame_rate = 30;
 expt(2).folder = 'two-photon imaging';
 expt(2).catch = 1;
 expt(2).dirtuning = '006';
+expt(2).dirtuning_time = '1602';
 expt(2).rettuning = {'005'; '1558'};
 expt(2).motionTestBimodal = 0;
 %% AW26 160118 - suppressed avg response, very few cells, good behav
@@ -107,6 +109,7 @@ expt(3).frame_rate = 30;
 expt(3).folder = 'two-photon imaging';
 expt(3).catch = 1;
 expt(3).dirtuning = '007';
+expt(3).dirtuning_time = '1729';
 expt(3).rettuning = {'006'; '1724'};
 expt(3).motionTestBimodal = 0;
 
@@ -155,6 +158,7 @@ expt(4).frame_rate = 30;
 expt(4).folder = 'two-photon imaging';
 expt(4).catch = 1;
 expt(4).dirtuning = '008';
+expt(4).dirtuning_time = '1435';
 expt(4).rettuning = {'007';'1424'};
 expt(4).motionTestBimodal = 0;
 
