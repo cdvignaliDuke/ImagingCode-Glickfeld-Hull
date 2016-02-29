@@ -4,11 +4,14 @@ clear
 BIN_SIZE = 1;  
 DATA_DIR =  'C:\Users\jake\TempData\';
 FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
-BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
+BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior';
 % ---------------
-days = {'150706_img24'};
+%days = {'160131_img36','160131_img35','160129_img36','160129_img35'};
+%days = {'150716_img27', '150718_img27', '150719_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32'};
 %days = {'150716_img27', '150717_img27', '150718_img27', '150719_img27'};  
 %days = {'150719_img28', '150717_img28', '150716_img28'};
+%days = {'160208_img36', '160207_img35', '160207_img36', '160205_img35'};
+days = {'160228_img36'};
 
 for kk=1:length(days)
     ROI_name  =  days{kk};

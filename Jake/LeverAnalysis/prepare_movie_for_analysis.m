@@ -3,12 +3,12 @@ tic
 %  go over all the movies in a session
 % 1. select an ROI
 % 2. stack all the movies to one tiff file
-DATA_DIR =  'C:\Users\jake\TempData\';
-day = '150706_img24';   %'150717_img28' '150719_img28'
+DATA_DIR =  'Z:\Data\WidefieldImaging\GCaMP\';
+day =  '160228_img36' %'160208_img35_2' % '160209_img36_NoLever_1'};   %'150717_img28' '150719_img28'
 motion_correction =1;           %1 to register image   0 to take ROI without motion correction
 stable_int = [1:50];         %use imageJ to find a series of frames (~100) in which little movement occurs. Use this during motion correction
 session = '';
-image_dest  = [DATA_DIR day '\'];
+image_dest  = ['C:\Users\jake\TempData\' day '\'];
 BIN_SIZE =1;
 %MUST ALSO SET ncores for parpool
 
@@ -43,6 +43,7 @@ dest =  [image_dest day '_ROI'];
 save([dest '_frame_times'],  'frame_times');
 %------------------------------------------------------
 %------------------------------------------------------
+%%
 
 % use first file to calculate ROI
 cd('C:\Users\jake\Documents\Repositories\ImagingCode-Glickfeld-Hull\Jake\LeverAnalysis');

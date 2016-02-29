@@ -9,7 +9,7 @@ nIC = size(data_tc,2);
 load([dest '_frame_times.mat'])
 %% 1- Find periods with no lever activity and detect "spontaneous" events
 %extract spontaneous windows
-
+thresh= repmat(3000,1,25);
 %thresh = [2650, 2615, 3217, 4212, 4375, 4375, 7588, 3870, 6154, 6566,6600,4945,5643,2200,6225,6125,6175,5560,3370,3390,1550,6537,5305]; % manually selected thresholds for each IC in this dataset
 pre_buffer = ceil(300/double(ifi));
 post_buffer = ceil(1000/double(ifi));

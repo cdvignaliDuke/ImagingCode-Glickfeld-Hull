@@ -11,8 +11,8 @@ ROI_x =[];
 ROI_y = [];
 
 mati_code_cd = 'C:\Users\jake\Documents\Repositories\ImagingCode-Glickfeld-Hull\Jake\LeverAnalysis';
-image_dest  = [DATA_DIR day '\'];
-old_cd = cd(image_dest);
+image_dest  = 'C:\Users\jake\TempData\';
+old_cd = cd([DATA_DIR day]);
 % get all files
 
 %------ assume the file has a a unique string [_MMStack_[???].ome] and ?? is the number of the file -1

@@ -115,7 +115,8 @@ if irun == 1
     sel = [1:32];    
     for ic = sel
         subplot(8,4,ind);                 %change here too
-        imstretch(sm(:,:,ic),[.5 .99],1.5);
+        %imstretch(sm(:,:,ic),[.5 .99],1.5);
+        imagesc(sm(:,:,ic));
         ind = ind+1;
         text(.8,.1,num2str(ic),'fontsize',12,'color','w','fontweight','bold','unit','norm');
     end;
