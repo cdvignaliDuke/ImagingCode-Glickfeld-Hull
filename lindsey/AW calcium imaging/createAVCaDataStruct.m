@@ -149,37 +149,37 @@ function mouse = createAVCaDataStruct(datasetStr);
         frameratems = expt(iexp).frame_rate/1000;
         cycTimeMs = cycTime/frameratems;
         minCyclesAnt = floor(minTrialLengthFrames/cycTime);
-        
+
         % for older datasets that do not have catch trial outcome in input
-        disp(sum(cell2mat(input.tShortCatchTrial)))
+        %disp(sum(cell2mat(input.tShortCatchTrial)))
         if expt(iexp).catch
             catchIndex = find(cell2mat(input.tShortCatchTrial));
             if ~any(strcmp(fieldnames(input),'catchTrialOutcomeCell'))
                 catchTrialOutcome = cell(1,ntrials);
                 for i = 1:sum(cell2mat(input.tShortCatchTrial))
-                if isFA(catchIndex(i)) == 1
-                    catchTrialOutcome{catchIndex(i)} = 'FA';
-                elseif cCatchOn(catchIndex(i)) == 0
-                    catchTrialOutcome{catchIndex(i)} = 'failure';
-                elseif (cLeverUp(catchIndex(i)) - cCatchOn(catchIndex(i))) < tooFastTime
-                    catchTrialOutcome{catchIndex(i)} = 'failure';
-                elseif (cLeverUp(catchIndex(i)) - cCatchOn(catchIndex(i))) > maxReactTime
-                    catchTrialOutcome{catchIndex(i)} = 'CR';
-                end
-                end
-            else
-                if length(input.catchTrialOutcomeCell) < ntrials
-                    catchTrialOutcome = cell(1,ntrials);
-                    for i = 1:sum(cell2mat(input.tShortCatchTrial))
                     if isFA(catchIndex(i)) == 1
                         catchTrialOutcome{catchIndex(i)} = 'FA';
-                    elseif isnan(cCatchOn(catchIndex(i)))
+                    elseif cCatchOn(catchIndex(i)) == 0
                         catchTrialOutcome{catchIndex(i)} = 'failure';
                     elseif (cLeverUp(catchIndex(i)) - cCatchOn(catchIndex(i))) < tooFastTime
                         catchTrialOutcome{catchIndex(i)} = 'failure';
                     elseif (cLeverUp(catchIndex(i)) - cCatchOn(catchIndex(i))) > maxReactTime
                         catchTrialOutcome{catchIndex(i)} = 'CR';
                     end
+                end
+            else
+                if length(input.catchTrialOutcomeCell) < ntrials
+                    catchTrialOutcome = cell(1,ntrials);
+                    for i = 1:sum(cell2mat(input.tShortCatchTrial))
+                        if isFA(catchIndex(i)) == 1
+                            catchTrialOutcome{catchIndex(i)} = 'FA';
+                        elseif isnan(cCatchOn(catchIndex(i)))
+                            catchTrialOutcome{catchIndex(i)} = 'failure';
+                        elseif (cLeverUp(catchIndex(i)) - cCatchOn(catchIndex(i))) < tooFastTime
+                            catchTrialOutcome{catchIndex(i)} = 'failure';
+                        elseif (cLeverUp(catchIndex(i)) - cCatchOn(catchIndex(i))) > maxReactTime
+                            catchTrialOutcome{catchIndex(i)} = 'CR';
+                        end
                     end
                 else
                     catchTrialOutcome = input.catchTrialOutcomeCell;
@@ -193,7 +193,8 @@ function mouse = createAVCaDataStruct(datasetStr);
         clear dataTimecourse
         
         %load direction tuning data
-        cellSetsLG
+        dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
+        load(fullfile(dataPath, 'cellsSelect.mat'));
         
         %sort by trial type
         if expt(iexp).catch
@@ -298,22 +299,22 @@ function mouse = createAVCaDataStruct(datasetStr);
         mouse(imouse).expt(s(:,imouse)).cells(3).name = '45';
         mouse(imouse).expt(s(:,imouse)).cells(4).name = '90';
         mouse(imouse).expt(s(:,imouse)).cells(5).name = '135';
-        mouse(imouse).expt(s(:,imouse)).cells(6).name = 'base_excit';
-        mouse(imouse).expt(s(:,imouse)).cells(7).name = 'base_inhib';
-        mouse(imouse).expt(s(:,imouse)).cells(8).name = 'tar_excit';
-        mouse(imouse).expt(s(:,imouse)).cells(9).name = 'tar_inhib';
-        mouse(imouse).expt(s(:,imouse)).cells(10).name = 'base1_resp';
-        mouse(imouse).expt(s(:,imouse)).cells(11).name = 'tar1_resp';
-        mouse(imouse).expt(s(:,imouse)).cells(12).name = 'all cells';
+        mouse(imouse).expt(s(:,imouse)).cells(6).name = 'untuned';
+        mouse(imouse).expt(s(:,imouse)).cells(7).name = 'all tuned';
+        mouse(imouse).expt(s(:,imouse)).cells(8).name = 'base_excit';
+        mouse(imouse).expt(s(:,imouse)).cells(9).name = 'base_inhib';
+        mouse(imouse).expt(s(:,imouse)).cells(10).name = 'tar_excit';
+        mouse(imouse).expt(s(:,imouse)).cells(11).name = 'tar_inhib';
+        mouse(imouse).expt(s(:,imouse)).cells(12).name = 'base1_resp';
+        mouse(imouse).expt(s(:,imouse)).cells(13).name = 'tar1_resp';
+        mouse(imouse).expt(s(:,imouse)).cells(14).name = 'all cells';
         mouse(imouse).expt(s(:,imouse)).cells(1).ind = [];
         mouse(imouse).expt(s(:,imouse)).cells(2).ind = cellsSelect{1};
         mouse(imouse).expt(s(:,imouse)).cells(3).ind = cellsSelect{2};
         mouse(imouse).expt(s(:,imouse)).cells(4).ind = cellsSelect{3};
         mouse(imouse).expt(s(:,imouse)).cells(5).ind = cellsSelect{4};
-        mouse(imouse).expt(s(:,imouse)).cells(6).ind = [];
-        mouse(imouse).expt(s(:,imouse)).cells(7).ind = [];
-        mouse(imouse).expt(s(:,imouse)).cells(8).ind = [];
-        mouse(imouse).expt(s(:,imouse)).cells(9).ind = [];
+        mouse(imouse).expt(s(:,imouse)).cells(6).ind = cellsSelect{5};
+        mouse(imouse).expt(s(:,imouse)).cells(7).ind = cellsSelect{6};
         mouse(imouse).expt(s(:,imouse)).align(1).name = 'press';
         mouse(imouse).expt(s(:,imouse)).align(2).name = 'prevStim';
         mouse(imouse).expt(s(:,imouse)).align(3).name = 'catchStim';
@@ -566,7 +567,6 @@ function mouse = createAVCaDataStruct(datasetStr);
             end
                 
         %divide data by catch direction
-        
         cind = [];
         for iDir = 1:length(Dirs)
             cind = find(tCatchGratingDirectionDeg == Dirs(iDir));
@@ -581,13 +581,13 @@ function mouse = createAVCaDataStruct(datasetStr);
         base_ind = find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_trans);
         resp_ind = find(sum(mouse(imouse).expt(s(:,imouse)).align(2).ttest_trans,2)>=1);
         mouse(imouse).expt(s(:,imouse)).cells(1).ind = unique([base_ind; resp_ind]);
-        mouse(imouse).expt(s(:,imouse)).cells(6).ind = intersect(find(baseStimRespDiff > 0),(find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_sust)));
-        mouse(imouse).expt(s(:,imouse)).cells(7).ind = intersect(find(baseStimRespDiff < 0),(find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_sust)));
-        mouse(imouse).expt(s(:,imouse)).cells(8).ind = intersect(find(tarStimRespDiff > 0),resp_ind);
-        mouse(imouse).expt(s(:,imouse)).cells(9).ind = intersect(find(tarStimRespDiff < 0),resp_ind);
-        mouse(imouse).expt(s(:,imouse)).cells(10).ind = base_ind;
-        mouse(imouse).expt(s(:,imouse)).cells(11).ind = resp_ind;
-        mouse(imouse).expt(s(:,imouse)).cells(12).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(6).ind,mouse(imouse).expt(s(:,imouse)).cells(7).ind));
+        mouse(imouse).expt(s(:,imouse)).cells(8).ind = intersect(find(baseStimRespDiff > 0),(find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_sust)));
+        mouse(imouse).expt(s(:,imouse)).cells(9).ind = intersect(find(baseStimRespDiff < 0),(find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_sust)));
+        mouse(imouse).expt(s(:,imouse)).cells(10).ind = intersect(find(tarStimRespDiff > 0),resp_ind);
+        mouse(imouse).expt(s(:,imouse)).cells(11).ind = intersect(find(tarStimRespDiff < 0),resp_ind);
+        mouse(imouse).expt(s(:,imouse)).cells(12).ind = base_ind;
+        mouse(imouse).expt(s(:,imouse)).cells(13).ind = resp_ind;
+        mouse(imouse).expt(s(:,imouse)).cells(14).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(8).ind,mouse(imouse).expt(s(:,imouse)).cells(9).ind));
     end
     
     save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary' datasetStr '.mat']), 'mouse','-v7.3');
