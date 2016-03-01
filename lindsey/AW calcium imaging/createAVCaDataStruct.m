@@ -587,7 +587,7 @@ function mouse = createAVCaDataStruct(datasetStr);
         mouse(imouse).expt(s(:,imouse)).cells(9).ind = intersect(find(tarStimRespDiff < 0),resp_ind);
         mouse(imouse).expt(s(:,imouse)).cells(10).ind = base_ind;
         mouse(imouse).expt(s(:,imouse)).cells(11).ind = resp_ind;
-        mouse(imouse).expt(s(:,imouse)).cells(12).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(7).ind,mouse(imouse).expt(s(:,imouse)).cells(7).ind));
+        mouse(imouse).expt(s(:,imouse)).cells(12).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(6).ind,mouse(imouse).expt(s(:,imouse)).cells(7).ind));
     end
     
     save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary' datasetStr '.mat']), 'mouse','-v7.3');
