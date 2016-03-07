@@ -294,6 +294,6 @@ title({'target driven resp'; [num2str(trCycLengthMs) 'ms/tr; ' num2str(nTrials_t
 % 
 % print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'cellsDrivenByFSAVtar_all'), '-dpdf');
 %%
-suptitle([mouse '-' date '; ' posStr '; ' sizeStr])
+% suptitle([mouse '-' date '; ' posStr '; ' sizeStr])
 disp(['task-' expt(iexp).date]);
 toc
