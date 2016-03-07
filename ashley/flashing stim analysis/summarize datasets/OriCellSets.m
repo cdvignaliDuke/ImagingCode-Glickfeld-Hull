@@ -1,4 +1,6 @@
-function cellsSelect = OriCellSets(rc, expt, iexp);
+function [cellsSelect, OSI, DSI] = OriCellSets(rc, expt, iexp);
+%display experiment
+disp([num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum)])
 
 %load direction tuning data
 dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
@@ -6,7 +8,7 @@ load(fullfile(dataPath, 'neuropil.mat'));
 
 %load mworks file
 cd(rc.pathStr);
-mworks = ['data-' 'i' expt(iexp).SubNum '-' expt(iexp).date expt(iexp).dirtuning_time]; 
+mworks = ['data-' 'i' expt(iexp).SubNum '-' expt(iexp).date '-' expt(iexp).dirtuning_time]; 
 load (mworks);
 
 %params
@@ -151,7 +153,7 @@ for iOri = 1:nStim/2
 end
 
 cellsSelect{iOri+1} = untuned_ind;
-cellsSelect{iOri+2} = intersect(ori_ind_all, find(OSI>0.3));
+cellsSelect{iOri+2} = intersect(find(~isnan(ori_ind_all)), find(OSI>0.3));
 
 save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI');
 end

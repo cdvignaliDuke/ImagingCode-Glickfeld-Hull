@@ -234,13 +234,11 @@ for imouse = 1:size(mouse,2)
             [isdir dir_ind] = ismember(base_dirs, chop(mouse(imouse).expt(iexp).visTargets,2));
             dir_ind(dir_ind==0)=[];
         end
-        all_ori_ind = [];
-        for iOri = 1:4
+        for iOri = 1:6
             if iexp == 1
                 ncells{imouse, iOri} = 0;
             end
             ori_ind = intersect(good_ind, mouse(imouse).expt(iexp).cells(iOri+1).ind);
-            all_ori_ind = [all_ori_ind; ori_ind];
             ncells{imouse, iOri} = ncells{imouse, iOri} + length(ori_ind);
             for i = 1:8
                 for iav = 1:2
@@ -269,61 +267,6 @@ for imouse = 1:size(mouse,2)
                 end
             end
         end
-        for i = 1:8
-            for iav = 1:2
-                if length(all_ori_ind)>0
-                    iOri = 6;
-                    if and(iav==1,or(i<3,i>4))
-                        tempR = nan(length(all_ori_ind), length(base_dirs));
-                        tempR(:,find(isdir)) = mouse(imouse).expt(iexp).align(2).av(iav).outcome(i).trans_resp(all_ori_ind,dir_ind);
-                        trans_target_resp{i, iav,iOri} = [trans_target_resp{i,iav,iOri}; tempR];
-                    elseif and(iav==2,or(i<3,i>4))
-                        trans_target_resp{i, iav,iOri} = [trans_target_resp{i,iav,iOri}; nanmean(mouse(imouse).expt(iexp).align(2).av(iav).outcome(i).trans_resp(all_ori_ind,2:end),2)];
-                    elseif or(i>2,i<5)
-                        trans_target_resp{i, iav,iOri} = [trans_target_resp{i,iav,iOri}; mouse(imouse).expt(iexp).align(2).av(iav).outcome(i).trans_resp(:,all_ori_ind)'];
-                    end
-                    if or(i<3,i==6)
-                        trans_base_resp{i, iav,iOri} = [trans_base_resp{i, iav,iOri}; mouse(imouse).expt(iexp).align(1).av(iav).outcome(i).trans_resp(:,all_ori_ind)'];
-                    end
-                elseif and(iexp == 1,imouse == 1)
-                    if and(iav==1,or(i<3,i>4))
-                        trans_target_resp{i, iav,iOri} = nan(1, length(base_dirs));
-                        trans_base_resp{i,iav,iOri} = nan(1, 1);
-                    else
-                        trans_target_resp{i, iav,iOri} = nan(1, 1);
-                        trans_base_resp{i,iav,iOri} = nan(1, 1);
-                    end
-                end
-            end
-        end
-        notori_ind = setdiff(good_ind, all_ori_ind);
-        for i = 1:8
-            for iav = 1:2
-                if length(notori_ind)>0
-                    iOri = 5;
-                    if and(iav==1,or(i<3,i>4))
-                        tempR = nan(length(notori_ind), length(base_dirs));
-                        tempR(:,find(isdir)) = mouse(imouse).expt(iexp).align(2).av(iav).outcome(i).trans_resp(notori_ind,dir_ind);
-                        trans_target_resp{i, iav,iOri} = [trans_target_resp{i,iav,iOri}; tempR];
-                    elseif and(iav==2,or(i<3,i>4))
-                        trans_target_resp{i, iav,iOri} = [trans_target_resp{i,iav,iOri}; nanmean(mouse(imouse).expt(iexp).align(2).av(iav).outcome(i).trans_resp(notori_ind,2:end),2)];
-                    elseif or(i>2,i<5)
-                        trans_target_resp{i, iav,iOri} = [trans_target_resp{i,iav,iOri}; mouse(imouse).expt(iexp).align(2).av(iav).outcome(i).trans_resp(:,notori_ind)'];
-                    end
-                    if or(i<3,i==6)
-                        trans_base_resp{i, iav,iOri} = [trans_base_resp{i, iav,iOri}; mouse(imouse).expt(iexp).align(1).av(iav).outcome(i).trans_resp(:,notori_ind)'];
-                    end
-                elseif and(iexp == 1,imouse == 1)
-                    if and(iav==1,or(i<3,i>4))
-                        trans_target_resp{i, iav,iOri} = nan(1, length(base_dirs));
-                        trans_base_resp{i,iav,iOri} = nan(1, 1);
-                    else
-                        trans_target_resp{i, iav,iOri} = nan(1, 1);
-                        trans_base_resp{i,iav,iOri} = nan(1, 1);
-                    end
-                end
-            end
-        end
         for iav = 1:2
             for io = 1:6
                 ialign = 2;
@@ -333,8 +276,7 @@ for imouse = 1:size(mouse,2)
     end
 end
 
-cell_set{5} = 'Untuned';
-cell_set{6} = 'All Tuned';
+
 
 figure;
 for iOri = 1:6
@@ -343,13 +285,9 @@ for iOri = 1:6
     hold on
     errorbar(0, nanmean(trans_base_resp{1,1,iOri},1), nanstd(trans_base_resp{1,1,iOri},[],1)./sqrt(sum(~isnan(trans_base_resp{1,1,iOri}),1)), 'og');
     errorbar(0, nanmean(trans_base_resp{1,2,iOri},1), nanstd(trans_base_resp{1,2,iOri},[],1)./sqrt(sum(~isnan(trans_base_resp{1,2,iOri}),1)), 'ok');
-    if iOri<5
-        title([mouse(1).expt(1).cells(iOri+1).name ' deg cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{1,1,iOri},2)),1))])
-    else
-        title([cell_set{iOri} ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{1,1,iOri},2)),1))])
-    end
+    title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{1,1,iOri},2)),1))])
     xlim([-10 100])
-    ylim([0 0.03])
+    ylim([-0.01 0.03])
 end
 suptitle([titleStr '- Target response tuning by preference- Success only'])
 print([fnout 'target_resp_tuning_success' datasetStr '.pdf'], '-dpdf')
@@ -404,11 +342,7 @@ for iOri = 1:6
     errorbar(base_dirs(2:end), nanmean(trans_target_resp_crop{5, 1,iOri},1), nanstd(trans_target_resp_crop{5,1,iOri},[],1)./sqrt(sum(~isnan(trans_target_resp_crop{5,1,iOri}),1)), '-ok');
     hold on
     errorbar(base_dirs(2:end), nanmean(trans_target_resp_crop{6, 1,iOri},1), nanstd(trans_target_resp_crop{6,1,iOri},[],1)./sqrt(sum(~isnan(trans_target_resp_crop{6,1,iOri}),1)), '-or');
-    if iOri<5
-        title([mouse(1).expt(1).cells(iOri+1).name ' deg cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{5,1,iOri},2)),1))])
-    else
-        title([cell_set{iOri} ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{5,1,iOri},2)),1))])
-    end
+    title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{5,1,iOri},2)),1))])
     xlim([-10 100])
     ylim([-.01 0.05])
 end
@@ -428,11 +362,7 @@ for iOri = 1:6
     else
         p = NaN;
     end
-    if iOri<5
-        title([mouse(1).expt(1).cells(iOri+1).name ' deg cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{5,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    else
-        title([cell_set{iOri} ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{5,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    end
+    title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{5,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
     xlim([-0.05 0.05])
 end
 suptitle([titleStr '- Hits: Black- ' num2str(chop(mean(nCyclesOn{5,1},2),2)) ' cyc; Misses: Red ' num2str(chop(mean(nCyclesOn{6,1},2),2)) ' cyc'])
@@ -451,11 +381,7 @@ for iOri = 1:6
     else
         p = NaN;
     end
-    if iOri<5
-        title([mouse(1).expt(1).cells(iOri+1).name ' deg cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    else
-        title([cell_set{iOri} ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    end
+    title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
     xlim([-0.05 0.05])
 end
 suptitle([titleStr '- FAs: Cyan ' num2str(chop(mean(nCyclesOn{3,1},2),2)) ' cyc; CRs: Blue ' num2str(chop(mean(nCyclesOn{4,1},2),2)) ' cyc'])
@@ -475,11 +401,7 @@ for iOri = 1:6
     else
         p = NaN;
     end
-    if iOri<5
-        title([mouse(1).expt(1).cells(iOri+1).name ' deg cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    else
-        title([cell_set{iOri} ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    end
+    title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
     xlim([-0.05 0.05])
 end
 suptitle([titleStr '- FAs: Cyan ' num2str(chop(mean(nCyclesOn{3,1},2),2)) ' cyc; Auditory: Black ' num2str(chop(mean(nCyclesOn{1,2},2),2)) ' cyc'])
@@ -499,11 +421,7 @@ for iOri = 1:6
     else
         p = NaN;
     end
-    if iOri<5
-        title([mouse(1).expt(1).cells(iOri+1).name ' deg cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,2,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    else
-        title([cell_set{iOri} ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,2,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    end
+    title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{3,2,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
     xlim([-0.05 0.05])
 end
 suptitle([titleStr '- Auditory FAs: Cyan ' num2str(chop(mean(nCyclesOn{3,2},2),2)) ' cyc; Auditory: Black ' num2str(chop(mean(nCyclesOn{1,2},2),2)) ' cyc'])
@@ -523,11 +441,7 @@ for iOri = 1:6
     else
         p = NaN;
     end
-    if iOri<5
-        title([mouse(1).expt(1).cells(iOri+1).name ' deg cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{1,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    else
-        title([cell_set{iOri} ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{1,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
-    end
+    title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{1,1,iOri},2)),1)) '; p = ' num2str(chop(p,2))])
     xlim([-0.05 0.05])
 end
 suptitle([titleStr '- Visual: Green ' num2str(chop(mean(nCyclesOn{1,1},2),2)) ' cyc; Auditory: Black ' num2str(chop(mean(nCyclesOn{1,2},2),2)) ' cyc'])
