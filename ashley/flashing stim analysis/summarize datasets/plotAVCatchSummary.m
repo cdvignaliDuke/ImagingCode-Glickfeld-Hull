@@ -35,6 +35,10 @@ cFA = 3;
 cCR = 4;
 hits = 1;
 misses = 2;
+hitmatch = 5;
+missmatch = 6;
+famatch = 7;
+crmatch = 10;
 
 % cycTime = mouse(1).expt(1).info(1).cyc_time;
 
@@ -63,6 +67,7 @@ baseStimFrames = -(floor(pre_event_frames/cycTime)*cycTime):cycTime:0;
 %% avg resp accross all direction for success,miss,catch-FA,catch-CR - target responsive cells
 
 respTvsCFig = figure;
+suptitle(titleStr)
 i = 1;
 resp_tar_hits = [];
 resp_tar_misses = [];
@@ -83,17 +88,21 @@ for imouse = 1:size(mouse,2)
         respTrace = [];
         if mouse(imouse).expt(iexp).info.isCatch
             cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-            respTrace(1) = plot(tt,mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cFA).resp(:,cell_ind,:),2),3), 'c');
-            n_cFA(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cFA).resp(:,cell_ind,:),3);
+            % invalid hits matched to invalid miss
+            respTrace(1) = plot(tt,mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(famatch).resp(:,cell_ind,:),2),3), 'c');
+            n_cFA(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(famatch).resp(:,cell_ind,:),3);
             hold on
-            respTrace(2) = plot(tt,mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cCR).resp(:,cell_ind,:),2),3), 'b');
-            n_cCR(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cCR).resp(:,cell_ind,:),3);
+            %invalid miss matched to invalid hits
+            respTrace(2) = plot(tt,mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crmatch).resp(:,cell_ind,:),2),3), 'b');
+            n_cCR(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crmatch).resp(:,cell_ind,:),3);
             hold on
-            respTrace(3) = plot(tt,mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(:,cell_ind,:),2),3), 'k');
-            n_hits(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(:,cell_ind,:),3);
+            %valid hits matched to valid miss
+            respTrace(3) = plot(tt,mean(mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hitmatch).resp(:,cell_ind,:),2),3), 'k');
+            n_hits(i) = size(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hitmatch).resp(:,cell_ind,:),3);
             hold on
-            respTrace(4) = plot(tt,mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(:,cell_ind,:),2),3), 'r');
-            n_misses(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(:,cell_ind,:),3);
+            %valid miss match to valid hits
+            respTrace(4) = plot(tt,mean(mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(missmatch).resp(:,cell_ind,:),2),3), 'r');
+            n_misses(i) = size(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(missmatch).resp(:,cell_ind,:),3);
             hold on
             vline(baseStimFrames,':k')
             hold on
@@ -102,13 +111,13 @@ for imouse = 1:size(mouse,2)
             vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames], '--k')
             hold on
             xlim([-10 20])
-            legend(respTrace,{[num2str(n_cFA(i)) ' cFA'];[num2str(n_cCR(i)) ' cCR'];[num2str(n_hits(i)) ' hits'];[num2str(n_misses(i)) ' misses']},'Location','northwest');
+            legend(respTrace,{[num2str(n_cFA(i)) ' invalid hit'];[num2str(n_cCR(i)) ' invalid miss'];[num2str(n_hits(i)) ' hit'];[num2str(n_misses(i)) ' miss']},'Location','northwest');
             title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells']})
         
-            resp_tar_hits = cat(2, resp_tar_hits, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(:,cell_ind,:),3));
-            resp_tar_misses  = cat(2, resp_tar_misses, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(:,cell_ind,:),3));
-            resp_catch_fa = cat(2, resp_catch_fa, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cFA).resp(:,cell_ind,:),3));
-            resp_catch_cr = cat(2, resp_catch_cr, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cCR).resp(:,cell_ind,:),3));
+            resp_tar_hits = cat(2, resp_tar_hits, mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hitmatch).resp(:,cell_ind,:),3));
+            resp_tar_misses  = cat(2, resp_tar_misses, mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(missmatch).resp(:,cell_ind,:),3));
+            resp_catch_fa = cat(2, resp_catch_fa, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(famatch).resp(:,cell_ind,:),3));
+            resp_catch_cr = cat(2, resp_catch_cr, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crmatch).resp(:,cell_ind,:),3));
         end
          i = i+1;       
     end
@@ -136,184 +145,229 @@ vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames], '--k')
 xlim([-10 20])
 legend(respTrace,{[num2str(n_cFA_all) ' cFA'];[num2str(n_cCR_all) ' cCR'];[num2str(n_hits_all) ' hits'];[num2str(n_misses_all) ' misses']},'Location','northwest');
 title(['All cells; n = ' num2str(size(resp_tar_hits,2))])
-suptitle(titleStr)
 figure(respTvsCFig);
 print([fnout 'catch_align_TCs' datasetStr '.pdf'], '-dpdf')
 
 %% scatter transient response C-FA vs. T-suc; C-CR vs. T-miss;C-CR vs T-suc; T-miss vs T-suc
-scatFAvsH = figure;
-scatCRvsM = figure;
-scatCRvsH = figure;
-scatMvsH = figure;
-scatFAvsCR = figure;
+scatFAvsH = figure; %oucomes 1h 5fa
+scatCRvsM = figure;%oucomes 4m 9cr
+scatCRvsH = figure;%oucomes 2h 8cr
+scatMvsH = figure; % align = 2; oucomes 5h 6m
+scatCRvsFA = figure; %oucomes 7fa 10cr
 i = 1;
-resp_h_all = [];
-resp_m_all = [];
-resp_fa_all = [];
-resp_cr_all = [];
+
+resp_hvsfa_all = [];
+resp_favsh_all = [];
+resp_mvscr_all = [];
+resp_crvsm_all = [];
+resp_hvscr_all = [];
+resp_crvsh_all = [];
+resp_hvsm_all = [];
+resp_mvsh_all = [];
+resp_favscr_all = [];
+resp_crvsfa_all = [];
+n_hvsfa = zeros(1,size(mouse,2)+size(mouse(imouse).expt,2));
+n_favsh = zeros(1,size(mouse,2)+size(mouse(imouse).expt,2));
+n_crvsm = zeros(1,size(mouse,2)+size(mouse(imouse).expt,2));
+n_crvsh = zeros(1,size(mouse,2)+size(mouse(imouse).expt,2));
+n_mvsh = zeros(1,size(mouse,2)+size(mouse(imouse).expt,2));
+n_crvsfa = zeros(1,size(mouse,2)+size(mouse(imouse).expt,2));
+
 
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)        
         if mouse(imouse).expt(iexp).info.isCatch
             cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-            resp_h = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cFA).resp(pre_win,cell_ind,:),3),1));
-            resp_m = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cFA).resp(pre_win,cell_ind,:),3),1));
-            resp_fa = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cFA).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cFA).resp(pre_win,cell_ind,:),3),1));
-            resp_cr = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cCR).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(cFA).resp(pre_win,cell_ind,:),3),1));
             
-            resp_h_all = cat(2,resp_h_all,resp_h);
-            resp_m_all = cat(2,resp_m_all,resp_m);
-            resp_fa_all = cat(2,resp_fa_all,resp_fa);
-            resp_cr_all = cat(2,resp_cr_all,resp_cr);
-            
+            % fa vs hits matched
+            hits = 1;
+            fas = 5;
+            resp_hvsfa = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(pre_win,cell_ind,:),3),1));
+            resp_favsh = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).resp(pre_win,cell_ind,:),3),1));
+            resp_hvsfa_all = cat(2,resp_hvsfa_all,resp_hvsfa);
+            resp_favsh_all = cat(2,resp_favsh_all,resp_favsh);
+            n_hvsfa(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(trans_win,cell_ind,:),3);
+            n_favsH(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).resp(trans_win,cell_ind,:),3);
             figure(scatFAvsH);
             subplot(n,n2,i)
-            scatter(resp_h,resp_fa,50,'k.')
+            scatter(resp_hvsfa,resp_favsh,50,'k.')
             hold on
-            errorbarxy(mean(resp_h),mean(resp_fa),std(resp_h)/length(resp_h),std(resp_fa)/length(resp_fa),{'ro','r','r'});
+            errorbarxy(mean(resp_hvsfa),mean(resp_favsh),std(resp_hvsfa)/length(resp_hvsfa),std(resp_favsh)/length(resp_favsh),{'ro','r','r'});
             xlim([-0.05 0.1])
             ylim([-0.05 0.1])
             hold on
             plot([-10:0.1:20],[-10:0.1:20],'k--')
             axis square
-            xlabel('hits')
-            ylabel('fa')
-            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_hits(i)) ' hits;' num2str(n_cFA(i)) ' cFA']})
+            xlabel('valid hits')
+            ylabel('invalid hits (fa)')
+            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_hvsfa(i)) ' valid hits;' num2str(n_favsH(i)) ' invalid hits']})
             
+            % cr vs miss matched
+            misses = 4;
+            crs = 9;
+            resp_mvscr = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(pre_win,cell_ind,:),3),1));
+            resp_crvsm = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crs).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crs).resp(pre_win,cell_ind,:),3),1));
+            resp_mvscr_all = cat(2,resp_mvscr_all,resp_mvscr);
+            resp_crvsm_all = cat(2,resp_crvsm_all,resp_crvsm);
+            n_crvsm(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(trans_win,cell_ind,:),3);
             figure(scatCRvsM);
             subplot(n,n2,i)
-            scatter(resp_m,resp_cr,50,'k.')
+            scatter(resp_mvscr,resp_crvsm,50,'k.')
             hold on
-            errorbarxy(mean(resp_m),mean(resp_cr),std(resp_m)/length(resp_m),std(resp_cr)/length(resp_cr),{'ro','r','r'});
+            errorbarxy(mean(resp_mvscr),mean(resp_crvsm),std(resp_mvscr)/length(resp_mvscr),std(resp_crvsm)/length(resp_crvsm),{'ro','r','r'});
             xlim([-0.05 0.1])
             ylim([-0.05 0.1])
             hold on
             plot([-10:0.1:20],[-10:0.1:20],'k--')
             axis square
-            xlabel('misses')
-            ylabel('cr')
-            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_misses(i)) ' misses;' num2str(n_cCR(i)) ' cCR']})
-                        
+            xlabel('valid miss')
+            ylabel('invalid miss')
+            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_crvsm(i)) ' valid miss;' num2str(n_crvsm(i)) ' invalid miss']})
+                  
+            % cr vs hits matched
+            hits = 2;
+            crs = 8;
+            resp_hvscr = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(pre_win,cell_ind,:),3),1));
+            resp_crvsh = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crs).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crs).resp(pre_win,cell_ind,:),3),1));
+            resp_hvscr_all = cat(2,resp_hvscr_all,resp_hvscr);
+            resp_crvsh_all = cat(2,resp_crvsh_all,resp_crvsh);
+            n_crvsh(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(trans_win,cell_ind,:),3);
             figure(scatCRvsH);
             subplot(n,n2,i)
-            scatter(resp_h,resp_cr,50,'k.')
+            scatter(resp_hvscr,resp_crvsh,50,'k.')
             hold on
-            errorbarxy(mean(resp_h),mean(resp_cr),std(resp_h)/length(resp_h),std(resp_cr)/length(resp_cr),{'ro','r','r'});
+            errorbarxy(mean(resp_hvscr),mean(resp_crvsh),std(resp_hvscr)/length(resp_hvscr),std(resp_crvsh)/length(resp_crvsh),{'ro','r','r'});
             xlim([-0.05 0.1])
             ylim([-0.05 0.1])
             hold on
             plot([-10:0.1:20],[-10:0.1:20],'k--')
             axis square
-            xlabel('hits')
-            ylabel('cr')
-            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_hits(i)) ' hits;' num2str(n_cCR(i)) ' cCR']})
-            
+            xlabel('valid hits')
+            ylabel('invalid miss')
+            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_crvsh(i)) ' valid hits;' num2str(n_crvsh(i)) ' invalid miss']})
+        
+            % hits vs miss matched
+            hits = 5;
+            misses = 6;
+            resp_hvsm = squeeze(mean(mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hits).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hits).resp(pre_win,cell_ind,:),3),1));
+            resp_mvsh = squeeze(mean(mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(misses).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(misses).resp(pre_win,cell_ind,:),3),1));
+            resp_hvsm_all = cat(2,resp_hvsm_all,resp_hvsm);
+            resp_mvsh_all = cat(2,resp_mvsh_all,resp_mvsh);
+            n_mvsh(i) = size(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hits).resp(trans_win,cell_ind,:),3);
             figure(scatMvsH);
             subplot(n,n2,i)
-            scatter(resp_h,resp_m,50,'k.')
+            scatter(resp_hvsm,resp_mvsh,50,'k.')
             hold on
-            errorbarxy(mean(resp_h),mean(resp_m),std(resp_h)/length(resp_h),std(resp_m)/length(resp_m),{'ro','r','r'});
+            errorbarxy(mean(resp_hvsm),mean(resp_mvsh),std(resp_hvsm)/length(resp_hvsm),std(resp_mvsh)/length(resp_mvsh),{'ro','r','r'});
             xlim([-0.05 0.1])
             ylim([-0.05 0.1])
             hold on
             plot([-10:0.1:20],[-10:0.1:20],'k--')
             axis square
-            xlabel('hits')
-            ylabel('miss')
-            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_hits(i)) ' hits;' num2str(n_misses(i)) ' misses']})
+            xlabel('valid hits')
+            ylabel('valid miss')
+            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_mvsh(i)) ' valid hits;' num2str(n_mvsh(i)) ' valid miss']})
             
-            figure(scatFAvsCR);
+            % fa vs cr matched
+            fas = 7;
+            crs = 10;
+            resp_favscr = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).resp(pre_win,cell_ind,:),3),1));
+            resp_crvsfa = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crs).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crs).resp(pre_win,cell_ind,:),3),1));
+            resp_favscr_all = cat(2,resp_favscr_all,resp_favscr);
+            resp_crvsfa_all = cat(2,resp_crvsfa_all,resp_crvsfa);
+            n_crvsfa(i) = size(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).resp(trans_win,cell_ind,:),3);
+            figure(scatCRvsFA);
             subplot(n,n2,i)
-            scatter(resp_cr,resp_fa,50,'k.')
+            scatter(resp_favscr,resp_crvsfa,50,'k.')
             hold on
-            errorbarxy(mean(resp_cr),mean(resp_fa),std(resp_cr)/length(resp_cr),std(resp_fa)/length(resp_fa),{'ro','r','r'});
+            errorbarxy(mean(resp_favscr),mean(resp_crvsfa),std(resp_favscr)/length(resp_favscr),std(resp_crvsfa)/length(resp_crvsfa),{'ro','r','r'});
             xlim([-0.05 0.1])
             ylim([-0.05 0.1])
             hold on
             plot([-10:0.1:20],[-10:0.1:20],'k--')
             axis square
-            xlabel('cr')
-            ylabel('fa')
-            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_cCR(i)) ' cCR;' num2str(n_cFA(i)) ' cFA']})
+            xlabel('invalid hits')
+            ylabel('invalid miss')
+            title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells'],[num2str(n_crvsfa(i)) ' invalid hits;' num2str(n_crvsfa(i)) ' invalid miss']})
         end
         i = i+1;
     end
 end
         
 figure(scatFAvsH);
+suptitle(titleStr)
 subplot(n,n2,i)
-scatter(resp_h_all,resp_fa_all,50,'k.')
+scatter(resp_hvsfa_all,resp_favsh_all,50,'k.')
 hold on
-errorbarxy(mean(resp_h_all),mean(resp_fa_all),std(resp_h_all)/length(resp_h_all),std(resp_fa_all)/length(resp_fa_all),{'ro','r','r'});
+errorbarxy(mean(resp_hvsfa_all),mean(resp_favsh_all),std(resp_hvsfa_all)/length(resp_hvsfa_all),std(resp_favsh_all)/length(resp_favsh_all),{'ro','r','r'});
 xlim([-0.05 0.1])
 ylim([-0.05 0.1])
 hold on
 plot([-10:0.1:20],[-10:0.1:20],'k--')
 axis square
-xlabel('hits')
-ylabel('fa')
-title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(n_hits_all) ' hits;' num2str(n_cFA_all) ' cFA']})
-suptitle(titleStr)
+xlabel('valid hits')
+ylabel('invalid hits')
+title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(sum(n_hvsfa)) ' valid hits;' num2str(sum(n_favsh)) ' invalid hits']})
 
 figure(scatCRvsM);
+suptitle(titleStr)
 subplot(n,n2,i)
-scatter(resp_m_all,resp_cr_all,50,'k.')
+scatter(resp_mvscr_all,resp_crvsm_all,50,'k.')
 hold on
-errorbarxy(mean(resp_m_all),mean(resp_cr_all),std(resp_m_all)/length(resp_m_all),std(resp_cr_all)/length(resp_cr_all),{'ro','r','r'});
+errorbarxy(mean(resp_mvscr_all),mean(resp_crvsm_all),std(resp_mvscr_all)/length(resp_mvscr_all),std(resp_crvsm_all)/length(resp_crvsm_all),{'ro','r','r'});
 xlim([-0.05 0.1])
 ylim([-0.05 0.1])
 hold on
 plot([-10:0.1:20],[-10:0.1:20],'k--')
 axis square
-xlabel('misses')
-ylabel('cr')
-title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(n_misses_all) ' misses;' num2str(n_cCR_all) ' cCR']})
-suptitle(titleStr)
+xlabel('valid miss')
+ylabel('invalid miss')
+title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(sum(n_crvsm)) ' valid miss;' num2str(sum(n_crvsm)) ' invalid miss']})
 
 figure(scatCRvsH);
+suptitle(titleStr)
 subplot(n,n2,i)
-scatter(resp_h_all,resp_cr_all,50,'k.')
+scatter(resp_hvscr_all,resp_crvsh_all,50,'k.')
 hold on
-errorbarxy(mean(resp_h_all),mean(resp_cr_all),std(resp_h_all)/length(resp_h_all),std(resp_cr_all)/length(resp_cr_all),{'ro','r','r'});
+errorbarxy(mean(resp_hvscr_all),mean(resp_crvsh_all),std(resp_hvscr_all)/length(resp_hvscr_all),std(resp_crvsh_all)/length(resp_crvsh_all),{'ro','r','r'});
 xlim([-0.05 0.1])
 ylim([-0.05 0.1])
 hold on
 plot([-10:0.1:20],[-10:0.1:20],'k--')
 axis square
-xlabel('hits')
-ylabel('cr')
-title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(n_hits_all) ' hits;' num2str(n_cCR_all) ' cCR']})
-suptitle(titleStr)
+xlabel('valid hits')
+ylabel('invalid miss')
+title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(sum(n_crvsh)) 'valid hits;' num2str(sum(n_crvsh)) ' invalid miss']})
 
 figure(scatMvsH);
+suptitle(titleStr)
 subplot(n,n2,i)
-scatter(resp_h_all,resp_m_all,50,'k.')
+scatter(resp_hvsm_all,resp_mvsh_all,50,'k.')
 hold on
-errorbarxy(mean(resp_h_all),mean(resp_m_all),std(resp_h_all)/length(resp_h_all),std(resp_m_all)/length(resp_m_all),{'ro','r','r'});
+errorbarxy(mean(resp_hvsm_all),mean(resp_mvsh_all),std(resp_hvsm_all)/length(resp_hvsm_all),std(resp_mvsh_all)/length(resp_mvsh_all),{'ro','r','r'});
 xlim([-0.05 0.1])
 ylim([-0.05 0.1])
 hold on
 plot([-10:0.1:20],[-10:0.1:20],'k--')
 axis square
-xlabel('hits')
-ylabel('miss')
-title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(n_hits_all) ' hits;' num2str(n_misses_all) ' misses']})
-suptitle(titleStr)
+xlabel('valid hits')
+ylabel('valid miss')
+title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(sum(n_mvsh)) ' valid hits;' num2str(sum(n_mvsh)) ' valid miss']})
 
-figure(scatFAvsCR);
+figure(scatCRvsFA);
+suptitle(titleStr)
 subplot(n,n2,i)
-scatter(resp_cr_all,resp_fa_all,50,'k.')
+scatter(resp_favscr_all,resp_crvsfa_all,50,'k.')
 hold on
-errorbarxy(mean(resp_cr_all),mean(resp_fa_all),std(resp_cr_all)/length(resp_cr_all),std(resp_fa_all)/length(resp_fa_all),{'ro','r','r'});
+errorbarxy(mean(resp_favscr_all),mean(resp_crvsfa_all),std(resp_favscr_all)/length(resp_favscr_all),std(resp_crvsfa_all)/length(resp_crvsfa_all),{'ro','r','r'});
 xlim([-0.05 0.1])
 ylim([-0.05 0.1])
 hold on
 plot([-10:0.1:20],[-10:0.1:20],'k--')
 axis square
-xlabel('cr')
-ylabel('fa')
-title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(n_cCR_all) ' cCR;' num2str(n_cFA_all) ' cFA']})
-suptitle(titleStr)
+xlabel('invalid hit')
+ylabel('invalid miss')
+title({[' All cells = ' num2str(length(cell_ind)) ' cells'],[num2str(sum(n_crvsfa)) ' invalid hit;' num2str(sum(n_crvsfa)) ' invalid miss']})
 
 
 figure(scatFAvsH);
@@ -324,8 +378,8 @@ figure(scatCRvsH);
 print([fnout 'catch_align_CRvsH' datasetStr '.pdf'], '-dpdf')
 figure(scatMvsH);
 print([fnout 'catch_align_MvsH' datasetStr '.pdf'], '-dpdf')
-figure(scatFAvsCR);
-print([fnout 'catch_align_FAvsCR' datasetStr '.pdf'], '-dpdf')
+figure(scatCRvsFA);
+print([fnout 'catch_align_CRvsFA' datasetStr '.pdf'], '-dpdf')
 
 %% plot average 
 %  plot avg target trace for random subset of cells, all directions

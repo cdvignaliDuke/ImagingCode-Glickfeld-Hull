@@ -277,6 +277,101 @@ function mouse = createAVCaDataStruct(datasetStr);
             Sb2IxMatch = Sb2Ix;
             Mb2IxMatch = Mb2Ix;
         end
+        
+    % match number of trials per direction for invalid and valid hits and
+    % misses (catch trials only)
+    if expt(iexp).catch
+        faIx = find(strcmp(catchTrialOutcome,'FA'));
+        crIx = find(strcmp(catchTrialOutcome,'CR'));
+        sIxFaIxMatch = [];
+        faIxSIxMatch = [];
+        mIxCrIxMatch = [];
+        faIxMIxMatch = [];
+        sIxCrIxMatch = [];
+        crIxSIxMatch = [];
+        mIxFaIxMatch = [];
+        crIxMIxmatch = [];
+        faIxCrIxMatch = [];
+        crIxFaIxMatch = [];       
+        for idir = 1:length(cDirs)
+            dirIx = find(tGratingDirectionDeg == cDirs(idir));
+            cDirIx = find(tCatchGratingDirectionDeg == cDirs(idir));
+            sDir = intersect(Sb1Ix,dirIx);
+            mDir = intersect(Mb1Ix,dirIx);
+            faDir = intersect(faIx,cDirIx);
+            crDir = intersect(crIx,cDirIx);
+            nS = length(sDir);
+            nM = length(mDir);
+            nFA = length(faDir);
+            nCR = length(crDir);
+            nVec = [nS nM nFA nCR]
+            if nS < nFA
+                sIxFaIxMatch = [sIxFaIxMatch sDir];
+                if any(nVec([1 3]) == 0)
+                else
+                faIxSIxMatch = [faIxSIxMatch faDir(randperm(nFA,nS))];
+                end
+            elseif nS >= nFA
+                if any(nVec([1 3]) == 0)
+                else
+                sIxFaIxMatch = [sIxFaIxMatch sDir(randperm(nS,nFA))];
+                end
+                faIxSIxMatch = [faIxSIxMatch faDir];
+            end
+            if nM < nFA
+                mIxFaIxMatch = [mIxFaIxMatch mDir];
+                if any(nVec([2 3]) == 0)
+                else
+                faIxMIxMatch = [faIxMIxMatch faDir(randperm(nFA,nM))];
+                end
+            elseif nM >= nFA
+                if any(nVec([2 3]) == 0)
+                else
+                mIxFaIxMatch = [mIxFaIxMatch mDir(randperm(nM,nFA))];
+                end
+                faIxMIxMatch = [faIxMIxMatch faDir];
+            end
+            if nS < nCR
+                sIxCrIxMatch = [sIxCrIxMatch sDir];
+                if any(nVec([1 4]) == 0)
+                else
+                crIxSIxMatch = [crIxSIxMatch crDir(randperm(nCR,nS))];
+                end
+            elseif nS >= nCR
+                if any(nVec([1 4]) == 0)
+                else
+                sIxCrIxMatch = [sIxCrIxMatch sDir(randperm(nS,nCR))];
+                end
+                crIxSIxMatch = [crIxSIxMatch crDir];
+            end
+            if nM < nCR
+                mIxCrIxMatch = [mIxCrIxMatch mDir];
+                if any(nVec([2 4]) == 0)
+                else
+                crIxMIxmatch = [crIxMIxmatch crDir(randperm(nCR,nM))];
+                end
+            elseif nM >= nCR
+                if any(nVec([2 4]) == 0)
+                else
+                mIxCrIxMatch = [mIxCrIxMatch mDir(randperm(nM,nCR))];
+                end
+                crIxMIxmatch = [crIxMIxmatch crDir];
+            end
+            if nCR < nFA
+                if any(nVec([3 4]) == 0) 
+                else
+                faIxCrIxMatch = [faIxCrIxMatch faDir(randperm(nFA,nCR))];
+                end
+                crIxFaIxMatch = [crIxFaIxMatch crDir];                    
+            elseif nCR >= nFA
+                if any(nVec([3 4]) == 0)
+                else
+                crIxFaIxMatch = [crIxFaIxMatch crDir(randperm(nCR,nFA))];
+                end
+                faIxCrIxMatch = [faIxCrIxMatch faDir];
+            end
+        end
+    end
                 
         
         %names of fields
@@ -346,9 +441,21 @@ function mouse = createAVCaDataStruct(datasetStr);
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(4).n = eval(['length(Rb' num2str(ii) 'Ix)']);
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(5).n = eval(['length(Sb' num2str(ii) 'IxMatch)']);
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(6).n = eval(['length(Mb' num2str(ii) 'IxMatch)']);
+                if i == 3
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(1).name = 'hits match FA';
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(2).name = 'hits match CR';        
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(3).name = 'miss match FA';
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(4).name = 'miss match CR';
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(5).name = 'FA match hits';
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(6).name = 'FA match miss';
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(7).name = 'FA match CR';
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(8).name = 'CR match hits';
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(9).name = 'CR match miss';
+                    mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(10).name = 'CR match FA'; 
+                end
             end
         end
-        
+                     
         
         %% Align data to lever down
         ialign = 1;
@@ -448,6 +555,12 @@ function mouse = createAVCaDataStruct(datasetStr);
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc = tCyclesOn(:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion))-1;
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).tcyc = tCyclesOn(:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).tcyc = tCyclesOn(:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));
+                if expt(iexp).catch && iav == 1
+                mouse(imouse).expt(s(:,imouse)).align(3).av(iav).outcome(1).resp = DataDFoverF(:,:,setdiff(sIxFaIxMatch,ind_motion)); %'hits match FA';
+                mouse(imouse).expt(s(:,imouse)).align(3).av(iav).outcome(2).resp = DataDFoverF(:,:,setdiff(sIxCrIxMatch,ind_motion)); %'hits match CR';        
+                mouse(imouse).expt(s(:,imouse)).align(3).av(iav).outcome(3).resp = DataDFoverF(:,:,setdiff(mIxFaIxMatch,ind_motion)); %'miss match FA';
+                mouse(imouse).expt(s(:,imouse)).align(3).av(iav).outcome(4).resp = DataDFoverF(:,:,setdiff(mIxCrIxMatch,ind_motion)); %'miss match CR';
+                end
             else
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = NaN(sz(1), sz(2));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = NaN(sz(1), sz(2));
@@ -541,32 +654,19 @@ function mouse = createAVCaDataStruct(datasetStr);
         ind_motion = find(max(diff(squeeze(nanmean(DataDFoverF,2)),1),[],1)>0.05);
         disp(length(ind_motion));
         mouse(imouse).expt(s(:,imouse)).align(ialign).ind_motion = ind_motion;
-        faIx = find(strcmp(catchTrialOutcome,'FA'));
-        crIx = find(strcmp(catchTrialOutcome,'CR'));
-        
-        %divide data by trial type and outcome
-            iav = 1;
-            hitsMatched2Catch = [];
-            missMatched2Catch = [];
-            if length([faIx crIx])>0
-                hitsMatched2Catch = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(1).stimResp(find(ismember(Dirs,cDirs)));
-                missMatched2Catch = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(2).stimResp(find(ismember(Dirs,cDirs)));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = cat(3,hitsMatched2Catch{:});
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = cat(3,missMatched2Catch{:});
-                 % FA in this case means responded to catch trial
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,setdiff(faIx,ind_motion));
-                 % CR in this case means ignored catch trial
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).resp = DataDFoverF(:,:,setdiff(crIx,ind_motion));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).tcyc = tCyclesOn(:,setdiff(faIx,ind_motion));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc = tCyclesOn(:,setdiff(crIx,ind_motion));
-            else
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = NaN(sz(1), sz(2));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).resp = NaN(sz(1), sz(2));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).tcyc = NaN;
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc = NaN;
-            end
                 
+        %divide data by trial type and outcome
+        iav = 1;
+   
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = DataDFoverF(:,:,setdiff(faIxSIxMatch,ind_motion)); %'FA match hits';
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).resp = DataDFoverF(:,:,setdiff(faIxMIxMatch,ind_motion)); %'FA match miss';
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(7).resp = DataDFoverF(:,:,setdiff(faIxCrIxMatch,ind_motion)); %'FA match CR';
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(8).resp = DataDFoverF(:,:,setdiff(crIxSIxMatch,ind_motion)); %'CR match hits';
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(9).resp = DataDFoverF(:,:,setdiff(crIxMIxmatch,ind_motion)); %'CR match miss';
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(10).resp = DataDFoverF(:,:,setdiff(crIxFaIxMatch,ind_motion)); %'CR match FA';
+                       
         %divide data by catch direction
+<<<<<<< Updated upstream
         cind = [];
         for iDir = 1:length(Dirs)
             cind = find(tCatchGratingDirectionDeg == Dirs(iDir));
@@ -575,6 +675,21 @@ function mouse = createAVCaDataStruct(datasetStr);
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).stimResp{iDir} = DataDFoverF(:,:,setdiff(intersect(faIx,cind),ind_motion));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).stimResp{iDir} = DataDFoverF(:,:,setdiff(intersect(crIx,cind),ind_motion));
         end
+=======
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).stimResp = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(1).stimResp(find(ismember(Dirs,cDirs)));
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).stimResp = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(2).stimResp(find(ismember(Dirs,cDirs)));
+        for idir = 1:length(cDirs)
+           dirIx = find(tCatchGratingDirectionDeg == cDirs(idir));
+           faIxDir = intersect(faIx,dirIx);
+           crIxDir = intersect(crIx,dirIx);
+           mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).stimResp{idir} = DataDFoverF(:,:,faIxDir);
+           mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).stimResp{idir} = DataDFoverF(:,:,crIxDir);
+        end        
+
+                
+        
+        
+>>>>>>> Stashed changes
         end
         %% find cells that are responsive to at least one of the target
         %directions or the first baseline visual stimulus 
