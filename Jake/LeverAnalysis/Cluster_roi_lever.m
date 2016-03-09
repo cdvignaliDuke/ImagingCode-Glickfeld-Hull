@@ -29,7 +29,14 @@ mask = 0;      %set to 1 in order to take all ROIs as one combined mask.  Set to
 %days = {'151009_img30', '151011_img30'};
 %days = {'160129_img35', '160131_img35', '160129_img36','160131_img36'};
 
-days = {'150718_img27', '150719_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '150518_img24', '150519_img24', '150518_img25', '150517_img25'};
+%days = {'160131_img36', '160131_img35', '151212_img32'};  %rand = 1000
+%days = {'160129_img36', '160129_img35', '151009_img30', '151011_img30', '151211_img32'};  %rand=4500
+
+%days = {'150718_img27', '150719_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '150518_img24', '150519_img24', '150518_img25', '150517_img25'};
+
+%days = {'160129_img36', '160129_img35', '160131_img35', '151211_img32', '150717_img28', '150716_img28', '150718_img27', '151022_img29', '150719_img27'}; %days with usable licking data
+
+days = {'151022_img29'};
 success_trials = [];
 fail_trials = [];
 tooFast_trials = [];
@@ -226,7 +233,7 @@ for kk=1:length(days)
             shift = (-1)*avg_success_roi(i,3);
             avg_success_roi(i,:) = avg_success_roi(i,:)+shift;
         end
-        subplot(2,3,2); bar(ts(i,:), mean(lick_trace_succ)/10); hold on 
+        subplot(2,3,2); bar(ts(1,:), mean(lick_trace_succ)/10); hold on 
         for i = 1:size(ts,1);
             subplot(2,3,2); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -263,7 +270,7 @@ for kk=1:length(days)
             shift = (-1)*avg_fail_roi(i,3);
             avg_fail_roi(i,:) = avg_fail_roi(i,:)+shift;
          end
-        subplot(2,3,3); bar(ts(i,:), mean(lick_trace_fail)/10); hold on
+        subplot(2,3,3); bar(ts(1,:), mean(lick_trace_fail)/10); hold on
         for i = 1:size(ts,1);
             hold on; subplot(2,3,3); errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
         end
@@ -297,7 +304,7 @@ for kk=1:length(days)
             shift = (-1)*avg_fidget_roi(i,3);
             avg_fidget_roi(i,:) = avg_fidget_roi(i,:)+shift;
          end
-        subplot(2,3,4); bar(ts(i,:), mean(lick_trace_fidget)/10); hold on
+        subplot(2,3,4); bar(ts(1,:), mean(lick_trace_fidget)/10); hold on
         for i = 1:size(ts,1);
             hold on; subplot(2,3,4); errorbar(ts(i,:), avg_fidget_roi(i,:), sm_fidget(i,:), 'Color', colors(i,:));
         end
@@ -358,7 +365,7 @@ for kk=1:length(days)
         elseif size(tooFast_roi,1) == 0
             subplot(2,3,6); plot(ts(1,:), zeros(length(ts))); ylim([-0.01 0.01]);
         else
-            subplot(2,3,6); bar(ts(i,:), mean(lick_trace_tooFast)/10); hold on
+            subplot(2,3,6); bar(ts(1,:), mean(lick_trace_tooFast)/10); hold on
             for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
                 shift = (-1)*avg_tooFast_roi(i,3);
                 avg_tooFast_roi(i,:) = avg_tooFast_roi(i,:)+shift;
@@ -414,7 +421,7 @@ for kk=1:length(days)
 %     save([destyFail], 'fail_roi');
 %     save([destyFidget], 'fidget_roi');
 %     savefig([destyFig]);
-    
+
     disp(['day/animal: ' num2str(ROI_name)])
     disp(['# of successful trials = ' num2str(size(success_roi,1))])
     disp(['# of failed trials = ' num2str(size(fail_roi,1))])
@@ -422,34 +429,47 @@ for kk=1:length(days)
     disp(['# of tooFast_successes = ' num2str(size(tooFast_roi,1))])
     
     %PLOT ZEROED AT LEVER PRESS
-    use_ev_press = round(lever.press);
-    [press_roi, use_times_press, lick_trace_press] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licksByFrame, use_ev_press, pre_frames, post_frames+35);
-    ts_press = (-500:100:4500);
+%     if lever.press(1)<lever.release(1)
+%         holdTime = lever.release-lever.press(1:length(lever.release));  %sometimes there is one more press than there are releases.
+%     else
+%         firstRelease = find(lever.release>lever.press(1),1,'first');
+%         holdTime = lever.release(firstRelease:end)-lever.press(1:length(lever.release)-1);
+%     end
+%     nonfidgets = find(holdTime>500);
+%     use_ev_press = round(lever.press(nonfidgets));
+%     [press_roi, use_times_press, lick_trace_press] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licksByFrame, use_ev_press, pre_frames, post_frames+35);
+%     ts_press = (-500:100:4500);
+%     
+%     figure;
+%     avg_press_roi = squeeze(func(press_roi,1));
+%     std_success = squeeze(std(press_roi,1));
+%     sm_press = std_success./sqrt(size(press_roi,1));
+%     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
+%         shift = (-1)*avg_press_roi(i,3);
+%         avg_press_roi(i,:) = avg_press_roi(i,:)+shift;
+%     end
+%     bar(ts_press, mean(lick_trace_press)/10); hold on
+%     for i = 1:size(ts,1);
+%         errorbar(ts_press, avg_press_roi(i,:), sm_press(i,:), 'Color', colors(i,:)); hold on;
+%     end
+%     xlabel('Time from press (ms)');
+%     ylabel('dF/F');
+%     title([days{kk} ' presses n=', num2str(length(use_ev_press))]);
+%     axis tight;
+     
+%     press_roi = squeeze(press_roi);
+%     destyPress = strcat(ANALYSIS_DIR, 'LeverSummaryNoFolder\', days{kk}, '_press');
+%     save([destyPress], 'press_roi');
+%     destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_press');
+%     savefig([destyFig]);
     
-    figure;
-    avg_press_roi = squeeze(func(press_roi,1));
-    std_success = squeeze(std(press_roi,1));
-    sm_press = std_success./sqrt(size(press_roi,1));
-    for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-        shift = (-1)*avg_press_roi(i,3);
-        avg_press_roi(i,:) = avg_press_roi(i,:)+shift;
-    end
-    bar(ts_press, mean(lick_trace_press)/10); hold on
-    for i = 1:size(ts,1);
-        errorbar(ts_press, avg_press_roi(i,:), sm_press(i,:), 'Color', colors(i,:)); hold on;
-    end
-    xlabel('Time from press (ms)');
-    ylabel('dF/F');
-    title([days{kk} ' presses n=', num2str(length(use_ev_press))]);
-    axis tight;
-    destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_press');
-    savefig([destyFig]);
     
      %plot the corr coef
 %     if mask == 0   ;
 %         cnames = cell([1,size(tc_dfoverf,1)+1]);
 %         rnames = cell([1,size(tc_dfoverf,1)+1]);
-%     coefMat = corrcoef([tc_dfoverf; licksByFrame]');
+%         coefMat = corrcoef([tc_dfoverf; licksByFrame]');
+%         coefMat2 = coefMat(end,1:size(tc_dfoverf,1));
 %     for i = 1:size(tc_dfoverf,1);
 %         cnames{1,i} = ['ROI' mat2str(i)];
 %         rnames{1,i} = ['ROI' mat2str(i)];
@@ -464,6 +484,10 @@ for kk=1:length(days)
 %     end     
 %     destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_table');
 %     savefig([destyFig]);
+%     
+%     success_roi = squeeze(success_roi);
+%     destySucc = strcat(ANALYSIS_DIR, 'CorrCoefSummary\', days{kk}, '_corrCoef');
+%     save([destySucc], 'coefMat2');
     
     %% 
 %     %PLOT HOLD F CONDITIONS----------------------------------------------

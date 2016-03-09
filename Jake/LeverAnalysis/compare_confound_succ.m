@@ -282,4 +282,73 @@ for kk=1:length(days)
     %STANDARDIZE YLIMS, SAVE VARIABLES, REPORT Ns---------------------------------
     subplot(1,3,2); ylim([min(YL(:,1)) max(YL(:,2))]);
     subplot(1,3,3); ylim([min(YL(:,1)) max(YL(:,2))]);
+    
+    confound_roi = squeeze(confound_roi);
+    success_roi = squeeze(success_roi);
+    destySucc = strcat(ANALYSIS_DIR, 'ConfoundVNonConfoundScatter\', days{kk}, '_success');
+    destyConfound = strcat(ANALYSIS_DIR, 'ConfoundVNonConfoundScatter\', days{kk}, '_confound');
+    
+    save([destySucc], 'success_roi');
+    save([destyConfound], 'confound_roi');
 end
+
+colors = {'r', 'r', 'b', 'm', 'g'};
+days = {'160131_img36', '160129_img36', '151212_img32', '160131_img35', '150718_img27'};
+DATA_DIR = 'Z:\Analysis\LeverAnalysis\ConfoundVNonConfoundScatter\';
+summary_succ = {}; 
+summary_confound = {};
+for kk = 1:length(days)
+    curr_file_succ = strcat(DATA_DIR, days{kk}, '_success');
+    summary_succ{kk} = load(curr_file_succ);
+    curr_file_con = strcat(DATA_DIR, days{kk}, '_confound');
+    temp2 = load(curr_file_con);
+    summary_confound{kk} = temp2;
+end 
+%only plots ROIs in LS
+summary_succ_mat = []
+summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{1}.success_roi(:,1:3,7:9),1),2))');
+summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{2}.success_roi(:,1:3,7:9),1),2))');
+summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{3}.success_roi(:,1:3,7:9),1),2))');
+summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{4}.success_roi(:,1:3,7:9),1),2))');
+summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{5}.success_roi(:,2:4,7:9),1),2))');
+
+summary_con_mat = []
+summary_con_mat = cat(1, summary_con_mat, squeeze(mean(mean(summary_confound{1}.confound_roi(:,1:3,7:9),1),2))');
+summary_con_mat = cat(1, summary_con_mat, squeeze(mean(mean(summary_confound{2}.confound_roi(:,1:3,7:9),1),2))');
+summary_con_mat = cat(1, summary_con_mat, squeeze(mean(mean(summary_confound{3}.confound_roi(:,1:3,7:9),1),2))');
+summary_con_mat = cat(1, summary_con_mat, squeeze(mean(mean(summary_confound{4}.confound_roi(:,1:3,7:9),1),2))');
+summary_con_mat = cat(1, summary_con_mat, squeeze(mean(mean(summary_confound{5}.confound_roi(:,2:4,7:9),1),2))');
+
+plot_succ_mat = mean(summary_succ_mat,2)
+plot_con_mat = mean(summary_con_mat,2)
+plot_succ_sm = std(summary_succ_mat,[],2)/sqrt(size(summary_succ_mat,2))
+plot_con_sm = std(summary_con_mat,[],2)/sqrt(size(summary_con_mat,2))
+
+avg_summary_succ_mat = mean(mean(summary_succ_mat))
+avg_summary_con_mat = mean(mean(summary_con_mat))
+
+%%
+%PLOT SCATTER 
+figure;
+for i = 1:length(days);
+   if i > 14
+       plot(plot_succ_mat(i), plot_con_mat(i), ['x' colors{i}]); hold on;
+   else
+       plot(plot_succ_mat(i), plot_con_mat(i), ['o' colors{i}], 'MarkerFaceColor', colors{i}); hold on;
+   end
+end
+legend(days{1:length(days)})
+for i = 1:length(days);
+    errorbarxy(plot_succ_mat(i)', plot_con_mat(i)', plot_succ_sm(i)', plot_con_sm(i)')%,...
+    hold on   % 'Color',colors{i}); hold on; 
+end
+ylim([-.03 .25])
+xlim([-.03 .25])
+x = -.1:.1:1;
+y = x;
+hold on; plot(x,y,'k')
+hline(0,'--k')
+vline(0,'--k')
+xlabel('df/f success condition');
+ylabel('df/f confound condition');
+title(['success vs confound summary']);

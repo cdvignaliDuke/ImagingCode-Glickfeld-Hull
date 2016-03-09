@@ -166,30 +166,36 @@ end
 % trial outcome input.trialOutcomeCell
 hold_start = double(cell2mat(input.holdStartsMs)) - START_EXP_TIME;
 hold_time = double(cell2mat(input.holdTimesMs));
- 
+
 react_time = double(cell2mat(input.reactTimesMs));
 req_hold = double(cell2mat(input.tTotalReqHoldTimeMs));
 rnd_hold = double(cell2mat(input.tRandReqHoldTimeMs));
- 
+
 has_reward = ~cellfun(@isempty, input.juiceTimesMsCell );
 tooFastCorrects = zeros(size(input.reactTimesMs)); 
 for i = 1:length(input.reactTimesMs)
     if react_time(i) < 176   %Removes tooFastCorrects from the successful trials count. 
         has_reward(i)=0;
     end
-    tooFastCorrects(i) = react_time(i)>0 & react_time(i)<176; %definition of and isolation of tooFastCorrects
+    if isequal(input.trialOutcomeCell{i}, 'success');  %will have to change this in order to run img24/25
+        tooFastCorrects(i) = react_time(i)>0 & react_time(i)<176; %definition of and isolation of tooFastCorrects
+    end
 end
 
 relase_time = hold_start + hold_time;
-early_time = hold_time<req_hold & hold_time>400;
-trial_outcome.success_time  = relase_time(has_reward);
+early_time = hold_time<req_hold & hold_time>350;
+trial_outcome.success_time = relase_time(has_reward);
 trial_outcome.tooFastCorrects = relase_time(1,find(tooFastCorrects)); %isolates correct trials with reaction times >0 but <200ms. Stores them as a matrix of their release times.
 trial_outcome.early_time = relase_time(early_time); %altered to exclude fidgets 2/27/16
-trial_outcome.fidget = relase_time(hold_time<400);
+trial_outcome.fidget = relase_time(hold_time<350);
 is_ignore =@(x)isequal(x, 'ignore');
 trial_outcome.late_time  = relase_time(find(cellfun(is_ignore,input.trialOutcomeCell)));
 trial_outcome.change_orientation = hold_start + req_hold;
 trial_outcome.change_orientation(react_time < 0) = NaN; % if respond before change then no change in orientation
+if input.doLever == 0; %CONTROL trials 
+    trial_outcome.early_time = relase_time(hold_time<req_hold);
+    trial_outcome.fidget = [];
+end
 
 % This is a very very problematic code, the camera sends codes even before
 % exqusition starts we detect that by a large gap between frames

@@ -294,7 +294,7 @@ xlabel('Time (ms)')
 ylabel('dF/F')
 title(['Responsive cells: Event (' num2str(sum(~isnan(resp_press_event(:,1)),1)) '); No event (' num2str(sum(~isnan(resp_press_noevent(:,1)),1)) ')'])
 
-suptitle([mouse ' ' date '- Good events- Black: success; Red: early; Cyan: press'])
+mtit([mouse ' ' date '- Good events- Black: success; Red: early; Cyan: press'])
 print([dest_sub '_no_event_dfoverf_avg.eps'], '-depsc');
 print([dest_sub '_no_event_dfoverf_avg.pdf'], '-dpdf');
 
@@ -348,11 +348,19 @@ for ic = 1:nCells
     end
     [h_ev_succ(1,ic), p_ev_succ(1,ic)] = ttest(mean(success(ic).hist(1:ceil(500/double(ifi)),:),1), mean(success(ic).hist((sz1/2):(sz1/2)+ceil(65/double(ifi)),:),1),'tail', 'left');
     [h_ev_fail(1,ic), p_ev_fail(1,ic)] = ttest(mean(fail(ic).hist(1:ceil(500/double(ifi)),:),1), mean(fail(ic).hist((sz1/2):(sz1/2)+ceil(65/double(ifi)),:),1),'tail', 'left');
-    if h_ev_succ(1,ic)
-        s_col = ['\bf' s_col];
+    if ~isnan(h_ev_fail(1,ic))
+        if h_ev_succ(1,ic)
+            s_col = ['\bf' s_col];
+close         end
+    else
+        s_col = 'NaN';
     end
-    if h_ev_fail(1,ic)
-        f_col = ['\bf' f_col];
+    if ~isnan(h_ev_fail(1,ic))
+        if h_ev_fail(1,ic)
+            f_col = ['\bf' f_col];
+        end
+    else
+        s_col = 'NaN';
     end
     title([s_col 'Success ' f_col ' Early'])
 end

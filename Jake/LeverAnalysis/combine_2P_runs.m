@@ -35,6 +35,9 @@ for id = 1:size(date_mat,1)
         load([dest '_frame_times.mat'])
         temp_input = input;
         temp_times = frame_times;
+        load([dest '_parse_behavior.mat'])
+        trial_outcome_temp = trial_outcome;
+        load([dest '_ROI_TCs.mat'])
         for i = 2:nrun
             run = run_mat(id,:,i);
             run_name = [date '_' mouse '_run' run(length(run)-2:end)];
@@ -62,6 +65,8 @@ for id = 1:size(date_mat,1)
             load([dest '_frame_times.mat'])
             temp_input = [temp_input input];
             temp_times = [temp_times frame_times];
+            load([dest '_parse_behavior.mat'])
+            ind_press_prerelease = [trial_outcome_temp.ind_press_prerelease trial_outcome.ind_press_prerelease];
         end
         press_movie = press_movie_temp;
         press_long_movie =  press_long_movie_temp;
@@ -87,7 +92,9 @@ for id = 1:size(date_mat,1)
         save([dest_sub '_press_movies.mat'], 'press_long_movie', 'press_movie', 'ifi', 'pre_release_frames','post_release_frames');
         save([dest_sub '_release_movies.mat'], 'success_movie', 'fail_movie', 'pre_release_frames','post_release_frames','ifi');
         save([dest_sub '_spont_events'], 'events', 'data_tc_spont', 'fr_lever', 'thresh', 'events_rate');
-        save([dest_sub '_evoked_events.mat'], 'success', 'fail', 'press', 'success_tc', 'fail_tc', 'press_tc')
-        save([dest '_frame_times.mat'], 'input', 'frame_times')
+        save([dest_sub '_evoked_events.mat'], 'success', 'fail', 'press', 'success_tc', 'fail_tc', 'press_tc');
+        save([dest '_frame_times.mat'], 'input', 'frame_times');
+        save([dest '_parse_behavior.mat'], 'ind_press_prerelease', 'ifi');
+        save([dest '_ROI_TCs.mat'], 'mask_final', 'sz');
     end
 end

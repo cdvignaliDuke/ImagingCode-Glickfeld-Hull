@@ -44,7 +44,7 @@ mask = 0;      %set to 1 in order to take all ROIs as one combined mask.  Set to
 %days = {'160129_img35', '160131_img35', '160129_img36','160131_img36'};
 
 %days = {'150718_img27', '150719_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '150518_img24', '150519_img24', '150518_img25', '150517_img25'};
-days = {'160131_img36'};
+days = {'150716_img28'};
 
 for kk=1:length(days)
     session = '';

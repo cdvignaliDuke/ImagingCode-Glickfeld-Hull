@@ -112,7 +112,7 @@ suptitle(['Summary of % cell response stats'])
 
 figure;
 subplot(2,2,1)
-for id = 1:length(date_mat)
+for id = 1:size(date_mat,1)
     scatter(pct_release(id), pct_press(id), col_mat(id,:))
     hold on
 end
@@ -124,7 +124,7 @@ ylim([0 1])
 xlabel('Release responsive (%)')
 ylabel('Press responsive (%)')
 subplot(2,2,2)
-for id = 1:length(date_mat)
+for id = 1:size(date_mat,1)
     scatter(release_only(id), press_only(id), col_mat(id,:))
     hold on
 end
@@ -136,7 +136,7 @@ ylim([0 1])
 xlabel('Release only (%)')
 ylabel('Press only (%)')
 subplot(2,2,3)
-for id = 1:length(date_mat)
+for id = 1:size(date_mat,1)
     scatter(pct_success(id), pct_fail(id), col_mat(id,:))
     hold on
 end
@@ -148,7 +148,7 @@ ylim([0 1])
 xlabel('Success responsive (%)')
 ylabel('Fail responsive (%)')
 subplot(2,2,4)
-for id = 1:length(date_mat)
+for id = 1:size(date_mat,1)
     scatter(success_only(id), fail_only(id), col_mat(id,:))
     hold on
 end

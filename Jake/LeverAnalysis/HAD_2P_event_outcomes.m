@@ -12,7 +12,7 @@ short_win = ceil(100/double(ifi));
 successIx = strcmp(input.trialOutcomeCell, 'success');
 failIx = strcmp(input.trialOutcomeCell, 'failure');
 pressIx = zeros(size(successIx));
-pressIx(intersect(find(cell2mat(input.holdTimesMs)>=500),find(~isnan(trial_outcome.ind_press_prerelease)))) = 1;
+pressIx(intersect(find(cell2mat(input.holdTimesMs)>=500),find(~isnan(ind_press_prerelease)))) = 1;
 reactTime = double(cell2mat(input.reactTimesMs));
 holdTime = double(cell2mat(input.holdTimesMs));
 
