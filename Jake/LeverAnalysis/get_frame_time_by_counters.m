@@ -2,7 +2,7 @@ function [ frame_times frame_count sub_input ] = get_frame_time_by_counters(inpu
 % get the frame timing information from counter event times
  nframes = info.config.frames;
     % find start of collection
-    ntrials = size(input.trialOutcomeCell,2);
+    ntrials = size(input.trialOutcomeCell,2);   %this will give an inaccurate trial start value for the 2P since there is often a zero in the first trial and a repeating value of one in trials before imaging began. 
     for i = 1:ntrials
         if ~isempty(input.counterValues{i});
             trial_start = i;

@@ -28,6 +28,7 @@ save([dest '_frame_times.mat'],  'frame_times', 'input');
 
 %load and register dataset
 nframes = info.config.frames;
+disp('loading sbx image file');
 tic
 data = sbxread(fName,0,nframes);
 toc

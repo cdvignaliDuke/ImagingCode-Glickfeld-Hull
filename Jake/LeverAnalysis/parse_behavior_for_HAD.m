@@ -156,7 +156,7 @@ if(~isempty(frame_times))
         counter_by_frame_times(inx) = i;
     end
 end
- 
+
 % find sucess/early release /late release times
 %  trial_outcome.success_time =[]; % time of lever release (and sound)in success trials
 %  trial_outcome.early_time =[]; % time of lever release (and sound)in early release trials

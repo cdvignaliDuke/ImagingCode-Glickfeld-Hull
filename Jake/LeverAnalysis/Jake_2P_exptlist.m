@@ -1,14 +1,14 @@
-%current datasets 11/9/15
-date_mat = strvcat('151016');%, '151018', '151029', '151102'); %
-run1_mat = strvcat('_000_000');%, '_000_000',  '_000_000', '_000_000'); %
-mouse_mat = strvcat('img30');%, 'img30', 'img30', 'img30');   %
-subNum_mat = strvcat('930');%, '930', '930', '930');   %
-time_mat = strvcat('1548');%,'1846','1127','1509'); %
-nrun_mat = [2]%; 2; 1; 2]; %
-run2_mat = strvcat('_000_001')%,'_000_001','XXXXXXXX','_000_001'); %
-run_mat = cat(3,run1_mat,run2_mat);
-out_base = 'Z:\Analysis\2P Analysis\Lever\';
-base_dir =  'Z:\Data\2P_imaging\';
+% %current datasets 11/9/15
+% date_mat = strvcat('151016');%, '151018', '151029', '151102'); %
+% run1_mat = strvcat('_000_000');%, '_000_000',  '_000_000', '_000_000'); %
+% mouse_mat = strvcat('img30');%, 'img30', 'img30', 'img30');   %
+% subNum_mat = strvcat('930');%, '930', '930', '930');   %
+% time_mat = strvcat('1548');%,'1846','1127','1509'); %
+% nrun_mat = [2]%; 2; 1; 2]; %
+% run2_mat = strvcat('_000_001')%,'_000_001','XXXXXXXX','_000_001'); %
+% run_mat = cat(3,run1_mat,run2_mat);
+% out_base = 'Z:\Analysis\2P Analysis\Lever\';
+% base_dir =  'Z:\Data\2P_imaging\';
 
 
 %% all datasets
@@ -22,3 +22,14 @@ base_dir =  'Z:\Data\2P_imaging\';
 % run_mat = cat(3,run1_mat,run2_mat);
 % out_base = 'Z:\Analysis\2P Analysis\Lever\';
 % base_dir =  'Z:\Data\2P_imaging\';
+
+date_mat = strvcat('160202');%, 
+run1_mat = strvcat('_000_000');%,
+mouse_mat = strvcat('img36');%,
+subNum_mat = strvcat('936');%
+time_mat = strvcat('1531');
+nrun_mat = [1];
+%run2_mat = strvcat('_000_001')
+run_mat = run1_mat;
+out_base = 'Z:\Analysis\2P Analysis\Lever\';
+base_dir =  'Z:\Data\2P_imaging\';

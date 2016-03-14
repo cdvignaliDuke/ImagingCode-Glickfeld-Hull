@@ -42,8 +42,8 @@ for id = 1:size(date_mat,1)
     out_path = fullfile(out_base,run_name);
     dest =  fullfile(out_path,run_name);
     dest_sub = fullfile([dest '_nosub'], [run_name '_nosub']);
-    HAD_2P_event_outcomes
     HAD_2P_TC_quantification  
+    HAD_2P_event_outcomes
     HAD_2P_event_quantification
     close all
 end
