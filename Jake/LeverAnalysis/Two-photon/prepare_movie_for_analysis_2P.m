@@ -48,7 +48,6 @@ else
     load([dest1 '_ROI_xy.mat'])
 end
 
-
 %% 2. register images
 data_avg = mean(data_sub(:,:,90:190),3);
 figure; imagesq(data_avg); colormap(gray)
@@ -58,7 +57,7 @@ clear data_sub
 save([dest '_data_reg.mat'],  'data_reg');
 
 img = data_reg(ROI_x,ROI_y,:);
-writetiff(img,[dest '_ROI.tif']);
+%writetiff(img,[dest '_ROI.tif']);   %commented out to save time
 clear data_reg
 
 %% 3. PCA and ICA
