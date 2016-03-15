@@ -4,7 +4,7 @@ tic
 % 1. select an ROI
 % 2. stack all the movies to one tiff file
 DATA_DIR =  'Z:\Data\WidefieldImaging\GCaMP\';
-day =  '160228_img36' %'160208_img35_2' % '160209_img36_NoLever_1'};   %'150717_img28' '150719_img28'
+day =  '160314_img38' %'160208_img35_2' % '160209_img36_NoLever_1'};   %'150717_img28' '150719_img28'
 motion_correction =1;           %1 to register image   0 to take ROI without motion correction
 stable_int = [1:50];         %use imageJ to find a series of frames (~100) in which little movement occurs. Use this during motion correction
 session = '';

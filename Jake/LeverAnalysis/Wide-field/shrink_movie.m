@@ -11,7 +11,7 @@ ROI_x =[];
 ROI_y = [];
 
 mati_code_cd = 'C:\Users\jake\Documents\Repositories\ImagingCode-Glickfeld-Hull\Jake\LeverAnalysis';
-image_dest  = 'C:\Users\jake\TempData\';
+image_dest  = ['C:\Users\jake\TempData\' day];
 old_cd = cd([DATA_DIR day]);
 % get all files
 
@@ -42,7 +42,7 @@ for i=1:length(all_files)
 end
 frame_times = get_frame_time_by_movie_info(all_info);
 
-dest =  [image_dest  day '_ROI'];
+dest =  [image_dest '\'  day '_ROI'];
 shrink_img = [];
 sz = {};
 for i=1:length(all_files)

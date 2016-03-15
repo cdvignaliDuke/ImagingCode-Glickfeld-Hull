@@ -350,8 +350,8 @@ for ic = 1:nCells
     [h_ev_fail(1,ic), p_ev_fail(1,ic)] = ttest(mean(fail(ic).hist(1:ceil(500/double(ifi)),:),1), mean(fail(ic).hist((sz1/2):(sz1/2)+ceil(65/double(ifi)),:),1),'tail', 'left');
     if ~isnan(h_ev_fail(1,ic))
         if h_ev_succ(1,ic)
-            s_col = ['\bf' s_col];
-close         end
+            s_col = ['\bf' s_col];   
+        end
     else
         s_col = 'NaN';
     end
