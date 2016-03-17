@@ -36,7 +36,7 @@ mask = 0;      %set to 1 in order to take all ROIs as one combined mask.  Set to
 
 %days = {'160129_img36', '160129_img35', '160131_img35', '151211_img32', '150717_img28', '150716_img28', '150718_img27', '151022_img29', '150719_img27'}; %days with usable licking data
 
-days = {'160314_img38'};
+days = {'160315_img38'};
 success_trials = [];
 fail_trials = [];
 tooFast_trials = [];

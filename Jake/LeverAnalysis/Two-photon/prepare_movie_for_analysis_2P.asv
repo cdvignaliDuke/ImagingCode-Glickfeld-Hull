@@ -260,12 +260,8 @@ save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz', 'mask_cell', 'mask_cel
 
 %% 6. Neuropil subtraction
 %create masks, get timecourses
-%COMMENTED OUT 3/16/16 because the variable created here are not being
-%used. Also concerned that there is not enough space between dendrites in
-%XY for this to be meaningful. Additionally reducing neuropil contamination
-%from the Z axis is less meaningful in this prep since the PC's own
-%dendrite extends out of the plain of focus in Z
-
+%COMMENTED OUT 3/16/16 because the variable created here are not being used
+%
 % nCells = max(unique(mask_final),[],2);
 % npTC = zeros(size(data_tc));
 % 
