@@ -390,7 +390,6 @@ baseline_times_holdMs(:,l_frame_trial_num)=NaN;
 %frame.counter
 baseline_timesMs = baseline_timesMs - first_time_baseline;
 baseline_times_holdMs = baseline_times_holdMs - first_time_baseline;
-%save it to the struct bc this baby is done
 lever.baseline_timesMs = baseline_timesMs;  
 lever.baseline_times_holdMs = baseline_times_holdMs;  
 frame.f_frame_trial_num = f_frame_trial_num;

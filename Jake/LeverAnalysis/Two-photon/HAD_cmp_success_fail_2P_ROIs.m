@@ -27,7 +27,7 @@ else
     l_frame = last_frame;
 end
 % ---- parse behavior
-holdT_min  = 500000;
+holdT_min  = 500000;    
 [lever, frame_info, trial_outcome] = parse_behavior_for_HAD(b_data.input, ...
     f_frame, l_frame, ftimes.frame_times, holdT_min);
 

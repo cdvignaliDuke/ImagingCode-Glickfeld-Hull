@@ -49,6 +49,8 @@ else
 end
 
 %% 2. register images
+%add in an if statement to use the first movie to register the second one.
+%Save the data_avg
 data_avg = mean(data_sub(:,:,90:190),3);
 figure; imagesq(data_avg); colormap(gray)
 [out data_reg] = stackRegister(data_sub, data_avg);
