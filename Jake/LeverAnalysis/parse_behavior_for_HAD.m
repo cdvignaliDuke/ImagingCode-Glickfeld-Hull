@@ -171,7 +171,7 @@ react_time = double(cell2mat(input.reactTimesMs));
 req_hold = double(cell2mat(input.tTotalReqHoldTimeMs));
 rnd_hold = double(cell2mat(input.tRandReqHoldTimeMs));
 
-has_reward = ~cellfun(@isempty, input.juiceTimesMsCell );
+has_reward = ~cellfun(@isempty, input.juiceTimesMsCell ); %using this as a proxy to isolate correct trials 
 tooFastCorrects = zeros(size(input.reactTimesMs)); 
 for i = 1:length(input.reactTimesMs)
     if react_time(i) < 176   %Removes tooFastCorrects from the successful trials count. 
@@ -185,7 +185,7 @@ end
 relase_time = hold_start + hold_time;
 early_time = hold_time<req_hold & hold_time>350;
 trial_outcome.success_time = relase_time(has_reward);
-trial_outcome.tooFastCorrects = relase_time(1,find(tooFastCorrects)); %isolates correct trials with reaction times >0 but <200ms. Stores them as a matrix of their release times.
+trial_outcome.tooFastCorrects = relase_time(1,find(tooFastCorrects)); %isolates correct trials with reaction times >0 but <175ms. Stores them as a matrix of their release times.
 trial_outcome.early_time = relase_time(early_time); %altered to exclude fidgets 2/27/16
 trial_outcome.fidget = relase_time(hold_time<350);
 is_ignore =@(x)isequal(x, 'ignore');

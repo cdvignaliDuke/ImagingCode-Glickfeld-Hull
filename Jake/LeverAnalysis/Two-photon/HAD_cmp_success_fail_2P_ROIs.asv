@@ -52,8 +52,6 @@ for iT=2:length(lever.baseline_timesMs)-1;    %this could be problematic due to 
     t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
     tc_dfoverf(:,t_range) = t_dfoverf;
 end
-data_dest2 = [dest '_dFOverF_TC.mat'];
-save(data_dest2, 'tc_dfoverf')
 
 %% 3. create event triggered movies
 
@@ -85,7 +83,7 @@ fail_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
 
 %tooFast correct
 use_ev_tooFastCorrect = trial_outcome.tooFastCorrect;
-if strcmp(b_data.input.trialOutcomeCell{1}, 'success')  %removing first and last trials from consideration if they were successful (tooFastCorrects are coded as successes here)
+if strcmp(b_data.input.trialOutcomeCell{1}, 'success')  %removing first and last trials from consideration if they were successful (tooFastCorrects are coded as succes
     use_ev_tooFastCorrect(1) = [];
 elseif strcmp(b_data.input.trialOutcomeCell{end}, 'success')
     use_ev_tooFastCorrect(end) = [];
@@ -93,17 +91,7 @@ end
 tooFastCorrect_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
     use_ev_tooFastCorrect, pre_release_frames, post_release_frames);
 
-%fidgets
-use_ev_fidget = trial_outcome.fidget;
-if strcmp(b_data.input.trialOutcomeCell{1}, 'failure')   %removing first and last trials from consideration if they were failures
-    use_ev_fidget(1) = [];
-elseif strcmp(b_data.input.trialOutcomeCell{end}, 'failure')
-    use_ev_fidget(end) = [];
-end
-fidget_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
-    use_ev_fidget, pre_release_frames, post_release_frames);
-
-save([dest_sub '_release_movies.mat'],'fail_movie','success_movie', 'tooFastCorrect_movie', 'use_ev_fidget','pre_release_frames','post_release_frames','ifi');
+save([dest_sub '_release_movies.mat'],'fail_movie','success_movie', 'tooFastCorrect_movie','pre_release_frames','post_release_frames','ifi');
 
 % ---- Trigger movie off all lever presses at trial start
 pre_press_ms = 500;
