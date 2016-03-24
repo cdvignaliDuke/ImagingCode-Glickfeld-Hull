@@ -13,14 +13,14 @@ function CellsortPlotPCspectrum(fn, CovEvals, PCuse)
 % Eran Mukamel, Axel Nimmerjahn and Mark Schnitzer, 2009
 % Email: eran@post.harvard.edu, mschnitz@stanford.edu
 %
-
+global rt 
 if nargin<3
     PCuse = [];
 end
 
 [pixw,pixh] = size(imread(fn,1));
 npix = pixw*pixh;
-nt = tiff_frames(fn);
+nt = size(rt,3);
 
 % Random matrix prediction (Sengupta & Mitra)
 p1 = npix; % Number of pixels
