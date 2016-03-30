@@ -36,7 +36,7 @@ mask = 0;      %set to 1 in order to take all ROIs as one combined mask.  Set to
 
 %days = {'160129_img36', '160129_img35', '160131_img35', '151211_img32', '150717_img28', '150716_img28', '150718_img27', '151022_img29', '150719_img27', '160319_img41', '160320_img41'}; %days with usable licking data
 
-days = {'160319_img41', '160320_img41'};
+days = {'160319_img41'};
 success_trials = [];
 fail_trials = [];
 tooFast_trials = [];
@@ -410,17 +410,17 @@ for kk=1:length(days)
     subplot(2,3,5); ylim([min(YL(:,1)) max(YL(:,2))]); 
     subplot(2,3,6); ylim([min(YL(:,1)) max(YL(:,2))]);
     
-%     success_roi = squeeze(success_roi);
-%     fail_roi = squeeze(fail_roi);
-%     fidget_roi = squeeze(fidget_roi);
-%     destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_success');
-%     destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fail');
-%     destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fidget');
-%     destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
-%     save([destySucc], 'success_roi');
-%     save([destyFail], 'fail_roi');
-%     save([destyFidget], 'fidget_roi');
-%     savefig([destyFig]);
+    success_roi = squeeze(success_roi);
+    fail_roi = squeeze(fail_roi);
+    fidget_roi = squeeze(fidget_roi);
+    destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_success');
+    destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fail');
+    destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fidget');
+    destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
+    save([destySucc], 'success_roi');
+    save([destyFail], 'fail_roi');
+    save([destyFidget], 'fidget_roi');
+    savefig([destyFig]);
 
     disp(['day/animal: ' num2str(ROI_name)])
     disp(['# of successful trials = ' num2str(size(success_roi,1))])

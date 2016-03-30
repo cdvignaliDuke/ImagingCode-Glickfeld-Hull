@@ -87,7 +87,10 @@ function [ frame_times frame_count sub_input ] = get_frame_time_by_counters(inpu
     %the first value is the standard 1.5*ifi error and the second value is equal 
     %to the ifi. This will more accurately track the real frame times.
     diffTimes = diff(counterTimesMs);
-    oscillations = find(diff(counterTimesMs)>(modeDiff*1.75));
+    oscillations = find(diffTimes>(modeDiff*1.75));
+    if diffTimes(1) > (modeDiff*3) & oscillations(1) <2
+        oscillations = oscillations(2:end);
+    end
     for i = 1:length(oscillations);
         assert(diffTimes(oscillations(i)+1)<(modeDiff*0.66));
     end

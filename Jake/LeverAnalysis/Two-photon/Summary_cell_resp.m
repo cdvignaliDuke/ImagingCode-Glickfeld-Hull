@@ -37,7 +37,7 @@ for id = 1:size(date_mat,1)
     release_only(id) = length(release_resp(find(ismember(release_resp,press_resp_cells)==0)))./tot_resp(id);
 end
 figure;
-col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm');
+col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm', 'c');
 %number of cells
 subplot(3,3,1), scatter(1:size(date_mat,1), ncells, 'ok')
 xlabel('Expt #')
@@ -159,7 +159,7 @@ xlim([0 1])
 ylim([0 1])
 xlabel('Success only (%)')
 ylabel('Fail only (%)')
-suptitle('% of all responsive cells- Red: img24; Blue: img25; Green: img28; Magenta: img27')
+suptitle('% of all responsive cells- Red: img24; Blue: img25; Magenta: img27 Purple: img28 Cyan: img32;')
     print([out_base 'Summary_pct_cell_response_scatter.eps'], '-depsc');
     print([out_base 'Summary_pct_cell_response_scatter.pdf'], '-dpdf');
 

@@ -113,7 +113,9 @@ for i=1:num_trials-1
         d_frame = c_count(j) - pre_frame_count;                     %d_frame and time equal a specific counter value or time within this trial minus the frames or time before the trial
         d_time  = c_time(j) - pre_frame_time;                               
         update_inx = (pre_frame_time:c_time(j)) -  START_EXP_TIME+1;          %update_inx is all the time points associated with a specific frame aligned to experiment start time
-        
+        if ~isempty(update_inx) & update_inx(1) ==0
+            update_inx = update_inx(2:end)
+        end
         if(d_frame >1)  %missed a frame, set NaN
             frame.counter(update_inx) = NaN;
         else

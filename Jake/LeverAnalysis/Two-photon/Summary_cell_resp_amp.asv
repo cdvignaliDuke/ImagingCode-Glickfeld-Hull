@@ -240,9 +240,9 @@ for id = 1:size(date_mat,1)
     s = [s success_resp_all{id}];
     f = [f fail_resp_all{id}];
 end
-xlim([-.025 .3]);
-ylim([-.005 .25]);
 plot(x,y,'-k')
+xlim([-.05 .1]);
+ylim([-.05 .1]);
 xlabel('Success dF/F')
 ylabel('Fail dF/F')
 [h_sfall p_sfall] = ttest(s,f);
@@ -303,7 +303,6 @@ for id = 1:size(date_mat,1)
     hold on
     scatter(mean(release_resp_all{id},2), mean(press_resp_all{id},2), col_mat(id,:))
 end
-hold on
 plot(x,y,'-k')
 xlim([-.025 .22]);
 ylim([-.025 .2]);

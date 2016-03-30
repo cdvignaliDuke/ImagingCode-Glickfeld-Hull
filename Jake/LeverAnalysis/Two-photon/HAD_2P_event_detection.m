@@ -5,12 +5,14 @@
 
 %load data and behavior info
 load([dest, '_ROI_TCs.mat'])
+load([dest, '_dFOverF_TC.mat'])
 nIC = size(data_tc,2);
 load([dest '_frame_times.mat'])
+load([dest '_parse_behavior.mat'])
 %% 1- Find periods with no lever activity and detect "spontaneous" events
 %extract spontaneous windows
-thresh= repmat(3000,1,232);
-%thresh = [2650, 2615, 3217, 4212, 4375, 4375, 7588, 3870, 6154, 6566, 6600, 4945, 5643, 2200, 6225, 6125, 6175, 5560, 3370, 3390, 1550, 6537, 5305]; % manually selected thresholds for each IC in this dataset
+ifi = (frame_times(end)-frame_times(1))/length(frame_times);
+Sampeling_rate = 1000/ifi;
 pre_buffer = ceil(300/double(ifi));
 post_buffer = ceil(1000/double(ifi));
 fr_lever = [];   %fr_lever will be a series of frame numbers corresponding to lever events +&- the buffers
@@ -34,8 +36,25 @@ events = [];
 events_diff_x = zeros(size(data_tc_spont,1)-1,nIC);
 events_ind = {};
 events_rate = zeros(1,nIC);
+
 for ic = 1:nIC
     events_diff_x(:,ic) = diff(data_tc_spont(:,ic),[],1);
+end
+
+disp('manually select thresholds for each TC')
+for ii = size(events_diff_x,2):-1:1; 
+    figure; plot(events_diff_x(:,ii));
+    title(['diffTC for TC #' num2str(ii)]);
+end
+%pause
+%thresh = [1100, 600, 300, 450, 350, 500, 500, 250, 500, 300, 400, 400, 500, 500, 500, 500, 500, 700, 500, 500, 400, 350]; % manually selected thresholds for 160319_img38
+%thresh = [500, 450, 250, 400, 450, 300, 200, 200, 300, 350, 300, 300, 300, 250, 300, 300, 300, 250]; %160220_img38
+%thresh= [250, 400, 400, 300, 400, 300, 400, 200, 400, 250, 600, 250, 300, 500, 400, 500, 450, 750, 1800, 250, 600, 250, 250, 700]; %160324_img41
+%thresh = [500, 500, 600, 600, 600, 500, 500, 500, 600, 600, 1000, 1000, 1000, 400, 500, 750, 600]; %160203_img36
+%thresh = [350, 200, 350, 350, 300, 400, 500, 600, 500, 400, 500, 350, 400, 400, 500]; %160202_img36
+thresh = [700, 750, 700, 700, 1000, 1100, 1200, 1000, 1100, 550, 1000]; %151215_img32
+
+for ic = 1:nIC
     events_ind{ic} = find(events_diff_x(:,ic)>thresh(ic));
     events_ind{ic}(find(diff(events_ind{ic})==1)+1)=[];
     events_rate(1,ic) = length(events_ind{ic})./((double(ifi)./1000)*size(data_tc_spont,1)); 
