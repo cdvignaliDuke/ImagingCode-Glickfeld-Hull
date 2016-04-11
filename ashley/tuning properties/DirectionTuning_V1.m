@@ -46,7 +46,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,700:710),3);
+data_avg = mean(data_sub(:,:,600:610),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -174,7 +174,7 @@ for i = 1:100
     x(i,:) = skewness(data_TC-tcRemoveDC(npTC*ii(i)));
 end
 [max_skew ind] =  max(x,[],1);
-skew(buf,:) = max_skew;
+% skew(buf,:) = max_skew;
 np_w = 0.01*ind;
 npSubTC = data_TC-bsxfun(@times,tcRemoveDC(npTC),np_w);
 

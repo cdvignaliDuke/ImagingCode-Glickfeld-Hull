@@ -155,7 +155,7 @@ end
 cellsSelect{iOri+1} = untuned_ind;
 cellsSelect{iOri+2} = intersect(find(~isnan(ori_ind_all)), find(OSI>0.3));
 
-save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI');
+save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect');
 end
 
 

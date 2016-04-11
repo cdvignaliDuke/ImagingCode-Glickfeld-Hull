@@ -118,7 +118,7 @@ expt(10).frame_rate = 15;
 expt(10).folder = 'eye tracking';
 expt(10).eyeradrange = [15 30];
 
-%% AW16 151028
+%% AW16 151028 % FA rate high
 expt(11).SubNum = '616';
 expt(11).mouse = 'AW16';
 expt(11).date = '151028';
@@ -130,7 +130,7 @@ expt(11).frame_rate = 30;
 expt(11).folder = 'two-photon imaging';
 expt(11).eyeradrange = [15 30];
 
-%% AW16 151030
+%% AW16 151030 % FA rate high
 expt(12).SubNum = '616';
 expt(12).mouse = 'AW16';
 expt(12).date = '151030';
@@ -153,3 +153,131 @@ expt(13).VisonB2 = 1;
 expt(13).frame_rate = 30;
 expt(13).folder = 'two-photon imaging';
 expt(13).eyeradrange = [15 30];
+
+%% AW16 151124
+expt(14).SubNum = '616';
+expt(14).mouse = 'AW16';
+expt(14).date = '151124';
+expt(14).time_mat =  ['1047'; '1103'; '1119'];
+expt(14).runs = ['001'; '002'; '003'];
+expt(14).nrun = size(expt(14).runs,1);
+expt(14).VisonB2 = 1;
+expt(14).frame_rate = 30;
+expt(14).folder = 'two-photon imaging';
+expt(14).eyeradrange = [15 30];
+%% AW16 151217
+expt(15).SubNum = '616';
+expt(15).mouse = 'AW16';
+expt(15).date = '151217';
+expt(15).time_mat =  ['1105'; '1125'; '1144'];
+expt(15).runs = ['003'; '004'; '007'];
+expt(15).nrun = size(expt(15).runs,1);
+expt(15).VisonB2 = 1;
+expt(15).frame_rate = 30;
+expt(15).folder = 'two-photon imaging';
+expt(15).eyeradrange = [15 30];
+%% AW25 160304
+expt(16).SubNum = '625';
+expt(16).mouse = 'AW25';
+expt(16).date = '160304';
+expt(16).time_mat =  ['1450'; '1506'; '1522';'1538'];
+expt(16).runs = ['002'; '003'; '004';'005'];
+expt(16).nrun = size(expt(16).runs,1);
+expt(16).VisonB2 = 1;
+expt(16).frame_rate = 30;
+expt(16).folder = 'two-photon imaging';
+expt(16).eyeradrange = [15 30];
+
+%% AW25 160309
+expt(17).SubNum = '625';
+expt(17).mouse = 'AW25';
+expt(17).date = '160309';
+expt(17).time_mat =  ['1346'; '1402'; '1421';'1437'];
+expt(17).runs = ['006'; '007'; '008';'009'];
+expt(17).nrun = size(expt(17).runs,1);
+expt(17).VisonB2 = 1;
+expt(17).frame_rate = 30;
+expt(17).folder = 'two-photon imaging';
+expt(17).eyeradrange = [15 30];
+%% AW25 160318
+expt(18).SubNum = '625';
+expt(18).mouse = 'AW25';
+expt(18).date = '160318';
+expt(18).time_mat =  ['1035'; '1056'; '1111';'1127'];
+expt(18).runs = ['002'; '005'; '006';'007'];
+expt(18).nrun = size(expt(18).runs,1);
+expt(18).VisonB2 = 1;
+expt(18).frame_rate = 30;
+expt(18).folder = 'two-photon imaging';
+expt(18).eyeradrange = [15 30];
+
+%% AW25 160314
+expt(19).SubNum = '625';
+expt(19).mouse = 'AW25';
+expt(19).date = '160314';
+expt(19).time_mat =  ['1005'; '1021'; '1037'];
+expt(19).runs = ['001'; '002'; '003'];% 
+expt(19).nrun = size(expt(19).runs,1);
+expt(19).VisonB2 = 1;
+expt(19).frame_rate = 30;
+expt(19).folder = 'two-photon imaging';
+expt(19).eyeradrange = [15 30];
+
+%% AW26 160112
+expt(20).SubNum = '626';
+expt(20).mouse = 'AW26';
+expt(20).date = '160112';
+expt(20).time_mat =  ['1453'; '1509'; '1525'];
+expt(20).runs = ['001'; '002';'003'];
+expt(20).nrun = size(expt(20).runs,1);
+expt(20).VisonB2 = 1;
+expt(20).frame_rate = 30;
+expt(20).folder = 'two-photon imaging';
+expt(20).eyeradrange = [15 40];
+
+%% AW26 160126
+expt(21).SubNum = '626';
+expt(21).mouse = 'AW26';
+expt(21).date = '160126';
+expt(21).time_mat =  ['1138'; '1155'; '1211';'1227'];
+expt(21).runs = ['001'; '003'; '004';'005'];
+expt(21).nrun = size(expt(21).runs,1);
+expt(21).VisonB2 = 1;
+expt(21).frame_rate = 30;
+expt(21).folder = 'two-photon imaging';
+expt(21).eyeradrange = [15 40];
+
+%% AW26 160202
+expt(22).SubNum = '626';
+expt(22).mouse = 'AW26';
+expt(22).date = '160202';
+expt(22).time_mat =  ['1335'; '1350'; '1407'];
+expt(22).runs = ['003'; '004'; '006'];
+expt(22).nrun = size(expt(22).runs,1);
+expt(22).VisonB2 = 1;
+expt(22).frame_rate = 30;
+expt(22).folder = 'two-photon imaging';
+expt(22).eyeradrange = [15 40];
+%% AW26 160203
+expt(23).SubNum = '626';
+expt(23).mouse = 'AW26';
+expt(23).date = '160203';
+expt(23).time_mat =  ['1053'; '1109'; '1125'];
+expt(23).runs = ['001'; '002'; '003'];
+expt(23).nrun = size(expt(23).runs,1);
+expt(23).VisonB2 = 1;
+expt(23).frame_rate = 30;
+expt(23).folder = 'two-photon imaging';
+expt(23).eyeradrange = [15 40];
+
+%% AW26 160114
+expt(24).SubNum = '626';
+expt(24).mouse = 'AW26';
+expt(24).date = '160114';
+expt(24).time_mat = ['1603'; '1621'; '1637'];
+expt(24).runs = ['001'; '003'; '004'];
+expt(24).nrun = size(expt(24).runs,1);
+expt(24).VisonB2 = 1;
+expt(24).frame_rate = 30;
+expt(24).folder = 'two-photon imaging';
+expt(24).eyeradrange = [15 40];

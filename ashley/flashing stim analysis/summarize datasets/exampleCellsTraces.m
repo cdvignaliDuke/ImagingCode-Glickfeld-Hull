@@ -6,13 +6,13 @@ dirtuning = '006';
 rettuning = '005';
 imouse = 2;
 iexp = 1;
-cell_excAnt = 107;
-cell_inhAnt = 161;
+cell_excAnt = 47;
+cell_inhAnt = 32;
 cell_excTar = 131;
 cell_nr = 11;
 cell_mat = [cell_excAnt cell_inhAnt cell_excTar cell_nr];
 cellType_str = {'Exc - Ant';'Inh - Ant';'Exc - Tar';'NR'};
-taskPart_str = {'Anticipation';'Target';'dir tuning, DG';'ret tuning, DG'};
+taskPart_str = {'Trial Start';'Anticipation';'Target';'dir tuning, DG';'ret tuning, DG'};
 pressAlign = 1;
 catchAlign = 3;
 targetAlign = 2;
@@ -44,6 +44,7 @@ trans_win = mouse(1).expt(1).win(2).frames;
 pre_event_frames = mouse(1).expt(1).pre_event_frames;
 post_event_frames = mouse(1).expt(1).post_event_frames;
 cycTime = mouse(1).expt(1).info(1).cyc_time;
+cycTimeMs = mouse(1).expt(1).info(1).cyc_time_ms;
 exampleCellsFig = figure;
 
 fnout = fullfile(rc.caOutputDir, dataGroup, [date '_' mouse_str]); %% maybe lose mouse_str
@@ -53,32 +54,57 @@ fnout = fullfile(rc.caOutputDir, dataGroup, [date '_' mouse_str]); %% maybe lose
 set(0,'defaultfigurepaperorientation','landscape');
 set(0,'defaultfigurepapersize',[11 8.5]);
 set(0,'defaultfigurepaperposition',[.25 .25 [11 8.5]-0.5]);
-set(0,'DefaultaxesFontSize', 16)
+set(0,'DefaultaxesFontSize', 8)
 
 tt = -pre_event_frames:post_event_frames-1;
+ttMs = tt/(cycTime/cycTimeMs);
 baseStimFrames = 0:cycTime:post_event_frames-1;
 baseStimFramesPreTar = -(floor(pre_event_frames/cycTime)*cycTime):cycTime:0;
 
-%% anticipation period
+%% first response
 figure(exampleCellsFig)
 iCellSubplotXpos = [1 5 9 13];
 for icell = 1:length(cell_mat)
    subplot(n,n2,iCellSubplotXpos(icell))
-   plot(tt,squeeze(mean(mouse(imouse).expt(iexp).align(pressAlign).av(1).outcome(1).resp(:,cell_mat(icell),:),3)),'g');
+   plot(ttMs,squeeze(mean(mouse(imouse).expt(iexp).align(pressAlign).av(1).outcome(1).resp(:,cell_mat(icell),:),3)),'g');
    hold on
-   plot(tt,squeeze(mean(mouse(imouse).expt(iexp).align(pressAlign).av(2).outcome(1).resp(:,cell_mat(icell),:),3)),'k');
-   vline(baseStimFrames,':k')
-   xlim([-10 post_event_frames])
-   ylim([-0.15 0.15])
+   plot(ttMs,squeeze(mean(mouse(imouse).expt(iexp).align(pressAlign).av(2).outcome(1).resp(:,cell_mat(icell),:),3)),'k');
+   hold on
+   xlim([-300 600])
+   ylim([-0.05 0.15])
+   vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--r')
+   hold on
+   vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
+   hold on
    ylabel({cellType_str{icell},'dF/F'})
    if icell == 1
        title(taskPart_str{1})
    end
+   text(-250,0.1,['cell ' num2str(cell_mat(icell))]);
+end
+
+%% anticipation period
+figure(exampleCellsFig)
+iCellSubplotXpos = iCellSubplotXpos+1;
+for icell = 1:length(cell_mat)
+   subplot(n,n2,iCellSubplotXpos(icell))
+   plot(ttMs,squeeze(mean(mouse(imouse).expt(iexp).align(pressAlign).av(1).outcome(1).resp(:,cell_mat(icell),:),3)),'g');
+   hold on
+   plot(ttMs,squeeze(mean(mouse(imouse).expt(iexp).align(pressAlign).av(2).outcome(1).resp(:,cell_mat(icell),:),3)),'k');
+   xlim([-300 (post_event_frames/(cycTime/cycTimeMs))])
+   ylim([-0.05 0.15])
+   vline(baseStimFrames/(cycTime/cycTimeMs),':k')
+   vline(0,'k')
+   ylabel({cellType_str{icell},'dF/F'})
+   if icell == 1
+       title(taskPart_str{2})
+   end
+%    text(0,-0.1,['cell ' num2str(cell_mat(icell))]);
 end
 
 %% target period
 figure(exampleCellsFig)
-iCellSubplotXpos = [2 6 10 14];
+iCellSubplotXpos = iCellSubplotXpos+1
 exptDirs = mouse(imouse).expt(iexp).visTargets;
 colorsT = brewermap(length(exptDirs)+15,'YlGn');
 colorindT = [3:2:length(exptDirs)+12];
@@ -93,50 +119,118 @@ for icell = 1:length(cell_mat)
        else
            dirCol = colorsT(idir,:);
        end
-   cellTarResp(idir) = plot(tt,squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{idir}(:,cell_mat(icell),:),3)),'color',dirCol);
+       tRespTC = squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{idir}(:,cell_mat(icell),:),3));
+       preWinResp = mean(tRespTC(pre_win));
+       tRespTC = tRespTC-preWinResp;
+   cellTarResp(idir) = plot(ttMs,tRespTC,'color',dirCol);
    dirLegend{idir} = num2str(exptDirs(idir));
    hold on
    end
-%    plot(tt,squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(2).outcome(1).resp(:,cell_mat(icell),:),3)),'k');
-   vline(baseStimFramesPreTar,':k')
-   xlim([-10 20])
-   ylim([-0.15 0.15])
+   xlim([-300 600])
+   ylim([-0.05 0.15])
+%    plot(ttMs,squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(2).outcome(1).resp(:,cell_mat(icell),:),3)),'k');
+   vline(baseStimFramesPreTar/(cycTime/cycTimeMs),':k')
 %    ylabel(cellType_str{icell})
    if icell == 1
-       title(taskPart_str{2})
+       title(taskPart_str{3})
        legend(cellTarResp,dirLegend,'Location','best')
    end
-       vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames], '--r')
+       vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--r')
         hold on
-        vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames], '--k')
+        vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
         hold on
 end
 
 %% ori tuning curves
-cellOriAndRetTuningCurves
+load(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'cellsSelect.mat'));
+directions = [0 45 90 135 180 225 270 315];
 
 figure(exampleCellsFig)
-iCellSubplotXpos = [3 7 11 15];
+iCellSubplotXpos = iCellSubplotXpos+1
+
 for icell = 1:length(cell_mat)
-    oriP = oriPref_ind(icell);
-    dirP = dirPref_ind(icell);
-    osi = chop(cellOSI(icell),2);
-    dsi = chop(cellDSI(icell),2);
+    cellPref = [];
+    oriP = ori_ind_all(cell_mat(icell));
+    dirP = max_dir_ind(cell_mat(icell));
+    osi = chop(OSI(cell_mat(icell)),2);
+    dsi = chop(DSI(cell_mat(icell)),2);
     subplot(n,n2,iCellSubplotXpos(icell))
-    errorbar(directions,dFoverFDirResp(:,icell),errbarDirResp(:,icell),'ko-')
+    errorbar(directions,dFoverF_DirResp_avg_rect(:,cell_mat(icell)),dFoverF_DirResp_sem_rect(:,cell_mat(icell)),'ko-')
     hold on
     set(gca,'XTick',directions)
     xlabel('direction')
     xlim([-10 360])
-    cellPref(1) = plot(directions(oriP),dFoverFDirResp(oriP,icell),'ro');
+    ylim([-0.05 0.5])
+    if ~isnan(oriP) & ~isnan(osi)
+    cellPref(1) = plot(directions(oriP),dFoverF_DirResp_avg_rect(oriP,cell_mat(icell)),'ro');
     hold on
-    cellPref(2) = plot(directions(dirP),dFoverFDirResp(dirP,icell),'bo');
+    end
+    if ~isnan(dirP) & ~isnan(dsi)
+    cellPref(2) = plot(directions(dirP),dFoverF_DirResp_avg_rect(dirP,cell_mat(icell)),'bo');
+    end
     legend(cellPref,{['OSI = ' num2str(osi)];['DSI = ' num2str(dsi)]},'location','northeast');
    if icell == 1
-       title(taskPart_str{3})
+       title(taskPart_str{4})
    end
 end
 
 %% save
 figure(exampleCellsFig)
 print([fnout 'exampleCells' datasetStr '.pdf'], '-dpdf')
+%% imaging FOV with cell masks
+load(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'mask&TCDir.mat'));
+maxDFoverF = readtiff(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'maxDFoverF.tif'));
+F = readtiff(fullfile(fn,'Fimg.tif'));
+sb_calib_x = 555.23/size(maxDFoverF,2); %um per pixel
+sb_calib_y = 233.56/size(maxDFoverF,1);
+
+umL50 = ceil(50/sb_calib_x);
+umW5 = ceil(5/sb_calib_y);
+
+crop_x_ind = 50:size(maxDFoverF,2)-50;
+crop_y_ind = 50:size(maxDFoverF,1)-50;
+
+maxDFoverF_crop = double(maxDFoverF(crop_y_ind,crop_x_ind));
+F_crop = double(F(crop_y_ind,crop_x_ind));
+
+writetiff(maxDFoverF_crop,[fnout 'exampleCellsIMG' datasetStr]);
+writetiff(F_crop,[fnout 'exampleCellsIMG_F' datasetStr]);
+
+sb_x_ind = 300:300+umL50;
+sb_y_ind = 150:150+umW5;
+
+img_sb = zeros(size(maxDFoverF_crop));
+img_sb(sb_y_ind,sb_x_ind) = 1;
+writetiff(img_sb,[fnout 'exampleCellsIMGsb' datasetStr])
+
+
+figure;
+imagesc(img_sb)
+colormap gray
+
+cellMap = zeros(size(maxDFoverF,1),size(maxDFoverF,2),length(cell_mat));
+for icell = 1:length(cell_mat)
+    c = reshape(ismember(mask_cell(:),cell_mat(icell)),size(mask_cell));
+    c(c == 1) = cell_mat(icell);
+    cellMap(:,:,icell) = c;
+end
+cellMap_crop = cellMap(crop_y_ind,crop_x_ind,:);
+writetiff(cellMap_crop,[fnout 'exampleCellsIMGcellmask' datasetStr]);
+
+
+figure;
+for icell = 1:length(cell_mat)
+    figure;
+    imagesc(cellMap{icell})
+end
+
+
+
+
+
+
+
+
+
+
+
