@@ -58,7 +58,7 @@ summary_fail_mat_ROI(1) = [];
 plot_succ_mat = mean(summary_succ_mat,2);
 plot_fail_mat = mean(summary_fail_mat,2);
 plot_succ_sm = std(summary_succ_mat,[],2)/sqrt(size(summary_succ_mat,2));
-plot_fail_sm = std(summary_fail_mat,[],2)/sqrt(size(summmary_fail_mat,2));
+plot_fail_sm = std(summary_fail_mat,[],2)/sqrt(size(summary_fail_mat,2));
 
 avg_summary_succ_mat = mean(mean(summary_succ_mat));
 avg_summary_fail_mat = mean(mean(summary_fail_mat));
@@ -143,52 +143,6 @@ title(['success vs fail summary Shift']);
 % fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{11}.fail_roi(:,aa,7:9),1),2))') %24
 % fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{12}.fail_roi(:,3,7:9),1),2))') %25
 % fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{13}.fail_roi(:,3:4,7:9),1),2))')
-
-
-
-% colors = {'r', 'r', 'b', 'b', 'm', 'm', 'g', 'g', 'k', 'k', 'c', 'c', 'y', 'y', 'r', 'r', 'b', 'b'};
-% days = {'150718_img27', '150719_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '150518_img24', '150519_img24', '150518_img25', '150517_img25'};
-
-%plots all lobules
-% summary_succ_mat = []
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{1}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{2}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{3}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{4}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{5}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{6}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{7}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{8}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{9}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{10}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{11}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{12}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{13}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{14}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{15}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{16}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{17}.success_roi(:,:,7:9),1),2))')
-% summary_succ_mat = cat(1, summary_succ_mat, squeeze(mean(mean(summary_succ{18}.success_roi(:,:,7:9),1),2))')
-% 
-% fail_succ_mat = []
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{1}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{2}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{3}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{4}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{5}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{6}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{7}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{8}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{9}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{10}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{11}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{12}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{13}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{14}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{15}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{16}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{17}.fail_roi(:,:,7:9),1),2))')
-% fail_succ_mat = cat(1, fail_succ_mat, squeeze(mean(mean(summary_fail{18}.fail_roi(:,:,7:9),1),2))')
 
 
 %%

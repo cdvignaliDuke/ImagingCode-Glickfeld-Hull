@@ -11,7 +11,8 @@ BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior';
 %days = {'150716_img27', '150717_img27', '150718_img27', '150719_img27'};  
 %days = {'150719_img28', '150717_img28', '150716_img28'};
 %days = {'160208_img36', '160207_img35', '160207_img36', '160205_img35'};
-days = {'160320_img41'};
+%days = {'160315_img38'};
+days = {'160314_img38'};
 
 for kk=1:length(days)
     ROI_name  =  days{kk};
@@ -54,5 +55,5 @@ for kk=1:length(days)
     cluster.roi_position = roi_position;
     cluster.num_cluster = num_cluster;
     close gcf;
-    save([image_dest(1:end-4) 'cluster'], 'cluster');
+    save([image_dest(1:end-4) 'cluster2'], 'cluster');
 end
