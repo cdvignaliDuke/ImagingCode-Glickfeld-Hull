@@ -87,6 +87,9 @@ function mouse = createEyetrackingStruct(doPlot);
                 fnout = fullfile(rc.eyeOutputDir,mouse_name,'eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
                 fnin = fullfile(rc.eyeInputDir,mouse_name,'eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
             else
+                if ~exist(fullfile(rc.eyeOutputDir,[mouse_name '-' date_name]));
+                    mkdir(fullfile(rc.eyeOutputDir,[mouse_name '-' date_name]));
+                end
                 fnout = fullfile(rc.eyeOutputDir,[mouse_name '-' date_name], [mouse_name '-' date_name '-' runstr]);
                 fnin = fullfile(rc.eyeInputDir,mouse_name,'eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
             end
