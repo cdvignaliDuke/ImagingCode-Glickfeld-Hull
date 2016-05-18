@@ -7,7 +7,8 @@ function mouse = createEyetrackingStruct(doPlot);
     pre_event_time = 1000;
     post_release_time = 1500;
     post_target_time = 4000;
-    trans_win_time = [150 650];
+    push_trans_win_time = [500:1000];
+    release_trans_win_time = [150:250];
     mice = unique({expt.SubNum});
     nMice = length(mice);
     str = unique({expt.SubNum});
@@ -82,12 +83,12 @@ function mouse = createEyetrackingStruct(doPlot);
                     runstr = [runstr '-' runs(irun,:)];
                 end
             end
-            if rc.name == 'ashley'
+            if rc.name == 'ashle'
                 fnout = fullfile(rc.eyeOutputDir,mouse_name,'eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
                 fnin = fullfile(rc.eyeInputDir,mouse_name,'eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
             else
-                fnout = fullfile(rc.eyeOutputDir,'eye tracking',date_name,[mouse_name '-' date_name], [mouse_name '-' date_name '-' runstr]);
-                fnin = fnout;
+                fnout = fullfile(rc.eyeOutputDir,[mouse_name '-' date_name], [mouse_name '-' date_name '-' runstr]);
+                fnin = fullfile(rc.eyeInputDir,mouse_name,'eye tracking',date_name,[mouse_name '-' date_name '-' runstr]);
             end
             load([fnin '_pupil.mat']);
 
@@ -97,9 +98,12 @@ function mouse = createEyetrackingStruct(doPlot);
             set(0,'defaultfigurepapersize',[8.5 11]);
             set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 
+            %translate eye position from mm to degrees
+            centroid_mat_down_deg = (centroid_mat_down./(pi.*3.2)).*360;
+            
             holdIx = find(cell2mat(input.holdTimesMs)>min_hold);
             rad_mat_down_base = bsxfun(@rdivide, rad_mat_down, mean(rad_mat_down(1:15,:),1));
-            centroid_mat_down_base = bsxfun(@minus, centroid_mat_down, mean(centroid_mat_down(1:15,:,:),1));
+            centroid_mat_down_base = bsxfun(@minus, centroid_mat_down_deg, mean(centroid_mat_down_deg(1:15,:,:),1));
             centroid_mat_down_base(:,2,:) = -1*centroid_mat_down_base(:,2,:);
             %plot change in eye area align to press
             if doPlot
@@ -116,25 +120,25 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.1])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,holdIx),3)), squeeze(nanstd(centroid_mat_down(:,1,holdIx),[],3))./sqrt(length(holdIx)));
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,holdIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,holdIx),[],3))./sqrt(length(holdIx)));
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_down(1,1,holdIx),3))).*[0.9 1.1]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,1,holdIx),3))).*[0.9 1.1]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,holdIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,holdIx),[],3))./sqrt(length(holdIx)));
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,holdIx),3)), squeeze(nanstd(centroid_mat_down(:,2,holdIx),[],3))./sqrt(length(holdIx)));
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,holdIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,holdIx),[],3))./sqrt(length(holdIx)));
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_down(1,2,holdIx),3))).*[0.9 1.1]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,2,holdIx),3))).*[0.9 1.1]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,holdIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,holdIx),[],3))./sqrt(length(holdIx)));
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle('Align to lever down')
                 print([fnout '_avg_pressalign.pdf'], '-dpdf');
             end
@@ -159,33 +163,33 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.9 1.1])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_down(:,1,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_down(:,1,b2Ix),[],3))./sqrt((length(b2Ix))), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,b2Ix),[],3))./sqrt((length(b2Ix))), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_down(1,1,[b1Ix b2Ix]),3))).*[0.9 1.1]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,1,[b1Ix b2Ix]),3))).*[0.9 1.1]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_down_base(:,1,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_down_base(:,1,b2Ix),[],3))./sqrt((length(b2Ix))), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_down(:,2,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_down(:,2,b2Ix),[],3))./sqrt((length(b2Ix))), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,b2Ix),[],3))./sqrt((length(b2Ix))), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_down(1,2,[b1Ix b2Ix]),3))).*[0.9 1.1]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,2,[b1Ix b2Ix]),3))).*[0.9 1.1]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_down_base(:,2,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_down_base(:,2,b2Ix),[],3))./sqrt((length(b2Ix))), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle([mouse_name ' ' date_name '- Align to lever down- Black:auditory Green: visual'])
                 print([fnout '_avg_pressalign_AV.pdf'], '-dpdf');
             end
@@ -203,31 +207,31 @@ function mouse = createEyetrackingStruct(doPlot);
                     mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(5).name = 'CR';
                 end
             end
-            rad_trans_win = prepush_frames+round(prepush_frames/2):prepush_frames*2;%trans_win_frames;%
+            
+            push_trans_win = unique(prepush_frames+ceil(push_trans_win_time.*(frame_rate/1000)));
             sust_win = size(rad_mat_down,1)-round(prepush_frames*.667):size(rad_mat_down,1);
-            cen_trans_win = prepush_frames+round(prepush_frames/2):prepush_frames+round(prepush_frames/2);%trans_win_frames;
             pre_win = 1:prepush_frames;
 
             mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_rad_pre = [nanmean(nanmean(rad_mat_down(pre_win,b1Ix),1),2) nanstd(nanmean(rad_mat_down(pre_win,b1Ix),1),[],2)/sqrt(length(b1Ix))];
             mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_rad_pre = [nanmean(nanmean(rad_mat_down(pre_win,b2Ix),1),2) nanstd(nanmean(rad_mat_down(pre_win,b2Ix),1),[],2)/sqrt(length(b2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_down(pre_win,1,b1Ix),1),3) nanstd(nanmean(centroid_mat_down(pre_win,1,b1Ix),1),[],3)/sqrt(length(b1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_down(pre_win,1,b2Ix),1),3) nanstd(nanmean(centroid_mat_down(pre_win,1,b2Ix),1),[],3)/sqrt(length(b2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_down(pre_win,2,b1Ix),1),3) nanstd(nanmean(centroid_mat_down(pre_win,2,b1Ix),1),[],3)/sqrt(length(b1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_down(pre_win,2,b2Ix),1),3) nanstd(nanmean(centroid_mat_down(pre_win,2,b2Ix),1),[],3)/sqrt(length(b2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,1,b1Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,1,b1Ix),1),[],3)/sqrt(length(b1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,1,b2Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,1,b2Ix),1),[],3)/sqrt(length(b2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,2,b1Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,2,b1Ix),1),[],3)/sqrt(length(b1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,2,b2Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,2,b2Ix),1),[],3)/sqrt(length(b2Ix))];
 
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_down(rad_trans_win,b1Ix),1),2) nanstd(nanmean(rad_mat_down(rad_trans_win,b1Ix),1),[],2)/sqrt(length(b1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_down(rad_trans_win,b2Ix),1),2) nanstd(nanmean(rad_mat_down(rad_trans_win,b2Ix),1),[],2)/sqrt(length(b2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,1,b1Ix),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,1,b1Ix),1),[],3)/sqrt(length(b1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,1,b2Ix),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,1,b2Ix),1),[],3)/sqrt(length(b2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,2,b1Ix),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,2,b1Ix),1),[],3)/sqrt(length(b1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,2,b2Ix),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,2,b2Ix),1),[],3)/sqrt(length(b2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_down(push_trans_win,b1Ix),1),2) nanstd(nanmean(rad_mat_down(push_trans_win,b1Ix),1),[],2)/sqrt(length(b1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_down(push_trans_win,b2Ix),1),2) nanstd(nanmean(rad_mat_down(push_trans_win,b2Ix),1),[],2)/sqrt(length(b2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,1,b1Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,1,b1Ix),1),[],3)/sqrt(length(b1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,1,b2Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,1,b2Ix),1),[],3)/sqrt(length(b2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,2,b1Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,2,b1Ix),1),[],3)/sqrt(length(b1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,2,b2Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,2,b2Ix),1),[],3)/sqrt(length(b2Ix))];
 
             mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_rad_sust = [nanmean(nanmean(rad_mat_down(sust_win,b1Ix),1),2) nanstd(nanmean(rad_mat_down(sust_win,b1Ix),1),[],2)/sqrt(length(b1Ix))];
             mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_rad_sust = [nanmean(nanmean(rad_mat_down(sust_win,b2Ix),1),2) nanstd(nanmean(rad_mat_down(sust_win),1),[],2)/sqrt(length(b2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_down(sust_win,1,b1Ix),1),3) nanstd(nanmean(centroid_mat_down(sust_win,1,b1Ix),1),[],3)/sqrt(length(b1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_down(sust_win,1,b2Ix),1),3) nanstd(nanmean(centroid_mat_down(sust_win,1,b2Ix),1),[],3)/sqrt(length(b2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_down(sust_win,2,b1Ix),1),3) nanstd(nanmean(centroid_mat_down(sust_win,2,b1Ix),1),[],3)/sqrt(length(b1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_down(sust_win,2,b2Ix),1),3) nanstd(nanmean(centroid_mat_down(sust_win,2,b2Ix),1),[],3)/sqrt(length(b2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,1,b1Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,1,b1Ix),1),[],3)/sqrt(length(b1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,1,b2Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,1,b2Ix),1),[],3)/sqrt(length(b2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,2,b1Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,2,b1Ix),1),[],3)/sqrt(length(b1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,2,b2Ix),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,2,b2Ix),1),[],3)/sqrt(length(b2Ix))];
 
             %plot change in Pupil radius by outcome type
             successIx = find(strcmp(input.trialOutcomeCell,'success'));
@@ -249,33 +253,33 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.1])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down(:,1,successIx),[],3))./sqrt((length(successIx))), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,successIx),[],3))./sqrt((length(successIx))), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,1,missedIx),[],3))./sqrt((length(missedIx))), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,missedIx),[],3))./sqrt((length(missedIx))), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_down(1,1,:),3))).*[0.9 1.1]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,1,:),3))).*[0.9 1.1]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,successIx),[],3))./sqrt((length(successIx))), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,missedIx),[],3))./sqrt((length(missedIx))), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down(:,2,successIx),[],3))./sqrt((length(successIx))), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,successIx),[],3))./sqrt((length(successIx))), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,2,missedIx),[],3))./sqrt((length(missedIx))), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,missedIx),[],3))./sqrt((length(missedIx))), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_down(1,2,:),3))).*[0.9 1.1]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,2,:),3))).*[0.9 1.1]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,successIx),[],3))./sqrt((length(successIx))), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,missedIx),[],3))./sqrt((length(missedIx))), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle([mouse_name ' ' date_name '- Align to lever down- Black: success; Red: missed'])
                 print([fnout '_avg_pressalign_SM.pdf'], '-dpdf');
             end
@@ -305,33 +309,33 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down(:,1,successIx),[],3))./sqrt(downTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,successIx),[],3))./sqrt(downTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_down(1,1,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,1,:),3))).*[0.8 1.4]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,successIx),[],3))./sqrt(downTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down(:,2,successIx),[],3))./sqrt(downTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,successIx),[],3))./sqrt(downTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_down(1,2,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,2,:),3))).*[0.8 1.4]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,successIx),[],3))./sqrt(downTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle([mouse_name ' ' date_name '- Align to press- Visual only- Black: success; Red: missed'])
                 print([fnout '_avg_pressalign_SM_Vonly.pdf'], '-dpdf');
             end
@@ -339,26 +343,26 @@ function mouse = createEyetrackingStruct(doPlot);
             mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_rad_pre = [nanmean(nanmean(rad_mat_down(pre_win,successIx),1),2) nanstd(nanmean(rad_mat_down(pre_win,successIx),1),[],2)/sqrt(length(successIx))];
             mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_rad_pre = [nanmean(nanmean(rad_mat_down(pre_win,missedIx),1),2) nanstd(nanmean(rad_mat_down(pre_win,missedIx),1),[],2)/sqrt(length(missedIx))];
             mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(4).avg_rad_pre = [nanmean(nanmean(rad_mat_down(pre_win,failureIx),1),2) nanstd(nanmean(rad_mat_down(pre_win,failureIx),1),[],2)/sqrt(length(failureIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_down(pre_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,1,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_hor_pre = [nanmean(nanmean(centroid_mat_down(pre_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(4).avg_hor_pre = [nanmean(nanmean(centroid_mat_down(pre_win,1,failureIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,1,failureIx),1),[],3)/sqrt(length(failureIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_down(pre_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,2,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_ver_pre = [nanmean(nanmean(centroid_mat_down(pre_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(4).avg_ver_pre = [nanmean(nanmean(centroid_mat_down(pre_win,2,failureIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,2,failureIx),1),[],3)/sqrt(length(failureIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,1,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_hor_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(4).avg_hor_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,1,failureIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,1,failureIx),1),[],3)/sqrt(length(failureIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,2,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_ver_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(4).avg_ver_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,2,failureIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,2,failureIx),1),[],3)/sqrt(length(failureIx))];
 
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_rad_trans = [nanmean(nanmean(rad_mat_down(rad_trans_win,successIx),1),2) nanstd(nanmean(rad_mat_down(rad_trans_win,successIx),1),[],2)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_rad_trans = [nanmean(nanmean(rad_mat_down(rad_trans_win,missedIx),1),2) nanstd(nanmean(rad_mat_down(rad_trans_win,missedIx),1),[],2)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,1,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_hor_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,2,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_ver_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_rad_trans = [nanmean(nanmean(rad_mat_down(push_trans_win,successIx),1),2) nanstd(nanmean(rad_mat_down(push_trans_win,successIx),1),[],2)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_rad_trans = [nanmean(nanmean(rad_mat_down(push_trans_win,missedIx),1),2) nanstd(nanmean(rad_mat_down(push_trans_win,missedIx),1),[],2)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,1,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_hor_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,2,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_ver_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
 
             mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_rad_sust = [nanmean(nanmean(rad_mat_down(sust_win,successIx),1),2) nanstd(nanmean(rad_mat_down(sust_win,successIx),1),[],2)/sqrt(length(successIx))];
             mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_rad_sust = [nanmean(nanmean(rad_mat_down(sust_win,missedIx),1),2) nanstd(nanmean(rad_mat_down(sust_win),1),[],2)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_down(sust_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down(sust_win,1,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_hor_sust = [nanmean(nanmean(centroid_mat_down(sust_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down(sust_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_down(sust_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down(sust_win,2,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_ver_sust = [nanmean(nanmean(centroid_mat_down(sust_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down(sust_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,1,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_hor_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,2,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(1).outcome(3).avg_ver_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
 
             %hit and miss for A trials only
             successIx = intersect(b2Ix, find(strcmp(input.trialOutcomeCell,'success')));
@@ -383,33 +387,33 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down(:,1,successIx),[],3))./sqrt(downTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,successIx),[],3))./sqrt(downTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_down(1,1,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,1,:),3))).*[0.8 1.4]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,successIx),[],3))./sqrt(downTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,1,missedIx),[],3))./sqrt(downTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down(:,2,successIx),[],3))./sqrt(downTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,successIx),[],3))./sqrt(downTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_down(1,2,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_down_deg(1,2,:),3))).*[0.8 1.4]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,successIx),[],3))./sqrt(downTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_down_base(:,2,missedIx),[],3))./sqrt(downTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle([mouse_name ' ' date_name '- Align to press- Auditory only- Black: success; Red: missed'])
                 print([fnout '_avg_pressalign_SM_Aonly.pdf'], '-dpdf');
             end
@@ -417,32 +421,33 @@ function mouse = createEyetrackingStruct(doPlot);
             mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_rad_pre = [nanmean(nanmean(rad_mat_down(pre_win,successIx),1),2) nanstd(nanmean(rad_mat_down(pre_win,successIx),1),[],2)/sqrt(length(successIx))];
             mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_rad_pre = [nanmean(nanmean(rad_mat_down(pre_win,missedIx),1),2) nanstd(nanmean(rad_mat_down(pre_win,missedIx),1),[],2)/sqrt(length(missedIx))];
             mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(4).avg_rad_pre = [nanmean(nanmean(rad_mat_down(pre_win,failureIx),1),2) nanstd(nanmean(rad_mat_down(pre_win,failureIx),1),[],2)/sqrt(length(failureIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_down(pre_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,1,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_hor_pre = [nanmean(nanmean(centroid_mat_down(pre_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(4).avg_hor_pre = [nanmean(nanmean(centroid_mat_down(pre_win,1,failureIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,1,failureIx),1),[],3)/sqrt(length(failureIx))];            
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_down(pre_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,2,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_ver_pre = [nanmean(nanmean(centroid_mat_down(pre_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(4).avg_ver_pre = [nanmean(nanmean(centroid_mat_down(pre_win,2,failureIx),1),3) nanstd(nanmean(centroid_mat_down(pre_win,2,failureIx),1),[],3)/sqrt(length(failureIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,1,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_hor_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(4).avg_hor_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,1,failureIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,1,failureIx),1),[],3)/sqrt(length(failureIx))];            
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,2,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_ver_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(4).avg_ver_pre = [nanmean(nanmean(centroid_mat_down_deg(pre_win,2,failureIx),1),3) nanstd(nanmean(centroid_mat_down_deg(pre_win,2,failureIx),1),[],3)/sqrt(length(failureIx))];
 
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_rad_trans = [nanmean(nanmean(rad_mat_down(rad_trans_win,successIx),1),2) nanstd(nanmean(rad_mat_down(rad_trans_win,successIx),1),[],2)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_rad_trans = [nanmean(nanmean(rad_mat_down(rad_trans_win,missedIx),1),2) nanstd(nanmean(rad_mat_down(rad_trans_win,missedIx),1),[],2)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,1,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_hor_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,2,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_ver_trans = [nanmean(nanmean(centroid_mat_down(cen_trans_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down(cen_trans_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_rad_trans = [nanmean(nanmean(rad_mat_down(push_trans_win,successIx),1),2) nanstd(nanmean(rad_mat_down(push_trans_win,successIx),1),[],2)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_rad_trans = [nanmean(nanmean(rad_mat_down(push_trans_win,missedIx),1),2) nanstd(nanmean(rad_mat_down(push_trans_win,missedIx),1),[],2)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,1,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_hor_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,2,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_ver_trans = [nanmean(nanmean(centroid_mat_down_deg(push_trans_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(push_trans_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
 
             mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_rad_sust = [nanmean(nanmean(rad_mat_down(sust_win,successIx),1),2) nanstd(nanmean(rad_mat_down(sust_win,successIx),1),[],2)/sqrt(length(successIx))];
             mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_rad_sust = [nanmean(nanmean(rad_mat_down(sust_win,missedIx),1),2) nanstd(nanmean(rad_mat_down(sust_win),1),[],2)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_down(sust_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down(sust_win,1,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_hor_sust = [nanmean(nanmean(centroid_mat_down(sust_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down(sust_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_down(sust_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down(sust_win,2,successIx),1),[],3)/sqrt(length(successIx))];
-            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_ver_sust = [nanmean(nanmean(centroid_mat_down(sust_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down(sust_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,1,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,1,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_hor_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,1,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,1,missedIx),1),[],3)/sqrt(length(missedIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,2,successIx),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,2,successIx),1),[],3)/sqrt(length(successIx))];
+            mouse(imouse).expt(s(:,imouse)).align(1).av(2).outcome(3).avg_ver_sust = [nanmean(nanmean(centroid_mat_down_deg(sust_win,2,missedIx),1),3) nanstd(nanmean(centroid_mat_down_deg(sust_win,2,missedIx),1),[],3)/sqrt(length(missedIx))];
 
 
 
             %% plot change in pupil radius locked to lever up
             rad_mat_up_base = bsxfun(@rdivide, rad_mat_up, mean(rad_mat_down(1:15,:),1));
-            centroid_mat_up_base = bsxfun(@minus, centroid_mat_up, mean(centroid_mat_down(1:15,:,:),1));
+            centroid_mat_up_deg = (centroid_mat_up./(pi.*3.2)).*360;
+            centroid_mat_up_base = bsxfun(@minus, centroid_mat_up_deg, mean(centroid_mat_up_deg(1:15,:,:),1));
             centroid_mat_up_base(:,2,:) = -1*centroid_mat_up_base(:,2,:);
             
             tt = (1-prerelease_frames:postrelease_frames).*(1000/frame_rate);
@@ -571,18 +576,18 @@ function mouse = createEyetrackingStruct(doPlot);
             mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_rad_pre = [nanmean(nanmean(rad_mat_up(pre_win,Fb1Ix),1),2) nanstd(nanmean(rad_mat_up(pre_win,Fb1Ix),1),[],2)/sqrt(length(Fb1Ix))];
             mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_rad_pre = [nanmean(nanmean(rad_mat_up(pre_win,Fb2Ix),1),2) nanstd(nanmean(rad_mat_up(pre_win,Fb2Ix),1),[],2)/sqrt(length(Fb2Ix))];
            
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_up(pre_win,1,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up(pre_win,1,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_up(pre_win,1,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up(pre_win,1,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_up(pre_win,2,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up(pre_win,2,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_up(pre_win,2,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up(pre_win,2,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_up(pre_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up(pre_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_up(pre_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up(pre_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_up(pre_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up(pre_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_up(pre_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up(pre_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_hor_pre = [nanmean(nanmean(centroid_mat_up(pre_win,1,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up(pre_win,1,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_hor_pre = [nanmean(nanmean(centroid_mat_up(pre_win,1,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up(pre_win,1,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_ver_pre = [nanmean(nanmean(centroid_mat_up(pre_win,2,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up(pre_win,2,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_ver_pre = [nanmean(nanmean(centroid_mat_up(pre_win,2,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up(pre_win,2,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,1,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,1,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,1,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,1,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,2,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,2,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,2,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,2,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_hor_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,1,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,1,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_hor_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,1,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,1,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_ver_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,2,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,2,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_ver_pre = [nanmean(nanmean(centroid_mat_up_deg(pre_win,2,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(pre_win,2,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
 
             mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_up(trans_win,[Sb1Ix Fb1Ix]),1),2) nanstd(nanmean(rad_mat_up(trans_win,[Sb1Ix Fb1Ix]),1),[],2)/sqrt(length([Sb1Ix Fb1Ix]))];
             mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_up(trans_win,[Sb2Ix Fb2Ix]),1),2) nanstd(nanmean(rad_mat_up(trans_win,[Sb2Ix Fb2Ix]),1),[],2)/sqrt(length([Sb2Ix Fb2Ix]))];
@@ -591,18 +596,18 @@ function mouse = createEyetrackingStruct(doPlot);
             mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_rad_trans = [nanmean(nanmean(rad_mat_up(trans_win,Fb1Ix),1),2) nanstd(nanmean(rad_mat_up(trans_win,Fb1Ix),1),[],2)/sqrt(length(Fb1Ix))];
             mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_rad_trans = [nanmean(nanmean(rad_mat_up(trans_win,Fb2Ix),1),2) nanstd(nanmean(rad_mat_up(trans_win,Fb2Ix),1),[],2)/sqrt(length(Fb2Ix))];
            
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_up(trans_win,1,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up(trans_win,1,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_up(trans_win,1,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up(trans_win,1,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_up(trans_win,2,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up(trans_win,2,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_up(trans_win,2,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up(trans_win,2,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_up(trans_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up(trans_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_up(trans_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up(trans_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_up(trans_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up(trans_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_up(trans_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up(trans_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_hor_trans = [nanmean(nanmean(centroid_mat_up(trans_win,1,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up(trans_win,1,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_hor_trans = [nanmean(nanmean(centroid_mat_up(trans_win,1,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up(trans_win,1,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_ver_trans = [nanmean(nanmean(centroid_mat_up(trans_win,2,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up(trans_win,2,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_ver_trans = [nanmean(nanmean(centroid_mat_up(trans_win,2,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up(trans_win,2,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,1,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,1,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,1,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,1,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,2,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,2,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,2,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,2,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_hor_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,1,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,1,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_hor_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,1,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,1,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_ver_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,2,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,2,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_ver_trans = [nanmean(nanmean(centroid_mat_up_deg(trans_win,2,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(trans_win,2,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
     
             mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_rad_sust = [nanmean(nanmean(rad_mat_up(sust_win,[Sb1Ix Fb1Ix]),1),2) nanstd(nanmean(rad_mat_up(sust_win,[Sb1Ix Fb1Ix]),1),[],2)/sqrt(length([Sb1Ix Fb1Ix]))];
             mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_rad_sust = [nanmean(nanmean(rad_mat_up(sust_win,[Sb2Ix Fb2Ix]),1),2) nanstd(nanmean(rad_mat_up(sust_win,[Sb2Ix Fb2Ix]),1),[],2)/sqrt(length([Sb2Ix Fb2Ix]))];
@@ -611,23 +616,24 @@ function mouse = createEyetrackingStruct(doPlot);
             mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_rad_sust = [nanmean(nanmean(rad_mat_up(sust_win,Fb1Ix),1),2) nanstd(nanmean(rad_mat_up(sust_win,Fb1Ix),1),[],2)/sqrt(length(Fb1Ix))];
             mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_rad_sust = [nanmean(nanmean(rad_mat_up(sust_win,Fb2Ix),1),2) nanstd(nanmean(rad_mat_up(sust_win,Fb2Ix),1),[],2)/sqrt(length(Fb2Ix))];
            
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_up(sust_win,1,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up(sust_win,1,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_up(sust_win,1,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up(sust_win,1,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_up(sust_win,2,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up(sust_win,2,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_up(sust_win,2,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up(sust_win,2,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_up(sust_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up(sust_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_up(sust_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up(sust_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_up(sust_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up(sust_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_up(sust_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up(sust_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_hor_sust = [nanmean(nanmean(centroid_mat_up(sust_win,1,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up(sust_win,1,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_hor_sust = [nanmean(nanmean(centroid_mat_up(sust_win,1,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up(sust_win,1,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_ver_sust = [nanmean(nanmean(centroid_mat_up(sust_win,2,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up(sust_win,2,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_ver_sust = [nanmean(nanmean(centroid_mat_up(sust_win,2,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up(sust_win,2,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,1,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,1,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,1,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,1,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,2,[Sb1Ix Fb1Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,2,[Sb1Ix Fb1Ix]),1),[],3)/sqrt(length([Sb1Ix Fb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,2,[Sb2Ix Fb2Ix]),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,2,[Sb2Ix Fb2Ix]),1),[],3)/sqrt(length([Sb2Ix Fb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_hor_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,1,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,1,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_hor_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,1,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,1,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(1).outcome(4).avg_ver_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,2,Fb1Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,2,Fb1Ix),1),[],3)/sqrt(length(Fb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(2).av(2).outcome(4).avg_ver_sust = [nanmean(nanmean(centroid_mat_up_deg(sust_win,2,Fb2Ix),1),3) nanstd(nanmean(centroid_mat_up_deg(sust_win,2,Fb2Ix),1),[],3)/sqrt(length(Fb2Ix))];
     
 
         %% plot change in Pupil radius locked to target
             rad_mat_target_base = bsxfun(@rdivide, rad_mat_target, mean(rad_mat_down(1:15,:),1));
-            centroid_mat_target_base = bsxfun(@minus, centroid_mat_target, mean(centroid_mat_down(1:15,:,:),1));
+            centroid_mat_target_deg = (centroid_mat_target./(pi.*3.2)).*360;
+            centroid_mat_target_base = bsxfun(@minus, centroid_mat_target_deg, mean(centroid_mat_target_deg(1:15,:,:),1));
             centroid_mat_target_base(:,2,:) = -1*centroid_mat_target_base(:,2,:);
             
             if doPlot
@@ -645,26 +651,26 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,:),3)), squeeze(nanstd(centroid_mat_target(:,1,:),[],3))./sqrt(nonan_trials));
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,:),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,:),[],3))./sqrt(nonan_trials));
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,1,:),3))).*[0.8 1.4]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,:),3)), squeeze(nanstd(centroid_mat_target_base(:,1,:),[],3))./sqrt(nonan_trials));
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,:),3)), squeeze(nanstd(centroid_mat_target(:,2,:),[],3))./sqrt(nonan_trials));
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,:),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,:),[],3))./sqrt(nonan_trials));
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
                 suptitle('Align to target')
-                ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,2,:),3))).*[0.8 1.4]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,:),3)), squeeze(nanstd(centroid_mat_target_base(:,2,:),[],3))./sqrt(nonan_trials));
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 print([fnout '_avg_targetalign.pdf'], '-dpdf');
             end
 
@@ -691,33 +697,33 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target(:,1,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,1,:),3))).*[0.8 1.4]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target(:,2,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,2,:),3))).*[0.8 1.4]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,2,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle('Align to target- Black:auditory Green: visual')
                 print([fnout '_avg_targetalign_AV.pdf'], '-dpdf');
             end
@@ -745,33 +751,33 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target(:,1,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,1,:),3))).*[0.8 1.4]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target(:,2,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,2,:),3))).*[0.8 1.4]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,2,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,2,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle('Align to target- Success only Black:auditory Green: visual')
                 print([fnout '_avg_targetalign_AV_Sonly.pdf'], '-dpdf');
             end
@@ -800,33 +806,33 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,1,:),3))).*[0.8 1.4]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,2,:),3))).*[0.8 1.4]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle('Align to target- Black: success; Red: missed')
                 print([fnout '_avg_targetalign_SM.pdf'], '-dpdf');
             end
@@ -856,33 +862,33 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,1,:),3))).*[0.8 1.4]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,2,:),3))).*[0.8 1.4]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle('Align to target- Visual only- Black: success; Red: missed')
                 print([fnout '_avg_targetalign_SM_Vonly.pdf'], '-dpdf');
             end
@@ -910,38 +916,38 @@ function mouse = createEyetrackingStruct(doPlot);
                 ylabel('Pupil radius')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([squeeze((nanmean(centroid_mat_target(1,1,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,1,:),3))).*[0.8 1.4]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,1,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 subplot(3,2,5)
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
-                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
+                shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([squeeze((nanmean(centroid_mat_target(1,2,:),3))).*[0.8 1.4]])
+                ylim([squeeze((nanmean(centroid_mat_target_deg(1,2,:),3))).*[0.8 1.4]])
                 subplot(3,2,6)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,successIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,successIx),[],3))./sqrt(targetTrS), '-k');
                 hold on
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,2,missedIx),3)), squeeze(nanstd(centroid_mat_target_base(:,2,missedIx),[],3))./sqrt(targetTrM), '-r');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Vertical')
-                ylim([-.1 .1])
+                ylim([-4 4])
                 suptitle('Align to target- Auditory only- Black: success; Red: missed')
                 print([fnout '_avg_targetalign_SM_Aonly.pdf'], '-dpdf');
             end
             
-            trans_win = pretarget_frames+round(pretarget_frames/7):pretarget_frames+round(pretarget_frames/2);
+            release_trans_win = unique(pretarget_frames+ceil(release_trans_win_time.*(frame_rate/1000)));
             sust_win = 2*(pretarget_frames):3*(pretarget_frames);
             pre_win = 1:pretarget_frames;
             Sb1Ix = intersect(b1Ix, find(strcmp(input.trialOutcomeCell,'success')));
@@ -956,38 +962,38 @@ function mouse = createEyetrackingStruct(doPlot);
             mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_rad_pre = [nanmean(nanmean(rad_mat_target(pre_win,Mb1Ix),1),2) nanstd(nanmean(rad_mat_target(pre_win,Mb1Ix),1),[],2)/sqrt(length(Mb1Ix))];
             mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_rad_pre = [nanmean(nanmean(rad_mat_target(pre_win,Mb2Ix),1),2) nanstd(nanmean(rad_mat_target(pre_win,Mb2Ix),1),[],2)/sqrt(length(Mb2Ix))];
            
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_target(pre_win,1,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target(pre_win,1,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_target(pre_win,1,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target(pre_win,1,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_target(pre_win,2,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target(pre_win,2,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_target(pre_win,2,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target(pre_win,2,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_target(pre_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target(pre_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_target(pre_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target(pre_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_target(pre_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target(pre_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_target(pre_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target(pre_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_hor_pre = [nanmean(nanmean(centroid_mat_target(pre_win,1,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target(pre_win,1,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_hor_pre = [nanmean(nanmean(centroid_mat_target(pre_win,1,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target(pre_win,1,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_ver_pre = [nanmean(nanmean(centroid_mat_target(pre_win,2,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target(pre_win,2,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_ver_pre = [nanmean(nanmean(centroid_mat_target(pre_win,2,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target(pre_win,2,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,1,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,1,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_hor_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,1,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,1,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,2,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,2,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_ver_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,2,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,2,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_hor_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_ver_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_hor_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,1,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,1,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_hor_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,1,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,1,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_ver_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,2,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,2,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_ver_pre = [nanmean(nanmean(centroid_mat_target_deg(pre_win,2,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(pre_win,2,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
 
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_target(trans_win,[Sb1Ix Mb1Ix]),1),2) nanstd(nanmean(rad_mat_target(trans_win,[Sb1Ix Mb1Ix]),1),[],2)/sqrt(length([Sb1Ix Mb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_target(trans_win,[Sb2Ix Mb2Ix]),1),2) nanstd(nanmean(rad_mat_target(trans_win,[Sb2Ix Mb2Ix]),1),[],2)/sqrt(length([Sb2Ix Mb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_rad_trans = [nanmean(nanmean(rad_mat_target(trans_win,Sb1Ix),1),2) nanstd(nanmean(rad_mat_target(trans_win,Sb1Ix),1),[],2)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_rad_trans = [nanmean(nanmean(rad_mat_target(trans_win,Sb2Ix),1),2) nanstd(nanmean(rad_mat_target(trans_win,Sb2Ix),1),[],2)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_rad_trans = [nanmean(nanmean(rad_mat_target(trans_win,Mb1Ix),1),2) nanstd(nanmean(rad_mat_target(trans_win,Mb1Ix),1),[],2)/sqrt(length(Mb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_rad_trans = [nanmean(nanmean(rad_mat_target(trans_win,Mb2Ix),1),2) nanstd(nanmean(rad_mat_target(trans_win,Mb2Ix),1),[],2)/sqrt(length(Mb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_target(release_trans_win,[Sb1Ix Mb1Ix]),1),2) nanstd(nanmean(rad_mat_target(release_trans_win,[Sb1Ix Mb1Ix]),1),[],2)/sqrt(length([Sb1Ix Mb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_rad_trans = [nanmean(nanmean(rad_mat_target(release_trans_win,[Sb2Ix Mb2Ix]),1),2) nanstd(nanmean(rad_mat_target(release_trans_win,[Sb2Ix Mb2Ix]),1),[],2)/sqrt(length([Sb2Ix Mb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_rad_trans = [nanmean(nanmean(rad_mat_target(release_trans_win,Sb1Ix),1),2) nanstd(nanmean(rad_mat_target(release_trans_win,Sb1Ix),1),[],2)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_rad_trans = [nanmean(nanmean(rad_mat_target(release_trans_win,Sb2Ix),1),2) nanstd(nanmean(rad_mat_target(release_trans_win,Sb2Ix),1),[],2)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_rad_trans = [nanmean(nanmean(rad_mat_target(release_trans_win,Mb1Ix),1),2) nanstd(nanmean(rad_mat_target(release_trans_win,Mb1Ix),1),[],2)/sqrt(length(Mb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_rad_trans = [nanmean(nanmean(rad_mat_target(release_trans_win,Mb2Ix),1),2) nanstd(nanmean(rad_mat_target(release_trans_win,Mb2Ix),1),[],2)/sqrt(length(Mb2Ix))];
            
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_target(trans_win,1,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target(trans_win,1,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_target(trans_win,1,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target(trans_win,1,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_target(trans_win,2,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target(trans_win,2,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_target(trans_win,2,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target(trans_win,2,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_target(trans_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target(trans_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_target(trans_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target(trans_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_target(trans_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target(trans_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_target(trans_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target(trans_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_hor_trans = [nanmean(nanmean(centroid_mat_target(trans_win,1,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target(trans_win,1,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_hor_trans = [nanmean(nanmean(centroid_mat_target(trans_win,1,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target(trans_win,1,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_ver_trans = [nanmean(nanmean(centroid_mat_target(trans_win,2,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target(trans_win,2,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_ver_trans = [nanmean(nanmean(centroid_mat_target(trans_win,2,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target(trans_win,2,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,1,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,1,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_hor_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,1,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,1,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,2,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,2,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_ver_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,2,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,2,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_hor_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_ver_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_hor_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,1,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,1,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_hor_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,1,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,1,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_ver_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,2,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,2,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_ver_trans = [nanmean(nanmean(centroid_mat_target_deg(release_trans_win,2,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(release_trans_win,2,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
     
             mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_rad_sust = [nanmean(nanmean(rad_mat_target(sust_win,[Sb1Ix Mb1Ix]),1),2) nanstd(nanmean(rad_mat_target(sust_win,[Sb1Ix Mb1Ix]),1),[],2)/sqrt(length([Sb1Ix Mb1Ix]))];
             mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_rad_sust = [nanmean(nanmean(rad_mat_target(sust_win,[Sb2Ix Mb2Ix]),1),2) nanstd(nanmean(rad_mat_target(sust_win,[Sb2Ix Mb2Ix]),1),[],2)/sqrt(length([Sb2Ix Mb2Ix]))];
@@ -996,18 +1002,18 @@ function mouse = createEyetrackingStruct(doPlot);
             mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_rad_sust = [nanmean(nanmean(rad_mat_target(sust_win,Mb1Ix),1),2) nanstd(nanmean(rad_mat_target(sust_win,Mb1Ix),1),[],2)/sqrt(length(Mb1Ix))];
             mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_rad_sust = [nanmean(nanmean(rad_mat_target(sust_win,Mb2Ix),1),2) nanstd(nanmean(rad_mat_target(sust_win,Mb2Ix),1),[],2)/sqrt(length(Mb2Ix))];
            
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_target(sust_win,1,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target(sust_win,1,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_target(sust_win,1,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target(sust_win,1,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_target(sust_win,2,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target(sust_win,2,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_target(sust_win,2,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target(sust_win,2,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_target(sust_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target(sust_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_target(sust_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target(sust_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_target(sust_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target(sust_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_target(sust_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target(sust_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_hor_sust = [nanmean(nanmean(centroid_mat_target(sust_win,1,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target(sust_win,1,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_hor_sust = [nanmean(nanmean(centroid_mat_target(sust_win,1,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target(sust_win,1,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_ver_sust = [nanmean(nanmean(centroid_mat_target(sust_win,2,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target(sust_win,2,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
-            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_ver_sust = [nanmean(nanmean(centroid_mat_target(sust_win,2,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target(sust_win,2,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))]; 
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,1,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,1,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_hor_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,1,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,1,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,2,[Sb1Ix Mb1Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,2,[Sb1Ix Mb1Ix]),1),[],3)/sqrt(length([Sb1Ix Mb1Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(1).avg_ver_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,2,[Sb2Ix Mb2Ix]),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,2,[Sb2Ix Mb2Ix]),1),[],3)/sqrt(length([Sb2Ix Mb2Ix]))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,1,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,1,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_hor_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,1,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,1,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,2,Sb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,2,Sb1Ix),1),[],3)/sqrt(length(Sb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(2).avg_ver_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,2,Sb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,2,Sb2Ix),1),[],3)/sqrt(length(Sb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_hor_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,1,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,1,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_hor_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,1,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,1,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(1).outcome(3).avg_ver_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,2,Mb1Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,2,Mb1Ix),1),[],3)/sqrt(length(Mb1Ix))];
+            mouse(imouse).expt(s(:,imouse)).align(3).av(2).outcome(3).avg_ver_sust = [nanmean(nanmean(centroid_mat_target_deg(sust_win,2,Mb2Ix),1),3) nanstd(nanmean(centroid_mat_target_deg(sust_win,2,Mb2Ix),1),[],3)/sqrt(length(Mb2Ix))]; 
             
        end
     end
