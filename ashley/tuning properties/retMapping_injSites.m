@@ -1,12 +1,12 @@
 % experiment specs
-expt(1).SubNum = '626';
-expt(1).mouse = 'AW26';
-expt(1).date = '160119';
-expt(1).dateFolder = '160119b';
-expt(1).img_loc  = {'V1';'V1';'AL';'AL';'PM';'PM'};
-expt(1).visstim  = {'drifting';'static';'drifting';'static';'drifting';'static'};
-expt(1).time_mat = ['1848'; '1855'; '1902';'1909';'1915';'1921'];
-expt(1).runs = ['001'; '002'; '003';'004'; '005'; '006'];
+expt(1).SubNum = '617';
+expt(1).mouse = 'AW17';
+expt(1).date = '160511';
+expt(1).dateFolder = '160511';
+expt(1).img_loc  = {'V1';'AL'};
+expt(1).visstim  = {'drifting';'drifting'};
+expt(1).time_mat = ['1334'; '1345'];
+expt(1).runs = ['001'; '002'];
 expt(1).nrun = size(expt(1).runs,1);
 expt(1).frame_rate = 30;
 expt(1).folder = 'two-photon imaging';
@@ -18,6 +18,8 @@ date = expt(1).date;
 
 sites = unique(expt(1).img_loc);
 visstim = unique(expt(1).visstim);
+
+down = 5;
 
 
 
@@ -43,7 +45,6 @@ for irun = 1:expt(1).nrun
     toc
     data = squeeze(data);    
 %%
-    down = 5;
     data_down = stackGroupProject(data,down);
     clear data
     data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
@@ -71,9 +72,8 @@ for irun = 1:expt(1).nrun
     writetiff(data_reg, 'Retinotopy');
     clear data_reg
 end
-
 %% if data already registered
-for irun = 5:expt(1).nrun
+for irun = 1:expt(1).nrun
     time = expt(1).time_mat(irun,:);
     ImgFolder = expt(1).runs(irun,:);
     mworks = ['data-' 'i' SubNum '-' date '-' time]; 
@@ -148,7 +148,6 @@ for irun = 5:expt(1).nrun
     fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
     cd(fileSave);
     save('mask&TCDir.mat','neuropil','mask_cell','data_TC');
-    save('regImg.mat', 'data_avg');
     %% 
     VSsize = input.gratingDiameterDeg;
     VSdirectionDeg = input.gratingDirectionDeg;

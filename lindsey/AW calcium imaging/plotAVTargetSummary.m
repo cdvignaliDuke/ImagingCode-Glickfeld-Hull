@@ -55,6 +55,7 @@ set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 % set(0,'DefaultaxesFontSize', 16)
 figure;
 i = 1;
+% tt = -pre_event_frames:mouse(1).expt(1).info.minTrialLengthFrames-1;
 tt = -pre_event_frames:post_event_frames-1;
 ttMs = tt/(cycTime/cycTimeMs);
 resp = [];
@@ -103,6 +104,12 @@ title(['All cells; n = ' num2str(size(resp,2))])
 suptitle({titleStr, 'Hits: Black; FAs: Cyan; CR: Blue; Auditory: Green'})
 print([fnout 'release_align_TCs' datasetStr '.pdf'], '-dpdf')
 
+%%
+avgCellRespHeatMap_target
+%%
+set(0,'defaultfigurepaperorientation','portrait');
+set(0,'defaultfigurepapersize',[8.5 11]);
+set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 %% plot H V FA & CR for vis and aud trials
 figure
 subplot(3,2,1)

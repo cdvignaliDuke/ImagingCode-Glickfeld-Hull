@@ -184,7 +184,7 @@ expt(8).rettuning = {'005';'1555'};
 expt(8).motionTestBimodal = 0;
 expt(8).z = 299;
 
-%% AW25 150316 - 100ms
+%% AW25 160316 - 100ms
 expt(9).SubNum = '625';
 expt(9).mouse = 'AW25';
 expt(9).date = '160316';

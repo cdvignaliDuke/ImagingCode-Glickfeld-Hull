@@ -1,11 +1,11 @@
 clear all
 close all
 %% load 2P imaging data
-date = '160229';
-ImgFolder = '002';
+date = '160418';
+ImgFolder = '001';
 mouse = 'Retina';
-fName = '002_000_002';
-expt = '002';
+fName = '001_000_000';
+expt = '001';
 
 % Set current directory to imaging data location
 CD = ['Z:\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
@@ -51,47 +51,55 @@ figure; imagesq(data_avg); colormap(gray)
 [out data_reg] = stackRegister(data_sub, data_avg);
 clear data_sub
 %%
+F = mean(data,3);
+dFoverF = bsxfun(@rdivide,bsxfun(@minus,double(data),F),F);
+
+writetiff(dFoverF,'dFoverF_all')
+
 F = mean(data_reg,3);
 dFoverF = bsxfun(@rdivide,bsxfun(@minus,data_reg,F),F);
 
 writetiff(data_reg,'dwnsmplF');
-writetiff(dFoverF,'dFoverF');
+writetiff(dFoverF,'dFoverF_dwnsmplF');
 
-max_dFoverF = max(dFoverF,[],3);
 
 %%
+max_dFoverF = max(dFoverF,[],3);
+
 bwout = imCellEditInteractive(max_dFoverF);
 mask_cell = bwlabel(bwout);
 
 data_TC = stackGetTimeCourses(data,mask_cell);
-figure; tcOffsetPlot(data_TC)
+figure; plot(data_TC)
+xlabel('t(frames)')
+ylabel('dF/F')
 save('rawCellTimecoursesAndMask.mat','mask_cell','data_TC')
 writetiff(max_dFoverF,'max_dFoverF')
 
-%% dF/F timecourses
-%for lights on before scanning expt
-timecourses = figure;
-F = mean(data_TC(end-100:end,:),1);
-dFoverF = bsxfun(@rdivide,bsxfun(@minus,data_TC,F),F);
-
-figure(timecourses);
-plot(dFoverF)
-vline([size(data_TC,1)-100 size(data_TC,1)],'k')
-title({'F = last 100 frames';['expt ' fName})
-
-%for temperature expt
-timecourses = figure;
-F = mean(data_TC(1:100,:),1);
-dFoverF = bsxfun(@rdivide,bsxfun(@minus,data_TC,F),F);
-
-figure(timecourses);
-plot(dFoverF)
-vline([1 100],'k')
-title('F = first 100 frames')
-
-%save fig and dF/F timecourses
-save('dFoverFtimecourses.fig','timecourses')
-save('dFoverFtimecourses.mat','dFoverF')
+% %% dF/F timecourses
+% %for lights on before scanning expt
+% timecourses = figure;
+% F = mean(data_TC(end-100:end,:),1);
+% dFoverF = bsxfun(@rdivide,bsxfun(@minus,data_TC,F),F);
+% 
+% figure(timecourses);
+% plot(dFoverF)
+% vline([size(data_TC,1)-100 size(data_TC,1)],'k')
+% title({'F = last 100 frames';['expt ' fName})
+% 
+% %for temperature expt
+% timecourses = figure;
+% F = mean(data_TC(1:100,:),1);
+% dFoverF = bsxfun(@rdivide,bsxfun(@minus,data_TC,F),F);
+% 
+% figure(timecourses);
+% plot(dFoverF)
+% vline([1 100],'k')
+% title('F = first 100 frames')
+% 
+% %save fig and dF/F timecourses
+% save('dFoverFtimecourses.fig','timecourses')
+% save('dFoverFtimecourses.mat','dFoverF')
 
 
 % %% split into first and second half of experiment
