@@ -10,7 +10,7 @@ function mouse = createEyetrackingStruct(doPlot);
     push_trans_win_time = [500:1000];
     release_trans_win_time = [150:250];
     mice = unique({expt.SubNum});
-    nMice = length(mice);
+    nMice = 1; %length(mice);
     str = unique({expt.SubNum});
     values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
     mouse_str = ['i' strjoin(str,'_i')];
@@ -450,7 +450,7 @@ function mouse = createEyetrackingStruct(doPlot);
             %% plot change in pupil radius locked to lever up
             rad_mat_up_base = bsxfun(@rdivide, rad_mat_up, mean(rad_mat_down(1:15,:),1));
             centroid_mat_up_deg = (centroid_mat_up./(pi.*3.2)).*360;
-            centroid_mat_up_base = bsxfun(@minus, centroid_mat_up_deg, mean(centroid_mat_up_deg(1:15,:,:),1));
+            centroid_mat_up_base = bsxfun(@minus, centroid_mat_up_deg, mean(centroid_mat_down_deg(1:15,:,:),1));
             centroid_mat_up_base(:,2,:) = -1*centroid_mat_up_base(:,2,:);
             
             tt = (1-prerelease_frames:postrelease_frames).*(1000/frame_rate);
@@ -636,7 +636,7 @@ function mouse = createEyetrackingStruct(doPlot);
         %% plot change in Pupil radius locked to target
             rad_mat_target_base = bsxfun(@rdivide, rad_mat_target, mean(rad_mat_down(1:15,:),1));
             centroid_mat_target_deg = (centroid_mat_target./(pi.*3.2)).*360;
-            centroid_mat_target_base = bsxfun(@minus, centroid_mat_target_deg, mean(centroid_mat_target_deg(1:15,:,:),1));
+            centroid_mat_target_base = bsxfun(@minus, centroid_mat_target_deg, mean(centroid_mat_down_deg(1:15,:,:),1));
             centroid_mat_target_base(:,2,:) = -1*centroid_mat_target_base(:,2,:);
             
             if doPlot

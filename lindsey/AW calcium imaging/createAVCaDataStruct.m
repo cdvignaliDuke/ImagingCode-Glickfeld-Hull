@@ -5,7 +5,7 @@ function mouse = createAVCaDataStruct(datasetStr);
     pre_event_time = 1000;
     post_event_time = 3000; 
     pre_win_time = [-30 70];
-    trans_win_time = [150 250];
+    trans_win_time = [150 250]; %this is actually ~166-266 ms at 30 Hz
     minTrialLengthMs = 2500; % time in ms of trial rather than hard-coding cycle number for analysis
     
     %load experiment parameters
