@@ -56,9 +56,11 @@ resp_dir_ind = find(sum(h_dir,1)>0);
 h_ori = zeros(nStim/2, size(dFoverFCellsTrials,2));
 dFoverF_OriResp_avg = zeros(nStim/2, size(dFoverFCellsTrials,2));
 dFoverF_OriResp_sem = zeros(nStim/2, size(dFoverFCellsTrials,2));
+dFoverF_OriResp_TC = zeros(nStim/2,size(dFoverFCellsTrials,1),size(dFoverFCellsTrials,2));
 for i = 1:nStim/2
     trials = find(DirectionDeg(:,1:nTrials) == Dirs(i) | DirectionDeg(:,1:nTrials) == Dirs(i+nStim/2));
     dFoverF_OriResp_avg(i,:) = squeeze(mean(mean(dFoverFCellsTrials(resp_win,:,trials),1),3) - mean(mean(dFoverFCellsTrials(base_win,:,trials),1),3));
+    dFoverF_OriResp_TC(i,:,:) = mean(dFoverFCellsTrials(:,:,trials),3);
     dFoverF_OriResp_sem(i,:) = squeeze(std(mean(dFoverFCellsTrials(resp_win,:,trials),1) - mean(dFoverFCellsTrials(base_win,:,trials),1), [],3))./(sqrt(length(trials)));
     [h_ori(i,:), p] = ttest(mean(dFoverFCellsTrials(resp_win,:,trials),1), mean(dFoverFCellsTrials(base_win,:,trials),1), 'dim', 3, 'tail', 'right', 'alpha', 0.05); 
 end
@@ -155,7 +157,7 @@ end
 cellsSelect{iOri+1} = untuned_ind;
 cellsSelect{iOri+2} = intersect(find(~isnan(ori_ind_all)), find(OSI>0.3));
 
-save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect');
+save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
 end
 
 
