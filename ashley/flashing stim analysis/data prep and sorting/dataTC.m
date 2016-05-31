@@ -1,7 +1,7 @@
 % edit Load_SBXdataset_fast.m
 %%
 
-awFSAVdatasets_AL
+awFSAVdatasets_naive100ms
 % for iexp = 1:size(expt,2)
     iexp = 1;
 
@@ -24,7 +24,7 @@ clear data_sub
 % figure; imagesq(data_avg); colormap(gray)
 
 %get direction tuning registration image and get cells
-dirFolder = '005';
+dirFolder = expt(iexp).dirtuning;
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileDirMasks);
 load('regImg.mat');
