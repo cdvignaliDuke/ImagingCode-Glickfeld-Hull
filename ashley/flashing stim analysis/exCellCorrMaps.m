@@ -1,9 +1,15 @@
-datasetStr = [''];
+datasetStr = ['_V1'];
 cellsInd = 14;
 
 av = behavParamsAV;
 eval(['awFSAVdatasets' datasetStr])
 rc = behavConstsAV;
+titleStr = datasetStr;
+if strcmp(titleStr, '')
+    titleStr = 'V1_100ms';
+else
+    titleStr = titleStr(2:end);
+end
 if strcmp(rc.name,'ashley')
     dataGroup = ['awFSAVdatasets' datasetStr];
 else
@@ -14,7 +20,7 @@ values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
 mouse_ind = find(intersect(cell2mat({av.mouse}),values));
 load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' datasetStr '.mat']));
-% fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
+fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
 
 pre_event_frames = mouse(1).expt(1).pre_event_frames;
 post_event_frames = mouse(1).expt(1).post_event_frames;
@@ -30,9 +36,9 @@ set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);
 set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
 %% example dataset 1
-% imouse = 3;
-iexp = 1;
-for imouse = 1:3
+imouse = 1;
+iexp = 2;
+% for imouse = 1:3
 cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
 
 % get responses and ns corr 
@@ -93,7 +99,7 @@ mask_nscorr_4cells_a_1 = reshape(mask_vec_cellmat_a_1,M,N,4);
 mask_nscorr_4cells_a_2 = reshape(mask_vec_cellmat_a_2,M,N,4);
 
 mask_v_b = figure;
-suptitle([mouse(imouse).expt(iexp).mouse_name ' vis baseline']);
+suptitle([mouse(imouse).expt(iexp).mouse_name '-' mouse(imouse).expt(iexp).date ' vis baseline']);
 colormap(brewermap([],'*RdBu'))
 mask_v_1 = figure;
 suptitle([mouse(imouse).expt(iexp).mouse_name ' vis 1']);
@@ -102,7 +108,7 @@ mask_v_2 = figure;
 suptitle([mouse(imouse).expt(iexp).mouse_name ' vis 2']);
 colormap(brewermap([],'*RdBu'))
 mask_a_b = figure;
-suptitle([mouse(imouse).expt(iexp).mouse_name ' aud baseline']);
+suptitle([mouse(imouse).expt(iexp).mouse_name '-' mouse(imouse).expt(iexp).date ' aud baseline']);
 colormap(brewermap([],'*RdBu'))
 mask_a_1 = figure;
 suptitle([mouse(imouse).expt(iexp).mouse_name ' aud 1']);
@@ -148,6 +154,10 @@ for iplot = 1:4
     colorbar
     caxis([-1 1])
 end
+figure(mask_v_b)
+print([fnout 'vis_nsCorrMap_exCell_baseline' datasetStr '.pdf'], '-dpdf')
+figure(mask_a_b)
+print([fnout 'aud_nsCorrMap_exCell_baseline' datasetStr '.pdf'], '-dpdf')
 
 % scatter ns corr of cell pair on aud trials vs vis trials (2nd half only)
 figure;
