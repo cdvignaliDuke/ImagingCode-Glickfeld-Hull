@@ -8,10 +8,11 @@ FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\LeverAnalysis\';
 
-days = {'160314_img38'};
+%days = {'150518_img24', '150519_img24', '150518_img25', '150517_img25', '150716_img27', '150718_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160516_img47'}; %'150718_img27', '150719_img27',
+days = {'160319_img41'};
 
 for kk=1:length(days)
-    
+    ROI_name  =  days{kk};
     bfile = dir([BEHAVE_DIR 'data-*i9' days{kk}(end-1:end) '-' days{kk}(1:6) '*' ]);
     behave_dest = [BEHAVE_DIR bfile.name];
     b_data = load(behave_dest);
@@ -71,7 +72,10 @@ for kk=1:length(days)
     [success_roi, use_times_succ, lick_trace_succ] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licksByFrame, use_ev_success, pre_frames, post_frames);
     ts = repmat(ts,[cluster.num_cluster 1]);
     avg_success_roi = squeeze(func(success_roi,1));
-    std_success = squeeze(std(success_roi,1));
+    if cluster.num_cluster == 1
+        avg_success_roi = avg_success_roi';
+    end
+    std_success = squeeze(std(squeeze(success_roi),1));
     sm_success = std_success./sqrt(size(success_roi,1));
     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
         shift = (-1)*avg_success_roi(i,3);
@@ -93,7 +97,10 @@ for kk=1:length(days)
     %fail_roi = trigger_movie_by_event(tc_dfoverf, frame_info, ...
     %use_ev_fail, pre_frames, post_frames);
     avg_fail_roi = squeeze(func(fail_roi,1));
-    std_fail = squeeze(std(fail_roi,1));
+    if cluster.num_cluster == 1
+        avg_fail_roi = avg_fail_roi';
+    end
+    std_fail = squeeze(std(squeeze(fail_roi),1));
     sm_fail = std_fail./sqrt(size(fail_roi,1));
     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
         shift = (-1)*avg_fail_roi(i,3);
@@ -116,7 +123,10 @@ for kk=1:length(days)
     %fail_roi = trigger_movie_by_event(tc_dfoverf, frame_info, ...
     %use_ev_fail, pre_frames, post_frames);
     avg_fidget_roi = squeeze(func(fidget_roi,1));
-    std_fidget = squeeze(std(fidget_roi,1));
+    if cluster.num_cluster == 1
+        avg_fidget_roi = avg_fidget_roi';
+    end
+    std_fidget = squeeze(std(squeeze(fidget_roi),1));
     sm_fidget = std_fidget./sqrt(size(fidget_roi,1));
     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
         shift = (-1)*avg_fidget_roi(i,3);
@@ -149,7 +159,10 @@ for kk=1:length(days)
     %tooFast_roi = trigger_movie_by_event(tc_dfoverf, frame_info, ...
     %use_ev_tooFast, pre_frames, post_frames);
     avg_tooFast_roi = squeeze(func(tooFast_roi,1));
-    std_tooFast = squeeze(std(tooFast_roi,1));
+    if cluster.num_cluster == 1
+        avg_tooFast_roi = avg_tooFast_roi';
+    end
+    std_tooFast = squeeze(std(squeeze(tooFast_roi),1));
     sm_tooFast = std_tooFast./sqrt(size(squeeze(tooFast_roi),1));
     if size(tooFast_roi,1) == 1
         for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
@@ -198,14 +211,18 @@ for kk=1:length(days)
     success_roi = squeeze(success_roi);
     fail_roi = squeeze(fail_roi);
     fidget_roi = squeeze(fidget_roi);
+    tooFast_roi = squeeze(tooFast_roi);
     destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_success');
     destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fail');
     destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fidget');
+    destyTooFast = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_tooFast');
     destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
     save([destySucc], 'success_roi');
     save([destyFail], 'fail_roi');
     save([destyFidget], 'fidget_roi');
+    save([destyTooFast], 'tooFast_roi');
     savefig([destyFig]);
+    
     
     disp(['day/animal: ' num2str(ROI_name)])
     disp(['# of successful trials = ' num2str(size(success_roi,1))])
@@ -267,11 +284,10 @@ for kk=1:length(days)
     licksByFrame2(leverFramesExc) = [];
     tc_dfoverf2(:, leverFramesExc) = [];
     
-    if mask == 0   ;
-        cnames = cell([1,size(tc_dfoverf,1)+1]);
-        rnames = cell([1,size(tc_dfoverf,1)+1]);
-        coefMat = corrcoef([tc_dfoverf2; licksByFrame2]');
-        coefMat2 = coefMat(end,1:size(tc_dfoverf,1));
+    cnames = cell([1,size(tc_dfoverf,1)+1]);
+    rnames = cell([1,size(tc_dfoverf,1)+1]);
+    coefMat = corrcoef([tc_dfoverf2; licksByFrame2]');
+    coefMat2 = coefMat(end,1:size(tc_dfoverf,1));
     for i = 1:size(tc_dfoverf,1);
         cnames{1,i} = ['ROI' mat2str(i)];
         rnames{1,i} = ['ROI' mat2str(i)];
@@ -283,13 +299,22 @@ for kk=1:length(days)
     t = uitable(f, 'Data', coefMat,...
         'ColumnName', cnames,...
         'RowName', rnames);
-    end     
     destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_table');
     savefig([destyFig]);
     
     destySucc = strcat(ANALYSIS_DIR, 'CorrCoefSummary\', days{kk}, '_corrCoefLick');
     save([destySucc], 'coefMat2');
-  
+    
+    %save lapsed trials 
+    if isempty(trial_outcome.late_time)==0
+        use_ev_lapse = trial_outcome.late_time;
+        [lapse_roi, use_times_lapse, lick_trace_lapse] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licksByFrame, use_ev_lapse, pre_frames, post_frames);
+        lapse_roi = squeeze(lapse_roi);
+        destyLapse = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_lapse');
+        save([destyLapse], 'lapse_roi');
+    end
+    
+    
     
     %% 
 %     %PLOT HOLD F CONDITIONS----------------------------------------------

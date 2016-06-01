@@ -9,10 +9,11 @@ motion_correction =1;           %1 to register image   0 to take ROI without mot
 stable_int = [1:50];         %use imageJ to find a series of frames (~100) in which little movement occurs. Use this during motion correction
 session = '';
 image_dest  = ['C:\Users\jake\TempData\' day '\'];
+image_source  = ['Z:\Data\WidefieldImaging\GCaMP\' day '\'];
 BIN_SIZE =1;
 %MUST ALSO SET ncores for parpool
 
-old_cd = cd(image_dest);   
+old_cd = cd(image_source);   
 %------ assume the file has a a unique string [_MMStack_[???].ome] and ?? is the number of the file -1
 img_str_indicator = 'MMStack';
 all_files = dir(['*' img_str_indicator '*'] );

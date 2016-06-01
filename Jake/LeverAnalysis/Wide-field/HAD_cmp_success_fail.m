@@ -1,5 +1,8 @@
 %generates frame by frame movies of an ROI. Heatmaps. 
 %redefines df/f using lever.baslineTimes
+%HAD_cmp_success_fail analysis pathway. 
+%-Prepare_movie_for_analysis part II
+%-HAD_cmp_success_fail
 clear
 WRITE_VEDIO = 0;
 BIN_SIZE = 1;   % if the ROI is large use large bin size (10)
@@ -8,11 +11,11 @@ BIN_SIZE = 1;   % if the ROI is large use large bin size (10)
 % DATA_DIR =  '/Volumes/Promise RAID/mati/imaging_data/';
 % BEHAVE_DIR = '/Volumes/Promise RAID/mati/behave_data/';
 DATA_DIR =  'C:\Users\jake\TempData\';
-BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
+BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 
 % ----------
 %days = {'150320_img20'};
-days = {'150706_img24'};
+days = {'160320_img41'};
 holdT_min = 500000;
 
 for kk=1:length(days)
@@ -43,45 +46,52 @@ for kk=1:length(days)
         l_frame = last_frame;
     end
     % ---- parse behavior
-    [lever, frame_info, trial_outcome] = parse_behavior_for_HAD(b_data.input, ...
-        f_frame, l_frame, ftimes.frame_times, holdT_min);
+%     [lever, frame_info, trial_outcome] = parse_behavior_for_HAD(b_data.input, ...
+%         f_frame, l_frame, ftimes.frame_times, holdT_min);
     
+    [lever, frame_info, trial_outcome, lickTimes] = parse_behavior_for_HAD(b_data.input, ...
+        f_frame, l_frame, ftimes.frame_times, holdT_min);
     info = imfinfo(image_dest);
     [img, sz]  = get_movie_by_ROI(image_dest, info,[], [], BIN_SIZE, f_frame, l_frame);
    
     
-  %Obtain a df/f movie using Lindsey's baseline_times
-   first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
+    %Obtain a df/f movie using Lindsey's baseline_times
+    first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
     for i = 1:length(b_data.input.counterTimesUs);   %finds the MWtime of the first counter
         if find(~isempty(cell2mat(b_data.input.counterTimesUs(i))))==1;
             StartT = b_data.input.counterTimesUs{i}(1)/1000;
             break
         end
     end
-   img_dfoverf = zeros(size(img));    
-     F_range = [];
-for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only looks at the first and last fully imaged trials
-    if ~isnan(lever.baseline_timesMs(1,iT));
-        F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
-    elseif isempty(F_range)
-        F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
+    img_dfoverf = zeros(size(img));
+    F_range = [];
+    for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only looks at the first and last fully imaged trials
+        if ~isnan(lever.baseline_timesMs(1,iT));
+            F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
+        elseif isempty(F_range)
+            F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
+        end
+        F_avg= mean(img(:,F_range),2);
+        
+        %assign the frame numbers which correspond to this trial
+        if iT == frame_info.f_frame_trial_num+1; %if this is the first fully imaged trial then t_range includes all frames up to this point
+            t_range = 1:(frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-StartT)-1); 
+        else   %t_range will be the time interval encompasing the whole trial. Used to find the frames to which we will apply this df/f. 
+            t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-StartT):(frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-StartT)-1);
+        end
+        if iT == frame_info.l_frame_trial_num-1;
+            t_range = (t_range(1)+4):size(img,2);
+        elseif iT == frame_info.f_frame_trial_num+1;
+            t_range = 1:(t_range(end)+4); 
+        else t_range = t_range + 4;    %added this shift because we have a 1s anaylsis window post release but trial ends 600ms after release.
+        end
+        %problematic bcimg it looks at times before the first counter then
+        %subtracts the time of the first counter
+        t_df = bsxfun(@minus, double(img(:,t_range)), F_avg);
+        t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
+        img_dfoverf(:,t_range) = t_dfoverf;
     end
-    F_avg= mean(img(:,F_range),2);
-    
-    %need to write a smart t_range which includes all fully imaged trials
-    %before the first trial with a valid baseline
-    t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-StartT):(frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-StartT)-1);
-    if iT == frame_info.l_frame_trial_num-1;
-        t_range = t_range(1:(end-4)) + 4;
-    else t_range = t_range + 4;    %added this shift because we have a 1s anaylsis window post release but trial ends 600ms after release.
-    end
-    %problematic bcimg it looks at times before the first counter then
-    %subtracts the time of the first counter
-    t_df = bsxfun(@minus, double(img(:,t_range)), F_avg);
-    t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
-    img_dfoverf(:,t_range) = t_dfoverf;
-end 
-%remember to cut nondf/f frames (beginning and end) from movie
+    %remember to cut nondf/f frames (beginning and end) from movie
 
 % PLOTTING 
     % ---- do simple movie analysis

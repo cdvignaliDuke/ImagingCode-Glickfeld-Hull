@@ -1,2 +1,3 @@
-shrink_movie('160208_img36');
+clear
+shrink_movie('160516_img47');
 clear
