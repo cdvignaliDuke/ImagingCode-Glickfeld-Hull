@@ -9,7 +9,7 @@ load([dest_sub '_release_movies.mat'])
 load([dest_sub '_press_movies.mat'])
 nCells = size(success_movie,2);
 n = ceil(sqrt(nCells));
-if nCells <((n.^2)-n)
+if nCells <((n.^2)-n) %function
     n2= n-1;
 else
     n2 = n;
@@ -48,8 +48,27 @@ sem_press_all = std(avg_press,1)./sqrt(size(avg_press,1));
 save([dest_sub '_cell_TCs.mat'], 'avg_release', 'avg_press','avg_success', 'avg_fail', 'sem_release', 'sem_press','sem_success', 'sem_fail')
 %% 2. calculate response amplitude and variablity by trial over base and resp windows
 %by release
-base_release_window = 1:pre_release_frames; %selects a baseline window. Should rewrite this to use baseline times and get a df/f
+base_release_window = 1:pre_release_frames; %selects a baseline window. Should rewrite this to use baseline times
 resp_release_window = pre_release_frames+1:pre_release_frames+round(100./double(ifi));  %selecting a response window in which to analyze the TC. Selects three consecutive frames where the lever event occurs during the first fraem
+
+poss_succ_wins = [];  %using a sliding window to determine peak response to lever release 
+poss_succ_win_vals = []; 
+for i = pre_release_frames+2:pre_release_frames+1+round(300./double(ifi))
+    poss_succ_win_vals = [poss_succ_win_vals; mean(mean(mean(success_movie(:,:,i-1:i+1)),3))];
+    poss_succ_wins = [poss_succ_wins, i];
+end
+resp_success_window = poss_succ_wins(find(poss_succ_win_vals == max(poss_succ_win_vals))); %selects window with the peak response 
+resp_success_window = [resp_success_window-1, resp_success_window, resp_success_window+1]; 
+
+poss_fail_wins = [];  %using a sliding window to determine peak response to lever release 
+poss_fail_win_vals = []; 
+for i = pre_release_frames+2:pre_release_frames+1+round(300./double(ifi))
+    poss_fail_win_vals = [poss_fail_win_vals; mean(mean(mean(fail_movie(:,:,i-1:i+1)),3))];
+    poss_fail_wins = [poss_fail_wins, i];
+end
+resp_fail_window = poss_fail_wins(find(poss_fail_win_vals == max(poss_fail_win_vals))); %selects window with the peak response 
+resp_fail_window = [resp_fail_window-1, resp_fail_window, resp_fail_window+1]; 
+
 
 %release
 release_base = squeeze(mean(release_movie(:,:,base_release_window),3));
@@ -59,7 +78,8 @@ release_resp_sem = std((release_resp-release_base),[],1)./sqrt(size(release_resp
 
 %success
 success_base = squeeze(mean(success_movie(:,:,base_release_window),3));
-success_resp = squeeze(mean(success_movie(:,:,resp_release_window),3));
+%success_resp = squeeze(mean(success_movie(:,:,resp_release_window),3));
+success_resp = squeeze(mean(success_movie(:,:,resp_success_window),3));
 success_resp_avg = mean((success_resp-success_base),1);
 success_resp_sem = std((success_resp-success_base),[],1)./sqrt(size(success_resp,1));
 
@@ -82,7 +102,7 @@ end
 press_resp_avg = mean((press_resp-press_base),1);
 press_resp_sem = std((press_resp-press_base),[],1)./sqrt(size(press_resp,1));
 
-save([dest_sub '_cell_resp.mat'], 'base_release_window', 'resp_release_window', 'base_press_window', 'resp_press_window', 'press_base', 'press_resp', 'success_base', 'success_resp', 'fail_base', 'fail_resp', 'release_resp', 'release_base');
+save([dest_sub '_cell_resp.mat'], 'base_release_window', 'base_press_window', 'resp_press_window', 'press_base', 'press_resp', 'success_base', 'success_resp', 'fail_base', 'fail_resp', 'release_resp', 'release_base');
 
 %% 2. ttest for significant responses
 [release_h, release_p] = ttest(release_base, release_resp, 'dim', 1, 'tail', 'both');

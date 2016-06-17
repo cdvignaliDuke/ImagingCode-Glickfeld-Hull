@@ -1,9 +1,9 @@
 % edit Load_SBXdataset_fast.m
 %%
 
-awFSAVdatasets_longStimON
+awFSAVdatasets
 % for iexp = 1:size(expt,2)
-    iexp = 5;
+    iexp = 10;
 
 for irun = 1:expt(iexp).nrun;
 SubNum = expt(iexp).SubNum;

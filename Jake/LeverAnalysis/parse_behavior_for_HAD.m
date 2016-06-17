@@ -29,7 +29,9 @@ trial_outcome.fidget =[];
 trial_outcome.late_time =[];
 trial_outcome.tooFastCorrects =[];
 trial_outcome.ind_press_prerelease =[];
- 
+trial_outcome.change_orientation = [];
+trial_outcome.succ_hold_dur = [];
+trial_outcome.fail_hold_dur = [];
  
 num_trials = length(input.tThisTrialStartTimeMs);                %gets vectors for # of trials and trial start time
 trial_start =  round(double(cell2mat(input.tThisTrialStartTimeMs)));
@@ -113,7 +115,9 @@ for i=1:num_trials-1
         d_frame = c_count(j) - pre_frame_count;                     %d_frame and time equal a specific counter value or time within this trial minus the frames or time before the trial
         d_time  = c_time(j) - pre_frame_time;                               
         update_inx = (pre_frame_time:c_time(j)) -  START_EXP_TIME+1;          %update_inx is all the time points associated with a specific frame aligned to experiment start time
-        
+        if ~isempty(update_inx) & update_inx(1) ==0
+            update_inx = update_inx(2:end)
+        end
         if(d_frame >1)  %missed a frame, set NaN
             frame.counter(update_inx) = NaN;
         else
@@ -184,18 +188,6 @@ end
 
 relase_time = hold_start + hold_time;
 early_time = hold_time<req_hold & hold_time>350;
-trial_outcome.success_time = relase_time(has_reward);
-trial_outcome.tooFastCorrects = relase_time(1,find(tooFastCorrects)); %isolates correct trials with reaction times >0 but <175ms. Stores them as a matrix of their release times.
-trial_outcome.early_time = relase_time(early_time); %altered to exclude fidgets 2/27/16
-trial_outcome.fidget = relase_time(hold_time<350);
-is_ignore =@(x)isequal(x, 'ignore');
-trial_outcome.late_time  = relase_time(find(cellfun(is_ignore,input.trialOutcomeCell)));
-trial_outcome.change_orientation = hold_start + req_hold;
-trial_outcome.change_orientation(react_time < 0) = NaN; % if respond before change then no change in orientation
-if input.doLever == 0; %CONTROL trials 
-    trial_outcome.early_time = relase_time(hold_time<req_hold);
-    trial_outcome.fidget = [];
-end
 
 % This is a very very problematic code, the camera sends codes even before
 % exqusition starts we detect that by a large gap between frames
@@ -233,14 +225,10 @@ if(exist('first_frame' ,'var') && exist('last_frame', 'var'))
     frame.counter_by_time = frame.counter_by_time(inx) - first_frame+1;
     frame.times = frame.times(inx) - first_time+1;
     
-    
+    %remove unimaged frames. This is done for hold duration variables at
+    %the end of the function
     lever.press = remove_events_and_adjust_inx(lever.press, first_time, last_time);
     lever.release = remove_events_and_adjust_inx(lever.release, first_time, last_time);
-    trial_outcome.success_time = remove_events_and_adjust_inx(    trial_outcome.success_time, first_time, last_time);
-    trial_outcome.early_time = remove_events_and_adjust_inx(trial_outcome.early_time, first_time, last_time);
-    trial_outcome.late_time = remove_events_and_adjust_inx(trial_outcome.late_time, first_time, last_time);
-    trial_outcome.change_orientation = remove_events_and_adjust_inx(trial_outcome.change_orientation, first_time, last_time);
-    
     
     if(~isempty(frame_times))  
         first_time1=  find(counter_by_frame_times>= first_frame, 1, 'first');
@@ -395,6 +383,32 @@ lever.baseline_times_holdMs = baseline_times_holdMs;
 frame.f_frame_trial_num = f_frame_trial_num;
 frame.l_frame_trial_num = l_frame_trial_num;
 
+%remove unimaged frames from hold duration variables 
+has_reward([1:f_frame_trial_num, l_frame_trial_num:end])=0;
+early_time([1:f_frame_trial_num, l_frame_trial_num:end])=0;
+
+trial_outcome.succ_hold_dur = hold_time(has_reward);
+trial_outcome.fail_hold_dur = hold_time(early_time);
+
+trial_outcome.success_time = relase_time(has_reward);
+trial_outcome.tooFastCorrects = relase_time(1,find(tooFastCorrects)); %isolates correct trials with reaction times >0 but <175ms. Stores them as a matrix of their release times.
+trial_outcome.early_time = relase_time(early_time); %altered to exclude fidgets 2/27/16
+trial_outcome.fidget = relase_time(hold_time<350);
+is_ignore =@(x)isequal(x, 'ignore');
+trial_outcome.late_time  = relase_time(find(cellfun(is_ignore,input.trialOutcomeCell)));
+trial_outcome.change_orientation = hold_start + req_hold;
+trial_outcome.change_orientation(react_time < 0) = NaN; % if respond before change then no change in orientation
+if input.doLever == 0; %CONTROL trials 
+    trial_outcome.early_time = relase_time(hold_time<req_hold);
+    trial_outcome.fidget = [];
+end
+
+trial_outcome.success_time = trial_outcome.success_time - first_time;
+trial_outcome.early_time =  trial_outcome.early_time - first_time;
+trial_outcome.late_time = trial_outcome.late_time - first_time;
+trial_outcome.change_orientation = trial_outcome.change_orientation - first_time;
+trial_outcome.tooFastCorrects = trial_outcome.tooFastCorrects - first_time;
+trial_outcome.fidget = trial_outcome.fidget - first_time;
 
 return;
  

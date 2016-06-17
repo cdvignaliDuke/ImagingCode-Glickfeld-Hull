@@ -12,7 +12,7 @@ for ifile = 1:size(taskTimeAll,1)
                 if length(fn2) < length(fn1) %% in case input structures have different number of field names
                     missingVariables = setdiff(fn1,fn2);
                     for ivar = 1:length(missingVariables)
-                        next_input.(char(missingVariables{i})) = [];
+                        next_input.(char(missingVariables{ivar})) = [];
                     end 
                     input_temp = [input_temp next_input];
                 elseif length(fn2) > length(fn1)

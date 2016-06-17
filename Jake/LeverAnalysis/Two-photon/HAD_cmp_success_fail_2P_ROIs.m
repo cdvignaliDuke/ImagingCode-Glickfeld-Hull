@@ -47,7 +47,11 @@ for iT=2:length(lever.baseline_timesMs)-1;    %this could be problematic due to 
         F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
     end
     F_avg= mean(data_tc(:,F_range),2);
-    t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-startT):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-startT);
+    if (cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-startT)>length(frame_info.counter)
+        t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-startT):frame_info.counter(end);
+    else
+        t_range = frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT))-startT):frame_info.counter(cell2mat(b_data.input.tThisTrialStartTimeMs(iT+1))-startT);
+    end
     t_df = bsxfun(@minus, double(data_tc(:,t_range)), F_avg);
     t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
     tc_dfoverf(:,t_range) = t_dfoverf;
@@ -84,7 +88,7 @@ fail_movie = trigger_movie_by_event(tc_dfoverf, frame_info, ...
     use_ev_fail, pre_release_frames, post_release_frames);
 
 %tooFast correct
-use_ev_tooFastCorrect = trial_outcome.tooFastCorrect;
+use_ev_tooFastCorrect = trial_outcome.tooFastCorrects;
 if strcmp(b_data.input.trialOutcomeCell{1}, 'success')  %removing first and last trials from consideration if they were successful (tooFastCorrects are coded as successes here)
     use_ev_tooFastCorrect(1) = [];
 elseif strcmp(b_data.input.trialOutcomeCell{end}, 'success')
@@ -114,13 +118,12 @@ post_press_frames = round(post_press_ms./double(ifi));
 pressTime = NaN(1,length(lever.baseline_timesMs));
 releaseTime = NaN(1,length(lever.baseline_timesMs));
 for iT = 2:length(lever.baseline_timesMs)-1
-    leverTimes = round((cell2mat(b_data.input.leverTimesUs(iT))-b_data.input.counterTimesUs{1}(1))./1000);
-    if ~isnan(trial_outcome.ind_press_prerelease(iT))
+    if ~isempty(b_data.input.leverTimesUs{iT})
+        leverTimes = round((cell2mat(b_data.input.leverTimesUs(iT))-b_data.input.counterTimesUs{1}(1))./1000);
+    end
+    if ~isnan(trial_outcome.ind_press_prerelease(iT)) & size(b_data.input.leverTimesUs{iT},2)>1
         pressTime(1,iT) = leverTimes(trial_outcome.ind_press_prerelease(iT));
         releaseTime(1,iT) = leverTimes(trial_outcome.ind_press_prerelease(iT)+1);
-    else
-        pressTime(1,iT) = NaN;
-        releaseTime(1,iT) = NaN;
     end
 end
 

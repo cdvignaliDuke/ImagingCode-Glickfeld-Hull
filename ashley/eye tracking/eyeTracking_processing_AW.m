@@ -7,7 +7,7 @@ pre_event_time = 1000;
 post_release_time = 1500;
 post_target_time = 4000;
 
-for iexp = 1:size(expt,2)
+for iexp = 7 %1:size(expt,2)
     SubNum = expt(iexp).SubNum;
     date = expt(iexp).date;
     runs = expt(iexp).runs;
@@ -83,7 +83,7 @@ for iexp = 1:size(expt,2)
         W=40;
 
         rad_range = expt(iexp).eyeradrange;
-        data = data(yc-W:yc+W,xc-W:xc+W,:);
+        data = double(data(yc-W:yc+W,xc-W:xc+W,:));
         warning off;
 
         A = cell(size(data,3),1);
@@ -95,7 +95,7 @@ for iexp = 1:size(expt,2)
         eye = struct('Centroid',A,'Area',B);
         radii = [];
         for n = 1:size(data,3)
-            [center,radii,metric] = imfindcircles(squeeze(data(:,:,n)),rad_range,'Method','TwoStage','Sensitivity',0.9);
+            [center,radii,metric] = imfindcircles(squeeze(data(:,:,n)),rad_range);%,'Method','TwoStage','Sensitivity',0.9
             if(isempty(center))
                 eye(n).Centroid = [NaN NaN];    % could not find anything...
                 eye(n).Area = NaN;

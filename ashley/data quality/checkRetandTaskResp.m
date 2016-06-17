@@ -1,7 +1,7 @@
 %% run this after doing direction tuning analysis (need cell mask)
 awFSAVdatasets_temp
-iexp = 2;
-% % for iexp = 1:length(expt)
+iexp = 9;
+% for iexp = 6:7
 % % try
 SubNum = expt(iexp).SubNum;
 date = expt(iexp).date;

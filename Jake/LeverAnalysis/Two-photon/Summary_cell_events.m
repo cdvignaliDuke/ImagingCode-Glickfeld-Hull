@@ -77,7 +77,8 @@ for id = 1:size(date_mat,1)
     th{id} = [1-(sz1/2):(sz1/2)].*double(ifi);
 end
 %%plotting
-col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm');
+['peach' 'army green' 'yellow' 'purple' 'black']
+col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm', 'c');
 %summary of event rate
 figure
 rate_all = [];
@@ -101,7 +102,7 @@ for id = 1:size(date_mat,1)
     success_events = success_event_TC{id};
     fail_events = fail_event_TC{id};
     cell_use = find(~isnan(mean([press_events success_events fail_events],2)));
-    subplot(2,3,id)
+    subplot(3,3,id)
     errorbar(ts{id}, mean(press_events(cell_use,:),1), std(press_events(cell_use,:),[],1)./sqrt(length(cell_use)), 'c');
     hold on
     errorbar(ts{id}, mean(success_events(cell_use,:),1), std(success_events(cell_use,:),[],1)./sqrt(length(cell_use)), 'k');
@@ -120,7 +121,7 @@ for id = 1:size(date_mat,1)
     success_events = success_event_TC_RS{id};
     fail_events = fail_event_TC_RS{id};
     cell_use = find(~isnan(mean([press_events success_events fail_events],2)));
-    subplot(2,3,id)
+    subplot(3,3,id)
     errorbar(ts{id}, mean(press_events(cell_use,:),1), std(press_events(cell_use,:),[],1)./sqrt(length(cell_use)), 'c');
     hold on
     errorbar(ts{id}, mean(success_events(cell_use,:),1), std(success_events(cell_use,:),[],1)./sqrt(length(cell_use)), 'k');
@@ -335,7 +336,7 @@ print([out_base 'Summary_respcells_event_TC.pdf'], '-dpdf');
 %summary of PSTH- average
 figure;
 for id = 1:size(date_mat,1)
-    subplot(2,3,id)
+    subplot(3,3,id)
     shadedErrorBar(th{id}, mean(success_hist{id},2), std(success_hist{id},[],2)./sqrt(size(success_hist{id},2)), 'k');
     hold on;
     shadedErrorBar(th{id}, mean(fail_hist{id},2), std(fail_hist{id},[],2)./sqrt(size(fail_hist{id},2)), 'r');
@@ -349,7 +350,7 @@ print([out_base 'Summary_PSTH_allcells.pdf'], '-dpdf');
 
 figure;
 for id = 1:size(date_mat,1)
-    subplot(2,3,id)
+    subplot(3,3,id)
     shadedErrorBar(th{id}, mean(success_hist_RS{id},2), std(success_hist_RS{id},[],2)./sqrt(size(success_hist_RS{id},2)), 'k');
     hold on;
     shadedErrorBar(th{id}, mean(fail_hist_RS{id},2), std(fail_hist_RS{id},[],2)./sqrt(size(fail_hist_RS{id},2)), 'r');
@@ -511,7 +512,7 @@ print([out_base 'Summary_rate_latency_scatter_avg.pdf'], '-dpdf');
 %summary of average event waveform relative to spont
 figure;
 for id = 1:size(date_mat,1)
-    subplot(2,3,id)
+    subplot(3,3,id)
     release_norm = bsxfun(@rdivide, release_norm_all{id}, max(spont_norm_all{id},[],1));
     press_norm = bsxfun(@rdivide,press_norm_all{id}, max(spont_norm_all{id},[],1));
     spont_norm = bsxfun(@rdivide,spont_norm_all{id}, max(spont_norm_all{id},[],1));
@@ -534,7 +535,7 @@ print([out_base 'Summary_avgevent_norm2spont.pdf'], '-dpdf');
 
 figure;
 for id = 1:size(date_mat,1)
-    subplot(2,3,id)
+    subplot(3,3,id)
     release_renorm_RS = bsxfun(@rdivide,release_norm_RS{id}, max(spont_norm_RS{id},[],1));
     press_renorm_RS = bsxfun(@rdivide,press_norm_RS{id}, max(spont_norm_RS{id},[],1));
     spont_renorm_RS = bsxfun(@rdivide,spont_norm_RS{id}, max(spont_norm_RS{id},[],1));

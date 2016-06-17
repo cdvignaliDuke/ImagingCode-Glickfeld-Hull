@@ -11,7 +11,8 @@ BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior';
 %days = {'150716_img27', '150717_img27', '150718_img27', '150719_img27'};  
 %days = {'150719_img28', '150717_img28', '150716_img28'};
 %days = {'160208_img36', '160207_img35', '160207_img36', '160205_img35'};
-days = {'160319_img41', '160320_img41'};
+%days = {'160315_img38'};
+days = {'160516_img47'};
 
 for kk=1:length(days)
     ROI_name  =  days{kk};
@@ -29,12 +30,14 @@ for kk=1:length(days)
         l_frame = last_frame;
     end
     [img, sz]  = get_movie_by_ROI(image_dest, info,[], [], BIN_SIZE, f_frame, l_frame);
-    % remove avergae
+    % remove average
     avg_img = mean(img,2);
     std_img = std(img,[], 2);
     all_sd = std(img(:));
     
-    f = figure; im = imagesc(reshape(std_img', sz)); axis ij; colormap jet; colormap jet; shading flat;
+    %figure; imagesc(reshape(std_img', sz)); axis ij; colormap jet; colormap jet; shading flat;
+    %title('std_img just for comparison');
+    f = figure; im = imagesc(reshape(avg_img', sz)); axis ij; colormap jet; colormap jet; shading flat;
     num_cluster = input('Enter no of clusters:');
     
     for i=1:num_cluster

@@ -165,7 +165,6 @@ ylabel('dF/F')
 xlim([0 size(date_mat,1)+1])
 title('Success/fail driven by success')
 
-
 suptitle(['Summary of cell response amplitudes'])
     print([out_base 'Summary_cell_response_amp.eps'], '-depsc');
     print([out_base 'Summary_cell_response_amp.pdf'], '-dpdf');
@@ -176,7 +175,7 @@ x = [-.05:.01:.2];
 y = x;
 r = [];
 p = [];
-col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm');
+col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm', 'c'); %hardcoded
 subplot(2,3,1)
 for id = 1:size(date_mat,1)
     scatter(release_resp_all{id}, press_resp_all{id}, col_mat(id,:))
@@ -241,9 +240,9 @@ for id = 1:size(date_mat,1)
     s = [s success_resp_all{id}];
     f = [f fail_resp_all{id}];
 end
+xlim([-.025 .3]);
+ylim([-.005 .25]);
 plot(x,y,'-k')
-xlim([-.05 .1]);
-ylim([-.05 .1]);
 xlabel('Success dF/F')
 ylabel('Fail dF/F')
 [h_sfall p_sfall] = ttest(s,f);
@@ -289,7 +288,7 @@ hold on
 vline(0,'--k')
 hline(0,'--k')
 title(['Release resp cells- p = ' num2str(chop(p_sfRL,2))])
-suptitle(['Summary of cell response amplitudes- Red: img24; Blue: img25; Green: img28; Magenta: img27'])
+suptitle(['Summary of cell response amplitudes- Red: img32; Blue: img36; Green: img38; Magenta: img41'])
     print([out_base 'Summary_cell_response_amp_scatter.eps'], '-depsc');
     print([out_base 'Summary_cell_response_amp_scatter.pdf'], '-dpdf');
 
@@ -297,16 +296,17 @@ suptitle(['Summary of cell response amplitudes- Red: img24; Blue: img25; Green: 
 figure;
 x = [-.05:.01:.2];
 y = x;
-col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm');
+col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm', 'c');   %HARDCODED
 subplot(2,3,1)
 for id = 1:size(date_mat,1)
     errorbarxy(mean(release_resp_all{id},2), mean(press_resp_all{id},2), std(release_resp_all{id},[],2)./sqrt(size(release_resp_all{id},2)), std(press_resp_all{id},[],2)./sqrt(size(press_resp_all{id},2)),{['o' col_mat(id,:)], col_mat(id,:),col_mat(id,:)})
     hold on
     scatter(mean(release_resp_all{id},2), mean(press_resp_all{id},2), col_mat(id,:))
 end
+hold on
 plot(x,y,'-k')
-xlim([-.05 .1]);
-ylim([-.05 .1]);
+xlim([-.025 .22]);
+ylim([-.025 .2]);
 xlabel('Release dF/F')
 ylabel('Press dF/F')
 hold on
@@ -390,7 +390,7 @@ hold on
 vline(0,'--k')
 hline(0,'--k')
 title(['Release resp cells'])
-suptitle(['Summary of cell response amplitudes- Red: img24; Blue: img25; Green: img28; Magenta: img27'])
+suptitle(['Summary of cell response amplitudes- Red: img24; Blue: img25; Magenta: img27; Purple: img28; Cyan: img32;'])
     print([out_base 'Summary_avg_response_amp_scatter.eps'], '-depsc');
     print([out_base 'Summary_avg_response_amp_scatter.pdf'], '-dpdf');
     
@@ -398,7 +398,7 @@ suptitle(['Summary of cell response amplitudes- Red: img24; Blue: img25; Green: 
 
 figure;
 for id = 1:size(date_mat,1)
-    subplot(2,3,id)
+    subplot(3,3,id)
     tt =((-pre_frames(id):post_frames(id)).*double(TC_ifi(id)))./1000;
     shadedErrorBar(tt, success_TC_mean{id},success_TC_sem{id}, 'k');
     hold on
@@ -416,7 +416,7 @@ print([out_base 'Summary_allexptTCs_allcells.pdf'], '-dpdf');
 
 figure;
 for id = 1:size(date_mat,1)
-    subplot(2,3,id)
+    subplot(3,3,id)
     tt =((-pre_frames(id):post_frames(id)).*double(TC_ifi(id)))./1000;
     shadedErrorBar(tt, success_TC_RS_mean{id},success_TC_RS_sem{id}, 'k');
     hold on
@@ -434,7 +434,7 @@ print([out_base 'Summary_allexptTCs_respcells.pdf'], '-dpdf');
 
 figure;
 for id = 1:size(date_mat,1)
-    subplot(2,3,id)
+    subplot(3,3,id)
     tt =((-pre_frames(id):post_frames(id)).*double(TC_ifi(id)))./1000;
     shadedErrorBar(tt, success_TC_RL_mean{id},success_TC_RL_sem{id}, 'k');
     hold on
@@ -452,58 +452,58 @@ print([out_base 'Summary_allexptTCs_relcells.pdf'], '-dpdf');
 
 %% commented for now until a decision is made on how to average across experiments with different acquisition rates
 %averaging across all cells- specific to different acquisition rates
-% success_TC_all = [];
-% fail_TC_all = [];
-% press_TC_all = [];
-% success_TC_all_RS = [];
-% fail_TC_all_RS = [];
-% press_TC_all_RS = [];
-% success_TC_all_RL = [];
-% fail_TC_all_RL = [];
-% press_TC_all_RL = [];
-% for id = 1:size(date_mat,2)
-%     success_TC_all = [success_TC_all; success_TC{id}];
-%     fail_TC_all = [fail_TC_all; fail_TC{id}];
-%     press_TC_all = [press_TC_all; press_TC{id}];
-%     success_TC_all_RS = [success_TC_all_RS; success_TC_RS{id}];
-%     fail_TC_all_RS = [fail_TC_all_RS; fail_TC_RS{id}];
-%     press_TC_all_RS = [press_TC_all_RS; press_TC_RS{id}];
-%     success_TC_all_RL = [success_TC_all_RL; success_TC_RL{id}];
-%     fail_TC_all_RL = [fail_TC_all_RL; fail_TC_RL{id}];
-%     press_TC_all_RL = [press_TC_all_RL; press_TC_RL{id}];
-% end
-% tt =((-pre_frames(1):post_frames(1)).*double(TC_ifi(1)))./1000;
-% figure;
-% subplot(3,1,1)
-% shadedErrorBar(tt, mean(success_TC_all,1), std(success_TC_all,[],1)./sqrt(size(success_TC_all,1)), 'k');
-% hold on;
-% shadedErrorBar(tt, mean(fail_TC_all,1), std(fail_TC_all,[],1)./sqrt(size(fail_TC_all,1)), 'r');
-% hold on
-% shadedErrorBar(tt, mean(press_TC_all,1), std(press_TC_all,[],1)./sqrt(size(press_TC_all,1)), 'c');
-% title(['All cells- n = ' num2str(size(press_TC_all,1))])
-% xlabel('Time (ms)')
-% ylabel('dF/F')
-% 
-% subplot(3,1,2)
-% shadedErrorBar(tt, mean(success_TC_all_RS,1), std(success_TC_all_RS,[],1)./sqrt(size(success_TC_all_RS,1)), 'k');
-% hold on;
-% shadedErrorBar(tt, mean(fail_TC_all_RS,1), std(fail_TC_all_RS,[],1)./sqrt(size(fail_TC_all_RS,1)), 'r');
-% hold on
-% shadedErrorBar(tt, mean(press_TC_all_RS,1), std(press_TC_all_RS,[],1)./sqrt(size(press_TC_all_RS,1)), 'c');
-% title(['Responsive cells- n = ' num2str(size(press_TC_all_RS,1))])
-% xlabel('Time (ms)')
-% ylabel('dF/F')
-% 
-% subplot(3,1,3)
-% shadedErrorBar(tt, mean(success_TC_all_RL,1), std(success_TC_all_RL,[],1)./sqrt(size(success_TC_all_RL,1)), 'k');
-% hold on;
-% shadedErrorBar(tt, mean(fail_TC_all_RL,1), std(fail_TC_all_RL,[],1)./sqrt(size(fail_TC_all_RL,1)), 'r');
-% hold on
-% shadedErrorBar(tt, mean(press_TC_all_RL,1), std(press_TC_all_RL,[],1)./sqrt(size(press_TC_all_RL,1)), 'c');
-% title(['Release responsive cells- n = ' num2str(size(press_TC_all_RL,1))])
-% xlabel('Time (ms)')
-% ylabel('dF/F')
-% suptitle('Average all cells collected at 15 Hz')
-% suptitle(['Summary of release responsive cell timecourses'])
-% print([out_base 'Summary_15HzTCs.eps'], '-depsc');
-% print([out_base 'Summary_15HzTCs.pdf'], '-dpdf');
+success_TC_all = [];
+fail_TC_all = [];
+press_TC_all = [];
+success_TC_all_RS = [];
+fail_TC_all_RS = [];
+press_TC_all_RS = [];
+success_TC_all_RL = [];
+fail_TC_all_RL = [];
+press_TC_all_RL = [];
+for id = 1:size(date_mat,2)
+    success_TC_all = [success_TC_all; success_TC{id}];
+    fail_TC_all = [fail_TC_all; fail_TC{id}];
+    press_TC_all = [press_TC_all; press_TC{id}];
+    success_TC_all_RS = [success_TC_all_RS; success_TC_RS{id}];
+    fail_TC_all_RS = [fail_TC_all_RS; fail_TC_RS{id}];
+    press_TC_all_RS = [press_TC_all_RS; press_TC_RS{id}];
+    success_TC_all_RL = [success_TC_all_RL; success_TC_RL{id}];
+    fail_TC_all_RL = [fail_TC_all_RL; fail_TC_RL{id}];
+    press_TC_all_RL = [press_TC_all_RL; press_TC_RL{id}];
+end
+tt =((-pre_frames(1):post_frames(1)).*double(TC_ifi(1)))./1000;
+figure;
+subplot(3,1,1)
+shadedErrorBar(tt, mean(success_TC_all,1), std(success_TC_all,[],1)./sqrt(size(success_TC_all,1)), 'k');
+hold on;
+shadedErrorBar(tt, mean(fail_TC_all,1), std(fail_TC_all,[],1)./sqrt(size(fail_TC_all,1)), 'r');
+hold on
+shadedErrorBar(tt, mean(press_TC_all,1), std(press_TC_all,[],1)./sqrt(size(press_TC_all,1)), 'c');
+title(['All cells- n = ' num2str(size(press_TC_all,1))])
+xlabel('Time (ms)')
+ylabel('dF/F')
+
+subplot(3,1,2)
+shadedErrorBar(tt, mean(success_TC_all_RS,1), std(success_TC_all_RS,[],1)./sqrt(size(success_TC_all_RS,1)), 'k');
+hold on;
+shadedErrorBar(tt, mean(fail_TC_all_RS,1), std(fail_TC_all_RS,[],1)./sqrt(size(fail_TC_all_RS,1)), 'r');
+hold on
+shadedErrorBar(tt, mean(press_TC_all_RS,1), std(press_TC_all_RS,[],1)./sqrt(size(press_TC_all_RS,1)), 'c');
+title(['Responsive cells- n = ' num2str(size(press_TC_all_RS,1))])
+xlabel('Time (ms)')
+ylabel('dF/F')
+
+subplot(3,1,3)
+shadedErrorBar(tt, mean(success_TC_all_RL,1), std(success_TC_all_RL,[],1)./sqrt(size(success_TC_all_RL,1)), 'k');
+hold on;
+shadedErrorBar(tt, mean(fail_TC_all_RL,1), std(fail_TC_all_RL,[],1)./sqrt(size(fail_TC_all_RL,1)), 'r');
+hold on
+shadedErrorBar(tt, mean(press_TC_all_RL,1), std(press_TC_all_RL,[],1)./sqrt(size(press_TC_all_RL,1)), 'c');
+title(['Release responsive cells- n = ' num2str(size(press_TC_all_RL,1))])
+xlabel('Time (ms)')
+ylabel('dF/F')
+suptitle('Average all cells collected at 30 Hz')
+%suptitle(['Summary of release responsive cell timecourses'])
+print([out_base 'Summary_15HzTCs.eps'], '-depsc');
+print([out_base 'Summary_15HzTCs.pdf'], '-dpdf');

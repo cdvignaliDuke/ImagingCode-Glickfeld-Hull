@@ -22,6 +22,8 @@ for id = 1:size(date_mat,1)
         HAD_2P_event_detection 
     end
 end
+% Summary_cell_resp
+% Summary_cell_resp_amp
 
 %run summary analysis after combining runs
 clear all

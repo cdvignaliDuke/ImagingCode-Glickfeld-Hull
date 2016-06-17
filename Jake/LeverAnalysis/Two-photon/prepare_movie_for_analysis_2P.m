@@ -64,7 +64,8 @@ clear data_reg
 
 %% 3. PCA and ICA
 if irun == 1
-    img_down = stackGroupProject(img,10);
+
+img_down = stackGroupProject(img,10);
 
     %prep for pca
     global stack
@@ -93,12 +94,32 @@ if irun == 1
         imagesc(sm(:,:,[pc]));
     end;
     colormap gray;
+    title('1 to 25');
+    
+    figure;
+    ax=[];
+    for pc = 1:25;                   % in order to visualize additional PCs simply alter the range (e.g. 26:50) Then subtract the appropriate amount from pc in the next line
+        ax(pc)=subplot(5,5,pc);
+        imagesc(sm(:,:,[pc+25]));
+    end;
+    colormap gray;
+    title('26 to 50');
 
+    figure;
+    ax=[];
+    for pc = 1:25;                   % in order to visualize additional PCs simply alter the range (e.g. 26:50) Then subtract the appropriate amount from pc in the next line
+        ax(pc)=subplot(5,5,pc);
+        imagesc(sm(:,:,[pc+50]));
+    end;
+    colormap gray;
+    title('51 to 75');
+    
     %compute independent components
-
+    disp('determine number of PCs to use');
+    pause
     PCuse = [1:40];
-    mu = 0;
-    nIC = 32;
+    mu = 0.5;
+    nIC = 40;
     termtol = 1e-6;
     maxrounds = 400;
     mixedsig = pcs.v';
@@ -114,9 +135,9 @@ if irun == 1
     sm = stackFilter(cs,1.5);
     figure;
     ind = 1;
-    sel = [1:32];    
+    sel = [1:nIC]; 
     for ic = sel
-        subplot(8,4,ind);                 %change here too
+        subplot(10,4,ind);                 %change here too
         %imstretch(sm(:,:,ic),[.5 .99],1.5);
         imagesc(sm(:,:,ic));
         ind = ind+1;
@@ -126,9 +147,7 @@ if irun == 1
     save([dest '_ICs.mat'],'sm', 'ica_sig');
 
     %% 4. segment ROIs from ICs
-
-    nIC = 32;
-    sel = [1:nIC];  
+ 
     mask_cell = zeros(size(sm));
     for ic = sel
         bwimgcell = imCellEditInteractive(sm(:,:,ic),[]);
@@ -249,16 +268,48 @@ if irun == 1
 
     print([dest '_mask_final.eps'], '-depsc');
     print([dest '_mask_final.pdf'], '-dpdf');
-else
+    else
     load([dest1 '_ROI_TCs.mat'])
 end
 
+
 %% 5. Extract timecourses
 data_tc = stackGetTimeCourses(img, reshape(mask_final,[sz(1) sz(2)]));
-
 sz = size(mask_cell);
-save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz', 'mask_cell', 'mask_cell_temp', 'data_corr', 'mask_overlap');
+clear input
 
+%use this graph to eliminate specific TCs based on there plots. Need to
+%edit data_tc, mask_final
+shift=0;
+figure; 
+for i = 1:size(data_tc,2)
+    plot(data_tc(:,i)+shift); hold on
+    if ismember(i, [5,10,15,20,25,30,35,40,45,50])
+        hline(shift);
+    end
+    shift = shift+35000;
+end
+disp('Paused: go to prepare_movie_for_analysis_2P section 5 to edit TCs and masks or press any key to continue')
+rmTC = input('Enter TC #s you wish to remove in the form of a vector: ');
+data_tc(:,rmTC) = [];
+
+start = 1;
+PC_num_mask = unique(mask_all);
+PC_num_mask = PC_num_mask(2:end);
+rm_mask_all = PC_num_mask(rmTC);
+for ic = 1:max(mask_all,[],2)
+    ind = find(mask_all==ic);
+    if ismember(ic, rm_mask_all) 
+        mask_all(ind) = 0;
+    end
+    ind = find(mask_all==ic);
+    if length(ind)>0
+        mask_final(ind)=start;
+        start= start+1;
+    end
+end
+
+save([dest '_ROI_TCs.mat'],'data_tc', 'mask_final', 'sz', 'mask_cell', 'data_corr', 'mask_overlap');
 
 %% 6. Neuropil subtraction
 %create masks, get timecourses

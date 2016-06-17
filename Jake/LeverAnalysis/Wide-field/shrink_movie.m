@@ -67,6 +67,44 @@ for i=1:size(shrink_img,2)
     imwrite(s_img, [dest 'shrink.tif'], 'WriteMode', mode);    
 end
 
+%Get frame times
+clear;
+DATA_DIR =  'Z:\Data\WidefieldImaging\GCaMP\';
+motion_correction =1;           %1 to register image   0 to take ROI without motion correction
+stable_int = [1:50];         %use imageJ to find a series of frames (~100) in which little movement occurs. Use this during motion correction
+session = '';
+image_dest  = ['C:\Users\jake\TempData\' day '\'];
+image_source  = ['Z:\Data\WidefieldImaging\GCaMP\' day '\'];
+BIN_SIZE =1;
 
+old_cd = cd(image_source);   
+%------ assume the file has a a unique string [_MMStack_[???].ome] and ?? is the number of the file -1
+img_str_indicator = 'MMStack';
+all_files = dir(['*' img_str_indicator '*'] );
+% ---- get order of imaging
+file_order = [];
+for i=1:length(all_files)
+    beg_inx = findstr(all_files(i).name, img_str_indicator) + length(img_str_indicator);
+    end_no_inx = strfind(all_files(i).name , '.ome');
+    if(end_no_inx == beg_inx)
+        file_order(i) = 1;
+    else
+        file_order(i) = str2num(all_files(i).name(beg_inx+1:end_no_inx-1))+1;
+    end
+end
+all_files(file_order) = all_files;
+
+for i=1:length(all_files)
+    info{i} = imfinfo(all_files(i).name);    
+    if(i==1)
+        all_info= info{i};
+    else
+        all_info = cat(1, all_info,info{i});
+    end
+end
+frame_times = get_frame_time_by_movie_info(all_info);
+
+dest =  [image_dest day '_ROI'];
+save([dest '_frame_times'],  'frame_times');
 
 cd(old_cd);
