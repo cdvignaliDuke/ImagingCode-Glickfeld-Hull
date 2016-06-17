@@ -18,8 +18,7 @@ function [PCuse] = CellsortChoosePCs(fn, mixedfilters)
 %
 
 fprintf('-------------- CellsortChoosePCs %s -------------- \n', date)
-
-[pixw,pixh] = size(imread(fn,1));
+[pixw,pixh] = size(fn);
 
 npcs = 20; % Number of PCs to display concurrently
 currpcs = [1:npcs];

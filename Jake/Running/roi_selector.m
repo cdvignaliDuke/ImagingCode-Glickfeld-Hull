@@ -5,7 +5,7 @@ DATA_DIR =  'S:\VermisImaging\';
 FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
 BEHAVE_DIR = 'C:\Users\jake\TempData\behavior\';
 % ---------------
-days = {'160223_img36_1'};
+days = {'160613_img40_optic_2'};
 %days = {'150716_img27', '150717_img27', '150718_img27', '150719_img27'};  
 %days = {'150719_img28', '150717_img28', '150716_img28'};
 %shrink_movie_b(days{1},20)
@@ -13,7 +13,7 @@ days = {'160223_img36_1'};
 for kk=1:length(days)
     ROI_name  =  days{kk};
     %temporarily deleted "days{kk} '\'" after DATA_DIR 
-    image_dest  = [DATA_DIR days{kk} '\160223_img36sub_1_MMStack.ome.tif'];   %modified by JH
+    image_dest  = [DATA_DIR days{kk} '\160613_img40sub_optic_2_MMStack.ome.tif'];   %modified by JH
     info = imfinfo(image_dest);
     if(~exist('first_frame', 'var')) 
         f_frame =1;
