@@ -42,18 +42,22 @@ data_avg = mean(data(:,:,1:100),3);
 figure;imagesc(data_avg);colormap gray
 save('sbx_aligned_img','data_avg')
 
-%downsample and register image to mean from 
+%downsample and register image to mean from sbx aligned data
+load(fullfile('Z:\analysis\',expt(iexp).mouse,expt(iexp).folder,expt(iexp).date,expt(iexp).dirtuning,'sbx_aligned_img.mat'));
+load([fname '.mat']);
+data = squeeze(sbxread(fname,0,info.config.frames));
 down = 10;
-nON = double(input.nScansOn)./down;
-nOFF = double(input.nScansOff)./down;
-nStim = double(input.gratingDirectionStepN);
 data_down = stackGroupProject(data,down);
 clear data
 data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
-data_reg = data_sub;
+[out data_reg] = stackRegister(data_sub, data_avg);
+clear data_sub
 
 % get dF/F
+nON = double(input.nScansOn)./down;
+nOFF = double(input.nScansOff)./down;
+nStim = double(input.gratingDirectionStepN);
 nRep = size(data_reg,3)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
 if (mod(nRep,1)) >0
@@ -81,6 +85,53 @@ maxDFoverF = max(dFoverF,[],3);
 figure; imagesq(maxDFoverF); colormap(gray)
 writetiff(maxDFoverF, 'maxDFoverF_meanAlign');
 
-bwout = imCellEditInteractive(maxDFoverF);
-mask_cell = bwlabel(bwout);
 %% combine sbx segmentation with max df over F segmentation
+load('-mat',[fname '.segment']);
+sbx_mask_cell = mask;
+maxDFoverF_minusSbxMask = maxDFoverF;
+maxDFoverF_minusSbxMask(sbx_mask_cell > 0) = min(min(maxDFoverF));
+
+bwout = imCellEditInteractive(maxDFoverF_minusSbxMask);
+mask_cell = bwlabel(bwout);
+
+figure;colormap hot; subplot(1,2,1);imagesq(sbx_mask_cell);subplot(1,2,2);imagesq(mask_cell);
+
+cell_ind = mask_cell(mask_cell > 0 );
+mask_cell_all = mask_cell;
+mask_cell_all(cell_ind) = mask_cell_all(cell_ind)+max(max(sbx_mask_cell));
+mask_cell_all = bsxfun(@plus,sbx_mask_cell,mask_cell_all);
+
+figure;colormap hot; subplot(1,3,1);imagesq(sbx_mask_cell);subplot(1,3,2);imagesq(mask_cell);subplot(1,3,3);imagesq(mask_cell_all);
+
+%% get timecourses
+data_TC = stackGetTimeCourses(data_reg,mask_cell_all);
+figure; tcOffsetPlot(data_TC)
+
+%neuropil subtraction
+nCells = size(data_TC,2);
+buf = 4;
+np = 6;
+neuropil = imCellNeuropil(mask_cell_all,buf,np);
+
+npTC = zeros(size(data_TC));
+for i = 1:size(data_TC,2)
+    tempNPmask = squeeze(neuropil(:,:,i));
+    if sum(sum(tempNPmask)) > 0
+    npTC(:,i) = stackGetTimeCourses(data_reg,tempNPmask);
+    end
+end
+
+   %get weights by maximizing skew
+ii= 0.01:0.01:1;
+x = zeros(length(ii), nCells);
+for i = 1:100
+    x(i,:) = skewness(data_TC-tcRemoveDC(npTC*ii(i)));
+end
+[max_skew ind] =  max(x,[],1);
+   % skew(buf,:) = max_skew;
+np_w = 0.01*ind;
+data_TC_subNP = data_TC-bsxfun(@times,tcRemoveDC(npTC),np_w);
+
+%% save data
+save('sbxaligned_data','mask_cell_all','mask_cell','neuropil','data_TC','data_TC_subNP','npTC');
+save('sbxaligned_timecourses','data_TC_subNP')
