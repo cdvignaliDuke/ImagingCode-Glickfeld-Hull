@@ -1,17 +1,20 @@
 %% load 2P imaging data
-SubNum = '625';
-date = '160302';
-time = '1150';
-ImgFolder = '006';
-mouse = 'AW25';
-fName = '006_000_000';
+SubNum = '631';
+date = '160713';
+time = '1458';
+ImgFolder = '005';
+mouse = 'AW31';
+fName = '005_000_001';
+mw = 0;
 
+if mw
 % load MWorks file
 % CD = ['Z:\data\' mouse '\mworks\' date];
 CD = 'Y:\home\andrew\Behavior\Data';
 cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (mworks);
+end
 
 % Set current directory to imaging data location
 CD = ['Z:\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
