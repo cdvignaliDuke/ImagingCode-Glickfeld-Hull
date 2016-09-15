@@ -50,7 +50,7 @@ function H=shadedErrorBar(x,y,errBar,lineProps,transparent)
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 % Error checking    
-error(nargchk(3,5,nargin))
+error(narginchk(3,5,nargin))
 
 
 %Process y using function handles if needed to make the error bar
