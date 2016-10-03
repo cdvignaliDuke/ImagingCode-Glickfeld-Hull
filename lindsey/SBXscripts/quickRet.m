@@ -1,6 +1,7 @@
-function quickRet(date,mouse,ImgFolder,time)
+function quickRet(date,mouse,ImgFolder,time,subnum)
 
 nrun = size(ImgFolder,1);
+rc = behavConstsAV;
 
 run_str = ['runs-' ImgFolder(1,:)];
 if nrun>1
@@ -10,7 +11,11 @@ end
 data = [];
 clear temp
 for irun = 1:nrun
+    if strcmp(rc.name,'ashle')
+    CD = ['Y:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder(irun,:)];
+    else
     CD = ['Z:\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
+    end
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
@@ -18,7 +23,12 @@ for irun = 1:nrun
     nframes = info.config.frames;
     data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
     
+    
+    if strcmp(rc.name,'ashle')        
+    fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' subnum '-' date '-' time(irun,:) '.mat'];
+    else
     fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
+    end
     load(fName);
     temp(irun) = input;
     
@@ -42,6 +52,9 @@ input = concatenateDataBlocks(temp);
     nOn = input.nScansOn;
     nOff = input.nScansOff;
     ntrials = size(input.tGratingDirectionDeg,2);
+    
+   %use if pmt 2 was saved
+%     data = squeeze(data(1,:,:,:));
     
     sz = size(data);
     data_tr = reshape(data,[sz(1), sz(2), nOn+nOff, ntrials]);
@@ -75,11 +88,24 @@ input = concatenateDataBlocks(temp);
     myfilter = fspecial('gaussian',[20 20], 0.5);
     data_dfof_avg_all = squeeze(mean(imfilter(data_dfof_avg(:,:,nOff:nOff+nOn,:),myfilter),3));
 
+    img_avg_resp = zeros(1,nStim);
     figure; 
     for i = 1:nStim; 
         subplot(length(Els),length(Azs),i); 
         imagesc(data_dfof_avg_all(:,:,i)); 
         colormap(gray)
         title(num2str(Stims(i,:)))
+        img_avg_resp(i) = mean(mean(mean(data_dfof_avg_all(:,:,i),3),2),1);
         %clim([0 max(data_dfof_avg_all(:))./2])
     end
+    figure
+    heatmap = imagesc(reshape(img_avg_resp,length(Els),length(Azs)));
+    heatmap.Parent.YTick = 1:length(Els);
+    heatmap.Parent.YTickLabel = strread(num2str(Els),'%s');    
+    heatmap.Parent.XTick = 1:length(Azs);
+    heatmap.Parent.XTickLabel = strread(num2str(Azs),'%s');
+    xlabel('Azimuth');
+    ylabel('Elevation');
+    colorbar
+    caxis([-0.1 0.1])
+    

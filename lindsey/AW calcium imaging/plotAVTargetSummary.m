@@ -1,8 +1,15 @@
-function plotAVTargetSummary(datasetStr)
+function plotAVTargetSummary(datasetStr,cellsOnly)
 %takes mouse structure and plots transient responses to target and base
 %stimuli
 close all
 eval(['awFSAVdatasets' datasetStr])
+
+if strcmp(datasetStr,'_naive100ms') | strcmp(datasetStr,'_naive100ms_virus')
+    isnaive = 1;
+else
+    isnaive = 0;
+end
+
 titleStr = datasetStr;
 if strcmp(titleStr, '')
     titleStr = 'V1';
@@ -10,7 +17,7 @@ else
     titleStr = titleStr(2:end);
 end
 rc = behavConstsAV;
-if strcmp(rc.name,'ashley')
+if strcmp(rc.name,'ashle')
     dataGroup = ['awFSAVdatasets' datasetStr];
 else
     dataGroup = [];
@@ -26,13 +33,19 @@ str = unique({expt.SubNum});
 values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
 mouse_ind = find(intersect(cell2mat({av.mouse}),values));
+if cellsOnly
+load(fullfile(rc.caOutputDir,dataGroup,'cells only',[mouse_str '_CaSummary' datasetStr '.mat']));
+titleStr = [titleStr mouse(1).expt(1).cells(1).name]; 
+fnout = fullfile(rc.caOutputDir, dataGroup,'cells only',[titleStr '_' mouse_str]); %% maybe lose mouse_str
+else
 load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' datasetStr '.mat']));
+titleStr = [titleStr mouse(1).expt(1).cells(1).name]; 
+fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
+end
 pre_win = mouse(1).expt(1).win(1).frames;
 trans_win = mouse(1).expt(1).win(2).frames;
 pre_event_frames = mouse(1).expt(1).pre_event_frames;
 post_event_frames = mouse(1).expt(1).post_event_frames;
-titleStr = [titleStr mouse(1).expt(1).cells(1).name]; 
-fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
 
 cycTime = mouse(1).expt(1).info(1).cyc_time;
 cycTimeMs = mouse(1).expt(1).info(1).cyc_time_ms;
@@ -103,7 +116,8 @@ xlim([-10 30])
 title(['All cells; n = ' num2str(size(resp,2))])
 suptitle({titleStr, 'Hits: Black; FAs: Cyan; CR: Blue; Auditory: Green'})
 print([fnout 'release_align_TCs' datasetStr '.pdf'], '-dpdf')
-
+%%
+% allTrialsTarget
 %%
 avgCellRespHeatMap_target
 %%
@@ -353,7 +367,7 @@ for iOri = 1:6
     errorbar(0, nanmean(trans_base_resp{1,2,iOri},1), nanstd(trans_base_resp{1,2,iOri},[],1)./sqrt(sum(~isnan(trans_base_resp{1,2,iOri}),1)), 'ok');
     title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{1,1,iOri},2)),1))])
     xlim([-10 100])
-    ylim([-0.01 0.03])
+    ylim([-0.015 0.09])
     ax.XTick = base_dirs;
     
 end
@@ -421,7 +435,7 @@ for iOri = 1:6
     errorbar(base_dirs(2:end), nanmean(trans_target_resp_crop{6, 1,iOri},1), nanstd(trans_target_resp_crop{6,1,iOri},[],1)./sqrt(sum(~isnan(trans_target_resp_crop{6,1,iOri}),1)), '-or');
     title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp_crop{5,1,iOri},2)),1))])
     xlim([-10 100])
-    ylim([-.01 0.05])
+    ylim([-.015 0.09])
 end
 suptitle([titleStr '- Target response tuning by preference- Matched Hits and Misses'])
 print([fnout 'target_resp_tuning_HM' datasetStr '.pdf'], '-dpdf')
@@ -505,8 +519,8 @@ else
 end
     title({[ 'all cells; n = ' num2str(size(trans_target_resp_crop_all{4,1},1)) '; p = ' num2str(chop(p,2))];'CR-vis-solid,CR-aud-dash'})
     xlim([-0.05 0.05])
-
 % vis cr,aud cr,vis Fa,aud H
+if isnaive == 0
 subplot(3,2,5)
     h1 = cdfplot(nanmean(trans_target_resp_crop_all{4,1},2));
     set(h1, 'Color', 'b')
@@ -520,7 +534,7 @@ subplot(3,2,5)
     hold on
     h4 = cdfplot(nanmean(trans_target_resp_crop_all{1,2},2));
     h4.Color = 'k';
-
+end
     title({[ 'all cells; n = ' num2str(size(trans_target_resp_crop_all{4,1},1)) '; p = ' num2str(chop(p,2))];'CR-vis-solid-blu,CR-aud-dash-blu,FA-vis-cy,H-aud-dash-blk'})
     xlim([-0.05 0.05])
   print([fnout 'cum_resp_allCells_summary' datasetStr '.pdf'], '-dpdf')      
@@ -669,6 +683,7 @@ for iOri = 1:6
 end
 print([fnout 'cum_resp_bypref_FACRVisHFAAud' datasetStr '.pdf'], '-dpdf')
 
+if isnaive == 0;
 % vis vs aud cr
 figure;
 suptitle([titleStr '-VisCR:solid ' num2str(chop(mean(nCyclesOn{4,1},2),2)) 'cyc; Aud CR:dashed ' num2str(chop(mean(nCyclesOn{4,2},2),2)) ' cyc']);
@@ -711,5 +726,5 @@ for iOri = 1:6
 end
 suptitle([titleStr '- Visual: Green ' num2str(chop(mean(nCyclesOn{1,1},2),2)) ' cyc; Auditory: Black ' num2str(chop(mean(nCyclesOn{1,2},2),2)) ' cyc'])
 print([fnout 'cum_resp_bypref_AV_Hits' datasetStr '.pdf'], '-dpdf')
-    
+end    
     

@@ -1,6 +1,6 @@
 rc = behavConstsAV;
-av = behavParamsAV;
-AWEyeDatasets_AW
+av = mouseColors_naiveEye;
+awFSAV_eye_naive100ms
 
 mice = unique({expt.SubNum});
 nMice = length(mice);
@@ -8,10 +8,10 @@ str = unique({expt.SubNum});
 values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
 mouse_ind = find(intersect(cell2mat({av.mouse}),values));
-mouse_str = [];
-for imouse = 1:nMice
-    mouse_str = [mouse_str 'i' num2str(av(mouse_ind(imouse)).mouse) '_'];  
-end
+% mouse_str = [];
+% for imouse = 1:nMice
+%     mouse_str = [mouse_str 'i' num2str(av(mouse_ind(imouse)).mouse) '_'];  
+% end
 fnout = fullfile(rc.eyeOutputDir, [date '_' mouse_str]);
 
 load([fnout 'EyeSummary.mat'])
@@ -54,7 +54,7 @@ x = -2:0.01:2;
 y = x;
 
 for ialign = 1:3
-    align = mouse(2).align(ialign).name;
+    align = mouse(1).align(ialign).name;
     if ialign == 1
         out_mat = [2 3];
     elseif ialign == 2
@@ -130,76 +130,72 @@ for ialign = 1:3
     end
     suptitle([align ' aligned summary- absolute values'])
     print([fnout '_summary_' align 'align_AV_abs.pdf'], '-dpdf');
-
+    
     figure;
     for imouse = 1:nMice
         col = av(mouse_ind(imouse)).col_str;
+        
         iout = 1;
         subplot(3,2,1)
-        a = mouse(imouse).align(ialign).av(1).outcome(1).avg_rad_trans(:,1)./mouse(imouse).align(1).av(1).outcome(1).avg_rad_pre(:,1);
-        b = mouse(imouse).align(ialign).av(2).outcome(1).avg_rad_trans(:,1)./mouse(imouse).align(1).av(2).outcome(1).avg_rad_pre(:,1);
+        a = mouse(imouse).align(ialign).av(1).outcome(iout).avg_rad_trans(:,1)-mouse(imouse).align(1).av(1).outcome(iout).avg_rad_pre(:,1);
+        b = mouse(imouse).align(ialign).av(2).outcome(iout).avg_rad_trans(:,1)-mouse(imouse).align(1).av(2).outcome(iout).avg_rad_pre(:,1);
         scatter(a, b, ['o' col]);
-        title(['Transient all trials'])
+        title([' Transient radius change'])
         hold on;
         errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
         subplot(3,2,2)
-        a = mouse(imouse).align(ialign).av(1).outcome(1).avg_rad_sust(:,1)./mouse(imouse).align(1).av(1).outcome(1).avg_rad_pre(:,1);
-        b = mouse(imouse).align(ialign).av(2).outcome(1).avg_rad_sust(:,1)./mouse(imouse).align(1).av(2).outcome(1).avg_rad_pre(:,1);
+        a = mouse(imouse).align(ialign).av(1).outcome(iout).avg_rad_sust(:,1)-mouse(imouse).align(1).av(1).outcome(iout).avg_rad_pre(:,1);
+        b = mouse(imouse).align(ialign).av(2).outcome(iout).avg_rad_sust(:,1)-mouse(imouse).align(1).av(2).outcome(iout).avg_rad_pre(:,1);
         scatter(a, b,  ['o' col]);
-        title(['Sustained all trials'])
+        title([' Sustained radius change'])
         hold on;
         errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
         subplot(3,2,3)
-        a = mouse(imouse).align(ialign).av(1).outcome(out_mat(:,1)).avg_rad_trans(:,1)./mouse(imouse).align(1).av(1).outcome(out_mat(:,1)).avg_rad_pre(:,1);
-        b = mouse(imouse).align(ialign).av(1).outcome(out_mat(:,2)).avg_rad_trans(:,1)./mouse(imouse).align(1).av(1).outcome(out_mat(:,2)).avg_rad_pre(:,1);
+        a = mouse(imouse).align(ialign).av(1).outcome(iout).avg_hor_trans(:,1)-mouse(imouse).align(1).av(1).outcome(iout).avg_hor_pre(:,1);
+        b = mouse(imouse).align(ialign).av(2).outcome(iout).avg_hor_trans(:,1)-mouse(imouse).align(1).av(2).outcome(iout).avg_hor_pre(:,1);
         scatter(a, b, ['o' col]);
-        title(['Transient visual trials'])
+        title([' Transient horizontal change'])
         hold on;
         errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
         subplot(3,2,4)
-        a = mouse(imouse).align(ialign).av(1).outcome(out_mat(:,1)).avg_rad_sust(:,1)./mouse(imouse).align(1).av(1).outcome(out_mat(:,1)).avg_rad_pre(:,1);
-        b = mouse(imouse).align(ialign).av(1).outcome(out_mat(:,2)).avg_rad_sust(:,1)./mouse(imouse).align(1).av(1).outcome(out_mat(:,2)).avg_rad_pre(:,1);
+        a = mouse(imouse).align(ialign).av(1).outcome(iout).avg_hor_sust(:,1)-mouse(imouse).align(1).av(1).outcome(iout).avg_hor_pre(:,1);
+        b = mouse(imouse).align(ialign).av(2).outcome(iout).avg_hor_sust(:,1)-mouse(imouse).align(1).av(2).outcome(iout).avg_hor_pre(:,1);
         scatter(a, b,  ['o' col]);
-        title(['ustained visual trials'])
+        title([' Sustained horizontal change'])
         hold on;
         errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
         subplot(3,2,5)
-        a = mouse(imouse).align(ialign).av(2).outcome(out_mat(:,1)).avg_rad_trans(:,1)./mouse(imouse).align(1).av(2).outcome(out_mat(:,1)).avg_rad_pre(:,1);
-        b = mouse(imouse).align(ialign).av(2).outcome(out_mat(:,2)).avg_rad_trans(:,1)./mouse(imouse).align(1).av(2).outcome(out_mat(:,2)).avg_rad_pre(:,1);
+        a = mouse(imouse).align(1).av(1).outcome(iout).avg_ver_pre(:,1)-mouse(imouse).align(ialign).av(1).outcome(iout).avg_ver_trans(:,1);
+        b = mouse(imouse).align(1).av(2).outcome(iout).avg_ver_pre(:,1)-mouse(imouse).align(ialign).av(2).outcome(iout).avg_ver_trans(:,1);
         scatter(a, b, ['o' col]);
-        title(['Transient auditory trials'])
+        title([' Transient vertical change'])
         hold on;
         errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
         subplot(3,2,6)
-        a = mouse(imouse).align(ialign).av(2).outcome(out_mat(:,1)).avg_rad_sust(:,1)./mouse(imouse).align(1).av(2).outcome(out_mat(:,1)).avg_rad_pre(:,1);
-        b = mouse(imouse).align(ialign).av(2).outcome(out_mat(:,2)).avg_rad_sust(:,1)./mouse(imouse).align(1).av(2).outcome(out_mat(:,2)).avg_rad_pre(:,1);
+        a = mouse(imouse).align(1).av(1).outcome(iout).avg_ver_pre(:,1)-mouse(imouse).align(ialign).av(1).outcome(iout).avg_ver_sust(:,1);
+        b = mouse(imouse).align(1).av(2).outcome(iout).avg_ver_pre(:,1)-mouse(imouse).align(ialign).av(2).outcome(iout).avg_ver_sust(:,1);
         scatter(a, b,  ['o' col]);
-        title(['Sustained auditory trials'])
+        title(['Sustained vertical change'])
         hold on;
         errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
-    
+        hold on
     for i = 1:6
-        axis square
         subplot(3,2,i)
-        xlim([0.9 1.1])
-        ylim([0.9 1.1])
+        axis square
+        xlabel('Visual (mm)')
+        ylabel('Auditory (mm)')
+        xlim([-.1 .1])
+        ylim([-.1 .1])
         hold on
         plot(x,y, '--k')
         hold on
-        hline(1,'-k')
+        hline(0,'-k')
         hold on
-        vline(1,'-k')
-        if i < 3
-            xlabel('Visual (%)')
-            ylabel('Auditory (%)')
-        else
-            xlabel([out_str1 ' (%)'])
-            ylabel([out_str2 ' (%)'])
-        end
+        vline(0,'-k')
     end
     end
-    suptitle([align ' aligned summary- normalized radius values'])
-    print([fnout '_summary_' align 'align_rad_norm.pdf'], '-dpdf');
+    suptitle([align ' aligned summary- absolute values'])
+    print([fnout '_summary_' align 'align_AV_abs.pdf'], '-dpdf');
 
     figure;
     for imouse = 1:nMice
@@ -266,6 +262,76 @@ for ialign = 1:3
     suptitle([align ' aligned visual summary- absolute values'])
     print([fnout '_summary_' align 'align_V_' out_str1 out_str2 '_abs.pdf'], '-dpdf');
 
+   figure;
+    for imouse = 1:nMice
+        col = av(mouse_ind(imouse)).col_str;
+        iav = 1;
+        subplot(3,2,1)
+        a = mouse(imouse).align(ialign).av(iav).outcome(1).avg_rad_trans(:,1)-mouse(imouse).align(1).av(iav).outcome(1).avg_rad_pre(:,1);
+        b = mouse(imouse).align(ialign).av(2).outcome(1).avg_rad_trans(:,1)-mouse(imouse).align(1).av(2).outcome(1).avg_rad_pre(:,1);
+        scatter(a, b, ['o' col]);
+        title([' Transient radius change'])
+        hold on;
+        errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
+        subplot(3,2,2)
+        a = mouse(imouse).align(ialign).av(iav).outcome(1).avg_rad_sust(:,1)-mouse(imouse).align(1).av(iav).outcome(1).avg_rad_pre(:,1);
+        b = mouse(imouse).align(ialign).av(2).outcome(1).avg_rad_sust(:,1)-mouse(imouse).align(1).av(2).outcome(1).avg_rad_pre(:,1);
+        scatter(a, b,  ['o' col]);
+        title(['Sustained radius change'])
+        hold on;
+        errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
+        subplot(3,2,3)
+        a = mouse(imouse).align(ialign).av(iav).outcome(1).avg_hor_trans(:,1)-mouse(imouse).align(1).av(iav).outcome(1).avg_hor_pre(:,1);
+        b = mouse(imouse).align(ialign).av(2).outcome(1).avg_hor_trans(:,1)-mouse(imouse).align(1).av(2).outcome(1).avg_hor_pre(:,1);
+        scatter(a, b, ['o' col]);
+        title([' Transient horizontal change'])
+        hold on;
+        errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
+        subplot(3,2,4)
+        a = mouse(imouse).align(ialign).av(iav).outcome(1).avg_hor_sust(:,1)-mouse(imouse).align(1).av(iav).outcome(1).avg_hor_pre(:,1);
+        b = mouse(imouse).align(ialign).av(2).outcome(1).avg_hor_sust(:,1)-mouse(imouse).align(1).av(2).outcome(1).avg_hor_pre(:,1);
+        scatter(a, b,  ['o' col]);
+        title(['Sustained horizontal change'])
+        hold on;
+        errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
+        subplot(3,2,5)
+        a = mouse(imouse).align(1).av(iav).outcome(1).avg_ver_pre(:,1)-mouse(imouse).align(ialign).av(iav).outcome(1).avg_ver_trans(:,1);
+        b = mouse(imouse).align(1).av(2).outcome(1).avg_ver_pre(:,1)-mouse(imouse).align(ialign).av(2).outcome(1).avg_ver_trans(:,1);
+        scatter(a, b, ['o' col]);
+        title([' Transient vertical change'])
+        hold on;
+        errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
+        subplot(3,2,6)
+        a = mouse(imouse).align(1).av(iav).outcome(1).avg_ver_pre(:,1)-mouse(imouse).align(ialign).av(iav).outcome(1).avg_ver_sust(:,1);
+        b = mouse(imouse).align(1).av(2).outcome(1).avg_ver_pre(:,1)-mouse(imouse).align(ialign).av(2).outcome(1).avg_ver_sust(:,1);
+        scatter(a, b,  ['o' col]);
+        title(['Sustained vertical change'])
+        hold on;
+        errorbarxy(mean(a,1), mean(b,1), std(a,[],1)/sqrt(size(a,1)), std(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
+    
+    for i = 1:6
+        axis square
+        subplot(3,2,i)
+        xlabel(['Visual deg'])
+        ylabel(['Auditory deg'])
+        if  i < 3
+            xlim([-.1 .1])
+            ylim([-.1 .1])
+        else
+            xlim([-2 2])
+            ylim([-2 2])
+        end
+        hold on
+        plot(x,y, '--k')
+        hold on
+        hline(0,'-k')
+        hold on
+        vline(0,'-k')
+    end
+    end
+    suptitle([align ' aligned visual summary- normalized/subtracted'])
+    print([fnout '_summary_' align 'align_V_normed.pdf'], '-dpdf'); 
+    
     figure;
     for imouse = 1:nMice
         col = av(mouse_ind(imouse)).col_str;

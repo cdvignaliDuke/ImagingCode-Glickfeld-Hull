@@ -1,11 +1,11 @@
 earlyCycMin = 3;
-lateCycMin = 6;
+lateCycMin = 7;
 earlyCycMax = 4;
 lateCycMax = 8;
 ttCycMs = (-pre_event_frames:((lateCycMax(end)*cycTime))-1)/(cycTime/cycTimeMs);
 
 nAnalysisFrames_early = 0:cycTime*2-1;
-nAnalysisFrames_late = 0:(cycTime*3-1)-(trans_win(1)-pre_event_frames-1);
+nAnalysisFrames_late = 0:(cycTime*2-1)-(trans_win(1)-pre_event_frames-1);
 early_win = nAnalysisFrames_early+trans_win(1)+cycTime;
 late_win = nAnalysisFrames_late+(trans_win(1)+((lateCycMin-1)*cycTime));
 
@@ -102,7 +102,11 @@ hold on
 shadedErrorBar(ttCycMs(20:length(tcEA)),tcEA(20:end),erEA(20:end),'k');
 hold on
 xlim([-10 cycTime*earlyCycMax]/(cycTime/cycTimeMs))
+if cellsInd == 2
+ylim([-0.01 0.05])
+else
 ylim([-0.01 0.03])
+end
 vline([ttCycMs(early_win(1)) ttCycMs(early_win(end))], '--r')
 vline(baseStimFrames/(cycTime/cycTimeMs),':k');
 title([num2str(earlyCycMax) ' cycles, n = ' num2str(size(resp_vis_cmlvCyc{earlyCycMax},2))]);
@@ -113,7 +117,11 @@ hold on
 shadedErrorBar(ttCycMs(20:length(tcLA)),tcLA(20:end),erLA(20:end),'k');
 hold on
 xlim([-10 cycTime*lateCycMax]/(cycTime/cycTimeMs))
+if cellsInd == 2
+ylim([-0.01 0.05])
+else
 ylim([-0.01 0.03])
+end
 vline([ttCycMs(late_win(1)) ttCycMs(late_win(end))], '--r')
 vline([0 cycTime:cycTime:cycTime*lateCycMax]/(cycTime/cycTimeMs),':k');
 title([num2str(lateCycMax) ' cycles, n = ' num2str(size(resp_vis_cmlvCyc{lateCycMax},2))]);

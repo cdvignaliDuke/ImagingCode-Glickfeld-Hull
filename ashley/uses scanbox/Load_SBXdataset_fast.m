@@ -1,19 +1,19 @@
 %% load 2P imaging data
-SubNum = '631';
-date = '160713';
-time = '1458';
-ImgFolder = '005';
-mouse = 'AW31';
-fName = '005_000_001';
-mw = 0;
+SubNum = '641';
+date = '160106';
+time = '1610';
+ImgFolder = '001';
+mouse = 'AW41';
+fName = '001_000_000';
+mw = 1;
 
 if mw
 % load MWorks file
 % CD = ['Z:\data\' mouse '\mworks\' date];
-CD = 'Y:\home\andrew\Behavior\Data';
-cd(CD);
+% CD = 'Y:\home\andrew\Behavior\Data';
+% cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
-load (mworks);
+load (fullfile('Y:\home\andrew\Behavior\Data',mworks));
 end
 
 % Set current directory to imaging data location

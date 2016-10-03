@@ -1,5 +1,7 @@
-function mouse = createAVCaDataStruct(datasetStr);
+function mouse = createAVCaDataStruct(datasetStr,cellsOnly);
 %collects all data from each experiment according to dataset type
+%set cellsOnly to 1 to grab data from cells only masks (rather than cells
+%and dendrites)
 
     % set analysis windows
     pre_event_time = 1000;
@@ -13,7 +15,7 @@ function mouse = createAVCaDataStruct(datasetStr);
     eval(['awFSAVdatasets' datasetStr])
     av = behavParamsAV;
     rc = behavConstsAV;
-    if strcmp(rc.name,'ashley')
+    if strcmp(rc.name,'ashle')
         dataGroup = ['awFSAVdatasets' datasetStr];
     else
         dataGroup = [];
@@ -131,9 +133,21 @@ function mouse = createAVCaDataStruct(datasetStr);
         offset = 0;
         for irun = 1:nrun
             ImgFolder = expt(iexp).runs(irun,:);
-            fnTC = fullfile(rc.ashleyAnalysis, expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, ImgFolder);
+            if cellsOnly
+                fnTC = fullfile(rc.ashleyAnalysis, expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, ImgFolder,'cells only');
+            else
+                fnTC = fullfile(rc.ashleyAnalysis, expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, ImgFolder);
+            end
             cd(fnTC);
-            load('Timecourses.mat')
+%             if strcmp(datasetStr,'_newROIs') | strcmp(datasetStr,'_naive100ms')
+%                 try
+%                 load('sbxalignedTimecourses.mat')
+%                 catch
+%                     load('Timecourses.mat')
+%                 end
+%             else
+                load('Timecourses.mat')
+%             end
             dataTC = cat(1, dataTC, dataTimecourse.dataTCsub);
             offset = offset+size(dataTimecourse.dataTCsub,1);
             if irun < nrun
@@ -169,6 +183,7 @@ function mouse = createAVCaDataStruct(datasetStr);
             catchReactFrames = cLeverUp-cCatchOn;
             catchTrialReactTimeMs = NaN(1,ntrials);
             catchTrialReactTimeMs(catchIndex) = catchReactFrames(catchIndex)/frameratems;
+            catchCyclesOn = cell2mat(input.catchCyclesOn);
             
             if ~any(strcmp(fieldnames(input),'catchTrialOutcomeCell'))
                 catchTrialOutcome = cell(1,ntrials);
@@ -209,8 +224,13 @@ function mouse = createAVCaDataStruct(datasetStr);
         clear dataTimecourse
         
         %load direction tuning data
+        if cellsOnly
+        dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning,'cells only');
+        load(fullfile(dataPath, 'cellsSelect.mat'));
+        else
         dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
         load(fullfile(dataPath, 'cellsSelect.mat'));
+        end
         
         %sort by trial type
         if expt(iexp).catch
@@ -235,8 +255,125 @@ function mouse = createAVCaDataStruct(datasetStr);
         Mb2Ix = intersect(AV_ind, MIxlong);
         Rb1Ix = intersect(Ix,intersect(V_ind, find(tCyclesOn>3)));
         Rb2Ix = intersect(Ix,intersect(AV_ind, find(tCyclesOn>3)));
-        
         SIxAllReactlong = intersect(find(tCyclesOn>3), SIxAllReact);
+        
+        %find result of previous trial
+        if sum(FIx==1)
+            if sum(intersect(FIx,V_ind)==1)
+            Fb3Ix = intersect(Fb1Ix,FIx(ismember(FIx(2:end)-1,V_ind)));
+            Fb4Ix = intersect(Fb1Ix,FIx(ismember(FIx(2:end)-1,AV_ind)));
+            Fb5Ix = intersect(Fb2Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb6Ix = intersect(Fb2Ix,FIx(ismember(FIx-1,AV_ind)));
+            else
+            Fb3Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb4Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,AV_ind)));
+            Fb5Ix = intersect(Fb2Ix,FIx(ismember(FIx(2:end)-1,V_ind)));
+            Fb6Ix = intersect(Fb2Ix,FIx(ismember(FIx(2:end)-1,AV_ind)));
+            end
+            Sb3Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb4Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,AV_ind)));
+            Mb3Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb4Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,AV_ind)));
+            Sb5Ix = intersect(Sb2Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb6Ix = intersect(Sb2Ix,SIx(ismember(SIx-1,AV_ind)));
+            Mb5Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb6Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,AV_ind)));
+            SbAR3Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR4Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+            SbAR5Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR6Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+        elseif sum(SIx==1)            
+            if sum(intersect(SIx,V_ind)==1)
+            Sb3Ix = intersect(Sb1Ix,SIx(ismember(SIx(2:end)-1,V_ind)));
+            Sb4Ix = intersect(Sb1Ix,SIx(ismember(SIx(2:end)-1,AV_ind)));
+            Sb5Ix = intersect(Sb2Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb6Ix = intersect(Sb2Ix,SIx(ismember(SIx-1,AV_ind)));
+            else
+            Sb3Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb4Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,AV_ind)));
+            Sb5Ix = intersect(Sb2Ix,SIx(ismember(SIx(2:end)-1,V_ind)));
+            Sb6Ix = intersect(Sb2Ix,SIx(ismember(SIx(2:end)-1,AV_ind)));
+            end
+            Fb3Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb4Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,AV_ind)));
+            Mb3Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb4Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,AV_ind)));
+            Fb5Ix = intersect(Fb2Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb6Ix = intersect(Fb2Ix,FIx(ismember(FIx-1,AV_ind)));
+            Mb5Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb6Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,AV_ind)));
+            SbAR3Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR4Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+            SbAR5Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR6Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+        elseif sum(MIx==1)
+            if sum(intersect(MIx,V_ind)==1)
+            Mb3Ix = intersect(Mb1Ix,MIx(ismember(MIx(2:end)-1,V_ind)));
+            Mb4Ix = intersect(Mb1Ix,MIx(ismember(MIx(2:end)-1,AV_ind)));
+            Mb5Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb6Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,AV_ind)));
+            else
+            Mb3Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb4Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,AV_ind)));
+            Mb5Ix = intersect(Mb2Ix,MIx(ismember(MIx(2:end)-1,V_ind)));
+            Mb6Ix = intersect(Mb2Ix,MIx(ismember(MIx(2:end)-1,AV_ind)));
+            end
+            Fb3Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb4Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,AV_ind)));
+            Sb3Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb4Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,AV_ind)));
+            Fb5Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb6Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,AV_ind)));
+            Sb5Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb6Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,AV_ind)));
+            SbAR3Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR4Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+            SbAR5Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR6Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+        elseif sum(SIxAllReactlong==1)
+            if sum(intersect(SIxAllReactlong,V_ind)==1)
+            SbAR3Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong(2:end)-1,V_ind)));
+            SbAR4Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong(2:end)-1,AV_ind)));
+            SbAR5Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR6Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+            else
+            SbAR3Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR4Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+            SbAR5Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong(2:end)-1,V_ind)));
+            SbAR6Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong(2:end)-1,AV_ind)));                
+            end
+            Fb3Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb4Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,AV_ind)));
+            Sb3Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb4Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,AV_ind)));
+            Mb3Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb4Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,AV_ind)));
+            Fb5Ix = intersect(Fb2Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb6Ix = intersect(Fb2Ix,FIx(ismember(FIx-1,AV_ind)));
+            Sb5Ix = intersect(Sb2Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb6Ix = intersect(Sb2Ix,SIx(ismember(SIx-1,AV_ind)));
+            Mb5Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb6Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,AV_ind)));
+        else
+            Fb3Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb4Ix = intersect(Fb1Ix,FIx(ismember(FIx-1,AV_ind)));
+            Sb3Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb4Ix = intersect(Sb1Ix,SIx(ismember(SIx-1,AV_ind)));
+            Mb3Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb4Ix = intersect(Mb1Ix,MIx(ismember(MIx-1,AV_ind)));
+            Fb5Ix = intersect(Fb2Ix,FIx(ismember(FIx-1,V_ind)));
+            Fb6Ix = intersect(Fb2Ix,FIx(ismember(FIx-1,AV_ind)));
+            Sb5Ix = intersect(Sb2Ix,SIx(ismember(SIx-1,V_ind)));
+            Sb6Ix = intersect(Sb2Ix,SIx(ismember(SIx-1,AV_ind)));
+            Mb5Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,V_ind)));
+            Mb6Ix = intersect(Mb2Ix,MIx(ismember(MIx-1,AV_ind)));
+            SbAR3Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR4Ix = intersect(V_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+            SbAR5Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,V_ind)));
+            SbAR6Ix = intersect(AV_ind,SIxAllReactlong(ismember(SIxAllReactlong-1,AV_ind)));
+        end
+            
+        
         SbAR1Ix = intersect(V_ind, SIxAllReactlong);
         SbAR2Ix = intersect(AV_ind, SIxAllReactlong);
 
@@ -302,8 +439,26 @@ function mouse = createAVCaDataStruct(datasetStr);
     % match number of trials per direction for invalid and valid hits and
     % misses (catch trials only)
     if expt(iexp).catch
-        faIx = find(strcmp(catchTrialOutcome,'FA'));
-        crIx = find(strcmp(catchTrialOutcome,'CR'));
+        fa1Ix = find(strcmp(catchTrialOutcome,'FA'));
+        cr1Ix = find(strcmp(catchTrialOutcome,'CR'));
+        fa1Ix = fa1Ix;
+        cr1Ix = cr1Ix;
+        if sum(fa1Ix==1)
+            fa3Ix = intersect(fa1Ix, fa1Ix(ismember(fa1Ix(2:end)-1,V_ind)));
+            fa4Ix = intersect(fa1Ix, fa1Ix(ismember(fa1Ix(2:end)-1,AV_ind)));
+            cr3Ix = intersect(cr1Ix, cr1Ix(ismember(cr1Ix-1,V_ind)));
+            cr4Ix = intersect(cr1Ix, cr1Ix(ismember(cr1Ix-1,AV_ind)));
+        elseif sum(cr1Ix==1)
+            fa3Ix = intersect(fa1Ix, fa1Ix(ismember(fa1Ix-1,V_ind)));
+            fa4Ix = intersect(fa1Ix, fa1Ix(ismember(fa1Ix-1,AV_ind)));
+            cr3Ix = intersect(cr1Ix, cr1Ix(ismember(cr1Ix(2:end)-1,V_ind)));
+            cr4Ix = intersect(cr1Ix, cr1Ix(ismember(cr1Ix(2:end)-1,AV_ind)));
+        else
+            fa3Ix = intersect(fa1Ix, fa1Ix(ismember(fa1Ix-1,V_ind)));
+            fa4Ix = intersect(fa1Ix, fa1Ix(ismember(fa1Ix-1,AV_ind)));
+            cr3Ix = intersect(cr1Ix, cr1Ix(ismember(cr1Ix-1,V_ind)));
+            cr4Ix = intersect(cr1Ix, cr1Ix(ismember(cr1Ix-1,AV_ind)));
+        end
         sIxFaIxMatch = [];
         faIxSIxMatch = [];
         mIxCrIxMatch = [];
@@ -319,8 +474,8 @@ function mouse = createAVCaDataStruct(datasetStr);
             cDirIx = find(tCatchGratingDirectionDeg == cDirs(idir));
             sDir = intersect(Sb1Ix,dirIx);
             mDir = intersect(Mb1Ix,dirIx);
-            faDir = intersect(faIx,cDirIx);
-            crDir = intersect(crIx,cDirIx);
+            faDir = intersect(fa1Ix,cDirIx);
+            crDir = intersect(cr1Ix,cDirIx);
             nS = length(sDir);
             nM = length(mDir);
             nFA = length(faDir);
@@ -456,7 +611,11 @@ function mouse = createAVCaDataStruct(datasetStr);
         for i = 1:5
             mouse(imouse).expt(s(:,imouse)).align(i).av(1).name = 'visual';
             mouse(imouse).expt(s(:,imouse)).align(i).av(2).name = 'auditory';
-            for ii = 1:2
+            mouse(imouse).expt(s(:,imouse)).align(i).av(3).name = 'visual - prev vis';
+            mouse(imouse).expt(s(:,imouse)).align(i).av(4).name = 'visual - prev aud';
+            mouse(imouse).expt(s(:,imouse)).align(i).av(5).name = 'auditory - prev aud';
+            mouse(imouse).expt(s(:,imouse)).align(i).av(6).name = 'auditory - prev vis';
+            for ii = 1:6
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(1).name = 'hit';
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(2).name = 'miss';
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(3).name = 'FA';
@@ -466,11 +625,13 @@ function mouse = createAVCaDataStruct(datasetStr);
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(1).n = eval(['length(Sb' num2str(ii) 'Ix)']);
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(2).n = eval(['length(Mb' num2str(ii) 'Ix)']);
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(3).n = eval(['length(Fb' num2str(ii) 'Ix)']);
+                if i == 1
+                mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(1).n = eval(['length(SbAR' num2str(ii) 'Ix)']);
+                end
+                if ii < 3
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(4).n = eval(['length(Rb' num2str(ii) 'Ix)']);
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(5).n = eval(['length(Sb' num2str(ii) 'IxMatch)']);
                 mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(6).n = eval(['length(Mb' num2str(ii) 'IxMatch)']);
-                if i == 1
-                mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(1).n = eval(['length(SbAR' num2str(ii) 'Ix)']);
                 end
                 if i == 3
                     mouse(imouse).expt(s(:,imouse)).align(i).av(ii).outcome(1).name = 'unmatched hits - dirs';
@@ -504,7 +665,7 @@ function mouse = createAVCaDataStruct(datasetStr);
         end
         
         %identify trials with motion (large peaks in the derivative)
-        motionThreshold = 0.05;
+        motionThreshold = 0.1;
         sz = size(DataDFoverF);
         ind_motion = find(max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold);
         mouse(imouse).expt(s(:,imouse)).align(ialign).ind_motion = ind_motion;
@@ -545,38 +706,43 @@ function mouse = createAVCaDataStruct(datasetStr);
         
         %find trials of a minimum trail length and divide up by outcome
         tCycInd = find(tCyclesOn >= minCyclesAnt);
-        for iav = 1:2
+        for iav = 1:6
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).cmlvResp = DataDFoverF(1:pre_event_frames+minTrialLengthFrames,:,intersect(tCycInd,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).cmlvResp = DataDFoverF(1:pre_event_frames+minTrialLengthFrames,:,intersect(tCycInd,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).cmlvResp = DataDFoverF(1:pre_event_frames+minTrialLengthFrames,:,intersect(tCycInd,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion)));
+            if iav < 3
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).cmlvResp = DataDFoverF(1:pre_event_frames+minTrialLengthFrames,:,intersect(tCycInd,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).cmlvResp = DataDFoverF(1:pre_event_frames+minTrialLengthFrames,:,intersect(tCycInd,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion)));
-        end 
+            end
+        end
         
         %% find cumulative average for each cycle length
-        cycs = unique(tCyclesOn);
+        cycs = 1:max(tCyclesOn);
         for icyc = 1:length(cycs)
             minCyc = cycs(icyc);
             tCycInd = find(tCyclesOn >= minCyc);
             oneCycInd = find(tCyclesOn == minCyc);
             trLengthFrames = cycTime*(icyc);
 %         if icyc < 9
-        for iav = 1:2
+        for iav = 1:6
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).cmlvCycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(tCycInd,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).cmlvCycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(tCycInd,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).cmlvCycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(tCycInd,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion)));
+            if iav < 3
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).cmlvCycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(tCycInd,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).cmlvCycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(tCycInd,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion)));
-        end 
-        for iav = 1:2
+            end 
+        end
+        for iav = 1:6
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).cycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(oneCycInd,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).cycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(oneCycInd,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).cycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(oneCycInd,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion)));
+            if iav < 3
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).cycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(oneCycInd,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).cycResp{icyc} = DataDFoverF(1:pre_event_frames+trLengthFrames,:,intersect(oneCycInd,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion)));
-        end 
+            end
+        end
 %         end
-
         end
         %test for significantly responsive cells
         %to first baseline stimulus (ttest of means)
@@ -616,28 +782,30 @@ function mouse = createAVCaDataStruct(datasetStr);
         mouse(imouse).expt(s(:,imouse)).align(ialign).ind_motion = ind_motion;
         
         %divide data by trial type and outcome
-        for iav = 1:2
+        for iav = 1:6
             if length(eval(['Sb' num2str(iav) 'Ix']))>0
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = DataDFoverF(:,:,setdiff(eval(['Sb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = DataDFoverF(:,:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).reactTimes = reactTimes(setdiff(eval(['Sb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).reactTimes = reactTimes(setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).reactTimes = reactTimes(setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).tcyc = tCyclesOn(:,setdiff(eval(['Sb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).tcyc = tCyclesOn(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).tcyc = tCyclesOn(:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+                if iav < 3
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).resp = DataDFoverF_CR(:,:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = DataDFoverF(:,:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).resp = DataDFoverF(:,:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));
                 %react times for each trial
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).reactTimes = reactTimes(setdiff(eval(['Sb' num2str(iav) 'Ix']),ind_motion));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).reactTimes = reactTimes(setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).reactTimes = reactTimes(setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).reactTimes = reactTimes(setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).reactTimes = reactTimes(setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).reactTimes = reactTimes(setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));
                 %trial length 
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).tcyc = tCyclesOn(:,setdiff(eval(['Sb' num2str(iav) 'Ix']),ind_motion));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).tcyc = tCyclesOn(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).tcyc = tCyclesOn(:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc = tCyclesOn(:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion))-1;
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).tcyc = tCyclesOn(:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).tcyc = tCyclesOn(:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));
+                end
                 if expt(iexp).catch && iav == 1
                 mouse(imouse).expt(s(:,imouse)).align(3).av(iav).outcome(1).resp = DataDFoverF(:,:,setdiff(sIxFaIxMatch,ind_motion)); %'hits match FA';
                 mouse(imouse).expt(s(:,imouse)).align(3).av(iav).outcome(2).resp = DataDFoverF(:,:,setdiff(sIxCrIxMatch,ind_motion)); %'hits match CR';        
@@ -664,32 +832,41 @@ function mouse = createAVCaDataStruct(datasetStr);
         mouse(imouse).expt(s(:,imouse)).align(ialign).ttest_trans = zeros(size(dataTC,2), length(Dirs));
         tarStimRespDiff = zeros(size(dataTC,2), length(Dirs));
         for iDir = 1:length(Dirs)
-            iav = 1;
+            for iav = [1 3 4];
             vInd = setdiff(find(tGratingDirectionDeg==Dirs(iDir)), ind_motion);
             %if iDir == 1, then the direction is 0 and it's an auditory trial
             if iDir == 1
                 indS = intersect(vInd, Sb2Ix);
                 indM = intersect(vInd, Mb2Ix);
+                if iav < 3
                 indSM = intersect(vInd, Sb2IxMatch);
                 indMM = intersect(vInd, Mb2IxMatch);
+                end
             else
-                indS = intersect(vInd, Sb1Ix);
-                indM = intersect(vInd, Mb1Ix);
+                indS = intersect(vInd, eval(['Sb' num2str(iav) 'Ix']));%Sb1Ix);
+                indM = intersect(vInd, eval(['Mb' num2str(iav) 'Ix']));%Mb1Ix);
+                if iav < 3
                 indSM = intersect(vInd, Sb1IxMatch);
                 indMM = intersect(vInd, Mb1IxMatch);
+                end
             end
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).stimResp{iDir} = DataDFoverF(:,:,indS);
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).stimResp{iDir} = DataDFoverF(:,:,indM);        
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).stimResp{iDir} = DataDFoverF(:,:,indM);  
+            if iav < 3
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).stimResp{iDir} = DataDFoverF(:,:,indSM);
             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).stimResp{iDir} = DataDFoverF(:,:,indMM);
+            end
             
              mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).trialL{iDir} = tCyclesOn(:,indS);
              mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).trialL{iDir} = tCyclesOn(:,indM);
              
             %test for responsiveness to any one of the presented directions
+            if iav == 1
             [h, p] = ttest(squeeze(mean(DataDFoverF(pre_win,:,[indS indM]),1)), squeeze(mean(DataDFoverF(trans_win,:,[indS indM]),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)));
             mouse(imouse).expt(s(:,imouse)).align(ialign).ttest_trans(:,iDir) = h;
             tarStimRespDiff(:,iDir) = squeeze(mean(mean(DataDFoverF(trans_win,:,[indS indM]),3),1)) - squeeze(mean(mean(DataDFoverF(pre_win,:,[indS indM]),3),1));
+            end
+            end
         end
         
         %divide data by target sound amplitude
@@ -751,42 +928,97 @@ function mouse = createAVCaDataStruct(datasetStr);
         mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(8).resp = DataDFoverF(:,:,setdiff(crIxSIxMatch,ind_motion)); %'CR match hits';
         mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(9).resp = DataDFoverF(:,:,setdiff(crIxMIxmatch,ind_motion)); %'CR match miss';
         mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(10).resp = DataDFoverF(:,:,setdiff(crIxFaIxMatch,ind_motion)); %'CR match FA';
-        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(11).resp = DataDFoverF(:,:,setdiff(faIx,ind_motion)); %'unmatched FA';        
-        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(12).resp = DataDFoverF(:,:,setdiff(crIx,ind_motion)); %'unmatched CR';
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(11).resp = DataDFoverF(:,:,setdiff(fa1Ix,ind_motion)); %'unmatched FA';        
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(12).resp = DataDFoverF(:,:,setdiff(cr1Ix,ind_motion)); %'unmatched CR';
         
-        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(11).tcyc = tCyclesOn(:,setdiff(faIx,ind_motion)); %'unmatched FA';        
-        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(12).tcyc = tCyclesOn(:,setdiff(crIx,ind_motion)); %'unmatched CR';
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(11).tcyc = catchCyclesOn(:,setdiff(fa1Ix,ind_motion)); %'unmatched FA';        
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(12).tcyc = catchCyclesOn(:,setdiff(cr1Ix,ind_motion)); %'unmatched CR';
         %divide data by catch direction
         mouse(imouse).expt(s(:,imouse)).info.cDirs = cDirs;
+        for iav = [1 3 4]
         cind = [];
         for iDir = 1:length(cDirs)
             cind = find(tCatchGratingDirectionDeg == cDirs(iDir));
 %             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).stimResp{iDir} = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(1).stimResp{iDir};
 %             mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).stimResp{iDir} = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(2).stimResp{iDir};
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).stimResp{iDir} = DataDFoverF(:,:,setdiff(intersect(faIx,cind),ind_motion));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).stimResp{iDir} = DataDFoverF(:,:,setdiff(intersect(crIx,cind),ind_motion));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).tcyc{iDir} = tCyclesOn(:,setdiff(intersect(faIx,cind),ind_motion));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc{iDir} = tCyclesOn(:,setdiff(intersect(crIx,cind),ind_motion));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).stimResp{iDir} = DataDFoverF(:,:,setdiff(intersect(eval(['fa' num2str(iav) 'Ix']),cind),ind_motion));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).stimResp{iDir} = DataDFoverF(:,:,setdiff(intersect(eval(['cr' num2str(iav) 'Ix']),cind),ind_motion));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).tcyc{iDir} = catchCyclesOn(:,setdiff(intersect(eval(['fa' num2str(iav) 'Ix']),cind),ind_motion));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc{iDir} = catchCyclesOn(:,setdiff(intersect(eval(['cr' num2str(iav) 'Ix']),cind),ind_motion));
             
         end
         
-        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).FAreacttime = catchTrialReactTimeMs(faIx);
+        mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).FAreacttime = catchTrialReactTimeMs(eval(['fa' num2str(iav) 'Ix']));
         
         mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).stimResp = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(1).stimResp(find(ismember(Dirs,cDirs)));
         mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).stimResp = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(2).stimResp(find(ismember(Dirs,cDirs)));
         mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).tcyc = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(1).trialL(find(ismember(Dirs,cDirs)));
         mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).tcyc = mouse(imouse).expt(s(:,imouse)).align(2).av(iav).outcome(2).trialL(find(ismember(Dirs,cDirs)));
         
-        
+        end
 %         for idir = 1:length(cDirs)
 %            dirIx = find(tCatchGratingDirectionDeg == cDirs(idir));
-%            faIxDir = intersect(faIx,dirIx);
-%            crIxDir = intersect(crIx,dirIx);
+%            faIxDir = intersect(fa1Ix,dirIx);
+%            crIxDir = intersect(cr1Ix,dirIx);
 %            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).stimResp{idir} = DataDFoverF(:,:,faIxDir);
 %            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).stimResp{idir} = DataDFoverF(:,:,crIxDir);
 %         end        
         else
             mouse(imouse).expt(s(:,imouse)).info.cDirs = [];
+        end
+        
+        %% Align data to lever down, include target
+        ialign = 4;
+        Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        DataF = zeros(1,size(dataTC,2),ntrials);
+        DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
+        for itrial = 1:max(find(cLeverDown+post_event_frames-1 <  size(dataTC,1)),[],2)
+            Data(:,:,itrial) = dataTC(cLeverDown(itrial)-pre_event_frames:cLeverDown(itrial)+post_event_frames-1,:);
+            DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
+        end
+        
+        cycs = 1:max(tCyclesOn);
+        for icyc = 1:length(cycs)
+            minCyc = cycs(icyc);
+            oneCycInd = find(tCyclesOn == minCyc);
+        for iav = 1:2
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).cycResp{icyc} = DataDFoverF(:,:,intersect(oneCycInd,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).cycResp{icyc} = DataDFoverF(:,:,intersect(oneCycInd,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion)));              
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).cycResp{icyc} = DataDFoverF(:,:,intersect(oneCycInd,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).cycResp{icyc} = DataDFoverF(:,:,intersect(oneCycInd,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion)));
+            
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).tTargetOn{icyc} = cTargetOn(intersect(oneCycInd,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).tTargetOn{icyc} = cTargetOn(intersect(oneCycInd,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).tTargetOn{icyc} = cTargetOn(intersect(oneCycInd,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).tTargetOn{icyc} = cTargetOn(intersect(oneCycInd,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion)));
+            
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).direction{icyc} = tGratingDirectionDeg(intersect(oneCycInd,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).direction{icyc} = tGratingDirectionDeg(intersect(oneCycInd,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).direction{icyc} = tGratingDirectionDeg(intersect(oneCycInd,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).direction{icyc} = tGratingDirectionDeg(intersect(oneCycInd,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion)));
+                        
+            if expt(iexp).catch & iav == 1
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).cycResp{icyc} = DataDFoverF(:,:,intersect(oneCycInd,setdiff(eval(['fa' num2str(iav) 'Ix']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).cycResp{icyc} = DataDFoverF(:,:,intersect(oneCycInd,setdiff(eval(['cr' num2str(iav) 'Ix']),ind_motion))); 
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).tTargetOn{icyc} = cCatchOn(intersect(oneCycInd,setdiff(eval(['fa' num2str(iav) 'Ix']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tTargetOn{icyc} = cCatchOn(intersect(oneCycInd,setdiff(eval(['cr' num2str(iav) 'Ix']),ind_motion)));  
+            
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).direction{icyc} = tCatchGratingDirectionDeg(intersect(oneCycInd,setdiff(eval(['fa' num2str(iav) 'Ix']),ind_motion)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).direction{icyc} = tCatchGratingDirectionDeg(intersect(oneCycInd,setdiff(eval(['cr' num2str(iav) 'Ix']),ind_motion)));  
+            
+            end
+            
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).name = 'hit';
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).name = 'miss'; 
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).name = 'invalid hit';
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).name = 'invalid miss';              
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).name = 'hit - matched';
+            mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).name = 'miss - matched';
+            
+        end
         end
         %% find cells that are responsive to at least one of the target
         %directions or the first baseline visual stimulus 
@@ -799,12 +1031,18 @@ function mouse = createAVCaDataStruct(datasetStr);
         mouse(imouse).expt(s(:,imouse)).cells(11).ind = intersect(find(mean(tarStimRespDiff,2) < 0),resp_ind);
         mouse(imouse).expt(s(:,imouse)).cells(12).ind = base_ind;
         mouse(imouse).expt(s(:,imouse)).cells(13).ind = resp_ind;
-        mouse(imouse).expt(s(:,imouse)).cells(14).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(8).ind,mouse(imouse).expt(s(:,imouse)).cells(9).ind));
+        mouse(imouse).expt(s(:,imouse)).cells(14).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(8).ind));
     end
     
     figure(motionHist)
+    if cellsOnly
+        mkdir(fullfile(rc.caOutputDir, dataGroup),'cells only')
+    print(fullfile(rc.caOutputDir, dataGroup,'cells only', [datasetStr '_motionHist.pdf']), '-dpdf')
+    save(fullfile(rc.caOutputDir, dataGroup,'cells only', [mouse_str '_CaSummary' datasetStr '.mat']), 'mouse','-v7.3');
+    else
     print(fullfile(rc.caOutputDir, dataGroup, [datasetStr '_motionHist.pdf']), '-dpdf')
     save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary' datasetStr '.mat']), 'mouse','-v7.3');
+    end
 end
 
         

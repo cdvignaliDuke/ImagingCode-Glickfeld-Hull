@@ -46,7 +46,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,600:610),3);
+data_avg = mean(data_sub(:,:,200:210),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -75,11 +75,20 @@ run('sortTrialsAvg_writetiffs.m')
 %% create dF/F stack
 
 nOFF_ind = zeros(1,(nOFF*nStim*nRep));
+nOFF_1 = zeros(1,nRep*nStim);
 start = 1;
 for iStim = 1:(nRep*nStim)
     nOFF_ind(1, start:start+nOFF-1) = 1+((iStim-1)*(nOFF+nON)):nOFF + ((iStim-1)*(nOFF+nON));
+    nOFF_1(1,iStim) = 1+((iStim-1)*(nOFF+nON));
     start = start+nOFF;
 end
+
+%% movie with trial start marked
+data_offmark = data_reg;
+data_offmark(1:55,721:end,nOFF_1) = max(max(mean(data_reg,3)));
+writetiff(data_offmark,'rawFtrialstartmark')
+
+%%
 
 nON_ind = setdiff(1:size(data_reg,3),nOFF_ind);
 nON_avg = mean(data_reg(:,:,nON_ind),3);
@@ -89,9 +98,30 @@ nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
 dF_data = bsxfun(@minus,data_reg, nOFF_avg);
 dFoverF = bsxfun(@rdivide,dF_data,nOFF_avg);
 
+%motion/global F change index
+motionThreshold = 0.05;
+ind_motion = find(abs(diff(squeeze(mean(mean(dFoverF,1),2)),1))>motionThreshold);
+
+% writetiff(dFoverF(:,:,ind_motion+1),'motionFrames');
+
+m = setdiff(1:size(data_reg,3),ind_motion+1);
+
+% maxF = max(data_reg(:,:,nON_ind),[],3);
+% meanF_on = mean(data_reg(:,:,nON_ind),3);
+% meanF_off = mean(data_reg(:,:,nOFF_ind),3);
+% figure;imagesq(maxF); colormap(gray)
+% figure;imagesq(meanF_on); colormap(gray);title('F on')
+% figure;imagesq(meanF_off);colormap(gray);title('F off')
+% sub = bsxfun(@minus,meanF_on,meanF_off);
+% sub(sub < 0) = 0;
+% figure;imagesq(sub);colormap(gray);title('on-off')
 max_dF = max(dF_data,[],3);
-maxDFoverF = max(dFoverF,[],3);
+maxDFoverF = max(dFoverF(:,:,m),[],3);
+meanDFoverF = mean(dFoverF,3);
+maxDFoverFcrop = maxDFoverF;
+maxDFoverFcrop(:,[1:32 758:end]) =0;
 figure; imagesq(maxDFoverF); colormap(gray)
+% figure; imagesq(meanDFoverF); colormap(gray)
 
 %get rid of bright patch to make gui easier to use
 % maxDFoverF(:,750:end,:) = 0;
@@ -128,18 +158,18 @@ figure; tcOffsetPlot(data_TC)
 %% use correlation dF/F to find ROIS
 
 % %use max dF if too many cells
-% b = 5;
-% siz = size(data_reg);
-% corr_map = zeros(siz(1),siz(2));
-% for ix = b:siz(2)-b
-%     for iy = b:siz(1)-b
-%         TC = data_reg(iy,ix,:);
-%         surround = (data_reg(iy-1,ix-1,:)+data_reg(iy-1,ix,:)+data_reg(iy-1,ix+1,:)+data_reg(iy,ix-1,:)+data_reg(iy,ix+1,:)+data_reg(iy+1,ix-1,:)+data_reg(iy+1,ix,:)+data_reg(iy+1,ix+1,:))/8;
-%         R = corrcoef(TC,surround);
-%         corr_map(iy,ix) = R(1,2);
-%     end
-% end
-% figure; imagesq(corr_map); colormap(gray)
+% % b = 5;
+% % siz = size(data_reg);
+% % corr_map = zeros(siz(1),siz(2));
+% % for ix = b:siz(2)-b
+% %     for iy = b:siz(1)-b
+% %         TC = data_reg(iy,ix,:);
+% %         surround = (data_reg(iy-1,ix-1,:)+data_reg(iy-1,ix,:)+data_reg(iy-1,ix+1,:)+data_reg(iy,ix-1,:)+data_reg(iy,ix+1,:)+data_reg(iy+1,ix-1,:)+data_reg(iy+1,ix,:)+data_reg(iy+1,ix+1,:))/8;
+% %         R = corrcoef(TC,surround);
+% %         corr_map(iy,ix) = R(1,2);
+% %     end
+% % end
+% % figure; imagesq(corr_map); colormap(gray)
 % 
 % bwout = imCellEditInteractive(corr_map);
 % mask_cell = bwlabel(bwout);
@@ -233,20 +263,14 @@ for i = 1:nStim
 end
 
 %% find magnitude of response to stim
-
 dFoverF_meanOFFDirResp = (squeeze(mean(dFoverF_meanDirResp(1:10,:,:),1)));
-
-dFoverF_meanONDirResp = (squeeze(mean(dFoverF_meanDirResp(11:end,:,:),1)));
-DirRespPerCell = dFoverF_meanONDirResp;
-% DirRespPerCell = dFoverF_meanONDirResp./dFoverF_meanOFFDirResp;
+DirRespPerCell = (squeeze(mean(dFoverF_meanDirResp(11:end,:,:),1)));
 
 figure;
 plot(DirRespPerCell(10,:))
 
 %% find direction preference
-
 DirRespPerCell_sub = DirRespPerCell-min(min(min(DirRespPerCell,[],1),[],2));
-
 [dirPref_val,dirPref_ind] = max(DirRespPerCell_sub,[],2);
 
 pref2orth_dir = [nStim/2+1:nStim 1:nStim/2];
@@ -266,7 +290,7 @@ end
 cellDSI = zeros(size(dirPref_ind));
 cellDSI = (dirPref_val - dirOrth_val)./(dirPref_val + dirOrth_val);
 dirSlctvCells = find(cellDSI > 0.3);
-figure;hist(cellDSI,10)
+figure;hist(cellDSI,10);title('DSI')
 
 %% find orientation preference
 dFoverF_meanOriResp = zeros(size(dFoverFCellsTrials,1),size(dFoverFCellsTrials,2),nStim/2);
@@ -274,11 +298,8 @@ for i = 1:nStim/2
     trials = find(DirectionDeg(:,1:nTrials) == Dirs(i) | DirectionDeg(:,1:nTrials) == Dirs(i+nStim/2));
     dFoverF_meanOriResp(:,:,i) = mean(dFoverFCellsTrials(:,:,trials),3);
 end
-
 dFoverF_meanOFFOriResp = (squeeze(mean(dFoverF_meanOriResp(1:10,:,:),1)))+1;
-
 dFoverF_meanONOriResp = (squeeze(mean(dFoverF_meanOriResp(11:end,:,:),1)))+1;
-
 OriRespPerCell = dFoverF_meanONOriResp;
 
 figure;
@@ -304,7 +325,7 @@ end
 cellOSI = zeros(size(oriPref_ind));
 cellOSI = (oriPref_val - oriOrth_val)./(oriPref_val + oriOrth_val);
 oriSlctvCells = find(cellOSI > 0.3);
-figure;hist(cellOSI,10);
+figure;hist(cellOSI,10);title('OSI')
 
 %% get tuning curves
 

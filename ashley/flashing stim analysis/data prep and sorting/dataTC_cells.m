@@ -1,9 +1,9 @@
 % edit Load_SBXdataset_fast.m
 %%
 
-awFSAVdatasets
+pairedPulseAud_datasets
 % for iexp = 1:size(expt,2)
-    iexp = 10;
+    iexp = 1;
 
 for irun = 1:expt(iexp).nrun;
 SubNum = expt(iexp).SubNum;

@@ -1,29 +1,29 @@
 clear all
 close all
-AWEyeDatasets_AW
+awFSAV_eye_naive100ms
 rc = behavConstsAV;
-av = behavParamsAV;
+av = mouseColors_naiveEye;
 mice = unique({expt.SubNum});
 nMice = length(mice);
 str = unique({expt.SubNum});
 values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
 mouse_ind = find(intersect(cell2mat({av.mouse}),values));
-mouse_str = [];
-for imouse = 1:nMice
-    mouse_str = [mouse_str 'i' num2str(av(mouse_ind(imouse)).mouse) '_'];  
-end
+% mouse_str = [];
+% for imouse = 1:nMice
+%     mouse_str = [mouse_str 'i' num2str(av(mouse_ind(imouse)).mouse) '_'];  
+% end
 % try
 %     fnout = fullfile(rc.eyeOutputDir, ['10-Nov-2015_' mouse_str]);
 %     load([fnout 'EyeSummary.mat'])
 % catch
         fnout = rc.eyeOutputDir;
-        load(fullfile(fnout, [date '_' mouse_str 'EyeSummary.mat']));
+        load(fullfile(fnout, ['\' date '_' mouse_str 'EyeSummary.mat']));
 % end
 
-set(0,'defaultfigurepaperorientation','portrait');
-set(0,'defaultfigurepapersize',[8.5 11]);
-set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+set(0,'defaultfigurepaperorientation','landscape');
+set(0,'defaultfigurepapersize',[11 8.5]);
+set(0,'defaultfigurepaperposition',[.25 .25 [11 8.5]-0.5]);
 
 x = -5:0.01:5;
 y = x;
@@ -34,10 +34,12 @@ for j = [1 3];
     out_mat = [2 3];
     align = mouse(2).expt(1).align(ialign).name;
 
-    if ~isempty(mouse(imouse).expt(1).align(ialign).av(1).outcome(out_mat(1)).avg_rad_pre) & ~isempty(mouse(imouse).expt(1).align(ialign).av(1).outcome(out_mat(2)).avg_rad_pre)
+%     if ~isempty(mouse(imouse).expt(1).align(ialign).av(1).outcome(out_mat(1)).avg_rad_pre) & ~isempty(mouse(imouse).expt(1).align(ialign).av(1).outcome(out_mat(2)).avg_rad_pre)
 
         %transient
-        figure;
+        transientFig = figure;
+        suptitle('trans')
+        subplot(1,3,1)
         for imouse = 1:nMice
             a = nan(size(mouse(imouse).expt,2),1);
             b = nan(size(mouse(imouse).expt,2),1);
@@ -70,11 +72,13 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- transient- normalized radius values'])
-        print([fnout '_summary_' align 'align_trans_rad_norm.pdf'], '-dpdf');
-        savefig([fnout '_summary_' align 'align_trans_rad_norm.fig']);
+%         print([fnout '_summary_' align 'align_trans_rad_norm.pdf'], '-dpdf');
+%         savefig([fnout '_summary_' align 'align_trans_rad_norm.fig']);
 
         %sustained
-        figure;
+        sustainedFig = figure;
+        suptitle('sust')
+        subplot(1,3,1)
         for imouse = 1:nMice
             a = nan(size(mouse(imouse).expt,2),1);
             b = nan(size(mouse(imouse).expt,2),1);
@@ -107,12 +111,13 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- sustained- normalized radius values'])
-        print([fnout '_summary_' align 'align_sust_rad_norm.pdf'], '-dpdf');
-        savefig([fnout '_summary_' align 'align_sust_rad_norm.fig']);
+%         print([fnout '_summary_' align 'align_sust_rad_norm.pdf'], '-dpdf');
+%         savefig([fnout '_summary_' align 'align_sust_rad_norm.fig']);
 
         %horizontal
         %transient
-        figure;
+        figure(transientFig);
+        subplot(1,3,2)
         for imouse = 1:nMice
             a = nan(size(mouse(imouse).expt,2),1);
             b = nan(size(mouse(imouse).expt,2),1);
@@ -145,11 +150,12 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- transient- absolute horizontal change from baseline'])
-        print([fnout '_summary_' align 'align_trans_horiz.pdf'], '-dpdf');
-        savefig([fnout '_summary_' align 'align_trans_horiz.fig']);
+%         print([fnout '_summary_' align 'align_trans_horiz.pdf'], '-dpdf');
+%         savefig([fnout '_summary_' align 'align_trans_horiz.fig']);
 
         %sustained
-        figure;
+        figure(sustainedFig);
+        subplot(1,3,2)
         for imouse = 1:nMice
             a = nan(size(mouse(imouse).expt,2),1);
             b = nan(size(mouse(imouse).expt,2),1);
@@ -182,12 +188,13 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- sustained- absolute horizontal change from baseline'])
-        print([fnout '_summary_' align 'align_sust_horiz.pdf'], '-dpdf');
-        savefig([fnout '_summary_' align 'align_sust_horiz.fig']);
+%         print([fnout '_summary_' align 'align_sust_horiz.pdf'], '-dpdf');
+%         savefig([fnout '_summary_' align 'align_sust_horiz.fig']);
 
         %vertical
         %transient
-        figure;
+        figure(transientFig);
+        subplot(1,3,3);
         for imouse = 1:nMice
             a = nan(size(mouse(imouse).expt,2),1);
             b = nan(size(mouse(imouse).expt,2),1);
@@ -220,11 +227,12 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- transient- absolute vertical change from baseline'])
-        print([fnout '_summary_' align 'align_trans_vert.pdf'], '-dpdf');
-        savefig([fnout '_summary_' align 'align_trans_vert.fig']);
+        print([fnout '_summary_' align 'align_trans.pdf'], '-dpdf');
+%         savefig([fnout '_summary_' align 'align_trans_vert.fig']);
 
         %sustained
-        figure;
+        figure(sustainedFig);
+        subplot(1,3,3)
         for imouse = 1:nMice
             a = nan(size(mouse(imouse).expt,2),1);
             b = nan(size(mouse(imouse).expt,2),1);
@@ -257,9 +265,9 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- sustained- absolute vertical change from baseline'])
-        print([fnout '_summary_' align 'align_sust_vert.pdf'], '-dpdf');
-        savefig([fnout '_summary_' align 'align_sust_vert.fig']);
-    end
+        print([fnout '_summary_' align 'align_sust.pdf'], '-dpdf');
+%         savefig([fnout '_summary_' align 'align_sust_vert.fig']);
+%     end
 end
 
 % %% hit vs miss

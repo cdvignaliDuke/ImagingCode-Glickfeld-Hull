@@ -1,7 +1,7 @@
 %% run this after doing direction tuning analysis (need cell mask)
-awFSAVdatasets_temp
-iexp = 9;
-% for iexp = 6:7
+awFSAVdatasets_naiveRandBaseOri
+iexp = 1;
+% for iexp = 4:5
 % % try
 SubNum = expt(iexp).SubNum;
 date = expt(iexp).date;
@@ -53,6 +53,7 @@ print(fullfile('Z:\analysis\',mouse,'two-photon imaging', date,'exptQualChkSumma
 % catch
 %     continue
 % end
+% close all
 % end
 % 
 

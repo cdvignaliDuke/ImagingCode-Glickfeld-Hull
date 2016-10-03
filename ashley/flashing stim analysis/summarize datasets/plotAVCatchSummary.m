@@ -1,4 +1,4 @@
-function plotAVCatchSummary(datasetStr,cellsInd)
+function plotAVCatchSummary(datasetStr,cellsInd,cellsOnly)
 % takes mouse FSAV Ca structure and plots responses to target phase
 % of task, comparing valid and invalid trials
 close all
@@ -11,7 +11,7 @@ else
     titleStr = titleStr(2:end);
 end
 rc = behavConstsAV;
-if strcmp(rc.name,'ashley')
+if strcmp(rc.name,'ashle')
     dataGroup = ['awFSAVdatasets' datasetStr];
 else
     dataGroup = [];
@@ -20,14 +20,21 @@ str = unique({expt.SubNum});
 values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
 mouse_ind = find(intersect(cell2mat({av.mouse}),values));
+if  cellsOnly
+load(fullfile(rc.caOutputDir,dataGroup, 'cells only',[mouse_str '_CaSummary' datasetStr '.mat']));
+titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
+fnout = fullfile(rc.caOutputDir,dataGroup, 'cells only',[titleStr '_' mouse_str]);
+else
 load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' datasetStr '.mat']));
+titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
+fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_' mouse_str]);
+end
 pre_win = mouse(1).expt(1).win(1).frames;
 trans_win = mouse(1).expt(1).win(2).frames;
 pre_event_frames = mouse(1).expt(1).pre_event_frames;
 post_event_frames = mouse(1).expt(1).post_event_frames;
 cycTime = mouse(1).expt(1).info(1).cyc_time;
 cycTimeMs = mouse(1).expt(1).info(1).cyc_time_ms;
-titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
 iav = 1; % for visual trials
 % parameters for accessing data in mouse struct
 catchAlign = 3;
@@ -43,7 +50,7 @@ crmatch = 10;
 
 % cycTime = mouse(1).expt(1).info(1).cyc_time;
 
-fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
+% fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
 
 nexp = 0;
 for imouse = 1:size(mouse,2)
@@ -67,6 +74,16 @@ ttMs = tt/(cycTime/cycTimeMs);
 baseStimFrames = -(floor(pre_event_frames/cycTime)*cycTime):cycTime:0;
 
 %% scatter transient response C-FA vs. T-suc; C-CR vs. T-miss;C-CR vs T-suc; T-miss vs T-suc
+
+hits = 1;
+misses = 2;
+fas = 3;
+crs = 4;
+
+if strcmp(datasetStr,'_naive100ms') | strcmp(datasetStr,'_naive100ms_virus')
+    naiveCatch
+    avgCellRespHeatMap_Val_Inv
+else
 scatFAvsH = figure; %oucomes 1h 5fa
 scatCRvsM = figure;%oucomes 4m 9cr
 scatCRvsH = figure;%oucomes 2h 8cr
@@ -129,11 +146,6 @@ val_all_dir = cell(length(cds),1);
 inv_all_dir = cell(length(cds),1);
 n_h_dir = zeros(length(cds),size(expt,2));
 n_m_dir = zeros(length(cds),size(expt,2));
-
-hits = 1;
-misses = 2;
-fas = 3;
-crs = 4;
 
 oriTuningResp_avg = [];
 oriTuningResp_tc = [];
@@ -301,7 +313,7 @@ for imouse = 1:size(mouse,2)
             subplot(n,n2,i)
             scatter(resp_hvsfa,resp_favsh,50,'k.')
             hold on
-            cc(nanmean(resp_hvsfa),nanmean(resp_favsh),nanstd(resp_hvsfa)/length(resp_hvsfa),nanstd(resp_favsh)/length(resp_favsh),{'ro','r','r'});
+            errorbarxy(nanmean(resp_hvsfa),nanmean(resp_favsh),nanstd(resp_hvsfa)/length(resp_hvsfa),nanstd(resp_favsh)/length(resp_favsh),{'ro','r','r'});
             xlim([-0.05 0.1])
             ylim([-0.05 0.1])
             hold on
@@ -392,12 +404,14 @@ for imouse = 1:size(mouse,2)
                 all_temp = all_temp;
             end
             
+            if ~isempty(val_temp) | ~isempty(inv_temp)
             resp_val_all = cat(2,resp_val_all,squeeze(mean(mean(val_temp(trans_win,:,:),3),1))-squeeze(mean(mean(val_temp(pre_win,:,:),3),1)));%cat(2,resp_val_all,resp_mvscr);
             resp_inv_all = cat(2,resp_inv_all,squeeze(mean(mean(inv_temp(trans_win,:,:),3),1))-squeeze(mean(mean(inv_temp(pre_win,:,:),3),1)));%cat(2,resp_inv_all,resp_crvsm);
             resp_all_all = cat(2,resp_all_all,squeeze(mean(mean(all_temp(trans_win,:,:),3),1))-squeeze(mean(mean(all_temp(pre_win,:,:),3),1)));
             tc_val_all = cat(2,tc_val_all,mean(val_temp,3));%mean(resp_m,3));
             tc_inv_all = cat(2,tc_inv_all,mean(inv_temp,3));%mean(resp_cr,3));
             tc_all = cat(2,tc_all,mean(all_temp,3));
+            end
             n_all(i) = sum(nDirs_hvsfa(nDirs_hvsfa > 1))+sum(nDirs_mvscr(nDirs_mvscr > 1));
             
 %             resp_mvscr = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).resp(pre_win,cell_ind,:),3),1));
@@ -736,7 +750,8 @@ for imouse = 1:size(mouse,2)
         i = i+1;
     end
 end
-
+%%
+depOnPrevTrialType_catchTrials
 %% target response heatmaps
 avgCellRespHeatMap_Val_Inv
 
@@ -1485,6 +1500,6 @@ print([fnout 'tarRespTuning_val_inv' datasetStr '.pdf'], '-dpdf')
 %         end
 %     end
 % end
-
+end
 end
 

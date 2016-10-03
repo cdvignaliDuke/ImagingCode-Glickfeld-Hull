@@ -1,15 +1,15 @@
-ms = 'AW14';
-sn = '614';
+ms = 'AW66';
+sn = '666';
 t = '1239';
-dt = '150623';
-dirtuning = '006';
-rettuning = '005';
-imouse = 2;
+dt = '160812';
+dirtuning = '005';
+rettuning = '004';
+imouse = 4;
 iexp = 1;
-cell_excAnt = 47;
-cell_inhAnt = 32;
-cell_excTar = 131;
-cell_nr = 11;
+cell_excAnt = 26;
+cell_inhAnt = 11;
+cell_excTar = 22;
+cell_nr = 7;
 cell_mat = [cell_excAnt cell_inhAnt cell_excTar cell_nr];
 cellType_str = {'Exc - Ant';'Inh - Ant';'Exc - Tar';'NR'};
 taskPart_str = {'Trial Start';'Anticipation';'Target';'dir tuning, DG';'ret tuning, DG'};
@@ -79,7 +79,7 @@ for icell = 1:length(cell_mat)
    shadedErrorBar(ttMs,mA,steA,'k',0);
    hold on
    xlim([-300 600])
-   ylim([-0.05 0.16])
+   ylim([-0.1 0.2])
    vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--r')
    hold on
    vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
@@ -108,7 +108,7 @@ for icell = 1:length(cell_mat)
    shadedErrorBar(ttMs,mA,steA,'k',0)
 %    plot(ttMs,mA,'k');
    xlim([-300 (post_event_frames/(cycTime/cycTimeMs))])
-   ylim([-0.05 0.16])
+   ylim([-0.1 0.2])
    vline(baseStimFrames/(cycTime/cycTimeMs),':k')
    vline(0,'k')
    ylabel({cellType_str{icell},'dF/F'})
@@ -132,7 +132,7 @@ for icell = 1:length(cell_mat)
    shadedErrorBar(ttMs,mR,steR,'k',0);
    hold on
    xlim([-300 600])
-   ylim([-0.05 0.16])
+   ylim([-0.1 0.2])
    vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--r')
    hold on
    vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
@@ -155,7 +155,7 @@ for icell = 1:length(cell_mat)
    hold on
 %    plot(ttMs,mA,'k');
    xlim([-300 (post_event_frames/(cycTime/cycTimeMs))])
-   ylim([-0.05 0.16])
+   ylim([-0.1 0.2])
    vline(baseStimFrames/(cycTime/cycTimeMs),':k')
    vline(0,'k')
    ylabel({cellType_str{icell},'dF/F'})
@@ -188,8 +188,11 @@ for icell = 1:length(cell_mat)
    dirLegend{idir} = num2str(exptDirs(idir));
    hold on
    end
+
+   dirLegend{idir} = num2str(exptDirs(idir));
+   
    xlim([-300 600])
-   ylim([-0.05 0.16])
+   ylim([-0.1 0.2])
 %    plot(ttMs,squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(2).outcome(1).resp(:,cell_mat(icell),:),3)),'k');
    vline(baseStimFramesPreTar/(cycTime/cycTimeMs),':k')
 %    ylabel(cellType_str{icell})
@@ -208,28 +211,35 @@ cellTarResp = [];
 dirLegend = [];
 for icell = 1:length(cell_mat)
    subplot(n,n2,iCellSubplotXpos(icell))
-   for idir = 1:length(exptDirs)
-       if idir == 1
-           dirCol = [0 0 0];
-       else
-           dirCol = colorsT(idir,:);
-       end
-       tRespTC = squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{idir}(:,cell_mat(icell),:),3));
-       preWinResp = mean(tRespTC(pre_win));
-       tRespTC = tRespTC-preWinResp;
-   cellTarResp(idir) = plot(ttMs,tRespTC,'color',dirCol);
-   dirLegend{idir} = num2str(exptDirs(idir));
-   hold on
-   end
+%    for idir = 1:length(exptDirs)
+%        if idir == 1
+%            dirCol = [0 0 0];
+%        else
+%            dirCol = colorsT(idir,:);
+%        end
+%        tRespTC = squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{idir}(:,cell_mat(icell),:),3));
+%        preWinResp = mean(tRespTC(pre_win));
+%        tRespTC = tRespTC-preWinResp;
+%    cellTarResp(idir) = plot(ttMs,tRespTC,'color',dirCol);
+%    dirLegend{idir} = num2str(exptDirs(idir));
+%    hold on
+%    end
+   
+   tRespTC = squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{length(exptDirs)}(:,cell_mat(icell),:),3));
+   tRespTC_err = squeeze(std(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{length(exptDirs)}(:,cell_mat(icell),:),[],3))/sqrt(size(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{length(exptDirs)}(:,cell_mat(icell),:),3));
+   preWinResp = mean(tRespTC(pre_win));
+   tRespTC = tRespTC-preWinResp;
+   shadedErrorBar(ttMs,tRespTC,tRespTC_err,'k',0);
+   
    xlim([-300 600])
-   ylim([-0.05 0.16])
+   ylim([-0.1 0.2])
 %    plot(ttMs,squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(2).outcome(1).resp(:,cell_mat(icell),:),3)),'k');
    vline(baseStimFramesPreTar/(cycTime/cycTimeMs),':k')
 %    ylabel(cellType_str{icell})
-   if icell == 1
-       title(taskPart_str{3})
-       legend(cellTarResp,dirLegend,'Location','best')
-   end
+%    if icell == 1
+%        title(taskPart_str{3})
+%        legend(cellTarResp,dirLegend,'Location','best')
+%    end
        vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--r')
         hold on
         vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')

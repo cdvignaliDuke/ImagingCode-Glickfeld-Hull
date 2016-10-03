@@ -1,7 +1,7 @@
 function mouse = createEyetrackingStruct(doPlot);
     close all
-    AWEyeDatasets_AW
-    av = behavParamsAV;
+    awFSAV_eye_naive100ms
+%     av = behavParamsAV;
     rc = behavConstsAV;
     min_hold = 2000;
     pre_event_time = 1000;
@@ -10,16 +10,33 @@ function mouse = createEyetrackingStruct(doPlot);
     push_trans_win_time = [500:1000];
     release_trans_win_time = [150:250];
     mice = unique({expt.SubNum});
-    nMice = 1; %length(mice);
+    nMice = length(mice);
     str = unique({expt.SubNum});
     values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
     mouse_str = ['i' strjoin(str,'_i')];
-    mouse_ind = find(intersect(cell2mat({av.mouse}),values));
-    mouse_str = [];
+%     mouse_ind = find(intersect(cell2mat({av.mouse}),values));
+%     mouse_str = [];
     s = zeros(1,nMice);
-    for imouse = 1:nMice
-        mouse_str = [mouse_str 'i' num2str(av(mouse_ind(imouse)).mouse) '_'];  
-    end
+%     for imouse = 1:nMice
+%         mouse_str = [mouse_str 'i' num2str(av(mouse_ind(imouse)).mouse) '_'];  
+%     end
+
+% rad_tc_v = [];
+% rad_err_v = [];
+% rad_tc_a = [];
+% rad_err_a = [];
+% 
+% horz_tc_v = [];
+% horzd_err_v = [];
+% horz_tc_a = [];
+% horz_err_a = [];
+% 
+% vert_tc_v = [];
+% vert_err_v = [];
+% vert_tc_a = [];
+% vert_err_a = [];
+%  
+
     for iexp = 1:size(expt,2)
         disp(num2str(iexp))
         SubNum = expt(iexp).SubNum;
@@ -108,6 +125,27 @@ function mouse = createEyetrackingStruct(doPlot);
             rad_mat_down_base = bsxfun(@rdivide, rad_mat_down, mean(rad_mat_down(1:15,:),1));
             centroid_mat_down_base = bsxfun(@minus, centroid_mat_down_deg, mean(centroid_mat_down_deg(1:15,:,:),1));
             centroid_mat_down_base(:,2,:) = -1*centroid_mat_down_base(:,2,:);
+            
+            b1Ix = intersect(holdIx, intersect(find(strcmp(input.trialOutcomeCell,'success')), find(cell2mat(input.tBlock2TrialNumber)==0)));
+            b2Ix = intersect(holdIx, intersect(find(strcmp(input.trialOutcomeCell,'success')), find(cell2mat(input.tBlock2TrialNumber))));
+            
+%             %average timecourses
+%             rad_tc_v = cat(2,rad_tc_v,nanmean(rad_mat_down_base(:,b1Ix),2));
+%             rad_err_v = cat(2,rad_err_v,nanstd(rad_mat_down_base(:,b1Ix),[],2)./sqrt(length(b1Ix)));
+%             rad_tc_a = cat(2,rad_tc_a,nanmean(rad_mat_down_base(:,b2Ix),2));
+%             rad_err_a = cat(2,rad_err_a,nanstd(rad_mat_down_base(:,b2Ix),[],2)./sqrt(length(b2Ix)));
+% 
+%             horz_tc_v = cat(2,horz_tc_v,nanmean(centroid_mat_down_base(:,1,b1Ix),2));
+%             horzd_err_v = cat(2,horzd_err_v,nanstd(centroid_mat_down_base(:,1,b1Ix),[],2)./sqrt(length(b1Ix)));
+%             horz_tc_a = cat(2,horz_tc_a,nanmean(centroid_mat_down_base(:,1,b2Ix),2));
+%             horz_err_a = cat(2,horz_err_a,nanstd(centroid_mat_down_base(:,1,b2Ix),[],2)./sqrt(length(b2Ix)));
+% 
+%             vert_tc_v = cat(2,vert_tc_v,nanmean(centroid_mat_down_base(:,2,b1Ix),2));
+%             vert_err_v = cat(2,vert_err_v,nanstd(centroid_mat_down_base(:,2,b1Ix),[],2)./sqrt(length(b1Ix)));
+%             vert_tc_a = cat(2,vert_tc_a,nanmean(centroid_mat_down_base(:,2,b2Ix),2));
+%             vert_err_a = cat(2,vert_err_a,nanstd(centroid_mat_down_base(:,2,b2Ix),[],2)./sqrt(length(b2Ix)));
+
+
             %plot change in eye area align to press
             if doPlot
                 figure;
@@ -149,6 +187,10 @@ function mouse = createEyetrackingStruct(doPlot);
             b1Ix = intersect(holdIx, intersect(find(strcmp(input.trialOutcomeCell,'success')), find(cell2mat(input.tBlock2TrialNumber)==0)));
             b2Ix = intersect(holdIx, intersect(find(strcmp(input.trialOutcomeCell,'success')), find(cell2mat(input.tBlock2TrialNumber))));
 
+            push_trans_win = unique(prepush_frames+ceil(push_trans_win_time.*(frame_rate/1000)));
+            sust_win = size(rad_mat_down,1)-round(prepush_frames*.667):size(rad_mat_down,1);
+            pre_win = 1:prepush_frames;
+            
             if doPlot
                 figure;
                 subplot(3,2,1)
@@ -157,6 +199,9 @@ function mouse = createEyetrackingStruct(doPlot);
                 shadedErrorBar(tt,nanmean(rad_mat_down(:,b2Ix),2), nanstd(rad_mat_down(:,b2Ix),[],2)./sqrt(length(b2Ix)), '-k');
                 xlabel('Time (ms)')
                 ylabel('Pupil radius')
+                vline((push_trans_win-prepush_frames)*(1000/frame_rate),'r--')
+                hold on
+                vline((sust_win-prepush_frames)*(1000/frame_rate),'b--')
                 ylim([(nanmean(rad_mat_down(1,[b1Ix b2Ix]),2)).*[0.8 1.1]])
                 subplot(3,2,2)
                 shadedErrorBar(tt,nanmean(rad_mat_down_base(:,b1Ix),2), nanstd(rad_mat_down_base(:,b1Ix),[],2)./sqrt(length(b1Ix)), '-g');
@@ -164,6 +209,9 @@ function mouse = createEyetrackingStruct(doPlot);
                 shadedErrorBar(tt,nanmean(rad_mat_down_base(:,b2Ix),2), nanstd(rad_mat_down_base(:,b2Ix),[],2)./sqrt(length(b2Ix)), '-k');
                 xlabel('Time (ms)')
                 ylabel('Pupil radius')
+                vline((push_trans_win-prepush_frames)*(1000/frame_rate),'r--')
+                hold on
+                vline((sust_win-prepush_frames)*(1000/frame_rate),'b--')
                 ylim([0.9 1.1])
                 subplot(3,2,3)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
@@ -171,6 +219,9 @@ function mouse = createEyetrackingStruct(doPlot);
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_down_deg(:,1,b2Ix),[],3))./sqrt((length(b2Ix))), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
+                vline((push_trans_win-prepush_frames)*(1000/frame_rate),'r--')
+                hold on
+                vline(sust_win*(1000/frame_rate),'b--')
                 ylim([squeeze((nanmean(centroid_mat_down_deg(1,1,[b1Ix b2Ix]),3))).*[0.9 1.1]])
                 subplot(3,2,4)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_down_base(:,1,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
@@ -178,6 +229,9 @@ function mouse = createEyetrackingStruct(doPlot);
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_base(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_down_base(:,1,b2Ix),[],3))./sqrt((length(b2Ix))), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
+                vline((push_trans_win-prepush_frames),'r--')
+                hold on
+                vline(sust_win,'b--')
                 ylim([-4 4])
                 subplot(3,2,5)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_down_deg(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_down_deg(:,2,b1Ix),[],3))./sqrt((length(b1Ix))), '-g');
@@ -691,6 +745,9 @@ function mouse = createEyetrackingStruct(doPlot);
                 shadedErrorBar(tt,nanmean(rad_mat_target(:,b2Ix),2), nanstd(rad_mat_target(:,b2Ix),[],2)./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Pupil radius')
+                vline(trans_win*(1000/frame_rate),'r--')
+                hold on
+                vline(sust_win*(1000/frame_rate),'b--')
                 ylim([(nanmean(rad_mat_target(1,:),2)).*[0.8 1.4]])
                 subplot(3,2,2)
                 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,b1Ix),2), nanstd(rad_mat_target_base(:,b1Ix),[],2)./sqrt(targetTrB1), '-g');
@@ -698,6 +755,9 @@ function mouse = createEyetrackingStruct(doPlot);
                 shadedErrorBar(tt,nanmean(rad_mat_target_base(:,b2Ix),2), nanstd(rad_mat_target_base(:,b2Ix),[],2)./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Pupil radius')
+                vline(trans_win*(1000/frame_rate),'r--')
+                hold on
+                vline(sust_win*(1000/frame_rate),'b--')
                 ylim([0.8 1.4])
                 subplot(3,2,3)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,1,b1Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,1,b1Ix),[],3))./sqrt(targetTrB1), 'g-');
@@ -712,6 +772,9 @@ function mouse = createEyetrackingStruct(doPlot);
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_base(:,1,b2Ix),3)), squeeze(nanstd(centroid_mat_target_base(:,1,b2Ix),[],3))./sqrt(targetTrB2), '-k');
                 xlabel('Time (ms)')
                 ylabel('Eye position- Horizontal')
+                vline(trans_win*(1000/frame_rate),'r--')
+                hold on
+                vline(sust_win*(1000/frame_rate),'b--')
                 ylim([-4 4])
                 subplot(3,2,5)
                 shadedErrorBar(tt,squeeze(nanmean(centroid_mat_target_deg(:,2,b1Ix),3)), squeeze(nanstd(centroid_mat_target_deg(:,2,b1Ix),[],3))./sqrt(targetTrB1), 'g-');

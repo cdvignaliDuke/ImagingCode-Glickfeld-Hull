@@ -1,5 +1,5 @@
-awFSAVdatasets
-iexp = 4;
+awFSAVdatasets_naive100ms
+iexp = 5;
 % step 1: align drifting grating dataset
 fname = fullfile('Z:\data',expt(iexp).mouse,expt(iexp).folder,expt(iexp).date,expt(iexp).dirtuning,[expt(iexp).dirtuning '_000_000']);
 sbxalignmaster(fname);
@@ -15,7 +15,7 @@ try
 catch
     filedir = fullfile('Z:\analysis\',expt(iexp).mouse,expt(iexp).folder);
     cd(filedir)
-    mkdir(date,ImgFolder)
+    mkdir(expt(iexp).date,expt(iexp).dirtuning)
     filedir = fullfile('Z:\analysis\',expt(iexp).mouse,expt(iexp).folder,expt(iexp).date,expt(iexp).dirtuning);
     cd(filedir);
 end
@@ -45,7 +45,9 @@ save('sbx_aligned_img','data_avg')
 %downsample and register image to mean from sbx aligned data
 load(fullfile('Z:\analysis\',expt(iexp).mouse,expt(iexp).folder,expt(iexp).date,expt(iexp).dirtuning,'sbx_aligned_img.mat'));
 load([fname '.mat']);
-data = squeeze(sbxread(fname,0,info.config.frames));
+cd(fname(1:end-11));
+fstr = fname(end-10:end);
+data = squeeze(sbxread(fstr,0,info.config.frames));
 down = 10;
 data_down = stackGroupProject(data,down);
 clear data
@@ -81,7 +83,10 @@ nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
 
 dF_data = bsxfun(@minus,data_reg, nOFF_avg);
 dFoverF = bsxfun(@rdivide,dF_data,nOFF_avg);
-maxDFoverF = max(dFoverF,[],3);
+% maxDFoverF = max(dFoverF,[],3);
+% maxDFoverF(1:6,:) = 0;
+maxDFoverF(:,[1:34 758:end]) = 0;
+
 figure; imagesq(maxDFoverF); colormap(gray)
 writetiff(maxDFoverF, 'maxDFoverF_meanAlign');
 
@@ -133,5 +138,5 @@ np_w = 0.01*ind;
 data_TC_subNP = data_TC-bsxfun(@times,tcRemoveDC(npTC),np_w);
 
 %% save data
-save('sbxaligned_data','mask_cell_all','mask_cell','neuropil','data_TC','data_TC_subNP','npTC');
-save('sbxaligned_timecourses','data_TC_subNP')
+save(fullfile('Z:\Analysis',expt(iexp).mouse,expt(iexp).folder,expt(iexp).date,expt(iexp).dirtuning,'sbxaligned_data'),'mask_cell_all','mask_cell','neuropil','data_TC','data_TC_subNP','npTC');
+save(fullfile('Z:\Analysis',expt(iexp).mouse,expt(iexp).folder,expt(iexp).date,expt(iexp).dirtuning,'sbxaligned_timecourses'),'data_TC_subNP')

@@ -1,8 +1,9 @@
-function plotAVAnticipationSummary(datasetStr,cellsInd)
+function plotAVAnticipationSummary(datasetStr,cellsInd,cellsOnly)
 % takes mouse FSAV Ca structure and plots responses to anticipation phase
 % of task
 close all
-av = behavParamsAV;
+respCellsInd = 14;
+av = behavParamsAV_naive;
 eval(['awFSAVdatasets' datasetStr])
 titleStr = datasetStr;
 if strcmp(titleStr, '')
@@ -12,7 +13,7 @@ else
 end
 
 rc = behavConstsAV;
-if strcmp(rc.name,'ashley')
+if strcmp(rc.name,'ashle')
     dataGroup = ['awFSAVdatasets' datasetStr];
 else
     dataGroup = [];
@@ -21,19 +22,28 @@ str = unique({expt.SubNum});
 values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
 mouse_ind = find(intersect(cell2mat({av.mouse}),values));
-load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' datasetStr '.mat']));
+if cellsOnly
+load(fullfile(rc.caOutputDir,dataGroup, 'cells only',[mouse_str '_CaSummary' datasetStr '.mat']));
+titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
+fnout = fullfile(rc.caOutputDir, dataGroup, 'cells only', [titleStr '_' mouse_str]); %% maybe lose mouse_str
+else
+load(fullfile(rc.caOutputDir,dataGroup, 'cells only',[mouse_str '_CaSummary' datasetStr '.mat']));
+titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
+fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
+end
+
+
 pre_win = mouse(1).expt(1).win(1).frames;
 trans_win = mouse(1).expt(1).win(2).frames;
 pre_event_frames = mouse(1).expt(1).pre_event_frames;
 post_event_frames = mouse(1).expt(1).post_event_frames;
 minTrialLengthFrames = mouse(1).expt(1).info.minTrialLengthFrames;
 ialign = 1;
+visual = 1;
+auditory = 2;
+hits = 1;
 cycTime = mouse(1).expt(1).info(1).cyc_time;
 cycTimeMs = mouse(1).expt(1).info(1).cyc_time_ms;
-titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
-
-fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
-
 nexp = 0;
 for imouse = 1:size(mouse,2)
     nexp = nexp+size(mouse(imouse).expt,2);
@@ -57,9 +67,15 @@ baseStimFrames = 0:cycTime:minTrialLengthFrames-1;
 
 %%
 antiRespAllCyc
+if ~strcmp(datasetStr,'_V1')
+antiRespEarlyLateQuant
+end
+%%
+depOnPrevTrialType
 
 %%
-antiRespEarlyLateQuant
+
+
 %% plot avg trace for each expt and avg across all expt - success and responsive cells only; plot std and variance over time
 respAvsVFig = figure;
 suptitle({titleStr, 'avg response - Visual: Green; Auditory: black'})
@@ -78,7 +94,7 @@ for imouse = 1:size(mouse,2)
         figure(respAvsVFig);
         subplot(n,n2,i)
         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-        cell_ind = intersect(mouse(imouse).expt(iexp).cells(1).ind,cell_ind);
+        cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
         plot(tt,mean(mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(:,cell_ind,:),2),3), 'g');
         hold on
         plot(tt,mean(mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvResp(:,cell_ind,:),2),3), 'k');
@@ -193,8 +209,8 @@ colorsMI = brewermap(nBins,'Reds');
 
 respMod_VsubA = resp_vis_bin-resp_aud_bin;
 tcModBinFig = figure;
-set(gca,'ColorOrder',colorsMI,'NextPlot','replacechildren')
-col = get(gca,'ColorOrder')
+set(gca,'ColorOrder',colorsMI,'NextPlot','replacechildren');
+col = get(gca,'ColorOrder');
 hold all
 % colormap(brewermap([],'Reds'))
 F = plot(ttMs,respMod_VsubA);
@@ -226,7 +242,7 @@ print([fnout 'press_align_MIsMsBinned' datasetStr '.pdf'], '-dpdf')
 % for imouse = 1:size(mouse,2)
 %     for iexp = 1:size(mouse(imouse).expt,2)
 %         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-%         cell_ind = intersect(mouse(imouse).expt(iexp).cells(1).ind,cell_ind);   
+%         cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);   
 %         tempR = mean(mean(mouse(imouse).expt(iexp).align(2).av(1).outcome(1).resp(trans_win,cell_ind,:),3),1)-mean(mean(mouse(imouse).expt(iexp).align(2).av(1).outcome(1).resp(pre_win,cell_ind,:),3),1);
 %         r_tar_vis = cat(2, r_tar_vis, tempR);
 %     end
@@ -265,6 +281,8 @@ avgCellRespHeatMap
 % if cellsInd == 1 | cellsInd == 13 | cellsInd == 12
 % nsCorrs
 % end
+% %% 
+% sigRespByCyc
 %% plot with time in ms
 
 set(0,'defaultfigurepaperorientation','portrait');
@@ -465,7 +483,7 @@ oriStr = {'0';'45';'90';'135'};
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-        cell_ind = intersect(mouse(imouse).expt(iexp).cells(1).ind,cell_ind);
+        cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
         for iori = 1:4
             ori_ind = intersect(mouse(imouse).expt(iexp).cells(iori+1).ind,cell_ind);
             
@@ -660,8 +678,14 @@ print([fnout 'press_align_stds_CD' datasetStr '.pdf'], '-dpdf')
 % end
 
 %% plot scatter of integral for each experiment, across experiments;
+antiRespScatters
+
 resp_vis = [];
 resp_aud = [];
+resp_vis_early = [];
+resp_aud_early = [];
+resp_vis_late = [];
+resp_aud_late = [];
 intAvsVFig = figure;
 suptitle(titleStr)
 i = 1;
@@ -674,7 +698,7 @@ for imouse = 1:size(mouse,2)
         subplot(n,n2,i)
         i = i+1;
         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-        cell_ind = intersect(mouse(imouse).expt(iexp).cells(1).ind,cell_ind);
+        cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
         iV = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(pre_event_frames:end,cell_ind,:)),3));
         iA = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvResp(pre_event_frames:end,cell_ind,:)),3));
         % add STE color axis here
@@ -770,7 +794,7 @@ for imouse = 1:size(mouse,2)
         subplot(n,n2,i)
         i = i+1;
         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-        cell_ind = intersect(mouse(imouse).expt(iexp).cells(1).ind,cell_ind);
+        cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
         for iori = 1:4
             ori_ind = intersect(mouse(imouse).expt(iexp).cells(iori+1).ind,cell_ind);
             iV = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(pre_event_frames:end,ori_ind,:)),3));

@@ -1,3 +1,10 @@
+if strcmp(datasetStr,'_naive100ms') | strcmp(datasetStr,'_naive100ms_virus')
+    resp_all_all = mean(r_all(trans_win,:),1)-mean(r_all(pre_win,:),1);
+    tc_all = r_all;
+    tc_val_all = rH_all;
+    tc_inv_all = rCR_all;
+end
+
 ttTarEndInd = find(chop(ttMs,3) == 1000);
 ttMsCrop = ttMs(1:ttTarEndInd);
 
@@ -7,12 +14,16 @@ set(0,'defaultfigurepapersize',[11 8.5]);
 set(0,'defaultfigurepaperposition',[.25 .25 [11 8.5]-0.5]);
 %sort all trials
 [peakR_all_sorted peakR_all_sort_ind] = sort(resp_all_all);
+
+tc_all_zeroed = bsxfun(@minus,tc_all,mean(tc_all(pre_win,:),1));
+tc_val_all_zeroed = bsxfun(@minus,tc_val_all,mean(tc_val_all(pre_win,:),1));
+tc_inv_all_zeroed = bsxfun(@minus,tc_inv_all,mean(tc_inv_all(pre_win,:),1));
 %%
 respHeatmap_allTrials = figure;
 suptitle('avg all trials - sort across all trials')
 colormap(brewermap(1001,'*RdBu'))
 subplot(2,2,1)
-allTrials_sort = imagesc(tc_all(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
+allTrials_sort = imagesc(tc_all_zeroed(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
 ax = gca;
 ax.XTick = [find(ceil(ttMsCrop(20:end)) == 0) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000/2) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000)];
 ax.XTickLabel = [0 floor(max(ttMsCrop(20:end)/1000))/2 floor(max(ttMsCrop(20:end)/1000))];
@@ -25,7 +36,7 @@ title('all trials')
 axis square
 
 subplot(2,2,2)
-visTrials_allSort = imagesc(tc_val_all(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
+visTrials_allSort = imagesc(tc_val_all_zeroed(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
 ax = gca;
 ax.XTick = [find(ceil(ttMsCrop(20:end)) == 0) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000/2) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000)];
 ax.XTickLabel = [0 floor(max(ttMsCrop(20:end)/1000))/2 floor(max(ttMsCrop(20:end)/1000))];
@@ -37,7 +48,7 @@ colorbar
 title('valid')
 axis square
 subplot(2,2,3)
-audTrials_allSort = imagesc(tc_inv_all(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
+audTrials_allSort = imagesc(tc_inv_all_zeroed(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
 ax = gca;
 ax.XTick = [find(ceil(ttMsCrop(20:end)) == 0) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000/2) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000)];
 ax.XTickLabel = [0 floor(max(ttMsCrop(20:end)/1000))/2 floor(max(ttMsCrop(20:end)/1000))];
@@ -48,6 +59,9 @@ colorbar
 title('invalid')
 axis square
 
+if strcmp(datasetStr,'_naive100ms') | strcmp(datasetStr,'_naive100ms_virus')
+    disp('DG plot not coded yet')
+else
 % concatenate DG TCs
 oriTuningResp_tc_crop = oriTuningResp_tc(:,6:end,:);
 sz = size(oriTuningResp_tc_crop);
@@ -69,7 +83,7 @@ caxis([-0.3 0.3])
 colorbar
 title(['DG stim tc,tick at 0s'])
 axis square
-
+end
 figure(respHeatmap_allTrials)
 print([fnout 'catch_align_TCheatmatp_allTrSortPlustuningData' datasetStr ], '-dpdf')
 
@@ -79,7 +93,7 @@ respHeatmap_allTrials_VsubA = figure;
 suptitle('avg all trials - sort across all trials')
 colormap(brewermap(1001,'*RdBu'))
 subplot(2,2,1)
-allTrials_sort = imagesc(tc_all(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
+allTrials_sort = imagesc(tc_all_zeroed(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
 ax = gca;
 ax.XTick = [find(ceil(ttMsCrop(20:end)) == 0) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000/2) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000)];
 ax.XTickLabel = [0 floor(max(ttMsCrop(20:end)/1000))/2 floor(max(ttMsCrop(20:end)/1000))];
@@ -92,7 +106,7 @@ title('all trials')
 axis square
 
 subplot(2,2,2)
-visTrials_allSort = imagesc(tc_val_all(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
+visTrials_allSort = imagesc(tc_val_all_zeroed(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
 ax = gca;
 ax.XTick = [find(ceil(ttMsCrop(20:end)) == 0) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000/2) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000)];
 ax.XTickLabel = [0 floor(max(ttMsCrop(20:end)/1000))/2 floor(max(ttMsCrop(20:end)/1000))];
@@ -105,7 +119,7 @@ title('valid')
 axis square
 
 subplot(2,2,3)
-audTrials_allSort = imagesc(tc_inv_all(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
+audTrials_allSort = imagesc(tc_inv_all_zeroed(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
 ax = gca;
 ax.XTick = [find(ceil(ttMsCrop(20:end)) == 0) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000/2) find(ttMsCrop(20:end) == floor(max(ttMsCrop(20:end)/1000))*1000)];
 ax.XTickLabel = [0 floor(max(ttMsCrop(20:end)/1000))/2 floor(max(ttMsCrop(20:end)/1000))];
@@ -116,7 +130,7 @@ colorbar
 title('invalid')
 axis square
 
-VsubA_tc_all = bsxfun(@minus, tc_val_all(20:ttTarEndInd,fliplr(peakR_all_sort_ind))', tc_inv_all(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
+VsubA_tc_all = bsxfun(@minus, tc_val_all_zeroed(20:ttTarEndInd,fliplr(peakR_all_sort_ind))', tc_inv_all_zeroed(20:ttTarEndInd,fliplr(peakR_all_sort_ind))');
 
 subplot(2,2,4)
 VsubA = imagesc(VsubA_tc_all);
