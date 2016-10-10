@@ -1,34 +1,21 @@
-%Use this function to draw ROIs after running ShrinkMovie. 
-clear
+function WF_draw_ROIs_for_lever(days, image_dest);
+%Use this function to manually draw ROIs after running ShrinkMovie. 
 
 BIN_SIZE = 1;  
-DATA_DIR =  'C:\Users\jake\TempData\';
-FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
-BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior';
 % ---------------
-%days = {'160131_img36','160131_img35','160129_img36','160129_img35'};
-%days = {'150716_img27', '150718_img27', '150719_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32'};
-%days = {'150716_img27', '150717_img27', '150718_img27', '150719_img27'};  
-%days = {'150719_img28', '150717_img28', '150716_img28'};
-%days = {'160208_img36', '160207_img35', '160207_img36', '160205_img35'};
-%days = {'160315_img38'};
-days = {'160516_img47'};
-
-for kk=1:length(days)
-    ROI_name  =  days{kk};
-    image_dest  = [DATA_DIR days{kk} '\' ROI_name '_ROIshrink.tif'];   %modified by JH
+    image_dest  = [image_dest '\' days '_ROIshrink.tif'];   %modified by JH
     info = imfinfo(image_dest);
     if(~exist('first_frame', 'var')) 
         f_frame =1;
     else
         f_frame = first_frame;
     end
-    
     if(~exist('last_frame', 'var'))
         l_frame =length(info);
     else
         l_frame = last_frame;
     end
+    %----loads the imaging data
     [img, sz]  = get_movie_by_ROI(image_dest, info,[], [], BIN_SIZE, f_frame, l_frame);
     % remove average
     avg_img = mean(img,2);
@@ -58,4 +45,3 @@ for kk=1:length(days)
     cluster.num_cluster = num_cluster;
     close gcf;
     save([image_dest(1:end-4) 'cluster'], 'cluster');
-end

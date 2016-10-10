@@ -1,5 +1,5 @@
 
-function [img, sz]  = get_movie_by_ROI(image_dest, info,ROI_x, ROI_y, BIN_SIZE, first_frame, last_frame)
+function [img, sz]  = get_movie_by_ROI(image_dest, info, ROI_x, ROI_y, BIN_SIZE, first_frame, last_frame)
 img = [];
 sz = [];
 if(~exist('first_frame', 'var') || isempty(first_frame))
@@ -31,7 +31,7 @@ img = zeros(vec_sz, n_frame);
 for k = 1:n_frame
     
     bin_img = get_frame(image_dest, k+first_frame-1, info, ROI_x, ROI_y, BIN_SIZE);
-    img(x_inx,k) = bin_img(:); % save everything as a vectors, in the ende reshape to matrix   
+    img(x_inx,k) = bin_img(:); % save everything as a vectors, in the end reshape to matrix   
     
 end
 

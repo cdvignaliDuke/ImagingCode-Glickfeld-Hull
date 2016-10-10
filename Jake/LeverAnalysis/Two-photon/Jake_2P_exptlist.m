@@ -9,17 +9,27 @@
 % out_base = 'Z:\Analysis\2P Analysis\Lever\';
 % base_dir =  'Z:\Data\2P_imaging\';
 
-date_mat = strvcat('160517'); %
+% date_mat = strvcat('160724'); %
+% run1_mat = strvcat('_000_000'); %
+% mouse_mat = strvcat('img53');   %
+% subNum_mat = strvcat('953');   %
+% time_mat = strvcat('1537'); %
+% nrun_mat = [1]; %
+% run2_mat = strvcat('XXXXXXXX'); %
+% run_mat = cat(3,run1_mat,run2_mat);
+% out_base = 'Z:\Analysis\2P Analysis\Lever\';
+% base_dir =  'Z:\Data\2P_imaging\';
+
+date_mat = strvcat('160901'); %
 run1_mat = strvcat('_000_000'); %
-mouse_mat = strvcat('img44');   %
-subNum_mat = strvcat('944');   %
-time_mat = strvcat('1601'); %
+mouse_mat = strvcat('img55');   %
+subNum_mat = strvcat('955');   %
+time_mat = strvcat('1805'); %
 nrun_mat = [1]; %
 run2_mat = strvcat('XXXXXXXX'); %
 run_mat = cat(3,run1_mat,run2_mat);
 out_base = 'Z:\Analysis\2P Analysis\Lever\';
 base_dir =  'Z:\Data\2P_imaging\';
-
 
 % %current datasets 11/9/15
 % date_mat = strvcat('151016');%, '151018', '151029', '151102'); %

@@ -87,9 +87,9 @@ y = x;
 hold on; plot(x,y,'k')
 hline(0,'--k')
 vline(0,'--k')
-xlabel('df/f success condition');
-ylabel('df/f fail condition');
-title(['success vs fail summary Shift']);
+xlabel('df/f correct condition');
+ylabel('df/f early condition');
+title(['Naive mouse: correct vs early peak df/f']);
 
 
 

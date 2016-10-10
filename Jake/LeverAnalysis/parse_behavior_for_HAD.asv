@@ -89,7 +89,7 @@ if isfield(b_data, 'lickometerTimesUs');  %img24 and 25 use datasets which have 
         lickTimes = [lickTimes cell2mat(b_data.lickometerTimesUs(kk))/1000];
     end
     %lickTimes = lickTimes-f_frame_MWorks_time;
-    lickTimes = double(lickTimes)-imaging_start_MW_T;
+    lickTimes = lickTimes-imaging_start_MW_T;
 end
 %=======================================================================
 

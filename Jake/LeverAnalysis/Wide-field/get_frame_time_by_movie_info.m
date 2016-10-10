@@ -1,6 +1,6 @@
 function [ frame_times ] = get_frame_time_by_movie_info( info )
 % get the frame timing information from movie information
-% This function has tones of assumptions and should be used with extreme
+% This function has tons of assumptions and should be used with extreme
 % caution
 
 INFO_ID = 51123; % this is probabaly camera specific!!!
@@ -17,7 +17,6 @@ for i=1:length(info)
             reg_exp = [pre_str reg_float];
             full_time_str = regexp(str,reg_exp ,'match');
             time_str = regexp(full_time_str{1},reg_float ,'match');
-            
             frame_times(i) = str2num(time_str{1});
             break;
         end

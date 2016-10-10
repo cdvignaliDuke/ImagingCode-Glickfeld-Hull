@@ -3,12 +3,12 @@
 
 clear
 %these are the days which I am including in my summary statistics so far. Need to update with newer datasets. 
-%days = {'150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
+days = {'150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
 
-%these are the days which have all their frames shrunk. Can use them to
-%analyze frame shift effect and look at licking. 
-days = {'160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
-
+days = {'160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
+%days = {'160722_img53'};
+%days = {'160921_img61'};
+%days = {'160606_img46'};
 
 BIN_SIZE = 1;   % if the ROI is large use large bin size (10)
 holdT_min = 400000;

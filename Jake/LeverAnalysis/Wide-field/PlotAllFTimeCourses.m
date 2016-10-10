@@ -1,215 +1,189 @@
 %%plot all calclium traces on one graph
 %PLOTTING GRAPHS 
 clear
+%close all 
+
+%days = {'150717_img28', '151021_img29', '160131_img36', '160131_img35', '160315_img38', '160320_img41'}; %rand=1000 
+%days = {'160129_img36', '151009_img30', '151011_img30', '160314_img38'};  %rand=4500
+days = {'150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
+colors = {'r', 'r', 'b', 'b', 'b', 'b', 'm', 'm', 'g', 'g', 'k', 'k', 'c', 'c', 'y', 'y', 'r', 'r', 'b', 'b', 'k'};
+ROIcell = {[1], [1:5], [2], [2], [1:3], [1,3], [1:2], [1:2], [1:2], [1:2], [1:2], [1:2], [3:6], [2,3,5], [4], [1:2], [3:4]};
 
 DATA_DIR =  'C:\Users\jake\TempData\';
 FRAME_TIME_DIR = 'C:\Users\jake\TempData\';
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\LeverAnalysis\';
 
-days = {'150717_img28', '151021_img29', '160131_img36', '160131_img35', '160315_img38', '160320_img41'}; %rand=1000 
-%days = {'160129_img36', '151009_img30', '151011_img30', '160314_img38'};  %rand=4500
-
-%days = {'150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41'}; %'150718_img27', '150719_img27',
-colors = {'r', 'r', 'b', 'b', 'b', 'b', 'm', 'm', 'g', 'g', 'k', 'k', 'c', 'c', 'y', 'y', 'r', 'r', 'b', 'b'};
-ROIcell = {[1], [1:5], [2], [2], [1:3], [1,3], [1:2], [1:2], [1:2], [1:2], [1:2], [1:2], [3:6], [2,3,5], [4], [1:2]};
-f2 = figure;
+% ---- do simple movie analysis.
+func = @mean;
+%func = @median;
+%func = @std;
+pre_frames = 5;
+post_frames = 10;
+%f1 = figure(1);
+%f2 = figure(2); 
+figure; hold on; %subplot(1,3,1);
+title('cyan');
+days_roi_matcher = struct();
+ind_peak = [];
+ind_peak_fail = [];
+corr_roi_max = [];
+fail_roi_max = [];
 for kk=1:length(days)
     ROI_name  =  days{kk};
-    currROI = days_roi_matcher.(strcat('i', days{kk}));
-    %currROI = cell2mat(ROIcell(kk));
+    currROI = ROIcell{kk};
+    %currROI = days_roi_matcher.(strcat('i', days{kk}));
     bfile = dir([BEHAVE_DIR 'data-*i9' days{kk}(end-1:end) '-' days{kk}(1:6) '*' ]);
     behave_dest = [BEHAVE_DIR bfile.name];
     b_data = load(behave_dest);
-    load([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs']);
-    % ---- do simple movie analysis.
-    func = @median;
-    %func = @mean;
-    %func = @std;
-    pre_frames = 5;
-    post_frames = 10;
-    
+    load(strcat(ANALYSIS_DIR, 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'));
+    num_ROIs = cluster.num_cluster;
     ts = (-pre_frames:post_frames)*1000/round(sampling_rate);
     tot_frame = pre_frames + post_frames+1;
-    use_ev_success = trial_outcome.success_time;
-    
-    %bin licking times according to frame number
-    frameTimes = frame_info.times; %start by adjusting frameTimes so it accounts for missing frames
-    frameMisses = find(diff(frameTimes)>150);
-    frameShift=0;
-    for i = frameMisses;
-        missedFrame = ((frameTimes(i+frameShift+1)-frameTimes(i+frameShift))/2) + frameTimes(i+frameShift); %approximate the time of the missed frame 
-        frameTimes = [frameTimes(1:i+frameShift), missedFrame, frameTimes(i+frameShift+1:end)];
-        frameShift=frameShift+1; %necessary in order to account for the fact that frames are being inserted into the TC as the forloop progresses
-    end
-    licksByFrame = [];
-    for i = 1:length(frameTimes);
-        if i == length(frameTimes);
-            licksThisFrame = sum(lickTimes>=frameTimes(i) & lickTimes<frameTimes(i)+diff(fliplr(frameTimes(i-1:i))));
-            licksByFrame = [licksByFrame licksThisFrame];
-            break
-        end
-        licksThisFrame = sum(lickTimes>=frameTimes(i) & lickTimes<frameTimes(i+1));
-        licksByFrame = [licksByFrame licksThisFrame];
-    end
     
     % PLOT SUCCESSFUL TRIALS----------------------------------------------
     time_before = 500; % in ms, time before event w/o release
     time_after =1000; % in ms, time after event w/o press
-    [success_roi, use_times_succ, lick_trace_succ] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licksByFrame, use_ev_success, pre_frames, post_frames);
+    load(strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_success'));
     ts = repmat(ts,[cluster.num_cluster 1]);
     avg_success_roi = squeeze(func(success_roi,1));
-    if cluster.num_cluster == 1
+    if num_ROIs == 1
         avg_success_roi = avg_success_roi';
     end
     std_success = squeeze(std(squeeze(success_roi),1));
     sm_success = std_success./sqrt(size(success_roi,1));
-    for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
+    for i = 1:num_ROIs  %baseline each curve so it passes through zero
         shift = (-1)*avg_success_roi(i,3);
         avg_success_roi(i,:) = avg_success_roi(i,:)+shift;
     end
-    for i = currROI;
-        subplot(2,1,1); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'Color', colors{kk}); hold on;
-    end
-   
+%     for i = currROI;
+%         errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'g'); 
+%         %subplot(1,3,1); hold on; errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'Color', colors{kk}); 
+%     end
     
+%     figure; hold on   %plots all trials from a single animal on the same plot
+%     for iii = 1:size(success_roi,1)
+%         plot(squeeze(success_roi(iii,ROIcell{kk}(1),:)));
+%         title(days(kk));
+%     end
+
     %PLOT FAILED TRIALS---------------------------------------------------
-    use_ev_fail = trial_outcome.early_time;
-    [fail_roi, use_times_fail, lick_trace_fail] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licksByFrame, use_ev_fail, pre_frames, post_frames);
+    load(strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fail'));
     avg_fail_roi = squeeze(func(fail_roi,1));
-    if cluster.num_cluster == 1
+    if num_ROIs == 1
         avg_fail_roi = avg_fail_roi';
     end
     std_fail = squeeze(std(squeeze(fail_roi),1));
     sm_fail = std_fail./sqrt(size(fail_roi,1));
-    for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
+    for i = 1:num_ROIs  %baseline each curve so it passes through zero
         shift = (-1)*avg_fail_roi(i,3);
         avg_fail_roi(i,:) = avg_fail_roi(i,:)+shift;
     end
-    for i = currROI;
-        subplot(2,1,2); errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors{kk}); hold on; 
-    end
+%     for i = currROI;
+%         errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'r');
+%         %subplot(1,3,2); hold on; errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors{kk});
+%     end
    
+    %PLOT CUE TRIGGERED TRACES---------------------------------------------
+%     load(strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_cue'));
+%     avg_cue_roi = squeeze(mean(cue_roi,1));
+%     if num_ROIs == 1
+%         avg_cue_roi = avg_cue_roi';
+%     end
+%     std_cue = squeeze(std(squeeze(cue_roi),1));
+%     sm_cue = std_fail./sqrt(size(cue_roi,1));
+%     for i = 1:num_ROIs  %baseline each curve so it passes through zero
+%         shift = (-1)*avg_cue_roi(i,3);
+%         avg_cue_roi(i,:) = avg_cue_roi(i,:)+shift;
+%     end
+%      for i = currROI;
+%          subplot(1,3,3); hold on; errorbar(ts(i,:), avg_cue_roi(i,:), sm_cue(i,:), 'Color', colors{kk}); 
+%      end
     
-%     
-%     %PLOT FIDGETS-----------------------------------------------------
-%     use_ev_fidget = trial_outcome.fidget;
-%     [fidget_roi, use_times_fidget, lick_trace_fidget] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licksByFrame, use_ev_fidget, pre_frames, post_frames);
-%     avg_fidget_roi = squeeze(func(fidget_roi,1));
-%     if cluster.num_cluster == 1
-%         avg_fidget_roi = avg_fidget_roi';
-%     end
-%     std_fidget = squeeze(std(squeeze(fidget_roi),1));
-%     sm_fidget = std_fidget./sqrt(size(fidget_roi,1));
-%     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-%         shift = (-1)*avg_fidget_roi(i,3);
-%         avg_fidget_roi(i,:) = avg_fidget_roi(i,:)+shift;
-%     end
-%     subplot(2,3,4); bar(ts(1,:), mean(lick_trace_fidget)/10); hold on
-%     for i = 1:size(ts,1);
-%         hold on; subplot(2,3,4); errorbar(ts(i,:), avg_fidget_roi(i,:), sm_fidget(i,:), 'Color', colors(i,:));
-%     end
-%     xlabel('Time from release (ms)');
-%     ylabel('dF/F');
-%     title(['fidget n=' num2str(size(fidget_roi,1))]);
-%     axis tight;
-%     hold off
-%     
-%     %PLOT SUCCESS-FAIL------------------------------------------------
-%     sub_sm = sqrt(sm_fail.^2+sm_success.^2);
-%     for i = 1:size(ts,1);
-%         hold on; subplot(2,3,5); errorbar(ts(i,:), avg_success_roi(i,:) - avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
-%     end
-%     xlabel('Time from release (ms)');
-%     ylabel('dF/F');
-%     title('success - fail');
-%     axis tight;
-%     hold off
-%     
-%     %PLOT TOOFAST SUCCESSES---------------------------------------
-%     use_ev_tooFast = trial_outcome.tooFastCorrects;
-%     [tooFast_roi, use_times_tooFast, lick_trace_tooFast] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licksByFrame, use_ev_tooFast, pre_frames, post_frames);
-%     avg_tooFast_roi = squeeze(func(tooFast_roi,1));
-%     if cluster.num_cluster == 1
-%         avg_tooFast_roi = avg_tooFast_roi';
-%     end
-%     std_tooFast = squeeze(std(squeeze(tooFast_roi),1));
-%     sm_tooFast = std_tooFast./sqrt(size(squeeze(tooFast_roi),1));
-%     if size(tooFast_roi,1) == 1
-%         for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-%             avg_tooFast_roi = avg_tooFast_roi;
-%             shift = (-1)*avg_tooFast_roi(i,3);
-%             avg_tooFast_roi(i,:) = avg_tooFast_roi(i,:)+shift;
+    %PLOT MAX SLOPE AND PEAK OF EACH PLOT. THEN COMPARE LATENCIES FOR CORR VS EARLY FOR EACH----- 
+%     days{kk}
+%     for i = ROIcell{kk};
+%         for ii = 1:size(success_roi,1)
+%             peak_frame = find(success_roi(ii,i,:)==max(success_roi(ii,i,6:11))); %finds the peak frame for each ROI from each trial. 
+%             if length(peak_frame)>1
+%                 peak_frame(peak_frame<6)=[];
+%                 peak_frame(peak_frame>11)=[];
+%                 peak_frame = peak_frame(1);
+%             end
+%             corr_roi_max = [corr_roi_max, peak_frame]; %stores the index of the frame num of peak df/f
 %         end
-%         for i = 1:size(avg_tooFast_roi,1);
-%             hold on; subplot(2,3,6); plot(ts(1,:), avg_tooFast_roi(i,:), 'Color', colors(i,:));
-%             axis tight;
+%         avg_corr_roi_max = mean(corr_roi_max);
+%         ind_peak = [ind_peak, avg_corr_roi_max]; % stores the avg frame num of the peak df/f for each ROI for each animal
+%         for ii = 1:size(fail_roi,1)
+%             peak_frame_fail = find(fail_roi(ii,i,:)==max(fail_roi(ii,i,6:11))); %finds the peak frame for each ROI from each trial.
+%             if length(peak_frame_fail)>1
+%                 peak_frame_fail(peak_frame_fail<6)=[];
+%                 peak_frame_fail(peak_frame_fail>11)=[];
+%                 peak_frame_fail = peak_frame_fail(1);
+%             end
+%             fail_roi_max = [fail_roi_max, peak_frame_fail]; %stores the index of the frame num of peak df/f
 %         end
-%     elseif size(tooFast_roi,1) == 0
-%         subplot(2,3,6); plot(ts(1,:), zeros(length(ts))); ylim([-0.01 0.01]);
-%     else
-%         subplot(2,3,6); bar(ts(1,:), mean(lick_trace_tooFast)/10); hold on
-%         for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-%             shift = (-1)*avg_tooFast_roi(i,3);
-%             avg_tooFast_roi(i,:) = avg_tooFast_roi(i,:)+shift;
-%         end
-%         for i = 1:size(avg_tooFast_roi,1);
-%             hold on; subplot(2,3,6); errorbar(ts(1,:), avg_tooFast_roi(i,:), sm_tooFast(i,:), 'Color', colors(i,:));
-%             axis tight;
-%         end
+%         avg_fail_roi_max = mean(fail_roi_max);
+%         ind_peak_fail = [ind_peak_fail, avg_fail_roi_max];
+%         %peak_frame = find(avg_success_roi(i,:)==max(avg_success_roi(i,6:11))); %finds the peak frame for each ROI.
+%         %ind_peak = [ind_peak, peak_frame];   %collects all the peak frames for correct trials for valid ROIs
+%         %peak_frame_fail = find(avg_fail_roi(i,:)==max(avg_fail_roi(i,6:11)));
+%         %ind_peak_fail = [ind_peak_fail, peak_frame_fail];
+%         %vline(0,'k'); hold on;
+%         %vline(peak_frame-(pre_frames+1), 'g'); hold on;   %subtract off (pre_frames+1) so the frame numbers will be aligned to lever release. +1 is for frame 0.
+%         %vline(peak_frame_fail-(pre_frames+1), 'r'); hold on;
+%         corr_fail_peak_latency = peak_frame - peak_frame_fail;
 %     end
-%     xlabel('Time from release (ms)');
-%     ylabel('dF/F');
-%     title(['tooFast success n=' num2str(size(tooFast_roi,1))]);
-%     axis tight;
-    
-    %set y scale to be equal for all 3 subplots----
-%     YL = [];
-%     for i =2:6
-%         subplot(2,3,i); YL(i-1,:) = ylim;
-%     end
-%     
-    %STANDARDIZE YLIMS, SAVE VARIABLES, REPORT Ns---------------------------------
-%     subplot(2,3,2); ylim([min(YL(:,1)) max(YL(:,2))]);
-%     subplot(2,3,3); ylim([min(YL(:,1)) max(YL(:,2))]);
-%     subplot(2,3,4); ylim([min(YL(:,1)) max(YL(:,2))]); 
-%     subplot(2,3,5); ylim([min(YL(:,1)) max(YL(:,2))]); 
-%     subplot(2,3,6); ylim([min(YL(:,1)) max(YL(:,2))]);
-     
-%     success_roi = squeeze(success_roi);
-%     fail_roi = squeeze(fail_roi);
-%     fidget_roi = squeeze(fidget_roi);
-%     destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_success');
-%     destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fail');
-%     destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fidget');
-%     destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
-%     save([destySucc], 'success_roi');
-%     save([destyFail], 'fail_roi');
-%     save([destyFidget], 'fidget_roi');
-%     savefig([destyFig]);
-%     
-%     disp(['day/animal: ' num2str(ROI_name)])
-%     disp(['# of successful trials = ' num2str(size(success_roi,1))])
-%     disp(['# of failed trials = ' num2str(size(fail_roi,1))])
-%     disp(['# of fidget trials = ' num2str(size(fidget_roi,1))])
-%     disp(['# of tooFast_successes = ' num2str(size(tooFast_roi,1))])
 
 end
-subplot(2,1,1);
+% vline(0,'k'); hold on;
+% vline(ind_peak-(pre_frames+1), 'g'); hold on;   %subtract off (pre_frames+1) so the frame numbers will be aligned to lever release. +1 is for frame 0.
+% vline(ind_peak_fail-(pre_frames+1), 'r'); hold on;
+% xlim([-5 10]);
+% disp(['latency to peak df/f correct - fail = ' num2str(ind_peak-ind_peak_fail)]);
+% %title(['peak df/f for correct(green) and early(red) trials. avg diff=' num2str(corr_fail_peak_latency)]);
+% xlabel('time from lever release');
+% figure;
+% %corr_peaks_plot = hist([ind_peak-(pre_frames+1)],ts(1,:)/100);
+% corr_peaks_plot = hist([ind_peak-(pre_frames+1)],ts2);
+% plot(ts2, corr_peaks_plot)
+% hold on;
+% %fail_peaks_plot = hist([ind_peak_fail-(pre_frames+1)],ts(1,:)/100);
+% fail_peaks_plot = hist([ind_peak_fail-(pre_frames+1)],ts2);
+% plot(ts2, fail_peaks_plot, 'r')
+% xlabel('frames since lever release');
+% ylabel('# of trials per 50ms bin');
+% title('time to peak df/f for each ROI from each animal');
+% sub_peaks_plot = (ind_peak-(pre_frames+1))-(ind_peak_fail-(pre_frames+1));
+% figure; plot(ts2, sub_peaks_plot)
+% title('time of avg peak df/f for corrects - same for earlies');
+% xlabel('time of peak df/f for corrects (measure in 10hz frames)');
+
+
+
+%figure(1);
+%subplot(1,3,1);
 xlabel('Time from release (ms)');
 ylabel('dF/F');
-title('correct');
+%title('correct');
 axis tight;
-
-subplot(2,1,2);
-xlabel('Time from release (ms)');
-ylabel('dF/F');
-title('early');
-axis tight;
-
-YL = [];
-for i =1:2
-    subplot(2,1,i); YL(i,:) = ylim;
-end
-subplot(2,1,1); ylim([min(YL(:,1)) max(YL(:,2))]);
-subplot(2,1,2); ylim([min(YL(:,1)) max(YL(:,2))]);
+% 
+% subplot(1,3,2);
+% xlabel('Time from release (ms)');
+% ylabel('dF/F');
+% title('early');
+% axis tight;
+% 
+% subplot(1,3,3);
+% xlabel('Time from cue (ms)');
+% ylabel('dF/F');
+% title('cue aligned corrects');
+% axis tight;
+% 
+% YL = [];
+% for i =1:3
+%     subplot(1,3,i); YL(i,:) = ylim;
+% end
+% subplot(1,3,1); ylim([min(YL(:,1)) max(YL(:,2))]);
+% subplot(1,3,2); ylim([min(YL(:,1)) max(YL(:,2))]);
+% subplot(1,3,3); ylim([min(YL(:,1)) max(YL(:,2))]);

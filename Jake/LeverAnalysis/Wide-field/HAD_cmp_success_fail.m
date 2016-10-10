@@ -15,7 +15,7 @@ BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 
 % ----------
 %days = {'150320_img20'};
-days = {'160320_img41'};
+days = {'160606_img46'};
 holdT_min = 500000;
 
 for kk=1:length(days)

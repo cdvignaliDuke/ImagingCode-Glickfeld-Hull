@@ -1,11 +1,14 @@
+% 
+
+
 %colors = {'r', 'r', 'b', 'b', 'r', 'r', 'b', 'b', 'm', 'm', 'g', 'g', 'k', 'k', 'c', 'c', 'y', 'y', 'r', 'r', 'b', 'b'};
 %days = {'150518_img24', '150519_img24', '150518_img25', '150517_img25', '150716_img27', '150718_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41'}; %'150718_img27', '150719_img27',
 %ROIcell = {[1:2], [2:3], [1:2], [1:2], [1,2], [1,2,4], [1], [1:5], [2], [2], [1:3], [1,3], [1:2], [1:2], [1:2], [1:2], [1:2], [1:2], [3:6], [2,3,5], [4], [1:2]};
 colors = {'r'};
 days = {'160314_img38'};
 ROIcell = {[3:6]};
-DATA_DIR = 'Z:\Analysis\LeverAnalysis\LeverSummaryFolder\';
-BX_DIR = 'Z:\Analysis\LeverAnalysis\BxAndAnalysisOutputs\BxOutputs\';
+DATA_DIR = 'Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\';
+BX_DIR = 'Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\';
 %DATA_DIR = 'Z:\Analysis\LeverAnalysis\LeverSummaryNoShift\';
 summary_succ = {}; 
 summary_fail = {};

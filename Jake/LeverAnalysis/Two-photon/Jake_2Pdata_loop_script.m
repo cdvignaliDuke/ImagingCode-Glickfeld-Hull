@@ -47,5 +47,5 @@ for id = 1:size(date_mat,1)
     HAD_2P_TC_quantification  
     HAD_2P_event_outcomes
     HAD_2P_event_quantification
-    close all
+    %close all
 end
