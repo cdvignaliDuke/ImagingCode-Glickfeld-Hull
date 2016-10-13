@@ -23,12 +23,10 @@ end
 % --- stores the time of the beginning of the first trial in MWorks time. 
 bx_start_MWorks_time  = trial_start(1);   
 
-% -- Obtain frame info from behavior file
+% --- Obtain frame info from behavior file
 [counterValues, counterTimesMs, f_frame_trial_num, l_frame_trial_num] = extract_counters_bx(b_data);
-if ~ismonotonic(counterValues) | ~ismonotonic(counterTimesMs);
-    disp('error detected in counterTimes or counterValues: diagnosing');
-    [counterValues, counterTimesMs] = counter_fixer(counterValues, counterTimesMs);
-end
+[counterValues, counterTimesMs] = counter_fixer(counterValues, counterTimesMs);
+%store frame data
 frame.counter_by_time = counterValues; 
 frame.times = counterTimesMs; 
 frame.counter = counter_calculator(counterValues, counterTimesMs);  %each slot represents a ms of time during imaging. Each value in a slot represents the frame# being collected at that time. 
@@ -121,7 +119,7 @@ tot_req_hold = req_hold + rnd_hold;
 release_time = hold_start + hold_time;
 early_time = hold_time<req_hold & hold_time>=200;  %finds non-fidget early releases. Fidget < 350ms hold.   %LARGE BUG in early times. early inx values are all non zero and negative. 
 has_reward = ~cellfun(@isempty, b_data.juiceTimesMsCell ); %using this as a proxy to isolate correct trials 
-fidget_time = release_time(hold_time<350);
+fidget_time = release_time(hold_time<200);
 late_time = release_time(find(strcmp('ignore',b_data.trialOutcomeCell)));
 
 %find all the correct trials which were too fast to be responding to visual cue

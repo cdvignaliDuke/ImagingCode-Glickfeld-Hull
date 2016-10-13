@@ -20,7 +20,7 @@ sz = {};
 %------ Load and shrink images
 %cd(mati_code_cd);
 for i=1:length(meta_data2)
-    %meta_data is the meta_data does not currently have info about # of
+    %meta_data does not currently have info about # of
     %frames and it needs that for get_movie to work==========================================================================================================
     [img, sz] = get_movie_by_ROI(meta_data2{i}(1).Filename, meta_data2{i}, ROI_x, ROI_y, BIN_SIZE, 1, length(meta_data2{i})); % this is the function which actually does the shrinking
     %=====================================================================================

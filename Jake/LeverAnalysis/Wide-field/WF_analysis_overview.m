@@ -1,8 +1,7 @@
 %% SECTION ONE  
 % 1)assign pathnames and datasets to be analyzed/written. 
 clear;
-day = '160129_img35';
-%day = '160606_img46';
+day = '160314_img38';
 image_source = ['Z:\Data\WidefieldImaging\GCaMP\', day]; %location of permanently stored image files for retreiving meta data
 image_source_temp = ['C:\Users\jake\TempData\', day]; %looks at temporary storage to find the raw image data
 image_dest   = ['Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\' day]; %stores the data on crash in the lever analysis folder
@@ -29,6 +28,10 @@ shrink_movie(day, image_source_temp, image_dest, meta_data2); %automatically sav
 WF_draw_ROIs_for_lever(day, image_dest)  %automatically saves the ROIs
 
 %% SECTION FOUR - analyze bx data, find baseline times, make df/f, align frame counter/times, plot TCs
+
+%move through processing of licking data step by step and plot the data
+%along the way. 
+
 WF_lever_Bx_DFoF
 % - load paths, frame_info, bx file
 % - calculate info, ifi, sampling_rate, f_frame, l_frame

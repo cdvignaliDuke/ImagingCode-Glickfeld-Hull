@@ -13,8 +13,7 @@ days = {'160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_i
 %these are the days which have all their frames shrunk. Can use them to
 %analyze frame shift effect and look at licking. 
 days = {'160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
-days = {'160314_img38'};
-
+days = {'160921_img61', '160920_img61'};
 
 for kk=1:length(days)
     ROI_name  =  days{kk};
@@ -49,9 +48,8 @@ for kk=1:length(days)
     tot_frame = pre_frames + post_frames+1;
     use_ev_success = trial_outcome.success_time;
     
-    %================================================================================
-    %bin licking times according to frame number   %Should keep licking at a higher resolution
-    frameTimes = frame_info.times; %frame times should be monotonic by the time it gets here.    
+    %bin licking times according to frame number.
+    frameTimes = frame_info.times; %frame times is monotonic by the time it gets here.    
     licksByFrame = [];
     for i = 1:length(frameTimes);
         if i == 1; %if this is the first frameTime 
@@ -65,7 +63,6 @@ for kk=1:length(days)
     licking_data = [];
     licking_data.lickTimes = lickTimes;
     licking_data.licksByFrame = licksByFrame;
-    %====================================================================
     
     % PLOT SUCCESSFUL TRIALS----------------------------------------------
     time_before = 500; % in ms, time before event w/o release
@@ -228,7 +225,7 @@ for kk=1:length(days)
     end
     %Save figure before opening next one
     destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
-    %savefig([destyFig]);
+    savefig([destyFig]);
     
     %PLOT SUCCESSES TRIGGERED OFF CUE CHANGE. 
     cueTimes = trial_outcome.change_orientation;
