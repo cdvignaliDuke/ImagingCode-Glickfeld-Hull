@@ -1,16 +1,45 @@
 load([fnout '_modCells'])
 
+trType = 3;
+
 set(0,'defaultfigurepaperorientation','landscape');
 set(0,'defaultfigurepapersize',[11 8.5]);
 set(0,'defaultfigurepaperposition',[.25 .25 [11 8.5]-0.5]);
 % set(0,'DefaultaxesFontSize', 16)
 
-auc_visTarResp = [];
+auc_visTarResp = [];            
+auc_visTarResp_short = [];
+auc_visTarResp_long = [];
+rs_p_visTarResp = []; 
+rs_visTarResp = []; 
+auc_visTarRespMaxDir = [];
+expColor = [];
+i=0;
 
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)        
         if mouse(imouse).expt(iexp).info.isCatch
-            auc_visTarResp = cat(2,auc_visTarResp,msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(2).value);
+            %auROC across all trials
+            a = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(trType).value;           
+            as = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(1).value;            
+            al = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(2).value;
+            u = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(trType).rst_p;
+            ut = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(trType).rst; 
+            
+            % max auROC across by each target
+            b = max(cell2mat(msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(trType).value_dirs),[],2);
+            
+            if size(a,1) > size(a,2)
+                a = a';
+            end
+            auc_visTarResp = cat(2,auc_visTarResp,a);            
+            auc_visTarResp_short = cat(1,auc_visTarResp_short,as);
+            auc_visTarResp_long = cat(2,auc_visTarResp_long,al);
+            rs_visTarResp = cat(2,rs_visTarResp,ut); 
+            rs_p_visTarResp = cat(2,rs_p_visTarResp,u); 
+            auc_visTarRespMaxDir = cat(1,auc_visTarRespMaxDir,b);
+            expColor = cat(1,expColor,ones(length(a),1)+i);
+            i = i+1;
         end
     end
 end
@@ -21,23 +50,362 @@ val_sort = sort(auc_visTarResp);
 percentile_ind = [val_sort(1:floor(c/nbins):c) val_sort(end)];
 
 figure;
-h=cdfplot(auc_visTarResp);
-h.Color = 'k';
-h.LineWidth = 2;
+clear h
+h{1}=cdfplot(auc_visTarResp);
+h{1}.Color = 'k';
+h{1}.LineWidth = 2;
 hold on
 vline(percentile_ind(2:end-1),'r--')
+hold on
+% h{2}=cdfplot(auc_visTarResp);
+% h{2}.Color = [0.5 0.5 0.5];
+% h{2}.LineWidth = 2;
+
+% h{2}=cdfplot(auc_visTarResp_short);
+% h{2}.Color = [0.75 0.75 0.75];
+% h{2}.LineWidth = 2;
+% 
+% h{3}=cdfplot(auc_visTarResp_long);
+% h{3}.Color = [0.25 0.25 0.25];
+% h{3}.LineWidth = 2;
 xlim([0 1])
 ylim([0 1])
 xlabel('area under ROC curve')
 ylabel('fraction of cells')
 axis square
 title('comp. resp. to vis target and resp. to last vis stim')
+% legend({'all';'short';'long'})
 
 print([fnout '_aucCDF'],'-dpdf')
 
-            %%
+figure;
+colormap(jet)
+scatter(auc_visTarResp,rs_p_visTarResp,50,expColor);
+hold on
+hline(0.05,'k--')
+xlabel('auc')
+ylabel('p value - rank sum test')
+colorbar
+clim([1 8])
+
+figure;
+colormap(brewermap([],'*RdGy'))
+clear h
+h = scatter(auc_visTarResp,auc_visTarRespMaxDir, 100,rs_visTarResp,'.');
+hold on
+plot([0:0.1:1],[0:0.1:1],'k--')
+xlim([0 1]);
+ylim([0 1]);
+clim([-0.1 1.1])
+colorbar
+xlabel('all targets')
+ylabel('max across ea. target')
+title('auROC')
+axis square
+% colorbar for ea exp
+figure;
+clear h
+h = scatter(auc_visTarResp,auc_visTarRespMaxDir, 100,expColor,'.');
+colormap(jet)
+% h = scatter(auc_visTarResp,auc_visTarRespMaxDir, 100,rs_visTarResp,'.');
+hold on
+plot([0:0.1:1],[0:0.1:1],'k--')
+xlim([0 1]);
+ylim([0 1]);
+% clim([-0.1 1.1])
+colorbar
+xlabel('all targets')
+ylabel('max across ea. target')
+title('auROC')
+axis square
+
+%% roc values for each target direction
+
+allDirs = [];
+c_allDirs = [];
+for imouse = 1:size(mouse,2)
+    for iexp = 1:size(mouse(imouse).expt,2) 
+        allDirs = [allDirs unique(msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).dirs)];
+        if mouse(imouse).expt(iexp).info.isCatch
+        c_allDirs = [c_allDirs unique(msModCells(imouse).expt(iexp).av(iav).outcome(fas).mi(1).comp(1).auc(3).dirs)];
+        end
+    end
+end
+allDirs = unique(allDirs);
+c_allDirs = unique(c_allDirs);
+
+auc_allDirs = cell(1,length(allDirs));
+rs_allDirs = [];
+rs_tarAbove = [];
+rs_tarBelow = [];
+resp(hits).all = cell(1,length(allDirs));
+resp(fas).all = cell(1,length(c_allDirs));
+resp(hits).enhance = cell(1,length(allDirs));
+resp(fas).enhance = cell(1,length(c_allDirs));
+resp(hits).tuning = cell(3,length(allDirs));
+nc = 0;
+ncc = 0;
+for imouse = 1:size(mouse,2)
+    for iexp = 1:size(mouse(imouse).expt,2) 
+        c = unique(cat(1,cell2mat(msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).rst_dirs')));
+        A = cellfun(@(x) find(x > 0.5),msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).value_dirs,'unif',false);
+        B = cellfun(@(x) find(x < 0.5),msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).value_dirs,'unif',false);
+        ca = intersect(c,unique(cat(1,cell2mat(A'))));
+        cb = intersect(c,unique(cat(1,cell2mat(B'))));
+        ind = find(ismember(allDirs,msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).dirs));
+%             r = cellfun(@(x,y) x(:,y,:),mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hits).stimResp(2:end),msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).rst_dirs,'unif',false);
+        for idir = 1:length(ind)
+            a = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).value_dirs{idir};
+            auc_allDirs{ind(idir)} = cat(1, auc_allDirs{ind(idir)},a);            
+            
+            resp(hits).all{ind(idir)} = cat(2, resp(hits).all{ind(idir)}, mean(mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hits).stimResp{idir+1},3));
+%             resp(hits).enhance{ind(idir)} = cat(2, resp(hits).enhance{ind(idir)}, mean(r{idir},3));
+          end
+        for ibin = 1:3
+            if ibin == 1
+                rsDirInd = find(allDirs(ind) < 25);
+            elseif ibin == 2                
+                rsDirInd = find(allDirs(ind) > 25 & allDirs(ind) < 60);
+            elseif ibin == 3
+                rsDirInd = find(allDirs(ind) > 60);
+            end
+            exInd = find(cell2mat(cellfun(@(x) ~isempty(x),mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hits).stimResp,'unif',false)));
+            exInd = exInd(2:end);
+            rsInd = unique(cat(1,cell2mat(msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).rst_dirs(rsDirInd)')));
+            resp(hits).tuning(ibin,ind) = cellfun(@(x,y) cat(2,x,y), resp(hits).tuning(ibin,ind), cellfun(@(z) mean(z(:,rsInd,:),3),mouse(imouse).expt(iexp).align(targetAlign).av(iav).outcome(hits).stimResp(exInd),'unif',false),'unif',false);
+        end
+        if mouse(imouse).expt(iexp).info.isCatch
+        cind = find(ismember(c_allDirs,msModCells(imouse).expt(iexp).av(iav).outcome(fas).mi(1).comp(1).auc(3).dirs));
+%         trInd = find(~isempty(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).stimResp));
+%         r = cellfun(@(x,y) x(:,y,:),mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).stimResp(trInd),msModCells(imouse).expt(iexp).av(iav).outcome(fas).mi(1).comp(1).auc(3).rst_dirs,'unif',false);
+        for idir = 1:length(cind)
+            resp(fas).all{cind(idir)} = cat(2, resp(fas).all{cind(idir)}, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).stimResp{idir},3));
+%             resp(fas).enhance{cind(idir)} = cat(2, resp(fas).enhance{cind(idir)}, mean(r{idir},3));
+        end
+        
+        end
+            %cells index for signif auc for at least 1 target
+            
+            rs_allDirs = cat(1, rs_allDirs,c+nc);
+            rs_tarAbove = cat(1,rs_tarAbove,ca+nc);
+            rs_tarBelow = cat(1,rs_tarBelow,cb+nc);
+            nc = nc+length(a);
+            
+    end
+end
+%%
+% target enhnaced cells for each target, catch experiments only
+val = 5;
+inv = 6;
+nc = 0;
+resp(hits).enhance = cell(1,length(c_allDirs));
+resp(fas).enhance = cell(1,length(c_allDirs));
+resp(val).enhance = cell(1,length(c_allDirs));
+resp(inv).enhance = cell(1,length(c_allDirs));
+for imouse = 1:size(mouse,2)
+    for iexp = 1:size(mouse(imouse).expt,2) 
+        if mouse(imouse).expt(iexp).info.isCatch
+        ind = find(ismember(c_allDirs,chop(mouse(imouse).expt(iexp).catchTargets,2)));
+        mod_ind = find(ismember(msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).dirs,chop(mouse(imouse).expt(iexp).catchTargets,2)));
+        c = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(3).rst_dirs(mod_ind);
+        for idir = 1:length(ind)
+            resp(hits).enhance{ind(idir)} = cat(2, resp(hits).enhance{ind(idir)}, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp{idir}(:,c{idir},:),3));
+            resp(val).enhance{ind(idir)} = cat(2, resp(val).enhance{ind(idir)}, mean( cat(3,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp{idir}(:,c{idir},:),mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).stimResp{idir}(:,c{idir},:)),3));
+            resp(fas).enhance{ind(idir)} = cat(2, resp(fas).enhance{ind(idir)}, mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).stimResp{idir}(:,c{idir},:),3));
+            resp(inv).enhance{ind(idir)} = cat(2, resp(inv).enhance{ind(idir)}, mean( cat(3,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).stimResp{idir}(:,c{idir},:),mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(crs).stimResp{idir}(:,c{idir},:)),3));
+            
+        end
+        end
+    end
+end
+
+h1_tc = cellfun(@(x) bsxfun(@minus,nanmean(x,2),nanmean(nanmean(x(pre_win,:),2),1)),resp(val).enhance,'unif',false);
+h1_ste = cellfun(@(x) std(x,[],2)/sqrt(length(x)),resp(hits).enhance,'unif',false);
+h2_tc = cellfun(@(x) bsxfun(@minus,nanmean(x,2),nanmean(nanmean(x(pre_win,:),2),1)),resp(inv).enhance,'unif',false);
+h2_ste = cellfun(@(x) std(x,[],2)/sqrt(length(x)),resp(fas).enhance,'unif',false);
+
+h1_colors = brewermap(length(c_allDirs)+1,'Greys');
+h2_colors = brewermap(length(c_allDirs)+1,'Blues');
+
+% timecourses for enhanced cells for each target direction
+figure;
+clear h
+for idir = 1:length(c_allDirs)
+    subplot(1,length(c_allDirs),idir)
+    h1{idir} = shadedErrorBar(ttMs,h1_tc{idir},h1_ste{idir});
+    h1{idir}.mainLine.Color = h1_colors(idir+1,:);
+    h1{idir}.mainLine.LineWidth = 3;
+    h1{idir}.patch.FaceAlpha = .25;
+    hold on
+    h2{idir} = shadedErrorBar(ttMs,h2_tc{idir},h2_ste{idir});
+    h2{idir}.mainLine.Color = h2_colors(idir+1,:);
+    h2{idir}.mainLine.LineWidth = 3;
+    hold on
+    ylim([-0.005 0.03])
+    title(['target enhanced - ' num2str(c_allDirs(idir)) ' deg']);
+    axis square
+end
+xlabel('ms')
+ylabel('dF/F')
+
+
+print([fnout '_targetEnhanceCells_eachTarget'],'-dpdf')
+
+% target tuning - hits only
+tuning_tc_mean = cellfun(@(x) nanmean(x,2),resp(hits).tuning,'unif',false);
+tuning_tc_ste = cellfun(@(x) nanstd(x,[],2)/sqrt(size(x,2)),resp(hits).tuning,'unif',false);
+
+tuning_r_mean = cellfun(@(x) bsxfun(@minus,nanmean(nanmean(x(trans_win,:),2),1),nanmean(nanmean(x(pre_win,:),2),1)),resp(hits).tuning,'unif',false);
+tuning_r_ste = cellfun(@(x) nanstd(mean(x(trans_win,:),1),[],2)/sqrt(size(x,2)),resp(hits).tuning,'unif',false);
+
+tuning_titles = {'<25';'>25 & <60';'>60'};
+figure;
+suptitle('target enhanced cells')
+for ibin = 1:3
+    subplot(1,3,ibin)
+    d = cell2mat(tuning_r_mean(ibin,:));
+    ind = find(~isnan(d));
+    h = errorbar(allDirs(ind),d(ind),cell2mat(tuning_r_ste(ibin,ind)),'k');
+    h.LineStyle = 'none';
+    h.Marker = 'o';
+    h.Parent.XTick = allDirs;
+    xlim([0 100]);
+    ylim([-0.01 0.03])
+    xlabel('target orientation')
+    ylabel('dF/F')
+    axis square
+    title(tuning_titles{ibin})
+end
+%%
+dirs_colors = flipud(brewermap(length(allDirs)+1,'*Greys'));
+% dirs_colors = dirs_colors(length(allDirs)+1:end,:);
+
+figure;
+for idir = 1:length(allDirs)
+   h = cdfplot(auc_allDirs{idir});
+   h.Color = dirs_colors(idir+1,:);
+   h.LineWidth = 3;
+   hold on
+end
+xlabel('auc')
+ylabel('fraction of cells')
+title('target enhancement by direction of ori change')
+legend(strread(num2str(allDirs),'%s'))
+
+auc_mean_dirs = cell2mat(cellfun(@(x) mean(x,1),auc_allDirs,'unif',false));
+auc_ste_dirs = cell2mat(cellfun(@(x) std(x)/sqrt(length(x)),auc_allDirs,'unif',false));
+
+% mean auc for each target direction
+figure;
+errorbar(allDirs,auc_mean_dirs,auc_ste_dirs,'k')
+xlabel('orientation')
+ylabel('mean auc')
+title('mean auc for each target ori')
+
+prctl = 10;
+[auc_dirs_sort auc_dirs_sortInd] = cellfun(@(x) sort(x),auc_allDirs,'unif',false);
+
+topAUC_dirs_ind = cellfun(@(x) x(length(x)-floor(length(x)/prctl):end),auc_dirs_sortInd,'unif',false);
+
+tc_valHits_topAUC_dirs = cell2mat(cellfun(@(x,y) mean(x(:,y),2)-mean(mean(x(pre_win,y),2),1),resp(hits).all,topAUC_dirs_ind,'unif',false));
+
+% timecourses for top auc cells for each target direction
+figure;
+suptitle(['tc of top ' num2str(prctl) 'prct AUC cells for each target direction']);
+clear h
+for idir = 1:length(allDirs)
+    subplot(2,5,idir)
+    h = plot(ttMs,tc_valHits_topAUC_dirs(:,idir));
+    h.Color = 'k';%dirs_colors(idir+1,:);
+    h.LineWidth = 3;
+    hold on
+    xlim([-1000 2000])
+    ylim([-0.05 0.05])
+    xlabel('ms')
+    ylabel('dF/F')
+    title(num2str(allDirs(idir)))
+    axis square
+end
+
+%time-courses of example top cells
+figure;
+suptitle('example top cells')
+for idir = 1:length(allDirs)
+   subplot(2,5,idir)
+   temp = bsxfun(@minus,resp(hits).all{idir},mean(resp(hits).all{idir}(pre_win,:),1));
+   ind = randperm(length(topAUC_dirs_ind{idir}),1);
+   h = plot(ttMs,temp(:,topAUC_dirs_ind{idir}(ind)),'k');
+   h.LineWidth = 3;
+   hold on
+   vline(0,'k:')
+   vline([trans_win(1) trans_win(end)]*(cycTimeMs/cycTime),'r--')
+   xlabel('ms')
+   ylabel('dF/F')
+   xlim([-1000 2000])
+   ylim([-0.05 0.1])
+   title(num2str(allDirs(idir)))
+   axis square
+end
+
+
+% heatmap of all cells sorted by auc for each target direction
+ndir = length(allDirs);
+nd1 = ceil(sqrt(ndir+1));
+if (nd1^2)-nd1 > ndir+1
+    nB = nd1-1;
+else
+    nB = nd1;
+end
+
+resp_v_sub = cellfun(@(x) bsxfun(@minus,x,mean(x(pre_win,:),1)),resp(hits).all,'unif',false);
+
+[resp_v_sort resp_v_sortInd] = cellfun(@(x) sort(mean(x(trans_win,:),1)),resp_v_sub,'unif',false);
+
+time_ind = find(ismember(ttMs,[0 1000 2000]));
+
+aucSortFig = figure;
+suptitle('resp to each valid target, cells sorted by auc')
+colormap(brewermap(1001,'*RdBu'))
+respSortFig = figure;
+suptitle('resp to each valid target, cells sorted by resp')
+colormap(brewermap(1001,'*RdBu'))
+for idir = 1:ndir
+    figure(aucSortFig);
+   subplot(nd1,nB,idir)   
+   img = imagesc(resp_v_sub{idir}(1:time_ind(2),auc_dirs_sortInd{idir})');
+   img.Parent.XTick = time_ind(1:2);
+   img.Parent.XTickLabel = strread(num2str([0 1]),'%s');    
+    title(num2str(allDirs(idir)))
+    xlabel('time (s)')
+    ylabel('cells')
+    clim_vis = [-.1 0.1];
+    caxis(clim_vis)
+    colorbar
+    axis square
+    
+    figure(respSortFig);
+   subplot(nd1,nB,idir)
+    img = imagesc(resp_v_sub{idir}(1:time_ind(2),resp_v_sortInd{idir})');
+   img.Parent.XTick = time_ind(1:2);
+   img.Parent.XTickLabel = strread(num2str([0 1]),'%s');    
+    title(num2str(allDirs(idir)))
+    xlabel('time (s)')
+    ylabel('cells')
+    clim_vis = [-.1 0.1];
+    caxis(clim_vis)
+    colorbar
+    axis square
+end
+
+
+%% find target response for 3 bins - targ resp sgnf above, below, and neither from last base stim
+
+nbins = 4;
+compInd = 1;
 
 auc_fig = figure;
+heatmap_fig = figure;
+colormap(brewermap([],'*RdBu'))
 for iAuc = 1:nbins
 i = 1;
 
@@ -105,8 +473,21 @@ for imouse = 1:size(mouse,2)
             val_temp = [];
             inv_temp = [];
             all_temp = [];
-            mi_val = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(2).value;
+            % divide up cells by percentile
+            mi_val = msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(1).auc(trType).value;
             cell_ind = find(mi_val >= percentile_ind(iAuc) & mi_val < percentile_ind(iAuc+1));
+%             % divide up cells by target enhancement
+%                 c = unique(cat(1,cell2mat(msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(compInd).auc(3).rst_dirs')));
+%             if iAuc == 1 %cells that had bigger response to one of the targets
+%                 A = cellfun(@(x) find(x > 0.5),msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(compInd).auc(3).value_dirs,'unif',false);
+%                 cell_ind = intersect(c,unique(cat(1,cell2mat(A'))));
+%             elseif iAuc == 2 %cells that had smaller response to one of the targets
+%                 B = cellfun(@(x) find(x < 0.5),msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(compInd).auc(3).value_dirs,'unif',false);
+%                 cell_ind = intersect(c,unique(cat(1,cell2mat(B'))));
+%             elseif iAuc == 3 %cells that had equivalent response to one of the targets               
+%                 nc = length(msModCells(imouse).expt(iexp).av(iav).outcome(hits).mi(1).comp(compInd).auc(3).value);
+%                 cell_ind = setdiff(1:nc,c);
+%             end
         % find number of each trial outcome type
             cdirs = mouse(imouse).expt(iexp).info.cDirs;
             sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp,'unif',false)),3,length(cdirs));
@@ -178,9 +559,9 @@ for imouse = 1:size(mouse,2)
             resp_fa_dir_temp = cell(length(cdirs),1);
             if any(nDirs_hvsfa > 1)
 %             resp_h = NaN(length(tt),length(cell_ind),sum(nDirs_hvsfa),100);
-%             resp_fa = NaN(length(tt),length(cell_ind),sum(nDirs_hvsfa),100);           
+%             resp(fas).all = NaN(length(tt),length(cell_ind),sum(nDirs_hvsfa),100);           
             resp_h = NaN(length(tt),length(cell_ind),sum(nDirs_hvsfa(nDirs_hvsfa > 1)),100);
-            resp_fa = NaN(length(tt),length(cell_ind),sum(nDirs_hvsfa(nDirs_hvsfa > 1)),100);
+            resp(fas).all = NaN(length(tt),length(cell_ind),sum(nDirs_hvsfa(nDirs_hvsfa > 1)),100);
             for iboot = 1:100
                 resp_rTh = [];
                 resp_rTfa = [];
@@ -199,14 +580,14 @@ for imouse = 1:size(mouse,2)
                 end
             end
             resp_h(:,:,:,iboot) = resp_rTh;
-            resp_fa(:,:,:,iboot) = resp_rTfa;
+            resp(fas).all(:,:,:,iboot) = resp_rTfa;
 %             if iboot == 1
 %                tc_hvsfa = resp_rTh;
 %                tc_favsh = resp_rTfa;
 %             end
             end
             resp_h = nanmean(resp_h,4);
-            resp_fa = nanmean(resp_fa,4);
+            resp(fas).all = nanmean(resp(fas).all,4);
             
 %             tc_hvsfa = NaN(length(tt),length(cell_ind),sum(nDirs_hvsfa(nDirs_hvsfa >1)));
 %             tc_favsh = NaN(length(tt),length(cell_ind),sum(nDirs_hvsfa(nDirs_hvsfa >1)));
@@ -221,21 +602,21 @@ for imouse = 1:size(mouse,2)
             end
             else
             resp_h = [];
-            resp_fa = [];
+            resp(fas).all = [];
 %             tc_hvsfa = [];
 %             tc_favsh = [];
             end
             
             
             tc_hvsfa_all = cat(2,tc_hvsfa_all,mean(resp_h,3));%tc_hvsfa_all = cat(2,tc_hvsfa_all,mean(tc_hvsfa,3)); 
-            tc_favsh_all = cat(2,tc_favsh_all,mean(resp_fa,3));%tc_favsh_all = cat(2,tc_favsh_all,mean(tc_favsh,3));  
+            tc_favsh_all = cat(2,tc_favsh_all,mean(resp(fas).all,3));%tc_favsh_all = cat(2,tc_favsh_all,mean(tc_favsh,3));  
             
             if any(nDirs_hvsfa > 1)
             resp_hvsfa = squeeze(mean(mean(resp_h(trans_win,:,:),3),1))-squeeze(mean(mean(resp_h(pre_win,:,:),3),1));
-            resp_favsh = squeeze(mean(mean(resp_fa(trans_win,:,:),3),1))-squeeze(mean(mean(resp_fa(pre_win,:,:),3),1));
+            resp_favsh = squeeze(mean(mean(resp(fas).all(trans_win,:,:),3),1))-squeeze(mean(mean(resp(fas).all(pre_win,:,:),3),1));
             val_temp = resp_h;
-            inv_temp = resp_fa;
-            all_temp = cat(3,resp_h,resp_fa);
+            inv_temp = resp(fas).all;
+            all_temp = cat(3,resp_h,resp(fas).all);
             else
                 resp_hvsfa = [];
                 resp_favsh = [];
@@ -247,7 +628,7 @@ for imouse = 1:size(mouse,2)
 %             resp_val_all = cat(2,resp_val_all,resp_hvsfa);
 %             resp_inv_all = cat(2,resp_inv_all,resp_favsh);
 %             tc_val_all = cat(2,tc_val_all,mean(resp_h,3));%tc_val_all = cat(2,tc_val_all,mean(tc_hvsfa,3));
-%             tc_inv_all = cat(2,tc_inv_all,mean(resp_fa,3));%tc_inv_all = cat(2,tc_inv_all,mean(tc_favsh,3));
+%             tc_inv_all = cat(2,tc_inv_all,mean(resp(fas).all,3));%tc_inv_all = cat(2,tc_inv_all,mean(tc_favsh,3));
 %             
 %             resp_hvsfa = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).resp(pre_win,cell_ind,:),3),1));
 %             resp_favsh = squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).resp(trans_win,cell_ind,:),3),1))-squeeze(mean(mean(mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(fas).resp(pre_win,cell_ind,:),3),1));
@@ -507,7 +888,7 @@ for imouse = 1:size(mouse,2)
                 nDirs_favscr = nT(ind3);
             end
             if any(nDirs_favscr > 1)
-            resp_fa = NaN(length(tt),length(cell_ind),sum(nDirs_favscr(nDirs_favscr > 1)),100);
+            resp(fas).all = NaN(length(tt),length(cell_ind),sum(nDirs_favscr(nDirs_favscr > 1)),100);
             resp_cr = NaN(length(tt),length(cell_ind),sum(nDirs_favscr(nDirs_favscr > 1)),100);           
 %             tc_favscr = NaN(length(tt),length(cell_ind),sum(nDirs_favscr(nDirs_favscr > 1)));
 %             tc_crvsfa = NaN(length(tt),length(cell_ind),sum(nDirs_favscr(nDirs_favscr > 1)));
@@ -522,28 +903,28 @@ for imouse = 1:size(mouse,2)
                     resp_rTcr = cat(3,resp_rTcr,rT(:,cell_ind,randperm(size(rT,3),nDirs_favscr(idir))));
                 end
             end
-            resp_fa(:,:,:,iboot) = resp_rTfa;
+            resp(fas).all(:,:,:,iboot) = resp_rTfa;
             resp_cr(:,:,:,iboot) = resp_rTcr;
 %             if iboot == 1
 %                tc_favscr = resp_rTfa;
 %                tc_crvsfa = resp_rTcr;
 %             end
             end
-            resp_fa = mean(resp_fa,4);
+            resp(fas).all = mean(resp(fas).all,4);
             resp_cr = mean(resp_cr,4);
             else
-            resp_fa = [];
+            resp(fas).all = [];
             resp_cr = [];
 %             tc_favscr = [];
 %             tc_crvsfa = [];
             end
             
-            tc_favscr_all = cat(2,tc_favscr_all,mean(resp_fa,3)); 
+            tc_favscr_all = cat(2,tc_favscr_all,mean(resp(fas).all,3)); 
             tc_crvsfa_all = cat(2,tc_crvsfa_all,mean(resp_cr,3)); 
             
             
             if any(nDirs_favscr > 1)
-                resp_favscr = squeeze(mean(mean(resp_fa(trans_win,:,:),3),1))-squeeze(mean(mean(resp_fa(pre_win,:,:),3),1));
+                resp_favscr = squeeze(mean(mean(resp(fas).all(trans_win,:,:),3),1))-squeeze(mean(mean(resp(fas).all(pre_win,:,:),3),1));
                 resp_crvsfa = squeeze(mean(mean(resp_cr(trans_win,:,:),3),1))-squeeze(mean(mean(resp_cr(pre_win,:,:),3),1));
             else
                 resp_favscr = [];
@@ -561,6 +942,8 @@ for imouse = 1:size(mouse,2)
         i = i+1;
     end
 end
+
+
 
 %scatter
 figure(auc_fig);
@@ -612,9 +995,38 @@ vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTi
 title({['ROC bin ' num2str(iAuc) ', ' percentile_ind(iAuc) ':' percentile_ind(iAuc+1)];[num2str(sum(n_all)) ' all val, inv;' num2str(size(resp_val_all,2)) ' cells']});
 axis square
 
+figure(heatmap_fig);
+subplot(nbins,2,1+((iAuc-1)*2))
+temp_hm = bsxfun(@minus,tc_val_all,mean(tc_val_all(pre_win,:),1));
+% hm = imagesc(temp_hm(20:(pre_event_frames-20)+floor((cycTime/cycTimeMs)*3000),:)');
+% hm.Parent.XTick = [pre_event_frames-20 (pre_event_frames-20)+floor((cycTime/cycTimeMs)*1000) (pre_event_frames-20)+floor((cycTime/cycTimeMs)*2000)];
+% hm.Parent.XTickLabel = [0 1 2]
+hm = imagesc(temp_hm(20:(pre_event_frames-20)+floor((cycTime/cycTimeMs)*1000),:)');
+hm.Parent.XTick = [pre_event_frames-20 (pre_event_frames-20)+floor((cycTime/cycTimeMs)*250) (pre_event_frames-20)+floor((cycTime/cycTimeMs)*500)];
+hm.Parent.XTickLabel = [0 0.25 0.5]
+xlabel('time (s)')
+ylabel('cells')
+title('valid')
+axis square
+clim([-0.1 0.1])
+colorbar
+subplot(nbins,2,2+((iAuc-1)*2))
+temp_hm = bsxfun(@minus,tc_inv_all,mean(tc_inv_all(pre_win,:),1));
+% hm = imagesc(temp_hm(20:(pre_event_frames-20)+floor((cycTime/cycTimeMs)*3000),:)');
+% hm.Parent.XTick = [pre_event_frames-20 (pre_event_frames-20)+floor((cycTime/cycTimeMs)*1000) (pre_event_frames-20)+floor((cycTime/cycTimeMs)*2000)];
+% hm.Parent.XTickLabel = [0 1 2]
+hm = imagesc(temp_hm(20:(pre_event_frames-20)+floor((cycTime/cycTimeMs)*1000),:)');
+hm.Parent.XTick = [pre_event_frames-20 (pre_event_frames-20)+floor((cycTime/cycTimeMs)*250) (pre_event_frames-20)+floor((cycTime/cycTimeMs)*500)];
+hm.Parent.XTickLabel = [0 0.25 0.5]
+xlabel('time (s)')
+ylabel('cells')
+title('invalid')
+axis square
+clim([-0.1 0.1])
+colorbar
+
 end
 
 
 print([fnout '_auROCBins_val-inv-all'],'-dpdf')
 
-%%

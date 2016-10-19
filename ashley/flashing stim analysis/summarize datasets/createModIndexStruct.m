@@ -113,7 +113,12 @@ for imouse = 1:size(mouse,2)
                 shortCycs = intersect(find(cell2mat(cellfun(@(x) ~isempty(x),tc_cyc,'unif',false))),1:trialLengthCutoffCyc); % sort cycles into short and long types
                 longCycs = intersect(find(cell2mat(cellfun(@(x) ~isempty(x),tc_cyc,'unif',false))),trialLengthCutoffCyc+1:length(tc_cyc));
 
-                pre_base = cellfun(@(x,y) squeeze(mean(x(pre_win+(cycTime*(y-1)),:,:),1)),tc_cyc(2:end),cycs(2:end),'unif',false); % find response to last baseline vis stim
+                pre_base1 = cellfun(@(x) squeeze(mean(x(pre_win,:,:),1)),tc_cyc(2:end),'unif',false); % find response to last baseline vis stim
+                trans_base1 = cellfun(@(x) squeeze(mean(x(trans_win,:,:),1)),tc_cyc(2:end),'unif',false); 
+                base1_cyc = [{[]}, cellfun(@(x,y) bsxfun(@minus, x,y), trans_base1, pre_base1,'unif',false)];
+                
+                
+                pre_base = cellfun(@(x,y) squeeze(mean(x(pre_win+(cycTime*(y-1)),:,:),1)),tc_cyc(2:end),cycs(2:end),'unif',false); % find response to first baseline vis stim
                 trans_base = cellfun(@(x,y) squeeze(mean(x(trans_win+(cycTime*(y-1)),:,:),1)),tc_cyc(2:end),cycs(2:end),'unif',false); 
                 base_cyc = [{[]}, cellfun(@(x,y) bsxfun(@minus, x,y), trans_base, pre_base,'unif',false)];
 
@@ -124,6 +129,7 @@ for imouse = 1:size(mouse,2)
                 
                 ind = find(cell2mat(cellfun(@(x) length(size(x)),tc_cyc,'unif',false)) == 2);% need to do this to correct for reshape that happens when there is only one trial for that cycle type
                 base_cyc(ind) = cellfun(@transpose,base_cyc(ind),'unif',false);
+                base1_cyc(ind) = cellfun(@transpose,base1_cyc(ind),'unif',false);
                 tar_cyc(ind) = cellfun(@transpose,tar_cyc(ind),'unif',false);
                 
                 if sum(cell2mat(cellfun(@(x) size(x,3),tc_cyc(shortCycs),'unif',false))) > 1 %combine response to short and long trials, only if there is more than one total trial
@@ -158,12 +164,16 @@ for imouse = 1:size(mouse,2)
 %                     end
                         ind = find(cell2mat(cellfun(@(x) ~isempty(x),base_cyc,'unif',false)));
                         base_cyc_all = cat(2,cell2mat(base_cyc));
+                        base1_cyc_all = cat(2,cell2mat(base1_cyc));
                         tar_cyc_all = cat(2,cell2mat(tar_cyc));
+                        target_all = chop(cat(2,cell2mat(target(ind))),2);
                 else                        
                     base_cyc_all = [];
+                    base1_cyc_all = [];
                     tar_cyc_all = [];
+                    target_all = [];
                 end
-
+                
                 if iav == 1 
                     if iout < 3 % for hits and misses, find response to visual and auditory trials, early and late in the trial
                     tc_early_v = mouse(imouse).expt(iexp).align(startAlign).av(visual).outcome(iout).cmlvCycResp{earlyCyc};
@@ -212,35 +222,90 @@ for imouse = 1:size(mouse,2)
                     % area under ROC curve where noise is response to
                     % baseline, signal is response to target, short and
                     % long trials
-                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).name = 'target enhancement';
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).name = 'target enhancement over last base stim';
                         if ~isempty(base_cyc_short) & ~isempty(base_cyc_short)
                         auc_short = nan(ncells,1);
+                        rs_short = nan(ncells,1);
                         for icell = 1:ncells
                             auc_short(icell) = roc_gh(base_cyc_short(icell,:),tar_cyc_short(icell,:));
+                            [rs_tar_p rs_short(icell)] = ranksum(base_cyc_short(icell,:),tar_cyc_short(icell,:));
                         end
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(1).name = 'short trials';
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(1).value = auc_short;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(1).rst = find(rs_short);
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(1).ind = find(auc_short > 0.5);
                         end                        
                        
                         if ~isempty(base_cyc_long) & ~isempty(tar_cyc_long)
                         auc_long = nan(1,ncells);
+                        rs_long = nan(1,ncells);
                         for icell = 1:ncells
                             auc_long(icell) = roc_gh(base_cyc_long(icell,:),tar_cyc_long(icell,:));
+                            [rs_tar_p rs_long(icell)] = ranksum(base_cyc_long(icell,:),tar_cyc_long(icell,:));
                         end
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(2).name = 'long trials';
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(2).value = auc_long;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(2).rst = find(rs_long);
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(2).ind = find(auc_long > 0.5);
                         end
                         
                         if ~isempty(base_cyc_all) & ~isempty(tar_cyc_all)
                         auc_all = nan(1,ncells);
+                        rs_all = nan(1,ncells);
+                        rs_p = nan(1,ncells);
+                        dirs = unique(target_all);
+                        auc_tar_all = cell(1,length(dirs));
+                        rs_tar_all = cell(1,length(dirs));
                         for icell = 1:ncells
                             auc_all(icell) = roc_gh(base_cyc_all(icell,:),tar_cyc_all(icell,:));
+                            [rs_p(icell) rs_all(icell)] = ranksum(base_cyc_all(icell,:),tar_cyc_all(icell,:));
+                            
+                            for idir = 1:length(dirs)
+                                ind = find(target_all == dirs(idir));
+                                auc_tar_all{idir} = cat(1,auc_tar_all{idir},roc_gh(base_cyc_all(icell,ind),tar_cyc_all(icell,ind)));
+                                [rs_tar_p rs_temp] = ranksum(base_cyc_all(icell,ind),tar_cyc_all(icell,ind));
+                                rs_tar_all{idir} = cat(1,rs_tar_all{idir},rs_temp);
+                                
+                            end
+                            
                         end
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(3).name = 'all trials';
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(3).value = auc_all;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(3).rst_p = rs_p;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(3).rst = rs_all;
                         msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(3).ind = find(auc_all > 0.5);
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(3).dirs = dirs;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(3).value_dirs = auc_tar_all;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(1).auc(3).rst_dirs = cellfun(@(x) find(x),rs_tar_all,'unif',false);
+                        
+                        
+                        %compare target to first base stim resp
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(3).name = 'target enhancement over first base stim';
+                        auc_all = nan(1,ncells);
+                        rs_all = nan(1,ncells);
+                        auc_tar_all = cell(1,length(dirs));
+                        rs_tar_all = cell(1,length(dirs));
+                        for icell = 1:ncells
+                            auc_all(icell) = roc_gh(base1_cyc_all(icell,:),tar_cyc_all(icell,:));
+                            [rs_p rs_all(icell)] = ranksum(base1_cyc_all(icell,:),tar_cyc_all(icell,:));
+                            
+                            for idir = 1:length(dirs)
+                                ind = find(target_all == dirs(idir));
+                                auc_tar_all{idir} = cat(1,auc_tar_all{idir},roc_gh(base1_cyc_all(icell,ind),tar_cyc_all(icell,ind)));
+                                [rs_tar_p rs_temp] = ranksum(base1_cyc_all(icell,ind),tar_cyc_all(icell,ind));
+                                rs_tar_all{idir} = cat(1,rs_tar_all{idir},rs_temp);
+                                
+                            end
+                            
+                        end
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(3).auc(3).name = 'all trials';
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(3).auc(3).value = auc_all;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(3).auc(3).ustat = rs_all;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(3).auc(3).ind = find(auc_all > 0.5);
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(3).auc(3).dirs = dirs;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(3).auc(3).value_dirs = auc_tar_all;
+                        msModCells(imouse).expt(iexp).av(iav).outcome(iout).mi(imi).comp(3).auc(3).rst_dirs = cellfun(@(x) find(x),rs_tar_all,'unif',false);
+                        
                         end
 
                         if iav == 2 & iout == 1

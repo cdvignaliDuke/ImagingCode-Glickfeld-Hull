@@ -1357,8 +1357,8 @@ for imouse = 1:size(mouse,2)
     end
 end
 L = unique(L);
-Lshort = L(L < 2500);
-Llong = L(L > 2500);
+Lshort = L(L < 1500);
+Llong = L(L > 1500);
         
 rVal_short = [];
 rVal_long = [];
@@ -1407,7 +1407,7 @@ ylim([-0.01 0.05])
 vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs),'--r')
 hold on
 vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
-title('trials < 2.5s; 90deg hits')
+title('trials < 1.5s; 90deg hits')
 
 subplot(3,2,2)
 plot(ttMs,nanmean(rVal_long,2),'k')
@@ -1421,7 +1421,7 @@ ylim([-0.01 0.05])
 vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs),'--r')
 hold on
 vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
-title('trials > 2.5s')
+title('trials > 1.5s')
 
 subplot(3,2,3)
 r = mean(nanmean(rVal_short(trans_win,:),2),1)-mean(nanmean(rVal_short(pre_win,:),2),1);

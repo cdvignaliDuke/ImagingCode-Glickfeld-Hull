@@ -46,7 +46,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,200:210),3);
+data_avg = mean(data_sub(:,:,100:110),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -258,7 +258,7 @@ end
 
 figure;
 for i = 1:nStim
-    plot(dFoverF_meanDirResp(:,10,i));
+    plot(dFoverF_meanDirResp(:,1,i));
     hold on
 end
 
@@ -267,7 +267,7 @@ dFoverF_meanOFFDirResp = (squeeze(mean(dFoverF_meanDirResp(1:10,:,:),1)));
 DirRespPerCell = (squeeze(mean(dFoverF_meanDirResp(11:end,:,:),1)));
 
 figure;
-plot(DirRespPerCell(10,:))
+plot(DirRespPerCell(1,:))
 
 %% find direction preference
 DirRespPerCell_sub = DirRespPerCell-min(min(min(DirRespPerCell,[],1),[],2));
@@ -303,7 +303,7 @@ dFoverF_meanONOriResp = (squeeze(mean(dFoverF_meanOriResp(11:end,:,:),1)))+1;
 OriRespPerCell = dFoverF_meanONOriResp;
 
 figure;
-plot(OriRespPerCell(10,:))
+plot(OriRespPerCell(1,:))
 
 OriRespPerCell_sub = OriRespPerCell-min(min(min(OriRespPerCell,[],1),[],2));
 [oriPref_val,oriPref_ind] = max(OriRespPerCell_sub,[],2);
