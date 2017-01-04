@@ -1,4 +1,10 @@
 function gb=gabor_fn(sigma,theta,lambda,psi,gamma)
+
+%sigma = resolution 
+%theta = orientation
+%lambda = spatial frequency (in pixels)
+%psi = phase
+%gamma = x/y ratio
  
 sigma_x = sigma;
 sigma_y = sigma/gamma;
