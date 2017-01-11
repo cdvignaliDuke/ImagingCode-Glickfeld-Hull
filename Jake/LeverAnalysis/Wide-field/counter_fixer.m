@@ -48,6 +48,20 @@ if max(diff(counterValues))>1 | min(diff(counterValues))<1 | min(diff(counterTim
     end
 end
 
+%check for a specific type of error occuring in 161212_img73 cue reward pairing
+diff_counter_times = diff(counterTimesMs);
+shortInts = find(diff_counter_times < IFI*0.6 & diff_counter_times > IFI*0.4);
+for ii = length(shortInts)-1:-1:1
+    if shortInts(ii)+1 == shortInts(ii+1) %if there are two consecutive short intervals
+        diff_counter_values = diff(counterValues);
+        if diff_counter_values(shortInts(ii)) == 2  %if there is also a skipped counter value at this time...
+            counterTimesMs(shortInts(ii+1)) = [];  
+            counterValues((shortInts(ii)+1):end)  = counterValues((shortInts(ii)+1):end)-1;     
+            counterValues(end) = []; 
+        end
+    end
+end
+
 %check for skipped frame times and counters. Fill them in.
 if max(diff(counterValues)) == 2; 
     skipped_counters = find(diff(counterValues)==2);
@@ -60,6 +74,58 @@ if max(diff(counterValues)) == 2;
         disp('skipped frames located and filled in')
     else
         error('number of skipped frame times does not equal number of skipped frame values')
+    end
+end
+
+%error found in 160129_img36. 
+diff_counter_times = diff(counterTimesMs);
+frame_osc = find(diff_counter_times==110) ;
+if ~isempty(frame_osc)
+    for ii = 1:length(frame_osc)
+        if diff_counter_times(frame_osc(ii)+1)<95;
+            counterTimesMs(frame_osc(ii)+1) = counterTimesMs(frame_osc(ii)+1) - (diff_counter_times(frame_osc(ii))-IFI);
+        end
+    end
+end
+
+%corrections specific to the datasets collected when labjack only updated
+%every 15ms. 
+diff_counter_times = diff(counterTimesMs);
+if length(counterTimesMs)*.2 < length(find(diff_counter_times<(IFI-10))); %Identify old datssets: if more than 20% of IFIs are 10ms less than the most frequent IFI then this is an old dataset. 
+diff_counter_times = diff(counterTimesMs);
+shifted_frame_inx = find(diff(counterTimesMs)>115 & diff(counterTimesMs)<125);
+if ~isempty(shifted_frame_inx);
+    for ii = 1:length(shifted_frame_inx)
+        if diff_counter_times(shifted_frame_inx(ii)+1) < 85;
+            counterTimesMs(shifted_frame_inx(ii)+1) = counterTimesMs(shifted_frame_inx(ii)+1) - (diff_counter_times(shifted_frame_inx(ii))-100); %subtract off the difference from the IFI
+        end
+        if diff_counter_times(shifted_frame_inx(ii)+1) < 95 & diff_counter_times(shifted_frame_inx(ii)+2) < 95;
+            counterTimesMs(shifted_frame_inx(ii)+1) = counterTimesMs(shifted_frame_inx(ii)+1) - (diff_counter_times(shifted_frame_inx(ii))-IFI);
+        end
+        if diff_counter_times(shifted_frame_inx(ii)+1) < 95 & diff_counter_times(shifted_frame_inx(ii)-1) < 95 & diff_counter_times(shifted_frame_inx(ii)-2) > IFI-2; % this error found in 151022_img29
+            counterTimesMs(shifted_frame_inx(ii)+1) = counterTimesMs(shifted_frame_inx(ii)+1) - (diff_counter_times(shifted_frame_inx(ii))-IFI);
+        end
+    end
+end
+end
+
+%if statement for error seen in 161216_img73
+if length(counterValues) == 40003 & length(counterTimesMs) == 40003;
+    diff_counter_times = diff(counterTimesMs);
+    shortVals = find(diff_counter_times< 30);
+    if ~isempty(shortVals)
+        for ii = length(shortVals):-1:1
+            if diff_counter_times(shortVals(ii)+1)<110 & diff_counter_times(shortVals(ii)-1)<110;
+                counterTimesMs(shortVals(ii)) = [];
+                counterValues(shortVals(ii):end) = counterValues(shortVals(ii):end)-1
+                counterValues(shortVals(ii)) = [];
+            end
+        end
+        %store values and check to see if alignment worked
+        counterValuesFixed = counterValues;
+        counterTimesMsFixed = counterTimesMs;
+        assert(length(counterTimesMs) == length(counterValues));
+        return
     end
 end
 

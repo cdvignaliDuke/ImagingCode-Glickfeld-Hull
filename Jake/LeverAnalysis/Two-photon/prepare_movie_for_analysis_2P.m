@@ -73,7 +73,7 @@ img_down = stackGroupProject(img,10);
     defaultopts = {'nComp',300,'BorderWidth',4};
     options = cell2struct(defaultopts(2:2:end),defaultopts(1:2:end),2);
     [ny,nx,nt]=size(stack);
-    roi = imborder([ny,nx],options.BorderWidth,0); 
+    roi = imborder([ny,nx],options.BorderWidth,0);
     fprintf('Masking edges... ');
     stack= bsxfun(@times,stack,single(roi));
     fprintf('Done\n');

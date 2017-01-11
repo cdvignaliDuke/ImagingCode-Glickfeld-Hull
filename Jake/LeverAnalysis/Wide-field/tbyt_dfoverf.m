@@ -1,22 +1,16 @@
-function tc_dfoverf = tbyt_dfoverf(lever, b_data, data_tc, frame_info);
+function tc_dfoverf = tbyt_dfoverf(b_data,bx_out_dir);
 %Uses the trial by trial baseline times to create a df/f timecourse
 
+%load variables from bx_outputs
+load(bx_out_dir, 'lever', 'frame_info', 'data_tc');
 
 first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
 StartT = frame_info.imaging_start_MW_T; %time of imaging onset in MWorks time. 
-% for i = 1:length(b_data.counterTimesUs);   %finds the MWtime of the first counter
-%     if find(~isempty(cell2mat(b_data.counterTimesUs(i))))==1;
-%         if length(cell2mat(b_data.counterTimesUs(i)))>1;
-%             StartT = b_data.counterTimesUs{i}(1)/1000;
-%             break
-%         end
-%     end
-% end
 
 tc_dfoverf = nan(size(data_tc));
 F_range = [];
 for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only looks at the first and last fully imaged trials
-    %finding f_range
+    %finding F_range
     %F_range is the # of each frame which we will use to generate f. It uses an iti based f
     if ~isnan(lever.baseline_timesMs(1,iT));   %if there is a valid baseline interval then make that the new F
         F_range = frame_info.counter(lever.baseline_timesMs(1,iT)):frame_info.counter(lever.baseline_timesMs(2,iT));
@@ -45,5 +39,5 @@ for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only 
         t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
         tc_dfoverf(i,t_range) = t_dfoverf;
     end
-end    %outputs = tc_dfoverf
+end
 

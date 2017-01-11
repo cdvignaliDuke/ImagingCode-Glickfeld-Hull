@@ -1,8 +1,17 @@
-function [lever, frame, trial_outcome, lickTimes] = parse_behavior_for_HAD(b_data, first_frame, last_frame, frame_times, holdT_min)
+function [lever, frame, trial_outcome, lickTimes] = parse_behavior_for_HAD(b_data, meta_data_dir, frame_times_dir)
 %Processes the behavior data for frames, lever info, licking data, and
 %trial outcome so it can be used for TCs later. 
 
-trial_outcome.ind_press_prerelease = [];
+%load frame_times and meta_data. This is pretty time consuming. Should make
+%this its out function and save first_frame and last_frame somewhere. 
+load(meta_data_dir, 'meta_data');
+load(frame_times_dir);
+
+%calculate first and last frame numbers
+first_frame =1;
+last_frame = min(length(frame_times), length(meta_data));
+
+holdT_min = 400000;
 trial_start = round(double(cell2mat(b_data.tThisTrialStartTimeMs)));  %finds each trial's start time in free floating MWorks time
 num_trials  = length(b_data.tThisTrialStartTimeMs); %gets vectors for # of trials. Includes unimaged trials. 
 
@@ -79,7 +88,6 @@ f_frame_MWorks_time  = double(frame.times(1)); %time of the first frame in free 
 l_frame_MWorks_time  = double(frame.times(end));
 imaging_start_MW_T = double(f_frame_MWorks_time - mode(diff(counterTimesMs))); %finds the IFI and subtracts from time of first frame. This finds the time that imaging first began. Frames times are the times of the end of each period of photon collection. 
 
-%======================================================================================
 %use time of first frame to align licking times to start of imaging
 lickTimes=[];
 if isfield(b_data, 'lickometerTimesUs');  %img24 and 25 use datasets which have no licking fields 
@@ -89,7 +97,6 @@ if isfield(b_data, 'lickometerTimesUs');  %img24 and 25 use datasets which have 
     %lickTimes = lickTimes-f_frame_MWorks_time;
     lickTimes = double(lickTimes)-imaging_start_MW_T;
 end
-%=======================================================================
 
 %align bx frame times to the time of the first frame
 assert(length(frame.times) == length(frame.counter_by_time));  %check to make sure there are the same number of frame counters and times
@@ -143,12 +150,9 @@ frame.times = frame.times(inx) - imaging_start_MW_T+1;
 frame.f_frame_MWorks_time = f_frame_MWorks_time;
 frame.imaging_start_MW_T = imaging_start_MW_T;
 
-%============================================================
-%PERHAPS I CAN REMOVE LEVER EVENTS BASED ON TRIAL NUM INSTEAD OF EVENT TIME
-%remove unimaged frames.
+%remove unimaged frames. 
 lever.press = remove_events_and_adjust_inx(lever.press, imaging_start_MW_T, l_frame_MWorks_time);  %this is a nested function at the end of parse_bx
 lever.release = remove_events_and_adjust_inx(lever.release, imaging_start_MW_T, l_frame_MWorks_time);
-%======================================================
 
 %compare the frame times from the camera to those from the bx
 min_l = min(length(counter_by_frame_times), length(frame.counter));  %One has been corrected for missing frames etc and the other has not

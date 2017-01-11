@@ -1,50 +1,33 @@
 %PLOTTING GRAPHS 
+%ALTERED VERSION OF WF_PLOTTER MAINLY CHANGING PATHNAMES TO TROUBLE SHOOT
+%FULL SIZED MOVIE ANALYSIS
 %plots correlation coefficient between the ROIs
 %plots TCs of the df/f for success, earlies, tooFast, fidget and press.  
 clear
 
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
-ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
-CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
+ANALYSIS_DIR ='Z:\Misc\full_size_analysis\';
 
-%days = {'150518_img24', '150519_img24', '150518_img25', '150517_img25', '150716_img27', '150718_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160516_img47'}; %'150718_img27', '150719_img27',
-
-% days = {'150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
-% days = {'160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
-% %these are the days which have all their frames shrunk. Can use them to
-% %analyze frame shift effect and look at licking. 
-% days = {'160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %'150718_img27', '150719_img27',
-% days = {'160921_img61', '160920_img61'};
-days = {'161031_img68','161101_img68', '161030_img69', '161030_img70', '161101_img69', '161101_img70'};
-%days = {'161108_img68', '161108_img69', '161108_img70'};  %cue-reward pairing delayed reward. 
-days = {'161107_img68', '161107_img69', '161030_img68', '161030_img70', '161030_img69', '161031_img68', '161101_img69', '161101_img70'};  %first and last days
-
-days = {'160209_img36', '151222_img32', '151019_img30', '160725_img53', '160905_img55'};  %no lever controls 161109_img61 161109_img59   Do not meet criterion 160208_img35
-
-%days = {'160904_img55', '160905_img55', '160916_img61', '160918_img61', '160920_img61', '160921_img61', '161030_img62', '160904_img55'};
-days = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
-
-
-days = {'161215_img74', '161212_img74'}; 
+days = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', }; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', \
+days = {'160129_img35'};
 for kk=1:length(days)
     ROI_name  =  days{kk};
     bfile = dir([BEHAVE_DIR 'data-*i9' days{kk}(end-1:end) '-' days{kk}(1:6) '*' ]);
     behave_dest = [BEHAVE_DIR bfile.name];
     b_data = load(behave_dest);
-    load([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs']);
-    load([CLUSTER_DIR, days{kk}, '\', days{kk}, '_cluster']); 
+    load([ANALYSIS_DIR, days{kk}, '_bx_outputs']);
     % ---- do simple movie analysis.
     func = @median;
     %func = @mean;
     %func = @std;
     pre_frames = 5;
     post_frames = 10;
-    sampling_rate = round(1000/mode(diff(frame_info.times)));
+    sampling_rate = 1000/mode(diff(frame_times));
     
     %  --- first plot  clustering
     colors = [1,0,0; 0,1,0; 0,0,1; 0.5,0.5,0.5; 1,0,1; 1,1,0; 0,1,1]; %sets up the color scheme for plotting multiple ROIs with errorbar     
     f2 = figure;
-    subplot(2,3,1); imagesc(reshape(avg_img, sz(1), sz(2)));
+    subplot(2,3,1); imagesc(avg_img);
     if b_data.input.doLever == 0;
         title(['CONTROL: no lever ' days{kk}]);
     else
@@ -52,7 +35,7 @@ for kk=1:length(days)
     end
     shading flat; hold on;
     for i=1:cluster.num_cluster
-        line(  cluster.roi_position{i}(:,1),   cluster.roi_position{i}(:,2) ,'color', 'k', 'linewidth', 2)
+        line(  cluster.roi_position{i}(:,1),   cluster.roi_position{i}(:,2) ,'color', 'w', 'linewidth', 2)
         text(mean(cluster.roi_position{i}(:,1)),mean(cluster.roi_position{i}(:,2)), ...
             [num2str(i)], 'color', 'k', 'FontSize', 30);
     end  
@@ -80,6 +63,8 @@ for kk=1:length(days)
     % PLOT SUCCESSFUL TRIALS----------------------------------------------
     time_before = 500; % in ms, time before event w/o release
     time_after = 1000; % in ms, time after event w/o press
+    %success_roi = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    % use_ev_success, pre_frames, post_frames);
     [success_roi, use_times_succ, lick_trace_succ, lick_trace_succ_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_success, pre_frames, post_frames);
     ts = repmat(ts,[cluster.num_cluster 1]);
     avg_success_roi = squeeze(func(success_roi,1));
@@ -89,11 +74,10 @@ for kk=1:length(days)
     std_success = squeeze(std(squeeze(success_roi),1));
     sm_success = std_success./sqrt(size(success_roi,1));
     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-        shift = (-1)*avg_success_roi(i,1);
+        shift = (-1)*avg_success_roi(i,3);
         avg_success_roi(i,:) = avg_success_roi(i,:)+shift;
     end
-    subplot(2,3,2); lickBars = bar(ts(1,:), mean(lick_trace_succ)/10); hold on
-    alpha(.25);
+    subplot(2,3,2); bar(ts(1,:), mean(lick_trace_succ)/10); hold on
     for i = 1:size(ts,1);
         subplot(2,3,2); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'Color', colors(i,:)); hold on;
     end
@@ -106,22 +90,19 @@ for kk=1:length(days)
     %PLOT FAILED TRIALS---------------------------------------------------
     use_ev_fail = trial_outcome.early_time;
     [fail_roi, use_times_fail, lick_trace_fail, lick_trace_fail_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_fail, pre_frames, post_frames);
+    %fail_roi = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    %use_ev_fail, pre_frames, post_frames);
     avg_fail_roi = squeeze(func(fail_roi,1));
     if cluster.num_cluster == 1
         avg_fail_roi = avg_fail_roi';
     end
-    if size(fail_roi,1) == 1
-        sm_fail = zeros(size(fail_roi,2), size(fail_roi,3));
-    else
-        std_fail = squeeze(std(squeeze(fail_roi),[],1));
-        sm_fail = std_fail./sqrt(size(fail_roi,1));
-    end
+    std_fail = squeeze(std(squeeze(fail_roi),1));
+    sm_fail = std_fail./sqrt(size(fail_roi,1));
     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-        shift = (-1)*avg_fail_roi(i,1);
+        shift = (-1)*avg_fail_roi(i,3);
         avg_fail_roi(i,:) = avg_fail_roi(i,:)+shift;
     end
     subplot(2,3,3); bar(ts(1,:), mean(lick_trace_fail)/10); hold on
-    alpha(.25);
     for i = 1:size(ts,1);
         hold on; subplot(2,3,3); errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
     end
@@ -135,6 +116,8 @@ for kk=1:length(days)
     %PLOT FIDGETS-----------------------------------------------------
     use_ev_fidget = trial_outcome.fidget;
     [fidget_roi, use_times_fidget, lick_trace_fidget, lick_trace_fidget_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_fidget, pre_frames, post_frames);
+    %fail_roi = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    %use_ev_fail, pre_frames, post_frames);
     avg_fidget_roi = squeeze(func(fidget_roi,1));
     if cluster.num_cluster == 1
         avg_fidget_roi = avg_fidget_roi';
@@ -142,11 +125,10 @@ for kk=1:length(days)
     std_fidget = squeeze(std(squeeze(fidget_roi),1));
     sm_fidget = std_fidget./sqrt(size(fidget_roi,1));
     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-        shift = (-1)*avg_fidget_roi(i,1);
+        shift = (-1)*avg_fidget_roi(i,3);
         avg_fidget_roi(i,:) = avg_fidget_roi(i,:)+shift;
     end
     subplot(2,3,4); bar(ts(1,:), mean(lick_trace_fidget)/10); hold on
-    alpha(.25);
     for i = 1:size(ts,1);
         hold on; subplot(2,3,4); errorbar(ts(i,:), avg_fidget_roi(i,:), sm_fidget(i,:), 'Color', colors(i,:));
     end
@@ -170,6 +152,8 @@ for kk=1:length(days)
     %PLOT TOOFAST SUCCESSES---------------------------------------
     use_ev_tooFast = trial_outcome.tooFastCorrects;
     [tooFast_roi, use_times_tooFast, lick_trace_tooFast, lick_trace_tooFast_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_tooFast, pre_frames, post_frames);
+    %tooFast_roi = trigger_movie_by_event(tc_dfoverf, frame_info, ...
+    %use_ev_tooFast, pre_frames, post_frames);
     avg_tooFast_roi = squeeze(func(tooFast_roi,1));
     if cluster.num_cluster == 1
         avg_tooFast_roi = avg_tooFast_roi';
@@ -179,7 +163,7 @@ for kk=1:length(days)
     if size(tooFast_roi,1) == 1
         for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
             avg_tooFast_roi = avg_tooFast_roi;
-            shift = (-1)*avg_tooFast_roi(i,1);
+            shift = (-1)*avg_tooFast_roi(i,3);
             avg_tooFast_roi(i,:) = avg_tooFast_roi(i,:)+shift;
         end
         for i = 1:size(avg_tooFast_roi,1);
@@ -190,9 +174,8 @@ for kk=1:length(days)
         subplot(2,3,6); plot(ts(1,:), zeros(length(ts))); ylim([-0.01 0.01]);
     else
         subplot(2,3,6); bar(ts(1,:), mean(lick_trace_tooFast)/10); hold on
-        alpha(.25);
         for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-            shift = (-1)*avg_tooFast_roi(i,1);
+            shift = (-1)*avg_tooFast_roi(i,3);
             avg_tooFast_roi(i,:) = avg_tooFast_roi(i,:)+shift;
         end
         for i = 1:size(avg_tooFast_roi,1);
@@ -237,7 +220,7 @@ for kk=1:length(days)
         end
     end
     %Save figure before opening next one
-    destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
+    destyFig = strcat(ANALYSIS_DIR, days{kk}, '_fig');
     savefig([destyFig]);
     
     %PLOT SUCCESSES TRIGGERED OFF CUE CHANGE. 
@@ -247,20 +230,7 @@ for kk=1:length(days)
     use_ev_cueChange = round(cueTimes(frame_info.f_frame_trial_num+1:frame_info.l_frame_trial_num-1));
     use_ev_cueChange(isnan(use_ev_cueChange) ) = [];
     use_ev_cueChange(use_ev_cueChange<0) = [];
-    use_ev_cueChange(use_ev_cueChange==0) = [];
     [cue_roi, use_times_cue, lick_trace_cue, lick_trace_cue_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_cueChange, pre_frames, post_frames);
-    if size(cue_roi,1) == size(success_roi,1)+1;
-        cue_roi = cue_roi([1:end-1],:,:);
-        use_times_cue = use_times_cue([1:end-1]);
-        lick_trace_cue = lick_trace_cue([1:end-1],:);
-        lick_trace_cue_10ms = lick_trace_cue_10ms([1:end-1],:);
-        assert(use_times_cue(1)<use_times_succ(1));
-        if length(trial_outcome.success_time) == size(success_roi,1)+1;
-            trial_outcome.success_time(end) =[];
-            trial_outcome.succ_hold_dur(end) = []; 
-            save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'trial_outcome', '-append')
-        end
-    end 
     avg_cue_roi = squeeze(func(cue_roi,1));
     if cluster.num_cluster == 1
         avg_cue_roi = avg_cue_roi';
@@ -272,7 +242,6 @@ for kk=1:length(days)
         avg_cue_roi(i,:) = avg_cue_roi(i,:)+shift;
     end
     figure; bar(ts(1,:), mean(lick_trace_cue)/10); hold on
-    alpha(.25);
     for i = 1:size(ts,1);
         errorbar(ts(i,:), avg_cue_roi(i,:), sm_cue(i,:), 'Color', colors(i,:)); hold on;
     end
@@ -281,8 +250,8 @@ for kk=1:length(days)
     title([days{kk}, ' cue change n=', num2str(size(cue_roi,1))]);
     axis tight;
     ylim([min(YL(:,1)) max(YL(:,2))]);
-    destyFig2 = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_cue');
-    %savefig([destyFig2]);
+    destyFig2 = strcat(ANALYSIS_DIR, days{kk}, '_cue');
+    savefig([destyFig2]);
     hold off
     
     %main figure saved before plotting cue triggered fig
@@ -291,16 +260,16 @@ for kk=1:length(days)
     fidget_roi = squeeze(fidget_roi);
     tooFast_roi = squeeze(tooFast_roi);
     cue_roi = squeeze(cue_roi);
-    destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_success');
-    destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fail');
-    destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fidget');
-    destyTooFast = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_tooFast');
-    destyCue = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_cue');
-    save([destySucc], 'success_roi');
-    save([destyFail], 'fail_roi');
-    save([destyFidget], 'fidget_roi');
-    save([destyTooFast], 'tooFast_roi');
-    save([destyCue], 'cue_roi');
+    destySucc = strcat(ANALYSIS_DIR, days{kk}, '_success');
+    destyFail = strcat(ANALYSIS_DIR, days{kk}, '_fail');
+    destyFidget = strcat(ANALYSIS_DIR, days{kk}, '_fidget');
+    destyTooFast = strcat(ANALYSIS_DIR, days{kk}, '_tooFast');
+    destyCue = strcat(ANALYSIS_DIR, days{kk}, '_cue');
+%     save([destySucc], 'success_roi');
+%     save([destyFail], 'fail_roi');
+%     save([destyFidget], 'fidget_roi');
+%     save([destyTooFast], 'tooFast_roi');
+%     save([destyCue], 'cue_roi');
 
 
     %PLOT ALIGNED TO LEVER PRESS
@@ -377,15 +346,15 @@ for kk=1:length(days)
 %     %savefig([destyFig]);
 %     
 %     destySucc = strcat(ANALYSIS_DIR, 'CorrCoefSummary\', days{kk}, '_corrCoefLick');
-    save([destySucc], 'coefMat2');
+    %save([destySucc], 'coefMat2');
     
     %save lapsed trials 
     if isempty(trial_outcome.late_time)==0
         use_ev_lapse = trial_outcome.late_time;
         [lapse_roi, use_times_lapse, lick_trace_lapse, lick_trace_lapse_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_lapse, pre_frames, post_frames);
         lapse_roi = squeeze(lapse_roi);
-        destyLapse = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_lapse');
-        save([destyLapse], 'lapse_roi');
+        destyLapse = strcat(ANALYSIS_DIR, days{kk}, '_lapse');
+        %save([destyLapse], 'lapse_roi');
     end
     
     %save lick traces
@@ -399,6 +368,5 @@ for kk=1:length(days)
     licking_data.lick_trace_tooFast_10ms = lick_trace_tooFast_10ms;
     licking_data.lick_trace_cue = lick_trace_cue;
     licking_data.lick_trace_cue_10ms = lick_trace_cue_10ms;
-    save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
+    save([ANALYSIS_DIR days{kk}, '_bx_outputs'], 'licking_data', '-append');
 end
-
