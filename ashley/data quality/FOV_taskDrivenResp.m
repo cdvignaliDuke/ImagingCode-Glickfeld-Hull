@@ -61,14 +61,23 @@ sizeStr = [num2str(input.gratingHeightDeg) 'x' num2str(input.gratingWidthDeg)];
 CYC = 4:input.maxCyclesOn;
 prePushFrames = 30;
 preTargetFrames = 5;
-postTargetFrames = input.nFramesOn+20;
+if iscell(input.nFramesOn)
+    postTargetFrames = max(cell2mat(input.nFramesOn))+20;
+else
+    postTargetFrames = input.nFramesOn+20;
+end
 
 frameRate = input.frameRateHz;
 cycles = find(ismember(cell2mat(input.tCyclesOn),CYC));
 trialOutcome_S = find(strcmp(input.trialOutcomeCell,'success'));
 cLeverDown = cell2mat(input.cLeverDown);
 cTargetOn = cell2mat_padded(input.cTargetOn);
-cycTimeFrames = input.nFramesOn+input.nFramesOff;
+if iscell(input.nFramesOn)
+    cycTimeFrames =  max(cell2mat(input.nFramesOn))+ max(cell2mat(input.nFramesOff));
+else
+    cycTimeFrames = input.nFramesOn+input.nFramesOff;
+end
+
 trCycLengthFrames = cycTimeFrames*CYC(1);
 trCycLengthMs = (trCycLengthFrames/frameRate)*1000;
 

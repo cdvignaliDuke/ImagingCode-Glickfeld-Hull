@@ -12,8 +12,12 @@ function mouse = createAVCaDataStruct(datasetStr,cellsOnly);
     
     %load experiment parameters
     
-    eval(['awFSAVdatasets' datasetStr])
-    av = behavParamsAV;
+if cellsOnly & strcmp(datasetStr,'_V1')
+eval(['awFSAVdatasets' datasetStr '_cellsOnly'])
+else
+eval(['awFSAVdatasets' datasetStr])
+end
+%     av = behavParamsAV;
     rc = behavConstsAV;
     if strcmp(rc.name,'ashle')
         dataGroup = ['awFSAVdatasets' datasetStr];
@@ -170,7 +174,11 @@ function mouse = createAVCaDataStruct(datasetStr,cellsOnly);
         cycles = unique(tCyclesOn);
         V_ind = find(cell2mat(input.tBlock2TrialNumber) == 0);
         AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
-        cycTime = input.nFramesOn+input.nFramesOff;
+        if iscell(input.nFramesOn)
+            cycTime = unique(cell2mat(input.nFramesOn))+unique(cell2mat(input.nFramesOff));
+        else
+            cycTime = input.nFramesOn+input.nFramesOff;
+        end
         minTime = minCyclesOn*cycTime;
         frameratems = expt(iexp).frame_rate/1000;
         cycTimeMs = cycTime/frameratems;
@@ -778,7 +786,7 @@ function mouse = createAVCaDataStruct(datasetStr,cellsOnly);
         end
         
         %identify trials with motion (large peaks in the derivative)
-        ind_motion = find(max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>0.05);
+        ind_motion = find(max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold);
         mouse(imouse).expt(s(:,imouse)).align(ialign).ind_motion = ind_motion;
         
         %divide data by trial type and outcome
@@ -825,6 +833,7 @@ function mouse = createAVCaDataStruct(datasetStr,cellsOnly);
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc = NaN;
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).tcyc = NaN;
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).tcyc = NaN;
+                end
             end
         end
         
@@ -915,7 +924,7 @@ function mouse = createAVCaDataStruct(datasetStr,cellsOnly);
         end
         
         %identify trials with motion (large peaks in the derivative)
-        ind_motion = find(max(diff(squeeze(nanmean(DataDFoverF,2)),1),[],1)>0.05);
+        ind_motion = find(max(diff(squeeze(nanmean(DataDFoverF,2)),1),[],1)>motionThreshold);
         disp(length(ind_motion));
         mouse(imouse).expt(s(:,imouse)).align(ialign).ind_motion = ind_motion;
                 
