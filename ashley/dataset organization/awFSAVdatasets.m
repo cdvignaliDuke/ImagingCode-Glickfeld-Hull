@@ -219,3 +219,147 @@ expt(9).z = 267;
 % expt(10).rettuning = {'007';'1046'};
 % expt(10).motionTestBimodal = 0;
 % expt(10).z = 288;
+
+% %% AW68 161019 - 100ms - high FA rate
+% expt(10).SubNum = '668';
+% expt(10).mouse = 'AW68';
+% expt(10).date = '161019';
+% expt(10).img_loc  = {'V1';'L2/3'};
+% expt(10).img_strct  = {'cells'};
+% expt(10).time_mat = ['1123'; '1139';'1155'];
+% expt(10).runs = ['002'; '003';'004'];
+% expt(10).nrun = size(expt(10).runs,1);
+% expt(10).frame_rate = 30;
+% expt(10).folder = 'two-photon imaging';
+% expt(10).catch = 1;
+% expt(10).dirtuning = '005';
+% expt(10).dirtuning_time = '1212';
+% expt(10).rettuning = {'006';'1221'};
+% expt(10).motionTestBimodal = 0;
+% expt(10).z = 230;
+
+% %% AW68 161021 - 100ms - imaging very dim, some files corrupted
+% expt(10).SubNum = '668';
+% expt(10).mouse = 'AW68';
+% expt(10).date = '161021';
+% expt(10).img_loc  = {'V1';'L2/3'};
+% expt(10).img_strct  = {'cells'};
+% expt(10).time_mat = ['1104';'1120'];
+% expt(10).runs = ['002';'003'];
+% expt(10).nrun = size(expt(10).runs,1);
+% expt(10).frame_rate = 30;
+% expt(10).folder = 'two-photon imaging';
+% expt(10).catch = 1;
+% expt(10).dirtuning = '004';
+% expt(10).dirtuning_time = '1142';
+% expt(10).rettuning = {'005';'1151'};
+% expt(10).motionTestBimodal = 0;
+% expt(10).z = 203;
+
+%% AW68 161024 - 100ms
+expt(10).SubNum = '668';
+expt(10).mouse = 'AW68';
+expt(10).date = '161024';
+expt(10).img_loc  = {'V1';'L2/3'};
+expt(10).img_strct  = {'cells'};
+expt(10).time_mat = ['1042';'1058';'1115';'1131'];
+expt(10).runs = ['001';'002';'003';'005'];
+expt(10).nrun = size(expt(10).runs,1);
+expt(10).frame_rate = 30;
+expt(10).folder = 'two-photon imaging';
+expt(10).catch = 1;
+expt(10).dirtuning = '006';
+expt(10).dirtuning_time = '1147';
+expt(10).rettuning = {'007';'1156'};
+expt(10).motionTestBimodal = 0;
+expt(10).z = 203;
+
+%% AW68 161031 - 100ms
+expt(11).SubNum = '668';
+expt(11).mouse = 'AW68';
+expt(11).date = '161031';
+expt(11).img_loc  = {'V1';'L2/3'};
+expt(11).img_strct  = {'cells'};
+expt(11).time_mat = ['1130';'1146';'1202'];
+expt(11).runs = ['001';'002';'003'];
+expt(11).nrun = size(expt(11).runs,1);
+expt(11).frame_rate = 30;
+expt(11).folder = 'two-photon imaging';
+expt(11).catch = 1;
+expt(11).dirtuning = '006';
+expt(11).dirtuning_time = '1231';
+expt(11).rettuning = {'007';'1246'};
+expt(11).motionTestBimodal = 0;
+expt(11).z = 249;
+
+%% AW60 161101 - 100ms
+expt(12).SubNum = '660';
+expt(12).mouse = 'AW60';
+expt(12).date = '161101';
+expt(12).img_loc  = {'V1';'L2/3'};
+expt(12).img_strct  = {'cells'};
+expt(12).time_mat = ['1230';'1246';'1302';'1318'];
+expt(12).runs = ['001';'002';'003';'004'];
+expt(12).nrun = size(expt(12).runs,1);
+expt(12).frame_rate = 30;
+expt(12).folder = 'two-photon imaging';
+expt(12).catch = 1;
+expt(12).dirtuning = '005';
+expt(12).dirtuning_time = '1335';
+expt(12).rettuning = {'006';'1344'};
+expt(12).motionTestBimodal = 0;
+expt(12).z = 220;
+
+% %% AW68 161102 - 100ms - **same data as 161031? check it out
+% expt(13).SubNum = '668';
+% expt(13).mouse = 'AW68';
+% expt(13).date = '161102';
+% expt(13).img_loc  = {'V1';'L2/3'};
+% expt(13).img_strct  = {'cells'};
+% expt(13).time_mat = ['1144';'1200';'1215'];
+% expt(13).runs = ['003';'004';'005'];
+% expt(13).nrun = size(expt(13).runs,1);
+% expt(13).frame_rate = 30;
+% expt(13).folder = 'two-photon imaging';
+% expt(13).catch = 1;
+% expt(13).dirtuning = '006';
+% expt(13).dirtuning_time = '1233';
+% expt(13).rettuning = {'007';'1242'};
+% expt(13).motionTestBimodal = 0;
+% expt(13).z = 266;
+
+% %% AW68 161121 - 100ms
+% expt(13).SubNum = '668';
+% expt(13).mouse = 'AW68';
+% expt(13).date = '161121';
+% expt(13).img_loc  = {'V1';'L2/3'};
+% expt(13).img_strct  = {'cells'};
+% expt(13).time_mat = ['1130';'1145';'1201';'1217'];
+% expt(13).runs = ['001';'002';'003';'004'];
+% expt(13).nrun = size(expt(13).runs,1);
+% expt(13).frame_rate = 30;
+% expt(13).folder = 'two-photon imaging';
+% expt(13).catch = 1;
+% expt(13).dirtuning = '007';
+% expt(13).dirtuning_time = '1235';
+% expt(13).rettuning = {'008';'1244'};
+% expt(13).motionTestBimodal = 0;
+% expt(13).z = 228;
+
+%% AW68 170103 - 100ms
+expt(13).SubNum = '668';
+expt(13).mouse = 'AW68';
+expt(13).date = '170103';
+expt(13).img_loc  = {'V1';'L2/3'};
+expt(13).img_strct  = {'cells'};
+expt(13).time_mat = ['1448';'1504';'1525'];
+expt(13).runs = ['003';'004';'005'];
+expt(13).nrun = size(expt(13).runs,1);
+expt(13).frame_rate = 30;
+expt(13).folder = 'two-photon imaging';
+expt(13).catch = 1;
+expt(13).dirtuning = '006';
+expt(13).dirtuning_time = '1559';
+expt(13).rettuning = {'007';'1613'};
+expt(13).motionTestBimodal = 0;
+expt(13).z = 244;

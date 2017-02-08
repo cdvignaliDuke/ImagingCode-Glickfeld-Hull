@@ -14,6 +14,45 @@ expt(1).dirtuning = '009';
 expt(1).dirtuning_time = '1204';
 expt(1).rettuning = {'008';'1201'};
 expt(1).motionTestBimodal = 0;
+expt(1).z = [];
+
+%% AW68 170104
+expt(2).SubNum = '668';
+expt(2).mouse = 'AW68';
+expt(2).date = '170104';
+expt(2).img_loc  = {'AL';'L1'};
+expt(2).img_strct  = {'axons'};
+expt(2).time_mat = ['1308';'1328'; '1345'; '1401'];
+expt(2).runs = ['001'; '002'; '003';'004'];
+expt(2).nrun = size(expt(2).runs,1);
+expt(2).frame_rate = 30;
+expt(2).folder = 'two-photon imaging';
+expt(2).catch = 1;
+expt(2).dirtuning = '005';
+expt(2).dirtuing_time = '1418';
+expt(2).rettuning = {'006';'1426'};
+expt(2).motionTestBimodal = 0;
+expt(2).z = 108;
+
+%% AW68 170120
+expt(3).SubNum = '668';
+expt(3).mouse = 'AW68';
+expt(3).date = '170120';
+expt(3).img_loc  = {'AL';'L1'};
+expt(3).img_strct  = {'axons'};
+expt(3).time_mat = ['1115';'1131'; '1146'; '1202'];
+expt(3).runs = ['001'; '002'; '003';'004'];
+expt(3).nrun = size(expt(3).runs,1);
+expt(3).frame_rate = 30;
+expt(3).folder = 'two-photon imaging';
+expt(3).catch = 1;
+expt(3).dirtuning = '005';
+expt(3).dirtuing_time = '1418';
+expt(3).rettuning = {'006';'1426'};
+expt(3).motionTestBimodal = 0;
+expt(3).z = 108;
+
+
 
 % %% AW16 151202 FA rate high
 % expt(2).SubNum = '616';

@@ -16,6 +16,24 @@ expt(1).dirtuning_time = '1150';
 expt(1).rettuning = {'005';'1145'};
 expt(1).motionTestBimodal = 0;
 
+%% AW68 170113
+expt(2).SubNum = '668';
+expt(2).mouse = 'AW68';
+expt(2).date = '170113';
+expt(2).img_loc  = {'PM';'L1'};
+expt(2).img_strct  = {'axons'};
+expt(2).time_mat = ['1339';'1355'; '1416'; '1432'];
+expt(2).runs = ['002'; '003';'004';'005'];
+expt(2).nrun = size(expt(2).runs,1);
+expt(2).frame_rate = 30;
+expt(2).folder = 'two-photon imaging';
+expt(2).catch = 1;
+expt(2).dirtuning = '006';
+expt(2).dirtuing_time = '1451';
+expt(2).rettuning = {'007';'1505'};
+expt(2).motionTestBimodal = 0;
+expt(2).z = 101;
+
 % %% AW13 150521
 % expt(2).SubNum = '613';
 % expt(2).mouse = 'AW13';
