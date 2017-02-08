@@ -5,7 +5,19 @@ ROIcell = {[2], [3], [2:3]};
 
 days = {'160208_img36', '160207_img35'}; %151221_img32, %NO Vis Stim DATASETS 
 days = {'160207_img36', '160205_img35'}; %NO Aud Stim DATASETS
-days = {'160704_img54'}; %'160610_img52'  %naive mouse 
+
+days = {'160704_img54', '160515_img48'}; %%naive mouse trained with no target stim  ||| '160610_img52', '160515_img47' also naive but poor imaging quality
+days = {}; %naive mice trained on auditory stim then imaged with visual stim
+days = {'160904_img55'}; %mice trained on aud cue and imaged on aud cue
+
+%cue reward pairing
+days = {'161031_img68','161101_img68', '161030_img69', '161030_img70', '161101_img69', '161101_img70'};
+
+
+
+
+
+
 
 days = {'150514_img24', '150518_img24', '150519_img24', '150521_img24' '150706_img24'} ;
 days = {'150517_img25', '150518_img25', '150514_img25', '150515_img25'};
@@ -24,3 +36,4 @@ days = {'150518_img25', '150517_img25', '150716_img27', '150718_img27', '150716_
 
 
 days = {'160129_img36', '160129_img35', '160131_img35', '151211_img32', '150717_img28', '150716_img28', '150718_img27', '151022_img29', '150719_img27', '160319_img41', '160320_img41'}; %days with usable licking data
+
