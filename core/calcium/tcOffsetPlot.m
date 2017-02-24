@@ -38,6 +38,6 @@ end;
 set(h(2:end),'handlevisibility','off');
 
 box off;
-if nargout > 1     hh = h;end
-
+% if nargout > 1     hh = h;end
+hh = h;
 return;
