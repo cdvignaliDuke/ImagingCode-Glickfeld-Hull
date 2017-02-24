@@ -1,259 +1,363 @@
-% experiment specs
-expt(1).SubNum = '617';
-expt(1).mouse = 'AW17';
-expt(1).date = '160511';
-expt(1).dateFolder = '160511';
-expt(1).img_loc  = {'V1';'AL'};
-expt(1).visstim  = {'drifting';'drifting'};
-expt(1).time_mat = ['1334'; '1345'];
-expt(1).runs = ['001'; '002'];
-expt(1).nrun = size(expt(1).runs,1);
-expt(1).frame_rate = 30;
-expt(1).folder = 'two-photon imaging';
+%% load data and extract timecourses from dir tuning mask
 
-%%
-SubNum = expt(1).SubNum;
-mouse = expt(1).mouse;
-date = expt(1).date;
+awFSAVdatasets % reference for datasets
+iexp = 10; % choose dataset from reference
 
-sites = unique(expt(1).img_loc);
-visstim = unique(expt(1).visstim);
+try % create an analysis folder
+    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
+    cd(filedir);
+catch
+    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging');
+    cd(filedir)
+    mkdir(date,ImgFolder)
+    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
+    cd(filedir);
+end
+fnout = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
 
+% register data to dir tuning FOV and use mask to get cell TCs
 down = 5;
+data_down = stackGroupProject(data,down);
+clear data
 
+%remove negative data (by addition)
+data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
+clear data_down
 
+%register data
+load(fullfile('Z:\analysis\',mouse,'two-photon imaging',date,expt(iexp).dirtuning,'regImg.mat'))
+[out data_reg] = stackRegister(data_sub, data_avg);
+clear data_sub
 
-%%
-for irun = 1:expt(1).nrun
-    disp(irun)
-    %% load the data
-    time = expt(1).time_mat(irun,:);
-    ImgFolder = expt(1).runs(irun,:);
+%get time-courses
+load(fullfile('Z:\analysis\',mouse,'two-photon imaging',date,expt(iexp).dirtuning,'mask&TCDir.mat'))
+dataTC = stackGetTimeCourses(data_reg, mask_cell);
 
-    fName = [ImgFolder '_000_000'];
+% neurpil subtraction
+nCells = size(dataTC,2);
+buf = 4;
+np = 6;
+neuropil = imCellNeuropil(mask_cell,buf,np);
 
-    mworks = ['data-' 'i' SubNum '-' date '-' time]; 
-    load (['Y:\home\andrew\Behavior\Data\' mworks]);
-
-    CD = ['Z:\data\' mouse '\two-photon imaging\' expt(1).dateFolder '\' ImgFolder];
-    cd(CD);
-    imgMatFile = [fName '.mat'];
-    load(imgMatFile);
-    nframes = info.config.frames;
-    tic
-    data = sbxread(fName,0,nframes);
-    toc
-    data = squeeze(data);    
-%%
-    data_down = stackGroupProject(data,down);
-    clear data
-    data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
-    data = data_sub;
-    clear data_sub
-    % register
-    data_avg = mean(data(:,:,100:110),3);
-    figure; imagesq(data_avg); colormap(gray)
-    [out data_reg] = stackRegister(data, data_avg);
-    clear data
-    
-    %%
-    try
-        filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
-        cd(filedir);
-    catch
-        filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging');
-        cd(filedir)
-        mkdir(date,ImgFolder)
-        filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
-        cd(filedir);
+npTC = zeros(size(dataTC));
+for i = 1:size(dataTC,2)
+    tempNPmask = squeeze(neuropil(:,:,i));
+    if sum(sum(tempNPmask)) > 0
+    npTC(:,i) = stackGetTimeCourses(data_reg,tempNPmask);
     end
-    
-    %%
-    writetiff(data_reg, 'Retinotopy');
-    clear data_reg
 end
-%% if data already registered
-for irun = 1:expt(1).nrun
-    time = expt(1).time_mat(irun,:);
-    ImgFolder = expt(1).runs(irun,:);
-    mworks = ['data-' 'i' SubNum '-' date '-' time]; 
-    load (['Y:\home\andrew\Behavior\Data\' mworks]);
-    data_reg = readtiff(fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder, 'Retinotopy.tif'));
-    %%    
-    nON = double(input.nScansOn/down);
-    nOFF = double(input.nScansOff/down);
-    nStim = double(input.gratingElevationStepN.*input.gratingAzimuthStepN);
-    nRep = floor(size(data_reg,3)/((nON+nOFF)*nStim));
-    data_reg = data_reg(:,:,1:(((nON+nOFF)*nStim)*nRep));
-    nTrials = (nStim.*nRep);
 
-    %% create dF/F stack, mask_cell, and timecourses
+%get weights by maximizing skew
+ii= 0.01:0.01:1;
+x = zeros(length(ii), nCells);
+for i = 1:100
+    x(i,:) = skewness(dataTC-tcRemoveDC(npTC*ii(i)));
+end
+[max_skew ind] =  max(x,[],1);
+% skew(buf,:) = max_skew;
+np_w = 0.01*ind;
+npSubTC = dataTC-bsxfun(@times,tcRemoveDC(npTC),np_w);
 
-    nOFF_ind = zeros(1,(nOFF*nStim*nRep));
+%% trial-by-trial dF/F
+nOn = double(input.nScansOn)./down;
+nOff = double(input.nScansOff)./down;
+ntrials = size(input.tGratingDirectionDeg,2);
+
+data_reg = data_reg(:,:,1:ntrials*(nOn+nOff));
+npSubTC = npSubTC(1:ntrials*(nOn+nOff),:);
+
+sz = size(data_reg);
+data_tr = reshape(data_reg,[sz(1), sz(2), nOn+nOff, ntrials]);
+data_f = mean(data_tr(:,:,nOff/2:nOff,:),3);
+data_df = bsxfun(@minus, double(data_tr), data_f); 
+data_dfof = bsxfun(@rdivide,data_df, data_f); 
+clear data_f data_df data_tr
+
+szTC = size(npSubTC);
+dataTC_tr = reshape(npSubTC,[nOn+nOff, ntrials, szTC(2)]);
+dataTC_f = mean(dataTC_tr(nOff/2:nOff,:,:),1);
+dataTC_df = bsxfun(@minus, double(dataTC_tr), dataTC_f); 
+dataTC_dfof = bsxfun(@rdivide,dataTC_df, dataTC_f); 
+clear dataTC_f dataTC_df dataTC_tr
+%% variables
+nCells = size(dataTC_dfof,3);
+
+Az = celleqel2mat_padded(input.tGratingAzimuthDeg);
+El = celleqel2mat_padded(input.tGratingElevationDeg);
+Azs = unique(Az);
+Els = unique(El);
+if min(Els,[],2)<0
+    Els = fliplr(Els);
+end
+nStim = length(Azs).*length(Els);
+
+%% ret tuning
+Stims = [];
+data_dfof_avg = zeros(sz(1), sz(2), nOn+nOff, length(Azs).*length(Els));
+start = 1;
+for iEl = 1:length(Els)
+    ind1 = find(El == Els(iEl));
+    for iAz = 1:length(Azs)
+        Stims = [Stims; Els(iEl) Azs(iAz)];
+        ind2 = find(Az == Azs(iAz));
+        ind = intersect(ind1,ind2);
+        data_dfof_avg(:,:,:,start) = mean(data_dfof(:,:,:,ind),4);
+        start = start +1;
+    end
+end
+clear data_dfof
+myfilter = fspecial('gaussian',[20 20], 0.5);
+data_dfof_avg_ret = squeeze(mean(imfilter(data_dfof_avg(:,:,nOff:nOff+nOn,:),myfilter),3));
+
+% time-courses for each cell, for each stim
+tuning_mat = zeros(nStim, 2, nCells);
+Ind_struct = [];
+if nCells<37
+    [n, n2] = subplotn(nCells);
+else
+    [n, n2] = subplotn(36);
+end
+tt= (1-nOff:nOn)*(1000./(expt(iexp).frame_rate/down));
+figure;
+start = 1;
+f = 1;
+for iCell = 1:nCells
+    if start >36
+%         print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_run_str], [date '_' mouse '_' ret_run_str '_TCs' num2str(f) '.pdf']), '-dpdf')
+        start = 1;
+        f= f+1;
+        figure;
+    end
+    subplot(n, n2, start)
+    for iStim = 1:nStim
+        ind1 = find(Az == Stims(iStim,2));
+        ind2 = find(El == Stims(iStim,1));
+        ind = intersect(ind1,ind2);
+        plot(tt', squeeze(mean(dataTC_dfof(:,ind,iCell),2)))
+        hold on
+        tuning_mat(iStim,1,iCell) = mean(mean(dataTC_dfof(nOff+1:nOn+nOff,ind,iCell),2),1);
+        tuning_mat(iStim,2,iCell) = std(mean(dataTC_dfof(nOff+1:nOn+nOff,ind,iCell),1),[],2)./sqrt(length(ind));
+        Ind_struct(iStim).all_trials = ind;
+    end
+    ylim([-0.05 0.5])
+    ylabel('dF/F')
+    xlabel('time from stim on (ms)')
+    title(['cell ' num2str(iCell)])
+    vline(nOff)
+    start = start + 1;
+end
+print(fullfile(fnout, [date '_' mouse '_TCs' num2str(f) '.pdf']), '-dpdf')
+
+% heatmap of responses
+figure;
+start = 1;
+f = 1;
+for iCell = 1:nCells
+    if start >36
+        print(fullfile(fnout,[date '_' mouse '_Tuning' num2str(f) '.pdf']), '-dpdf')
+        start = 1;
+        f= f+1;
+        figure;
+    end
+    subplot(n, n2, start)
+    ret_mat = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
+    ret_mat = ret_mat';
+    h = imagesc(ret_mat);
+    h.Parent.XTickLabel = strread(num2str(Azs),'%s');
+    h.Parent.YTickLabel = strread(num2str(Els),'%s');
+    colormap gray
+    clim([0 max(max(tuning_mat(:,1,:),[],1),[],3)])
+    colorbar
+    title(num2str(chop(max(tuning_mat(:,1,iCell),[],1),2)))  
+    start = start +1;
+end
+print(fullfile(fnout,[date '_' mouse '_Tuning' num2str(f) '.pdf']), '-dpdf')
+
+%
+Fit_struct = [];
+[AzAz, ElEl] = meshgrid(Azs,Els); 
+grid2.AzAz = AzAz;
+grid2.ElEl = ElEl;
+
+dAz = median(diff(Azs));
+dEl = median(diff(Els));
+Az_vec00 = Azs(1):(dAz/10):Azs(end);
+El_vec00 = Els(1):(dEl/10):Els(end);
+[AzAz00,ElEl00]=meshgrid(Az_vec00,El_vec00);
+grid2.AzAz00 = AzAz00;
+grid2.ElEl00 = ElEl00;
+Nshuf = 500;
+resp_dFoverF = squeeze(mean(dataTC_dfof(nOff:nOn+nOff,:,:),1))';
+base_dFoverF = squeeze(mean(dataTC_dfof(nOff/2:nOff,:,:),1))';
+p_ttest = zeros(nCells,nStim);
+h_ttest = zeros(nCells,nStim);
+h_all = zeros(1,nCells);
+for count_shuf = 0:Nshuf
+    fprintf('.')
+    Im_mat_USE = zeros(nCells, nStim);
+    for iCond = 1:nStim        
+        ind_all = Ind_struct(iCond).all_trials;
+        if count_shuf > 0 %resample with replacement, don't resample by trial for now because running-rejection may be uneven for various trials..
+            ind_all_1 = ind_all(randsample(length(ind_all),length(ind_all),1));
+        else
+            ind_all_1 = ind_all;
+            [h_ttest(:,iCond) p_ttest(:,iCond)] = ttest(resp_dFoverF(:,ind_all), base_dFoverF(:,ind_all), 'tail', 'right', 'dim', 2, 'alpha', 0.05./(nStim-1));
+        end
+        Im_mat_USE(:,iCond) = mean(resp_dFoverF(:,ind_all_1),2);
+    end
+
     start = 1;
-    for iStim = 1:(nRep*nStim)
-        nOFF_ind(1, start:start+nOFF-1) = 1+((iStim-1)*(nOFF+nON)):nOFF + ((iStim-1)*(nOFF+nON));
-        start = start+nOFF;
+    for iCell = 1:nCells;
+        if count_shuf == 0
+            if sum(h_ttest(iCell,:),2) == 0 
+                ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/2));
+                if length(ind_p)<2
+                    ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/3));
+                    if length(ind_p)<3
+                        ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/4));
+                        if length(ind_p)<4
+                            h_all(1,iCell) = 0;
+                        else
+                            h_all(1,iCell) = 1;
+                        end
+                    else
+                        h_all(1,iCell) = 1;
+                    end
+                else
+                    h_all(1,iCell) = 1;
+                end
+            else
+                h_all(1,iCell) = 1;
+            end
+        end
+        if count_shuf>0
+            if h_all(1,iCell) == 0
+                continue
+            end
+        end
+        a = Im_mat_USE(iCell,:);
+        if max(a,[],2) > 0
+            b = reshape(a',length(Azs),length(Els));
+            data = b';
+            if count_shuf == 0
+                PLOTIT_FIT = 1;
+                SAVEALLDATA = 1;
+                Fit_2Dellipse_LG_Ret
+                eval(['Fit_struct(iCell).True.s_',' = s;']);
+            else
+                SAVEALLDATA = 0;
+                PLOTIT_FIT = 0;
+                Fit_2Dellipse_LG_Ret
+                eval(['Fit_struct(iCell).Shuf(count_shuf).s_',' = s;']);
+            end
+        end               
     end
+    if count_shuf == 0
+        fn_out = fullfile(fnout, ['RFfits' num2str(ifig) '.pdf']);   
+        print(fn_out,'-dpdf')
+    end
+end
 
-    nON_ind = setdiff(1:size(data_reg,3),nOFF_ind);
-    nON_avg = mean(data_reg(:,:,nON_ind),3);
-    nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
+fn_out = fullfile(fnout, ['Fit_struct.mat']);   
+save(fn_out, 'Fit_struct')
 
-    % dF average F
-    dF_data = bsxfun(@minus,data_reg, nOFF_avg);
-    dFoverF = bsxfun(@rdivide,dF_data,nOFF_avg);
+resp_ind = find(h_all);
 
-    max_dF = max(dF_data,[],3);
-    maxDFoverF = max(dFoverF,[],3);
-    figure; imagesq(maxDFoverF); colormap(gray)
+ if Nshuf>1;
+    for iCell = 1:nCells
+        if ~isempty(Fit_struct(iCell).True)                
+            eval(['tmp = Fit_struct(iCell).True.s_.x;']);
+            eval(['tmp = [tmp Fit_struct(iCell).True.s_.Elhicut_50];']);
+            eval(['tmp = [tmp Fit_struct(iCell).True.s_.Azhicut_50];']);
+            eval(['tmp = [tmp Fit_struct(iCell).True.s_.Elhicut_10];']);
+            eval(['tmp = [tmp Fit_struct(iCell).True.s_.Azhicut_10];']);
+            fit_true_vec(iCell,:) = tmp;
+        end
+    end
     
-    %save max DF/F
-    writetiff(maxDFoverF, 'maxDFoverF');
-
-    bwout = imCellEditInteractive(maxDFoverF);
-    mask_cell = bwlabel(bwout);
-
-    data_TC = stackGetTimeCourses(data_reg,mask_cell);
-    figure; tcOffsetPlot(data_TC)
-    
-    %% subtract neuropil from timecourses
-    buf = 4;
-    np = 6;
-    nCells = size(data_TC,2);
-    neuropil = imCellNeuropil(mask_cell,buf,np);
-
-    npTC = zeros(size(data_TC));
-    for i = 1:nCells
-        tempNPmask = squeeze(neuropil(:,:,i));
-        if sum(sum(tempNPmask)) > 0
-        npTC(:,i) = stackGetTimeCourses(data_reg,tempNPmask);
+    fit_shuf_vec = NaN(nCells,10,Nshuf);
+    for count_shuf = 1:Nshuf
+        for iCell = 1:nCells
+            if ~isempty(Fit_struct(iCell).Shuf)
+                eval(['tmp = Fit_struct(iCell).Shuf(count_shuf).s_.x;']);
+                eval(['tmp = [tmp Fit_struct(iCell).Shuf(count_shuf).s_.Elhicut_50];']);
+                eval(['tmp = [tmp Fit_struct(iCell).Shuf(count_shuf).s_.Azhicut_50];']);
+                eval(['tmp = [tmp Fit_struct(iCell).Shuf(count_shuf).s_.Elhicut_10];']);
+                eval(['tmp = [tmp Fit_struct(iCell).Shuf(count_shuf).s_.Azhicut_10];']);
+                %fit is: %A sigma_Az sigma_El Az0 El0 xi
+                fit_shuf_vec(iCell,:,count_shuf) = tmp;
+            end
         end
     end
 
-    data_TC_mavg = tsmovavg(data_TC,'s',10,1);
-    npTC_mavg = tsmovavg(npTC,'s',10,1);
-    
-    ii= 0.01:0.01:1;
-    x = zeros(length(ii), nCells);
-    for i = 1:100
-        x(i,:) = skewness(data_TC_mavg-tcRemoveDC(npTC_mavg*ii(i)));
-    end
-    [max_skew ind] =  max(x,[],1);
-    np_w = 0.01*ind;
-    data_TCsub = data_TC-bsxfun(@times,tcRemoveDC(npTC),np_w);
-    data_TC = data_TCsub;
-    clear data_reg
-    %% save
-    fileSave = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
-    cd(fileSave);
-    save('mask&TCDir.mat','neuropil','mask_cell','data_TC');
-    %% 
-    VSsize = input.gratingDiameterDeg;
-    VSdirectionDeg = input.gratingDirectionDeg;
-    tAz = double(cell2mat(input.tGratingAzimuthDeg));
-    Az = unique(tAz);
-    [nAz azPos] = histc(tAz,Az);
-    tEl = double(cell2mat(input.tGratingElevationDeg));
-    El = unique(tEl);
-    [nEl elPos] = histc(tEl,El);
-    if any(tEl == 0) | any(tAz == 0)
-        if any(tEl == 0)
-            tEl2 = tEl+1;
-        else
-            tEl2 = tEl;
+    Npars = size(fit_shuf_vec,2);
+    lbub_fits = NaN(nCells,Npars,5);
+    alpha_bound = .025;
+    for iCell = 1:nCells
+        for count2 = 1:Npars
+            tmp = squeeze(fit_shuf_vec(iCell,count2,:));
+            [i,j] = sort(tmp);
+            ind_shuf_lb = ceil(Nshuf*alpha_bound);
+            ind_shuf_ub = ceil(Nshuf*(1-alpha_bound));
+            lbub_fits(iCell,count2,1) = i(ind_shuf_lb);
+            lbub_fits(iCell,count2,2) = i(ind_shuf_ub);
+            lbub_fits(iCell,count2,3) = mean(i); 
+            lbub_fits(iCell,count2,5) = std(i);
         end
-        if any(tAz == 0)
-            tAz2 = tAz+1;
-        else
-            tAz2 = tAz;
+        %now take means from truedata fit:
+        lbub_fits(iCell,:,4) = fit_true_vec(iCell,:);
+    end
+end
+
+lbub_diff = lbub_fits(:,:,2)-lbub_fits(:,:,1);
+
+goodfit_ind = [];
+for iCell = 1:nCells
+    if lbub_diff(iCell,4)<input.gratingAzimuthStepDeg*2
+        if lbub_diff(iCell,5)<input.gratingAzimuthStepDeg*2
+            goodfit_ind = [goodfit_ind iCell];
         end
-        pos = cart2pol(tAz2,tEl2);
-    else
-        pos = cart2pol(tAz,tEl);
     end
-    [n posN] = histc(pos,unique(pos));
-    Rets = unique(pos);
-
-    AzPos = NaN(1,nStim);
-    ElPos = NaN(1,nStim);
-    for i = 1:nStim
-        AzPos(i) = unique(tAz(pos == Rets(i)));
-        ElPos(i) = unique(tEl(pos == Rets(i)));
-    end
-
-%% dF/F by trial
-stimOFF_ind = 1:nOFF+nON:size(data_TC,1);
-stimON_ind = nOFF+1:nOFF+nON:size(data_TC,1);
-
-dF_data = zeros(size(data_TC));
-dFoverF_data = zeros(size(data_TC));
-for i = 1:nTrials
-    indAll = stimOFF_ind(i):stimOFF_ind(i)+(nOFF+nON-1);
-    indF = stimOFF_ind(i)+5:stimOFF_ind(i)+(nOFF-1);
-    dF_data(indAll,:) = bsxfun(@minus,data_TC(indAll,:),mean(data_TC(indF,:),1));
-    dFoverF_data(indAll,:) = bsxfun(@rdivide,dF_data(indAll,:),mean(data_TC(indF,:),1));
 end
 
+fn_out = fullfile(fnout, ['lbub_fits.mat']);   
+save(fn_out, 'lbub_fits', 'lbub_diff', 'goodfit_ind', 'resp_ind')
 
-%% sort data by trial type
-dFoverFCellsTrials = zeros(10+nON,size(dFoverF_data,2),nTrials);
-for i = 1:nTrials
-    dFoverFCellsTrials(:,:,i) = dFoverF_data(stimON_ind(i)-10:stimON_ind(i)+(nON-1),:);
-end
 
-dFoverF_meanRetResp = zeros(size(dFoverFCellsTrials,1),size(dFoverFCellsTrials,2),nStim);
-errbarRets = zeros(size(data_TC,2),nStim);
-for i = 1:nStim
-    trials = find(pos(:,1:nTrials) == Rets(i));
-    dFoverF_meanRetResp(:,:,i) = mean(dFoverFCellsTrials(:,:,trials),3);
-    errbarRets(:,i) = std(mean(dFoverFCellsTrials(11:16,:,trials),1),[],3)/sqrt(size(dFoverFCellsTrials(11:16,:,trials),3));
+figure
+subplot(2,2,1)
+for i = goodfit_ind
+    plot(lbub_fits(i,4,4), lbub_fits(i,5,4), 'o')
+    hold on;
+    xlim([min(Azs,[],2) max(Azs,[],2)])
+    ylim([min(Els,[],2) max(Els,[],2)])
 end
+axis equal
+title('RF center')
+subplot(2,2,2)
+for i = goodfit_ind
+    ellipse(lbub_fits(i,2,4), lbub_fits(i,3,4), 0, lbub_fits(i,4,4), lbub_fits(i,5,4));
+    hold on;
+end
+axis equal
+title('RF- 1 sigma')
+fn_out = fullfile(fnout, ['RFs.pdf']);   
+print(fn_out,'-dpdf')
 
 figure;
-for i = 1:nStim
-    plot(dFoverF_meanRetResp(:,3,i));
-    hold on
-end
-
-%% plot tuning curves
-dFoverF_meanOFFRetResp = (squeeze(mean(dFoverF_meanRetResp(1:10,:,:),1)));
-
-RetRespPerCell = (squeeze(mean(dFoverF_meanRetResp(11:end,:,:),1)));
-
-% az x el matrix per cell
-resp = squeeze(mean(dFoverFCellsTrials(11:end,:,:),1));
-resp_AzElMat = zeros(size(resp,1),length(El),length(Az));
-errResp_AzElMat = zeros(size(resp,1),length(El),length(Az));
-
-for iaz = 1:length(Az)
-    azind = intersect(find(tAz == Az(iaz)),1:nTrials);
-    for iel = 1:length(El)
-        elind = intersect(find(tEl == El(iel)),1:nTrials);
-        resp_AzElMat(:,iel,iaz) = mean(resp(:,intersect(azind,elind)),2);
-        errResp_AzElMat = squeeze(std(resp(:,intersect(azind,elind)),[],2)/sqrt(double(length(intersect(azind,elind)))));
-    end
-end
-
-%%
-figure;
-imagesc(squeeze(mean(resp_AzElMat,1)));
-set(gca,'xTick', [1:length(Az)])
-set(gca,'xTickLabel', cellfun(@num2str,num2cell(Az),'UniformOutput',false))
-set(gca,'yTick', [1:length(El)])
-set(gca,'yTickLabel', cellfun(@num2str,num2cell(El),'UniformOutput',false))
-xlabel('Az')
-ylabel('El')
-colorbar
-
-title({'Retinotopy';strjoin([expt(1).img_loc(irun) '; ' expt(1).visstim(irun) ' gratings']) })
-
-set(0,'defaultfigurepaperorientation','portrait');
-set(0,'defaultfigurepapersize',[8.5 11]);
-set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
-
-% get position used for behavior
-
-
-print(fullfile('Z:\analysis\',mouse,'two-photon imaging',['RetPreferences' strjoin(['-' expt(1).img_loc(irun) '_' expt(1).visstim(irun) ' gratings'])] ), '-dpdf')
-end
+subplot(2,2,1)
+hist(lbub_fits(goodfit_ind,2,4))
+title('Sigma azimuth')
+subplot(2,2,2)
+hist(lbub_fits(goodfit_ind,3,4))
+title('Sigma elevation')
+subplot(2,2,3)
+a = lbub_fits(goodfit_ind,3,4).*lbub_fits(goodfit_ind,2,4).*pi;
+hist(a)
+title('Area')
+subplot(2,2,4)
+scatter(a, lbub_fits(goodfit_ind,1,4),'o')
+xlabel('Area')
+ylabel('Peak dF/F')
+fn_out = fullfile(fnout, ['RFdists.pdf']);   
+print(fn_out,'-dpdf')

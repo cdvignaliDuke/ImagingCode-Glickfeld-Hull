@@ -2,12 +2,15 @@ function [cellsSelect, OSI, DSI] = OriCellSets(rc, expt, iexp,cellsOnly);
 %display experiment
 disp([num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum)])
 %load direction tuning data
-if cellsOnly
-    dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning,'cells only');
-    load(fullfile(dataPath,'Timecourses.mat'))
-    data_TC_subNP = data_TC;
+dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
+if cellsOnly == 1
+    load(fullfile(dataPath,'cell&dendriteTC.mat'))
+    data_TC_subNP = cell_tc;
+elseif cellsOnly == 2    
+    load(fullfile(dataPath,'cell&dendriteTC.mat'))
+    data_TC_subNP = den_tc;
 else
-    dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
+%     dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
 % try 
 %     load(fullfile(dataPath,'sbxaligned_timecourses.mat'));
 % catch
@@ -54,6 +57,10 @@ end
 dFoverF_DirResp_avg = zeros(nStim, size(dFoverFCellsTrials,2));
 dFoverF_DirResp_sem = zeros(nStim, size(dFoverFCellsTrials,2));
 h_dir = zeros(nStim, size(dFoverFCellsTrials,2));
+if size(dFoverFCellsTrials,3) > length(DirectionDeg)
+   nTrials = length(DirectionDeg); 
+end
+
 for i = 1:nStim
     trials = find(DirectionDeg(:,1:nTrials) == Dirs(i));
     dFoverF_DirResp_avg(i,:) = squeeze(mean(mean(dFoverFCellsTrials(resp_win,:,trials),1),3) - mean(mean(dFoverFCellsTrials(base_win,:,trials),1),3));
@@ -167,7 +174,13 @@ end
 cellsSelect{iOri+1} = untuned_ind;
 cellsSelect{iOri+2} = intersect(find(~isnan(ori_ind_all)), find(OSI>0.3));
 
-save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+if cellsOnly == 1
+    save(fullfile(dataPath, 'cellsSelect_cellsOnly.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+elseif cellsOnly == 2
+    save(fullfile(dataPath, 'cellsSelect_dendritesOnly.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+else
+    save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+end
 
 end
 

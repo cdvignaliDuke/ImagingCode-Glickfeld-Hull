@@ -46,7 +46,7 @@ data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
 clear data_down
 
 % register
-data_avg = mean(data_sub(:,:,100:110),3);
+data_avg = mean(data_sub(:,:,300:310),3);
 figure; imagesq(data_avg); colormap(gray)
 
 [out data_reg] = stackRegister(data_sub, data_avg);
@@ -68,10 +68,10 @@ end
 writetiff(data_reg, 'DirectionTuning_V1');
 
 
-%%
-%write tifs for sorted frames
-VSR = 2;
-run('sortTrialsAvg_writetiffs.m')
+% %%
+% %write tifs for sorted frames
+% VSR = 2;
+% run('sortTrialsAvg_writetiffs.m')
 %% create dF/F stack
 
 nOFF_ind = zeros(1,(nOFF*nStim*nRep));
@@ -83,10 +83,10 @@ for iStim = 1:(nRep*nStim)
     start = start+nOFF;
 end
 
-%% movie with trial start marked
-data_offmark = data_reg;
-data_offmark(1:55,721:end,nOFF_1) = max(max(mean(data_reg,3)));
-writetiff(data_offmark,'rawFtrialstartmark')
+% %% movie with trial start marked
+% data_offmark = data_reg;
+% data_offmark(1:55,721:end,nOFF_1) = max(max(mean(data_reg,3)));
+% writetiff(data_offmark,'rawFtrialstartmark')
 
 %%
 
@@ -116,24 +116,28 @@ m = setdiff(1:size(data_reg,3),ind_motion+1);
 % sub(sub < 0) = 0;
 % figure;imagesq(sub);colormap(gray);title('on-off')
 max_dF = max(dF_data,[],3);
-maxDFoverF = max(dFoverF(:,:,m),[],3);
+maxDFoverF = max(dFoverF,[],3);
 meanDFoverF = mean(dFoverF,3);
 maxDFoverFcrop = maxDFoverF;
 maxDFoverFcrop(:,[1:32 758:end]) =0;
 figure; imagesq(maxDFoverF); colormap(gray)
-% figure; imagesq(meanDFoverF); colormap(gray)
+figure; imagesq(max_dF); colormap(gray)
+
 
 %get rid of bright patch to make gui easier to use
 % maxDFoverF(:,750:end,:) = 0;
 
 %save max DF/F
 writetiff(maxDFoverF, 'maxDFoverF');
+writetiff(max_dF,'max_dF');
 
+% bwout = imCellEditInteractive(max_dF);
 bwout = imCellEditInteractive(maxDFoverF);
+% mask_dendrite = bwlabel(bwout);
 mask_cell = bwlabel(bwout);
 
 data_TC = stackGetTimeCourses(data_reg,mask_cell);
-figure; tcOffsetPlot(data_TC)
+figure; tcOffsetPlot(data_TC);
 
 % xcalib = size(data_reg,2)/500;
 % ycalib = size(data_reg,1)/250;
@@ -238,7 +242,7 @@ for i = 1:nTrials
     dFoverF_data(indAll,:) = bsxfun(@rdivide,dF_data(indAll,:),mean(data_TC(indF,:),1));
 end
 %% dF/F (by cell) for each stimulus type
-
+nTrials = length(DirectionDeg);
 % find on indices for the first frame of each stimulus start period and iti (Off) period
 
 stimON_ind = nOFF+1:nOFF+nON:size(dFoverF_data,1);
