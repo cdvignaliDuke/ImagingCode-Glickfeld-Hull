@@ -1,6 +1,6 @@
 clear all
 close all
-awFSAV_eye_naive100ms
+AWEyeDatasets_AW
 calib = 1/26.6; %mm per pixel
 min_hold = 2000;
 pre_event_time = 1000;
@@ -9,7 +9,7 @@ post_target_time = 4000;
 
 rc = behavConstsAV;
 
-for iexp = 2:size(expt,2)
+for iexp = 27%1:size(expt,2)
     SubNum = expt(iexp).SubNum;
     date = expt(iexp).date;
     runs = expt(iexp).runs;
@@ -159,67 +159,67 @@ for iexp = 2:size(expt,2)
     clear Eye_data;
     ntrials = length(input.trialOutcomeCell);
 
-% %% no measurement frames
-% 
-%     subplotsN = 25;
-%     subplotSize = ceil(sqrt(subplotsN));
-%     figure; 
-%     x = find(isnan(Area_temp));
-%     if length(x)>subplotsN
-%         minx = subplotsN;
-%     else
-%         minx = length(x);
-%     end
-%     start = 1;
-%     frames = sort(randsample(length(x),minx));
-%     for i = 1:minx
-%         subplot(subplotSize,subplotSize,start);
-%         imagesq(Eye_data_temp(:,:,x(frames(i)))); 
-%         title(x(frames(i)))
-%         hold on
-% %         plot(Centroid_temp(x(frames(i)),1), Centroid_temp(x(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(x(frames(i)),1)/pi))
-%         start = start+1;
-%     end
-% try
-%     cd(['Z:\Analysis\' mouse '\eye tracking\' date])
-% catch
-%     cd(['Z:\Analysis\' mouse])
-%     mkdir('eye tracking',date)
-%     cd(['Z:\Analysis\' mouse '\eye tracking\' date])
-% end
-%     print([fnout '_nanframes.pdf'], '-dpdf');
-% 
-% 
-% %% plot 25-100 random measured frames to check pupil looks good
-%     subplotsN = 25;
-%     subplotSize = ceil(sqrt(subplotsN));
-%     figure; 
-%     y = find(~isnan(Area_temp));
-%     if length(y)>subplotsN
-%         miny = subplotsN;
-%     else
-%         miny = length(y);
-%     end
-%     start = 1;
-%     frames = sort(randsample(length(y),miny));
-%     for i = 1:miny
-%         subplot(subplotSize,subplotSize,start);
-%         imagesq(Eye_data_temp(:,:,y(frames(i)))); 
-%         title(y(frames(i)))
-%         hold on
-% %         viscircles(Centroid_temp(y(frames(i),:)),Radius_temp(y(frames(i))),'EdgeColor','w');
-%         viscircles(Centroid_temp(y(frames(i)),:),sqrt(Area_temp(y(frames(i)))/pi),'EdgeColor','w');
-% %         plot(Centroid_temp(y(frames(i)),1), Centroid_temp(y(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(y(frames(i)),1)/pi))
-%         start = start+1;
-%     end
-% try
-%     cd(['Z:\Analysis\' mouse '\eye tracking\' date])
-% catch
-%     cd(['Z:\Analysis\' mouse])
-%     mkdir('eye tracking',date)
-%     cd(['Z:\Analysis\' mouse '\eye tracking\' date])
-% end
-% print([fnout '_plotradcir_measuredframes.pdf'], '-dpdf');
+%% no measurement frames
+
+    subplotsN = 25;
+    subplotSize = ceil(sqrt(subplotsN));
+    figure; 
+    x = find(isnan(Area_temp));
+    if length(x)>subplotsN
+        minx = subplotsN;
+    else
+        minx = length(x);
+    end
+    start = 1;
+    frames = sort(randsample(length(x),minx));
+    for i = 1:minx
+        subplot(subplotSize,subplotSize,start);
+        imagesq(Eye_data_temp(:,:,x(frames(i)))); 
+        title(x(frames(i)))
+        hold on
+%         plot(Centroid_temp(x(frames(i)),1), Centroid_temp(x(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(x(frames(i)),1)/pi))
+        start = start+1;
+    end
+try
+    cd(['Z:\Analysis\' mouse '\eye tracking\' date])
+catch
+    cd(['Z:\Analysis\' mouse])
+    mkdir('eye tracking',date)
+    cd(['Z:\Analysis\' mouse '\eye tracking\' date])
+end
+    print([fnout '_nanframes.pdf'], '-dpdf');
+
+
+%% plot 25-100 random measured frames to check pupil looks good
+    subplotsN = 25;
+    subplotSize = ceil(sqrt(subplotsN));
+    figure; 
+    y = find(~isnan(Area_temp));
+    if length(y)>subplotsN
+        miny = subplotsN;
+    else
+        miny = length(y);
+    end
+    start = 1;
+    frames = sort(randsample(length(y),miny));
+    for i = 1:miny
+        subplot(subplotSize,subplotSize,start);
+        imagesq(Eye_data_temp(:,:,y(frames(i)))); 
+        title(y(frames(i)))
+        hold on
+%         viscircles(Centroid_temp(y(frames(i),:)),Radius_temp(y(frames(i))),'EdgeColor','w');
+        viscircles(Centroid_temp(y(frames(i)),:),sqrt(Area_temp(y(frames(i)))/pi),'EdgeColor','w');
+%         plot(Centroid_temp(y(frames(i)),1), Centroid_temp(y(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(y(frames(i)),1)/pi))
+        start = start+1;
+    end
+try
+    cd(['Z:\Analysis\' mouse '\eye tracking\' date])
+catch
+    cd(['Z:\Analysis\' mouse])
+    mkdir('eye tracking',date)
+    cd(['Z:\Analysis\' mouse '\eye tracking\' date])
+end
+print([fnout '_plotradcir_measuredframes.pdf'], '-dpdf');
 
      %% Remove NaNs if sparse and align to push, release and target
     nanrun = ceil(500*(frame_rate/1000));

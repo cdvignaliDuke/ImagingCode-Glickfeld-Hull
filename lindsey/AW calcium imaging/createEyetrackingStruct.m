@@ -1,13 +1,13 @@
 function mouse = createEyetrackingStruct(doPlot);
     close all
-    awFSAV_eye_naive100ms
+    AWEyeDatasets_AW
 %     av = behavParamsAV;
     rc = behavConstsAV;
     min_hold = 2000;
     pre_event_time = 1000;
     post_release_time = 1500;
     post_target_time = 4000;
-    push_trans_win_time = [500:1000];
+    push_trans_win_time = [150:250];
     release_trans_win_time = [150:250];
     mice = unique({expt.SubNum});
     nMice = length(mice);

@@ -281,3 +281,42 @@ expt(24).VisonB2 = 1;
 expt(24).frame_rate = 30;
 expt(24).folder = 'two-photon imaging';
 expt(24).eyeradrange = [15 40];
+
+% %% AW60 161101 **eye imaging window cutoff from pupil.
+% expt(25).SubNum = '660';
+% expt(25).mouse = 'AW60';
+% expt(25).date = '161101';
+% expt(25).time_mat = ['1230';'1246';'1302';'1318'];
+% expt(25).runs = ['001';'002';'003';'004'];
+% expt(25).nrun = size(expt(25).runs,1);
+% expt(25).VisonB2 = 1;
+% expt(25).frame_rate = 30;
+% expt(25).folder = 'two-photon imaging';
+% expt(25).eyeradrange = [4 20];
+% expt(25).eyeframeshalved = 0;
+
+%% AW68 161024
+expt(25).SubNum = '668';
+expt(25).mouse = 'AW68';
+expt(25).date = '161024';
+expt(25).time_mat = ['1042';'1058';'1115';'1131'];
+expt(25).runs = ['001';'002';'003';'005'];
+expt(25).nrun = size(expt(25).runs,1);
+expt(25).VisonB2 = 1;
+expt(25).frame_rate = 30;
+expt(25).folder = 'two-photon imaging';
+expt(25).eyeradrange = [4 40];
+expt(25).eyeframeshalved = 0;
+
+%% AW68 161031
+expt(26).SubNum = '668';
+expt(26).mouse = 'AW68';
+expt(26).date = '161031';
+expt(26).time_mat = ['1130';'1146';'1202'];
+expt(26).runs = ['001';'002';'003'];
+expt(26).nrun = size(expt(26).runs,1);
+expt(26).VisonB2 = 1;
+expt(26).frame_rate = 30;
+expt(26).folder = 'two-photon imaging';
+expt(26).eyeradrange = [4 40];
+expt(26).eyeframeshalved = 0;
