@@ -1,8 +1,8 @@
 clear all
 close all
-awFSAV_eye_naive100ms
+AWEyeDatasets_AW
 rc = behavConstsAV;
-av = mouseColors_naiveEye;
+av = mouseColors_bxEye;
 mice = unique({expt.SubNum});
 nMice = length(mice);
 str = unique({expt.SubNum});
@@ -17,8 +17,9 @@ mouse_ind = find(intersect(cell2mat({av.mouse}),values));
 %     fnout = fullfile(rc.eyeOutputDir, ['10-Nov-2015_' mouse_str]);
 %     load([fnout 'EyeSummary.mat'])
 % catch
-        fnout = rc.eyeOutputDir;
-        load(fullfile(fnout, ['\' date '_' mouse_str 'EyeSummary.mat']));
+        fnout = [rc.eyeOutputDir '\'];        
+        fnin = rc.eyeInputDir;
+        load(fullfile(fnin, ['\' date '_' mouse_str 'EyeSummary.mat']));
 % end
 
 set(0,'defaultfigurepaperorientation','landscape');
@@ -49,7 +50,7 @@ for j = [1 3];
                     %transient
                     a(iexp) = mouse(imouse).expt(iexp).align(ialign).av(1).outcome(2).avg_rad_trans(:,1)./mouse(imouse).expt(iexp).align(1).av(1).outcome(2).avg_rad_pre(:,1);
                     b(iexp) = mouse(imouse).expt(iexp).align(ialign).av(2).outcome(2).avg_rad_trans(:,1)./mouse(imouse).expt(iexp).align(1).av(2).outcome(2).avg_rad_pre(:,1);
-                    scatter(a, b, 200,['o' col]);        
+                    scatter(a, b, 100,['o' col]);        
                     hold on
                     xlabel('Visual (%)')
                     ylabel('Auditory (%)')
@@ -72,7 +73,7 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- transient- normalized radius values'])
-%         print([fnout '_summary_' align 'align_trans_rad_norm.pdf'], '-dpdf');
+        print([fnout '_summary_' align 'align_trans_rad_norm.pdf'], '-dpdf');
 %         savefig([fnout '_summary_' align 'align_trans_rad_norm.fig']);
 
         %sustained
@@ -88,7 +89,7 @@ for j = [1 3];
                     %transient
                     a(iexp) = mouse(imouse).expt(iexp).align(ialign).av(1).outcome(2).avg_rad_sust(:,1)./mouse(imouse).expt(iexp).align(1).av(1).outcome(2).avg_rad_pre(:,1);
                     b(iexp) = mouse(imouse).expt(iexp).align(ialign).av(2).outcome(2).avg_rad_sust(:,1)./mouse(imouse).expt(iexp).align(1).av(2).outcome(2).avg_rad_pre(:,1);
-                    scatter(a, b, 200,['o' col]);        
+                    scatter(a, b, 100,['o' col]);        
                     hold on
                     xlabel('Visual (%)')
                     ylabel('Auditory (%)')
@@ -111,7 +112,7 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- sustained- normalized radius values'])
-%         print([fnout '_summary_' align 'align_sust_rad_norm.pdf'], '-dpdf');
+        print([fnout '_summary_' align 'align_sust_rad_norm.pdf'], '-dpdf');
 %         savefig([fnout '_summary_' align 'align_sust_rad_norm.fig']);
 
         %horizontal
@@ -127,7 +128,7 @@ for j = [1 3];
                     %transient
                     a(iexp) = mouse(imouse).expt(iexp).align(ialign).av(1).outcome(2).avg_hor_trans(:,1)-mouse(imouse).expt(iexp).align(1).av(1).outcome(2).avg_hor_pre(:,1);
                     b(iexp) = mouse(imouse).expt(iexp).align(ialign).av(2).outcome(2).avg_hor_trans(:,1)-mouse(imouse).expt(iexp).align(1).av(2).outcome(2).avg_hor_pre(:,1);
-                    scatter(a, b, 200,['o' col]);        
+                    scatter(a, b, 100,['o' col]);        
                     hold on
                     xlabel('Visual (deg)')
                     ylabel('Auditory (deg)')
@@ -139,8 +140,8 @@ for j = [1 3];
             errorbarxy(nanmean(a,1), nanmean(b,1), nanstd(a,[],1)/sqrt(size(a,1)), nanstd(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
             hold on
         end
-        xlim([-5 5])
-        ylim([-5 5])
+        xlim([-2 2])
+        ylim([-2 2])
         hold on
         plot(x,y, '--k')
         hold on
@@ -150,7 +151,7 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- transient- absolute horizontal change from baseline'])
-%         print([fnout '_summary_' align 'align_trans_horiz.pdf'], '-dpdf');
+        print([fnout '_summary_' align 'align_trans_horiz.pdf'], '-dpdf');
 %         savefig([fnout '_summary_' align 'align_trans_horiz.fig']);
 
         %sustained
@@ -165,7 +166,7 @@ for j = [1 3];
                     %transient
                     a(iexp) = mouse(imouse).expt(iexp).align(ialign).av(1).outcome(2).avg_hor_sust(:,1)-mouse(imouse).expt(iexp).align(1).av(1).outcome(2).avg_hor_pre(:,1);
                     b(iexp) = mouse(imouse).expt(iexp).align(ialign).av(2).outcome(2).avg_hor_sust(:,1)-mouse(imouse).expt(iexp).align(1).av(2).outcome(2).avg_hor_pre(:,1);
-                    scatter(a, b, 200,['o' col]);        
+                    scatter(a, b, 100,['o' col]);        
                     hold on
                     xlabel('Visual (deg)')
                     ylabel('Auditory (deg)')
@@ -177,8 +178,8 @@ for j = [1 3];
             errorbarxy(nanmean(a,1), nanmean(b,1), nanstd(a,[],1)/sqrt(size(a,1)), nanstd(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
             hold on
         end
-        xlim([-5 5])
-        ylim([-5 5])
+        xlim([-2 2])
+        ylim([-2 2])
         hold on
         plot(x,y, '--k')
         hold on
@@ -188,7 +189,7 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- sustained- absolute horizontal change from baseline'])
-%         print([fnout '_summary_' align 'align_sust_horiz.pdf'], '-dpdf');
+        print([fnout '_summary_' align 'align_sust_horiz.pdf'], '-dpdf');
 %         savefig([fnout '_summary_' align 'align_sust_horiz.fig']);
 
         %vertical
@@ -204,7 +205,7 @@ for j = [1 3];
                     %transient
                     a(iexp) = mouse(imouse).expt(iexp).align(ialign).av(1).outcome(2).avg_ver_trans(:,1)-mouse(imouse).expt(iexp).align(1).av(1).outcome(2).avg_ver_pre(:,1);
                     b(iexp) = mouse(imouse).expt(iexp).align(ialign).av(2).outcome(2).avg_ver_trans(:,1)-mouse(imouse).expt(iexp).align(1).av(2).outcome(2).avg_ver_pre(:,1);
-                    scatter(a, b, 200,['o' col]);        
+                    scatter(a, b, 100,['o' col]);        
                     hold on
                     xlabel('Visual (deg)')
                     ylabel('Auditory (deg)')
@@ -216,8 +217,8 @@ for j = [1 3];
             errorbarxy(nanmean(a,1), nanmean(b,1), nanstd(a,[],1)/sqrt(size(a,1)), nanstd(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
             hold on
         end
-        xlim([-5 5])
-        ylim([-5 5])
+        xlim([-2 2])
+        ylim([-2 2])
         hold on
         plot(x,y, '--k')
         hold on
@@ -242,7 +243,7 @@ for j = [1 3];
                     %transient
                     a(iexp) = mouse(imouse).expt(iexp).align(ialign).av(1).outcome(2).avg_ver_sust(:,1)-mouse(imouse).expt(iexp).align(1).av(1).outcome(2).avg_ver_pre(:,1);
                     b(iexp) = mouse(imouse).expt(iexp).align(ialign).av(2).outcome(2).avg_ver_sust(:,1)-mouse(imouse).expt(iexp).align(1).av(2).outcome(2).avg_ver_pre(:,1);
-                    scatter(a, b, 200,['o' col]);        
+                    scatter(a, b, 100,['o' col]);        
                     hold on
                     xlabel('Visual (deg)')
                     ylabel('Auditory (deg)')
@@ -254,8 +255,8 @@ for j = [1 3];
             errorbarxy(nanmean(a,1), nanmean(b,1), nanstd(a,[],1)/sqrt(size(a,1)), nanstd(b,[],1)/sqrt(size(b,1)), {['o' col], col, col});
             hold on
         end
-        xlim([-5 5])
-        ylim([-5 5])
+        xlim([-2 2])
+        ylim([-2 2])
         hold on
         plot(x,y, '--k')
         hold on
