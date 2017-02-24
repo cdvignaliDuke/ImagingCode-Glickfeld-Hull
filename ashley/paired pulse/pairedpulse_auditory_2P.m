@@ -1,6 +1,6 @@
 %experiment info
 pairedPulseAud_datasets
-iexp = 2;
+iexp = 3;
 mouse = expt(iexp).mouse;
 SubNum = expt(iexp).SubNum;
 expdate = expt(iexp).date;
