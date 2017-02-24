@@ -85,7 +85,7 @@ title(['DG stim tc,tick at 0s'])
 axis square
 end
 figure(respHeatmap_allTrials)
-print([fnout 'catch_align_TCheatmatp_allTrSortPlustuningData' datasetStr ], '-dpdf')
+print([fnout 'catch_align_TCheatmatp_allTrSortPlustuningData' datasetStr ], '-dpdf','-fillpage')
 
 %% last plot vis-aud, sorted by all
 
@@ -145,6 +145,6 @@ title('val - inv')
 axis square
 
 figure(respHeatmap_allTrials_VsubA)
-print([fnout 'catch_align_TCheatmatp_allTrSortPlusValsubInv' datasetStr ], '-dpdf')
+print([fnout 'catch_align_TCheatmatp_allTrSortPlusValsubInv' datasetStr ], '-dpdf','-fillpage')
 
 

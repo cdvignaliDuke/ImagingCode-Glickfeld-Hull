@@ -22,7 +22,7 @@ tc_all = [];
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-        cell_ind = intersect(mouse(imouse).expt(iexp).cells(1).ind,cell_ind);
+        cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
         for iOri = 1:4
             if i == 1
                 [int c] = intersect(cell_ind,mouse(imouse).expt(iexp).cells(iOri+1).ind);
@@ -251,15 +251,15 @@ axis square
 
 %%
 figure(respHeatmap_vis);
-print([fnout 'press_align_TCheatmatp_visexpt' datasetStr '.pdf'], '-dpdf')
+print([fnout 'press_align_TCheatmatp_visexpt' datasetStr '.pdf'], '-dpdf','-fillpage')
 figure(respHeatmap_aud);
-print([fnout 'press_align_TCheatmatp_audexpt' datasetStr '.pdf'], '-dpdf')
+print([fnout 'press_align_TCheatmatp_audexpt' datasetStr '.pdf'], '-dpdf','-fillpage')
 figure(respHeatmap_all);
-print([fnout 'press_align_TCheatmatp_all_aubV-A' datasetStr '.pdf'], '-dpdf')
+print([fnout 'press_align_TCheatmatp_all_aubV-A' datasetStr '.pdf'], '-dpdf','-fillpage')
 figure(F1);
-print([fnout 'press_align_TCheatmatp_all_subA-V' datasetStr '.pdf'], '-dpdf')
+print([fnout 'press_align_TCheatmatp_all_subA-V' datasetStr '.pdf'], '-dpdf','-fillpage')
 figure(F2);
-print([fnout 'press_align_TCheatmatp_sortVisandAud' datasetStr '.pdf'], '-dpdf')
+print([fnout 'press_align_TCheatmatp_sortVisandAud' datasetStr '.pdf'], '-dpdf','-fillpage')
 %% plot ori tuning data alongside
 oriTuningResp_avg = [];
 oriTuningResp_tc = [];
@@ -267,7 +267,7 @@ oriTuningResp_tc = [];
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-        cell_ind = intersect(mouse(imouse).expt(iexp).cells(1).ind,cell_ind);
+        cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
         mName = ['AW' mouse(imouse).expt(iexp).mouse_name(2:end)];
         dirtuning = expt(intersect( find(strcmp({expt.SubNum},mouse(imouse).expt(iexp).mouse_name)) ,find(strcmp({expt.date},mouse(imouse).expt(iexp).date)) ) ).dirtuning;
         load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect.mat'))
@@ -340,7 +340,7 @@ axis square
 end
 
 figure(respHeatmapPlusOri)
-print([fnout 'press_align_TCheatmatp_visSortPlustuningData' datasetStr '.pdf'], '-dpdf')
+print([fnout 'press_align_TCheatmatp_visSortPlustuningData' datasetStr '.pdf'], '-dpdf','-fillpage')
 
 %% sort by avg across all trials
 
@@ -411,7 +411,7 @@ title(['DG stim tc,tick at 0s'])
 axis square
 
 figure(respHeatmap_allTrials)
-print([fnout 'press_align_TCheatmatp_allTrSortPlustuningData' datasetStr ], '-dpdf')
+print([fnout 'press_align_TCheatmatp_allTrSortPlustuningData' datasetStr ], '-dpdf','-fillpage')
 
 %% last plot vis-aud, sorted by all
 
@@ -471,4 +471,4 @@ title('vis - aud')
 axis square
 
 figure(respHeatmap_allTrials_VsubA)
-print([fnout 'press_align_TCheatmatp_allTrSortPlustVsubA' datasetStr ], '-dpdf')
+print([fnout 'press_align_TCheatmatp_allTrSortPlustVsubA' datasetStr ], '-dpdf','-fillpage')

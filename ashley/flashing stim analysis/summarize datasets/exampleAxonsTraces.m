@@ -1,15 +1,19 @@
 ms = 'AW16';
 sn = '616';
-t = '1105';
-dt = '151217';
-dirtuning = '009';
-rettuning = '008';
+t = '1056';
+dt = '151130';
+dirtuning = '007';
+rettuning = '005';
 imouse = 1;
 iexp = 1;
-cell_excAnt = 24;
-cell_inhAnt = 14;
-cell_excTar = 332;
-cell_nr = 11;
+% cell_excAnt = 24;
+% cell_inhAnt = 14;
+% cell_excTar = 332;
+% cell_nr = 11;
+cell_excAnt = mouse(imouse).expt(iexp).cells(1).ind(2);
+cell_inhAnt = mouse(imouse).expt(iexp).cells(9).ind(1);
+cell_excTar = mouse(imouse).expt(iexp).cells(13).ind(3);
+cell_nr = 1;
 cell_mat = [cell_excAnt cell_inhAnt cell_excTar cell_nr];
 cellType_str = {'Exc - Ant';'Inh - Ant';'Exc - Tar';'NR'};
 taskPart_str = {'Trial Start';'Anticipation';'Target';'dir tuning, DG';'ret tuning, DG'};
@@ -23,7 +27,7 @@ misses = 2;
 n = 4;
 n2 = 4;
 
-datasetStr = '_V1axonsAL';
+datasetStr = '_V1axonsPM';
 close all
 av = behavParamsAV;
 dataGroup = ['awFSAVdatasets' datasetStr];
@@ -339,6 +343,10 @@ img_sb = zeros(size(maxDFoverF_crop));
 img_sb(sb_y_ind,sb_x_ind) = 1;
 writetiff(img_sb,[fnout 'exampleCellsIMGsb'])
 writetiff(maxDFoverF_crop,[fnout 'maxDFoverF_crop']);
+
+img_sb = zeros(size(maxDFoverF));
+img_sb(sb_y_ind,sb_x_ind) = 1;
+writetiff(img_sb,[fnout 'notcropppedIMGsb'])
 
 
 figure;

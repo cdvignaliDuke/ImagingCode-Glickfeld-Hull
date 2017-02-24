@@ -1,24 +1,36 @@
 %% run beginning of plotAVCatchsummary.m first.
 %% what are the react times for success trials?
 RTs = [];
+RT_inv = [];
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
-        RTs = [RTs mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(hits).reactTimes];
+        if mouse(imouse).expt(iexp).info.isCatch
+        RTs = [RTs mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(hits).reactTimes];        
+        RT_inv = [RT_inv mouse(imouse).expt(iexp).align(3).av(1).FAreacttime];
+        end
     end
 end
 
 TCs_val_inv = cat(2,mean(tc_val_all,2)-mean(mean(tc_val_all(pre_win,:),2)),mean(tc_inv_all,2)-mean(mean(tc_inv_all(pre_win,:),2)));
 
-[nRTs binRTs] = hist(RTs,10);
+bin_edges = 0:50:600;
+[nRTs binRTs] = histc(RTs,bin_edges);
+[nRT_inv binRT_inv] = histc(RT_inv,bin_edges);
 
 figure;
-[ax,h_rt,h_tc] = plotyy(binRTs,nRTs,ttMs,TCs_val_inv,'bar','plot');
-ax(2).YLim = [-0.0025 0.03];
+subplot(3,2,1)
+[ax,h_rt,h_tc] = plotyy(bin_edges,[nRTs;nRT_inv]',ttMs,TCs_val_inv,'bar','plot');
+ax(2).YLim = [-0.01 0.05];
 ax(1).YLabel.String = 'n trials';
 ax(2).YLabel.String = 'dF/F';
-ax(1).XLim = [-10 20]/(cycTime/cycTimeMs);
-ax(2).XLim = [-10 20]/(cycTime/cycTimeMs);
-h_rt.FaceColor = [0.75 0.75 0.75];
+h_rt(1).FaceColor = [0.75 0.75 0.75];
+h_rt(2).FaceColor = [0.75 1 1];
+for ibar = 1:2
+   h_rt(ibar).BarWidth = 1;
+   h_rt(ibar).EdgeColor = h_rt(ibar).FaceColor;
+   ax(ibar).XLim = [-10 20]/(cycTime/cycTimeMs);
+   ax(ibar).XTick = [-200:200:600]
+end
 h_tc(1).Color = 'k';
 h_tc(2).Color = 'c';
 hold on
@@ -30,7 +42,7 @@ vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTi
 title([num2str(sum(n_all)) ' all val, inv;' num2str(size(resp_val_all,2)) ' cells']);
 
 
-print([fnout 'tc_val_inv_withRT.pdf'], '-dpdf')
+print([fnout 'tc_val_inv_withRT.pdf'], '-dpdf','-fillpage')
 
 %% react times for vis, aud, and catch successes
 
@@ -170,4 +182,4 @@ vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTi
 title(['aud trials - all miss, ' num2str(size(resp_aud_m_tc_all,2)) ' cells']);
 
 
-print([fnout 'tc_A-V-inv_withRT.pdf'], '-dpdf')
+print([fnout 'tc_A-V-inv_withRT.pdf'], '-dpdf','-fillpage')
