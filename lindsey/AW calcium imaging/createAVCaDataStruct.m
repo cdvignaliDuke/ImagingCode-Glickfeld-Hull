@@ -12,11 +12,13 @@ function mouse = createAVCaDataStruct(datasetStr,cellsOnly);
     
     %load experiment parameters
     
-if cellsOnly & strcmp(datasetStr,'_V1')
-eval(['awFSAVdatasets' datasetStr '_cellsOnly'])
-else
+% if cellsOnly == 1 & strcmp(datasetStr,'_V1')
+%     eval(['awFSAVdatasets' datasetStr '_cellsOnly'])
+% elseif cellsOnly == 1 & strcmp(datasetStr,'_V1')
+%     eval(['awFSAVdatasets' datasetStr '_cellsOnly'])
+% else
 eval(['awFSAVdatasets' datasetStr])
-end
+% end
 %     av = behavParamsAV;
     rc = behavConstsAV;
     if strcmp(rc.name,'ashle')
@@ -137,21 +139,10 @@ end
         offset = 0;
         for irun = 1:nrun
             ImgFolder = expt(iexp).runs(irun,:);
-            if cellsOnly
-                fnTC = fullfile(rc.ashleyAnalysis, expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, ImgFolder,'cells only');
-            else
-                fnTC = fullfile(rc.ashleyAnalysis, expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, ImgFolder);
-            end
+            fnTC = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,ImgFolder);
             cd(fnTC);
-%             if strcmp(datasetStr,'_newROIs') | strcmp(datasetStr,'_naive100ms')
-%                 try
-%                 load('sbxalignedTimecourses.mat')
-%                 catch
-%                     load('Timecourses.mat')
-%                 end
-%             else
                 load('Timecourses.mat')
-%             end
+
             dataTC = cat(1, dataTC, dataTimecourse.dataTCsub);
             offset = offset+size(dataTimecourse.dataTCsub,1);
             if irun < nrun
@@ -165,6 +156,14 @@ end
                 if expt(iexp).catch
                     cCatchOn(1,startTrial:endTrial) = cCatchOn(1,startTrial:endTrial)+offset;
                 end
+            end
+        end
+        if cellsOnly > 0
+            load(fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,expt(iexp).dirtuning,'cell&dendriteIndices.mat'))
+            if cellsOnly == 1
+                dataTC = dataTC(:,cellsMatch);
+            elseif cellsOnly == 2
+                dataTC = dataTC(:,dendritesMatch);
             end
         end
 
@@ -232,12 +231,13 @@ end
         clear dataTimecourse
         
         %load direction tuning data
-        if cellsOnly
-        dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning,'cells only');
-        load(fullfile(dataPath, 'cellsSelect.mat'));
-        else
         dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
-        load(fullfile(dataPath, 'cellsSelect.mat'));
+        if cellsOnly == 1
+            load(fullfile(dataPath, 'cellsSelect_cellsOnly.mat'));
+        elseif cellsOnly == 2
+            load(fullfile(dataPath, 'cellsSelect_dendritesOnly.mat'));
+        else
+            load(fullfile(dataPath, 'cellsSelect.mat'));
         end
         
         %sort by trial type
@@ -834,7 +834,6 @@ end
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).tcyc = NaN;
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).tcyc = NaN;
                 end
-            end
         end
         
         %divide data by target direction
@@ -870,11 +869,11 @@ end
              mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).trialL{iDir} = tCyclesOn(:,indM);
              
             %test for responsiveness to any one of the presented directions
-            if iav == 1
-            [h, p] = ttest(squeeze(mean(DataDFoverF(pre_win,:,[indS indM]),1)), squeeze(mean(DataDFoverF(trans_win,:,[indS indM]),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)));
-            mouse(imouse).expt(s(:,imouse)).align(ialign).ttest_trans(:,iDir) = h;
-            tarStimRespDiff(:,iDir) = squeeze(mean(mean(DataDFoverF(trans_win,:,[indS indM]),3),1)) - squeeze(mean(mean(DataDFoverF(pre_win,:,[indS indM]),3),1));
-            end
+%             if iav == 1
+%             [h, p] = ttest(squeeze(mean(DataDFoverF(pre_win,:,[indS indM]),1)), squeeze(mean(DataDFoverF(trans_win,:,[indS indM]),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)));
+%             mouse(imouse).expt(s(:,imouse)).align(ialign).ttest_trans(:,iDir) = h;
+%             tarStimRespDiff(:,iDir) = squeeze(mean(mean(DataDFoverF(trans_win,:,[indS indM]),3),1)) - squeeze(mean(mean(DataDFoverF(pre_win,:,[indS indM]),3),1));
+%             end
             end
         end
         
@@ -1044,16 +1043,15 @@ end
     end
     
     figure(motionHist)
-    if cellsOnly
-        mkdir(fullfile(rc.caOutputDir, dataGroup),'cells only')
-    print(fullfile(rc.caOutputDir, dataGroup,'cells only', [datasetStr '_motionHist.pdf']), '-dpdf')
-    save(fullfile(rc.caOutputDir, dataGroup,'cells only', [mouse_str '_CaSummary' datasetStr '.mat']), 'mouse','-v7.3');
+    if cellsOnly == 1
+        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_cells' datasetStr '.mat']), 'mouse','-v7.3');
+    elseif cellsOnly == 2
+        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_dendrites' datasetStr '.mat']), 'mouse','-v7.3');
     else
     print(fullfile(rc.caOutputDir, dataGroup, [datasetStr '_motionHist.pdf']), '-dpdf')
     save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary' datasetStr '.mat']), 'mouse','-v7.3');
     end
 end
-
         
         
         

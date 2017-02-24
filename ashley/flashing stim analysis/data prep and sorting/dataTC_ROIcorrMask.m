@@ -1,8 +1,8 @@
 % edit Load_SBXdataset_fast.m
 %%
 
-awFSAVdatasets_audControl
-iexp = 5;
+awFSAVdatasets_V1
+iexp = 17;
 
 for irun = 1:expt(iexp).nrun;
 
@@ -27,16 +27,27 @@ dirFolder = expt(iexp).dirtuning;
 fileDirMasks = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, dirFolder);
 cd(fileDirMasks);
 load('regImg.mat');
-load('mask&TCDir.mat');
-load('neuropil.mat');
-clear npTC npSubTC data_TC
+load('maskROIcombo.mat');
+
+mask_cell = mask_cell_combo;
+neuropil = neuropil_combo;
 
 [out data_reg] = stackRegister(data, data_avg);
 clear data
 
 
 % get timecourses
-dataTC = stackGetTimeCourses(data_reg, mask_cell);
+cellsUsed = unique(mask_cell(:));
+cellsUsed = cellsUsed(2:end);
+dataTC = zeros(size(data_reg,3),length(cellsUsed));
+for iCell = 1:length(cellsUsed)
+    
+    maskLin = mask_cell(:);
+    mask_temp = zeros(size(maskLin));
+    mask_temp(maskLin == cellsUsed(iCell)) = 1;
+    mask_temp = reshape(mask_temp,size(mask_cell));
+    dataTC(:,iCell) = stackGetTimeCourses(data_reg, mask_temp);
+end
 
 % get neuropil timecourses
 buf = 4;

@@ -1,7 +1,7 @@
+function [input, data] = Load_SBXdataPlusMWorksData(SubNum,date,time,mouse,ImgFolder,fName)
 CD = 'Y:\home\andrew\Behavior\Data';
-cd(CD);
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
-load (mworks);
+load (fullfile(CD,mworks));
 
 % Set current directory to imaging data location
 CD = ['Z:\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
@@ -15,7 +15,7 @@ load(imgMatFile);
 % load(eyeMatFile);
 
 %%
-
+if nargout > 1
 %new datasets
 % nframes = 13577;
 nframes = info.config.frames;
@@ -25,3 +25,5 @@ toc
 % pmt = 1; %1 = green 2 = red
 % data = squeeze(data(pmt,:,:,:,:));
 data = squeeze(data);
+end
+end
