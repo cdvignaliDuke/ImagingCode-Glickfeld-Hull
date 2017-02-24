@@ -22,12 +22,16 @@ str = unique({expt.SubNum});
 values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
 mouse_ind = find(intersect(cell2mat({av.mouse}),values));
-if cellsOnly
-load(fullfile(rc.caOutputDir,dataGroup, 'cells only',[mouse_str '_CaSummary' datasetStr '.mat']));
+if cellsOnly == 1
+load(fullfile(rc.caOutputDir,dataGroup, [mouse_str '_CaSummary_cells' datasetStr '.mat']));
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
-fnout = fullfile(rc.caOutputDir, dataGroup, 'cells only', [titleStr '_' mouse_str]); %% maybe lose mouse_str
+fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_cells_' mouse_str]); %% maybe lose mouse_str
+elseif cellsOnly == 2
+load(fullfile(rc.caOutputDir,dataGroup, [mouse_str '_CaSummary_dendrites' datasetStr '.mat']));
+titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
+fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_dendrites_' mouse_str]); %% maybe lose mouse_str
 else
-load(fullfile(rc.caOutputDir,dataGroup, 'cells only',[mouse_str '_CaSummary' datasetStr '.mat']));
+load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' datasetStr '.mat']));
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
 fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
 end
@@ -71,7 +75,7 @@ if ~strcmp(datasetStr,'_V1')
 antiRespEarlyLateQuant
 end
 %%
-depOnPrevTrialType
+% depOnPrevTrialType
 
 %%
 

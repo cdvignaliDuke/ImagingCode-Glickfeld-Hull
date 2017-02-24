@@ -959,7 +959,8 @@ for iOri = 2:size(mouse(imouse).expt(1).cells,2)
             mouse(imouse).align(i).name = mouse(imouse).expt(1).align(i).name;
             mouse(imouse).cells(iOri).name = mouse(imouse).expt(1).cells(iOri).name;
         end
-            
+    end
+end
 
 base_dirs = [];
 i = 4;

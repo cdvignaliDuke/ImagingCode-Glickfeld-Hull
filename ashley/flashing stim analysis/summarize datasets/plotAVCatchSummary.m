@@ -2,8 +2,10 @@ function plotAVCatchSummary(datasetStr,cellsInd,cellsOnly)
 % takes mouse FSAV Ca structure and plots responses to target phase
 % of task, comparing valid and invalid trials
 close all
-av = behavParamsAV;
+respCellsInd = 14;
+
 eval(['awFSAVdatasets' datasetStr])
+
 titleStr = datasetStr;
 if strcmp(titleStr, '')
     titleStr = 'V1';
@@ -19,15 +21,19 @@ end
 str = unique({expt.SubNum});
 values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
-mouse_ind = find(intersect(cell2mat({av.mouse}),values));
-if  cellsOnly
-load(fullfile(rc.caOutputDir,dataGroup, 'cells only',[mouse_str '_CaSummary' datasetStr '.mat']));
+% mouse_ind = find(intersect(cell2mat({av.mouse}),values));
+if  cellsOnly == 1
+load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_cells' datasetStr '.mat']));
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
-fnout = fullfile(rc.caOutputDir,dataGroup, 'cells only',[titleStr '_' mouse_str]);
+fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_cells_' mouse_str]);
+elseif  cellsOnly == 2
+load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_dendrites' datasetStr '.mat']));
+titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
+fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_dendrites_' mouse_str]);
 else
 load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' datasetStr '.mat']));
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
-fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_' mouse_str]);
+fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_' mouse_str '_gr' num2str(respCellsInd)]);
 end
 pre_win = mouse(1).expt(1).win(1).frames;
 trans_win = mouse(1).expt(1).win(2).frames;
@@ -53,7 +59,7 @@ crmatch = 10;
 % fnout = fullfile(rc.caOutputDir, dataGroup, [titleStr '_' mouse_str]); %% maybe lose mouse_str
 
 nexp = 0;
-for imouse = 1:size(mouse,2)
+for imouse  = 1:size(mouse,2)
     nexp = nexp+size(mouse(imouse).expt,2);
 end
 n = ceil(sqrt(nexp+1));
@@ -84,6 +90,12 @@ if strcmp(datasetStr,'_naive100ms') | strcmp(datasetStr,'_naive100ms_virus')
     naiveCatch
     avgCellRespHeatMap_Val_Inv
 else
+    
+    %%
+    if cellsInd == 13 | cellsInd == 14
+    rocTargetEnhance
+    end
+    %%
 scatFAvsH = figure; %oucomes 1h 5fa
 scatCRvsM = figure;%oucomes 4m 9cr
 scatCRvsH = figure;%oucomes 2h 8cr
@@ -129,7 +141,7 @@ tc_all = [];
 %find all catch dirs used
 cds = [];
 trLs = [];
-for imouse = 1:size(mouse,2)
+for imouse  = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)   
         cds = [cds mouse(imouse).expt(iexp).info.cDirs];
         trLs = [trLs mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).tcyc*mouse(imouse).expt(iexp).info.cyc_time_ms];
@@ -150,14 +162,16 @@ n_m_dir = zeros(length(cds),size(expt,2));
 oriTuningResp_avg = [];
 oriTuningResp_tc = [];
 
-for imouse = 1:size(mouse,2)
+for imouse  = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)        
         if mouse(imouse).expt(iexp).info.isCatch
             val_temp = [];
             inv_temp = [];
             all_temp = [];
             cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-            cell_ind = intersect(mouse(imouse).expt(iexp).cells(13).ind,cell_ind);
+            if respCellsInd ~=0
+            cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
+            end
         % find number of each trial outcome type
             cdirs = mouse(imouse).expt(iexp).info.cDirs;
             sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp,'unif',false)),3,length(cdirs));
@@ -1025,7 +1039,7 @@ ylabel('invalid all')
 title(['all val,all inv; p=' num2str(p) ', ' num2str(size(resp_inv_all,2)) '  cells'])
 
 figure(scatAllCells)
-print([fnout 'catch_align_scatter' datasetStr '.pdf'], '-dpdf')
+print([fnout 'catch_align_scatter' datasetStr '.pdf'], '-dpdf','-fillpage')
 %% all directions -  scatter, cdfs, tc
 figure(scatFAvsH);
 suptitle(titleStr)
@@ -1348,7 +1362,7 @@ title([num2str(sum(n_all)) ' all val, inv;' num2str(size(resp_val_all,2)) ' cell
 
 %% resp size by trial length - 90 hits only
 L = [];
-for imouse = 1:size(mouse,2)
+for imouse  = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
         if mouse(imouse).expt(iexp).info.isCatch 
         cycTimeMs = mouse(imouse).expt(iexp).info.cyc_time_ms;
@@ -1364,7 +1378,7 @@ rVal_short = [];
 rVal_long = [];
 rInv_short = [];
 rInv_long = [];
-for imouse = 1:size(mouse,2)
+for imouse  = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2) 
         if mouse(imouse).expt(iexp).info.isCatch
         % find 90 target index
@@ -1452,13 +1466,13 @@ plot(mean(Llong),r,'co')
 % figure(scatCRvsFA);
 % print([fnout 'catch_align_CRvsFA' datasetStr '.pdf'], '-dpdf')
 figure(cdfCatchResp)
-print([fnout 'catch_align_cdf' datasetStr '.pdf'], '-dpdf')
+print([fnout 'catch_align_cdf' datasetStr '.pdf'], '-dpdf','-fillpage')
 figure(tcCatchResp)
-print([fnout 'catch_align_TC' datasetStr '.pdf'], '-dpdf')
+print([fnout 'catch_align_TC' datasetStr '.pdf'], '-dpdf','-fillpage')
 figure(tarRespTraceDir)
-print([fnout 'catch_align_TC_dirs' datasetStr '.pdf'], '-dpdf')
+print([fnout 'catch_align_TC_dirs' datasetStr '.pdf'], '-dpdf','-fillpage')
 figure(tarRespTuning)
-print([fnout 'tarRespTuning_val_inv' datasetStr '.pdf'], '-dpdf')
+print([fnout 'tarRespTuning_val_inv' datasetStr '.pdf'], '-dpdf','-fillpage')
 
 % %% plot average 
 % %  plot avg target trace for random subset of cells, all directions

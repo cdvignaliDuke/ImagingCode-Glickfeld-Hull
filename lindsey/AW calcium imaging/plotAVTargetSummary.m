@@ -367,12 +367,12 @@ for iOri = 1:6
     errorbar(0, nanmean(trans_base_resp{1,2,iOri},1), nanstd(trans_base_resp{1,2,iOri},[],1)./sqrt(sum(~isnan(trans_base_resp{1,2,iOri}),1)), 'ok');
     title([mouse(1).expt(1).cells(iOri+1).name ' cells; n = ' num2str(sum(~isnan(nanmean(trans_target_resp{1,1,iOri},2)),1))])
     xlim([-10 100])
-    ylim([-0.015 0.09])
+    ylim([-0.01 0.05])
     ax.XTick = base_dirs;
     
 end
 suptitle([titleStr '- Target response tuning by preference- Success only'])
-print([fnout 'target_resp_tuning_success' datasetStr '.pdf'], '-dpdf')
+print([fnout 'target_resp_tuning_success' datasetStr '.pdf'], '-dpdf','-fillpage')
 
 % g = flipud(gray(length(base_dirs)));
 % figure;
