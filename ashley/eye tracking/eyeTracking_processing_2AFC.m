@@ -16,8 +16,7 @@ for iexp = 1:size(expt,2)
     nrun = size(runs,1);
 %% load and combine mworks files
     for irun = 1:nrun
-        time = time_mat(irun,:);
-        fn_mworks = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' SubNum '-' date '-' time '.mat'];
+        fn_mworks = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-' mouse '-' date '-' time '.mat'];
         if irun == 1
             input = mwLoadData(fn_mworks, [], []);
         else
@@ -26,14 +25,9 @@ for iexp = 1:size(expt,2)
     end
     input = concatenateDataBlocks(input);
 
-    runstr = runs(1,:);
-    if nrun>1
-        for irun = 2:nrun
-            runstr = [runstr '-' runs(irun,:)];
-        end
-    end
+    runstr = catRunName(ImgFolder, nrun);
     fnout = ['Z:\home\lindsey\Analysis\Behavior\EyeTracking\' mouse '-' date '\' mouse '-' date '-' runstr];
-    
+    mkdir(fnout)
     %%
     preevent_frames = ceil(pre_event_time*(frame_rate/1000));
     postevent_frames = ceil(post_event_time*(frame_rate/1000));
@@ -44,17 +38,18 @@ for iexp = 1:size(expt,2)
     Centroid = {};
     Eye_data = {};
     for irun =  1:nrun
-        CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\' eyeFolder '\' date '\' runs(irun,:)];
+        %CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\' mouse '\' eyeFolder '\' date '\' runs(irun,:)];
+        CD = ['Z:\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
         cd(CD);
-        fn = [runs(irun,:) '_000_000_eye.mat'];
-        load(fn);          % should be a '*_eye.mat' file
+        fn = [ImgFolder(irun,:) '_000_000_eye.mat'];
+        data = load(fn);          % should be a '*_eye.mat' file
 
-        data = squeeze(data);      % the raw images...
+        data = squeeze(data.data);      % the raw images...
         xc = size(data,2)/2;       % image center
         yc = size(data,1)/2;
         W=40;
 
-        rad_range = [8 17];
+        rad_range = [6 15];
         data = data(yc-W:yc+W,xc-W:xc+W,:);
         warning off;
 
@@ -94,14 +89,20 @@ for iexp = 1:size(expt,2)
     Area_temp = [];
     Centroid_temp = [];
     Eye_data_temp = [];
-    for irun = 1:nrun
-        if irun < nrun
-            offset = size(Area{irun},1);
-            startTrial = run_trials(irun)+1;
-            endTrial = run_trials(irun)+run_trials(irun+1);
-            cTrialStart(1,startTrial:endTrial) = cTrialStart(1,startTrial:endTrial)+offset;
-            cDecision(1,startTrial:endTrial) = cDecision(1,startTrial:endTrial)+offset;
+    if nrun > 1
+        for irun = 1:nrun
+            if irun < nrun
+                offset = size(Area{irun},1);
+                startTrial = run_trials(irun)+1;
+                endTrial = run_trials(irun)+run_trials(irun+1);
+                cTrialStart(1,startTrial:endTrial) = cTrialStart(1,startTrial:endTrial)+offset;
+                cDecision(1,startTrial:endTrial) = cDecision(1,startTrial:endTrial)+offset;
+            end
+            Area_temp = [Area_temp; Area{irun}];
+            Centroid_temp = [Centroid_temp; Centroid{irun}];
+            Eye_data_temp = cat(3, Eye_data_temp, Eye_data{irun});
         end
+    else
         Area_temp = [Area_temp; Area{irun}];
         Centroid_temp = [Centroid_temp; Centroid{irun}];
         Eye_data_temp = cat(3, Eye_data_temp, Eye_data{irun});
@@ -129,7 +130,7 @@ for iexp = 1:size(expt,2)
 %         plot(Centroid_temp(x(frames(i)),1), Centroid_temp(x(frames(i)),2), 'ok', 'MarkerSize', 2*sqrt(Area_temp(x(frames(i)),1)/pi))
         start = start+1;
     end
-    print([fnout '_nanframes.pdf'], '-dpdf');      
+    %print([fnout '_notnanframes.pdf'], '-dpdf');      
     
     %%
      nanrun = ceil(500*(frame_rate/1000));
@@ -196,6 +197,6 @@ for iexp = 1:size(expt,2)
     rad_mat_decide = bsxfun(@times, rad_mat_decide, calib);
     centroid_mat_decide = bsxfun(@times,centroid_mat_decide,calib);       
     %% Saving
-    save([fnout '_pupil.mat'], 'Area', 'Centroid', 'frame_rate', 'rad_mat_start','centroid_mat_start','rad_mat_decide','centroid_mat_decide', 'input', 'cDecision', 'cTrialStart' );
+    save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str  '_pupil.mat']), 'Area', 'Centroid', 'frame_rate' , 'rad_mat_start','centroid_mat_start','rad_mat_decide','centroid_mat_decide', 'input', 'cDecision', 'cTrialStart' );
 end
 
