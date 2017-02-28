@@ -9,6 +9,13 @@ nrun = size(ImgFolder,1);
 frame_rate = 30;
 run_str = catRunName(ImgFolder, nrun);
 
+[s,tUsername] = dos('ECHO %USERNAME%');
+if tUsername(1:4) == 'ryan'
+    tDir = 'ryan';
+elseif tUsername(1:4) == 'lind'
+    tDir = 'lindsey';
+end
+
 %% load and register
 data = [];
 clear temp
@@ -57,9 +64,9 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*10000):50
 
 data_avg = mean(data(:,:,60001:60500),3);
 
-if exist(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+if exist(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
+    load(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
+    save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
     [outs, data_reg]=stackRegister_MA(data,[],[],out);
     clear out outs
 elseif doFromRef
@@ -67,18 +74,18 @@ elseif doFromRef
     if size(ref,1)>1
         ref_str = [ref_str '-' ref(size(ref,1),:)];
     end
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_reg_shifts.mat']))
+    load(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_reg_shifts.mat']))
     [out, data_reg] = stackRegister(data,data_avg);
-    mkdir(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_mask_cell.mat']))
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_trialData.mat']))
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+    mkdir(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str]))
+    save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
+    load(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_mask_cell.mat']))
+    load(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_trialData.mat']))
+    save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 else
     [out, data_reg] = stackRegister(data,data_avg);
-    mkdir(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+    mkdir(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str]))
+    save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
+    save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 end
 clear data
 
@@ -86,7 +93,7 @@ clear data
 
 figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data_reg(:,:,1+((i-1)*10000):500+((i-1)*10000)),3)); title([num2str(1+((i-1)*10000)) '-' num2str(500+((i-1)*10000))]); end
 figure; imagesq(mean(data_reg(:,:,1:10000),3)); truesize;
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.mat']))
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.pdf']))
 %% find activated cells
 
 tLeftTrial = celleqel2mat_padded(input.tLeftTrial);
@@ -102,7 +109,7 @@ tLeftTrial = celleqel2mat_padded(input.tLeftTrial);
     for itrial = 1:nTrials
         data_f(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)-20:cStimOn(itrial)-1),3);
         data_targ(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)+5:cStimOn(itrial)+25),3);
-        if cDecision+25<nframes
+        if cDecision(itrial)+25<nframes
             data_resp(:,:,itrial) = mean(data_reg(:,:,cDecision(itrial)+5:cDecision(itrial)+25),3);
         end
     end
@@ -112,7 +119,7 @@ tLeftTrial = celleqel2mat_padded(input.tLeftTrial);
     data_dfof_L = mean(data_targ_dfof(:,:,indL),3);
     indR = intersect(find(tGratingContrast==1),find(~tLeftTrial));
     data_dfof_R = mean(data_targ_dfof(:,:,indR),3);
-    data_dfof_resp = mean(data_resp_dfof(:,:,find(SIx)),3);
+    data_dfof_resp = nanmean(data_resp_dfof(:,:,find(SIx)),3);
     figure;
     subplot(2,2,1)
     imagesc(data_dfof_L)
@@ -123,7 +130,7 @@ tLeftTrial = celleqel2mat_padded(input.tLeftTrial);
     subplot(2,2,3)
     imagesc(data_dfof_resp)
     title('Decision')
-    print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_dFoF.pdf']), '-dpdf')
+    print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_dFoF.pdf']), '-dpdf')
     data_dfof = cat(3, data_dfof_resp, cat(3,data_dfof_L,data_dfof_R));
     data_dfof_max = max(data_dfof,[],3);
     figure; imagesc(data_dfof_max)
@@ -147,7 +154,7 @@ mask_cell = bwlabel(mask_all);
 % mask_cell = bwlabel(bwout);
 
 mask_np = imCellNeuropil(mask_cell, 3, 5);
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_mask_cell.mat']), 'data_dfof_max', 'mask_cell', 'mask_np')
+save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_mask_cell.mat']), 'data_dfof_max', 'mask_cell', 'mask_np')
 
 clear data_dfof data_dfof_avg max_dfof mask_data mask_all mask_2 data_base data_base_dfof data_targ data_targ_dfof data_f data_base2 data_base2_dfof data_dfof_dir_all data_dfof_max data_dfof_targ data_avg data_dfof2_dir data_dfof_dir 
 
@@ -178,8 +185,7 @@ np_w = 0.01*ind;
 npSub_tc = data_tc-bsxfun(@times,tcRemoveDC(np_tc),np_w);
 clear data_reg data_reg_down
 
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
 clear data_tc np_tc
 
 %% 2AFC analysis
@@ -230,8 +236,6 @@ end
 good_ind = find(sum(h,1)>0);
 
 tt = (-19:30)*frame_rate;
-
-
 figure;
 [n n2] = subplotn(nCells);
 for iCell = 1:nCells
@@ -249,7 +253,7 @@ for iCell = 1:nCells
     end
 end
 suptitle([mouse ' ' date '- stimAlign- blue is right; red is left'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byCell.pdf']), '-dpdf', '-bestfit')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byCell.pdf']), '-dpdf', '-bestfit')
 
 figure;
 [n n2] = subplotn(nCells);
@@ -268,7 +272,7 @@ for iCell = 1:nCells
     end
 end
 suptitle([mouse ' ' date '- choiceAlign- blue is right; red is left'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byCell.pdf']), '-dpdf', '-bestfit')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byCell.pdf']), '-dpdf', '-bestfit')
 
 figure; 
 for icon = 1:ncon
@@ -306,7 +310,7 @@ subplot(2,2,4)
 title(['Left Miss- ' num2str(indLM)])
 ylim([-.05 .2])
 suptitle([mouse ' ' date '- stimAlign'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byOutcome.pdf']), '-dpdf', '-bestfit')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byOutcome.pdf']), '-dpdf', '-bestfit')
 
 figure; 
 for icon = 1:ncon
@@ -344,7 +348,7 @@ subplot(2,2,4)
 title(['Left Miss- ' num2str(indLM)])
 ylim([-.05 .2])
 suptitle([mouse ' ' date '- choiceAlign'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byOutcome.pdf']), '-dpdf')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byOutcome.pdf']), '-dpdf')
 
 
 tt = (-19:30)*frame_rate;
@@ -378,7 +382,7 @@ if input.doRandProb
         end
     end
     suptitle([mouse ' ' date '- stimAlign'])
-    print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byProb.pdf']), '-dpdf', '-bestfit')
+    print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byProb.pdf']), '-dpdf', '-bestfit')
 
     figure;
     for iprob = 1:nprob
@@ -402,7 +406,7 @@ if input.doRandProb
         end
     end
     suptitle([mouse ' ' date '- choiceAlign'])
-    print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byProb.pdf']), '-dpdf', '-bestfit')
+    print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byProb.pdf']), '-dpdf', '-bestfit')
 
     figure;
     tProbLeft = celleqel2mat_padded(input.tStimProbAvgLeft);
@@ -433,7 +437,7 @@ if input.doRandProb
         end
     end
     suptitle([mouse ' ' date '- stimAlign'])
-    print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byProb_Miss.pdf']), '-dpdf', '-bestfit')
+    print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byProb_Miss.pdf']), '-dpdf', '-bestfit')
 
     figure;
     for iprob = 1:nprob
@@ -457,7 +461,7 @@ if input.doRandProb
         end
     end
     suptitle([mouse ' ' date '- choiceAlign'])
-    print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byProb_Miss.pdf']), '-dpdf', '-bestfit')
+    print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byProb_Miss.pdf']), '-dpdf', '-bestfit')
 end
 
 %% Wheel analysis
@@ -554,7 +558,7 @@ title('Incorrect Right Trials')
 
 suptitle(['Mouse ' num2str(input.subjectNum) '; React range: ' num2str(minR) '-' num2str(maxR) ' ms'])
 
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Wheel_bySide_byOutcome.pdf']), '-dpdf')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Wheel_bySide_byOutcome.pdf']), '-dpdf')
 
 figure
 con_str = strvcat('b', 'r', 'y');
@@ -594,7 +598,7 @@ xlim([-500 2000])
 vline(minR)
 title('Avg right correct trials by contrast')
 suptitle(['Mouse ' num2str(input.subjectNum) '; React range: ' num2str(minR) '-' num2str(maxR) ' ms'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Wheel_bySide_byOutcome_avg.pdf']), '-dpdf')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Wheel_bySide_byOutcome_avg.pdf']), '-dpdf')
 
 %% eyetracking
 
@@ -765,7 +769,7 @@ postevent_frames = ceil(post_event_time*(frame_rate/1000));
     rad_mat_decide = bsxfun(@times, rad_mat_decide, calib);
     centroid_mat_decide = bsxfun(@times,centroid_mat_decide,calib);       
     
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str  '_pupil.mat']), 'Area', 'Centroid', 'frame_rate' , 'rad_mat_start','centroid_mat_start','rad_mat_decide','centroid_mat_decide', 'input', 'cDecision', 'cTrialStart' );
+    save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str  '_pupil.mat']), 'Area', 'Centroid', 'frame_rate' , 'rad_mat_start','centroid_mat_start','rad_mat_decide','centroid_mat_decide', 'input', 'cDecision', 'cTrialStart' );
 
     %% plot eyetracking data
     
@@ -839,7 +843,7 @@ ylabel('Vertical Position')
 xlabel('Time (ms)')
 ylim([-.05 .15])
 suptitle([mouse ' ' date '- trial start align'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_byResp.pdf']),'-dpdf', '-bestfit')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_byResp.pdf']),'-dpdf', '-bestfit')
 
 indLcorr = intersect(find(tLeftResponse),find(tLeftTrial));
 indLincorr = intersect(find(tLeftResponse),find(~tLeftTrial));
@@ -901,7 +905,7 @@ ylabel('Vertical Position')
 xlabel('Time (ms)')
 ylim([-.05 .15])
 suptitle([mouse ' ' date '- trial start align'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_bySide.pdf']),'-dpdf', '-bestfit')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_bySide.pdf']),'-dpdf', '-bestfit')
 
 probList = cell2mat(input.ProbList);
 tProbLeft = celleqel2mat_padded(input.tStimProbAvgLeft);
@@ -957,4 +961,4 @@ subplot(3,2,6)
 ylim([-.1 .2])
 ylabel('Vertical Position')
 suptitle([mouse ' ' date '- trial start align; Block order: black, blue, cyan, green'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_byBlock.pdf']),'-dpdf', '-bestfit')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_byBlock.pdf']),'-dpdf', '-bestfit')
