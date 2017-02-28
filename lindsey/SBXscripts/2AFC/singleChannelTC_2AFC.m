@@ -1,7 +1,7 @@
 %% get path names
-date = '170224';
+date = '170227';
 ImgFolder = strvcat('001');
-time = strvcat('1510');
+time = strvcat('1523');
 mouse = 'i553';
 doFromRef = 0;
 ref = strvcat('005');
@@ -15,7 +15,7 @@ clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = ['Z:\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
+    CD = ['\\CRASH.dhe.duke.edu\data\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
     %CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\AW14\two-photon imaging\' date '\' ImgFolder(irun,:)];
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
@@ -27,38 +27,19 @@ for irun = 1:nrun
     fprintf(['Reading run ' num2str(irun) '- ' num2str(nframes) ' frames \r\n'])
     data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
     
-    
-    
-    if isfield(input, 'nScansOn')
-        nOn = temp(irun).nScansOn;
-        nOff = temp(irun).nScansOff;
-        ntrials = size(temp(irun).tGratingDirectionDeg,2);
-
-        data_temp = squeeze(data_temp);
-        if nframes>ntrials*(nOn+nOff)
-            data_temp = data_temp(:,:,1:ntrials*(nOn+nOff));
-        elseif nframes<ntrials*(nOn+nOff)
-            temp(irun) = trialChopper(temp(irun),1:ceil(nframes./(nOn+nOff)));
-        end
-    end
-    
     temp(irun) = input;
-    if isfield(input, 'cLeverUp') 
+    if isfield(input, 'tLeftTrial') 
         if irun>1
             ntrials = size(input.trialOutcomeCell,2);
             for itrial = 1:ntrials
-                temp(irun).cLeverDown{itrial} = temp(irun).cLeverDown{itrial}+offset;
-                temp(irun).cFirstStim{itrial} = temp(irun).cFirstStim{itrial}+offset;
-                temp(irun).cLeverUp{itrial} = temp(irun).cLeverUp{itrial}+offset;
+                temp(irun).cTrialStart{itrial} = temp(irun).cTrialStart{itrial}+offset;
                 temp(irun).cStimOn{itrial} = temp(irun).cStimOn{itrial}+offset;
-                temp(irun).cTargetOn{itrial} = temp(irun).cTargetOn{itrial}+offset;
+                temp(irun).cDecision{itrial} = temp(irun).cDecision{itrial}+offset;
             end
         end
     end
     offset = offset+nframes;
-    
-    
-        
+
     data_temp = squeeze(data_temp);
     data = cat(3,data,data_temp);
     trial_n = [trial_n nframes];
@@ -74,9 +55,9 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*10000):50
 
 %% Register data
 
-data_avg = mean(data(:,:,20001:20500),3);
+data_avg = mean(data(:,:,60001:60500),3);
 
-if exist(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
+if exist(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
     load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
     save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
     [outs, data_reg]=stackRegister_MA(data,[],[],out);
