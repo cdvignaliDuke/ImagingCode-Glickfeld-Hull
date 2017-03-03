@@ -1,4 +1,4 @@
-function [array,iframe] = readtiff(pathname,fileind,textInName,useLeicaNumbering,allowMissing,newType,stackLen);
+function [array,iframe] = readtiff(pathname,newType,textInName,useLeicaNumbering,allowMissing,fileind,stackLen);
 %READTIFF Reads TIFF file or sequences of TIFF files into MATLAB array
 %   ARRAY  = READTIFF(PATHNAME, FILEIND, TEXTINNAME, USELEICANUMBERING, ALLOWMISSING, newType);
 %
@@ -26,11 +26,11 @@ function [array,iframe] = readtiff(pathname,fileind,textInName,useLeicaNumbering
 % they use an odd naming convention: time series
 
 %%% arg processing
-if nargin < 2, fileind = []; end
+if nargin < 2, newType ='';end
 if nargin < 3, textInName = ''; end
 if nargin < 4, useLeicaNumbering = false; end
 if nargin < 5, allowMissing = false; end
-if nargin < 6, newType ='';end
+if nargin < 6, fileind = []; end
 if nargin < 7; stackLen = inf;end
     
 %% get file list from path
