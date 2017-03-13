@@ -40,8 +40,8 @@ if exist(pathname) == 2  % a single file
     [pathstr,name,ext]=fileparts(pathname);
     filelist = {[name ext]};
     nFiles = 1;
-    assert(nargin == 1, ...
-           'First arg is a single file, pass only one parameter');
+    %assert(nargin == 1, ...
+    %       'First arg is a single file, pass only one parameter');
     sortNs=1;
     if isempty(pathstr)
         pathstr='.';
