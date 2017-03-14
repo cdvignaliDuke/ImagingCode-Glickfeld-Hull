@@ -1,4 +1,4 @@
-function [input, data] = Load_SBXdataPlusMWorksData(SubNum,date,time,mouse,ImgFolder,fName)
+function [input, data, t] = Load_SBXdataPlusMWorksData(SubNum,date,time,mouse,ImgFolder,fName,varargin)
 CD = 'Y:\home\andrew\Behavior\Data';
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (fullfile(CD,mworks));
@@ -17,11 +17,17 @@ load(imgMatFile);
 %%
 if nargout > 1
 %new datasets
-% nframes = 13577;
-nframes = info.config.frames;
+if ~isempty(varargin)
+    nframes = varargin{1};    
+elseif strcmp(date,'150508')  & strcmp(ImgFolder,'003')
+    nframes = 13577;
+else
+    nframes = info.config.frames;
+end
+
 tic
 data = sbxread(fName,0,nframes);
-toc
+t = toc;
 % pmt = 1; %1 = green 2 = red
 % data = squeeze(data(pmt,:,:,:,:));
 data = squeeze(data);
