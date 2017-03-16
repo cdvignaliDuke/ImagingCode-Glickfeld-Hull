@@ -23,13 +23,13 @@ end
 cellsMaskCell = unique(cellmask);
 NP = ones(size(neuropil));
 for i = 1:(length(unique(cellmask))-1)
-    NP(:,:,i) = NP(:,:,i)*i;
+    NP(:,:,i) = neuropil(:,:,i)*i;
 end
 cellsNeuropil = unique(NP);
 
 missingcells = setdiff(cellsMaskCell,[0; cellsNeuropil]);
 
-if isempty(missingcells) == 0;
+if ~isempty(missingcells)
     tempmask = zeros(size(cellmask));
     for i = missingcells
         neuropil(:,:,i) = max(neuropil(:,:,cellsNeuropil),[],3);
