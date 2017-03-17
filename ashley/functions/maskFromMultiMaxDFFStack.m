@@ -27,6 +27,11 @@ for istim = 1:nstim
     
 end
 bwout_all = sum(bwout_dir,3);
+
+if length(unique(bwout_all(:))) > 2
+    error('you have overlap - AW should fix')
+end
+
 mask_cell = bwlabel(bwout_all);
 
 end
