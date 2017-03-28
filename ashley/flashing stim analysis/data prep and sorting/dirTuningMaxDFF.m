@@ -1,46 +1,55 @@
 %% some variables from mworks
-if iscell(input.nScansOn)
-    on = unique(cell2mat(input.nScansOn))./down;
-    off = unique(cell2mat(input.nScansOff))./down;
+if iscell(input_tun.nScansOn)
+    on = unique(cell2mat(input_tun.nScansOn))./down;
+    off = unique(cell2mat(input_tun.nScansOff))./down;
 else
-    on = input.nScansOn./down;
-    off = input.nScansOff./down; 
+    on = input_tun.nScansOn./down;
+    off = input_tun.nScansOff./down; 
 end
-off_starts = 1:off+on:size(data_reg,3);
-on_starts = off+1:off+on:size(data_reg,3);
+off_starts = 1:off+on:size(data_tun_reg,3);
+on_starts = off+1:off+on:size(data_tun_reg,3);
 
-tDir = cell2mat(input.tGratingDirectionDeg);
+tDir = cell2mat(input_tun.tGratingDirectionDeg);
 [tDir_ind dir] = findgroups(tDir);
 ntrials = length(tDir);
 nstim = length(dir);
 
-%% dF/F by trial
+%% data by trial
 
-if (off+on)*ntrials > nfr 
-    ntrials = floor(nfr./(off+on));
+if (off+on)*ntrials > nfr_tun 
+    ntrials = floor(nfr_tun./(off+on));
     [tDir_ind dir] = findgroups(tDir(1:ntrials));
-    data_reg = data_reg(:,:,1:((off+on).*ntrials));
-    data_tr = reshape(data_reg,ypix,xpix,off+on,ntrials);
-elseif (off+on)*ntrials < nfr
+    data_tun_reg = data_tun_reg(:,:,1:((off+on).*ntrials));
+    data_tr = reshape(data_tun_reg,ypix,xpix,off+on,ntrials);
+elseif (off+on)*ntrials < nfr_tun
     ntrials = length(tDir);
     [tDir_ind dir] = findgroups(tDir(1:ntrials));
-    data_reg = data_reg(:,:,1:((off+on).*ntrials));
-    data_tr = reshape(data_reg,ypix,xpix,off+on,ntrials);
+    data_tun_reg = data_tun_reg(:,:,1:((off+on).*ntrials));
+    data_tr = reshape(data_tun_reg,ypix,xpix,off+on,ntrials);
 else
-    data_tr = reshape(data_reg,ypix,xpix,off+on,ntrials);
+    data_tr = reshape(data_tun_reg,ypix,xpix,off+on,ntrials);
 end
 
-F = mean(data_tr(:,:,off-6:off,:),3);
-dF = bsxfun(@minus,data_tr,F);
-dFF = bsxfun(@rdivide,dF,F);
+clear data_tun_reg
+%% dF/F by trial
 
-maxDFF = max(squeeze(mean(dFF(:,:,off+1:off+on,:),3)),[],3);
+F = nanmean(data_tr(:,:,floor(off/2):off,:),3);
+dFF = bsxfun(@rdivide, bsxfun(@minus, data_tr, F), F);
 
-%% ******choose crop parameters*******
-figure;colormap gray; imagesc(maxDFF)
+dFF_dirmax = zeros(ypix,xpix,nstim);
+for istim = 1:nstim
+   dFF_dirmax(:,:,istim) = max(squeeze(nanmean(dFF(:,:,off+1:off+on,tDir_ind == istim),3)),[],3); 
+end
+clear F dFF
 
-% adjust maxDFF by percentage of median
-adj_low = 6.*median(maxDFF(:));
-maxDFF_adj = maxDFF;
-maxDFF_adj(maxDFF_adj > adj_low) = adj_low;
-figure;colormap gray; imagesc(maxDFF_adj)
+%% figure
+
+figure; setFigParams4Print('portrait')
+colormap gray
+imagesc(max(dFF_dirmax,[],3))
+title([mouse '-' expDate '-tun'])
+print(fullfile(fnout, 'max images',[mouse '_' expDate '_tun']),'-dpdf')
+writetiff(max(dFF_dirmax,[],3), fullfile(fnout,'max images',[mouse '_' expDate '_tun']))
+
+%% save max images,reg outs
+save(fullfile(fntun,'tun_max_images.mat'),'dFF_dirmax');

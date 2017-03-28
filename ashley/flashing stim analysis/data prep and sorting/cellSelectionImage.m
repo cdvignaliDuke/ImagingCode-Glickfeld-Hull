@@ -3,101 +3,74 @@ close all
 rc = behavConstsAV;
 awFSAVdatasets_V1
 
-%% direction tuning max dF/F needed?
-doDirMax = 0;
-
 %%
-for iexp = 3:size(expt,2);
-
+iexp = 20;
+    %%
+%% expt specs
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;
 dirFolder = expt(iexp).dirtuning;
-down = 10;
+% % % down = 10;
 
-%%
-if doDirMax
-    
-%% load direction tuning data
-expTime = expt(iexp).dirtuning_time;
-fName = [dirFolder '_000_000'];
+fnbx = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
+fntun = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,dirFolder);
 
-[input, data] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,dirFolder,fName);    
+%% load max images
+load(fullfile(fnbx,'bx_max_images.mat'))
+load(fullfile(fntun,'tun_max_images.mat'))
 
-fnout = fullfile(rc.ashleyAnalysis,mouse,expt(iexp).folder,expDate,dirFolder);
-
-if ~exist(fnout,'dir')
-    mkdir(fnout)
-end
-
-%% down sample and register data according to direction tuning data
-data_down = stackGroupProject(data,down);
-clear data
-
-data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
-data = data_sub;
-clear data_sub
-
-%*******CHOOSE REG IMG***************
-avg_ind_seed = 900;
-avg_ind_start = (avg_ind_seed:100:4*avg_ind_seed)';
-
-avg_ind = [avg_ind_start avg_ind_start+10];
-figure
-colormap gray
-for i = 1:4
-    subplot(2,2,i)
-    data_avg = mean(data(:,:,avg_ind(i,:)),3);
-    imagesq(data_avg);
-    title_str = num2str(avg_ind(i,:)');
-    title([title_str(1,:) '-' title_str(2,:)])
-end
-
-%%  select avg frames and register data, or load previously registered data;
-
-%register data
-avg_frames = 800:810;
-data_reg = regAndSaveData(data,avg_frames,fnout);
-
-
+tun_img = max(dFF_dirmax,[],3);
+bx_img = max(cat(3, start_max, long_max, tar_max),[],3);
 
 %% image specs
-xpix = size(data_reg,2);
-ypix = size(data_reg,1);
-nfr = size(data_reg,3);
-
-%% get max dF/F projection
-dirTuningMaxDFF
+xpix = size(tun_img,2);
+ypix = size(tun_img,1);
 
 %% ******choose crop parameters*******
+
+% tuning image
+figure;colormap gray; imagesc(tun_img)
+
 %**enter vals here***
-xcrop = [1:2 790:xpix];
+xcrop = [1:2 794:xpix];
 ycrop = [1:2 262:ypix];
 
-maxDFF_crop = maxDFF;
-maxDFF_crop(:,xcrop) = 0;
-maxDFF_crop(ycrop,:) = 0;
+tun_crop = tun_img;
+tun_crop(:,xcrop) = 0;
+tun_crop(ycrop,:) = 0;
 
-imagesc(maxDFF_crop)
+imagesc(tun_crop)
 
-%% get max dF/F for each direction
-dirTuningMaxDFF_stimSpecific
+% check if behavior image still needs cropping
+% tuning image
+figure;colormap gray; imagesc(bx_img)
 
-setFigParams4Print('landscape')
-figure;
-colormap gray
-for istim = 1:nstim
-   subplot(2,nstim/2,istim)
-   imagesc(dFF_dirmax(:,:,istim))
-   title([num2str(dir(istim)) ' deg'])
-end
+bx_crop = bx_img;
+bx_crop(:,xcrop) = 0;
+bx_crop(ycrop,:) = 0;
 
-print(fullfile(fnout,'dir_max_images_fig'),'-dpdf','-fillpage')
-save(fullfile(fnout,'dir_max_images.mat'),'dFF_dirmax')
+imagesc(bx_crop)
 
-end
-%% task driven activity images
+% % % if needs more crop, change vals here
+% % xcrop = [1:2 794:xpix];
+% % ycrop = [1:14 254:ypix];
+% % 
+% % bx_crop = bx_img;
+% % bx_crop(:,xcrop) = 0;
+% % bx_crop(ycrop,:) = 0;
+% % 
+% % imagesc(bx_crop)
 
-taskMaxDFF
+%% crop orig max images
+dir_crop = dFF_dirmax;
+dir_crop(:,xcrop,:) = 0;
+dir_crop(ycrop,:,:) = 0;
 
-end
+bx_crop = cat(3, start_max, long_max, tar_max);
+bx_crop(:,xcrop,:) = 0;
+bx_crop(ycrop,:,:) = 0;
+
+%% save cropped images
+save(fullfile(fnbx,'max_images_crop.mat'),'dir_crop', 'bx_crop','xcrop','ycrop');
+

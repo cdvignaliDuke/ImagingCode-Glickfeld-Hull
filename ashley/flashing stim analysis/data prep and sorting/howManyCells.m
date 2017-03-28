@@ -1,10 +1,6 @@
-clear all
-close all
+function ncells = howManyCells(rc,expt)
 
-rc = behavConstsAV;
-awFSAVdatasets_V1
-
-ncells = 0;
+n = zeros(1,size(expt,2));
 
 for iexp = 1:size(expt,2)
 
@@ -19,6 +15,9 @@ load(fnbx)
 
 nc = length(unique(mask_cell(:)))-1;
 
-ncells = ncells+nc;
+n(iexp) = nc;
 
+
+end
+ncells = n;
 end

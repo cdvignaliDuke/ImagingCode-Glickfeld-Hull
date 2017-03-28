@@ -15,7 +15,7 @@ for istim = 1:nstim
         prev_mask = bwout_dir(:,:,istim-1); % set each previous cell == 0
         img_temp(prev_mask > 0) = 0;
         
-        b = sum(imCellBuffer(prev_mask,1),3); % set 1 pixel buffer zone around each cell == 0
+        b = sum(imCellBuffer(prev_mask,3),3); % set 3 pixel buffer zone around each cell == 0
         img_temp(b > 0) = 0;
         
         bwout = imCellEditInteractive(img_temp); % select cells
@@ -26,10 +26,10 @@ for istim = 1:nstim
     end
     
 end
-bwout_all = sum(bwout_dir,3);
+bwout_all = bwout_dir(:,:,nstim);
 
 if length(unique(bwout_all(:))) > 2
-    error('you have overlap - AW should fix')
+    error('you have overlap - set to zero')
 end
 
 mask_cell = bwlabel(bwout_all);
