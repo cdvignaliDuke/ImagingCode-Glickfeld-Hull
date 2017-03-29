@@ -91,10 +91,10 @@ if strcmp(datasetStr,'_naive100ms') | strcmp(datasetStr,'_naive100ms_virus')
     avgCellRespHeatMap_Val_Inv
 else
     
-    %%
-    if cellsInd == 13 | cellsInd == 14
-    rocTargetEnhance
-    end
+%     %%
+%     if cellsInd == 14
+%     rocTargetEnhance
+%     end
     %%
 scatFAvsH = figure; %oucomes 1h 5fa
 scatCRvsM = figure;%oucomes 4m 9cr
@@ -174,8 +174,18 @@ for imouse  = 1:size(mouse,2)
             end
         % find number of each trial outcome type
             cdirs = mouse(imouse).expt(iexp).info.cDirs;
+            ckL = cell2mat(cellfun(@length,cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp,'unif',false),'unif',false));
+            if all(ckL == 3)
             sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp,'unif',false)),3,length(cdirs));
             nDirs_h = sz(3,:);
+            else
+                ind = find(ckL < 3);
+                ind2 = find(ckL == 3);
+                [j ind3] = sort([ind ind2]);
+                sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp(ind2),'unif',false)),3,length(cdirs)-length(ind));
+                nT = [ones(1,length(ind)) sz(3,:)];
+                nDirs_h = nT(ind3);
+            end
             ckL = cell2mat(cellfun(@length,cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).stimResp,'unif',false),'unif',false));
             if all(ckL == 3)
             sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).stimResp,'unif',false)),3,length(cdirs));
@@ -765,9 +775,13 @@ for imouse  = 1:size(mouse,2)
     end
 end
 %%
-depOnPrevTrialType_catchTrials
+% depOnPrevTrialType_catchTrials
+%% target modulation index
+modIndex_val_inv
 %% target response heatmaps
-avgCellRespHeatMap_Val_Inv
+if cellsInd == 13 | cellsInd == 14
+    avgCellRespHeatMap_Val_Inv
+end
 
 %% set params for figures
 set(0,'defaultfigurepaperorientation','portrait');
@@ -1407,48 +1421,48 @@ for imouse  = 1:size(mouse,2)
     end
 end
 
-%plot tc
-trialLength_tarTC = figure;
-subplot(3,2,1)
-plot(ttMs,nanmean(rVal_short,2),'k')
-hold on
-plot(ttMs,nanmean(rInv_short,2),'c')
-hold on
-xlabel('time (ms)')
-ylabel('dF/F')
-xlim([-10 20]/(cycTime/cycTimeMs))
-ylim([-0.01 0.05])
-vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs),'--r')
-hold on
-vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
-title('trials < 1.5s; 90deg hits')
-
-subplot(3,2,2)
-plot(ttMs,nanmean(rVal_long,2),'k')
-hold on
-plot(ttMs,nanmean(rInv_long,2),'c')
-hold on
-xlabel('time (ms)')
-ylabel('dF/F')
-xlim([-10 20]/(cycTime/cycTimeMs))
-ylim([-0.01 0.05])
-vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs),'--r')
-hold on
-vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
-title('trials > 1.5s')
-
-subplot(3,2,3)
-r = mean(nanmean(rVal_short(trans_win,:),2),1)-mean(nanmean(rVal_short(pre_win,:),2),1);
-plot(mean(Lshort),r,'ko')
-hold on
-r = mean(nanmean(rInv_short(trans_win,:),2),1)-mean(nanmean(rInv_short(pre_win,:),2),1);
-plot(mean(Lshort),r,'co')
-hold on
-r = mean(nanmean(rVal_long(trans_win,:),2),1)-mean(nanmean(rVal_long(pre_win,:),2),1);
-plot(mean(Llong),r,'ko')
-hold on
-r = mean(nanmean(rInv_long(trans_win,:),2),1)-mean(nanmean(rInv_long(pre_win,:),2),1);
-plot(mean(Llong),r,'co')
+% % % %plot tc
+% % % trialLength_tarTC = figure;
+% % % subplot(3,2,1)
+% % % plot(ttMs,nanmean(rVal_short,2),'k')
+% % % hold on
+% % % plot(ttMs,nanmean(rInv_short,2),'c')
+% % % hold on
+% % % xlabel('time (ms)')
+% % % ylabel('dF/F')
+% % % xlim([-10 20]/(cycTime/cycTimeMs))
+% % % ylim([-0.01 0.05])
+% % % vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs),'--r')
+% % % hold on
+% % % vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
+% % % title('trials < 1.5s; 90deg hits')
+% % % 
+% % % subplot(3,2,2)
+% % % plot(ttMs,nanmean(rVal_long,2),'k')
+% % % hold on
+% % % plot(ttMs,nanmean(rInv_long,2),'c')
+% % % hold on
+% % % xlabel('time (ms)')
+% % % ylabel('dF/F')
+% % % xlim([-10 20]/(cycTime/cycTimeMs))
+% % % ylim([-0.01 0.05])
+% % % vline([trans_win(1)-pre_event_frames trans_win(end)-pre_event_frames]/(cycTime/cycTimeMs),'--r')
+% % % hold on
+% % % vline([pre_win(1)-pre_event_frames pre_win(end)-pre_event_frames]/(cycTime/cycTimeMs), '--k')
+% % % title('trials > 1.5s')
+% % % 
+% % % subplot(3,2,3)
+% % % r = mean(nanmean(rVal_short(trans_win,:),2),1)-mean(nanmean(rVal_short(pre_win,:),2),1);
+% % % plot(mean(Lshort),r,'ko')
+% % % hold on
+% % % r = mean(nanmean(rInv_short(trans_win,:),2),1)-mean(nanmean(rInv_short(pre_win,:),2),1);
+% % % plot(mean(Lshort),r,'co')
+% % % hold on
+% % % r = mean(nanmean(rVal_long(trans_win,:),2),1)-mean(nanmean(rVal_long(pre_win,:),2),1);
+% % % plot(mean(Llong),r,'ko')
+% % % hold on
+% % % r = mean(nanmean(rInv_long(trans_win,:),2),1)-mean(nanmean(rInv_long(pre_win,:),2),1);
+% % % plot(mean(Llong),r,'co')
 
 
 %% 

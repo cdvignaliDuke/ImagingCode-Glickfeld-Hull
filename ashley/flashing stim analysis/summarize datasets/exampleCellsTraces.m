@@ -1,15 +1,15 @@
-ms = 'AW66';
-sn = '666';
-t = '1239';
-dt = '160812';
-dirtuning = '005';
-rettuning = '004';
-imouse = 4;
-iexp = 1;
-cell_excAnt = 26;
+ms = 'AW68';
+sn = '668';
+t = '';
+dt = '161031';
+dirtuning = '006';
+rettuning = '007';
+imouse = 6;
+iexp = 2;
+cell_excAnt = 4;%10 59 72,76,88,95
 cell_inhAnt = 11;
-cell_excTar = 22;
-cell_nr = 7;
+cell_excTar = 13;%4,13,18,20,33,34,38,46,54,86
+cell_nr = 1;
 cell_mat = [cell_excAnt cell_inhAnt cell_excTar cell_nr];
 cellType_str = {'Exc - Ant';'Inh - Ant';'Exc - Tar';'NR'};
 taskPart_str = {'Trial Start';'Anticipation';'Target';'dir tuning, DG';'ret tuning, DG'};
@@ -22,7 +22,7 @@ hits = 1;
 misses = 2;
 n = 4;
 n2 = 4;
-
+%%
 close all
 av = behavParamsAV;
 dataGroup = ['awFSAVdatasets' datasetStr];
@@ -46,7 +46,7 @@ post_event_frames = mouse(1).expt(1).post_event_frames;
 cycTime = mouse(1).expt(1).info(1).cyc_time;
 cycTimeMs = mouse(1).expt(1).info(1).cyc_time_ms;
 
-fnout = fullfile(rc.caOutputDir, dataGroup, [date '_' mouse_str]); %% maybe lose mouse_str
+fnout = fullfile(rc.caOutputDir, dataGroup, [date '_' ms '_' dt '_']); 
 
 
 %% set params for figures
@@ -211,19 +211,6 @@ cellTarResp = [];
 dirLegend = [];
 for icell = 1:length(cell_mat)
    subplot(n,n2,iCellSubplotXpos(icell))
-%    for idir = 1:length(exptDirs)
-%        if idir == 1
-%            dirCol = [0 0 0];
-%        else
-%            dirCol = colorsT(idir,:);
-%        end
-%        tRespTC = squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{idir}(:,cell_mat(icell),:),3));
-%        preWinResp = mean(tRespTC(pre_win));
-%        tRespTC = tRespTC-preWinResp;
-%    cellTarResp(idir) = plot(ttMs,tRespTC,'color',dirCol);
-%    dirLegend{idir} = num2str(exptDirs(idir));
-%    hold on
-%    end
    
    tRespTC = squeeze(mean(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{length(exptDirs)}(:,cell_mat(icell),:),3));
    tRespTC_err = squeeze(std(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{length(exptDirs)}(:,cell_mat(icell),:),[],3))/sqrt(size(mouse(imouse).expt(iexp).align(targetAlign).av(1).outcome(1).stimResp{length(exptDirs)}(:,cell_mat(icell),:),3));
@@ -312,52 +299,61 @@ figure(exampleCellsFig)
 print([fnout 'exampleCells' datasetStr '.pdf'], '-dpdf')
 figure(exCellsFig2)
 print([fnout 'exampleCells_acrossTrialTypes' datasetStr '.pdf'], '-dpdf')
-% %% imaging FOV with cell masks
-% load(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'mask&TCDir.mat'));
-% maxDFoverF = readtiff(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'maxDFoverF.tif'));
-% F = readtiff(fullfile(fn,'Fimg.tif'));
+%% imaging FOV with cell masks
+fnin = fullfile(rc.ashleyAnalysis,ms,expt(iexp).folder,dt);
+load(fullfile(fnin,'max_images_crop.mat'))    
+load(fullfile(fnin,'final_mask.mat')) 
+
+maxDFoverF = max(cat(3,bx_crop,dir_crop),[],3);   
+
+% % % % % 
+% % % % % load(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'mask&TCDir.mat'));
+% % % % % maxDFoverF = readtiff(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'maxDFoverF.tif'));
+% % % % % % F = readtiff(fullfile(fn,'Fimg.tif'));
 sb_calib_x = 555.23/size(maxDFoverF,2); %um per pixel
 sb_calib_y = 233.56/size(maxDFoverF,1);
-% 
-% umL50 = ceil(50/sb_calib_x);
-% umW5 = ceil(5/sb_calib_y);
-% 
-% crop_x_ind = 50:size(maxDFoverF,2)-50;
-% crop_y_ind = 50:size(maxDFoverF,1)-50;
-% 
-% maxDFoverF_crop = double(maxDFoverF(crop_y_ind,crop_x_ind));
-% F_crop = double(F(crop_y_ind,crop_x_ind));
-% 
-% writetiff(maxDFoverF_crop,[fnout 'exampleCellsIMG' datasetStr]);
-% writetiff(F_crop,[fnout 'exampleCellsIMG_F' datasetStr]);
-% 
-% sb_x_ind = 300:300+umL50;
-% sb_y_ind = 150:150+umW5;
-% 
-% img_sb = zeros(size(maxDFoverF_crop));
-% img_sb(sb_y_ind,sb_x_ind) = 1;
-% writetiff(img_sb,[fnout 'exampleCellsIMGsb' datasetStr])
-% 
-% 
-% figure;
-% imagesc(img_sb)
-% colormap gray
-% 
-% cellMap = zeros(size(maxDFoverF,1),size(maxDFoverF,2),length(cell_mat));
-% for icell = 1:length(cell_mat)
-%     c = reshape(ismember(mask_cell(:),cell_mat(icell)),size(mask_cell));
-%     c(c == 1) = cell_mat(icell);
-%     cellMap(:,:,icell) = c;
-% end
-% cellMap_crop = cellMap(crop_y_ind,crop_x_ind,:);
-% writetiff(cellMap_crop,[fnout 'exampleCellsIMGcellmask' datasetStr]);
-% 
-% 
-% figure;
-% for icell = 1:length(cell_mat)
-%     figure;
-%     imagesc(cellMap{icell})
-% end
+
+umL50 = ceil(50/sb_calib_x);
+umW5 = ceil(5/sb_calib_y);
+
+% % crop_x_ind = 50:size(maxDFoverF,2)-50;
+% % crop_y_ind = 50:size(maxDFoverF,1)-50;
+% % 
+% % maxDFoverF_crop = double(maxDFoverF(crop_y_ind,crop_x_ind));
+% % F_crop = double(F(crop_y_ind,crop_x_ind));
+
+% % writetiff(maxDFoverF_crop,[fnout 'exampleCellsIMG' datasetStr]);
+% % writetiff(F_crop,[fnout 'exampleCellsIMG_F' datasetStr]);
+
+sb_x_ind = 500:500+umL50;
+sb_y_ind = 220:220+umW5;
+
+img_sb = zeros(size(maxDFoverF));
+img_sb(sb_y_ind,sb_x_ind) = 1;
+figure;colormap gray
+imagesc(img_sb)
+
+writetiff(img_sb,[fnout 'exampleCellsIMGsb'])
+writetiff(maxDFoverF,[fnout,'exampleCellsIMG'])
+
+
+
+cellMap = zeros(size(maxDFoverF,1),size(maxDFoverF,2),length(cell_mat));
+for icell = 1:length(cell_mat)
+    c = reshape(ismember(mask_cell(:),cell_mat(icell)),size(mask_cell));
+    c(c == 1) = cell_mat(icell);
+    cellMap(:,:,icell) = c;
+end
+% % cellMap_crop = cellMap(crop_y_ind,crop_x_ind,:);
+
+writetiff(cellMap,[fnout 'exampleCellsIMGcellmask' datasetStr]);
+
+
+figure;
+for icell = 1:length(cell_mat)
+    figure;
+    imagesc(cellMap(:,:,icell))
+end
 
 
 

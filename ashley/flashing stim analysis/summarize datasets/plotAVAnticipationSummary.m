@@ -3,7 +3,7 @@ function plotAVAnticipationSummary(datasetStr,cellsInd,cellsOnly)
 % of task
 close all
 respCellsInd = 14;
-av = behavParamsAV_naive;
+% av = behavParamsAV_naive;
 eval(['awFSAVdatasets' datasetStr])
 titleStr = datasetStr;
 if strcmp(titleStr, '')
@@ -19,9 +19,9 @@ else
     dataGroup = [];
 end
 str = unique({expt.SubNum});
-values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
+% values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
-mouse_ind = find(intersect(cell2mat({av.mouse}),values));
+% mouse_ind = find(intersect(cell2mat({av.mouse}),values));
 if cellsOnly == 1
 load(fullfile(rc.caOutputDir,dataGroup, [mouse_str '_CaSummary_cells' datasetStr '.mat']));
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
@@ -71,11 +71,11 @@ baseStimFrames = 0:cycTime:minTrialLengthFrames-1;
 
 %%
 antiRespAllCyc
-if ~strcmp(datasetStr,'_V1')
+% if ~strcmp(datasetStr,'_V1') 
 antiRespEarlyLateQuant
-end
+% end
 %%
-% depOnPrevTrialType
+depOnPrevTrialType
 
 %%
 
@@ -681,306 +681,306 @@ print([fnout 'press_align_stds_CD' datasetStr '.pdf'], '-dpdf')
 %     end
 % end
 
-%% plot scatter of integral for each experiment, across experiments;
-antiRespScatters
-
-resp_vis = [];
-resp_aud = [];
-resp_vis_early = [];
-resp_aud_early = [];
-resp_vis_late = [];
-resp_aud_late = [];
-intAvsVFig = figure;
-suptitle(titleStr)
-i = 1;
-
-for imouse = 1:size(mouse,2)
-    resp_vis_mouse{imouse} = [];
-    resp_aud_mouse{imouse} = [];
-    for iexp = 1:size(mouse(imouse).expt,2)
-        figure(intAvsVFig);
-        subplot(n,n2,i)
-        i = i+1;
-        cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-        cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
-        iV = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(pre_event_frames:end,cell_ind,:)),3));
-        iA = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvResp(pre_event_frames:end,cell_ind,:)),3));
-        % add STE color axis here
-        scatter(iV,iA,50,'k.');
-        hold on
-        errorbarxy(mean(iV),mean(iA),std(iV)/length(iV),std(iA)/length(iA),{'ro','r','r'});
-%         xlim([floor(min([iV iA]))-(floor(min([iV iA]))/2) ceil(max([iV iA]))+(ceil(max([iV iA]))/2)]);
-%         ylim([floor(min([iV iA]))-(floor(min([iV iA]))/2) ceil(max([iV iA]))+(ceil(max([iV iA]))/2)]);
-            xlim([-5 15])
-            ylim([-5 15])
-%         
-        hold on
-        plot([-10:0.1:20],[-10:0.1:20],'k--')
-        axis square
-        xlabel('Vis Tr Resp')
-        ylabel('Aud Tr Resp')
-        
-        resp_vis = cat(2, resp_vis, iV);
-        resp_aud = cat(2, resp_aud, iA);
-        
-        resp_vis_mouse{imouse} = cat(2,resp_vis_mouse{imouse}, iV);
-        resp_aud_mouse{imouse} = cat(2,resp_aud_mouse{imouse}, iA);
-
-        title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells']})
-    end
-end
-
-subplot(n,n2,i)
-scatter(resp_vis,resp_aud,50,'k.')
-hold on
-errorbarxy(mean(resp_vis),mean(resp_aud),std(resp_vis)/length(resp_vis),std(resp_aud)/length(resp_aud),{'ro','r','r'})
-hold on
-for imouse = 1:size(mouse,2)
-   errorbarxy(mean(resp_vis_mouse{imouse}),mean(resp_aud_mouse{imouse}),std(resp_vis_mouse{imouse})/length(resp_vis_mouse{imouse}),std(resp_aud_mouse{imouse})/length(resp_vis_mouse{imouse}), {[av(mouse_ind(imouse)).col_str 'o'],av(mouse_ind(imouse)).col_str,av(mouse_ind(imouse)).col_str});
-   hold on
-   mouse_mean(imouse) = scatter(mean(resp_vis_mouse{imouse}),mean(resp_aud_mouse{imouse}),av(mouse_ind(imouse)).col_str,'o', 'filled');
-   %    mouseLegend{imouse} = str{imouse};
-   hold on
-end
-legend(mouse_mean,str,'Location','southeast')
-% xlim([floor(min([resp_vis resp_aud]))-(floor(min([resp_vis resp_aud]))/2) ceil(max([resp_vis resp_aud]))+(ceil(max([resp_vis resp_aud]))/2)]);
-% ylim([floor(min([resp_vis resp_aud]))-(floor(min([resp_vis resp_aud]))/2) ceil(max([resp_vis resp_aud]))+(ceil(max([resp_vis resp_aud]))/2)]);
-xlim([-5 15])
-ylim([-5 15])
-hold on
-plot([-10:0.1:20],[-10:0.1:20],'k--')
-axis square
-xlabel('Vis Tr Resp')
-ylabel('Aud Tr Resp')
-
-resp_vis_all_int = resp_vis;
-resp_aud_all_int = resp_aud;
-
-title(['All cells; n = ' num2str(size(resp_vis,2))])
-
-figure(intAvsVFig);
-print([fnout 'press_align_int' datasetStr '.pdf'], '-dpdf')
-
-%% individual int scatter of all cells with mean
-figure;
-subplot(3,2,1)
-scatter(resp_vis,resp_aud,100,'k.');
-hold on
-H = errorbarxy(mean(resp_vis),mean(resp_aud),std(resp_vis)/length(resp_vis),std(resp_aud)/sqrt(length(resp_aud)),{'r.','r','r'});
-H.hMain.MarkerSize = 20;
-hold on
-xlim([-5 15])
-ylim([-5 15])
-hold on
-plot([-10:0.1:20],[-10:0.1:20],'k--')
-axis square
-xlabel('Vis Tr Resp')
-ylabel('Aud Tr Resp')
-print([fnout 'press_align_int_all' datasetStr '.pdf'], '-dpdf')
-
-%% plot scatter of integral for each experiment, across experiments; ORI SELECT LABELLED 
-int_vis_ori = cell([1,4]);
-int_aud_ori = cell([1,4]);
-resp_vis_ori = cell([1,4]);
-resp_aud_ori = cell([1,4]);
-std_vis_ori = cell([1,4]);
-std_aud_ori = cell([1,4]);
-intAvsVFig_ori = figure;
-suptitle(titleStr)
-i = 1;
-oriColMat = ['k';'g';'b';'r'];
-
-for imouse = 1:size(mouse,2)
-%     resp_vis_mouse{imouse} = [];
-%     resp_aud_mouse{imouse} = [];
-    for iexp = 1:size(mouse(imouse).expt,2)
-        figure(intAvsVFig_ori);
-        subplot(n,n2,i)
-        i = i+1;
-        cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
-        cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
-        for iori = 1:4
-            ori_ind = intersect(mouse(imouse).expt(iexp).cells(iori+1).ind,cell_ind);
-            iV = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(pre_event_frames:end,ori_ind,:)),3));
-            iA = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvResp(pre_event_frames:end,ori_ind,:)),3));
-            tcV = mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(:,ori_ind,:),3);
-            tcA = mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvResp(:,ori_ind,:),3);
-            % add STE color axis here
-            scatter(iV,iA,50,[oriColMat(iori) '.']);
-            hold on
-%             errorbarxy(mean(iV),mean(iA),std(iV)/length(iV),std(iA)/length(iA),{[oriColMat(iori) 'o'],oriColMat(iori),oriColMat(iori)});
-            oriMean(iori) = scatter(mean(iV),mean(iA),oriColMat(iori),'o','filled');
-            if length([iV iA]) > 0;
-%             xlim([floor(min([iV iA]))-(floor(min([iV iA]))/2) ceil(max([iV iA]))+(ceil(max([iV iA]))/2)]);
-%             ylim([floor(min([iV iA]))-(floor(min([iV iA]))/2) ceil(max([iV iA]))+(ceil(max([iV iA]))/2)]);
-            xlim([-5 15])
-            ylim([-5 15])
-            end
-            hold on
-            plot([-10:0.1:20],[-10:0.1:20],'k--')
-            axis square
-            xlabel('Vis Tr Resp')
-            ylabel('Aud Tr Resp')
-            
-            
-            int_vis_ori{iori} = cat(2, int_vis_ori{iori}, iV);
-            int_aud_ori{iori} = cat(2, int_aud_ori{iori}, iA);
-            resp_vis_ori{iori} = cat(2, resp_vis_ori{iori}, tcV);
-            resp_aud_ori{iori} = cat(2, resp_aud_ori{iori}, tcA);
-        end
-
-        title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells']})
-    end
-end
-
-std_vis_ori = cellfun(@(x) std(x,[],2),resp_vis_ori,'unif',false);
-std_aud_ori = cellfun(@(x) std(x,[],2),resp_aud_ori,'unif',false);
-
-subplot(n,n2,i)
-% hold on
-% errorbarxy(mean(resp_vis_ori),mean(resp_aud_ori),std(resp_vis_ori)/length(resp_vis_ori),std(resp_aud_ori)/length(resp_aud_ori),{'ro','r','r'})
-% hold on
-oriLegend = {'0','45','90','135'};
-for iori = 1:4
-    scatter(int_vis_ori{iori},int_aud_ori{iori},50,oriColMat(iori),'.')
-    hold on
-    errorbarxy(mean(int_vis_ori{iori}),mean(int_aud_ori{iori}),std(int_vis_ori{iori})/length(int_vis_ori{iori}),std(int_aud_ori{iori})/length(int_aud_ori{iori}), {[oriColMat(iori) 'o'],oriColMat(iori),oriColMat(iori)});
-    hold on
-    ori_mean(iori) = scatter(mean(int_vis_ori{iori}),mean(int_aud_ori{iori}),oriColMat(iori),'o', 'filled');
-    hold on
-end
-legend(ori_mean,oriLegend,'Location','southeast')
-% xlim([floor(min([resp_vis_ori resp_aud_ori]))-(floor(min([resp_vis_ori resp_aud_ori]))/2) ceil(max([resp_vis_ori resp_aud_ori]))+(ceil(max([resp_vis_ori resp_aud_ori]))/2)]);
-% ylim([floor(min([resp_vis_ori resp_aud_ori]))-(floor(min([resp_vis_ori resp_aud_ori]))/2) ceil(max([resp_vis_ori resp_aud_ori]))+(ceil(max([resp_vis_ori resp_aud_ori]))/2)]);
-xlim([-5 15])
-ylim([-5 15])
-hold on
-plot([-10:0.1:20],[-10:0.1:20],'k--')
-axis square
-xlabel('Vis Tr Resp')
-ylabel('Aud Tr Resp')
-
-title(['All cells; n = ' num2str(size(int_vis_ori,2))])
-
-%cdf plot of tuned cell respones
-
-respAvsVori = figure;
-oriLegend = {'0','45','90','135'};
-subplot(3,2,2)
-hV = [];
-hA = [];
-for iori = 1:4
-    if ~isempty(int_vis_ori{iori})
-    hV= cdfplot(int_vis_ori{iori});
-    hV.Color = oriColMat(iori);
-    hV.LineStyle = '-';
-    hold on
-    hA = cdfplot(int_aud_ori{iori});
-    hA.Color = oriColMat(iori)
-    hA.LineStyle = '--';
-    hold on
-    end
-end
-xlabel('dF/F')
-ylabel('fraction cells')
-title('integral response - ori selective cells')
-% legend(oriLegend)
-print([fnout 'press_align_intOri_cdf' datasetStr '.pdf'], '-dpdf')
-
-figure;
-suptitle({titleStr; 'std timecourse'})
-for iori = 1:4
-    subplot(3,2,iori)
-    plot(ttMs,std_vis_ori{iori},'g')
-    hold on
-    plot(ttMs,std_aud_ori{iori},'k')
-    hold on
-    xlim([-300 minTrialLengthFrames/(cycTime/cycTimeMs)])
-    ylim([-0.01 0.05]);
-    vline(baseStimFrames/(cycTime/cycTimeMs),':k')
-    title([oriStr(iori) ' slctv cells; n = ' num2str(size(std_vis_ori{iori},2))])
-    xlabel('ms')
-    ylabel('std - dF/F')
-end
-
-print([fnout 'press_align_stdTCbyOri' datasetStr '.pdf'], '-dpdf')
-
-
-figure;
-for iori = 1:4
-    scatter(int_vis_ori{iori},int_aud_ori{iori},50,oriColMat(iori),'.')
-    hold on
-    errorbarxy(mean(int_vis_ori{iori}),mean(int_aud_ori{iori}),std(int_vis_ori{iori})/length(int_vis_ori{iori}),std(int_aud_ori{iori})/length(int_aud_ori{iori}), {[oriColMat(iori) 'o'],oriColMat(iori),oriColMat(iori)});
-    hold on
-    ori_mean(iori) = scatter(mean(int_vis_ori{iori}),mean(int_aud_ori{iori}),oriColMat(iori),'o', 'filled');
-    hold on
-end
-legend(ori_mean,oriLegend,'Location','southeast')
-% xlim([floor(min([resp_vis_ori resp_aud_ori]))-(floor(min([resp_vis_ori resp_aud_ori]))/2) ceil(max([resp_vis_ori resp_aud_ori]))+(ceil(max([resp_vis_ori resp_aud_ori]))/2)]);
-% ylim([floor(min([resp_vis_ori resp_aud_ori]))-(floor(min([resp_vis_ori resp_aud_ori]))/2) ceil(max([resp_vis_ori resp_aud_ori]))+(ceil(max([resp_vis_ori resp_aud_ori]))/2)]);
-xlim([-5 10])
-ylim([-5 10])
-hold on
-plot([-10:0.1:20],[-10:0.1:20],'k--')
-axis square
-xlabel('Vis Tr Resp')
-ylabel('Aud Tr Resp')
-title(['All cells; n = ' num2str(size(int_vis_ori,1))])
-print([fnout 'press_align_intOriall' datasetStr '.pdf'], '-dpdf')
-
-figure(intAvsVFig_ori);
-print([fnout 'press_align_intOri' datasetStr '.pdf'], '-dpdf')
-
-
-figure;
-for iori = 1:4
-    subplot(3,2,iori)
-    if sum(~isnan(int_vis_ori{iori})) > 4
-        hV = cdfplot(int_vis_ori{iori});
-        hV.Color = 'g';
-        hold on
-        hA = cdfplot(int_aud_ori{iori});
-        hA.Color = 'k';
-        [h,p] = kstest2(int_vis_ori{iori},int_aud_ori{iori});
-    else
-        p = NaN
-    end
-    title([mouse(imouse).expt(iexp).cells(iori+1).name ' cells; n = ' num2str(sum(cell2mat(cellfun(@length,int_vis_ori,'unif',false)))) '; p = ' num2str(chop(p,2))])
-    xlabel('dF/F')
-end
-resp_vis_all = cell2mat(int_vis_ori);
-resp_aud_all = cell2mat(int_aud_ori);
-subplot(3,2,5)
-if sum(~isnan(resp_vis_all)) > 4
-    hV = cdfplot(resp_vis_all);
-    hV.Color = 'g';
-    hold on
-    hA = cdfplot(resp_aud_all);
-    hA.Color = 'k';
-    [h,p] = kstest2(resp_vis_all,resp_aud_all);
-    else
-        p = NaN;
-end
-    title(['all tuned cells; n= ' num2str(length(resp_vis_all)) '; p=' num2str(p)])
-    xlabel('dF/F')
-    subplot(3,2,6)
-if sum(~isnan(resp_vis_all_int)) > 4
-    hV = cdfplot(resp_vis_all_int);
-    hV.Color = 'g';
-    hold on
-    hA = cdfplot(resp_aud_all_int);
-    hA.Color = 'k';
-    [h,p] = kstest2(resp_vis_all_int,resp_aud_all_int);
-    else
-        p = NaN;
-end
-    title(['all resp cells; n= ' num2str(length(resp_vis_all_int)) '; p=' num2str(p)])
-    xlabel('dF/F')
-suptitle([titleStr '- Vis:Green, Aud:Black'])
-
-
-print([fnout 'press_align_intOri_CD' datasetStr '.pdf'], '-dpdf')
-
+% % %% plot scatter of integral for each experiment, across experiments;
+% % antiRespScatters
+% % 
+% % resp_vis = [];
+% % resp_aud = [];
+% % resp_vis_early = [];
+% % resp_aud_early = [];
+% % resp_vis_late = [];
+% % resp_aud_late = [];
+% % intAvsVFig = figure;
+% % suptitle(titleStr)
+% % i = 1;
+% % 
+% % for imouse = 1:size(mouse,2)
+% %     resp_vis_mouse{imouse} = [];
+% %     resp_aud_mouse{imouse} = [];
+% %     for iexp = 1:size(mouse(imouse).expt,2)
+% %         figure(intAvsVFig);
+% %         subplot(n,n2,i)
+% %         i = i+1;
+% %         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
+% %         cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
+% %         iV = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(pre_event_frames:end,cell_ind,:)),3));
+% %         iA = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvResp(pre_event_frames:end,cell_ind,:)),3));
+% %         % add STE color axis here
+% %         scatter(iV,iA,50,'k.');
+% %         hold on
+% %         errorbarxy(mean(iV),mean(iA),std(iV)/length(iV),std(iA)/length(iA),{'ro','r','r'});
+% % %         xlim([floor(min([iV iA]))-(floor(min([iV iA]))/2) ceil(max([iV iA]))+(ceil(max([iV iA]))/2)]);
+% % %         ylim([floor(min([iV iA]))-(floor(min([iV iA]))/2) ceil(max([iV iA]))+(ceil(max([iV iA]))/2)]);
+% %             xlim([-5 15])
+% %             ylim([-5 15])
+% % %         
+% %         hold on
+% %         plot([-10:0.1:20],[-10:0.1:20],'k--')
+% %         axis square
+% %         xlabel('Vis Tr Resp')
+% %         ylabel('Aud Tr Resp')
+% %         
+% %         resp_vis = cat(2, resp_vis, iV);
+% %         resp_aud = cat(2, resp_aud, iA);
+% %         
+% %         resp_vis_mouse{imouse} = cat(2,resp_vis_mouse{imouse}, iV);
+% %         resp_aud_mouse{imouse} = cat(2,resp_aud_mouse{imouse}, iA);
+% % 
+% %         title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells']})
+% %     end
+% % end
+% % 
+% % subplot(n,n2,i)
+% % scatter(resp_vis,resp_aud,50,'k.')
+% % hold on
+% % errorbarxy(mean(resp_vis),mean(resp_aud),std(resp_vis)/length(resp_vis),std(resp_aud)/length(resp_aud),{'ro','r','r'})
+% % hold on
+% % for imouse = 1:size(mouse,2)
+% %    errorbarxy(mean(resp_vis_mouse{imouse}),mean(resp_aud_mouse{imouse}),std(resp_vis_mouse{imouse})/length(resp_vis_mouse{imouse}),std(resp_aud_mouse{imouse})/length(resp_vis_mouse{imouse}), {[av(mouse_ind(imouse)).col_str 'o'],av(mouse_ind(imouse)).col_str,av(mouse_ind(imouse)).col_str});
+% %    hold on
+% %    mouse_mean(imouse) = scatter(mean(resp_vis_mouse{imouse}),mean(resp_aud_mouse{imouse}),av(mouse_ind(imouse)).col_str,'o', 'filled');
+% %    %    mouseLegend{imouse} = str{imouse};
+% %    hold on
+% % end
+% % legend(mouse_mean,str,'Location','southeast')
+% % % xlim([floor(min([resp_vis resp_aud]))-(floor(min([resp_vis resp_aud]))/2) ceil(max([resp_vis resp_aud]))+(ceil(max([resp_vis resp_aud]))/2)]);
+% % % ylim([floor(min([resp_vis resp_aud]))-(floor(min([resp_vis resp_aud]))/2) ceil(max([resp_vis resp_aud]))+(ceil(max([resp_vis resp_aud]))/2)]);
+% % xlim([-5 15])
+% % ylim([-5 15])
+% % hold on
+% % plot([-10:0.1:20],[-10:0.1:20],'k--')
+% % axis square
+% % xlabel('Vis Tr Resp')
+% % ylabel('Aud Tr Resp')
+% % 
+% % resp_vis_all_int = resp_vis;
+% % resp_aud_all_int = resp_aud;
+% % 
+% % title(['All cells; n = ' num2str(size(resp_vis,2))])
+% % 
+% % figure(intAvsVFig);
+% % print([fnout 'press_align_int' datasetStr '.pdf'], '-dpdf')
+% % 
+% % %% individual int scatter of all cells with mean
+% % figure;
+% % subplot(3,2,1)
+% % scatter(resp_vis,resp_aud,100,'k.');
+% % hold on
+% % H = errorbarxy(mean(resp_vis),mean(resp_aud),std(resp_vis)/length(resp_vis),std(resp_aud)/sqrt(length(resp_aud)),{'r.','r','r'});
+% % H.hMain.MarkerSize = 20;
+% % hold on
+% % xlim([-5 15])
+% % ylim([-5 15])
+% % hold on
+% % plot([-10:0.1:20],[-10:0.1:20],'k--')
+% % axis square
+% % xlabel('Vis Tr Resp')
+% % ylabel('Aud Tr Resp')
+% % print([fnout 'press_align_int_all' datasetStr '.pdf'], '-dpdf')
+% % 
+% % %% plot scatter of integral for each experiment, across experiments; ORI SELECT LABELLED 
+% % int_vis_ori = cell([1,4]);
+% % int_aud_ori = cell([1,4]);
+% % resp_vis_ori = cell([1,4]);
+% % resp_aud_ori = cell([1,4]);
+% % std_vis_ori = cell([1,4]);
+% % std_aud_ori = cell([1,4]);
+% % intAvsVFig_ori = figure;
+% % suptitle(titleStr)
+% % i = 1;
+% % oriColMat = ['k';'g';'b';'r'];
+% % 
+% % for imouse = 1:size(mouse,2)
+% % %     resp_vis_mouse{imouse} = [];
+% % %     resp_aud_mouse{imouse} = [];
+% %     for iexp = 1:size(mouse(imouse).expt,2)
+% %         figure(intAvsVFig_ori);
+% %         subplot(n,n2,i)
+% %         i = i+1;
+% %         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
+% %         cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
+% %         for iori = 1:4
+% %             ori_ind = intersect(mouse(imouse).expt(iexp).cells(iori+1).ind,cell_ind);
+% %             iV = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(pre_event_frames:end,ori_ind,:)),3));
+% %             iA = squeeze(mean(trapz(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvResp(pre_event_frames:end,ori_ind,:)),3));
+% %             tcV = mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvResp(:,ori_ind,:),3);
+% %             tcA = mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvResp(:,ori_ind,:),3);
+% %             % add STE color axis here
+% %             scatter(iV,iA,50,[oriColMat(iori) '.']);
+% %             hold on
+% % %             errorbarxy(mean(iV),mean(iA),std(iV)/length(iV),std(iA)/length(iA),{[oriColMat(iori) 'o'],oriColMat(iori),oriColMat(iori)});
+% %             oriMean(iori) = scatter(mean(iV),mean(iA),oriColMat(iori),'o','filled');
+% %             if length([iV iA]) > 0;
+% % %             xlim([floor(min([iV iA]))-(floor(min([iV iA]))/2) ceil(max([iV iA]))+(ceil(max([iV iA]))/2)]);
+% % %             ylim([floor(min([iV iA]))-(floor(min([iV iA]))/2) ceil(max([iV iA]))+(ceil(max([iV iA]))/2)]);
+% %             xlim([-5 15])
+% %             ylim([-5 15])
+% %             end
+% %             hold on
+% %             plot([-10:0.1:20],[-10:0.1:20],'k--')
+% %             axis square
+% %             xlabel('Vis Tr Resp')
+% %             ylabel('Aud Tr Resp')
+% %             
+% %             
+% %             int_vis_ori{iori} = cat(2, int_vis_ori{iori}, iV);
+% %             int_aud_ori{iori} = cat(2, int_aud_ori{iori}, iA);
+% %             resp_vis_ori{iori} = cat(2, resp_vis_ori{iori}, tcV);
+% %             resp_aud_ori{iori} = cat(2, resp_aud_ori{iori}, tcA);
+% %         end
+% % 
+% %         title({mouse(imouse).expt(iexp).date, [' n = ' num2str(length(cell_ind)) ' cells']})
+% %     end
+% % end
+% % 
+% % std_vis_ori = cellfun(@(x) std(x,[],2),resp_vis_ori,'unif',false);
+% % std_aud_ori = cellfun(@(x) std(x,[],2),resp_aud_ori,'unif',false);
+% % 
+% % subplot(n,n2,i)
+% % % hold on
+% % % errorbarxy(mean(resp_vis_ori),mean(resp_aud_ori),std(resp_vis_ori)/length(resp_vis_ori),std(resp_aud_ori)/length(resp_aud_ori),{'ro','r','r'})
+% % % hold on
+% % oriLegend = {'0','45','90','135'};
+% % for iori = 1:4
+% %     scatter(int_vis_ori{iori},int_aud_ori{iori},50,oriColMat(iori),'.')
+% %     hold on
+% %     errorbarxy(mean(int_vis_ori{iori}),mean(int_aud_ori{iori}),std(int_vis_ori{iori})/length(int_vis_ori{iori}),std(int_aud_ori{iori})/length(int_aud_ori{iori}), {[oriColMat(iori) 'o'],oriColMat(iori),oriColMat(iori)});
+% %     hold on
+% %     ori_mean(iori) = scatter(mean(int_vis_ori{iori}),mean(int_aud_ori{iori}),oriColMat(iori),'o', 'filled');
+% %     hold on
+% % end
+% % legend(ori_mean,oriLegend,'Location','southeast')
+% % % xlim([floor(min([resp_vis_ori resp_aud_ori]))-(floor(min([resp_vis_ori resp_aud_ori]))/2) ceil(max([resp_vis_ori resp_aud_ori]))+(ceil(max([resp_vis_ori resp_aud_ori]))/2)]);
+% % % ylim([floor(min([resp_vis_ori resp_aud_ori]))-(floor(min([resp_vis_ori resp_aud_ori]))/2) ceil(max([resp_vis_ori resp_aud_ori]))+(ceil(max([resp_vis_ori resp_aud_ori]))/2)]);
+% % xlim([-5 15])
+% % ylim([-5 15])
+% % hold on
+% % plot([-10:0.1:20],[-10:0.1:20],'k--')
+% % axis square
+% % xlabel('Vis Tr Resp')
+% % ylabel('Aud Tr Resp')
+% % 
+% % title(['All cells; n = ' num2str(size(int_vis_ori,2))])
+% % 
+% % %cdf plot of tuned cell respones
+% % 
+% % respAvsVori = figure;
+% % oriLegend = {'0','45','90','135'};
+% % subplot(3,2,2)
+% % hV = [];
+% % hA = [];
+% % for iori = 1:4
+% %     if ~isempty(int_vis_ori{iori})
+% %     hV= cdfplot(int_vis_ori{iori});
+% %     hV.Color = oriColMat(iori);
+% %     hV.LineStyle = '-';
+% %     hold on
+% %     hA = cdfplot(int_aud_ori{iori});
+% %     hA.Color = oriColMat(iori)
+% %     hA.LineStyle = '--';
+% %     hold on
+% %     end
+% % end
+% % xlabel('dF/F')
+% % ylabel('fraction cells')
+% % title('integral response - ori selective cells')
+% % % legend(oriLegend)
+% % print([fnout 'press_align_intOri_cdf' datasetStr '.pdf'], '-dpdf')
+% % 
+% % figure;
+% % suptitle({titleStr; 'std timecourse'})
+% % for iori = 1:4
+% %     subplot(3,2,iori)
+% %     plot(ttMs,std_vis_ori{iori},'g')
+% %     hold on
+% %     plot(ttMs,std_aud_ori{iori},'k')
+% %     hold on
+% %     xlim([-300 minTrialLengthFrames/(cycTime/cycTimeMs)])
+% %     ylim([-0.01 0.05]);
+% %     vline(baseStimFrames/(cycTime/cycTimeMs),':k')
+% %     title([oriStr(iori) ' slctv cells; n = ' num2str(size(std_vis_ori{iori},2))])
+% %     xlabel('ms')
+% %     ylabel('std - dF/F')
+% % end
+% % 
+% % print([fnout 'press_align_stdTCbyOri' datasetStr '.pdf'], '-dpdf')
+% % 
+% % 
+% % figure;
+% % for iori = 1:4
+% %     scatter(int_vis_ori{iori},int_aud_ori{iori},50,oriColMat(iori),'.')
+% %     hold on
+% %     errorbarxy(mean(int_vis_ori{iori}),mean(int_aud_ori{iori}),std(int_vis_ori{iori})/length(int_vis_ori{iori}),std(int_aud_ori{iori})/length(int_aud_ori{iori}), {[oriColMat(iori) 'o'],oriColMat(iori),oriColMat(iori)});
+% %     hold on
+% %     ori_mean(iori) = scatter(mean(int_vis_ori{iori}),mean(int_aud_ori{iori}),oriColMat(iori),'o', 'filled');
+% %     hold on
+% % end
+% % legend(ori_mean,oriLegend,'Location','southeast')
+% % % xlim([floor(min([resp_vis_ori resp_aud_ori]))-(floor(min([resp_vis_ori resp_aud_ori]))/2) ceil(max([resp_vis_ori resp_aud_ori]))+(ceil(max([resp_vis_ori resp_aud_ori]))/2)]);
+% % % ylim([floor(min([resp_vis_ori resp_aud_ori]))-(floor(min([resp_vis_ori resp_aud_ori]))/2) ceil(max([resp_vis_ori resp_aud_ori]))+(ceil(max([resp_vis_ori resp_aud_ori]))/2)]);
+% % xlim([-5 10])
+% % ylim([-5 10])
+% % hold on
+% % plot([-10:0.1:20],[-10:0.1:20],'k--')
+% % axis square
+% % xlabel('Vis Tr Resp')
+% % ylabel('Aud Tr Resp')
+% % title(['All cells; n = ' num2str(size(int_vis_ori,1))])
+% % print([fnout 'press_align_intOriall' datasetStr '.pdf'], '-dpdf')
+% % 
+% % figure(intAvsVFig_ori);
+% % print([fnout 'press_align_intOri' datasetStr '.pdf'], '-dpdf')
+% % 
+% % 
+% % figure;
+% % for iori = 1:4
+% %     subplot(3,2,iori)
+% %     if sum(~isnan(int_vis_ori{iori})) > 4
+% %         hV = cdfplot(int_vis_ori{iori});
+% %         hV.Color = 'g';
+% %         hold on
+% %         hA = cdfplot(int_aud_ori{iori});
+% %         hA.Color = 'k';
+% %         [h,p] = kstest2(int_vis_ori{iori},int_aud_ori{iori});
+% %     else
+% %         p = NaN
+% %     end
+% %     title([mouse(imouse).expt(iexp).cells(iori+1).name ' cells; n = ' num2str(sum(cell2mat(cellfun(@length,int_vis_ori,'unif',false)))) '; p = ' num2str(chop(p,2))])
+% %     xlabel('dF/F')
+% % end
+% % resp_vis_all = cell2mat(int_vis_ori);
+% % resp_aud_all = cell2mat(int_aud_ori);
+% % subplot(3,2,5)
+% % if sum(~isnan(resp_vis_all)) > 4
+% %     hV = cdfplot(resp_vis_all);
+% %     hV.Color = 'g';
+% %     hold on
+% %     hA = cdfplot(resp_aud_all);
+% %     hA.Color = 'k';
+% %     [h,p] = kstest2(resp_vis_all,resp_aud_all);
+% %     else
+% %         p = NaN;
+% % end
+% %     title(['all tuned cells; n= ' num2str(length(resp_vis_all)) '; p=' num2str(p)])
+% %     xlabel('dF/F')
+% %     subplot(3,2,6)
+% % if sum(~isnan(resp_vis_all_int)) > 4
+% %     hV = cdfplot(resp_vis_all_int);
+% %     hV.Color = 'g';
+% %     hold on
+% %     hA = cdfplot(resp_aud_all_int);
+% %     hA.Color = 'k';
+% %     [h,p] = kstest2(resp_vis_all_int,resp_aud_all_int);
+% %     else
+% %         p = NaN;
+% % end
+% %     title(['all resp cells; n= ' num2str(length(resp_vis_all_int)) '; p=' num2str(p)])
+% %     xlabel('dF/F')
+% % suptitle([titleStr '- Vis:Green, Aud:Black'])
+% % 
+% % 
+% % print([fnout 'press_align_intOri_CD' datasetStr '.pdf'], '-dpdf')
+% % 
 
 % %% plot histogram of number of excited, inhibited, and non-responsive cells by resp integral
 % 

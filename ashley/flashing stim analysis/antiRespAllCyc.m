@@ -14,6 +14,7 @@ if (c^2)-c > ncyc+1
 else
     c2 = c;
 end
+disp(datasetStr)
 %%
 if strcmp(datasetStr,'_V1')
     endTrRespWinMs = 300;
@@ -246,24 +247,25 @@ fano_all_cmlvCyc = cell(1,length(cycs));
 % std_vis = [];
 % std_aud = [];
 
+disp('got to resp_vis_cmlvCyc')
 
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
         
         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
         cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
-        
-        for icyc = 1:length(cycs)
-        if size(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp,2) >= icyc
-            resp_vis_cmlvCyc{icyc} = cat(2,resp_vis_cmlvCyc{icyc},mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),3));
-            resp_aud_cmlvCyc{icyc} = cat(2,resp_aud_cmlvCyc{icyc},mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),3));
-            resp_all_cmlvCyc{icyc} = cat(2,resp_all_cmlvCyc{icyc},mean(cat(3,mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:)),3));
-            fano_vis_cmlvCyc{icyc} = cat(2,fano_vis_cmlvCyc{icyc},fano(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),3));
-            fano_aud_cmlvCyc{icyc} = cat(2,fano_aud_cmlvCyc{icyc},fano(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),3));
-            fano_all_cmlvCyc{icyc} = cat(2,fano_all_cmlvCyc{icyc},fano(cat(3,mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:)),3));
+        if mouse(imouse).expt(iexp).info.cyc_time == 11;
+            for icyc = 1:length(cycs)
+            if size(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp,2) >= icyc
+                resp_vis_cmlvCyc{icyc} = cat(2,resp_vis_cmlvCyc{icyc},mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),3));
+                resp_aud_cmlvCyc{icyc} = cat(2,resp_aud_cmlvCyc{icyc},mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),3));
+                resp_all_cmlvCyc{icyc} = cat(2,resp_all_cmlvCyc{icyc},mean(cat(3,mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:)),3));
+                fano_vis_cmlvCyc{icyc} = cat(2,fano_vis_cmlvCyc{icyc},fano(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),3));
+                fano_aud_cmlvCyc{icyc} = cat(2,fano_aud_cmlvCyc{icyc},fano(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),3));
+                fano_all_cmlvCyc{icyc} = cat(2,fano_all_cmlvCyc{icyc},fano(cat(3,mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:),mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cmlvCycResp{icyc}(:,cell_ind,:)),3));
+            end
+            end
         end
-        end
-            
 %        i = i+1;
         end
 end
@@ -392,24 +394,24 @@ for imouse = 1:size(mouse,2)
         
         cell_ind = mouse(imouse).expt(iexp).cells(cellsInd).ind;
         cell_ind = intersect(mouse(imouse).expt(iexp).cells(respCellsInd).ind,cell_ind);
-        
-        for icyc = 1:length(cycs)
-            if size(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp,2) >= icyc
-        if size(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc},3) > 0 
-            resp_vis_cyc{icyc} = cat(2,resp_vis_cyc{icyc},mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(:,cell_ind,:),3));
-            resp_aud_cyc{icyc} = cat(2,resp_aud_cyc{icyc},mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(:,cell_ind,:),3));
-            resp_all_cyc{icyc} = cat(2,resp_all_cyc{icyc},mean(cat(3,mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(:,cell_ind,:),mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(:,cell_ind,:)),3));
-            nTrials_vis(icyc) = nTrials_vis(icyc)+size(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(:,cell_ind,:),3);
-            nTrials_aud(icyc) = nTrials_aud(icyc)+size(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(:,cell_ind,:),3);
-            endTrialRespIntervalFrames = (mouse(imouse).expt(iexp).info.cyc_time_ms - 100)*(mouse(imouse).expt(iexp).info.cyc_time/mouse(imouse).expt(iexp).info.cyc_time_ms)-1;
-            endTrPreWin = mouse(imouse).expt(iexp).win(1).frames+((icyc-1)*mouse(imouse).expt(iexp).info.cyc_time);
-            endTrResp_vis{icyc} = cat(2,endTrResp_vis{icyc},bsxfun(@minus,mean(mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(end-endTrialRespIntervalFrames:end,cell_ind,:),3),1),mean(mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(endTrPreWin,cell_ind,:),3),1)));
-            endTrResp_aud{icyc} = cat(2,endTrResp_aud{icyc},bsxfun(@minus,mean(mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(end-endTrialRespIntervalFrames:end,cell_ind,:),3),1),mean(mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(endTrPreWin,cell_ind,:),3),1)));            
-            
-        end
+        if mouse(imouse).expt(iexp).info.cyc_time == 11
+            for icyc = 1:length(cycs)
+                if size(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp,2) >= icyc
+            if size(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc},3) > 0 
+                resp_vis_cyc{icyc} = cat(2,resp_vis_cyc{icyc},mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(:,cell_ind,:),3));
+                resp_aud_cyc{icyc} = cat(2,resp_aud_cyc{icyc},mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(:,cell_ind,:),3));
+                resp_all_cyc{icyc} = cat(2,resp_all_cyc{icyc},mean(cat(3,mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(:,cell_ind,:),mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(:,cell_ind,:)),3));
+                nTrials_vis(icyc) = nTrials_vis(icyc)+size(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(:,cell_ind,:),3);
+                nTrials_aud(icyc) = nTrials_aud(icyc)+size(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(:,cell_ind,:),3);
+                endTrialRespIntervalFrames = (mouse(imouse).expt(iexp).info.cyc_time_ms - 100)*(mouse(imouse).expt(iexp).info.cyc_time/mouse(imouse).expt(iexp).info.cyc_time_ms)-1;
+                endTrPreWin = mouse(imouse).expt(iexp).win(1).frames+((icyc-1)*mouse(imouse).expt(iexp).info.cyc_time);
+                endTrResp_vis{icyc} = cat(2,endTrResp_vis{icyc},bsxfun(@minus,mean(mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(end-endTrialRespIntervalFrames:end,cell_ind,:),3),1),mean(mean(mouse(imouse).expt(iexp).align(ialign).av(1).outcome(1).cycResp{icyc}(endTrPreWin,cell_ind,:),3),1)));
+                endTrResp_aud{icyc} = cat(2,endTrResp_aud{icyc},bsxfun(@minus,mean(mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(end-endTrialRespIntervalFrames:end,cell_ind,:),3),1),mean(mean(mouse(imouse).expt(iexp).align(ialign).av(2).outcome(1).cycResp{icyc}(endTrPreWin,cell_ind,:),3),1)));            
+
             end
-        end
-            
+                end
+            end
+        end  
 %        i = i+1;
         end
 end

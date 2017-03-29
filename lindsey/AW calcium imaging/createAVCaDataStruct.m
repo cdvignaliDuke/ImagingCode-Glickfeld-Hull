@@ -136,15 +136,20 @@ eval(['awFSAVdatasets' datasetStr])
         
         %account for accumulation of frames across multiple runs 
         dataTC = [];
+        fnTC = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date);
+        load(fullfile(fnTC,'timecourses.mat'))
+        dataTC = data_tc_subnp;
+                
         offset = 0;
         for irun = 1:nrun
             ImgFolder = expt(iexp).runs(irun,:);
-            fnTC = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,ImgFolder);
-            cd(fnTC);
-                load('Timecourses.mat')
-
-            dataTC = cat(1, dataTC, dataTimecourse.dataTCsub);
-            offset = offset+size(dataTimecourse.dataTCsub,1);
+%             fnTC = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,ImgFolder);
+%             cd(fnTC);
+%                 load('Timecourses.mat')
+% 
+%             dataTC = cat(1, dataTC, dataTimecourse.dataTCsub);
+            nfr_run = nFramesSbxDataset(expt(iexp).mouse,expt(iexp).date,ImgFolder);
+            offset = offset+nfr_run;
             if irun < nrun
                 startTrial = sum(run_trials(1, 1:irun),2)+1;
                 endTrial = sum(run_trials(1,1:irun+1),2);
@@ -158,14 +163,14 @@ eval(['awFSAVdatasets' datasetStr])
                 end
             end
         end
-        if cellsOnly > 0
-            load(fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,expt(iexp).dirtuning,'cell&dendriteIndices.mat'))
-            if cellsOnly == 1
-                dataTC = dataTC(:,cellsMatch);
-            elseif cellsOnly == 2
-                dataTC = dataTC(:,dendritesMatch);
-            end
-        end
+%         if cellsOnly > 0
+%             load(fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,expt(iexp).dirtuning,'cell&dendriteIndices.mat'))
+%             if cellsOnly == 1
+%                 dataTC = dataTC(:,cellsMatch);
+%             elseif cellsOnly == 2
+%                 dataTC = dataTC(:,dendritesMatch);
+%             end
+%         end
 
         ntrials = length(input.trialOutcomeCell);
         tCyclesOn = cell2mat(input.tCyclesOn);
@@ -869,11 +874,11 @@ eval(['awFSAVdatasets' datasetStr])
              mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).trialL{iDir} = tCyclesOn(:,indM);
              
             %test for responsiveness to any one of the presented directions
-%             if iav == 1
-%             [h, p] = ttest(squeeze(mean(DataDFoverF(pre_win,:,[indS indM]),1)), squeeze(mean(DataDFoverF(trans_win,:,[indS indM]),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)));
-%             mouse(imouse).expt(s(:,imouse)).align(ialign).ttest_trans(:,iDir) = h;
-%             tarStimRespDiff(:,iDir) = squeeze(mean(mean(DataDFoverF(trans_win,:,[indS indM]),3),1)) - squeeze(mean(mean(DataDFoverF(pre_win,:,[indS indM]),3),1));
-%             end
+            if iav == 1
+            [h, p] = ttest(squeeze(mean(DataDFoverF(pre_win,:,[indS indM]),1)), squeeze(mean(DataDFoverF(trans_win,:,[indS indM]),1)), 'dim', 2, 'tail', 'left', 'alpha', 0.05/(length(Dirs)));
+            mouse(imouse).expt(s(:,imouse)).align(ialign).ttest_trans(:,iDir) = h;
+            tarStimRespDiff(:,iDir) = squeeze(mean(mean(DataDFoverF(trans_win,:,[indS indM]),3),1)) - squeeze(mean(mean(DataDFoverF(pre_win,:,[indS indM]),3),1));
+            end
             end
         end
         

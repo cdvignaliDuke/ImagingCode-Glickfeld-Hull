@@ -25,7 +25,7 @@ load(fullfile(rc.caOutputDir,dataGroup, [mouse_str '_CaSummary' datasetStr '.mat
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
 fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_' mouse_str]);
 end
-
+disp(fnout)
 %% set params for figures
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);

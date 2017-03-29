@@ -1,4 +1,4 @@
-load(fullfile(rc.caOutputDir,dataGroup, ['V1all cells_' mouse_str '_modCells']))
+load(fullfile(rc.caOutputDir,dataGroup, [titleStr '_' mouse_str '_modCells']))
 
 trType = 3;
 cellInd_auROC = 14;
@@ -917,8 +917,20 @@ for imouse = 1:size(mouse,2)
             end
         % find number of each trial outcome type
             cdirs = mouse(imouse).expt(iexp).info.cDirs;
+%             sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp,'unif',false)),3,length(cdirs));
+            ckL = cell2mat(cellfun(@length,cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp,'unif',false),'unif',false));
+            if all(ckL == 3)
             sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp,'unif',false)),3,length(cdirs));
             nDirs_h = sz(3,:);
+            else
+                ind = find(ckL < 3);
+                ind2 = find(ckL == 3);
+                [j ind3] = sort([ind ind2]);
+                sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(hits).stimResp(ind2),'unif',false)),3,length(cdirs)-length(ind));
+                nT = [ones(1,length(ind)) sz(3,:)];
+                nDirs_h = nT(ind3);
+            end
+%             nDirs_h = sz(3,:);
             ckL = cell2mat(cellfun(@length,cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).stimResp,'unif',false),'unif',false));
             if all(ckL == 3)
             sz = reshape(cell2mat(cellfun(@size,mouse(imouse).expt(iexp).align(catchAlign).av(iav).outcome(misses).stimResp,'unif',false)),3,length(cdirs));

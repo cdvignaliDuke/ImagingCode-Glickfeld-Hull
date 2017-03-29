@@ -5,30 +5,23 @@ disp([num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum)])
 dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
 if cellsOnly == 1
     load(fullfile(dataPath,'cell&dendriteTC.mat'))
-    data_TC_subNP = cell_tc;
+    data_tc_subnp = cell_tc;
 elseif cellsOnly == 2    
     load(fullfile(dataPath,'cell&dendriteTC.mat'))
-    data_TC_subNP = den_tc;
+    data_tc_subnp = den_tc;
 else
-%     dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
-% try 
-%     load(fullfile(dataPath,'sbxaligned_timecourses.mat'));
-% catch
-    load(fullfile(dataPath, 'neuropil.mat'));
-    data_TC_subNP = npSubTC;
-% end
+    load(fullfile(dataPath, 'timecourses.mat'));
 end
 
 %load mworks file
-cd(rc.pathStr);
 mworks = ['data-' 'i' expt(iexp).SubNum '-' expt(iexp).date '-' expt(iexp).dirtuning_time]; 
-load (mworks);
+load (fullfile(rc.pathStr,mworks));
 
 %params
 nON = (input.nScansOn)./10;
 nOFF = (input.nScansOff)./10;
 nStim = input.gratingDirectionStepN;
-nRep = size(data_TC_subNP,1)./((nON+nOFF)*nStim);
+nRep = size(data_tc_subnp,1)./((nON+nOFF)*nStim);
 nTrials = (nStim.*nRep);
 DirectionDeg = cell2mat(input.tGratingDirectionDeg);
 Dirs = unique(DirectionDeg);
@@ -36,14 +29,14 @@ base_win = 6:10;
 resp_win = 12:16;
 
 %find dF/F of responses for all cells
-stimOFF_ind = 1:nOFF+nON:size(data_TC_subNP,1);
-dF_data = zeros(size(data_TC_subNP));
-dFoverF_data = zeros(size(data_TC_subNP));
+stimOFF_ind = 1:nOFF+nON:size(data_tc_subnp,1);
+dF_data = zeros(size(data_tc_subnp));
+dFoverF_data = zeros(size(data_tc_subnp));
 for i = 1:nTrials
     indAll = stimOFF_ind(i):stimOFF_ind(i)+(nOFF+nON-1);
     indF = stimOFF_ind(i)+5:stimOFF_ind(i)+(nOFF-1);
-    dF_data(indAll,:) = bsxfun(@minus,data_TC_subNP(indAll,:),mean(data_TC_subNP(indF,:),1));
-    dFoverF_data(indAll,:) = bsxfun(@rdivide,dF_data(indAll,:),mean(data_TC_subNP(indF,:),1));
+    dF_data(indAll,:) = bsxfun(@minus,data_tc_subnp(indAll,:),mean(data_tc_subnp(indF,:),1));
+    dFoverF_data(indAll,:) = bsxfun(@rdivide,dF_data(indAll,:),mean(data_tc_subnp(indF,:),1));
 end
 
 %divide by trials
@@ -173,6 +166,13 @@ end
 
 cellsSelect{iOri+1} = untuned_ind;
 cellsSelect{iOri+2} = intersect(find(~isnan(ori_ind_all)), find(OSI>0.3));
+
+figure;
+h = histogram(OSI,10);
+xlabel('OSI')
+ylabel('n cells')
+title([expt(iexp).mouse '-' expt(iexp).date])
+print(fullfile(dataPath,'OSI_hist'),'-dpdf')
 
 if cellsOnly == 1
     save(fullfile(dataPath, 'cellsSelect_cellsOnly.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
