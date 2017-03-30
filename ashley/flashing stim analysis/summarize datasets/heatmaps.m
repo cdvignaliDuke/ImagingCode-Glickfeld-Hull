@@ -124,9 +124,23 @@ oneS_fr = expt(1).frame_rate;
 
 % start_resp = mean(tc_all_anti_norm(trans_win,:),1);
 % anti_max_val  = max(tc_all_anti_norm(pre_event_frames:end,:),[],1);
-% end_resp = mean(tc_all_anti_norm(end-oneS_fr:end,:),1);
-tar_resp = mean(tc_tar_norm(trans_win,:),1);
-[resp_sort sort_ind] = sort(tar_resp);
+end_resp = mean(tc_all_anti_norm(end-oneS_fr:end,:),1);
+% tar_resp = mean(tc_tar_norm(trans_win,:),1);
+[resp_sort sort_ind] = sort(end_resp);
+
+% ori_resp = squeeze(mean(tc_ori(:,end-5:end,:),2));
+% [max_ori max_ori_ind] = max(ori_resp,[],1);
+% sort_ind = [];
+% for iori = 1:4
+%    ind = find(max_ori_ind == iori);
+%    resp_temp = ori_resp(iori,:);
+%    
+%    [resp_temp_sort sort_temp] = sort(resp_temp(ind));
+%    
+%    sort_ind = cat(2,sort_ind,ind(sort_temp));
+% end
+
+
 
 tc_all_sort_anti = tc_all_anti_norm(:,fliplr(sort_ind))';
 tc_sort_tar = tc_tar_norm(:,fliplr(sort_ind))';
@@ -140,20 +154,16 @@ tr_tick_fr = (bl_fr:oneS_fr/2:(trL_cyc*cycTime)+bl_fr)+1;
 tr_tick_s = 0:0.5:length(tr_tick_fr)-1;
 
 hm=figure;setFigParams4Print('landscape')
-suptitle('all trials, all cells, sorted by avg resp to target')
+suptitle('all trials, all cells, sorted by avg last 1s resp')
 colormap(brewermap([],'*RdBu'))
 
 subplot(1,3,1)
 anti = imagesc(tc_all_sort_anti(:,trL_ind));
-anti.Parent.XTick = tr_tick_fr;
-anti.Parent.XTickLabel = tr_tick_s;
-anti.Parent.TickDir = 'out';
-anti.Parent.Box = 'off';
+figXAxis(anti.Parent,'time (s)',[],tr_tick_fr,tr_tick_s);
+figAxForm(anti.Parent);
 colorbar
 caxis([-cb_max cb_max])
-axis square
 title(['all 100 ms trials >= ' num2str(trL_cyc) ' cycs'])
-xlabel('time (s)')
 ylabel('n cells')
 
 %% heatmap - target aligned
@@ -168,15 +178,11 @@ tr_tick_s_tar = chop(-0.25:0.25:0.5,2);
 figure(hm);
 subplot(1,3,2)
 tar = imagesc(tc_sort_tar(:,trL_ind_tar));
-tar.Parent.XTick = tr_tick_fr_tar;
-tar.Parent.XTickLabel = tr_tick_s_tar;
-tar.Parent.TickDir = 'out';
-tar.Parent.Box = 'off';
+figXAxis(tar.Parent,'time (s)',[],tr_tick_fr_tar,tr_tick_s_tar)
+figAxForm(tar.Parent)
 colorbar
 caxis([-0.2 0.2])
-axis square
 title(['all 100 ms trials, all targets'])
-xlabel('time (s)')
 ylabel('n cells')
 
 %% heatmap - orientation tuning
@@ -195,20 +201,16 @@ ori_stim_label = repmat([0 stimOnS],1,4);
 figure(hm);
 subplot(1,3,3)
 ori = imagesc(ori_sort);
-ori.Parent.XTick = ori_stim_tick;
-ori.Parent.XTickLabel = ori_stim_label;
-ori.Parent.TickDir = 'out';
-ori.Parent.Box = 'off';
+figXAxis(ori.Parent,'time (s)',[],ori_stim_tick,ori_stim_label)
+figAxForm(ori.Parent)
 hold on
 vline(tr_block+0.5,'k-')
 colorbar
 caxis([-0.8 0.8])
-axis square
 title(['resp drifting gratings; 0, 45, 90, 135, -deg'])
-xlabel('time (s)')
 ylabel('n cells')
 
-print([fnout '_heatmap_all_tarSort'],'-dpdf','-fillpage');
+print([fnout '_heatmap_all_endSort'],'-dpdf','-fillpage');
 %% stimuli onset 
 
 %start align
@@ -235,27 +237,39 @@ sm = figure;setFigParams4Print('landscape')
 suptitle('stimulus onsets')
 colormap gray
 
-subplot(3,2,3)
+%DG
+oriStim_fr = 6;
+ori_tr = ones(1,size(tc_ori,2));
+ori_tr(ori_stimOn-4: ori_stimOn-5+oriStim_fr) = 0;
+
+stim_img_ori = repmat(ori_tr,10,4);
+
+sm = figure;setFigParams4Print('landscape')
+suptitle('stimulus onsets')
+colormap gray
+subplot(1,3,1)
 anti = imagesc(stim_img(:,trL_ind));
-anti.Parent.XTick = tr_tick_fr;
-anti.Parent.XTickLabel = tr_tick_s;
+figXAxis(anti.Parent,'time (s)',[],tr_tick_fr,tr_tick_s);
+figAxForm(anti.Parent)
 colorbar
-axis square
 title('anti stim')
-xlabel('time (s)')
-ylabel('n cells')
 
 
-subplot(3,2,4)
+subplot(1,3,2)
 tar = imagesc(stim_img_tar(:,trL_ind_tar));
-tar.Parent.XTick = tr_tick_fr_tar;
-tar.Parent.XTickLabel = tr_tick_s_tar;
+figXAxis(tar.Parent,'time (s)',[],tr_tick_fr_tar,tr_tick_s_tar);
+figAxForm(tar.Parent)
 colorbar
-axis square
 title('target stim')
-xlabel('time (s)')
-ylabel('n cells')
 
+subplot(1,3,3)
+ori = imagesc(stim_img_ori);
+figXAxis(ori.Parent,'time (s)',[],ori_stim_tick,ori_stim_label);
+figAxForm(ori.Parent)
+colorbar
+title('DG stim')
+
+print([fnout '_heatmap_stim'],'-dpdf','-fillpage');
 
 %% response windows
 
@@ -265,8 +279,11 @@ resp_tr(trans_win) = 0;
 
 resp_img = repmat(resp_tr,10,1);
 
-figure(sm);
-subplot(3,2,5)
+rm = figure;setFigParams4Print('landscape')
+suptitle('stimulus onsets')
+colormap gray
+
+subplot(1,3,1)
 anti = imagesc(resp_img(:,trL_ind));
 anti.Parent.XTick = tr_tick_fr;
 anti.Parent.XTickLabel = tr_tick_s;
@@ -277,7 +294,7 @@ xlabel('time (s)')
 ylabel('n cells')
 
 
-subplot(3,2,6)
+subplot(1,3,2)
 tar = imagesc(resp_img(:,trL_ind_tar));
 tar.Parent.XTick = tr_tick_fr_tar;
 tar.Parent.XTickLabel = tr_tick_s_tar;
@@ -288,4 +305,4 @@ xlabel('time (s)')
 ylabel('n cells')
 
 
-print([fnout '_heatmap_stim'],'-dpdf','-fillpage');
+print([fnout '_heatmap_respWin'],'-dpdf','-fillpage');

@@ -1,7 +1,9 @@
 function figYAxis(fig,y_name,y_limit,varargin)
 
 ylabel(y_name);
-ylim(y_limit);
+if ~isempty(y_limit)
+    ylim(y_limit);
+end
 if length(varargin) > 0
     y_tick = varargin{1};
     fig.YTick = y_tick;

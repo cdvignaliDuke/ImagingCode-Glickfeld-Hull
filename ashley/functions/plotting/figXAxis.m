@@ -1,6 +1,8 @@
 function figXAxis(fig,x_name,x_limit,varargin)
 xlabel(x_name);
-xlim(x_limit);
+if ~isempty(x_limit)
+    xlim(x_limit);
+end
 if length(varargin) > 0
     x_tick = varargin{1};
     fig.XTick = x_tick;
