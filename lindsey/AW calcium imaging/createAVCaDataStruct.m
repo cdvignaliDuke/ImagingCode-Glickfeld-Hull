@@ -253,6 +253,10 @@ eval(['awFSAVdatasets' datasetStr])
             Ix = 1:length(input.trialOutcomeCell);
         end
         
+        F1Ix = find(tCyclesOn == 1);
+        F1oneStim = intersect(V_ind,F1Ix);
+        F2oneStim = intersect(AV_ind,F1Ix);
+        
         FIx = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'failure')));
         SIx = intersect(intersect(Ix, find(reactTimes>200)), find(strcmp(input.trialOutcomeCell, 'success')));
         SIxAllReact = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'success')));
@@ -700,6 +704,7 @@ eval(['awFSAVdatasets' datasetStr])
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = DataDFoverF(:,:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).resp = DataDFoverF(:,:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion)); 
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).oneStim = DataDFoverF(:,:,setdiff(eval(['F' num2str(iav) 'oneStim']),ind_motion));                 
                  
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).tcyc = tCyclesOn(:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).tcyc = tCyclesOn(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));

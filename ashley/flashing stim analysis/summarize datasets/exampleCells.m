@@ -1,9 +1,11 @@
+datasetStr = '_V1';
 ms = 'AW72';
 sn = '672';
 dt = '170303';
 dirtuning = '003';
 imouse = 8;
 iexp = 2;
+ex = 16;
 cellType_str = {'Exc - Ant';'Exc - Tar'};
 taskPart_str = {'Trial Start';'Anticipation';'Target';'dir tuning, DG';'ret tuning, DG'};
 pressAlign = 1;
@@ -243,8 +245,8 @@ maxDFoverF = max(cat(3,bx_crop,dir_crop),[],3);
 % % % % % load(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'mask&TCDir.mat'));
 % % % % % maxDFoverF = readtiff(fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,dirtuning,'maxDFoverF.tif'));
 % % % % % % F = readtiff(fullfile(fn,'Fimg.tif'));
-sb_calib_x = 555.23/size(maxDFoverF,2); %um per pixel
-sb_calib_y = 233.56/size(maxDFoverF,1);
+sb_calib_x = 673/size(maxDFoverF,2); %um per pixel
+sb_calib_y = 382/size(maxDFoverF,1);
 
 umL50 = ceil(50/sb_calib_x);
 umW5 = ceil(5/sb_calib_y);
