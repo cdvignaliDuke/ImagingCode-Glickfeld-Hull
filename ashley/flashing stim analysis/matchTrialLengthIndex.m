@@ -1,5 +1,7 @@
 function [valTr, invTr] = matchTrialLengthIndex(val_trL,inv_trL,tars,minTrLMs,trType)
 %%
+nTrialsCutoff = 5;
+
 if strcmp(trType,'short')
     val_ind = cellfun(@(x) find(x < minTrLMs), val_trL, 'unif',0);
     inv_ind = cellfun(@(x) find(x < minTrLMs), inv_trL, 'unif',0);
@@ -56,8 +58,18 @@ if length(tars) == 2
             invTr{itar} = sort(inv_temp(inv_samp));
         end
     end
+    
+
+        
 else
     valTr{1} = val_ind;
     invTr{1} = inv_ind;
 end
+
+% make sure there is more trials than cutoff
+if sum(cellfun(@(x) length(x),invTr)) < nTrialsCutoff
+    valTr = cell(1,length(tars));
+    invTr = cell(1,length(tars));     
+end
+
 end

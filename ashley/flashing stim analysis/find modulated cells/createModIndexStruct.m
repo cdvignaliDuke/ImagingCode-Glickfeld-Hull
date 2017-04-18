@@ -1,6 +1,6 @@
-function msModCells = createModIndexStruct(datasetStr,cellsOnly)
+function msModCells = createModIndexStruct(datasetStr)
 %% load data, set data group
-cellsInd = 14;
+% % cellsInd = 14;
 eval(['awFSAVdatasets' datasetStr])
 titleStr = datasetStr;
 if strcmp(titleStr, '')
@@ -16,16 +16,16 @@ else
 end
 str = unique({expt.SubNum});
 mouse_str = ['i' strjoin(str,'_i')];
-if cellsOnly    
-load(fullfile(rc.caOutputDir,dataGroup,'cells only', [mouse_str '_CaSummary' datasetStr '.mat']));
-titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
-fnout = fullfile(rc.caOutputDir,dataGroup,'cells only', [titleStr '_' mouse_str]);
-else
+% % if cellsOnly    
+% % load(fullfile(rc.caOutputDir,dataGroup,'cells only', [mouse_str '_CaSummary' datasetStr '.mat']));
+% % titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
+% % fnout = fullfile(rc.caOutputDir,dataGroup,'cells only', [titleStr '_' mouse_str]);
+% % else
 load(fullfile(rc.caOutputDir,dataGroup, [mouse_str '_CaSummary' datasetStr '.mat']));
-titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
+% % titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
 fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_' mouse_str]);
-end
-disp(fnout)
+% % end
+% % disp(fnout)
 %% set params for figures
 set(0,'defaultfigurepaperorientation','portrait');
 set(0,'defaultfigurepapersize',[8.5 11]);

@@ -1,9 +1,12 @@
 clear all
 close all
+ds = '_L5';
+
+%%
 rc = behavConstsAV;
-awFSAVdatasets_V1
-% doRegBx = 1;
-for iexp = [18:size(expt,2),12]
+eval(['awFSAVdatasets' ds])
+% awFSAVdatasets_V1
+for iexp = 3:size(expt,2)
 
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
@@ -17,13 +20,14 @@ for irun = 1:expt(iexp).nrun
 
     if irun == 3 & strcmp(expDate,'150508')
         continue
+    elseif irun == 2 & strcmp(expDate, '150528')
+        continue
     end
     
     runFolder = expt(iexp).runs(irun,:);
     expTime = expt(iexp).time_mat(irun,:);
     fName = [runFolder '_000_000'];
-    [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);  
-
+        [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);
     disp(t)
     
     if irun == 1
@@ -120,7 +124,9 @@ clear data_bx
 clear data_tun
 
 fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
-
+if ~exist(fnout,'dir')
+    mkdir(fnout)
+end
 save(fullfile(fnout,'regOuts&Img.mat'),'out_bx','out_tun', 'data_corr_img','nfr_bx','nfr_tun')
 %% find motion trials
 % tuning
@@ -145,7 +151,7 @@ pMotion = num2str(round((nMotion/nfr_tun)*100));
 
 suptitle({[mouse '-' expDate '-dir tuning'];[num2str(nMotion) ' (' pMotion '%) frames with large translation']})
 
-print(fullfile(rc.ashleyAnalysis,'FSAV Summaries','awFSAVdatasets_V1','motion histograms',[mouse '_' expDate '_tun']),'-dpdf')
+print(fullfile(rc.ashleyAnalysis,'FSAV Summaries',['awFSAVdatasets' ds],'motion histograms',[mouse '_' expDate '_tun']),'-dpdf')
 
 % behavior
 motion_fig = figure; setFigParams4Print('portrait')
@@ -169,7 +175,7 @@ pMotion = num2str(round((nMotion/nfr_bx)*100));
 
 suptitle({[mouse '-' expDate '-behavior'];[num2str(nMotion) ' (' pMotion '%) frames with large translation']})
 
-fnout = fullfile(rc.ashleyAnalysis,'FSAV Summaries','awFSAVdatasets_V1');
+fnout = fullfile(rc.ashleyAnalysis,'FSAV Summaries',['awFSAVdatasets' ds]);
 
 print(fullfile(fnout,'motion histograms',[mouse '_' expDate '_bx']),'-dpdf')
 %% break up data, set nans for motion frames;

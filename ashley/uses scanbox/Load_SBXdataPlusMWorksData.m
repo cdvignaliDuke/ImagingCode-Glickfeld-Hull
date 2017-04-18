@@ -19,8 +19,6 @@ if nargout > 1
 %new datasets
 if ~isempty(varargin)
     nframes = varargin{1};    
-elseif strcmp(date,'150508')  & strcmp(ImgFolder,'003')
-    nframes = 13577;
 else
     nframes = info.config.frames;
 end
