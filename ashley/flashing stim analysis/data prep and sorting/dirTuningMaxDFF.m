@@ -52,4 +52,7 @@ print(fullfile(fnout, 'max images',[mouse '_' expDate '_tun']),'-dpdf')
 writetiff(max(dFF_dirmax,[],3), fullfile(fnout,'max images',[mouse '_' expDate '_tun']))
 
 %% save max images,reg outs
+if ~exist(fntun,'dir')
+    mkdir(fntun)
+end
 save(fullfile(fntun,'tun_max_images.mat'),'dFF_dirmax');

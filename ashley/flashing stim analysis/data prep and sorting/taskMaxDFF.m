@@ -88,7 +88,10 @@ title('trial mid to end')
 subplot(3,1,3)
 imagesc(tar_max)
 title('trial target')
+if ~exist(fullfile(fnbx,'max images'),'dir')
+    mkdir(fullfile(fnbx,'max images'))
+end
 print(fullfile(fnbx,'max images',[mouse '_' expDate '_bx.pdf']),'-dpdf','-fillpage');
 writetiff(max(cat(3,start_max,long_max,tar_max),[],3),fullfile(fnbx,'max images',[mouse '_' expDate '_bx']))
 %% save max images,reg outs
-save(fullfile(fnin,'bx_max_images.mat'),'start_max','long_max','tar_max');
+save(fullfile(fnbx,'bx_max_images.mat'),'start_max','long_max','tar_max');
