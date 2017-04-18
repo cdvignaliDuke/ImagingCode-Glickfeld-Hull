@@ -2,9 +2,10 @@ function [A, tau, R_square] = singExpDecayFit(timeCourse);
 
 t = 1:length(timeCourse);
 A_guess = mean(timeCourse(1:5,:),1);
-tau_guess = -1*find(timeCourse<(0.4*A_guess),1,'first');
+ss = mean(timeCourse(length(t)-5:length(t),:),1);
+tau_guess = -1*find(timeCourse<(ss+ (0.4*(A_guess-ss))),1,'first');
 
-options = optimset('MaxFunEvals',inf,'MaxIter',inf);
+options = optimset('MaxFunEvals',inf,'MaxIter',100000);
 [out,fval,success] = fminsearch(@singExpDecay_sse, [A_guess, tau_guess],options);
 if success == 1
     A=out(1);
@@ -12,6 +13,12 @@ if success == 1
     sse = fval;
     sse_tot = sum((timeCourse - mean(timeCourse)).^2);
     R_square = 1-(sse/sse_tot);
+else
+    A=NaN;
+    tau=NaN;
+    sse = NaN;
+    sse_tot = NaN;
+    R_square = NaN;
 end
     
     %nested function
