@@ -204,8 +204,8 @@ subplot(1,2,2);
 bar([1,2],[mean(corr_onset_latency_std), mean(corr_cue_aligned_onset_latency_std)]);
 errorbar([1,2],[mean(corr_onset_latency_std), mean(corr_cue_aligned_onset_latency_std)], [std(corr_onset_latency_std), std(corr_cue_aligned_onset_latency_std)]);
 %[(std(corr_onset_latency_std)/sqrt(length(corr_onset_latency_std))), (std(corr_cue_aligned_onset_latency_std)/sqrt(length(corr_cue_aligned_onset_latency_std)))])
-%% 
-%get mean onset latency for Corr v Early 
+
+%%  %get mean onset latency for Corr v Early 
 corr_onset_latency = [];
 early_onset_latency = [];
 corr_cue_aligned_onset_latency = [];
