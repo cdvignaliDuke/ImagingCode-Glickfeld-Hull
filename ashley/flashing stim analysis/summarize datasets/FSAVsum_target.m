@@ -1,4 +1,5 @@
 ds = '_V1';
+doDendrites = 1;
 %% load data
 close all
 eval(['awFSAVdatasets' ds])
@@ -17,12 +18,18 @@ else
 end
 str = unique({expt.SubNum});
 mouse_str = ['i' strjoin(str,'_i')];
-load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
-load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells.mat']));
-
-fnout = fullfile(rc.caOutputDir,dataGroup,'tarAlgin_');
+if doDendrites
+    load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_dendrites' ds '.mat']));
+    load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells_dendrites.mat']));
+    fnout = fullfile(rc.caOutputDir,dataGroup,'_den_tarAlgin_');
+else
+    load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
+    load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells.mat']));
+    fnout = fullfile(rc.caOutputDir,dataGroup,'tarAlgin_');
+end
 %% 
-for C = 1:7
+% for C = 1:7
+C = 7;
     if C ~= 7
         doCellInd = 1;
     else
@@ -56,9 +63,9 @@ miss_inv = 4;
 ncatch = sum(nCatchExpt(expt,mouse) > 0);
 
 % analysis windows
-pre_win = mouse(1).expt(2).win(1).frames;
-trans_win = mouse(1).expt(2).win(2).frames;
-pre_event_frames = mouse(1).expt(2).pre_event_frames;
+pre_win = mouse(1).expt(1).win(1).frames;
+trans_win = mouse(1).expt(1).win(2).frames;
+pre_event_frames = mouse(1).expt(1).pre_event_frames;
 
 
 %% get just the data needed
@@ -713,4 +720,4 @@ if ~doCellInd
     auroc_plots 
 end
 
-end
+% end

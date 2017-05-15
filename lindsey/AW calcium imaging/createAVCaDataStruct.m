@@ -137,7 +137,11 @@ eval(['awFSAVdatasets' datasetStr])
         %account for accumulation of frames across multiple runs 
         dataTC = [];
         fnTC = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date);
-        load(fullfile(fnTC,'timecourses.mat'))
+        if cellsOnly == 2
+            load(fullfile(fnTC,'timecourses_dendrites.mat'))
+        else
+            load(fullfile(fnTC,'timecourses.mat'))
+        end
         dataTC = data_tc_subnp;
                 
         offset = 0;
@@ -178,6 +182,20 @@ eval(['awFSAVdatasets' datasetStr])
         cycles = unique(tCyclesOn);
         V_ind = find(cell2mat(input.tBlock2TrialNumber) == 0);
         AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
+        
+        %previous trial info
+        trType = double(cell2mat(input.tBlock2TrialNumber));
+        trType_shift = [NaN trType];
+        prevTrType = trType_shift(1:length(trType));
+        trType_shift = [NaN NaN trType];
+        prev2TrType = trType_shift(1:length(trType));
+        trOut = input.trialOutcomeCell;
+        trOut_shift = [{NaN} trOut];
+        prevTrOut = trOut_shift(1:length(trOut));
+        trOut_shift = [{NaN} {NaN} trOut];
+        prev2TrOut = trOut_shift(1:length(trOut));
+        
+        %stim timing
         if iscell(input.nFramesOn)
             cycTime = unique(cell2mat(input.nFramesOn))+unique(cell2mat(input.nFramesOff));
         else
@@ -240,7 +258,7 @@ eval(['awFSAVdatasets' datasetStr])
         if cellsOnly == 1
             load(fullfile(dataPath, 'cellsSelect_cellsOnly.mat'));
         elseif cellsOnly == 2
-            load(fullfile(dataPath, 'cellsSelect_dendritesOnly.mat'));
+            load(fullfile(dataPath, 'cellsSelect_dendrites.mat'));
         else
             load(fullfile(dataPath, 'cellsSelect.mat'));
         end
@@ -604,7 +622,7 @@ eval(['awFSAVdatasets' datasetStr])
         mouse(imouse).expt(s(:,imouse)).cells(6).ind = cellsSelect{5};
         mouse(imouse).expt(s(:,imouse)).cells(7).ind = cellsSelect{6};
         mouse(imouse).expt(s(:,imouse)).align(1).name = 'press';
-        mouse(imouse).expt(s(:,imouse)).align(2).name = 'prevStim';
+        mouse(imouse).expt(s(:,imouse)).align(2).name = 'targetStim';
         mouse(imouse).expt(s(:,imouse)).align(3).name = 'catchStim';
         mouse(imouse).expt(s(:,imouse)).win(1).name = 'pre';
         mouse(imouse).expt(s(:,imouse)).win(2).name = 'trans';
@@ -712,6 +730,34 @@ eval(['awFSAVdatasets' datasetStr])
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc = tCyclesOn(:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion))-1;
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).tcyc = tCyclesOn(:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).tcyc = tCyclesOn(:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));
+                
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).prevTrType = prevTrType(:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).prevTrType = prevTrType(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).prevTrType = prevTrType(:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).prevTrType = prevTrType(:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion))-1;
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).prevTrType = prevTrType(:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).prevTrType = prevTrType(:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));                
+                
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).prev2TrType = prev2TrType(:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).prev2TrType = prev2TrType(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).prev2TrType = prev2TrType(:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).prev2TrType = prev2TrType(:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion))-1;
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).prev2TrType = prev2TrType(:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).prev2TrType = prev2TrType(:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));
+                
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).prevTrOut = prevTrOut(:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).prevTrOut = prevTrOut(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).prevTrOut = prevTrOut(:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+%                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).prevTrOut = prevTrOut(:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion))-1;
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).prevTrOut = prevTrOut(:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).prevTrOut = prevTrOut(:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));                
+                
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).prev2TrOut = prev2TrOut(:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).prev2TrOut = prev2TrOut(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).prev2TrOut = prev2TrOut(:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+%                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).prev2TrOut = prev2TrOut(:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion))-1;
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).prev2TrOut = prev2TrOut(:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).prev2TrOut = prev2TrOut(:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));
             else
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = NaN(sz(1), sz(2));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = NaN(sz(1), sz(2));

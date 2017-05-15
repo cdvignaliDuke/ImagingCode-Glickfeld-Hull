@@ -46,9 +46,9 @@ ialign = 1;
 visual = 1;
 auditory = 2;
 hits = 1;
-cycTime = mouse(1).expt(1).info(1).cyc_time;
-cycTimeMs = mouse(1).expt(1).info(1).cyc_time_ms;
-nexp = 0;
+cycTime = mouse(2).expt(1).info(1).cyc_time;
+cycTimeMs = mouse(2).expt(1).info(1).cyc_time_ms;
+nexp = 0;2
 for imouse = 1:size(mouse,2)
     nexp = nexp+size(mouse(imouse).expt,2);
 end

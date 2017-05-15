@@ -1,16 +1,11 @@
-ms = 'AW68';
-sn = '668';
+ms = 'AW16';
+sn = '616';
 t = '';
-dt = '161031';
-dirtuning = '006';
+dt = '151105';
+dirtuning = '008';
 rettuning = '007';
-imouse = 6;
-iexp = 2;
-cell_excAnt = 4;%10 59 72,76,88,95
-cell_inhAnt = 11;
-cell_excTar = 13;%4,13,18,20,33,34,38,46,54,86
-cell_nr = 1;
-cell_mat = [cell_excAnt cell_inhAnt cell_excTar cell_nr];
+imouse = 3;
+iexp = 1;
 cellType_str = {'Exc - Ant';'Inh - Ant';'Exc - Tar';'NR'};
 taskPart_str = {'Trial Start';'Anticipation';'Target';'dir tuning, DG';'ret tuning, DG'};
 pressAlign = 1;
@@ -48,7 +43,12 @@ cycTimeMs = mouse(1).expt(1).info(1).cyc_time_ms;
 
 fnout = fullfile(rc.caOutputDir, dataGroup, [date '_' ms '_' dt '_']); 
 
-
+%%
+cell_excAnt = 60;%10 59 72,76,88,95
+cell_inhAnt = 74;
+cell_excTar = 58;%4,13,18,20,33,34,38,46,54,86
+cell_nr = 1;
+cell_mat = [cell_excAnt cell_inhAnt cell_excTar cell_nr];
 %% set params for figures
 set(0,'defaultfigurepaperorientation','landscape');
 set(0,'defaultfigurepapersize',[11 8.5]);

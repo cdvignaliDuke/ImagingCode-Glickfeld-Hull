@@ -1,4 +1,4 @@
-function msModCells = createModIndexStruct(datasetStr)
+function msModCells = createModIndexStruct(datasetStr,doDendrites)
 %% load data, set data group
 % % cellsInd = 14;
 eval(['awFSAVdatasets' datasetStr])
@@ -21,7 +21,11 @@ mouse_str = ['i' strjoin(str,'_i')];
 % % titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
 % % fnout = fullfile(rc.caOutputDir,dataGroup,'cells only', [titleStr '_' mouse_str]);
 % % else
-load(fullfile(rc.caOutputDir,dataGroup, [mouse_str '_CaSummary' datasetStr '.mat']));
+if doDendrites 
+    load(fullfile(rc.caOutputDir,dataGroup, [mouse_str '_CaSummary_dendrites' datasetStr '.mat']));
+else
+    load(fullfile(rc.caOutputDir,dataGroup, [mouse_str '_CaSummary' datasetStr '.mat']));
+end
 % % titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
 fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_' mouse_str]);
 % % end
@@ -434,5 +438,9 @@ end
 
 
 %% save analysis
+if doDendrites
+    save([fnout '_modCells_dendrites'],'msModCells');
+else
     save([fnout '_modCells'],'msModCells');
+end
 end

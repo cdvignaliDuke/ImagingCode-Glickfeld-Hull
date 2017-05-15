@@ -7,8 +7,7 @@ if cellsOnly == 1
     load(fullfile(dataPath,'cell&dendriteTC.mat'))
     data_tc_subnp = cell_tc;
 elseif cellsOnly == 2    
-    load(fullfile(dataPath,'cell&dendriteTC.mat'))
-    data_tc_subnp = den_tc;
+    load(fullfile(dataPath,'timecourses_dendrites.mat'))
 else
     load(fullfile(dataPath, 'timecourses.mat'));
 end
@@ -21,12 +20,16 @@ load (fullfile(rc.pathStr,mworks));
 nON = (input.nScansOn)./10;
 nOFF = (input.nScansOff)./10;
 nStim = input.gratingDirectionStepN;
-nRep = size(data_tc_subnp,1)./((nON+nOFF)*nStim);
-nTrials = (nStim.*nRep);
+nTrials = input.trialSinceReset;
+% nRep = size(data_tc_subnp,1)./((nON+nOFF)*nStim);
+% nTrials = (nStim.*nRep);
+data_tc_subnp = data_tc_subnp(1:(nON+nOFF)*nTrials,:);
 DirectionDeg = cell2mat(input.tGratingDirectionDeg);
 Dirs = unique(DirectionDeg);
 base_win = 6:10;
 resp_win = 12:16;
+
+
 
 %find dF/F of responses for all cells
 stimOFF_ind = 1:nOFF+nON:size(data_tc_subnp,1);
@@ -177,7 +180,7 @@ print(fullfile(dataPath,'OSI_hist'),'-dpdf')
 if cellsOnly == 1
     save(fullfile(dataPath, 'cellsSelect_cellsOnly.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
 elseif cellsOnly == 2
-    save(fullfile(dataPath, 'cellsSelect_dendritesOnly.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+    save(fullfile(dataPath, 'cellsSelect_dendrites.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
 else
     save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
 end

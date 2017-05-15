@@ -1,23 +1,26 @@
 y_axis_lim = [-0.02 0.07];
 
-vR_long = vR_bin{nbins-1};
-aR_long = aR_bin{nbins-1};
+trL_bin = nbins-3;
+vR_long = vR_bin{trL_bin};
+aR_long = aR_bin{trL_bin};
 
-vTC_long = vTC_bin{nbins-1};
-aTC_long = aTC_bin{nbins-1};
+vTC_long = vTC_bin{trL_bin};
+aTC_long = aTC_bin{trL_bin};
 
-% params for linear regression
-t_fr = (-bl_fr:size(v,1)-bl_fr-1)';
+
 
 %% responsive cells
 figure; setFigParams4Print('landscape');
+suptitle(['trial length bin ' num2str(trL_bin)])
 subplot(2,2,1)
 title('all responsive cells')
 hold on
-cell_ind = logical(tar_resp | base1_resp | base_sust);
+cell_ind = logical(tar_resp | base1_resp | base_sust) & cyc100;
 v = vTC_long(tr_start:end,cell_ind);
 a = aTC_long(tr_start:end,cell_ind);
 
+% params for linear regression
+t_fr = (-bl_fr:size(v,1)-bl_fr-1)';
 lr_win = trans_win(end)+1-20:size(v,1);
 
 v_lr = slr(t_fr,nanmean(v,2),lr_win);
@@ -43,8 +46,8 @@ figAxForm(h.Parent)
 subplot(2,2,2)
 title('target resp')
 hold on
-v = vTC_long(tr_start:end,logical(tar_resp));
-a = aTC_long(tr_start:end,logical(tar_resp));
+v = vTC_long(tr_start:end,logical(tar_resp) & cyc100);
+a = aTC_long(tr_start:end,logical(tar_resp) & cyc100);
 v_lr = slr(t_fr,nanmean(v,2),lr_win);
 a_lr = slr(t_fr,nanmean(a,2),lr_win);
 
@@ -70,8 +73,8 @@ subplot(2,2,3)
 title('1st base resp')
 hold on
 
-v = vTC_long(tr_start:end,logical(base1_resp));
-a = aTC_long(tr_start:end,logical(base1_resp));
+v = vTC_long(tr_start:end,logical(base1_resp) & cyc100);
+a = aTC_long(tr_start:end,logical(base1_resp) & cyc100);
 v_lr = slr(t_fr,nanmean(v,2),lr_win);
 a_lr = slr(t_fr,nanmean(a,2),lr_win);
 
@@ -96,8 +99,8 @@ subplot(2,2,4)
 title('sustained base resp')
 hold on
 
-v = vTC_long(tr_start:end,logical(base_sust));
-a = aTC_long(tr_start:end,logical(base_sust));
+v = vTC_long(tr_start:end,logical(base_sust) & cyc100);
+a = aTC_long(tr_start:end,logical(base_sust) & cyc100);
 v_lr = slr(t_fr,nanmean(v,2),lr_win);
 a_lr = slr(t_fr,nanmean(a,2),lr_win);
 

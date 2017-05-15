@@ -1,20 +1,20 @@
-function plotAVCatchSummary(datasetStr,cellsInd,cellsOnly)
+function plotAVCatchSummary(ds,cellsInd,cellsOnly)
 % takes mouse FSAV Ca structure and plots responses to target phase
 % of task, comparing valid and invalid trials
 close all
 respCellsInd = 14;
 
-eval(['awFSAVdatasets' datasetStr])
+eval(['awFSAVdatasets' ds])
 
-titleStr = datasetStr;
+titleStr = ds;
 if strcmp(titleStr, '')
-    titleStr = 'V1';
+    titleStr = 'V1_100ms';
 else
     titleStr = titleStr(2:end);
 end
 rc = behavConstsAV;
 if strcmp(rc.name,'ashle')
-    dataGroup = ['awFSAVdatasets' datasetStr];
+    dataGroup = ['awFSAVdatasets' ds];
 else
     dataGroup = [];
 end
@@ -23,15 +23,15 @@ values = cell2mat(cellfun(@str2num,str,'UniformOutput',false));
 mouse_str = ['i' strjoin(str,'_i')];
 % mouse_ind = find(intersect(cell2mat({av.mouse}),values));
 if  cellsOnly == 1
-load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_cells' datasetStr '.mat']));
+load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_cells' ds '.mat']));
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
 fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_cells_' mouse_str]);
 elseif  cellsOnly == 2
-load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_dendrites' datasetStr '.mat']));
+load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_dendrites' ds '.mat']));
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
 fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_dendrites_' mouse_str]);
 else
-load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' datasetStr '.mat']));
+load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
 titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name]; 
 fnout = fullfile(rc.caOutputDir,dataGroup, [titleStr '_' mouse_str '_gr' num2str(respCellsInd)]);
 end
@@ -86,7 +86,7 @@ misses = 2;
 fas = 3;
 crs = 4;
 
-if strcmp(datasetStr,'_naive100ms') | strcmp(datasetStr,'_naive100ms_virus')
+if strcmp(ds,'_naive100ms') | strcmp(ds,'_naive100ms_virus')
     naiveCatch
     avgCellRespHeatMap_Val_Inv
 else
@@ -226,13 +226,21 @@ for imouse  = 1:size(mouse,2)
             if sum(nDirs_fa > 1) > 0 & sum(nDirs_h > 1) > 0  
                 mName = ['AW' mouse(imouse).expt(iexp).mouse_name(2:end)];
                 dirtuning = expt(intersect( find(strcmp({expt.SubNum},mouse(imouse).expt(iexp).mouse_name)) ,find(strcmp({expt.date},mouse(imouse).expt(iexp).date)) ) ).dirtuning;
-                load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect.mat'))
+                if cellsOnly == 2
+                    load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect_dendrites.mat'))
+                else
+                    load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect.mat'))
+                end
                 oriTuningResp_avg = cat(2,oriTuningResp_avg,dFoverF_OriResp_avg_rect(:,cell_ind));
                 oriTuningResp_tc = cat(3,oriTuningResp_tc,dFoverF_OriResp_TC(:,:,cell_ind));
             elseif sum(nDirs_m > 1) > 0 & sum(nDirs_cr > 1) > 0 
                 mName = ['AW' mouse(imouse).expt(iexp).mouse_name(2:end)];
                 dirtuning = expt(intersect( find(strcmp({expt.SubNum},mouse(imouse).expt(iexp).mouse_name)) ,find(strcmp({expt.date},mouse(imouse).expt(iexp).date)) ) ).dirtuning;
-                load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect.mat'))
+                if cellsOnly == 2
+                    load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect_dendrites.mat'))
+                else
+                    load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect.mat'))
+                end
                 oriTuningResp_avg = cat(2,oriTuningResp_avg,dFoverF_OriResp_avg_rect(:,cell_ind));
                 oriTuningResp_tc = cat(3,oriTuningResp_tc,dFoverF_OriResp_TC(:,:,cell_ind));
             end
@@ -777,11 +785,11 @@ end
 %%
 % depOnPrevTrialType_catchTrials
 %% target modulation index
-modIndex_val_inv
+% modIndex_val_inv
 %% target response heatmaps
-if cellsInd == 13 | cellsInd == 14
-    avgCellRespHeatMap_Val_Inv
-end
+% if cellsInd == 13 | cellsInd == 14
+%     avgCellRespHeatMap_Val_Inv
+% end
 
 %% set params for figures
 set(0,'defaultfigurepaperorientation','portrait');
@@ -1053,7 +1061,7 @@ ylabel('invalid all')
 title(['all val,all inv; p=' num2str(p) ', ' num2str(size(resp_inv_all,2)) '  cells'])
 
 figure(scatAllCells)
-print([fnout 'catch_align_scatter' datasetStr '.pdf'], '-dpdf','-fillpage')
+print([fnout 'catch_align_scatter' ds '.pdf'], '-dpdf','-fillpage')
 %% all directions -  scatter, cdfs, tc
 figure(scatFAvsH);
 suptitle(titleStr)
@@ -1470,23 +1478,23 @@ end
 %%
 % 
 % figure(scatFAvsH);
-% print([fnout 'catch_align_FAvsH' datasetStr '.pdf'], '-dpdf')
+% print([fnout 'catch_align_FAvsH' ds '.pdf'], '-dpdf')
 % figure(scatCRvsM);
-% print([fnout 'catch_align_CRvsM' datasetStr '.pdf'], '-dpdf')
+% print([fnout 'catch_align_CRvsM' ds '.pdf'], '-dpdf')
 % figure(scatCRvsH);
-% print([fnout 'catch_align_CRvsH' datasetStr '.pdf'], '-dpdf')
+% print([fnout 'catch_align_CRvsH' ds '.pdf'], '-dpdf')
 % figure(scatMvsH);
-% print([fnout 'catch_align_MvsH' datasetStr '.pdf'], '-dpdf')
+% print([fnout 'catch_align_MvsH' ds '.pdf'], '-dpdf')
 % figure(scatCRvsFA);
-% print([fnout 'catch_align_CRvsFA' datasetStr '.pdf'], '-dpdf')
+% print([fnout 'catch_align_CRvsFA' ds '.pdf'], '-dpdf')
 figure(cdfCatchResp)
-print([fnout 'catch_align_cdf' datasetStr '.pdf'], '-dpdf','-fillpage')
+print([fnout 'catch_align_cdf' ds '.pdf'], '-dpdf','-fillpage')
 figure(tcCatchResp)
-print([fnout 'catch_align_TC' datasetStr '.pdf'], '-dpdf','-fillpage')
+print([fnout 'catch_align_TC' ds '.pdf'], '-dpdf','-fillpage')
 figure(tarRespTraceDir)
-print([fnout 'catch_align_TC_dirs' datasetStr '.pdf'], '-dpdf','-fillpage')
+print([fnout 'catch_align_TC_dirs' ds '.pdf'], '-dpdf','-fillpage')
 figure(tarRespTuning)
-print([fnout 'tarRespTuning_val_inv' datasetStr '.pdf'], '-dpdf','-fillpage')
+print([fnout 'tarRespTuning_val_inv' ds '.pdf'], '-dpdf','-fillpage')
 
 % %% plot average 
 % %  plot avg target trace for random subset of cells, all directions
