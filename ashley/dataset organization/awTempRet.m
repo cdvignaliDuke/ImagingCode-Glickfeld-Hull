@@ -1,11 +1,11 @@
-%% AW70 170215
-expt(1).SubNum = '670';
-expt(1).mouse = 'AW70';
-expt(1).date = '170214';
+%% AW72 170227
+expt(1).SubNum = '672';
+expt(1).mouse = 'AW72';
+expt(1).date = '170227';
 expt(1).img_loc  = {'V1';'L2/3'};
 expt(1).img_strct  = {'cells'};
 expt(1).folder = 'two-photon imaging';
-expt(1).rettuning = {'001'; '1219'};
+expt(1).rettuning = {'007'; '1250'};
 expt(1).frame_rate = 30;
 expt(1).motionTestBimodal = 0;
 
