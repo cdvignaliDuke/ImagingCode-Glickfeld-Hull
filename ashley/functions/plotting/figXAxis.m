@@ -1,4 +1,7 @@
 function figXAxis(fig,x_name,x_limit,varargin)
+if isempty(fig)
+    fig = gca;
+end
 xlabel(x_name);
 if ~isempty(x_limit)
     xlim(x_limit);
