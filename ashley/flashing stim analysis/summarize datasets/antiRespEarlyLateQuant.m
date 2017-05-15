@@ -23,10 +23,10 @@ lateResp_aud = trapz(resp_aud_cmlvCyc{lateCycMax}(late_win,:));
 antiRespQuant = figure;
 suptitle(titleStr)
 
-subplot(5,2,1)
+subplot(4,2,1)
 scatter(earlyResp_vis,earlyResp_aud,50,'k.')
 hold on
-errorbarxy(mean(earlyResp_vis,2),mean(earlyResp_aud,2), (std(earlyResp_vis,[],2)/sqrt(size(earlyResp_vis,2))) , (std(earlyResp_aud,[],2)/sqrt(size(earlyResp_aud,2))) ,{'ro','r','r'});
+errorbarxy(nanmean(earlyResp_vis,2),nanmean(earlyResp_aud,2), (nanstd(earlyResp_vis,[],2)/sqrt(size(earlyResp_vis,2))) , (nanstd(earlyResp_aud,[],2)/sqrt(size(earlyResp_aud,2))) ,{'ro','r','r'});
 hold on
 plot([-10:0.1:20],[-10:0.1:20],'k--')
 hold on
@@ -39,10 +39,10 @@ xlabel('visual')
 ylabel('auditory')
 title({'early - int of analysis win'; ['pairwise p=' num2str(pEarly)]})
 
-subplot(5,2,2)
+subplot(4,2,2)
 scatter(lateResp_vis,lateResp_aud,50,'k.')
 hold on
-errorbarxy(mean(lateResp_vis,2),mean(lateResp_aud,2), (std(lateResp_vis,[],2)/sqrt(size(lateResp_vis,2))) , (std(lateResp_aud,[],2)/sqrt(size(lateResp_aud,2))) ,{'ro','r','r'});
+errorbarxy(nanmean(lateResp_vis,2),nanmean(lateResp_aud,2), (nanstd(lateResp_vis,[],2)/sqrt(size(lateResp_vis,2))) , (nanstd(lateResp_aud,[],2)/sqrt(size(lateResp_aud,2))) ,{'ro','r','r'});
 hold on
 plot([-10:0.1:20],[-10:0.1:20],'k--')
 hold on
@@ -58,7 +58,7 @@ title({'late - int of analysis win';['pairwise p=' num2str(pLate)]})
 %% cdf plots early and late integral
 figure(antiRespQuant)
 
-subplot(5,2,3)
+subplot(4,2,3)
 eVis = cdfplot(earlyResp_vis);
 eVis.Color = 'g';
 hold on
@@ -68,10 +68,10 @@ xlim([-1 2])
 axis square
 xlabel('int - dF/F')
 ylabel('cmlv frctn')
-legend({'visual';'auditory'})
+legend({'visual';'auditory'},'location','southeastoutside')
 title(['early - kstest p=' num2str(pkEarly)])
 
-subplot(5,2,4)
+subplot(4,2,4)
 lVis = cdfplot(lateResp_vis);
 lVis.Color = 'g';
 hold on
@@ -81,34 +81,34 @@ xlim([-1 2])
 axis square
 xlabel('int - dF/F')
 ylabel('cmlv frctn')
-legend({'visual';'auditory'})
+legend({'visual';'auditory'},'location','southeastoutside')
 title(['late - kstest p=' num2str(pkLate)])
 
 %% plot timecourse
-tcEV = mean(resp_vis_cmlvCyc{earlyCycMax},2);
-erEV = std(resp_vis_cmlvCyc{earlyCycMax},[],2)/sqrt(size(resp_vis_cmlvCyc{earlyCycMax},2));
-tcEA = mean(resp_aud_cmlvCyc{earlyCycMax},2);
-erEA = std(resp_aud_cmlvCyc{earlyCycMax},[],2)/sqrt(size(resp_aud_cmlvCyc{earlyCycMax},2));
-tcLV = mean(resp_vis_cmlvCyc{lateCycMax},2);
-erLV = std(resp_vis_cmlvCyc{lateCycMax},[],2)/sqrt(size(resp_vis_cmlvCyc{lateCycMax},2));
-tcLA = mean(resp_aud_cmlvCyc{lateCycMax},2);
-erLA = std(resp_aud_cmlvCyc{lateCycMax},[],2)/sqrt(size(resp_aud_cmlvCyc{lateCycMax},2));
+tcEV = nanmean(resp_vis_cmlvCyc{earlyCycMax},2);
+erEV = nanstd(resp_vis_cmlvCyc{earlyCycMax},[],2)/sqrt(size(resp_vis_cmlvCyc{earlyCycMax},2));
+tcEA = nanmean(resp_aud_cmlvCyc{earlyCycMax},2);
+erEA = nanstd(resp_aud_cmlvCyc{earlyCycMax},[],2)/sqrt(size(resp_aud_cmlvCyc{earlyCycMax},2));
+tcLV = nanmean(resp_vis_cmlvCyc{lateCycMax},2);
+erLV = nanstd(resp_vis_cmlvCyc{lateCycMax},[],2)/sqrt(size(resp_vis_cmlvCyc{lateCycMax},2));
+tcLA = nanmean(resp_aud_cmlvCyc{lateCycMax},2);
+erLA = nanstd(resp_aud_cmlvCyc{lateCycMax},[],2)/sqrt(size(resp_aud_cmlvCyc{lateCycMax},2));
 
 
-tcEsub = mean(resp_vis_cmlvCyc{earlyCycMax}-resp_aud_cmlvCyc{earlyCycMax},2);
-erEsub = std(resp_vis_cmlvCyc{earlyCycMax}-resp_aud_cmlvCyc{earlyCycMax},[],2)/sqrt(size(resp_vis_cmlvCyc{earlyCycMax},2));
-tcLsub = mean(resp_vis_cmlvCyc{lateCycMax}-resp_aud_cmlvCyc{lateCycMax},2);
-erLsub = std(resp_vis_cmlvCyc{lateCycMax}-resp_aud_cmlvCyc{lateCycMax},[],2)/sqrt(size(resp_vis_cmlvCyc{lateCycMax},2));
+tcEsub = nanmean(resp_vis_cmlvCyc{earlyCycMax}-resp_aud_cmlvCyc{earlyCycMax},2);
+erEsub = nanstd(resp_vis_cmlvCyc{earlyCycMax}-resp_aud_cmlvCyc{earlyCycMax},[],2)/sqrt(size(resp_vis_cmlvCyc{earlyCycMax},2));
+tcLsub = nanmean(resp_vis_cmlvCyc{lateCycMax}-resp_aud_cmlvCyc{lateCycMax},2);
+erLsub = nanstd(resp_vis_cmlvCyc{lateCycMax}-resp_aud_cmlvCyc{lateCycMax},[],2)/sqrt(size(resp_vis_cmlvCyc{lateCycMax},2));
 
 figure(antiRespQuant)
 
-subplot(5,2,5)
+subplot(4,2,5)
 shadedErrorBar(ttCycMs(20:length(tcEV)),tcEV(20:end),erEV(20:end),'g');
 hold on
 shadedErrorBar(ttCycMs(20:length(tcEA)),tcEA(20:end),erEA(20:end),'k');
 hold on
 xlim([-10 cycTime*earlyCycMax]/(cycTime/cycTimeMs))
-if cellsInd == 2 | strcmp(datasetStr,'_audControl')
+if cellsInd == 2 | strcmp(datasetStr,'_audControl') | strcmp(datasetStr,'_V1axonsAL') | strcmp(datasetStr,'_V1axonsPM')
 ylim([-0.01 0.06])
 else
 ylim([-0.01 0.03])
@@ -118,11 +118,11 @@ vline(baseStimFrames/(cycTime/cycTimeMs),':k');
 title([num2str(earlyCycMax) ' cycles, n = ' num2str(size(resp_vis_cmlvCyc{earlyCycMax},2))]);
 
 
-subplot(5,2,7)
+subplot(4,2,7)
 shadedErrorBar(ttCycMs(20:length(tcEsub)),tcEsub(20:end),erEsub(20:end),'k');
 hold on
 xlim([-10 cycTime*earlyCycMax]/(cycTime/cycTimeMs))
-if cellsInd == 2 | strcmp(datasetStr,'_audControl')
+if cellsInd == 2 | strcmp(datasetStr,'_audControl') | strcmp(datasetStr,'_V1axonsAL') | strcmp(datasetStr,'_V1axonsPM')
 ylim([-0.01 0.02])
 else
 ylim([-0.01 0.01])
@@ -131,13 +131,13 @@ vline([ttCycMs(early_win(1)) ttCycMs(early_win(end))], '--r')
 vline(baseStimFrames/(cycTime/cycTimeMs),':k');
 title([num2str(earlyCycMax) ' cycles, n = ' num2str(size(resp_vis_cmlvCyc{earlyCycMax},2)) '- V-A sub']);
 
-subplot(5,2,6)
+subplot(4,2,6)
 shadedErrorBar(ttCycMs(20:length(tcLV)),tcLV(20:end),erLV(20:end),'g');
 hold on
 shadedErrorBar(ttCycMs(20:length(tcLA)),tcLA(20:end),erLA(20:end),'k');
 hold on
 xlim([-10 cycTime*lateCycMax]/(cycTime/cycTimeMs))
-if cellsInd == 2 | strcmp(datasetStr,'_audControl')
+if cellsInd == 2 | strcmp(datasetStr,'_audControl') | strcmp(datasetStr,'_V1axonsAL') | strcmp(datasetStr,'_V1axonsPM')
 ylim([-0.01 0.06])
 else
 ylim([-0.01 0.03])
@@ -146,11 +146,11 @@ vline([ttCycMs(late_win(1)) ttCycMs(late_win(end))], '--r')
 vline([0 cycTime:cycTime:cycTime*lateCycMax]/(cycTime/cycTimeMs),':k');
 title([num2str(lateCycMax) ' cycles, n = ' num2str(size(resp_vis_cmlvCyc{lateCycMax},2))]);
 
-subplot(5,2,8)
+subplot(4,2,8)
 shadedErrorBar(ttCycMs(20:length(tcLsub)),tcLsub(20:end),erLsub(20:end),'k');
 hold on
 xlim([-10 cycTime*lateCycMax]/(cycTime/cycTimeMs))
-if cellsInd == 2 | strcmp(datasetStr,'_audControl')
+if cellsInd == 2 | strcmp(datasetStr,'_audControl') | strcmp(datasetStr,'_V1axonsAL')
 ylim([-0.01 0.02])
 else
 ylim([-0.01 0.01])
@@ -159,7 +159,7 @@ vline([ttCycMs(late_win(1)) ttCycMs(late_win(end))], '--r')
 vline([0 cycTime:cycTime:cycTime*lateCycMax]/(cycTime/cycTimeMs),':k');
 title([num2str(lateCycMax) ' cycles, n = ' num2str(size(resp_vis_cmlvCyc{lateCycMax},2)) '- V-A sub']);
 %%
-modIndex_vis_aud
+% modIndex_vis_aud
 %%
 figure(antiRespQuant)
 print([fnout 'press_align_antiEarlyLateQuant' datasetStr '.pdf'], '-dpdf','-fillpage')
