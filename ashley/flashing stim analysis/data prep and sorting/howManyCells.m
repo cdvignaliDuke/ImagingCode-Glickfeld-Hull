@@ -1,4 +1,11 @@
-function ncells = howManyCells(rc,expt)
+function ncells = howManyCells(rc,expt,varargin)
+
+if ~isempty(varargin)
+    doDendrites = varargin{1};
+else
+    doDendrites = 0;
+end
+    
 
 n = zeros(1,size(expt,2));
 
@@ -9,7 +16,11 @@ mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;
 down = 10;
 
-fnbx = fullfile(rc.ashleyAnalysis,mouse,expt(iexp).folder,expDate,'final_mask.mat');
+if doDendrites
+    fnbx = fullfile(rc.ashleyAnalysis,mouse,expt(iexp).folder,expDate,'dendrite_mask.mat');
+else
+    fnbx = fullfile(rc.ashleyAnalysis,mouse,expt(iexp).folder,expDate,'final_mask.mat');
+end
 
 load(fnbx)
 

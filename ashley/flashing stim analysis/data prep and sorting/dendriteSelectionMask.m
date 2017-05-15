@@ -2,7 +2,7 @@ clear all
 close all
 rc = behavConstsAV;
 awFSAVdatasets_V1
-for iexp = 3:size(expt,2)
+for iexp = 16:size(expt,2)
 
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;

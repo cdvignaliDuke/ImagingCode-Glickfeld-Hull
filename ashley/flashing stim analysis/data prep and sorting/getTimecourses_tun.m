@@ -1,9 +1,11 @@
 clear all
 close all
+%%
+doDendrites = 0;
+%%
 rc = behavConstsAV;
-awFSAVdatasets_V1
-for iexp = [7,10,12,13,18,19,20]
-% iexp = 11;
+awFSAVdatasets_audControl
+for iexp = 5:size(expt,2)
 
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
@@ -33,21 +35,29 @@ load(fullfile(fn,'regOuts&Img.mat'));
 [out data_reg] = stackRegister_MA(data_sub,[],[],out_tun);
 
 %% load mask
-load(fullfile(fn,'final_mask.mat'))
-%% get timecourses
-data_tc = stackGetTimeCourses(data_reg,mask_cell);
-
-%% subtract neuropil
-
-% get neuropil timecourses
+if doDendrites
+    load(fullfile(fn,'dendrite_mask.mat'))
+else
+    load(fullfile(fn,'final_mask.mat'))
+end
+%% get timecourses and subtract neuropil
 buf = 4;
 np = 6;
-
-data_tc_subnp = getWeightedNeuropilTimeCourse(data_reg,data_tc,mask_cell,buf,np);
+if strcmp(expt(iexp).img_strct,'axons')
+    data_tc = stackGetTimeCourses(data_reg,mask_boutons);  
+    data_tc_subnp = getWeightedNeuropilTimeCourse(data_reg,data_tc,mask_boutons,buf,np);  
+else
+    data_tc = stackGetTimeCourses(data_reg,mask_cell);
+    data_tc_subnp = getWeightedNeuropilTimeCourse(data_reg,data_tc,mask_cell,buf,np);
+end
 
 %% save data
-save(fullfile(fntun,'timecourses.mat'),'data_tc_subnp')
-save(fullfile(fntun,'raw_tc.mat'),'out_tun','data_tc','buf','np')
-
+if doDendrites
+    save(fullfile(fntun,'timecourses_dendrites.mat'),'data_tc_subnp')
+    save(fullfile(fntun,'raw_tc_dendrites.mat'),'out_tun','data_tc','buf','np')
+else
+    save(fullfile(fntun,'timecourses.mat'),'data_tc_subnp')
+    save(fullfile(fntun,'raw_tc.mat'),'out_tun','data_tc','buf','np')
+end
 quickDirectionTuningCurves
 end

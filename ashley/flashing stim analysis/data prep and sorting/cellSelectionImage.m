@@ -1,10 +1,9 @@
 clear all
 close all
 rc = behavConstsAV;
-awFSAVdatasets_V1
-
+awFSAVdatasets_audControl
 %%
-iexp = 20;
+iexp = 5;
     %%
 %% expt specs
 SubNum = expt(iexp).SubNum;
@@ -34,7 +33,7 @@ figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
 xcrop = [1:2 794:xpix];
-ycrop = [1:2 262:ypix];
+ycrop = [1:11 262:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;

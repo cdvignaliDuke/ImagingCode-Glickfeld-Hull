@@ -1,12 +1,11 @@
 clear all
 close all
-ds = '_L5';
+ds = '_audControl';
 
 %%
 rc = behavConstsAV;
 eval(['awFSAVdatasets' ds])
-% awFSAVdatasets_V1
-for iexp = 3:size(expt,2)
+for iexp = 2:size(expt,2)
 
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
@@ -18,9 +17,9 @@ dirTime = expt(iexp).dirtuning_time;
 % concatenate data files
 for irun = 1:expt(iexp).nrun
 
-    if irun == 3 & strcmp(expDate,'150508')
+    if strcmp(ds, '_V1') & irun == 3 & strcmp(expDate,'150508')
         continue
-    elseif irun == 2 & strcmp(expDate, '150528')
+    elseif strcmp(ds, '_V1') & irun == 2 & strcmp(expDate, '150528')
         continue
     end
     
@@ -51,7 +50,7 @@ for irun = 1:expt(iexp).nrun
                 inpPlusInd = ismember(inpNames2,inpNames1);
                 inpPlus = inpNames2(~inpPlusInd);
                 for i = 1:length(inpPlus)
-                    input.(char(genvarname(inpPlus(i)))) = cell(1,80);
+                    input_bx.(char(genvarname(inpPlus(i)))) = cell(1,length(inpNames1));
                 end
             end
             input_temp = [input_bx input];
@@ -151,6 +150,9 @@ pMotion = num2str(round((nMotion/nfr_tun)*100));
 
 suptitle({[mouse '-' expDate '-dir tuning'];[num2str(nMotion) ' (' pMotion '%) frames with large translation']})
 
+if ~exist(fullfile(rc.ashleyAnalysis,'FSAV Summaries',['awFSAVdatasets' ds],'motion histograms'),'dir')
+    mkdir(fullfile(rc.ashleyAnalysis,'FSAV Summaries',['awFSAVdatasets' ds],'motion histograms'))
+end
 print(fullfile(rc.ashleyAnalysis,'FSAV Summaries',['awFSAVdatasets' ds],'motion histograms',[mouse '_' expDate '_tun']),'-dpdf')
 
 % behavior

@@ -48,6 +48,9 @@ figure; setFigParams4Print('portrait')
 colormap gray
 imagesc(max(dFF_dirmax,[],3))
 title([mouse '-' expDate '-tun'])
+if ~exist(fullfile(fnout, 'max images'),'dir')
+    mkdir(fullfile(fnout, 'max images'))
+end
 print(fullfile(fnout, 'max images',[mouse '_' expDate '_tun']),'-dpdf')
 writetiff(max(dFF_dirmax,[],3), fullfile(fnout,'max images',[mouse '_' expDate '_tun']))
 

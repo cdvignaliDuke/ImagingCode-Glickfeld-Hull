@@ -1,8 +1,8 @@
 clear all
 close all
 rc = behavConstsAV;
-awFSAVdatasets_V1
-for iexp = [7,10,12,13,18,19,20]
+awFSAVdatasets_audControl
+for iexp = 4:size(expt,2)
 
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
@@ -26,5 +26,5 @@ title({[num2str(length(unique(mask_cell(:)))-1) ' cells with behavior'];[mouse '
 print(fullfile(fnout,'final_mask'),'-dpdf')
 
 save(fullfile(fnout,'final_mask.mat'),'mask_cell');
-
+close all
 end

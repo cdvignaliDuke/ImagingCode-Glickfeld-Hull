@@ -1,8 +1,12 @@
 clear all
 close all
+%%
+ds = '_audControl';
+doDendrites = 0;
+%%
 rc = behavConstsAV;
-awFSAVdatasets_V1
-for iexp = [7,10,12,13,18,19,20];
+eval(['awFSAVdatasets' ds])
+for iexp = 1:size(expt,2);
 tic
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
@@ -16,13 +20,20 @@ for irun = 1:expt(iexp).nrun
 
     if irun == 3 & strcmp(expDate,'150508')
         preRegFrames = size(data_bx,3);
+        nframes = 13577;
+    else
     end
     
     runFolder = expt(iexp).runs(irun,:);
     expTime = expt(iexp).time_mat(irun,:);
     fName = [runFolder '_000_000'];
-    [input, data_temp] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);  
-
+    
+    if irun == 3 & strcmp(expDate,'150508')
+        [input, data_temp] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName,nframes);  
+    else
+        [input, data_temp] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);  
+    end
+    
     if irun == 1
         data_bx = data_temp;
         input_bx = input;
@@ -44,7 +55,7 @@ for irun = 1:expt(iexp).nrun
                 inpPlusInd = ismember(inpNames2,inpNames1);
                 inpPlus = inpNames2(~inpPlusInd);
                 for i = 1:length(inpPlus)
-                    input.(char(genvarname(inpPlus(i)))) = cell(1,80);
+                    input_bx.(char(genvarname(inpPlus(i)))) = cell(1,80);
                 end
             end
             input_temp = [input_bx input];
@@ -72,20 +83,30 @@ else
     clear data_bx
 end
 %% load mask
-load(fullfile(fn,'final_mask.mat'))
-%% get timecourses
-data_tc = stackGetTimeCourses(data_reg,mask_cell);
-%% subtract neuropil
-
-% get neuropil timecourses
+if doDendrites    
+    load(fullfile(fn,'dendrite_mask.mat'))
+else
+    load(fullfile(fn,'final_mask.mat'))
+end
+%% get timecourses and subtract neuropil
 buf = 4;
 np = 6;
-
-data_tc_subnp = getWeightedNeuropilTimeCourse(data_reg,data_tc,mask_cell,buf,np);
+if strcmp(expt(iexp).img_strct,'axons')
+    data_tc = stackGetTimeCourses(data_reg,mask_boutons);
+    data_tc_subnp = getWeightedNeuropilTimeCourse(data_reg,data_tc,mask_boutons,buf,np);
+else
+    data_tc = stackGetTimeCourses(data_reg,mask_cell);
+    data_tc_subnp = getWeightedNeuropilTimeCourse(data_reg,data_tc,mask_cell,buf,np);
+end
 clear data_reg
 %% save data
-save(fullfile(fn,'timecourses.mat'),'data_tc_subnp')
-save(fullfile(fn,'raw_tc.mat'),'out_bx','data_tc','buf','np')
-t(iexp) = toc;
-disp(t)
+if doDendrites
+    save(fullfile(fn,'timecourses_dendrites.mat'),'data_tc_subnp')
+    save(fullfile(fn,'raw_tc_dendrites.mat'),'out_bx','data_tc','buf','np')
+else
+    save(fullfile(fn,'timecourses.mat'),'data_tc_subnp')
+    save(fullfile(fn,'raw_tc.mat'),'out_bx','data_tc','buf','np')
 end
+t(iexp) = toc;
+end
+disp(t)
