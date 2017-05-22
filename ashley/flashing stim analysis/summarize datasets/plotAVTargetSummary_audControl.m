@@ -2,7 +2,7 @@ function plotAVCatchSummary(datasetStr,cellsInd,cellsOnly)
 close all
 respCellsInd = 14;
 
-eval(['awFSAVdatasets' datasetStr])
+eval(['awFSAVdatasets' datasetStr]);
 
 titleStr = datasetStr;
 titleStr = titleStr(2:end);

@@ -1,6 +1,6 @@
 clear all
 close all
-ds = '_V1';
+ds = '_audControl';
 doDendrites = 0;
 doExptPlot = 0;
 %%
@@ -21,12 +21,12 @@ str = unique({expt.SubNum});
 mouse_str = ['i' strjoin(str,'_i')];
 if doDendrites
     load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_dendrites' ds '.mat']));
-    load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells_dendrites.mat']));
+%     load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells_dendrites.mat']));
 % titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
     fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr '_den_startAlign']); 
 else
     load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
-    load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells.mat']));
+%     load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells.mat']));
 % titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
     fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr '_startAlign']); 
 end
@@ -42,9 +42,9 @@ visual = 1;
 auditory = 2;
 hits = 1;
 misses = 2;
-FA = 3;
-auroc_comp1 = 3; % 1st stim to target stim
-auroc_compL = 1; % 1st stim to target stim
+% FA = 3;
+% auroc_comp1 = 3; % 1st stim to target stim
+% auroc_compL = 1; % 1st stim to target stim
 % cycTime = mouse(1).expt(1).info(1).cyc_time;
 % cycTimeMs = mouse(1).expt(1).info(1).cyc_time_ms;
 nexp = 0;
@@ -96,7 +96,6 @@ H_aearly = [];
 H_alate = [];
 H_av_early = [];
 H_av_late = [];
-
 vTC_shuff = [];
 aTC_shuff = [];
 
@@ -110,13 +109,13 @@ untuned = [];
 tar_resp = [];
 base1_resp = [];
 base_sust = [];
-auc1_inc = [];
-auc1_dec = [];
-rst1 = [];
-rst1_dir = [];
-aucL_inc = [];
-aucL_dec = [];
-rstL = [];
+% auc1_inc = [];
+% auc1_dec = [];
+% rst1 = [];
+% rst1_dir = [];
+% aucL_inc = [];
+% aucL_dec = [];
+% rstL = [];
 if doExptPlot
     expt_v_early_resp = zeros(1,size(expt,2));
     expt_v_early_err = zeros(1,size(expt,2));
@@ -136,7 +135,6 @@ for imouse = 1:size(mouse,2)
         d = mouse(imouse).expt(iexp).align(anti_align);
         dv = d.av(visual).outcome(hits);
         da = d.av(auditory).outcome(hits);
-        
         
         % resp to first stim and mid-trial length;
         vR = dv.resp;
@@ -208,7 +206,7 @@ for imouse = 1:size(mouse,2)
                 % early and late window response - ttest
                 if ibin == analysis_bin
                    getEarlyLateWinTTest 
-                   depOnPrevTrialType  
+                   depOnPrevTrialType 
                    [vTC_shuff_temp, aTC_shuff_temp] = shuffleTrials(vlong, along);  
                    vTC_shuff = cat(2,vTC_shuff,vTC_shuff_temp);
                    aTC_shuff = cat(2,aTC_shuff,aTC_shuff_temp);
@@ -217,7 +215,6 @@ for imouse = 1:size(mouse,2)
                     ind_500ms = find(ttS-0.5 >= -0.0001,1);
                     early_win = ind_500ms:ind_500ms+floor(frRateHz/2);
                     late_win = ind_500ms+floor(1.5*frRateHz):ind_500ms+floor(2*frRateHz);
-                   
                 end
                 
             else
@@ -297,22 +294,22 @@ for imouse = 1:size(mouse,2)
         end
         temp_ci = temp_ci+temp;
         base_sust = cat(2,base_sust,temp);
-%         %auroc first vs. target
-        mi = msModCells(imouse).expt(iexp).av(visual).outcome(hits).mi(1).comp(auroc_comp1).auc(3);
-        auc1_inc = cat(2,auc1_inc,mi.value >= 0.5);
-        auc1_dec = cat(2,auc1_dec,mi.value < 0.5);
-        rst1 = cat(2,rst1,mi.ustat);        
-        rst1_dir = cat(2,rst1_dir, ind2log(cell2mat(mi.rst_dirs'),length(mi.ustat)));
-%         %auroc last bs vs. target
-        mi = msModCells(imouse).expt(iexp).av(visual).outcome(hits).mi(1).comp(auroc_compL).auc(3);
-        aucL_inc = cat(2,aucL_inc,mi.value >= 0.5);
-        aucL_dec = cat(2,aucL_dec,mi.value < 0.5);
-        rstL = cat(2,rstL,mi.rst);
+% % % %         %auroc first vs. target
+% % %         mi = msModCells(imouse).expt(iexp).av(visual).outcome(hits).mi(1).comp(auroc_comp1).auc(3);
+% % %         auc1_inc = cat(2,auc1_inc,mi.value >= 0.5);
+% % %         auc1_dec = cat(2,auc1_dec,mi.value < 0.5);
+% % %         rst1 = cat(2,rst1,mi.ustat);        
+% % %         rst1_dir = cat(2,rst1_dir, ind2log(cell2mat(mi.rst_dirs'),length(mi.ustat)));
+% % % %         %auroc last bs vs. target
+% % %         mi = msModCells(imouse).expt(iexp).av(visual).outcome(hits).mi(1).comp(auroc_compL).auc(3);
+% % %         aucL_inc = cat(2,aucL_inc,mi.value >= 0.5);
+% % %         aucL_dec = cat(2,aucL_dec,mi.value < 0.5);
+% % %         rstL = cat(2,rstL,mi.rst);
         
         if doExptPlot
         temp_ci = temp_ci > 0;
         FSAVexpt_anti
-        expt_number = expt_number+1;
+        expt_number = expt_number+1;        
         end
     end
 end
@@ -345,7 +342,6 @@ if doExptPlot
        title({'late win';'avg resp, task resp cells';'each expt'})
     print(fullfile(rc.caOutputDir, dataGroup,'expt sum','expt_AVresp'),'-dpdf','-fillpage');
 end
-
 %% plotting info
 nbins = length(vR_norm_bin);
 c_lim = [0 100];
