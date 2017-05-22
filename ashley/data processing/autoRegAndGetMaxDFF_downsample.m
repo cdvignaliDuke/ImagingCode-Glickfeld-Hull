@@ -1,7 +1,7 @@
 clear all
 close all
-ds = 'movDotsSpeedTun_V1';
-slct_exp = [1];
+ds = 'awData_audMod_V1';
+slct_exp = [1:2];
 %%
 rc = behavConstsAV;
 eval(ds)
@@ -21,6 +21,7 @@ for irun = 1:expt(iexp).nrun
         mkdir(fnout)
     end
     [input, data] = Load_SBXdataPlusMWorksData(subnum,expDate,expTime,mouse,runFolder,fName);
+    
     % down-sample
     data_down = stackGroupProject(data,down);
     clear data_tun
@@ -100,7 +101,21 @@ for irun = 1:expt(iexp).nrun
 
 
 %% ********* tuning max dF/F ************
+if expt(iexp).tunVar == 0
+    maxDFF = quickMaxDFF(data_reg);
+    %% figure
+    figure; setFigParams4Print('portrait')
+    colormap gray
+    imagesc(maxDFF)
+
+    if ~exist(fullfile(fnout, 'max images'),'dir')
+        mkdir(fullfile(fnout, 'max images'))
+    end
+    print(fullfile(fnout, 'max images'),'-dpdf')
+    writetiff(maxDFF, fullfile(fnout,'max images'))
+else
     tunVar = expt(iexp).tunVar;
     maxDFF = quickTunMaxDFF(data_reg,input,down,tunVar,fnout,1);
+end
 end
 end

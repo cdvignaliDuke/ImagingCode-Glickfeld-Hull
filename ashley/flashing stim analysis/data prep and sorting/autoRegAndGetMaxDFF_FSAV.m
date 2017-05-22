@@ -1,11 +1,11 @@
 clear all
 close all
 ds = '_audControl';
-
+slct_expt = 6;
 %%
 rc = behavConstsAV;
 eval(['awFSAVdatasets' ds])
-for iexp = 2:size(expt,2)
+for iexp = slct_expt
 
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;

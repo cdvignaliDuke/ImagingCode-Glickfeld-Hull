@@ -1,7 +1,7 @@
 clear all
 close all
-ds = 'movDotsSpeedTun_V1';
-slct_exp = [1];
+ds = 'awData_audMod_V1';
+slct_exp = [1:2];
 %%
 rc = behavConstsAV;
 eval(ds)
@@ -9,7 +9,8 @@ for iexp = slct_exp
     SubNum = expt(iexp).SubNum;
     mouse = expt(iexp).mouse;
     expDate = expt(iexp).date;
-    fnout = fullfile(rc.ashleyAnalysis,mouse,expt(iexp).folder,expDate);
+    imgFolder = expt(iexp).regImg;
+    fnout = fullfile(rc.ashleyAnalysis,mouse,expt(iexp).folder,expDate,imgFolder);
 
 
     %% load all max dF/F images, crop if necessary

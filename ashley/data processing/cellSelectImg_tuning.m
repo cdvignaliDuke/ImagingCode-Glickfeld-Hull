@@ -5,19 +5,19 @@ ds = 'movDotsSpeedTun_V1';
 rc = behavConstsAV;
 eval(ds)
 %%
-iexp = 1;
+iexp = 2;
 irun = 1;
     %%
 %% expt specs
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;
-imgFolder = expt(iexp).runs(irun,:);
+imgFolder = expt(iexp).regImg;
 
-fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
+fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,imgFolder);
 
 %% load max images
-load(fullfile(fntun,'tun_max_images.mat'))
+load(fullfile(fnout,'tun_max_images.mat'))
 
 tun_img = max(dFF_stimmax,[],3);
 
@@ -31,8 +31,8 @@ ypix = size(tun_img,1);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:5 794:xpix];
-ycrop = [1:7 527:ypix];
+xcrop = [1:2 794:xpix];
+ycrop = [1:8 527:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;

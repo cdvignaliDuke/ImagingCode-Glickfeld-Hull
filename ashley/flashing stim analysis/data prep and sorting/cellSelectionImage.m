@@ -3,7 +3,7 @@ close all
 rc = behavConstsAV;
 awFSAVdatasets_audControl
 %%
-iexp = 5;
+iexp = 6;
     %%
 %% expt specs
 SubNum = expt(iexp).SubNum;

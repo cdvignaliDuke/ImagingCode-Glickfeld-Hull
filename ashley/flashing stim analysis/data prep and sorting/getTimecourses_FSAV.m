@@ -3,10 +3,11 @@ close all
 %%
 ds = '_audControl';
 doDendrites = 0;
+slct_expt = [6];
 %%
 rc = behavConstsAV;
 eval(['awFSAVdatasets' ds])
-for iexp = 1:size(expt,2);
+for iexp = slct_expt;
 tic
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
