@@ -1,19 +1,20 @@
-function tc_dfoverf = tbyt_dfoverf(b_data, bx_out_dir);
+function img_dfoverf = tbyt_dfoverf_full_frame(b_data, bx_out_dir, img);
 %Uses the trial by trial baseline times to create a df/f timecourse
 
-%load variables from bx_outputs
-load(bx_out_dir, 'lever', 'frame_info', 'data_tc');
+%load variables
+load(bx_out_dir, 'lever', 'frame_info');
 
-shift = 10;
+shift = 10; %this is the number of times which t_range is shifted. In lever trials the trial ends almost immediately after lever release. In CRP trials it ends 6s after the cue termination
 baseline_timesMs = lever.baseline_timesMs;
 first_baseline = find(~isnan(baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
 StartT = frame_info.imaging_start_MW_T; %time of imaging onset in MWorks time. 
+img = double(img);
 
-tc_dfoverf = nan(size(data_tc));
+img_dfoverf = nan(size(img));
 F_range = [];
 for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only looks at the first and last fully imaged trials
-    %finding F_range
-    %F_range is the # of each frame which we will use to generate f. It uses an iti based f
+    
+    %finding F_range (F_range is the # of each frame which we will use to generate f. It uses an iti based f)
     if ~isnan(baseline_timesMs(1,iT));   %if there is a valid baseline interval then make that the new F
         F_range = frame_info.counter(baseline_timesMs(1,iT)):frame_info.counter(baseline_timesMs(2,iT));
     elseif isempty(F_range)   %if these are trials before there was ever a valid F_range then use the first valid F_range as this trials F_range also.
@@ -26,20 +27,18 @@ for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only 
     else
         t_range = frame_info.counter(round(cell2mat(b_data.tThisTrialStartTimeMs(iT))-StartT)):(frame_info.counter(round(cell2mat(b_data.tThisTrialStartTimeMs(iT+1))-StartT))-1);
     end
-    if iT == frame_info.l_frame_trial_num-1;
-        t_range = (t_range(1)+4):length(data_tc);
-    elseif iT == frame_info.f_frame_trial_num+1;
-        t_range = 1:(t_range(end)+4);
+    if iT == frame_info.l_frame_trial_num-1; %if this is the last fully imaged trial
+        t_range = (t_range(1)+shift):size(img,2); %then apply this F to all subsequent frames (with a frame shift)
+    elseif iT == frame_info.f_frame_trial_num+1; %if this is the first fully imaged trial then apply this F to all frames up to this point with the shift
+        t_range = 1:(t_range(end)+shift); 
     else
-        t_range = t_range + 4;    %added this shift because we have a 1s anaylsis window post release but trial ends 600ms after release.
+        t_range = t_range + shift;    %added this shift because we have a 2s analysis window post release but trial ends immediately after release. 
     end
     
-    %calculate df/f 
-    for i = 1:size(data_tc,1); %find the avf_f for F_range and apply it to all the frames in that trial
-        F_avg= mean(data_tc(i,F_range));
-        t_df = bsxfun(@minus, data_tc(i, t_range), F_avg);   %use bsxfun because sometimes F_avg is a vector
-        t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
-        tc_dfoverf(i,t_range) = t_dfoverf;
-    end
+    %calculate df/f
+    F_avg= mean(img(:,F_range),2);
+    t_df = bsxfun(@minus, img(:, t_range), F_avg);   %use bsxfun because sometimes F_avg is a vector
+    t_dfoverf = bsxfun(@rdivide, t_df, F_avg);
+    img_dfoverf(:,t_range) = t_dfoverf;
+    iT
 end
-
