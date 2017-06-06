@@ -1,9 +1,9 @@
-cd('Z:\Data\2P_imaging\170501_img92\img92');
-fname = 'img92_000_000';
+cd('Z:\Data\2P_imaging\170529_img94\img94');
+fname = 'img94_000_000';
 for ii = 1%:20
-    data = squeeze(sbxread(fname,ii*1,900));
+    data = squeeze(sbxread(fname,10000,5000));
     data_avg = mean(data,3);
     data_max= max(data,[],3);
     figure; imagesc(data_max); colormap gray;
-    title(['img92 170501 max proj frames ', num2str(ii*5000) ':' num2str(ii*5000+100)]);
+    title(['30HZ img94 170529 max proj frames 10000-15000']);
 end

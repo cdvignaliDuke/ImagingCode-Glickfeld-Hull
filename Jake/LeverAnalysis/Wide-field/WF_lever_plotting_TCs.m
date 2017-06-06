@@ -5,7 +5,7 @@ clear
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
-days = {'170426_img87', '170426_img88'}; % '170321_img86'
+days = {'151211_img32'}; % '170321_img86'
  
 for kk=1:length(days)
     %set directories and load bxOutputs and cluter data. 
@@ -14,10 +14,17 @@ for kk=1:length(days)
     load([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs']);
     load([CLUSTER_DIR, days{kk}, '\', days{kk}, '_cluster']); 
     
+    %check to see if FakeMouse exists
+    if isfield(b_data, 'doFakeMouseSuccessOnly');
+        fake_mouse = fake_mouse;
+    else
+        fake_mouse = 0;
+    end
+    
     %define variables to help with plotting
     func = @median; %func = @mean; %func = @std;
     pre_frames = 5;
-    post_frames = 20;
+    post_frames = 10;
     sampling_rate = round(1000/mode(diff(frame_info.times)));
     ts = (-pre_frames:post_frames)*1000/double(round(sampling_rate));
     ts = repmat(ts,[cluster.num_cluster 1]);
@@ -32,7 +39,7 @@ for kk=1:length(days)
     plot_ROIs_on_heatmap(avg_img, sz, b_data, days{kk}, cluster); 
     
     % PLOT SUCCESSFUL TRIALS----------------------------------------------
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         use_ev_success = trial_outcome.success_time;
         [success_roi, use_times_succ, lick_trace_succ, lick_trace_succ_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_success, pre_frames, post_frames);
         avg_success_roi = squeeze(func(success_roi,1));
@@ -46,7 +53,7 @@ for kk=1:length(days)
             avg_success_roi(i,:) = avg_success_roi(i,:)+shift;
         end
         subplot(2,3,2); lickBars = bar(ts(1,:), mean(lick_trace_succ)/10); hold on
-        alpha(.25);
+        %alpha(.25);
         for i = 1:size(ts,1);
             subplot(2,3,2); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -58,7 +65,7 @@ for kk=1:length(days)
     end
     
     %PLOT FAILED TRIALS---------------------------------------------------
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         use_ev_fail = trial_outcome.early_time;
         [fail_roi, use_times_fail, lick_trace_fail, lick_trace_fail_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_fail, pre_frames, post_frames);
         avg_fail_roi = squeeze(func(fail_roi,1));
@@ -76,7 +83,7 @@ for kk=1:length(days)
             avg_fail_roi(i,:) = avg_fail_roi(i,:)+shift;
         end
         subplot(2,3,3); bar(ts(1,:), mean(lick_trace_fail)/10); hold on
-        alpha(.25);
+        %alpha(.25);
         for i = 1:size(ts,1);
             hold on; subplot(2,3,3); errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
         end
@@ -89,7 +96,7 @@ for kk=1:length(days)
     end
     
     %PLOT FIDGETS-----------------------------------------------------
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         use_ev_fidget = trial_outcome.fidget;
         [fidget_roi, use_times_fidget, lick_trace_fidget, lick_trace_fidget_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_fidget, pre_frames, post_frames);
         avg_fidget_roi = squeeze(func(fidget_roi,1));
@@ -103,7 +110,7 @@ for kk=1:length(days)
             avg_fidget_roi(i,:) = avg_fidget_roi(i,:)+shift;
         end
         subplot(2,3,4); bar(ts(1,:), mean(lick_trace_fidget)/10); hold on
-        alpha(.25);
+        %alpha(.25);
         for i = 1:size(ts,1);
             hold on; subplot(2,3,4); errorbar(ts(i,:), avg_fidget_roi(i,:), sm_fidget(i,:), 'Color', colors(i,:));
         end
@@ -115,7 +122,7 @@ for kk=1:length(days)
     end
      
     %PLOT SUCCESS-FAIL------------------------------------------------
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         sub_sm = sqrt(sm_fail.^2+sm_success.^2);
         for i = 1:size(ts,1);
             hold on; subplot(2,3,5); errorbar(ts(i,:), avg_success_roi(i,:) - avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
@@ -128,7 +135,7 @@ for kk=1:length(days)
     end
      
     %PLOT TOOFAST SUCCESSES---------------------------------------
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         use_ev_tooFast = trial_outcome.tooFastCorrects;
         [tooFast_roi, use_times_tooFast, lick_trace_tooFast, lick_trace_tooFast_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_tooFast, pre_frames, post_frames);
         avg_tooFast_roi = squeeze(func(tooFast_roi,1));
@@ -150,7 +157,7 @@ for kk=1:length(days)
             subplot(2,3,6); plot(ts(1,:), zeros(length(ts))); ylim([-0.01 0.01]);
         else
             subplot(2,3,6); bar(ts(1,:), mean(lick_trace_tooFast)/10); hold on
-            alpha(.25);
+            %alpha(.25);
             for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
                 shift = (-1)*avg_tooFast_roi(i,1);
                 avg_tooFast_roi(i,:) = avg_tooFast_roi(i,:)+shift;
@@ -175,7 +182,7 @@ for kk=1:length(days)
     end
     
     %STANDARDIZE YLIMS, SAVE VARIABLES, REPORT Ns---------------------------------
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         subplot(2,3,2); ylim([min(YL(:,1)) max(YL(:,2))]);
         subplot(2,3,3); ylim([min(YL(:,1)) max(YL(:,2))]);
         subplot(2,3,4); ylim([min(YL(:,1)) max(YL(:,2))]);
@@ -201,7 +208,7 @@ for kk=1:length(days)
 
     
     %PLOT SUCCESSES TRIGGERED OFF CUE CHANGE. 
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         cueTimes = trial_outcome.change_orientation;
         corr_inx = find(trial_outcome.corr_inx);
         cueTimes = cueTimes .* (trial_outcome.corr_inx~=0);
@@ -233,7 +240,7 @@ for kk=1:length(days)
             avg_cue_roi(i,:) = avg_cue_roi(i,:)+shift;
         end
         figure; bar(ts(1,:), mean(lick_trace_cue)/10); hold on
-        alpha(.25);
+        %alpha(.25);
         for i = 1:size(ts,1);
             errorbar(ts(i,:), avg_cue_roi(i,:), sm_cue(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -249,7 +256,7 @@ for kk=1:length(days)
     end
     
     %main figure saved before plotting cue triggered fig
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         success_roi = squeeze(success_roi);
         fail_roi = squeeze(fail_roi);
         fidget_roi = squeeze(fidget_roi);
@@ -268,7 +275,7 @@ for kk=1:length(days)
     end
     
     %save lapsed trials 
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         if isempty(trial_outcome.late_time)==0
             use_ev_lapse = trial_outcome.late_time;
             [lapse_roi, use_times_lapse, lick_trace_lapse, lick_trace_lapse_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_lapse, pre_frames, post_frames);
@@ -279,7 +286,7 @@ for kk=1:length(days)
     end
     
     %save lick traces
-    if b_data.doFakeMouseSuccessOnly == 0;
+    if fake_mouse == 0;
         licking_data.lick_trace_succ = lick_trace_succ;
         licking_data.lick_trace_succ_10ms = lick_trace_succ_10ms;
         licking_data.lick_trace_fail = lick_trace_fail;
@@ -294,7 +301,7 @@ for kk=1:length(days)
     end
     
     %----PLOT CUE REWARD PAIRING SESSIONS------------------------------------------
-    if b_data.doFakeMouseSuccessOnly == 1;
+    if fake_mouse == 1;
         %plot rewarded trials
         use_ev_rewarded = trial_outcome.rewarded_trial_time;
         [rewarded_roi, use_times_rew, lick_trace_rew, lick_trace_rew_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_rewarded, pre_frames, post_frames);
@@ -309,7 +316,7 @@ for kk=1:length(days)
             avg_rewarded_roi(i,:) = avg_rewarded_roi(i,:)+shift;
         end
         subplot(1,3,2); lickBars = bar(ts(1,:), mean(lick_trace_rew)/10); hold on
-        alpha(.25);
+        %alpha(.25);
         for i = 1:size(ts,1);
             subplot(1,3,2); errorbar(ts(i,:), avg_rewarded_roi(i,:), sm_rewarded(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -340,7 +347,7 @@ for kk=1:length(days)
             avg_rew_om_roi(i,:) = avg_rew_om_roi(i,:)+shift;
         end
         subplot(1,3,3); lickBars = bar(ts(1,:), mean(lick_trace_rew_om)/10); hold on
-        alpha(.25);
+        %alpha(.25);
         for i = 1:size(ts,1);
             subplot(1,3,3); errorbar(ts(i,:), avg_rew_om_roi(i,:), sm_rewarded(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -397,7 +404,7 @@ for kk=1:length(days)
                 avg_unexp_rew_roi(i,:) = avg_unexp_rew_roi(i,:)+shift;
             end
             subplot(1,2,1); lickBars = bar(ts(1,:), mean(lick_trace_unexp_rew)/10); hold on
-            alpha(.25);
+            %alpha(.25);
             for i = 1:size(ts,1);
                 errorbar(ts(i,:), avg_unexp_rew_roi(i,:), sm_unexp_rew(i,:), 'Color', colors(i,:)); hold on;
             end
@@ -438,7 +445,7 @@ for kk=1:length(days)
                 avg_unexp_rew_roi_lick_align(i,:) = avg_unexp_rew_roi_lick_align(i,:)+shift;
             end
             subplot(1,2,2); lickBars = bar(ts(1,:), mean(lick_trace_unexp_rew_lick_align)/10); hold on
-            alpha(.25);
+            %alpha(.25);
             for i = 1:size(ts,1);
                 errorbar(ts(i,:), avg_unexp_rew_roi_lick_align(i,:), sm_unexp_rew_lick_align(i,:), 'Color', colors(i,:)); hold on;
             end

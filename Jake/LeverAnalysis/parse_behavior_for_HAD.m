@@ -25,8 +25,14 @@ unexp_rew = double(cell2mat(b_data.tDoNoStimulusChange));
 
 %find all the correct trials which were too fast to be responding to visual cue
 tooFastCorrects = zeros(size(b_data.reactTimesMs)); 
+if isfield(b_data, 'doFakeMouseSuccessOnly');
+    1
+    fake_mouse = b_data.doFakeMouseSuccessOnly;
+else
+    fake_mouse = 0;
+end
 for i = 1:length(b_data.reactTimesMs)
-    if react_time(i) < 176 & b_data.doFakeMouseSuccessOnly ==0;   %Removes tooFastCorrects from the successful trials count. But not for CRP trials. 
+    if react_time(i) < 176 & fake_mouse ==0;   %Removes tooFastCorrects from the successful trials count. But not for CRP trials. 
         has_reward(i)=0;
     end
     if isequal(b_data.trialOutcomeCell{i}, 'success'); 
@@ -48,13 +54,13 @@ unexp_inx = (unexp_rew.*release_time);
 
 %store the indexed vectors
 trial_outcome = [];
-if b_data.doFakeMouseSuccessOnly == 0; %condition set for regular lever trials and no-lever controls
+if fake_mouse == 0; %condition set for regular lever trials and no-lever controls
     trial_outcome.early_inx = early_inx;
     trial_outcome.corr_inx = corr_inx;
     trial_outcome.tooFast_inx = tooFast_inx;
     trial_outcome.late_inx = late_inx;
     trial_outcome.fidget_inx = fidget_inx;
-elseif b_data.doFakeMouseSuccessOnly == 1; %condition set for cue-reward pairing trials
+elseif fake_mouse == 1; %condition set for cue-reward pairing trials
     trial_outcome.rewarded_trials_inx = corr_inx;
     trial_outcome.rew_omission_inx = reward_omission_inx;
     trial_outcome.unexp_inx = unexp_inx;
@@ -73,7 +79,7 @@ if b_data.doLever== 1; %normal lever sessions
     trial_outcome.early_time = release_time(early_time);                   %altered to exclude fidgets 2/27/16
     trial_outcome.fidget = fidget_time;
     trial_outcome.late_time = late_time;               %if respond before change then no change in orientation
-elseif b_data.doFakeMouseSuccessOnly ==1; %if this is a cue reward pairing session
+elseif fake_mouse ==1; %if this is a cue reward pairing session
     trial_outcome.rewarded_trial_time = release_time(find(corr_inx));
     trial_outcome.rew_omission_trial_time = release_time(~has_reward);
     trial_outcome.unexpected_rew_time = release_time(find(unexp_rew));
