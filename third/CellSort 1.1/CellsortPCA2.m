@@ -1,5 +1,5 @@
 function [mixedsig, mixedfilters, CovEvals, covtrace, movm, ...
-    movtm] = CellsortPCA2(fn, flims, nPCs, dsamp, outputdir, badframes)
+    movtm] = CellsortPCA2(rt, flims, nPCs, dsamp, outputdir, fname, badframes)
 % [mixedsig, mixedfilters, CovEvals, covtrace, movm, movtm] = CellsortPCA(fn, flims, nPCs, dsamp, outputdir, badframes)
 %
 % CELLSORT
@@ -34,19 +34,13 @@ function [mixedsig, mixedfilters, CovEvals, covtrace, movm, ...
 % Eran Mukamel, Axel Nimmerjahn and Mark Schnitzer, 2009
 % Email: eran@post.harvard.edu, mschnitz@stanford.edu
 %
-global rt
+
 tic
-fprintf('-------------- CellsortPCA %s: %s -------------- \n', date, fn)
+
 
 %-----------------------
-% Check inputs
-if isempty(dir(fn))
-    error('Invalid input file name.')
-end
-if (nargin<2)||(isempty(flims))
-    nt_full = tiff_frames(fn);
-    flims = [1,nt_full];
-end
+
+
 global nt useframes jj jjind
 useframes = setdiff((flims(1):flims(2)), badframes);
 nt = length(useframes);
@@ -69,7 +63,7 @@ end
 if outputdir(end)~='/';
     outputdir = [outputdir, '/'];
 end
-
+[pixw,pixh] = size(rt(:,:,1));
 % Downsampling
 if length(dsamp)==1
     dsamp_time = dsamp(1);
@@ -77,27 +71,11 @@ if length(dsamp)==1
 else
     dsamp_time = dsamp(1);
     dsamp_space = dsamp(2); % Spatial downsample
+    [pixw,pixh] = size(imresize( rt(:,:,1), 1/dsamp_space, 'bilinear' ));
 end
 
-[fpath, fname] = fileparts(fn);
-if isempty(badframes)
-    fnmat = [outputdir, fname, '_',num2str(flims(1)),',',num2str(flims(2)), '_', date,'.mat'];
-else
-    fnmat = [outputdir, fname, '_',num2str(flims(1)),',',num2str(flims(2)),'_selframes_', date,'.mat'];
-end
-if ~isempty(dir(fnmat))
-    fprintf('CELLSORT: Movie %s already processed;', ...
-        fn)
-    forceload = input(' Re-load data? [0-no/1-yes] ');
-    if isempty(forceload) || forceload==0
-        load(fnmat)
-        return
-    end
-end
 
-fncovmat = [outputdir, fname, '_cov_', num2str(flims(1)), ',', num2str(flims(2)), '_', date,'.mat'];
-
-[pixw,pixh] = size(rt(:,:,1));
+nt = nt/dsamp_time;
 npix = pixw*pixh;
 
 fprintf('   %d pixels x %d time frames;', npix, nt)
@@ -109,9 +87,9 @@ end
 
 % Create covariance matrix
 if nt < npix
-    [covmat, mov, movm, movtm] = create_tcov(fn, pixw, pixh, useframes, nt, dsamp);
+    [covmat, mov, movm, movtm] = create_tcov(rt, pixw, pixh, useframes, nt, dsamp);
 else
-    [covmat, mov, movm, movtm] = create_xcov(fn, pixw, pixh, useframes, nt, dsamp);
+    [covmat, mov, movm, movtm] = create_xcov(rt, pixw, pixh, useframes, nt, dsamp);
 end
 covtrace = trace(covmat) / npix;
 movm = reshape(movm, pixw, pixh);
@@ -130,6 +108,7 @@ else
     [mixedsig] = reload_moviedata(nt, mov', mixedfilters, CovEvals);
 end
 mixedfilters = reshape(mixedfilters, pixw,pixh,nPCs);
+fnmat = [outputdir, fname, '_','PCA', '_', date,'.mat'];
 
 firstframe_full = rt(:,:,1);
 firstframe = firstframe_full;
@@ -138,13 +117,14 @@ if dsamp_space>1
 end
 
 %------------
-% Save the output data
+
 save(fnmat,'mixedfilters','CovEvals','mixedsig', ...
     'movm','movtm','covtrace')
 fprintf(' CellsortPCA: saving data and exiting; ')
+
 toc
 
-    function [covmat, mov, movm, movtm] = create_xcov(fn, pixw, pixh, useframes, nt, dsamp)
+    function [covmat, mov, movm, movtm] = create_xcov(rt, pixw, pixh, useframes, nt, dsamp)
         %-----------------------
         % Load movie data to compute the spatial covariance matrix
 
@@ -161,7 +141,7 @@ toc
 
         if (dsamp_space==1)
             mov = zeros(pixw, pixh, nt);
-            for jjind=1:length(useframes)
+            for jjind=1:nt
                 jj = useframes(jjind);
                 mov(:,:,jjind) = rt(:,:,jj);
                 if mod(jjind,500)==1
@@ -172,7 +152,8 @@ toc
         else
             [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space, 'bilinear' ));
             mov = zeros(pixw_dsamp, pixh_dsamp, nt);
-            for jjind=1:length(useframes)
+           
+            for jjind=1:nt
                 jj = useframes(jjind);
                 mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space, 'bilinear' );
                 if mod(jjind,500)==1
@@ -189,15 +170,15 @@ toc
         % DFoF normalization of each pixel
         movm = mean(mov,2); % Average over time
         movm = max(movm,1);
-%         movmzero = (movm==0);
-%         movm(movmzero) = 1;
+        movmzero = (movm==0);
+        movm(movmzero) = 1;
 
         mov = mov ./ (movm * ones(1,nt)) - 1; % Compute Delta F/F
         mov(movmzero, :) = 0;
 
         if dsamp_time>1
-            mov = filter(ones(dsamp,1)/dsamp, 1, mov, [], 2);
-            mov = downsample(mov', dsamp)';
+            mov = filter(ones(dsamp_time,1)/dsamp_time, 1, mov, [], 2);
+            mov = downsample(mov', dsamp_time)';
         end
 
         movtm = mean(mov,2); % Average over space
@@ -209,7 +190,7 @@ toc
         clear c1
     end
 
-    function [covmat, mov, movm, movtm] = create_tcov(fn, pixw, pixh, useframes, nt, dsamp)
+    function [covmat, mov, movm, movtm] = create_tcov(rt, pixw, pixh, useframes, nt, dsamp)
         %-----------------------
         % Load movie data to compute the temporal covariance matrix
         npix = pixw*pixh;
@@ -225,7 +206,7 @@ toc
 
         if (dsamp_space==1)
             mov = zeros(pixw, pixh, nt);
-            for jjind=1:length(useframes)
+            for jjind=1:nt
                 jj = useframes(jjind);
                 mov(:,:,jjind) = rt(:,:,jj);
                 if mod(jjind,500)==1
@@ -236,7 +217,9 @@ toc
         else
             [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space, 'bilinear' ));
             mov = zeros(pixw_dsamp, pixh_dsamp, nt);
-            for jjind=1:length(useframes)
+            
+            
+            for jjind=1:nt
                 jj = useframes(jjind);
                 mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space, 'bilinear' );
                 if mod(jjind,500)==1
@@ -258,8 +241,8 @@ toc
         mov(movmzero, :) = 0;
 
         if dsamp_time>1
-            mov = filter(ones(dsamp,1)/dsamp, 1, mov, [], 2);
-            mov = downsample(mov', dsamp)';
+            mov = filter(ones(dsamp_time,1)/dsamp_time, 1, mov, [], 2);
+            mov = downsample(mov', dsamp_time)';
         end
 
         c1 = (mov'*mov)/npix;
@@ -310,7 +293,7 @@ toc
         mixedfilters = reshape(movuse * mixedsig' * Sinv, npix, nPCs);
     end
 
-    function j = tiff_frames(fn)
+    function j = tiff_frames(rt)
         %
         % n = tiff_frames(filename)
         %
