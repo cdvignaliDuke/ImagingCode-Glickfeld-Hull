@@ -13,8 +13,8 @@ clear
 file_info;
 usFacs = 100;
 behav_dir = 'Z:\home\andrew\Behavior\Data\';
-for sub = size(mouseID,2)% - 6 : size(mouseID,2)
-    for rID = 1:2
+for sub = size(mouseID,2) - 1 : size(mouseID,2)
+    for rID = 1
         file_info;
         
         usFacs = 100; % upsample factor

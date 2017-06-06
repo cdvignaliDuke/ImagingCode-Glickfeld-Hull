@@ -1,7 +1,8 @@
 function [data, skip_run, img_fn] = loadFile(i,rID)
 file_info
 % data_dir = fullfile('\\crash\data\home\jake\Data\2P_imaging',[date{i} '_' mouseID{i}], mouseID{i});
-data_dir = fullfile('Z:\home\jake\Data\2P_imaging',[date{i} '_' mouseID{i}], mouseID{i});
+%data_dir = fullfile('Z:\home\jake\Data\2P_imaging',[date{i} '_' mouseID{i}], mouseID{i});
+data_dir = fullfile('Z:\Data\2P_imaging',[date{i} '_' mouseID{i}], mouseID{i});
 config_fn = dir(fullfile(data_dir,['*' runID{rID} '.mat']));
 img_fn   = dir(fullfile(data_dir,['*' runID{rID} '.sbx']));
 
