@@ -92,6 +92,36 @@ ylim([0.4 0.6])
 
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_auROC_Base_allN-1.pdf']),'-dpdf','-fillpage')
 
+%% auROC of baseline stimuli for all n interval
+for ioff = 1:noff
+    resp{ioff} = [];
+    base{ioff} = [];
+    for icyc = 2:maxCyc-1
+        ind = find(tFramesOff(:,icyc-1) == offs(ioff));
+        resp{ioff} = cat(3, resp{ioff}, squeeze(data_dfof(:,:,icyc+1,ind)));
+        base{ioff} = cat(3, base{ioff}, squeeze(data_dfof(:,:,icyc,ind)));
+    end
+end
+
+roc_base_allN = nan(noff,nCells);
+for ioff = 1:noff
+    resp_temp = resp{ioff};
+    base_temp = base{ioff};
+    resp_diff = squeeze(mean(resp_temp(resp_win,:,:),1)-mean(resp_temp(base_win,:,:),1));
+    base_diff = squeeze(mean(base_temp(resp_win,:,:),1)-mean(base_temp(base_win,:,:),1));
+    for iCell = 1:length(good_ind_base)
+        iC = good_ind_base(iCell);
+        roc_base_allN(ioff,iC) = roc_gh(base_diff(iC,:), resp_diff(iC,:));
+    end
+end
+
+figure; 
+errorbar(offs*(1000/frameRateHz), nanmean(roc_base_allN,2), nanstd(roc_base_allN,[],2)./sqrt(length(good_ind_base)),'-ok');
+title([mouse ' ' date ' ' run_str ' - Base responses- All N'])
+xlabel('N-1 interval')
+ylim([0.4 0.6])
+
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_auROC_Base_allN.pdf']),'-dpdf','-fillpage')
 %% auROC of baseline stimuli for n-1 interval
 
 resp = cell(noff, noff);
@@ -161,6 +191,31 @@ end
 suptitle([mouse ' ' date ' ' run_str ' - Target responses- All n-1'])
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_auROC_Targ_allN-1.pdf']),'-dpdf','-fillpage')
 
+%% auROC of target stimuli for all n interval
+
+roc_targ_allN = nan(noff,nDelta,nCells);
+for ioff = 1:noff
+    for idelta = 1:nDelta
+        ind = intersect(find(tGratingDir == deltas(idelta)), find(tFramesOff(:,4) == offs(ioff)));
+        resp_diff = squeeze(mean(data_dfof(resp_win,:,6,ind),1)- mean(data_dfof(base_win,:,6,ind),1));
+        base_diff = squeeze(mean(data_dfof(resp_win,:,5,ind),1)- mean(data_dfof(base_win,:,5,ind),1));
+        for iCell = 1:length(good_ind_targ)
+            iC = good_ind_targ(iCell);
+            roc_targ_allN(ioff,idelta,iC) = roc_gh(base_diff(iC,:), resp_diff(iC,:));
+        end
+    end
+end
+
+figure;
+for idelta = 1:nDelta
+    subplot(1,2,idelta)
+    errorbar(offs*(1000/frameRateHz), nanmean(roc_targ_allN(:,idelta,:),3), nanstd(roc_targ_allN(:,idelta,:),[],3)./sqrt(length(good_ind_targ)),'-ok');
+    title([num2str(deltas(idelta)) ' deg'])
+    xlabel('N interval')
+    ylim([0.3 0.7])
+end
+suptitle([mouse ' ' date ' ' run_str ' - Target responses- All n'])
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_auROC_Targ_allN.pdf']),'-dpdf','-fillpage')
 
 %% auROC of target stimuli for n-1 interval
 
@@ -201,6 +256,6 @@ suptitle([mouse ' ' date ' ' run_str '- Target responses'])
 
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_auROC_Targ_byN-1.pdf']),'-dpdf','-fillpage')
 
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_ROC.mat']),'base_resp','targ_resp','base_resp_N1','targ_resp_N1','roc_base','roc_base_N1','roc_targ','roc_targ_N1', 'good_ind_targ', 'good_ind_base')
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_ROC.mat']),'base_resp','targ_resp','base_resp_N1','targ_resp_N1','roc_base','roc_base_N1','roc_base_allN','roc_targ','roc_targ_N1','roc_targ_allN','good_ind_targ', 'good_ind_base')
 
 

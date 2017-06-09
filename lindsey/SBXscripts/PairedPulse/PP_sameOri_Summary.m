@@ -57,19 +57,47 @@ load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mo
 
 good_ind_all = find(good_ind_temp);
 resp_maxdir_all = nan(size(resp_dir_all,1), size(resp_dir_all,3));
+resp_nextdir_all = nan(size(resp_dir_all,1), size(resp_dir_all,3));
 resp_maxdir_all_sub = nan(size(resp_dir_all,1), size(resp_dir_all,3));
+ndir = length(unique(max_dir_all));
 for iCell = 1:length(good_ind_all)
     iC = good_ind_all(iCell);
-    resp_maxdir_all(iC,:) = squeeze(resp_dir_all(iC,max_dir_all(iC,1),:));
+    x =max_dir_all(iC,1);
+    resp_maxdir_all(iC,:) = squeeze(resp_dir_all(iC,x,:));
     resp_maxdir_all_sub(iC,:) = squeeze(resp_dir_all_sub(iC,max_dir_all(iC,1),:));
+    y = x+1;
+    z = x-1;
+    if y > ndir
+        y = 1;
+    end
+    if z < 1
+        z = ndir;
+    end 
+    resp_nextdir_all(iC,:) = squeeze(mean(resp_dir_all(iC,[y z],:),2));
 end
 
 norm_all = bsxfun(@rdivide, resp_all, resp_all(:,end));
 norm_all_sub = bsxfun(@rdivide, resp_all_sub, resp_all_sub(:,end));
+norm_nextdir_all = bsxfun(@rdivide, resp_nextdir_all, resp_nextdir_all(:,end));
 norm_maxdir_all = bsxfun(@rdivide, resp_maxdir_all, resp_maxdir_all(:,end));
 norm_maxdir_all_sub = bsxfun(@rdivide, resp_maxdir_all_sub, resp_maxdir_all_sub(:,end));
     
 %% figures
+norm_all_avg = mean(norm_all(good_ind_all,:),1);
+norm_all_sem = std(norm_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all));
+[norm_all_h, norm_all_p] = ttest(norm_all,1);
+resp_ratio_fit = fitlm(resp_all(good_ind_all,6), norm_all(good_ind_all,1),'linear');
+norm_maxdir_all_avg = mean(norm_maxdir_all(good_ind_all,:),1);
+norm_maxdir_all_sem = std(norm_maxdir_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all));
+norm_nextdir_all_avg = mean(norm_nextdir_all(good_ind_all,:),1);
+norm_nextdir_all_sem = std(norm_nextdir_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all));
+resp_maxdir_all_avg = mean(resp_maxdir_all(good_ind_all,:),1);
+resp_maxdir_all_sem = std(resp_maxdir_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all));
+resp_nextdir_all_avg = mean(resp_nextdir_all(good_ind_all,:),1);
+resp_nextdir_all_sem = std(resp_nextdir_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all));
+[norm_maxVnext_h, norm_maxVnext_p] = ttest(norm_maxdir_all(:,1), norm_nextdir_all(:,1));
+[resp_maxVnext_h, resp_maxVnext_p] = ttest(resp_maxdir_all(:,6), resp_nextdir_all(:,6));
+
 x_range = [0:240*(1000/frameRateHz)];
 off_all= [offs; 240];
 figure;
@@ -104,4 +132,4 @@ ylim([0 1.2])
 suptitle(['Paired Pulse- Same Ori- ' mouse_str ' - n = ' num2str(length(good_ind_all)) ' Cells'])
 
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'ppAdaptation_summary.pdf'),'-dpdf','-fillpage')
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'ppAdaptation_summary.mat'),'mouse_mat', 'date_mat', 'run_str_mat', 'norm_all', 'norm_all_sub', 'norm_maxdir_all', 'norm_maxdir_all_sub', 'good_ind_all');
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'ppAdaptation_summary.mat'),'norm_all_avg', 'norm_all_sem', 'mouse_mat', 'date_mat', 'run_str_mat', 'norm_all', 'norm_all_sub', 'norm_maxdir_all', 'norm_maxdir_all_sub', 'good_ind_all');

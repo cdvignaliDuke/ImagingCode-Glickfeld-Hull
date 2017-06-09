@@ -181,15 +181,23 @@ end
 
 figure;
 subplot(2,2,1)
+osi_diff = zeros(noff, ndiff,2);
+osi_avg = zeros(ndiff,2);
+p_osi_diff = zeros(noff,ndiff);
 for idiff = 1:ndiff
     del = find(delta_diff == diffs(idiff));
     cell_ind = [];
     for i = 1:length(del)
         cell_ind = [cell_ind; intersect(good_ind_theta, find(max_dir_all == del(i)))];
     end
+    osi_avg(idiff,1) = mean(OSI_all(cell_ind,3),1);
+    osi_avg(idiff,2) = std(OSI_all(cell_ind,3),[],1)./sqrt(length(cell_ind));
     for ioff = 1:noff
         errorbar(diffs(idiff), mean(OSI_all(cell_ind,ioff)-OSI_all(cell_ind,3),1), std(OSI_all(cell_ind,ioff)-OSI_all(cell_ind,3),[],1)./sqrt(length(cell_ind)), ['o' col_mat(ioff)])
         hold on
+        osi_diff(ioff,idiff,1) = mean(OSI_all(cell_ind,ioff)-OSI_all(cell_ind,3),1);
+        osi_diff(ioff,idiff,2) = std(OSI_all(cell_ind,ioff)-OSI_all(cell_ind,3),[],1)./sqrt(length(cell_ind));
+        [h, p_osi_diff(ioff,idiff)] = ttest(OSI_all(cell_ind,ioff)-OSI_all(cell_ind,3));
     end
 end
 xlabel(['Diff of max from adaptor (deg)'])
@@ -281,6 +289,8 @@ refline(1,0)
 axis square
 xlabel(['Diff Pref from Adapt Ori- ' num2str(chop(off_all(2).*(1000/frameRateHz),3)) ' ms ISI'])
 ylabel(['Diff Pref from Adapt Ori- ' num2str(chop(off_all(1).*(1000/frameRateHz),3)) ' ms ISI'])
+pref_ori_diff = zeros(noff, ndiff,2);
+p_pref_ori_diff = zeros(noff,ndiff);
 subplot(2,2,3)
 for idiff = 1:ndiff
     del = find(delta_diff == diffs(idiff));
@@ -291,6 +301,9 @@ for idiff = 1:ndiff
     for ioff = 1:noff
         errorbar(diffs(idiff), mean(pref_ori_all_diff(cell_ind,ioff)-pref_ori_all_diff(cell_ind,3),1), std(pref_ori_all_diff(cell_ind,ioff)-pref_ori_all_diff(cell_ind,3),[],1)./sqrt(length(cell_ind)), ['o' col_mat(ioff)])
         hold on
+        pref_ori_diff(ioff,idiff,1) = mean(pref_ori_all_diff(cell_ind,ioff)-pref_ori_all_diff(cell_ind,3),1);
+        pref_ori_diff(ioff,idiff,2) = std(pref_ori_all_diff(cell_ind,ioff)-pref_ori_all_diff(cell_ind,3),[],1)./sqrt(length(cell_ind));
+        [h, p_pref_ori_diff(ioff,idiff)] = ttest(pref_ori_all_diff(cell_ind,ioff)-pref_ori_all_diff(cell_ind,3));
     end
 end
 xlabel(['Diff of Max from Adaptor (deg)'])
@@ -303,15 +316,25 @@ print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation
 
 col_mat = strvcat('b','r','y');
 figure;
+delta_resp_all_avg = zeros(noff_all, ndiff,2);
+delta_resp_norm_all_avg = zeros(noff_all, ndiff,2);
+p_delta_resp_norm = zeros(noff, ndiff);
 for i = 1:noff_all
     for idiff = 1:ndiff
         del = find(delta_diff == diffs(idiff));
         subplot(2,2,1)
         errorbar(diffs(idiff), squeeze(mean(mean(delta_resp_all(good_ind_theta,del,i),2),1)), squeeze(std(mean(delta_resp_all(good_ind_theta,del,i),2),[],1))./sqrt(length(good_ind_theta)), ['o' col_mat(i,:)])
+        delta_resp_all_avg(i,idiff,1) = squeeze(mean(mean(delta_resp_all(good_ind_theta,del,i),2),1));
+        delta_resp_all_avg(i,idiff,2) = squeeze(std(mean(delta_resp_all(good_ind_theta,del,i),2),[],1))./sqrt(length(good_ind_theta));
         hold on
         subplot(2,2,2)
         errorbar(diffs(idiff), squeeze(mean(mean(delta_resp_norm_all(good_ind_theta,del,i),2),1)), squeeze(std(mean(delta_resp_norm_all(good_ind_theta,del,i),2),[],1))./sqrt(length(good_ind_theta)), ['o' col_mat(i,:)])
         hold on
+        delta_resp_norm_all_avg(i,idiff,1) = squeeze(mean(mean(delta_resp_norm_all(good_ind_theta,del,i),2),1));
+        delta_resp_norm_all_avg(i,idiff,2) = squeeze(std(mean(delta_resp_norm_all(good_ind_theta,del,i),2),[],1))./sqrt(length(good_ind_theta));
+        if i < 3
+            [h p_delta_resp_norm(i,idiff)] = ttest(mean(delta_resp_norm_all(good_ind_theta,del,3),2), mean(delta_resp_norm_all(good_ind_theta,del,i),2));
+        end
     end
 end
 subplot(2,2,1)
@@ -329,16 +352,21 @@ set(gca, 'Xtick', 0:30:90)
 xlim([-10 100])
 ylim([0 1])
 subplot(2,2,3)
+delta_resp_group_avg = zeros(noff, ndiff,2);
+p_delta_resp_group = zeros(noff,ndiff);
 for idiff = 1:ndiff
     del = find(delta_diff == diffs(idiff));
     diff_resp_group= [];
     for i = 1:length(del)
         cell_ind = intersect(good_ind_theta, find(max_dir_all == del(i)));
-        diff_resp_group = [diff_resp_group; squeeze(delta_resp_norm_all(cell_ind,del(i),1:2))];
+        diff_resp_group = [diff_resp_group; squeeze(delta_resp_norm_all(cell_ind,del(i),:))];
     end
     for i = 1:noff
         errorbar(diffs(idiff), mean(diff_resp_group(:,i),1), std(diff_resp_group(:,i),[],1)./sqrt(size(diff_resp_group,1)),['o' col_mat(i,:)])
         hold on
+        delta_resp_group_avg(i,idiff,1) = mean(diff_resp_group(:,i),1);
+        delta_resp_group_avg(i,idiff,2) = std(diff_resp_group(:,i),[],1)./sqrt(size(diff_resp_group,1));
+        [h p_delta_resp_group(i,idiff)] = ttest(diff_resp_group(:,3),diff_resp_group(:,i));
     end
 end
 title('Normalized')
@@ -349,6 +377,66 @@ xlim([-10 100])
 hline(1)
 suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Mean Resp by Interval'])
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'resp_byInt_summary.pdf'),'-dpdf','-fillpage')
+
+figure;
+subplot(2,2,1)
+for i = 1:noff
+    for idiff = 1:ndiff
+        del = find(delta_diff == diffs(idiff));
+        errorbar(diffs(idiff), squeeze(mean(mean(delta_resp_all(good_ind_theta,del,3),2)-mean(delta_resp_all(good_ind_theta,del,i),2),1)), squeeze(std(mean(delta_resp_all(good_ind_theta,del,3),2)-mean(delta_resp_all(good_ind_theta,del,i),2),[],1))./sqrt(length(good_ind_theta)), ['o' col_mat(i,:)])
+        hold on
+    end
+end
+ylabel('Diff from control resp')
+xlabel('Diff of Stim from Adaptor (deg)')
+title('Abs')
+set(gca, 'Xtick', 0:30:90)
+xlim([-10 100])
+ylim([0 0.2])
+subplot(2,2,2)
+for i = 1:noff
+    for idiff = 1:ndiff
+        del = find(delta_diff == diffs(idiff));
+        errorbar(diffs(idiff), squeeze(mean(mean(delta_resp_norm_all(good_ind_theta,del,3),2)-mean(delta_resp_norm_all(good_ind_theta,del,i),2),1)), squeeze(std(mean(delta_resp_norm_all(good_ind_theta,del,3),2)-mean(delta_resp_norm_all(good_ind_theta,del,i),2),[],1))./sqrt(length(good_ind_theta)), ['o' col_mat(i,:)])
+        hold on
+    end
+end
+ylabel('Diff from control resp')
+xlabel('Diff of Stim from Adaptor (deg)')
+title('Norm')
+hline(0)
+set(gca, 'Xtick', 0:30:90)
+xlim([-10 100])
+suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Diff Resp by Stimulus'])
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'diffResp_byStim_summary.pdf'),'-dpdf','-fillpage')
+
+edges = [0 22.5/2:22.5:90 90];
+centers = 0:22.5:90;
+[n bin] = histc(pref_ori_all_diff(:,1),edges);
+subplot(2,2,3)
+delta_resp_group_avg = zeros(noff, ndiff,2);
+p_delta_resp_group = zeros(noff,ndiff);
+for idiff = 1:ndiff
+    ind = find(bin == idiff);
+    diff_resp_group= zeros(length(ind),noff_all);
+    for i = 1:length(ind)
+        [peak_val peak_loc] = max(fit_all(:,ind(i),3),[],1);
+        diff_resp_group(i,:) = squeeze(fit_all(peak_loc,ind(i),:));
+    end
+    for i = 1:noff
+        errorbar(diffs(idiff), mean(diff_resp_group(:,i),1), std(diff_resp_group(:,i),[],1)./sqrt(size(diff_resp_group,1)),['o' col_mat(i,:)])
+        hold on
+        delta_resp_group_avg(i,idiff,1) = mean(diff_resp_group(:,i),1);
+        delta_resp_group_avg(i,idiff,2) = std(diff_resp_group(:,i),[],1)./sqrt(size(diff_resp_group,1));
+        %[h p_delta_resp_group(i,idiff)] = ttest(diff_resp_group(:,3),diff_resp_group(:,i));
+    end
+end
+title('Normalized')
+ylabel('dF/F at max ori')
+xlabel('Diff of Pref from Adaptor (deg)')
+ylim([0 2])
+xlim([-10 100])
+hline(1)
 
 %% max log likelihood
 
@@ -491,6 +579,7 @@ end
 suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Max Log Likelihood- All cells- 100X'])
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'maxloglike_byInt_summary_allCells.pdf'),'-dpdf','-fillpage')
 
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'maxLogLike_summary.mat'),'delta_sq_boot','delta_sq','maxloglike_all','loglike_all_neurons','loglike_all_sum', 'loglike_all_fact')
 %% ROC
 h = zeros(nDelta,1);
 p = zeros(nDelta,1);
