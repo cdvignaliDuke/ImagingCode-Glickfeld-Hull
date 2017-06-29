@@ -14,7 +14,6 @@ frame.times = counterTimesMs;
 frame.counter = counter_calculator(counterValues, counterTimesMs);  %each slot represents a ms of time during imaging. Each value in a slot represents the frame# being collected at that time.
 last_frame = counterValues(end);
 
-
 %This code looks at frame.times while it is still in free floating MWtimes. It extracts the values needed to cut baseline_timesMs to remove
 %all events without associated frames and align it to frame.counter after frame.counter has been cut to align with the camera start.
 f_frame_MWorks_time  = double(frame.times(1)); %time of the first frame in free floating MWorks time

@@ -13,13 +13,13 @@ clear
 file_info;
 usFacs = 100;
 behav_dir = 'Z:\Data\2P_imaging\behavior\';
-for sub = size(mouseID,2) - 1 : size(mouseID,2)
+for sub = [22]%size(mouseID,2) 
     for rID = 1
         file_info;
         
         usFacs = 100; % upsample factor
        
-        out_dir  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
+        out_dir  = fullfile('Z:', 'Analysis','Cue_reward_pairing_analysis','2P',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
  
         [img, skip_run, img_fn] = loadFile(sub, rID);
         
@@ -98,7 +98,7 @@ for sub = size(mouseID,2) - 1 : size(mouseID,2)
             
             mask_cell = zeros(size(icasig));
             sm_logical = zeros(npw,nph);
-            cluster_threshold = 97; %97- img90 97- img91
+            cluster_threshold = 95; %97- img90 97- img91   XXXXXXXXXXXX
             
             for ic = 1:nIC
                 icasig(:,:,ic) = imclearborder(icasig(:,:,ic));

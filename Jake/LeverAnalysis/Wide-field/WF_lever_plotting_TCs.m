@@ -5,7 +5,7 @@ clear
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
-days = {'151211_img32'}; % '170321_img86'
+days = {'170624_img96'}; % '170321_img86'
  
 for kk=1:length(days)
     %set directories and load bxOutputs and cluter data. 
@@ -16,7 +16,7 @@ for kk=1:length(days)
     
     %check to see if FakeMouse exists
     if isfield(b_data, 'doFakeMouseSuccessOnly');
-        fake_mouse = fake_mouse;
+        fake_mouse = b_data.doFakeMouseSuccessOnly;
     else
         fake_mouse = 0;
     end
@@ -24,7 +24,7 @@ for kk=1:length(days)
     %define variables to help with plotting
     func = @median; %func = @mean; %func = @std;
     pre_frames = 5;
-    post_frames = 10;
+    post_frames = 20;
     sampling_rate = round(1000/mode(diff(frame_info.times)));
     ts = (-pre_frames:post_frames)*1000/double(round(sampling_rate));
     ts = repmat(ts,[cluster.num_cluster 1]);
@@ -53,7 +53,7 @@ for kk=1:length(days)
             avg_success_roi(i,:) = avg_success_roi(i,:)+shift;
         end
         subplot(2,3,2); lickBars = bar(ts(1,:), mean(lick_trace_succ)/10); hold on
-        %alpha(.25);
+        alpha(.25);
         for i = 1:size(ts,1);
             subplot(2,3,2); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -83,7 +83,7 @@ for kk=1:length(days)
             avg_fail_roi(i,:) = avg_fail_roi(i,:)+shift;
         end
         subplot(2,3,3); bar(ts(1,:), mean(lick_trace_fail)/10); hold on
-        %alpha(.25);
+        alpha(.25);
         for i = 1:size(ts,1);
             hold on; subplot(2,3,3); errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
         end
@@ -110,7 +110,7 @@ for kk=1:length(days)
             avg_fidget_roi(i,:) = avg_fidget_roi(i,:)+shift;
         end
         subplot(2,3,4); bar(ts(1,:), mean(lick_trace_fidget)/10); hold on
-        %alpha(.25);
+        alpha(.25);
         for i = 1:size(ts,1);
             hold on; subplot(2,3,4); errorbar(ts(i,:), avg_fidget_roi(i,:), sm_fidget(i,:), 'Color', colors(i,:));
         end
@@ -157,7 +157,7 @@ for kk=1:length(days)
             subplot(2,3,6); plot(ts(1,:), zeros(length(ts))); ylim([-0.01 0.01]);
         else
             subplot(2,3,6); bar(ts(1,:), mean(lick_trace_tooFast)/10); hold on
-            %alpha(.25);
+            alpha(.25);
             for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
                 shift = (-1)*avg_tooFast_roi(i,1);
                 avg_tooFast_roi(i,:) = avg_tooFast_roi(i,:)+shift;
@@ -240,7 +240,7 @@ for kk=1:length(days)
             avg_cue_roi(i,:) = avg_cue_roi(i,:)+shift;
         end
         figure; bar(ts(1,:), mean(lick_trace_cue)/10); hold on
-        %alpha(.25);
+        alpha(.25);
         for i = 1:size(ts,1);
             errorbar(ts(i,:), avg_cue_roi(i,:), sm_cue(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -316,7 +316,7 @@ for kk=1:length(days)
             avg_rewarded_roi(i,:) = avg_rewarded_roi(i,:)+shift;
         end
         subplot(1,3,2); lickBars = bar(ts(1,:), mean(lick_trace_rew)/10); hold on
-        %alpha(.25);
+        alpha(.25);
         for i = 1:size(ts,1);
             subplot(1,3,2); errorbar(ts(i,:), avg_rewarded_roi(i,:), sm_rewarded(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -347,7 +347,7 @@ for kk=1:length(days)
             avg_rew_om_roi(i,:) = avg_rew_om_roi(i,:)+shift;
         end
         subplot(1,3,3); lickBars = bar(ts(1,:), mean(lick_trace_rew_om)/10); hold on
-        %alpha(.25);
+        alpha(.25);
         for i = 1:size(ts,1);
             subplot(1,3,3); errorbar(ts(i,:), avg_rew_om_roi(i,:), sm_rewarded(i,:), 'Color', colors(i,:)); hold on;
         end
@@ -404,7 +404,7 @@ for kk=1:length(days)
                 avg_unexp_rew_roi(i,:) = avg_unexp_rew_roi(i,:)+shift;
             end
             subplot(1,2,1); lickBars = bar(ts(1,:), mean(lick_trace_unexp_rew)/10); hold on
-            %alpha(.25);
+            alpha(.25);
             for i = 1:size(ts,1);
                 errorbar(ts(i,:), avg_unexp_rew_roi(i,:), sm_unexp_rew(i,:), 'Color', colors(i,:)); hold on;
             end
@@ -445,7 +445,7 @@ for kk=1:length(days)
                 avg_unexp_rew_roi_lick_align(i,:) = avg_unexp_rew_roi_lick_align(i,:)+shift;
             end
             subplot(1,2,2); lickBars = bar(ts(1,:), mean(lick_trace_unexp_rew_lick_align)/10); hold on
-            %alpha(.25);
+            alpha(.25);
             for i = 1:size(ts,1);
                 errorbar(ts(i,:), avg_unexp_rew_roi_lick_align(i,:), sm_unexp_rew_lick_align(i,:), 'Color', colors(i,:)); hold on;
             end

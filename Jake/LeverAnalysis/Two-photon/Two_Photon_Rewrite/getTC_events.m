@@ -21,7 +21,7 @@ holdT_min  = 500000;  %us
 [lever, frame_info, trial_outcome, lick_data] = cleanBehav(input, ifi, holdT_min);
 
 data_dest = [dest 'parse_behavior.mat'];
-save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'Sampeling_rate', 'holdT_min', 'ifi')
+save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'Sampeling_rate', 'holdT_min', 'ifi', 'lick_data')
 
 %% 2. Obtain a df/f TC from baseline times
 data_tc = tc_avg;
@@ -40,7 +40,6 @@ end
 trial_len = cell2mat(cellfun(@length, input.counterValues, 'UniformOutput', 0));
 valid_trial = find(trial_len > 2);
 stop_i = valid_trial(end) - 1;
-%
 
 % extrack F for entire trial and baseF from baseline_timesMs (500-300ms before
 % press
@@ -71,7 +70,7 @@ end
 data_dest2 = [dest '_dFOverF_TC.mat'];
 save(data_dest2, 'tc_dfoverf')
 
-%% 3. create event triggered movies
+%% 3. create event triggered movies   LEVER
 if input.doLeverSolenoidAllTrials == 1
     func = @mean;
     pre_release_ms = 500;
@@ -177,9 +176,9 @@ if input.doLeverSolenoidAllTrials == 1
     
     save([dest '_press_movies.mat'],'press_200_movie','press_500_movie','press_long_movie','press_movie','pre_press_frames', 'post_press_frames', 'ifi');
     
-else
+else   %CRP
     pre_cue_ms = 2000;
-    post_cue_ms = 2000;
+    post_cue_ms = 2500;
     pre_cue_frames = round(pre_cue_ms./double(ifi));
     post_cue_frames = round(post_cue_ms./double(ifi));
     
@@ -202,4 +201,6 @@ else
         use_ev_UR, pre_cue_frames, post_cue_frames, lick_data);
     
     save([dest '_cue_movies.mat'], 'NR_movie','OR_movie', 'UR_movie', 'pre_cue_frames', 'post_cue_frames', 'ifi');
+    save([dest '_cue_movies_lick.mat'], 'lick_trace_NR','lick_trace_OR', 'lick_trace_UR');
+    
 end
