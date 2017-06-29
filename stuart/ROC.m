@@ -31,27 +31,30 @@ for kk=LvR(1:2)
     auclist{kk/6+1}=zeros(1,length(group));
     negated{kk/6+1}=zeros(1,length(group));
     %figure
-    for jj=group 
+    P=cell(1,length(group));
+    N=cell(1,length(group));
+    cond1=zeros(50,1);
+    cond2=zeros(50,1);
+    Trialside=Trialside*-1+1; %flips side the binary is true for
+    for jj=group
         %figure; hold on
         %cond1=zeros(50,length(idx{kk+1})+length(idx{kk+2})+length(idx{kk+3}));
         %cond2=zeros(50,length(idx{kk+4})+length(idx{kk+5})+length(idx{kk+6}));
         ll=1; rr=1;
-        Trialside=Trialside*-1+1; %flips side the binary is true for
         for ii=1:nTrials
-            %if left/ipsi at increaseing contrasts -or-
+            %if and(tLeftTrial(ii),tGratingContrast(ii)==cons(kk/6+1)) %left/ipsi at increaseing contrasts -or-
             if and(Trialside(ii),tGratingContrast(ii)==cons(1)) %First if contra and 6p, then if ipsi and 6p
                 cond1(:,ll)=data_stim_dfof(:,jj,ii);
                 ll=ll+1;
             end
         end
         for ii=1:nTrials
-            %if right/contra at increasing contrasts -or-
+            %if and(~tLeftTrial(ii),tGratingContrast(ii)==cons(kk/6+1)) %right/contra at increasing contrasts -or-
             if and(Trialside(ii),tGratingContrast(ii)==cons(2)) %first if contra and 10p, then if ipsi and 10p
                 cond2(:,rr)=data_stim_dfof(:,jj,ii);
                 rr=rr+1;
             end
         end
-        
         %compare canon to traces
         for ii=1:size(cond1,2)
             trace=cond1(:,ii); %take each trial one at a time 
@@ -104,6 +107,8 @@ for kk=LvR(1:2)
     %
     %P{1}=P{48};
     %N{1}=N{48};
+    Pwi=zeros(1,length(group));
+    Nwi=zeros(1,length(group));
     for nc=1:length(group)
         Pwi(nc)=1/std(P{nc})^2; %1/standard deviation of correlations squared
         Nwi(nc)=1/std(N{nc})^2;
@@ -124,10 +129,12 @@ for kk=LvR(1:2)
         end
         waN(ii)=wa/sum(Nwi);
     end
-    lst=min([waP,waN]):min([range(waP),range(waN),.15])/3:max([waP,waN])+.05;
+    %lst=min([waP,waN]):min([range(waP),range(waN),.15])/3:max([waP,waN])+.05;
     figure; hold on
     histogram(waP,lst)
     histogram(waN,lst)
+    plot([mean(waP) mean(waP)],[0 25],'b')
+    plot([mean(waN) mean(waN)],[0 25],'r')
     title(num2str(cons(kk/6+1)))
     
     TP=zeros(size(criterion));
@@ -167,8 +174,16 @@ title([num2str(jj),' ',num2str(cons(kk*1/6+1))])
 xlim([-.2 .7]);ylim([0 25])
 xlabel('Orange==Ipsi     Blue==Contra')
     %}
-    
-    
+    %{
+   if kk<=1
+      %t12=P;
+      t22=N;%(23:29)
+      %t32=waP;
+      t42=waN;
+      %t52=Pwi;
+      t62=Nwi;
+   end
+    %}
 end
 subp_auclist
 figure
