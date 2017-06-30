@@ -42,11 +42,14 @@ save([dest '_cell_TCs.mat'], 'avg_NR', 'sem_NR', 'avg_OR', 'sem_OR', 'avg_UR', '
 %% 2. calculate response amplitude and variablity by trial over base and resp windows
 
 %by NR
-[NR_h, NR_p, NR_resp_cells, NR_resp_avg, NR_resp_sem] = findRespCell(NR_movie, pre_cue_frames, ifi, dest);
+[NR_h, NR_p, NR_resp_cells, NR_resp_avg, NR_resp_sem, NR_base, NR_resp] = findRespCell(NR_movie, pre_cue_frames, ifi);
 
-[OR_h, OR_p, OR_resp_cells, OR_resp_avg, OR_resp_sem] = findRespCell(OR_movie, pre_cue_frames, ifi, dest);
+[OR_h, OR_p, OR_resp_cells, OR_resp_avg, OR_resp_sem, OR_base, OR_resp] = findRespCell(OR_movie, pre_cue_frames, ifi);
 
-[UR_h, UR_p, UR_resp_cells, UR_resp_avg, UR_resp_sem] = findRespCell(UR_movie, pre_cue_frames, ifi, dest);
+[UR_h, UR_p, UR_resp_cells, UR_resp_avg, UR_resp_sem, UR_base, UR_resp] = findRespCell(UR_movie, pre_cue_frames, ifi);
+
+save([dest '_cell_resp.mat'], 'NR_base', 'NR_resp', 'OR_base', 'OR_resp', 'UR_base', 'UR_resp');
+
 
 noresponse_cells = find((NR_h+OR_h+UR_h)==0);
 

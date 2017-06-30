@@ -1,4 +1,4 @@
-function [NR_h, NR_p, NR_resp_cells, NR_resp_avg, NR_resp_sem] = findRespCell(NR_movie, pre_cue_frames, ifi, dest)
+function [NR_h, NR_p, NR_resp_cells, NR_resp_avg, NR_resp_sem, NR_base, NR_resp] = findRespCell(NR_movie, pre_cue_frames, ifi)
 %uses a ttest to determine significant between a baseline window and a
 %response window
 
@@ -36,7 +36,6 @@ end
 NR_resp_avg = mean((NR_resp-NR_base),1);
 NR_resp_sem = std((NR_resp-NR_base),[],1)./sqrt(size(NR_resp,1));
 
-save([dest '_cell_resp.mat'], 'NR_base', 'NR_resp');
 
 %% 2. ttest for significant responses
 
