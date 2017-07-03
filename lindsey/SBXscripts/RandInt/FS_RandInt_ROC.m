@@ -139,6 +139,7 @@ end
 roc_base_N1 = nan(noff,noff,nCells);
 base_resp = nan(noff,noff,nCells);
 base_resp_N1 = nan(noff,noff,nCells);
+fs_baseResp = cell(noff,noff);
 for ioff_N = 1:noff
     for ioff_N1 = 1:noff
         resp_temp = resp{ioff_N, ioff_N1};
@@ -151,6 +152,7 @@ for ioff_N = 1:noff
         end
         base_resp(ioff_N,ioff_N1,:) = reshape(mean(resp_diff,2)./p1_resp', [1 1 nCells]);
         base_resp_N1(ioff_N,ioff_N1,:) = reshape(mean(base_diff,2)./p1_resp', [1 1 nCells]);
+        fs_baseResp{ioff_N,ioff_N1} = cat(3,base_diff,resp_diff);
     end
 end
 
@@ -222,6 +224,7 @@ print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' m
 roc_targ_N1 = nan(noff,noff,nDelta,nCells);
 targ_resp = nan(noff,noff,nDelta,nCells);
 targ_resp_N1 = nan(noff,noff,nDelta,nCells);
+fs_targResp = cell(noff,noff,nDelta);
 for ioff_N = 1:noff
     for ioff_N1 = 1:noff
         for idelta = 1:nDelta
@@ -234,6 +237,7 @@ for ioff_N = 1:noff
             end
             targ_resp(ioff_N,ioff_N1,idelta,:) = reshape(mean(resp_diff,2)./p1_resp',[1 1 nCells]);
             targ_resp_N1(ioff_N,ioff_N1,idelta,:) = reshape(mean(base_diff,2)./p1_resp',[1 1 nCells]);
+            fs_targResp{ioff_N,ioff_N1,idelta} = cat(3, base_diff, resp_diff); 
         end
     end
 end
@@ -259,3 +263,64 @@ print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' m
 save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_ROC.mat']),'base_resp','targ_resp','base_resp_N1','targ_resp_N1','roc_base','roc_base_N1','roc_base_allN','roc_targ','roc_targ_N1','roc_targ_allN','good_ind_targ', 'good_ind_base')
 
 
+%% average response by cycle number by interval
+resp_dfof = squeeze(mean(data_dfof(resp_win,:,:,:),1)-mean(data_dfof(base_win,:,:,:),1));
+
+tFramesOff_ioff = cell(4,noff);
+ntrials = zeros(4,noff);
+resp_dfof_ioff = nan(nCells,5,noff);
+for icyc = 1:4
+    for ioff = 1:noff
+        tFramesOff_ioff{icyc,ioff} = find(sum(tFramesOff(:,1:icyc) == offs(ioff),2) == icyc);
+        ntrials(icyc,ioff) = length(tFramesOff_ioff{icyc,ioff});
+        resp_dfof_ioff(:,icyc+1,ioff) = nanmean(resp_dfof(:,icyc+1,tFramesOff_ioff{icyc,ioff}),3);
+        if icyc == 1
+            resp_dfof_ioff(:,1,ioff) = nanmean(resp_dfof(:,1,:),3);
+        end
+    end
+end
+
+baseresp_dfof_norm = bsxfun(@rdivide, resp_dfof(:,1:5,:), mean(resp_dfof(:,1,:),3));
+figure; 
+errorbar(1:5, mean(nanmean(baseresp_dfof_norm(good_ind_base,:,:),3),1), std(nanmean(baseresp_dfof_norm(good_ind_base,:,:),3),[],1)./sqrt(length(good_ind_base)),'-o')
+ylim([0 1])
+
+baseresp_dfof_ioff_norm = bsxfun(@rdivide, resp_dfof_ioff, nanmean(resp_dfof_ioff(:,1,:),3));
+figure; 
+for ioff = 1:noff
+    errorbar(1:5, mean(baseresp_dfof_ioff_norm(good_ind_base, :,ioff),1), std(baseresp_dfof_ioff_norm(good_ind_base, :,ioff),[],1)./sqrt(length(good_ind_base)),'-o')
+    hold on
+end
+ylim([0 1])
+
+temp_off = zeros(size(tFramesOff(:,1:4)));
+for ioff = 1:noff
+    ind = find(tFramesOff(:,1:4) == offs(ioff));
+    temp_off(ind) = ioff;
+end
+tTrialLength = (temp_off.*250)+100;
+tTotalTrialLength = cumsum(tTrialLength,2);
+
+edges = [0 350:500:4000];
+sz = length(edges);
+[n bin] = histc(tTotalTrialLength,edges);
+baseresp_dfof_ibin_norm = nan(nCells,length(n)-1);
+for ibin = 1:length(n)-1
+    ind = [];
+    if ibin ==1
+        baseresp_dfof_ibin_norm(:,1) = mean(baseresp_dfof_norm(:,1,:),3);
+    else
+        for icyc = 1:4
+            ind = [ind; find(bin(:,icyc) == ibin)];
+        end
+        baseresp_dfof_ibin_norm(:,ibin) = mean(baseresp_dfof_norm(:,icyc,ind),3);
+    end
+end
+
+figure; 
+x = [0 mean([edges(2:sz-1);edges(3:end)],1)];
+errorbar(x, mean(baseresp_dfof_ibin_norm(good_ind_base,:),1), std(baseresp_dfof_ibin_norm(good_ind_base,:),[],1)./sqrt(length(good_ind_base)),'-o')
+ylim([0 1])
+
+baseresp_dfof_norm = nanmean(bsxfun(@rdivide, resp_dfof(:,1:5,:), mean(resp_dfof(:,1,:),3)),3);
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_baseResp.mat']),'baseresp_dfof_norm','baseresp_dfof_ioff_norm','baseresp_dfof_ibin_norm','x', 'edges')

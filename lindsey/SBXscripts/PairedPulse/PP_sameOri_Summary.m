@@ -1,9 +1,15 @@
-%% current datasets
-
+% current datasets
+%% V1
 mouse_mat = strvcat('i684', 'i689');
 date_mat = strvcat('170316', '170327');
 run_str_mat = strvcat('runs-002-004','runs-002-003');
 
+%% PM
+mouse_mat = strvcat('i720', 'i739');
+date_mat = strvcat('170628', '170630');
+run_str_mat = strvcat('runs-002-003','runs-003-004');
+
+%%
 nexp = size(mouse_mat,1);
 mouse_str = [];
 for iexp = 1:nexp
@@ -86,6 +92,8 @@ norm_maxdir_all_sub = bsxfun(@rdivide, resp_maxdir_all_sub, resp_maxdir_all_sub(
 norm_all_avg = mean(norm_all(good_ind_all,:),1);
 norm_all_sem = std(norm_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all));
 [norm_all_h, norm_all_p] = ttest(norm_all,1);
+[p_norm_all table_norm_all stats_norm_all] = anova1(norm_all);
+[comp_norm_all] = multcompare(stats_norm_all);
 resp_ratio_fit = fitlm(resp_all(good_ind_all,6), norm_all(good_ind_all,1),'linear');
 norm_maxdir_all_avg = mean(norm_maxdir_all(good_ind_all,:),1);
 norm_maxdir_all_sem = std(norm_maxdir_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all));
