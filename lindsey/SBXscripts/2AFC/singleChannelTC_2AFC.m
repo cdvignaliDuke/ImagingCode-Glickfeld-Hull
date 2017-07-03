@@ -1,8 +1,8 @@
 %% get path names
-date = '170303';
-ImgFolder = strvcat('001', '002');
-time = strvcat('1521');
-mouse = 'i553';
+date = '170630';
+ImgFolder = strvcat('001');
+time = strvcat('1323');
+mouse = 'i550';
 doFromRef = 0;
 ref = strvcat('005');
 nrun = size(ImgFolder,1);
@@ -16,13 +16,14 @@ elseif tUsername(1:4) == 'lind'
     tDir = 'lindsey';
 end
 
-%% load and register
+%% load dataset
 data = [];
 clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
     CD = ['\\CRASH.dhe.duke.edu\data\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
+    %CD = ['\\CRASH.dhe.duke.edu\data\home\ryan\2Pimages\' date '_' mouse '\' ImgFolder(irun,:)];
     %CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\AW14\two-photon imaging\' date '\' ImgFolder(irun,:)];
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
@@ -30,7 +31,9 @@ for irun = 1:nrun
 
     nframes = info.config.frames;
     fprintf(['Reading run ' num2str(irun) '- ' num2str(nframes) ' frames \r\n'])
+    tic
     data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
+    toc
     
     if size(time,1) >= irun
         fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
@@ -97,72 +100,73 @@ print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_
 %% find activated cells
 
 tLeftTrial = celleqel2mat_padded(input.tLeftTrial);
-    tGratingContrast = celleqel2mat_padded(input.tGratingContrast);
-    cStimOn = celleqel2mat_padded(input.cStimOn);
-    cDecision = celleqel2mat_padded(input.cDecision);
-    SIx = strcmp(input.trialOutcomeCell, 'success');
-    nTrials = length(tLeftTrial);
-    sz = size(data_reg);
-    data_f = nan(sz(1),sz(2),nTrials);
-    data_targ = nan(sz(1),sz(2),nTrials);
-    data_targ_late = nan(sz(1),sz(2),nTrials);
-    data_resp = nan(sz(1),sz(2),nTrials);
-    for itrial = 1:nTrials
-        data_f(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)-20:cStimOn(itrial)-1),3);
-        data_targ(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)+5:cStimOn(itrial)+25),3);
-        data_targ_late(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)+5+ceil(input.stimOnTimeMs./frame_rate):cStimOn(itrial)+25+ceil(input.stimOnTimeMs./frame_rate)),3);
-        if cDecision(itrial)+25<nframes
-            data_resp(:,:,itrial) = mean(data_reg(:,:,cDecision(itrial)+5:cDecision(itrial)+25),3);
-        end
+tGratingContrast = celleqel2mat_padded(input.tGratingContrast);
+cStimOn = celleqel2mat_padded(input.cStimOn);
+cDecision = celleqel2mat_padded(input.cDecision);
+SIx = strcmp(input.trialOutcomeCell, 'success');
+nTrials = length(tLeftTrial);
+sz = size(data_reg);
+data_f = nan(sz(1),sz(2),nTrials);
+data_targ = nan(sz(1),sz(2),nTrials);
+data_targ_late = nan(sz(1),sz(2),nTrials);
+data_resp = nan(sz(1),sz(2),nTrials);
+data_tc = nan(sz(1),sz(2),30,nTrials);
+for itrial = 1:nTrials
+    data_tc(:,:,:,itrial) = data_reg(:,:,cStimOn(itrial)-10:cStimOn(itrial)+19);
+    data_f(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)-20:cStimOn(itrial)-1),3);
+    data_targ(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)+5:cStimOn(itrial)+25),3);
+    data_targ_late(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)+5+ceil(input.stimOnTimeMs./frame_rate):cStimOn(itrial)+25+ceil(input.stimOnTimeMs./frame_rate)),3);
+    if cDecision(itrial)+25<nframes
+        data_resp(:,:,itrial) = mean(data_reg(:,:,cDecision(itrial)+5:cDecision(itrial)+25),3);
     end
-    data_targ_dfof = (data_targ-data_f)./data_f;
-    data_resp_dfof = (data_resp-data_f)./data_f;
-    data_targ_late_dfof = (data_targ_late-data_f)./data_f;
-    indL = find(tLeftTrial);
-    data_dfof_L = mean(data_targ_dfof(:,:,indL),3);
-    data_dfof_late_L = mean(data_targ_late_dfof(:,:,indL),3);
-    indR = intersect(find(tGratingContrast==1),find(~tLeftTrial));
-    data_dfof_R = mean(data_targ_dfof(:,:,indR),3);
-    data_dfof_late_R = mean(data_targ_late_dfof(:,:,indR),3);
-    data_dfof_resp = nanmean(data_resp_dfof(:,:,find(SIx)),3);
-    figure;
-    subplot(2,3,1)
-    imagesc(data_dfof_L)
-    title('Left Stim')
-    subplot(2,3,2)
-    imagesc(data_dfof_R)
-    title('Right Stim')
-    subplot(2,3,3)
-    imagesc(data_dfof_late_L)
-    title('Left Stim Late')
-    subplot(2,3,4)
-    imagesc(data_dfof_late_R)
-    title('Right Stim Late')
-    subplot(2,3,5)
-    imagesc(data_dfof_resp)
-    title('Decision')
-    print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_dFoF.pdf']), '-dpdf')
-    data_dfof = cat(3, data_dfof_resp,data_dfof_late_L, data_dfof_late_R,data_dfof_L,data_dfof_R);
-    data_dfof_max = max(data_dfof,[],3);
-    figure; imagesc(data_dfof_max)
+end
+data_targ_dfof = (data_targ-data_f)./data_f;
+data_resp_dfof = (data_resp-data_f)./data_f;
+data_targ_late_dfof = (data_targ_late-data_f)./data_f;
+indL = find(tLeftTrial);
+data_dfof_L = mean(data_targ_dfof(:,:,indL),3);
+data_dfof_late_L = mean(data_targ_late_dfof(:,:,indL),3);
+indR = intersect(find(tGratingContrast==1),find(~tLeftTrial));
+data_dfof_R = mean(data_targ_dfof(:,:,indR),3);
+data_dfof_late_R = mean(data_targ_late_dfof(:,:,indR),3);
+data_dfof_resp = nanmean(data_resp_dfof(:,:,find(SIx)),3);
+figure;
+subplot(2,3,1)
+imagesc(data_dfof_L)
+title('Left Stim')
+subplot(2,3,2)
+imagesc(data_dfof_R)
+title('Right Stim')
+subplot(2,3,3)
+imagesc(data_dfof_late_L)
+title('Left Stim Late')
+subplot(2,3,4)
+imagesc(data_dfof_late_R)
+title('Right Stim Late')
+subplot(2,3,5)
+imagesc(data_dfof_resp)
+title('Decision')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_dFoF.pdf']), '-dpdf')
+data_dfof = cat(3, data_dfof_resp,data_dfof_late_L, data_dfof_late_R,data_dfof_L,data_dfof_R);
+data_dfof_max = max(data_dfof,[],3);
+figure; imagesc(data_dfof_max)
     
 %% cell segmentation 
 
+mask_exp = zeros(sz(1),sz(2));
 mask_all = zeros(sz(1), sz(2));
 mask_data = data_dfof;
 
-for iStim = 1:size(data_dfof,3)    
-    mask_data_temp = mask_data(:,:,iStim);
-    mask_data_temp(find(mask_all >= 1)) = 0;
+for iStim = 1:size(data_dfof,3)
+    mask_data_temp = mask_data(:,:,end+1-iStim);
+    mask_data_temp(find(mask_exp >= 1)) = 0;
     bwout = imCellEditInteractive(mask_data_temp);
-    mask_2 = bwlabel(bwout);
-    mask_all = mask_all+mask_2;
+    mask_all = mask_all+bwout;
+    mask_exp = imCellBuffer(mask_all,3)+mask_all;
     close all
 end
 mask_cell = bwlabel(mask_all);
-
-% bwout = imCellEditInteractive(data_dfof_max);
-% mask_cell = bwlabel(bwout);
+figure; imagesc(mask_cell)
 
 mask_np = imCellNeuropil(mask_cell, 3, 5);
 save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_mask_cell.mat']), 'data_dfof_max', 'mask_cell', 'mask_np')
@@ -238,16 +242,20 @@ h_stim = zeros(nside, nCells);
 p_stim = zeros(nside, nCells);
 h_choice = zeros(nside, nCells);
 p_choice = zeros(nside, nCells);
+base_win = [19:23];
+resp_win = [25:29];
 for iS = 1:nside
     indS = intersect(find(SIx), find(tLeftTrial == iS-1));
     indC = intersect(indS, find(tGratingContrast == 1));
-    [h_stim(iS,:) p_stim(iS,:)] = ttest(squeeze(mean(data_stim_dfof(25:29,:,indC),1))', squeeze(mean(data_stim_dfof(19:23,:,indC),1))', 'tail', 'right');
-    [h_choice(iS,:) p_choice(iS,:)] = ttest(squeeze(mean(data_choice_dfof(30:34,:,indC),1))', squeeze(mean(data_choice_dfof(16:20,:,indC),1))', 'tail', 'right');
+    [h_stim(iS,:) p_stim(iS,:)] = ttest(squeeze(mean(data_stim_dfof(resp_win,:,indC),1))', squeeze(mean(data_stim_dfof(base_win,:,indC),1))', 'tail', 'right');
+    [h_choice(iS,:) p_choice(iS,:)] = ttest(squeeze(mean(data_choice_dfof(resp_win,:,indC),1))', squeeze(mean(data_choice_dfof(base_win,:,indC),1))', 'tail', 'right');
 end
 good_ind_stim = find(sum(h_stim,1)>0);
+good_ind_stim_side{1} = find(h_stim(1,:)>0);
+good_ind_stim_side{2} = find(h_stim(2,:)>0);
 good_ind_choice = find(sum(h_choice,1)>0);
 
-tt = (-19:30)*frame_rate;
+tt = (-20:29)*(1000/frame_rate);
 figure;
 [n n2] = subplotn(nCells);
 for iCell = 1:nCells
@@ -256,19 +264,20 @@ for iCell = 1:nCells
        indS = intersect(find(tGratingContrast == 1), intersect(find(SIx), find(tLeftTrial == iS-1)));
        plot(tt,nanmean(data_stim_dfof(:,iCell,indS),3));
        hold on;
-        if find(good_ind_stim == iCell)
-            good_str = ' resp';
-        else
-            good_str = ' not resp';
-        end
-        title(['Cell # ' num2str(iCell) ' is' good_str])
     end
+    vline(([resp_win(1) resp_win(end)]-20)*(1000/frame_rate))
+    if find(good_ind_stim == iCell)
+        good_str = 'Resp';
+    else
+        good_str = 'Not resp';
+    end
+    title(good_str)
 end
 suptitle([mouse ' ' date '- stimAlign- blue is right; red is left'])
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byCell.pdf']), '-dpdf', '-bestfit')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byCell.jpg']), '-djpeg')
 
 cmap = [blues(ncon); reds(ncon)];
-tt = (-19:30)*frame_rate;
 figure;
 [n n2] = subplotn(nCells);
 for iCell = 1:nCells
@@ -278,29 +287,29 @@ for iCell = 1:nCells
            indS = intersect(find(tGratingContrast == cons(icon)), intersect(find(SIx), find(tLeftTrial == iS-1)));
            plot(tt,nanmean(data_stim_dfof(:,iCell,indS),3),'Color',cmap(icon+((iS-1)*ncon),:));
            hold on;
-            if find(good_ind_stim == iCell)
-                good_str = ' resp';
-            else
-                good_str = ' not resp';
-            end
-            title(['Cell # ' num2str(iCell) ' is' good_str])
+           if find(good_ind_stim == iCell)
+                good_str = 'Resp';
+           else
+                good_str = 'Not resp';
+           end
+           title(good_str)
         end
     end
 end
-suptitle([mouse ' ' date '- stimAlign- by side and contrast- left is red; right is blue'])
+suptitle([mouse ' ' date '- stimAlign- by side and contrast- blue is right; red is left'])
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide&Contrast_byCell.pdf']), '-dpdf', '-bestfit')
 
-for iCell = 1:nCells
-figure;
-    for iS = 1:nside
-        for icon = 1:ncon
-           subplot(2,3,icon+((iS-1)*ncon))
-           indS = intersect(find(tGratingContrast == cons(icon)), intersect(find(SIx), find(tLeftTrial == iS-1)));
-           plot(tt, squeeze(data_stim_dfof(:,iCell,indS)));
-        end
-    end
-    suptitle(['Cell #' num2str(iCell)])
-end
+% for iCell = 1:nCells
+% figure;
+%     for iS = 1:nside
+%         for icon = 1:ncon
+%            subplot(nside,ncon,icon+((iS-1)*ncon))
+%            indS = intersect(find(tGratingContrast == cons(icon)), intersect(find(SIx), find(tLeftTrial == iS-1)));
+%            plot(tt, squeeze(data_stim_dfof(:,iCell,indS)));
+%         end
+%     end
+%     suptitle(['Cell #' num2str(iCell)])
+% end
 
 figure;
 [n n2] = subplotn(nCells);
@@ -310,13 +319,14 @@ for iCell = 1:nCells
        indS = intersect(find(SIx), find(tLeftTrial == iS-1));
        plot(tt,nanmean(data_choice_dfof(:,iCell,indS),3));
        hold on;
-        if find(good_ind_choice == iCell)
-            good_str = ' resp';
-        else
-            good_str = ' not resp';
-        end
-        title(['Cell # ' num2str(iCell) ' is' good_str])
     end
+    vline(([resp_win(1) resp_win(end)]-20)*(1000/frame_rate))
+    if find(good_ind_choice == iCell)
+        good_str = 'Resp';
+    else
+        good_str = 'Not resp';
+    end
+    title(good_str)
 end
 suptitle([mouse ' ' date '- choiceAlign- blue is right; red is left'])
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byCell.pdf']), '-dpdf', '-bestfit')
@@ -330,96 +340,90 @@ for iCell = 1:nCells
            indS = intersect(find(tGratingContrast == cons(icon)), intersect(find(SIx), find(tLeftTrial == iS-1)));
            plot(tt,nanmean(data_choice_dfof(:,iCell,indS),3),'Color',cmap(icon+((iS-1)*ncon),:));
            hold on;
-            if find(good_ind_choice == iCell)
-                good_str = ' resp';
-            else
-                good_str = ' not resp';
-            end
-            title(['Cell # ' num2str(iCell) ' is' good_str])
+           if find(good_ind_choice == iCell)
+                good_str = 'Resp';
+           else
+                good_str = 'Not resp';
+           end
+           title(good_str)
         end
     end
 end
-suptitle([mouse ' ' date '- choiceAlign- by side and contrast- left is purple; right is blue'])
+suptitle([mouse ' ' date '- choiceAlign- by side and contrast- left is red; right is blue'])
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide&Contrast_byCell.pdf']), '-dpdf', '-bestfit')
 
 figure; 
 for icon = 1:ncon
-    subplot(2,2,1)
+    ax(1) = subplot(2,2,1);
     ind1 = intersect(intersect(find(SIx), find(~tLeftTrial)), find(tGratingContrast == cons(icon)));
     indRH(1,icon) = length(ind1); 
-    plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind1),2),3))
+    plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind1),2),3),'Color',cmap(icon,:));
     hold on
-    subplot(2,2,2)
+    ax(2) = subplot(2,2,2);
     ind2 = intersect(intersect(find(FIx), find(~tLeftTrial)), find(tGratingContrast == cons(icon)));
     indRM(1,icon) = length(ind2); 
-    plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind2),2),3))
+    plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind2),2),3),'Color',cmap(icon,:));
     hold on
-    subplot(2,2,3)
+    ax(3) = subplot(2,2,3);
     ind3 = intersect(intersect(find(SIx), find(tLeftTrial)), find(tGratingContrast == cons(icon)));
     indLH(1,icon) = length(ind3); 
-    plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind3),2),3))
+    plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind3),2),3),'Color',cmap(icon+ncon,:));
     hold on
-    subplot(2,2,4)
+    ax(4) = subplot(2,2,4);
     ind4 = intersect(intersect(find(FIx), find(tLeftTrial)), find(tGratingContrast == cons(icon)));
     indLM(1,icon) = length(ind4); 
-    plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind4),2),3))
+    plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind4),2),3),'Color',cmap(icon+ncon,:));
     hold on
 end
 subplot(2,2,1)
 title(['Right Hit- ' num2str(indRH)])
-ylim([-.05 .2])
 subplot(2,2,2)
 title(['Right Miss- ' num2str(indRM)])
-ylim([-.05 .2])
 subplot(2,2,3)
 title(['Left Hit- ' num2str(indLH)])
-ylim([-.05 .2])
 subplot(2,2,4)
 title(['Left Miss- ' num2str(indLM)])
-ylim([-.05 .2])
+linkaxes(ax, 'y')
 suptitle([mouse ' ' date '- stimAlign'])
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byOutcome.pdf']), '-dpdf', '-bestfit')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide_byOutcome.jpg']), '-djpeg')
 
 figure; 
 for icon = 1:ncon
-    subplot(2,2,1)
+    ax(1) = subplot(2,2,1);
     ind1 = intersect(intersect(find(SIx), find(~tLeftTrial)), find(tGratingContrast == cons(icon)));
     indRH(1,icon) = length(ind1); 
-    plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind1),2),3))
+    plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind1),2),3),'Color',cmap(icon,:))
     hold on
-    subplot(2,2,2)
+    ax(2) = subplot(2,2,2);
     ind2 = intersect(intersect(find(FIx), find(~tLeftTrial)), find(tGratingContrast == cons(icon)));
     indRM(1,icon) = length(ind2); 
-    plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind2),2),3))
+    plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind2),2),3),'Color',cmap(icon,:))
     hold on
-    subplot(2,2,3)
+    ax(3) = subplot(2,2,3);
     ind3 = intersect(intersect(find(SIx), find(tLeftTrial)), find(tGratingContrast == cons(icon)));
     indLH(1,icon) = length(ind3); 
-    plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind3),2),3))
+    plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind3),2),3),'Color',cmap(icon+ncon,:))
     hold on
-    subplot(2,2,4)
+    ax(4) = subplot(2,2,4);
     ind4 = intersect(intersect(find(FIx), find(tLeftTrial)), find(tGratingContrast == cons(icon)));
     indLM(1,icon) = length(ind4); 
-    plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind4),2),3))
+    plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind4),2),3),'Color',cmap(icon+ncon,:))
     hold on
 end
 subplot(2,2,1)
 title(['Right Hit- ' num2str(indRH)])
-ylim([-.05 .2])
 subplot(2,2,2)
 title(['Right Miss- ' num2str(indRM)])
-ylim([-.05 .2])
 subplot(2,2,3)
 title(['Left Hit- ' num2str(indLH)])
-ylim([-.05 .2])
 subplot(2,2,4)
 title(['Left Miss- ' num2str(indLM)])
-ylim([-.05 .2])
 suptitle([mouse ' ' date '- choiceAlign'])
+linkaxes(ax, 'y')
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_choiceAlignResp_bySide_byOutcome.pdf']), '-dpdf')
 
 
-tt = (-19:30)*frame_rate;
 if input.doRandProb
     figure;
     tProbLeft = celleqel2mat_padded(input.tStimProbAvgLeft);
@@ -432,7 +436,7 @@ if input.doRandProb
             subplot(2,nprob,iprob)
             ind1 = intersect(find(tProbLeft == probs(iprob)), intersect(find(SIx), intersect(find(~tLeftTrial), find(tGratingContrast == cons(icon)))));
             indR(iprob,icon) = length(ind1); 
-            plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind1),2),3))
+            plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind1),2),3),'Color',cmap(icon,:))
             hold on
             if icon == ncon
                 title(['Right Hit- ' num2str((1-probs(iprob))*100) '% Right- ' num2str(indR(iprob,:))])
@@ -441,7 +445,7 @@ if input.doRandProb
             subplot(2,nprob,iprob+nprob)
             ind2 = intersect(find(tProbLeft == probs(iprob)), intersect(find(SIx), intersect(find(tLeftTrial), find(tGratingContrast == cons(icon)))));            
             indL(iprob,icon) = length(ind2); 
-            plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind2),2),3))
+            plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind2),2),3),'Color',cmap(icon,:))
             hold on
             if icon == ncon
                 title(['Left Hit- ' num2str((1-probs(iprob))*100) '% Right- ' num2str(indL(iprob,:))])
@@ -457,7 +461,7 @@ if input.doRandProb
         for icon = 1:ncon
             subplot(2,nprob,iprob)
             ind1 = intersect(find(tProbLeft == probs(iprob)), intersect(find(SIx), intersect(find(~tLeftTrial), find(tGratingContrast == cons(icon)))));
-            plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind1),2),3))
+            plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind1),2),3),'Color',cmap(icon,:))
             hold on
             if icon == ncon
                 title(['Right Hit- ' num2str((1-probs(iprob))*100) '% Right- ' num2str(indR(iprob,:))])
@@ -465,7 +469,7 @@ if input.doRandProb
             end
             subplot(2,nprob,iprob+nprob)
             ind2 = intersect(find(tProbLeft == probs(iprob)), intersect(find(SIx), intersect(find(tLeftTrial), find(tGratingContrast == cons(icon)))));            
-            plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind2),2),3))
+            plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind2),2),3),'Color',cmap(icon,:))
             hold on
             if icon == ncon
                 title(['Left Hit- ' num2str((1-probs(iprob))*100) '% Right- ' num2str(indL(iprob,:))])
@@ -487,7 +491,7 @@ if input.doRandProb
             subplot(2,nprob,iprob)
             ind1 = intersect(find(tProbLeft == probs(iprob)), intersect(find(FIx), intersect(find(~tLeftTrial), find(tGratingContrast == cons(icon)))));
             indR(iprob,icon) = length(ind1); 
-            plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind1),2),3))
+            plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind1),2),3),'Color',cmap(icon,:))
             hold on
             if icon == ncon
                 title(['Right Miss- ' num2str((1-probs(iprob))*100) '% Right- ' num2str(indR(iprob,:))])
@@ -496,7 +500,7 @@ if input.doRandProb
             subplot(2,nprob,iprob+nprob)
             ind2 = intersect(find(tProbLeft == probs(iprob)), intersect(find(FIx), intersect(find(tLeftTrial), find(tGratingContrast == cons(icon)))));           
             indL(iprob,icon) = length(ind2); 
-            plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind2),2),3))
+            plot(tt, nanmean(nanmean(data_stim_dfof(:,good_ind_stim,ind2),2),3),'Color',cmap(icon,:))
             hold on
             if icon == ncon
                 title(['Left Miss- ' num2str((1-probs(iprob))*100) '% Right- ' num2str(indL(iprob,:))])
@@ -512,7 +516,7 @@ if input.doRandProb
         for icon = 1:ncon
             subplot(2,nprob,iprob)
             ind1 = intersect(find(tProbLeft == probs(iprob)), intersect(find(FIx), intersect(find(~tLeftTrial), find(tGratingContrast == cons(icon)))));
-            plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind1),2),3))
+            plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind1),2),3),'Color',cmap(icon,:))
             hold on
             if icon == ncon
                 title(['Right Miss- ' num2str((1-probs(iprob))*100) '% Right- ' num2str(indR(iprob,:))])
@@ -520,7 +524,7 @@ if input.doRandProb
             end
             subplot(2,nprob,iprob+nprob)
             ind2 = intersect(find(tProbLeft == probs(iprob)), intersect(find(FIx), intersect(find(tLeftTrial), find(tGratingContrast == cons(icon)))));            
-            plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind2),2),3))
+            plot(tt, nanmean(nanmean(data_choice_dfof(:,good_ind_stim,ind2),2),3),'Color',cmap(icon,:))
             hold on
             if icon == ncon
                 title(['Left Miss- ' num2str((1-probs(iprob))*100) '% Right- ' num2str(indL(iprob,:))])
@@ -629,7 +633,7 @@ suptitle(['Mouse ' num2str(input.subjectNum) '; React range: ' num2str(minR) '-'
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Wheel_bySide_byOutcome.pdf']), '-dpdf')
 
 figure
-con_str = strvcat('b', 'r', 'y');
+con_str = strvcat('g', 'c', 'b', 'k');
 subplot(2,2,1)
 shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(find(SIx), find(left)))),2), nanstd(qVals_offset(:,(intersect(find(SIx), find(left)))),[],2)./sqrt(length(intersect(find(SIx), find(left)))),'b');
 hold on;
@@ -649,8 +653,10 @@ title('Avg all incorrect trials')
 subplot(2,2,3)
 for icon = 1:ncon
     ind = intersect(find(tGratingContrast == cons(icon)), intersect(lowR,intersect(find(SIx), find(left))));
-    shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,ind),2), nanstd(qVals_offset(:,ind),[],2)./sqrt(length(ind)),con_str(icon));
-    hold on;
+    if length(ind)>0
+        shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,ind),2), nanstd(qVals_offset(:,ind),[],2)./sqrt(length(ind)),con_str(icon));
+        hold on;
+    end
 end
 xlim([-500 2000])
 vline(minR)
