@@ -4,7 +4,7 @@ function [NR_h, NR_p, NR_resp_cells, NR_resp_avg, NR_resp_sem, NR_base, NR_resp]
 
 %defines baseline and response windows
 base_NR_window = 1:pre_cue_frames-round(200./double(ifi));
-resp_NR_window = pre_cue_frames-round(100./double(ifi)):pre_cue_frames+round(2000./double(ifi));
+resp_NR_window = pre_cue_frames+1:pre_cue_frames+round(2000./double(ifi));
 
 %Averages the values within each window across trials. Then for each cell's
 %avg TC it finds the max in the resp window and the min in the baseline
