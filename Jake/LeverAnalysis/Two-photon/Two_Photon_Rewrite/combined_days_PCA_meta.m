@@ -1,7 +1,8 @@
 % PCA combined days meta scrip for running multiple days 
+clear;
 disp('beginning of analysis'); time_of_start = round(clock)
 file_info_CRP; 
-for kk = [5,6]%size(comp_500ms,1)
+for kk = [3,2]%size(comp_500ms,1)
     animal_to_be_analyzed = comp_500ms(kk,:);
     num_good_frames = num_frames_to_use(kk,:);
     combined_days_PCA;

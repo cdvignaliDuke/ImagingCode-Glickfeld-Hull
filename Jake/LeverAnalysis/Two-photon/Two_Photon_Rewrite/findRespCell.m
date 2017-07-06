@@ -38,10 +38,9 @@ NR_resp_sem = std((NR_resp-NR_base),[],1)./sqrt(size(NR_resp,1));
 
 
 %% 2. ttest for significant responses
-
 [NR_h, NR_p] = ttest(NR_base, NR_resp, 'dim', 1, 'tail', 'both');
 
 %% 3. define cells by response to event
-
 NR_resp_cells = find(NR_h);
+
 end

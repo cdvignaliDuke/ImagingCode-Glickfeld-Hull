@@ -17,8 +17,8 @@ for i = ICuse
 end
 hold off
 ax=get(h1,'Position');
-ax(1)=ax(1)-0.1; %or wathever
-ax(2)=ax(2)-0.1; %or wathever
+ax(1)=ax(1)-0.1; 
+ax(2)=ax(2)-0.1; 
 title('session 1')
 %axis image tight off
 
@@ -30,7 +30,7 @@ for i = ICuse
 end
 hold off
 ax=get(h1,'Position');
-ax(1)=ax(1)-0.1; %or wathever
-ax(2)=ax(2)-0.1; %or wathever
+ax(1)=ax(1)-0.1;
+ax(2)=ax(2)-0.1; 
 title('session 2')
 suptitle([mouse, 'comparison of mask overlayed on max projection from session 1 and session 2'])

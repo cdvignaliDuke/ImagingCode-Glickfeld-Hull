@@ -5,7 +5,7 @@ clear
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
-days = {'170628_img98', '170704_img98'}; % '170321_img86'
+days = {'170705_img99'}; % '170321_img86'
  
 for kk=1:length(days)
     %set directories and load bxOutputs and cluter data. 

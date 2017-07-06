@@ -38,8 +38,6 @@ out_dir = ['Z:\Analysis\Cue_reward_pairing_analysis\2P\combined_masks\', mouseID
 if ~exist(out_dir);
     mkdir(out_dir);
 end
-%img_comb = img_comb(:,:,randperm(size(img_comb,3)));
-%writetiff(img_comb(:,:,3501:4500), 'Z:\Analysis\Cue_reward_pairing_analysis\2P\combined_masks\img92_day1_postlearning_CoReg');
 clear img;
 cd(currCD);
 
@@ -61,11 +59,12 @@ min_f = find(dshift == min(dshift), 1, 'first');
 img_ref = ref30(:,:,min_f);
 [reg_out, img_reg] = stackRegister(img_comb, img_ref);
 save([out_dir, 'Reg_out.mat'], 'reg_out','img_ref');
-clear img_combo
-%writetiff(img_comb(:,:,(frames_per_session-frames_per_preview+1):(frames_per_session+frames_per_preview)), [out_dir, 'day1_postlearning_CoReg']);
-%writetiff(img_reg(:,:,4001:6000), 'Z:\Analysis\Cue_reward_pairing_analysis\2P\combined_masks\img92_day1_post_reg_rand_perm');
+
+%write a preview tiff to compare motion reg, write max proj tiff as well
+writetiff(img_comb(:,:,[1:500, frames_session_1:frames_session_1+500]), [out_dir, 'day1_postlearning_CoReg_500_per_session']);
 img_comb_max_proj = cat(3, max(img_comb(:,:,[(frames_session_1-frames_per_preview+1):(frames_session_1-frames_per_preview+100)]),[],3), max(img_comb(:,:,[(frames_session_1+1):(frames_session_1+100)]),[],3));
 writetiff(img_comb_max_proj, [out_dir, 'day1_postlearning_CoReg_Max_projects_for_each']);
+clear img_comb
 
 %% PCA/ICA
 nPCA = 500; %100 for old datasets, 500 for newer
@@ -136,8 +135,8 @@ figure; fig = imagesc(data_corr);
 
 mask_final = processMask(mask3D);
 sz = [npw, nph];
-save([out_dir, 'Results.mat'], 'tc_avg', 'mask_raw', 'mask_flat', 'mask3D', 'mask_final', 'data_corr');
-save([out_dir, 'ROI_TCs.mat'],'tc_avg', 'mask_final', 'sz');
+save([out_dir, 'Results.mat'], 'tc_avg', 'mask_raw', 'mask_flat', 'mask3D', 'mask_final', 'data_corr', 'sz');
+%save([out_dir, 'ROI_TCs.mat'],'tc_avg', 'mask_final', 'sz');
 save([out_dir, 'PCA_ICA_settings'], 'threshold', 'cluster_threshold', 'mu', 'nIC', 'termtol', 'maxrounds');
 %close all
 

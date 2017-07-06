@@ -7,7 +7,7 @@
 % 5. Threshold ICA signal to get binary mask
 % 6. Process mask (break multiple components on single layer to multiple,
 % combine highly correlated ones and remove small ones)
-% 7. Extrack timecourse (manually inspect TC and remove bad ones) and create a singal layer mask for display
+% 7. Extrack timecourse (manually inspect TC and remove bad ones) and create a single layer mask for display
 
 clear
 file_info;
