@@ -26,7 +26,8 @@ for sub = [animal_to_be_analyzed]%size(mouseID,2)    %img93 day1 and post learni
                     frames_session_1 = info.config.frames;
                 end
             end
-            img = squeeze(sbxread(img_fn.name(1:end-4),0,num_good_frames(iii)));   %,num_good_frames(iii)
+            %img = squeeze(sbxread(img_fn.name(1:end-4),0,num_good_frames(iii)));   %,num_good_frames(iii)
+            [info, img, t] = load_sbx_movie(img_fn.name(1:end-4), data_dir, num_good_frames(iii));
             break
         else
             continue
@@ -61,8 +62,8 @@ img_ref = ref30(:,:,min_f);
 save([out_dir, 'Reg_out.mat'], 'reg_out','img_ref');
 
 %write a preview tiff to compare motion reg, write max proj tiff as well
-writetiff(img_comb(:,:,[1:500, frames_session_1:frames_session_1+500]), [out_dir, 'day1_postlearning_CoReg_500_per_session']);
-img_comb_max_proj = cat(3, max(img_comb(:,:,[(frames_session_1-frames_per_preview+1):(frames_session_1-frames_per_preview+100)]),[],3), max(img_comb(:,:,[(frames_session_1+1):(frames_session_1+100)]),[],3));
+writetiff(img_comb(:,:,[1:500, frames_session_1+1:frames_session_1+501]), [out_dir, 'day1_postlearning_CoReg_500_per_session']); %--------------------------------------------------------
+img_comb_max_proj = cat(3, max(img_comb(:,:,[1:500]),[],3), max(img_comb(:,:,[(frames_session_1+1):(frames_session_1+501)]),[],3));
 writetiff(img_comb_max_proj, [out_dir, 'day1_postlearning_CoReg_Max_projects_for_each']);
 clear img_comb
 
