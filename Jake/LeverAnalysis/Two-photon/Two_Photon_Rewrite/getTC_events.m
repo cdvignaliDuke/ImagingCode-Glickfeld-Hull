@@ -3,8 +3,6 @@
 % 2. obtain df/f timecourse
 % 3. create event triggered movies
 
-
-
 %load frame and lever info
 
 %% 1. find frame and lever times

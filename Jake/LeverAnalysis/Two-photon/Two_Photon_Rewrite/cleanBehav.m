@@ -6,7 +6,7 @@ trial_outcome.ind_press_prerelease = [];
 
 % --- Obtain frame info from behavior file
 
-[counterValues, counterTimesMs] = counter_fixer(cell2mat(cellfun(@int64,b_data.counterValues,'UniformOutput',0)), cell2mat(cellfun(@int64,b_data.counterTimesUs,'UniformOutput',0))/1000);
+[counterValues, counterTimesMs] = counter_fixer_2P(cell2mat(cellfun(@int64,b_data.counterValues,'UniformOutput',0)), cell2mat(cellfun(@int64,b_data.counterTimesUs,'UniformOutput',0))/1000);
 
 %store frame data
 frame.counter_by_time = counterValues;

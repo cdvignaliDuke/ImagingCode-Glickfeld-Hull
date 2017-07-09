@@ -22,7 +22,6 @@ for sub = [2, 5, 9, 22, 23, 31, 3, 6, 10, 25, 27, 32]%size(mouseID,2)
             data = [];
         end
         
-        
         if skip_run == 1
             continue
         else
@@ -46,6 +45,6 @@ for sub = [2, 5, 9, 22, 23, 31, 3, 6, 10, 25, 27, 32]%size(mouseID,2)
         getTC_events;
         CuePair_2P_TC_quantification;
         close all
-            
-        end
+        
     end
+end
