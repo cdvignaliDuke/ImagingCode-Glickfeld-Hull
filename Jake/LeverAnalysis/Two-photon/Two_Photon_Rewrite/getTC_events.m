@@ -22,8 +22,7 @@ data_dest = [dest 'parse_behavior.mat'];
 save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'Sampeling_rate', 'holdT_min', 'ifi', 'lick_data')
 
 %% 2. Obtain a df/f TC from baseline times
-data_tc = tc_avg;
-data_tc = data_tc';
+data_tc = tc_avg';   %tc_avg is derived from the .sbx file and is the raw F not df/f
 
 % avoid choosing empty trial
 empty_ind = find(~cellfun(@isempty, input.counterValues));
@@ -35,12 +34,12 @@ else
     start_i  =  empty_ind(1) + 1;
 end
 
+%defines the trial length, which trials actually have frames, and which trial will be the last one included in analysis
 trial_len = cell2mat(cellfun(@length, input.counterValues, 'UniformOutput', 0));
 valid_trial = find(trial_len > 2);
 stop_i = valid_trial(end) - 1;
 
-% extrack F for entire trial and baseF from baseline_timesMs (500-300ms before
-% press
+% extrack F for entire trial and baseF from baseline_timesMs (500-300ms before  press
 tc_dfoverf = zeros(size(data_tc));
 first_baseline = find(~isnan(lever.baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
 F_range = [];
@@ -55,7 +54,7 @@ for iT = start_i:stop_i;
             F_range = frame_info.counter(lever.baseline_timesMs(1,first_baseline)):frame_info.counter(lever.baseline_timesMs(2,first_baseline));
         end
         F_avg= mean(data_tc(:,F_range),2);
-        if frame_info.counter(cell2mat(input.tThisTrialStartTimeMs(iT+1))-startT) > size(data_tc,2)
+        if frame_info.counter(cell2mat(input.tThisTrialStartTimeMs(iT+1))-startT) > size(data_tc,2)  %if the first frame in this trial exceeds the number of frames collected by .sbx...
             t_range = frame_info.counter(cell2mat(input.tThisTrialStartTimeMs(iT))-startT):size(data_tc,2);
         else
             t_range = frame_info.counter(cell2mat(input.tThisTrialStartTimeMs(iT))-startT):frame_info.counter(cell2mat(input.tThisTrialStartTimeMs(iT+1))-startT);

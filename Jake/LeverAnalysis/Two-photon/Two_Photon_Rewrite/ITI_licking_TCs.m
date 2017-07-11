@@ -38,3 +38,14 @@ for ii = [2, 5, 9, 22, 23, 31]; %1:length(dates)
     load([data_dir, 'parse_behavior'], 'lick_data', 'lever');
     
 end
+
+%% Ashley and Lindsey ran some experiments on the 2P for frame/bx alignment. So it appears there is about a 1 frame delay between the command HAD_2P_frames sends to deliver the cue and when 
+%the cue actually changes. I will need to correct for that. However, they
+% seem to think that the frame pulse 1s before the 2nd pulse actually does
+% correspond to an imaged frame. They said that the two extrac pulses come
+% from frames remaining in the buffer which were never saved. So the last
+% two pulses do not have associated frames. 
+
+
+
+

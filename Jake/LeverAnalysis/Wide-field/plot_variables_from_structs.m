@@ -158,8 +158,8 @@ figure; hold on;
 for ii = 3:length(lick_rate_ratio)
     plot(1/corr_early_dfoverf_ratio(ii),lick_rate_ratio(ii), 'Marker', '*', 'Linestyle', 'none', 'Color', 'k')
 end
-title('peak df/f ratio (corr/early) vs lick rate ratio first 0.5s (early/corr)');
-xlabel('peak df/f ratio (correct/early)')
+title('peak df/f ratio (early/correct) vs lick rate ratio first 0.5s (early/corr)');
+xlabel('peak df/f ratio (early/correct)')
 ylabel('lick rate ratio (early/correct)')
 xlim([-0.1 1]);
 ylim([-0.1 1]);
