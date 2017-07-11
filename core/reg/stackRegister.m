@@ -39,7 +39,7 @@ TARGET = fft2(cast(target,'single'));
 
 [ny,nx,nframes]=size(stack);
 
-outs = zeros(nframes,4);
+outs = zeros(nframes,4,c);
 
 % if nargout > 1
 %     reg = zeros(size(stack),c);
@@ -61,7 +61,12 @@ for index = 1:nframes
 
     if nargout > 1
         wS = warning('off'); 
-        stack(:,:,index) = cast(abs(ifft2(temp)),c);    
+        if strcmp(c, 'gpuArray')
+            stack(:,:,index) = abs(ifft2(temp));
+        else
+            stack(:,:,index) = cast(abs(ifft2(temp)),c);
+        end
+        
         warning(wS);
     end
 end
