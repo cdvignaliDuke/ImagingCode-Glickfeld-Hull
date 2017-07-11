@@ -35,6 +35,7 @@ function [ica_sig, ica_filters, ica_A, numiter] = CellsortICA(mixedsig, ...
 %
 
 fprintf('-------------- CellsortICA %s -------------- \n', date)
+sclass = class(mixedsig);
 
 if (nargin<4) || isempty(PCuse)
     PCuse = [1:size(mixedsig,1)];
@@ -95,7 +96,7 @@ else
 end
 
 % Perform ICA
-[ica_A, numiter] = fpica_standardica(sig_use, nIC, ica_A_guess, termtol, maxrounds);
+[ica_A, numiter] = fpica_standardica(sig_use, nIC, ica_A_guess, termtol, maxrounds, sclass);
 
 % Sort ICs according to skewness of the temporal component
 ica_W = ica_A';
@@ -119,7 +120,7 @@ ica_filters = reshape(ica_filters, nIC, pixw, pixh);
 %     ica_filters = mixedfilters * ica_A' = mov * mixedsig' * inv(diag(pca_D.^(1/2)) * ica_A'
 %     ica_sig = ica_A * mixedsig = ica_A * inv(diag(pca_D.^(1/2))) * mixedfilters' * mov
 
-    function [B, iternum] = fpica_standardica(X, nIC, ica_A_guess, termtol, maxrounds)
+    function [B, iternum] = fpica_standardica(X, nIC, ica_A_guess, termtol, maxrounds, sclass)
         
         numSamples = size(X,2);
         
@@ -129,7 +130,7 @@ ica_filters = reshape(ica_filters, nIC, pixw, pixh);
         iternum = 0;
         minAbsCos = 0;
         
-        errvec = zeros(maxrounds,1);
+        errvec = zeros(maxrounds,1, sclass);
         while (iternum < maxrounds) && ((1 - minAbsCos)>termtol)
             iternum = iternum + 1;
             
