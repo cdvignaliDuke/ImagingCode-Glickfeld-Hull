@@ -71,8 +71,9 @@ end
 clear
 %list of all imaging days post img28
 all_days = {'151009_img30', '151011_img30', '151013_img30', '151015_img29','151019_img30','151021_img29','151022_img29','151026_img30','151210_img32','151211_img32','151212_img32','151222_img32','160129_img36','160129_img35','160131_img35','160131_img36','160205_img35','160207_img35','160207_img36','160208_img35','160208_img36','160209_img36','160228_img36','160314_img38','160315_img38','160319_img41','160320_img41','160512_img47','160515_img44','160515_img47','160515_img48','160516_img47','160606_img46','160704_img54','160722_img53', '160725_img53'}; 
+all_days = {'150704_img24', '150704_img25'};
 bx_dir = ['Z:\Data\WidefieldImaging\GCaMP\behavior\BehaviorHistory\'];
-for ii = 23:length(all_days)
+for ii = 1:length(all_days)
     current_session = all_days(ii);
     subj_name = all_days{ii}(8:end);
     subj_num  = ['i9', all_days{ii}(end-1:end)];

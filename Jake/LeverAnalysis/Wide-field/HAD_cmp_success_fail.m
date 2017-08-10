@@ -6,10 +6,6 @@
 clear
 WRITE_VEDIO = 0;
 BIN_SIZE = 1;   % if the ROI is large use large bin size (10)
-
-
-% DATA_DIR =  '/Volumes/Promise RAID/mati/imaging_data/';
-% BEHAVE_DIR = '/Volumes/Promise RAID/mati/behave_data/';
 DATA_DIR =  'C:\Users\jake\TempData\';
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 

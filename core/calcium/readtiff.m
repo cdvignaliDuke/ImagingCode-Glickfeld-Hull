@@ -19,7 +19,8 @@ function [array,iframe] = readtiff(pathname,newType,textInName,useLeicaNumbering
 % 08/03/14 MH enable reading of Leica tiff seq files
 % 08/10/30 VB returns number of frame loaded
 % 25/03/10 VB can specify return type
-
+% 06/08/17 ZX reading different formats: readtiff(pathname, 'uint16'),
+% readtiff(pathname, 'single') for 32 bit.
 %$Id: readtiff.m 637 2011-02-27 18:11:49Z vincent $
 
 %% notes on leica:
@@ -40,8 +41,8 @@ if exist(pathname) == 2  % a single file
     [pathstr,name,ext]=fileparts(pathname);
     filelist = {[name ext]};
     nFiles = 1;
-    %assert(nargin == 1, ...
-    %       'First arg is a single file, pass only one parameter');
+%     assert(nargin == 1, ...
+%            'First arg is a single file, pass only one parameter');
     sortNs=1;
     if isempty(pathstr)
         pathstr='.';

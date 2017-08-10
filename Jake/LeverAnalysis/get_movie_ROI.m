@@ -1,35 +1,30 @@
-function [ROI_x ROI_y] =  get_movie_ROI(moive_info, first_frame, last_frame)
+function [ROI_x ROI_y] =  get_movie_ROI(meta_data2, frame_info)
 
-image_dest = moive_info(1).Filename;
+image_dest = meta_data2{1}(1).Filename;
 ROI_x  =[];
 ROI_y = [];
+
 % read 10 frames across the movie
-NUM_FRAMES = 10;
-first = first_frame;
-last =last_frame;
-
-use_inx = ceil(linspace(first, last, NUM_FRAMES));
-
+NUM_FRAMES = 20;
+first_frame = 1; 
+last_frame = length(meta_data2{1});
+use_inx = ceil(linspace(first_frame, last_frame, NUM_FRAMES));
 for i=1:length(use_inx)
-    c_img =  double(imread(image_dest, use_inx(i), 'info', moive_info));
-    % r_tiff = tiffread(image_dest, use_inx(i), 'ReadUnknownTags',1, 'DistributeMetaData', 1);
-    %c_img =  double(r_tiff.data);
+    c_img =  double(imread(image_dest, use_inx(i)));
     img(:,:,i) = c_img;
 end
-% calculate STD and plot on figure;
+
+% calculate STD and mean
 sd = std(img,[],3);
 avg = mean(img,3);
-%figure; pcolor(sd); axis ij; shading flat; %colormap gray;
 
 done =0;
-roi_y = [1 size(sd,1)];
+roi_y = [1 size(sd,1)]; %sd is the size of one full frame
 roi_x =  [1 size(sd,2)];
-% get ROI  press 'd'
 figure;
 while(~done)
     % plot waveforms
     hold off;
-    %pcolor(sd); axis ij; shading flat; hold on;%colormap gray;
     pcolor(avg); axis ij; shading flat; hold on; colormap jet;
     % plot square
     plot( [roi_x(1) roi_x(1)], roi_y, 'w', 'linewidth', 2);
@@ -39,7 +34,7 @@ while(~done)
      
     % get top right corner
     axis tight;
-    title('press Top LEFT corner or S to stop', 'FontSize' ,20);
+    title('Select top left then bottom right corner. Press s when completed', 'FontSize' ,20);
     [ x_tr , y_tr, butt] = ginput(1);
     if(butt ==1)
         
@@ -55,7 +50,7 @@ while(~done)
     end
     
     % get buttom left corner
-    title('press Bottom RIGHT corner or s to stop', 'FontSize' ,20);
+    title('Select top left then bottom right corner. Press s when completed', 'FontSize' ,20);
     [ x_bl , y_bl, butt] = ginput(1);
     if(butt ==1)
         
@@ -85,6 +80,5 @@ if(roi_x(1) > roi_x(2))
 else
     ROI_y = roi_x(1):roi_x(2);
 end
-%ROI_y = roi_x(1):roi_x(2);
 
 

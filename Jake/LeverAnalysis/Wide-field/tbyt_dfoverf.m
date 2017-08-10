@@ -1,9 +1,10 @@
-function tc_dfoverf = tbyt_dfoverf(b_data,bx_out_dir);
+function tc_dfoverf = tbyt_dfoverf(b_data, bx_out_dir);
 %Uses the trial by trial baseline times to create a df/f timecourse
 
 %load variables from bx_outputs
 load(bx_out_dir, 'lever', 'frame_info', 'data_tc');
 
+shift = 10;
 baseline_timesMs = lever.baseline_timesMs;
 first_baseline = find(~isnan(baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
 StartT = frame_info.imaging_start_MW_T; %time of imaging onset in MWorks time. 
@@ -33,7 +34,7 @@ for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only 
         t_range = t_range + 4;    %added this shift because we have a 1s anaylsis window post release but trial ends 600ms after release.
     end
     
-    %assign the frame numbers which correspond to this trial
+    %calculate df/f 
     for i = 1:size(data_tc,1); %find the avf_f for F_range and apply it to all the frames in that trial
         F_avg= mean(data_tc(i,F_range));
         t_df = bsxfun(@minus, data_tc(i, t_range), F_avg);   %use bsxfun because sometimes F_avg is a vector

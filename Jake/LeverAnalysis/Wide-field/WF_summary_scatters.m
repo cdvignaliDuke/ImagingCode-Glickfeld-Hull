@@ -1,15 +1,20 @@
 %% bx criteria, days, ROIs, and path
-clear
-fidgetMax = 1.0;
-corrMin = 0.60;
+clear  %old criteria was only that there had to be >50% correct
+fidgetMax = 1;
+corrMin = 0.00;
 lapseMax = 1;
-daysUnfiltered = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', }; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
-ROIcell = {[2], [2], [1:3], [1,3], [1:2], [1:2], [1:2], [1:2], [1:2], [1:2], [3:4], [2,3,5], [1], [1:2], [3:4], [1,2,3]}; 
+min_peak_percent = 60;
+daysUnfiltered = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
+ROIcell = {[2], [2], [1:3], [1,3], [1:4], [1:5], [1:2], [1:2], [1:2], [1:2], [3:4], [2,3,5], [1], [1:2], [3:4], [1,2,3], [3:5]}; 
+peak_percent_correct = [74,74, 89,89, 89,89, 67,67, 82,82, 63,63, 76,76, 83, 84, 68];
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 curr_cd = cd;
 days = {};
 
 %% This forloop loads individual datasets, checks to see if they fit the bx criteria and edits the sessions included accordingly
+pop_peak_corr = [];
+pop_corr = [];
+pop_fidget = [];
 for kk= 1:length(daysUnfiltered);
     destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_success');
     destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_fail');
@@ -32,28 +37,34 @@ for kk= 1:length(daysUnfiltered);
     fidget = size(fidget_roi,1);
     tooFast = size(tooFast_roi,1);
     total = corr + early + fidget + tooFast + lapse; 
+    curr_peak_percent = peak_percent_correct(kk);
     %Bx criteria for inclusion
-    if fidget/total < fidgetMax
-        if corr/total >= corrMin
-            if lapse/total < lapseMax
-                days = [days, daysUnfiltered{kk}];
+    if curr_peak_percent > min_peak_percent
+        if fidget/total < fidgetMax
+            if corr/total >= corrMin
+                if lapse/total < lapseMax
+                    days = [days, daysUnfiltered{kk}];
+                    pop_peak_corr = [pop_peak_corr, curr_peak_percent];
+                    pop_corr = [pop_corr,  corr/total];
+                    pop_fidget = [pop_fidget, fidget/total];
+                end
             end
         end
     end
 end
 days  %report the days that meet bx criteria
 
-% Non-LS areas
-%daysUnfiltered = {'151009_img30', '151011_img30', '151212_img32', '160129_img36', '160314_img38', '160315_img38', '160606_img46'};
-%days = {'151009_img30', '151011_img30', '151212_img32', '160129_img36', '160314_img38', '160315_img38', '160606_img46'};
-%ROIcell = {[4,5], [4,5], [4,5], [3], [5], [4], [5]}; %for Non-LS areas
-%colors = {'b', 'b', 'b', 'r', 'r', 'b', 'r'}; %blue=Vermis red=CrusI
+% %Non-LS areas
+%daysUnfiltered = {'151009_img30', '151011_img30', '160129_img36', '160314_img38', '160315_img38', '160606_img46'};
+%days = {'151009_img30', '151011_img30', '160129_img36', '160314_img38', '160315_img38', '160606_img46'};
+%ROIcell = {[4,5], [4,5], [3], [5], [4], [5]}; %for Non-LS areas
+%colors = {'b', 'b', 'r', 'r', 'b', 'r'}; %blue=Vermis red=CrusI
 
-%no-lever controls
-days = {'160209_img36', '151222_img32', '151019_img30', '160725_img53'}; 
-daysUnfiltered = {'160209_img36', '151222_img32', '151019_img30', '160725_img53'}; 
-colors = {'b', 'g', 'm', 'k'};
-ROIcell = {[2], [3], [2:3], [1:2]};
+% %no-lever controls
+% days = {'160209_img36', '151222_img32', '151019_img30', '160725_img53'}; 
+% daysUnfiltered = {'160209_img36', '151222_img32', '151019_img30', '160725_img53'}; 
+% colors = {'b', 'g', 'm', 'k'};
+% ROIcell = {[2], [3], [2:3], [1:2]};
 
 
 %% (2)SUMMARY STATISTIC
@@ -61,8 +72,8 @@ ROIcell = {[2], [3], [2:3], [1:2]};
 %days = {'150518_img24', '150519_img24', '150518_img25', '150517_img25', '150716_img27', '150718_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41'}; %'150718_img27', '150719_img27',
 %ROIcell = {[1:2], [2:3], [1:2], [1:2], [1,2], [1,2,4], [1], [1:5], [2], [2], [1:3], [1,3], [1:2], [1:2], [1:2], [1:2], [1:2], [1:2], [3:6], [2,3,5], [4], [1:2]};
 
-% UNCOMMENT AFTER RUNNING NOLEVER CONTROLS -------- colors = {'r', 'c', 'b', 'm', 'r', 'b', 'm', 'g', 'k', 'c', 'y',  'r', 'r', 'b', 'b', 'r', 'b', 'm', 'g', 'k', 'c', 'y',};
-DATA_DIR = 'Z:\Analysis\LeverAnalysis\LeverSummaryFolder\';
+colors = {'r', 'c', 'b', 'm', 'r', 'b', 'm', 'g', 'k', 'c', 'y', 'r', 'r', 'b', 'b', 'r', 'b', 'm', 'g', 'k', 'c', 'y',};
+DATA_DIR = 'Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\';
 summary_succ = {}; 
 summary_fail = {};
 summary_cue  = {};
@@ -79,22 +90,20 @@ for kk = 1:length(daysUnfiltered)
     days_roi_matcher.(temp)= ROIcell{kk};
 end
 
-%shift all TCs of individual trials so they are baselined to 3 frame
+%shift all TCs of individual trials so they are baselined to the mean of the first 3 frames
 for i = 1:length(days);
-    for ii=1:length(summary_succ); %should be the same for succ and fail
-        for iii = 1:size(summary_succ{i}.success_roi,2);
-            for iiii = 1:size(summary_succ{i}.success_roi,1);
-                shift = summary_succ{i}.success_roi(iiii,iii,[1:3]); 
-                summary_succ{i}.success_roi(iiii,iii,:) = summary_succ{i}.success_roi(iiii,iii,:)-shift;
-            end
-            for iiii = 1:size(summary_fail{i}.fail_roi,1);
-                shift = summary_fail{i}.fail_roi(iiii,iii,[1:3]);
-                summary_fail{i}.fail_roi(iiii,iii,:) = summary_fail{i}.fail_roi(iiii,iii,:)-shift;
-            end
-            for iiii = 1:size(summary_cue{i}.cue_roi,1);
-                shift = summary_cue{i}.cue_roi(iiii,iii,[1:3]);
-                summary_cue{i}.cue_roi(iiii,iii,:) = summary_cue{i}.cue_roi(iiii,iii,:)-shift;
-            end
+    for ii = 1:size(summary_succ{i}.success_roi,2); %#of ROIs
+        for iii = 1:size(summary_succ{i}.success_roi,1); % #of trials
+            shift = mean(summary_succ{i}.success_roi(iii,ii,[1:3]));
+            summary_succ{i}.success_roi(iii,ii,:) = summary_succ{i}.success_roi(iii,ii,:)-shift;
+        end
+        for iii = 1:size(summary_fail{i}.fail_roi,1);
+            shift = mean(summary_fail{i}.fail_roi(iii,ii,[1:3]));
+            summary_fail{i}.fail_roi(iii,ii,:) = summary_fail{i}.fail_roi(iii,ii,:)-shift;
+        end
+        for iii = 1:size(summary_cue{i}.cue_roi,1);
+            shift = mean(summary_cue{i}.cue_roi(iii,ii,[1:3]));
+            summary_cue{i}.cue_roi(iii,ii,:) = summary_cue{i}.cue_roi(iii,ii,:)-shift;
         end
     end
 end
@@ -234,24 +243,24 @@ for kk = 1:length(days)  %for each animal..
     
     
     %plot all trials vs avg for each animal on separate plots
-    figure; 
-    for i = 1:size(fail_roi_interp_avg3,2);
-        subplot(1,3,2); plot([-500:10:1000], fail_roi_interp_avg3);
-    end
-    hold on; plot([-500:10:1000], mean(fail_roi_interp_avg3,2), 'LineWidth', 4); title([days(kk), 'fail']); vline(0);
-    ylim([-0.2 0.5]);
-    
-    for i = 1:size(success_roi_interp_avg3,2);
-        subplot(1,3,1); plot([-500:10:1000], success_roi_interp_avg3);
-    end
-    hold on; plot([-500:10:1000], mean(success_roi_interp_avg3,2), 'LineWidth', 4); title([days(kk), 'success']); vline(0);
-    ylim([-0.2 0.5]);
-    
-    for i = 1:size(cue_roi_interp_avg3,2);
-        subplot(1,3,3); plot([-500:10:1000], cue_roi_interp_avg3);
-    end
-    hold on; plot([-500:10:1000], mean(cue_roi_interp_avg3,2), 'LineWidth', 4); title([days(kk), 'cue']); vline(0);
-    ylim([-0.2 0.5]);
+%     figure; 
+%     for i = 1:size(fail_roi_interp_avg3,2);
+%         subplot(1,3,2); plot([-500:10:1000], fail_roi_interp_avg3);
+%     end
+%     hold on; plot([-500:10:1000], mean(fail_roi_interp_avg3,2), 'LineWidth', 4); title([days(kk), 'fail']); vline(0);
+%     ylim([-0.2 0.5]);
+%     
+%     for i = 1:size(success_roi_interp_avg3,2);
+%         subplot(1,3,1); plot([-500:10:1000], success_roi_interp_avg3);
+%     end
+%     hold on; plot([-500:10:1000], mean(success_roi_interp_avg3,2), 'LineWidth', 4); title([days(kk), 'success']); vline(0);
+%     ylim([-0.2 0.5]);
+%     
+%     for i = 1:size(cue_roi_interp_avg3,2);
+%         subplot(1,3,3); plot([-500:10:1000], cue_roi_interp_avg3);
+%     end
+%     hold on; plot([-500:10:1000], mean(cue_roi_interp_avg3,2), 'LineWidth', 4); title([days(kk), 'cue']); vline(0);
+%     ylim([-0.2 0.5]);
 end
 % title('all seven animals that meet 60% correct');
 % ylabel('df/f unshifted');
@@ -277,7 +286,8 @@ succ_peak_val_mean = mean(peak_value_succ);
 fail_peak_val_mean = mean(peak_value_fail);
 min_scatter =  min([peak_value_succ,peak_value_fail]);
 max_scatter =  max([peak_value_succ,peak_value_fail]);
-colors = {'k', 'b', 'g', 'c', 'm', 'r', 'y'};
+colors = {'k', 'k', 'b', 'g', 'c', 'm', 'm', 'r', 'y', 'b'}; %for %corr>50 
+colors = {'k','k', 'b','b', 'g','g', 'c','c', 'm','m', 'r','r', 'y','y', 'k', 'b', 'r'}; %60%corr
 figure; hold on;
 for i = 1:length(days);
 plot(peak_value_succ(i),peak_value_fail(i), ['o' colors{i}], 'MarkerFaceColor', colors{i});  

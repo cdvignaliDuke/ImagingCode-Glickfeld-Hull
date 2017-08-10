@@ -47,15 +47,21 @@ end
 [max_val max_dir] = max(base_resp,[],2);
 
 %find late responding cells and remove
-base_tc_all = squeeze(nanmean(bsxfun(@minus,data_dfof(:,:,1,:),mean(data_dfof(base_win,:,1,:),1)),4));
+if noff>2
+    ind = find(tFramesOff>30);
+else
+    ind = 1:ntrials;
+end
+base_tc_all = squeeze(nanmean(bsxfun(@minus,data_dfof(:,:,1,ind),mean(data_dfof(base_win,:,1,ind),1)),4));
 base_resp_diff = diff(base_tc_all);
 [max_val max_time] = max(base_resp_diff(20:40,:),[],1);
 
 ind1 = find(max_time<base_win(end)-20);
 ind2 = find(max_time>resp_win(end)-20);
 ind3 = setdiff(1:nCells, [ind1 ind2]);
-good_ind = intersect(good_ind_temp,ind3);
-
+%ind4 = find(mean(base_tc_all(resp_win,:),1)>0.02);
+%good_ind = intersect(intersect(good_ind_temp,ind3),ind4);
+good_ind = intersect(good_ind_temp,ind3); %used for V1 PP data 
 figure;
 subplot(2,2,1)
 plot(base_tc_all(:,ind1))
@@ -154,7 +160,7 @@ save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mo
 
 tt = (1-20:1+99).*(1000/frameRateHz);
 %response by interval- all and max dir- by cell
-for iCell = 1:4%length(good_ind)
+for iCell = 1:length(good_ind)
     figure;
     iC = good_ind(iCell);
     temp_resp_tc = squeeze(nanmean(data_dfof(resp_win,iC,:,:),1)-nanmean(data_dfof(base_win,iC,:,:),1));
@@ -211,21 +217,25 @@ for iCell = 1:4%length(good_ind)
 end
 
 %average all cells by interval all directions
+tt = (1-20:1+99).*(1000/frameRateHz);
 figure;
+temp_resp_tc = bsxfun(@minus,data_dfof(:,:,:,:),nanmean(data_dfof(base_win,:,:,:),1));
 ind_off = [];
 subplot(2,1,1)
-plot(tt, squeeze(nanmean(nanmean(temp_resp_tc(:,:,1,:),2),4)))
+plot(tt, squeeze(nanmean(nanmean(temp_resp_tc(:,good_ind,1,:),2),4)))
+ylabel('dF/F')
 hold on
 subplot(2,1,2)
-errorbar(8000, nanmean(nanmean(nanmean(temp_resp_tc(resp_win,:,1,:),1),2),4), nanstd(nanmean(nanmean(temp_resp_tc(resp_win,:,1,:),1),4),[],2)./sqrt(nCells), 'ob');
+errorbar(8000, nanmean(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,1,:),1),2),4), nanstd(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,1,:),1),4),[],2)./sqrt(length(good_ind)), 'ob');
+ylabel('Average dF/F')
 hold on
 for ioff = 1:noff
     ind = find(tFramesOff == offs(ioff));
     ind_off = [ind_off length(ind)];
     subplot(2,1,1)
-    plot(tt, squeeze(nanmean(nanmean(temp_resp_tc(:,:,2,ind),2),4)))
+    plot(tt, squeeze(nanmean(nanmean(temp_resp_tc(:,good_ind,2,ind),2),4)))
     subplot(2,1,2)
-    errorbar(offs(ioff)*(1000/frameRateHz), nanmean(nanmean(nanmean(temp_resp_tc(resp_win,:,2,ind),1),2),4), nanstd(nanmean(nanmean(temp_resp_tc(resp_win,:,2,ind),1),4),[],2)./sqrt(nCells), 'ob');
+    errorbar(offs(ioff)*(1000/frameRateHz), nanmean(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,2,ind),1),2),4), nanstd(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,2,ind),1),4),[],2)./sqrt(length(good_ind)), 'ob');
     hold on;
 end
 suptitle([mouse ' ' date '- ' num2str(length(good_ind)) ' cells- ' num2str(ind_off)]) 
@@ -233,26 +243,30 @@ print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' m
 
 %average all cells by interval all directions, normalized to base
 figure;
+norm_resp_tc = bsxfun(@rdivide, temp_resp_tc, nanmean(mean(temp_resp_tc(resp_win,:,1,:),1),4));
 ind_off = [];
 subplot(2,1,1)
-plot(tt, squeeze(nanmean(nanmean(norm_resp_tc(:,:,1,:),2),4)))
+plot(tt, squeeze(nanmean(nanmean(norm_resp_tc(:,good_ind,1,:),2),4)))
+ylabel('Normalized dF/F')
 hold on
 subplot(2,1,2)
-errorbar(8000, nanmean(nanmean(nanmean(norm_resp_tc(resp_win,:,1,:),1),2),4), nanstd(nanmean(nanmean(norm_resp_tc(resp_win,:,1,:),1),4),[],2)./sqrt(nCells), 'ob');
+errorbar(8000, nanmean(nanmean(nanmean(norm_resp_tc(resp_win,good_ind,1,:),1),2),4), nanstd(nanmean(nanmean(norm_resp_tc(resp_win,good_ind,1,:),1),4),[],2)./sqrt(length(good_ind)), 'ob');
+ylabel('Normalized dF/F')
 hold on
 for ioff = 1:noff
     ind = find(tFramesOff == offs(ioff));
     ind_off = [ind_off length(ind)];
     subplot(2,1,1)
-    plot(tt, squeeze(nanmean(nanmean(norm_resp_tc(:,:,2,ind),2),4)))
+    plot(tt, squeeze(nanmean(nanmean(norm_resp_tc(:,good_ind,2,ind),2),4)))
     subplot(2,1,2)
-    errorbar(offs(ioff)*(1000/frameRateHz), nanmean(nanmean(nanmean(norm_resp_tc(resp_win,:,2,ind),1),2),4), nanstd(nanmean(nanmean(norm_resp_tc(resp_win,:,2,ind),1),4),[],2)./sqrt(nCells), 'ob');
+    errorbar(offs(ioff)*(1000/frameRateHz), nanmean(nanmean(nanmean(norm_resp_tc(resp_win,good_ind,2,ind),1),2),4), nanstd(nanmean(nanmean(norm_resp_tc(resp_win,good_ind,2,ind),1),4),[],2)./sqrt(length(good_ind)), 'ob');
     hold on;
 end
+ylim([0 1.2])
 suptitle([mouse ' ' date '- ' num2str(length(good_ind)) ' cells- ' num2str(ind_off)]) 
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_avgResp_byInt_allDir_norm.pdf']),'-dpdf','-bestfit')
 
-
+%%
 %average all cells by interval at maximum direction
 data_dfof_maxDir = nan(noff+1,40,nCells);
 temp_resp_tc = bsxfun(@minus, data_dfof, nanmean(data_dfof(base_win,:,:,:),1));
@@ -285,7 +299,7 @@ for ioff = 1:noff
 end
 suptitle([mouse ' ' date '- ' num2str(length(good_ind)) ' cells']) 
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_avgResp_byInt_maxDir.pdf']),'-dpdf','-bestfit')
-
+%%other crap
 %average all cells by interval at maximum direction norm to base
 figure;
 data_dfof_maxDir_norm = bsxfun(@rdivide, data_dfof_maxDir, nanmean(data_dfof_maxDir(1,resp_win,:),2));

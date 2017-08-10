@@ -5,16 +5,13 @@ clear;
 %all datasets which were included in the scatterplot as of 10/13/16
 days = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
 
-%sessions to be analyzed
-days = {'170426_img87', '170426_img88'};
-
+days = {'170705_img99'};
 bx_source     = ['Z:\Data\WidefieldImaging\GCaMP\behavior\'];
 image_source_base  = ['Z:\Data\WidefieldImaging\GCaMP\']; %location of permanently stored image files for retreiving meta data
 image_dest_base    = ['Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the lever analysis folder
 bx_outputs_dir = ['Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\'];
 PCA_output_dir_base = ['Z:\Analysis\WF Lever Analysis\PCA_output_dir\'];
 kmeans_output_dir_base = ['Z:\Analysis\WF Lever Analysis\kmeans_output_dir\'];
-old_cd = cd; %save old cd so I can restore it later
 
 %% SECTION TWO - Uses a gui to allow user to draw ROIs 
 for ii = 1:length(days)

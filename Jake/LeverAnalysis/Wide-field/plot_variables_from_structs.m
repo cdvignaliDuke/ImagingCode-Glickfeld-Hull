@@ -1,9 +1,9 @@
 %script for loading and plotting a bunch of variables
 %list of current days being analyzed
 clear;
-all_days = {'151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %not really all days but it was the days I had LS ROIs selected for already '150716_img28', '150717_img28', 
+all_days = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %not really all days but it was the days I had LS ROIs selected for already '150716_img28', '150717_img28', 
 %days_chrono_order = {'150716_img28', '150717_img28', '151009_img30', '151011_img30', '151022_img29', '151211_img32', '151212_img32', '160129_img35', '160129_img36', '160131_img35', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %not really all days but it was the days I had LS ROIs selected for already
-days_chrono_order = {'151009_img30', '151011_img30', '151022_img29', '151211_img32', '151212_img32', '160129_img35', '160129_img36', '160131_img35', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
+days_chrono_order = {'151009_img30', '151011_img30','151021_img29', '151022_img29', '151211_img32', '151212_img32', '160129_img35', '160129_img36', '160131_img35', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
 struct_dir = 'Z:\Analysis\WF Lever Analysis\StructuresForPlotting\'; 
 xls_dir = 'Z:\Data\WidefieldImaging\GCaMP\WF_exp_spreadsheet';
 struct_files = dir(struct_dir);
@@ -11,7 +11,7 @@ meta_struct = struct('one', []);
 color_palette = colormap;
 color_palette = color_palette([round(linspace(1,64,length(days_chrono_order)))],:);
 
-days = {'160209_img36', '151222_img32', '151019_img30', '160725_img53', '160905_img55'};  %no lever controls 161109_img61 161109_img59   Do not meet criterion 160208_img35
+%days = {'160209_img36', '151222_img32', '151019_img30', '160725_img53', '160905_img55'};  %no lever controls 161109_img61 161109_img59   Do not meet criterion 160208_img35
 
 for ii = 1:2
     if length(struct_files(ii).name) == 1 | length(struct_files(ii).name) == 2;
@@ -158,8 +158,8 @@ figure; hold on;
 for ii = 3:length(lick_rate_ratio)
     plot(1/corr_early_dfoverf_ratio(ii),lick_rate_ratio(ii), 'Marker', '*', 'Linestyle', 'none', 'Color', 'k')
 end
-title('peak df/f ratio (corr/early) vs lick rate ratio first 0.5s (early/corr)');
-xlabel('peak df/f ratio (correct/early)')
+title('peak df/f ratio (early/correct) vs lick rate ratio first 0.5s (early/corr)');
+xlabel('peak df/f ratio (early/correct)')
 ylabel('lick rate ratio (early/correct)')
 xlim([-0.1 1]);
 ylim([-0.1 1]);

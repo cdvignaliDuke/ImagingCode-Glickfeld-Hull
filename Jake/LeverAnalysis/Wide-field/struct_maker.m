@@ -26,7 +26,7 @@ for i = 1:size(xl_spread,2)
 end
 
 %xl_struct = cell2struct(xl_spread, row_heading, 2);
-for ii = 14:length(all_days);
+for ii = 1%4:length(all_days);
     subj_num = ['i9' num2str(all_days{ii}(end-1:end))]; %useful for naming the structure
     session_date = all_days{ii}(1:6); 
     struct_name = [subj_num, '_', session_date]; %unfortunately have to wait until saving the struct to name it this
