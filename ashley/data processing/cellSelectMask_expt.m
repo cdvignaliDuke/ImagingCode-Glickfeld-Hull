@@ -1,7 +1,7 @@
 clear all
 close all
 ds = 'awData_audMod_V13trialtypes';
-slct_exp = 1;
+slct_exp = 2;
 %%
 rc = behavConstsAV;
 eval(ds)
@@ -9,9 +9,7 @@ for iexp = slct_exp
     SubNum = expt(iexp).SubNum;
     mouse = expt(iexp).mouse;
     expDate = expt(iexp).date;
-    imgFolder = expt(iexp).regImg;
-    fnout = fullfile(rc.ashleyAnalysis,mouse,expt(iexp).folder,expDate,imgFolder);
-
+    fnout = fullfile(rc.ashleyAnalysis,mouse,expt(iexp).folder,expDate);
 
     %% load all max dF/F images, crop if necessary
 
@@ -21,11 +19,11 @@ for iexp = slct_exp
 
     mask_cell = maskFromMultiMaxDFFStack(stim_crop);
 
+    close all
     figure; setFigParams4Print('portrait')
     imagesc(mask_cell);
-    title({[num2str(length(unique(mask_cell(:)))-1) ' cells with behavior'];[mouse '-' expDate]})
+    title({[num2str(length(unique(mask_cell(:)))-1) ' cells'];[mouse '-' expDate]})
     print(fullfile(fnout,'final_mask'),'-dpdf')
 
     save(fullfile(fnout,'final_mask.mat'),'mask_cell');
-    close all
 end

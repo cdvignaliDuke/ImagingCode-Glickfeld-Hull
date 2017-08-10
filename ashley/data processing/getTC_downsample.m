@@ -1,7 +1,8 @@
 clear all
 close all
-ds = 'movDotsSpeedTun_V1';
-slct_exp = [1];
+ds = 'awData_audMod_V13trialtypes';
+doRedChannelOnly = 0;
+slct_exp = 1;
 %%
 rc = behavConstsAV;
 eval(ds)
@@ -22,8 +23,13 @@ for irun = 1:expt(iexp).nrun
     [input, data] = Load_SBXdataPlusMWorksData(SubNum,expDate,runTime,mouse,runFolder,fName);  
 
     % down-sample
-    data_down = stackGroupProject(data,down);
-    clear data
+    if down > 1
+        data_down = stackGroupProject(data,down);
+        clear data
+    else
+        data_down = data;
+        clear data
+    end
 
     % remove negative data by subtraction
     data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
@@ -35,9 +41,16 @@ for irun = 1:expt(iexp).nrun
     [~, data_reg] = stackRegister_MA(data_sub,[],[],out_reg);
 
     %% load mask
-
-    load(fullfile(fn,'final_mask.mat'))
-
+    if doRedChannelOnly
+        load(fullfile(fn,'red_mask.mat'))
+        mask_cell = red_mask;
+    else
+        try
+            load(fullfile(fn,'final_mask.mat'))
+        catch
+            load(fullfile(fn,runFolder,'final_mask.mat'))
+        end
+    end
     %% get timecourses and subtract neuropil
     buf = 4;
     np = 6;
@@ -46,7 +59,12 @@ for irun = 1:expt(iexp).nrun
 
 
     %% save data
-    save(fullfile(fnrun,'timecourses.mat'),'data_tc_subnp')
-    save(fullfile(fnrun,'raw_tc.mat'),'out_reg','data_tc','buf','np')
+    if doRedChannelOnly
+        save(fullfile(fnrun,'red_timecourses.mat'),'data_tc_subnp')
+        save(fullfile(fnrun,'raw_tc.mat'),'out_reg','data_tc','buf','np')
+    else
+        save(fullfile(fnrun,'timecourses.mat'),'data_tc_subnp')
+        save(fullfile(fnrun,'raw_tc.mat'),'out_reg','data_tc','buf','np')
+    end
 end
 end

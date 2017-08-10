@@ -1,7 +1,8 @@
 clear all
 close all
-ds = 'awData_audMod_V1';
-slct_exp = [1:2];
+ds = 'awData_audMod_V13trialtypes';
+slct_exp = 2;
+regDownSampN = 100; % should be calibrated depending on downsample rate
 %%
 rc = behavConstsAV;
 eval(ds)
@@ -23,15 +24,19 @@ for irun = 1:expt(iexp).nrun
     [input, data] = Load_SBXdataPlusMWorksData(subnum,expDate,expTime,mouse,runFolder,fName);
     
     % down-sample
-    data_down = stackGroupProject(data,down);
-    clear data_tun
-
+    if down > 1
+        data_down = stackGroupProject(data,down);
+        clear data
+    else
+        data_down = data;
+        clear data
+    end
     % remove negative data by subtraction
     data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
-    clear data
+    clear data_down
 
     % get average frames
-    d = 10;
+    d = regDownSampN;
     nd = floor(size(data_sub,3)/d);
     xpix = size(data_sub,2);
     ypix = size(data_sub,1);
@@ -42,7 +47,15 @@ for irun = 1:expt(iexp).nrun
     for id = 1:nd
        data_d(:,:,id) = mean(data_sub(:,:,(d*(id-1))+1:id*d),3); 
     end
+    
+    if irun > 1
+        load(fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,expt(iexp).regImg,'regOuts&Img.mat'))
+        
+        [out_reg data_reg] = stackRegister(data_sub,data_corr_img);
+        clear data_sub
 
+        save(fullfile(fnout,'regOuts&Img.mat'),'out_reg','data_corr_img')        
+    else
     % find most correlated frame in unregistered data
     data_d_2D = reshape(data_d,xpix*ypix,nd);
     data_corr = corrcoef(data_d_2D);
@@ -67,6 +80,7 @@ for irun = 1:expt(iexp).nrun
     clear data_sub
     
     save(fullfile(fnout,'regOuts&Img.mat'),'out_reg','data_corr_img')
+    end
 
 % % %% find motion trials
 % % % tuning
@@ -101,7 +115,8 @@ for irun = 1:expt(iexp).nrun
 
 
 %% ********* tuning max dF/F ************
-if expt(iexp).tunVar == 0
+data_reg = double(data_reg);
+if expt(iexp).tunVar == 0 & expt(iexp).exptAlignVar == 0
     maxDFF = quickMaxDFF(data_reg);
     %% figure
     figure; setFigParams4Print('portrait')
@@ -113,9 +128,13 @@ if expt(iexp).tunVar == 0
     end
     print(fullfile(fnout, 'max images'),'-dpdf')
     writetiff(maxDFF, fullfile(fnout,'max images'))
-else
+elseif expt(iexp).tunVar ~= 0
     tunVar = expt(iexp).tunVar;
     maxDFF = quickTunMaxDFF(data_reg,input,down,tunVar,fnout,1);
+elseif expt(iexp).exptAlignVar ~= 0
+    exptVar = expt(iexp).exptAlignVar;
+    maxDFF = quickExptMaxDFF(data_reg,input,down,exptVar,expt(iexp).frame_rate,fnout,1);
 end
+clear data_reg
 end
 end

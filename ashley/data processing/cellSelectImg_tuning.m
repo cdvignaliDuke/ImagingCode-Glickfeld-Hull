@@ -1,11 +1,11 @@
 clear all
 close all
-ds = 'movDotsSpeedTun_V1';
+ds = 'movDotsSpeedTun_V13trialtypes';
 %%
 rc = behavConstsAV;
 eval(ds)
 %%
-iexp = 2;
+iexp = 1;
 irun = 1;
     %%
 %% expt specs

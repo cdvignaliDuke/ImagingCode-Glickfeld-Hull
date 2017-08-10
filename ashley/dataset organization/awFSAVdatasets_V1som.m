@@ -1,0 +1,23 @@
+%% AW99 170718 *first run has high lapse rate
+expt(1).SubNum = '699';
+expt(1).mouse = 'AW99';
+expt(1).date = '170718';
+expt(1).img_loc  = {'V1';'L2/3'};
+expt(1).img_strct  = {'cells'};
+expt(1).time_mat = ['1153'];
+expt(1).runs = ['002'];
+expt(1).nrun = size(expt(1).runs,1);
+expt(1).frame_rate = 30;
+expt(1).folder = 'two-photon imaging';
+expt(1).catch = 1;
+expt(1).catchRew = 1;
+expt(1).dirtuning = '003';
+expt(1).dirtuning_time = '1230';
+expt(1).rettuning = {'004';'1240'};
+expt(1).stimOnMs = 100;
+expt(1).motionTestBimodal = 1;
+expt(1).motionThreshold = 0.03;
+expt(1).redChannelOn = 1;
+expt(1).redChannelLabel = 'SOM';
+expt(1).redChannelRun = '006';
+expt(1).greenredsimultaneous = 1;

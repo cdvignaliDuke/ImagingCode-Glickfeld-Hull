@@ -1,7 +1,7 @@
 clear all
 close all
 ds = 'movDotsSpeedTun_V1';
-slct_expt = [1];
+slct_expt = [2];
 %%
 rc = behavConstsAV;
 eval(ds)
@@ -84,11 +84,17 @@ for iexp = slct_expt
         speed_err_rect = reshape(speed_err_rect,nstim,nc);
         
         % plot example cells tuning 
-        exCells = randsample(nc,16);
+        if nc > 16
+            exCells = randsample(nc,16);
+            np = 16;
+        else
+            exCells = 1:nc;
+            np = nc;
+        end
         
         figure; setFigParams4Print('landscape')
         suptitle({[expt(iexp).dataset_exp{irun} ' speed tuning'];'ns responses in gray'})
-        for iplot = 1:16
+        for iplot = 1:np
             subplot(4,4,iplot)
             
             tempresp = speed_resp(:,exCells(iplot));

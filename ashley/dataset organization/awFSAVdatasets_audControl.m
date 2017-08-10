@@ -103,53 +103,85 @@ expt(3).rettuning = {'007';'1226'};
 expt(3).motionTestBimodal = 0;
 expt(3).z = 250;
 
-%% AW80 170420 V1 injection
-expt(4).SubNum = '680';
-expt(4).mouse = 'AW80';
-expt(4).date = '170420';
+% % %% AW80 170420 V1 injection ** not well driven
+% % expt(4).SubNum = '680';
+% % expt(4).mouse = 'AW80';
+% % expt(4).date = '170420';
+% % expt(4).img_loc  = {'V1';'L2/3'};
+% % expt(4).img_strct  = {'cells'};
+% % expt(4).time_mat = ['1113'];
+% % expt(4).runs = ['001'];
+% % expt(4).nrun = size(expt(4).runs,1);
+% % expt(4).frame_rate = 30;
+% % expt(4).folder = 'two-photon imaging';
+% % expt(4).dirtuning = '003';
+% % expt(4).dirtuning_time = '1217';
+% % expt(4).rettuning = {'004';'1228'};
+% % expt(4).motionTestBimodal = 0;
+% % expt(4).z = 266;
+
+%% AW81 170501 V1 injection 
+expt(4).SubNum = '681';
+expt(4).mouse = 'AW81';
+expt(4).date = '170501';
 expt(4).img_loc  = {'V1';'L2/3'};
 expt(4).img_strct  = {'cells'};
-expt(4).time_mat = ['1113'];
+expt(4).time_mat = ['1035'];
 expt(4).runs = ['001'];
 expt(4).nrun = size(expt(4).runs,1);
 expt(4).frame_rate = 30;
 expt(4).folder = 'two-photon imaging';
 expt(4).dirtuning = '003';
-expt(4).dirtuning_time = '1217';
-expt(4).rettuning = {'004';'1228'};
+expt(4).dirtuning_time = '1132';
+expt(4).rettuning = {'005';'1147'};
 expt(4).motionTestBimodal = 0;
-expt(4).z = 266;
+expt(4).z = 246;
 
-%% AW81 170501 V1 injection 
+%% AW81 170511 V1 injection
 expt(5).SubNum = '681';
 expt(5).mouse = 'AW81';
-expt(5).date = '170501';
+expt(5).date = '170511';
 expt(5).img_loc  = {'V1';'L2/3'};
 expt(5).img_strct  = {'cells'};
-expt(5).time_mat = ['1035'];
-expt(5).runs = ['001'];
+expt(5).time_mat = ['1144';'1217'];
+expt(5).runs = ['001';'002'];
 expt(5).nrun = size(expt(5).runs,1);
 expt(5).frame_rate = 30;
 expt(5).folder = 'two-photon imaging';
 expt(5).dirtuning = '003';
-expt(5).dirtuning_time = '1132';
-expt(5).rettuning = {'005';'1147'};
+expt(5).dirtuning_time = '1249';
+expt(5).rettuning = {'004';'1306'};
 expt(5).motionTestBimodal = 0;
-expt(5).z = 246;
-
-%% AW81 170511 V1 injection **need to enter notes and register data
-expt(6).SubNum = '681';
-expt(6).mouse = 'AW81';
-expt(6).date = '170511';
+expt(5).z = 277;
+%% AW80 170522 V1 injection 
+expt(6).SubNum = '680';
+expt(6).mouse = 'AW80';
+expt(6).date = '170522';
 expt(6).img_loc  = {'V1';'L2/3'};
 expt(6).img_strct  = {'cells'};
-expt(6).time_mat = ['1144';'1217'];
+expt(6).time_mat = ['0935';'1006'];
 expt(6).runs = ['001';'002'];
 expt(6).nrun = size(expt(6).runs,1);
 expt(6).frame_rate = 30;
 expt(6).folder = 'two-photon imaging';
 expt(6).dirtuning = '003';
-expt(6).dirtuning_time = '1249';
-expt(6).rettuning = {'004';'1306'};
+expt(6).dirtuning_time = '1041';
+expt(6).rettuning = {'004';'1052'};
 expt(6).motionTestBimodal = 0;
-expt(6).z = 277;
+expt(6).z = 216;
+%% AW80 170526 V1 injection 
+expt(7).SubNum = '680';
+expt(7).mouse = 'AW80';
+expt(7).date = '170526';
+expt(7).img_loc  = {'V1';'L2/3'};
+expt(7).img_strct  = {'cells'};
+expt(7).time_mat = ['0950';'1025'];
+expt(7).runs = ['001';'002'];
+expt(7).nrun = size(expt(7).runs,1);
+expt(7).frame_rate = 30;
+expt(7).folder = 'two-photon imaging';
+expt(7).dirtuning = '004';
+expt(7).dirtuning_time = '1107';
+expt(7).rettuning = {'005';'1116'};
+expt(7).motionTestBimodal = 0;
+expt(7).z = 254;

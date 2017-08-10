@@ -1,5 +1,13 @@
 function maxDFF = quickTunMaxDFF(data_reg,input,down,tunVar,fnout,doSave)
+% Use this function on data that was collected with visStimRet.xml
+% This function will output the stimulus-driven maximum df/f projection of
+% the image stack data_reg with the data info structure, input. If data_reg
+% is NOT down-sampled, set down to 1. fnout should be the path name of
+% where you want to save a pdf, tiff, and mat version of the image, if
+% doSave is set to 1 (set to 0 if you don't want to save). 
 
+% varargin should contain 1 or more variables that were randomized during
+% the tuning experiment as strings.
 %% image params
 xpix = size(data_reg,2);
 ypix = size(data_reg,1);
@@ -11,7 +19,7 @@ off = input.nScansOff./down;
 off_starts = 1:off+on:nfr;
 on_starts = off+1:off+on:nfr;
 
-tStim = chop(cell2mat(eval(['input.' tunVar])),3);
+tStim = cell2mat(eval(['input.' tunVar]));
 [tStim_ind, stims] = findgroups(tStim);
 ntrials = length(tStim);
 nstim = length(stims);
@@ -34,7 +42,7 @@ end
 
 clear data_reg
 %% dF/F by trial
-
+data_tr = double(data_tr);
 F = nanmean(data_tr(:,:,floor(off/2):off,:),3);
 dFF = bsxfun(@rdivide, bsxfun(@minus, data_tr, F), F);
 

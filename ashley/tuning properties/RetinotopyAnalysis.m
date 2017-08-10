@@ -1,216 +1,120 @@
-edit Load_SBXdataset_fast.m
-
+clear all
+close all
+ds = '_V1gad';
+rc = behavConstsAV;
+eval(['awFSAVdatasets' ds])
+slct_expt = 2;
 %%
-down = 10;
-nON = input.nScansOn/down;
-nOFF = input.nScansOff/down;
-nStim = input.gratingElevationStepN.*input.gratingAzimuthStepN;
+iexp = slct_expt;
+subnum = expt(iexp).SubNum;
+mouse = expt(iexp).mouse;
+expDate = expt(iexp).date;
+retFolder = expt(iexp).rettuning{1};
+retTime = expt(iexp).rettuning{2};
+downSampleRate = 10;
+%% load data & register
+visStimData = loadMworksFile(subnum,expDate,retTime);
+fName = [retFolder '_000_000'];
+retData = loadsbx_choosepmt(1,mouse,expDate,retFolder,fName);
 
+fn = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging', expDate);
+load(fullfile(fn,'regOuts&Img.mat'))
 
-% data_reg = readtiff('Retinotopy_V1.tif');
-data_down = stackGroupProject(data,down);
-clear data
+retDataDownSampled = stackGroupProject(retData,downSampleRate);
+[~,retDataRegistered] = stackRegister(retDataDownSampled,data_corr_img);
 
-%remove negative data (by addition)
-data_sub = data_down-min(min(min(data_down,[],1),[],2),[],3);
-clear data
+%% get trial types
+tAzimuth = cell2mat_padded(visStimData.tGratingAzimuthDeg);
+tElevation = cell2mat_padded(visStimData.tGratingElevationDeg);
+ntrials = length(tAzimuth);
 
-% register
-data_avg = mean(data_sub(:,:,200:210),3);
-figure; imagesq(data_avg); colormap(gray)
+azimuths = unique(tAzimuth);
+nazimuths = length(azimuths);
+elevations = unique(tElevation);
+nelevations = length(elevations);
 
-[out data_reg] = stackRegister(data_sub, data_avg);
-clear data_sub
+npositions = nazimuths*nelevations;
 
-%save data_reg
-try
-    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
-    cd(filedir);
-catch
-    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging');
-    cd(filedir)
-    mkdir(date,ImgFolder)
-    filedir = fullfile('Z:\analysis\',mouse,'two-photon imaging', date, ImgFolder);
-    cd(filedir);
-end
-
-writetiff(data_reg, 'Retinotopy_V1');
-
-% %registered image
-% data_avg = mean(data_reg(:,:,:),3);
-% figure; imagesq(data_avg); colormap(gray)
-
-% data_reg = readtiff('Retinotopy_V1.tif');
-
-%%
-% data_reg = data_reg(:,:,1:540);
-nRep = size(data_reg,3)./((nON+nOFF)*nStim);
-nTrials = (nStim.*nRep);
-
-%%
-%write tifs for sorted frames
-VSR = 1;
-run('sortTrialsAvg_writetiffs.m')
-
-%% create dF/F stack
-%find off and on frames
-nOFF_ind = zeros(1,(nOFF*nStim*nRep));
-start = 1;
-for iStim = 1:(nRep*nStim)
-    nOFF_ind(1, start:start+nOFF-1) = 1+((iStim-1)*(nOFF+nON)):nOFF + ((iStim-1)*(nOFF+nON));
-    start = start+nOFF;
-end
-
-nON_ind = setdiff(1:size(data_reg,3),nOFF_ind);
-nON_avg = mean(data_reg(:,:,nON_ind),3);
-nOFF_avg = mean(data_reg(:,:,nOFF_ind),3);
-
-%dF/F
-dF_data = bsxfun(@minus,data_reg, nOFF_avg);
-dFoverF_data = bsxfun(@rdivide, dF_data, nOFF_avg);
-% % max_dF = max(dFoverF_data,[],3);
-max_dF = max(dF_data,[],3);
-figure; imagesq(max_dF); colormap(gray)
-
-% %find cells with correlation matrix
-% b = 5;
-% siz = size(data_reg);
-% corr_map = zeros(siz(1),siz(2));
-% for ix = b:siz(2)-b
-%     for iy = b:siz(1)-b
-%         TC = data_reg(iy,ix,:);
-%         surround = (data_reg(iy-1,ix-1,:)+data_reg(iy-1,ix,:)+data_reg(iy-1,ix+1,:)+data_reg(iy,ix-1,:)+data_reg(iy,ix+1,:)+data_reg(iy+1,ix-1,:)+data_reg(iy+1,ix,:)+data_reg(iy+1,ix+1,:))/8;
-%         R = corrcoef(TC,surround);
-%         corr_map(iy,ix) = R(1,2);
-%     end
-% end
-% 
-% figure; imagesq(max_dF); colormap(gray)
-% figure; imagesq(corr_map); colormap(gray)
-
-
-%% use max dF/F to find ROIS
-
-% bwout = imCellEditInteractive(max_dF);
-% mask_cell = bwlabel(bwout);
-bwout = imCellEditInteractive(max_dF);
-mask_cell = bwlabel(bwout);
-    %found with 0.9 and 3pixels
-    
-% save directory
-
-% save('mask.mat','mask_cell');
-
-%timecourses
-data_TC = stackGetTimeCourses(dFoverF_data,mask_cell);
-figure; tcOffsetPlot(data_TC)
-
-%save
-CD = ['Z:\analysis\' mouse '\two-photon imaging\' date '\' ImgFolder];
-cd(CD);
-save('mask&TCRet.mat', 'data_TC', 'mask_cell');
-%%
-% find on indices for the first frame of each stimulus start period and iti (Off) period
-for itrial = 1:(nStim*nRep)
-    nON_ind_firsts(itrial) = nON_ind(1+(nON*(itrial-1)));
-end
-for itrial = 1:(nStim*nRep)
-    nOFF_ind_firsts(itrial) = nOFF_ind(1+(nOFF*(itrial-1)));
-end
-
-%average like trials
-nCells = size(data_TC,2);
-
-% resp trace for each trial 
-dFoverF_RspbyCellbyTrial = zeros(nON+nOFF,nCells,nTrials);
-for icell = 1:nCells
-    for itrial = 1:nTrials
-        tri = data_TC((nOFF_ind_firsts(itrial):(nON_ind_firsts(itrial)+nON)-1),icell);
-        dFoverF_RspbyCellbyTrial(:,icell,itrial) = tri;
+positionInd = zeros(1,ntrials);
+azimuthAtPosInd = nan(1,npositions);
+elevationAtPosInd = nan(1,npositions);
+for iaz = 1:nazimuths
+    if iaz == 1
+        ipos = 1;
     end
+    for iel = 1:nelevations
+        azInd = tAzimuth == azimuths(iaz);
+        elInd = tElevation == elevations(iel);
+        positionInd(azInd & elInd) = ipos;
+        azimuthAtPosInd(ipos) = azimuths(iaz);
+        elevationAtPosInd(ipos) = elevations(iel);
+        ipos = ipos+1;
+    end    
+end
+%% image params
+frameRateHz = expt(iexp).frame_rate/downSampleRate;
+[ypix,xpix,nframes] = size(retDataRegistered);
+nFramesOn = visStimData.nScansOn/downSampleRate;
+nFramesOff = visStimData.nScansOff/downSampleRate;
+
+nBaselineFrames = ceil(nFramesOff/2);
+nTrialFrames = nFramesOn;
+respWindowFrames = nBaselineFrames+1:nBaselineFrames+1+ceil(0.5*frameRateHz);
+trialStartInd = nFramesOff+1:nFramesOn+nFramesOff:nframes;
+%% get image dF/F for each trial
+retDFF = getTrialDffImages(retDataRegistered,trialStartInd,...
+    nBaselineFrames,nTrialFrames);
+
+resp2StimDFF = squeeze(mean(retDFF(:,:,respWindowFrames,:),3));
+if size(resp2StimDFF,3) < ntrials
+    ntrials = size(resp2StimDFF,3);
+    positionInd = positionInd(1:ntrials);
 end
 
-%remove negative values
-
-
-%% resp matrix for each position
-retResp_mat = zeros(nON+nOFF,nCells,nStim,nRep);
-
-for icell = 1:nCells
-    start = 1;
-    for istim = 1:nStim
-        for irep = 1:nRep
-            ind = (nStim*(irep-1)+1)+(istim-1);
-            retResp_mat(:,icell,istim,irep) = dFoverF_RspbyCellbyTrial(:,icell,ind);
-        end
-    end
+%% for each stimulus type
+positionRespDFF = nan(ypix,xpix,npositions);
+for ipos = 1:npositions
+    thisPositionInd = positionInd == ipos;
+    positionRespDFF(:,:,ipos) = mean(resp2StimDFF(:,:,thisPositionInd),3);
 end
 
-%plot
-figure;
-Az_locMat = repmat(1:input.gratingAzimuthStepN,1,(nStim/input.gratingAzimuthStepN));
-El_locMat = [1 1 1 2 2 2];
-for istim = 1:nStim
-	subplot(input.gratingAzimuthStepN,input.gratingElevationStepN,istim);
-    for icell = 1:nCells
-        plot(mean(retResp_mat(:,icell,istim,:),4));
-        hold on
-    end
-    
-    title(['Az = ' num2str(Az_locMat(istim)) ', El = ' num2str(El_locMat(istim))]);
-    vline(nOFF);
-    hold on
+azimuthRespDFF = nan(ypix,xpix,nazimuths);
+for iaz = 1:nazimuths
+    thisAzimuthInd = find(azimuthAtPosInd == azimuths(iaz));
+    thisAzimuthTrialInd = ismember(positionInd,thisAzimuthInd);
+    azimuthRespDFF(:,:,iaz) = mean(resp2StimDFF(:,:,thisAzimuthTrialInd),3);
 end
 
-%% indiv cell responses
-data_TCtrials = zeros(nON+nOFF,nCells,nTrials);
-
-start = 1;
-for itrial = 1:nTrials
-    data_TCtrials(1:nON+nOFF,:,itrial) = data_TC(start:start+nOFF+nON-1,:);
-    start = start+nOFF+nON;
+elevationRespDFF = nan(ypix,xpix,nelevations);
+for iel = 1:nelevations
+    thisElevationInd = find(elevationAtPosInd == elevations(iel));
+    thisElevationTrialInd = ismember(positionInd,thisElevationInd);
+    elevationRespDFF(:,:,iel) = mean(resp2StimDFF(:,:,thisElevationTrialInd),3);
 end
+%% normalize each image in position stack
+positionRespDFFNorm = normalizeImageStack(positionRespDFF);
+azimuthRespDFFNorm = normalizeImageStack(azimuthRespDFF);
+elevationRespDFFNorm = normalizeImageStack(elevationRespDFF);
 
-data_TCtrialsSort = zeros(nON+nOFF,nCells,nRep,nStim);
-for istim = 1:nStim
-    for irep = 1:nRep
-        data_TCtrialsSort(:,:,irep,istim) = data_TCtrials(:,:,((irep-1)*nRep)+istim);
-        x = ((irep-1)*nRep)+istim;
-    end
+%% plot images
+if ~exist(fullfile(fn,retFolder),'dir')
+    mkdir(fullfile(fn,retFolder))
 end
+positionTitles = arrayfun(@(x,y) sprintf('Az: %s, El: %s',num2str(x),...
+       num2str(y)),azimuthAtPosInd,elevationAtPosInd,'unif',0);
+azimuthTitles = arrayfun(@(x) sprintf('Az: %s',num2str(x)),azimuths,'unif',0);
+elevationTitles = arrayfun(@(x) sprintf('El: %s',num2str(x)),elevations,'unif',0);
 
-data_TCavgTrialType = squeeze(mean(data_TCtrialsSort,3));
-for istim = 1:nStim
-figure;
-for icell = 1:16
-    subplot(4,4,icell);
-    hold on
-        plot(data_TCavgTrialType(nOFF-5:end,icell,istim));
-        hold on
-    hold on
-    vline(nOFF-(nOFF-5),'c');
-    hold on
-end
-end
+respPositionFig = plotImageStackAsSubplots(positionRespDFFNorm,positionTitles);
+print(fullfile(fn,retFolder,'positionMeanDFF'),'-dpdf','-fillpage')
+respAzimuthFig = plotImageStackAsSubplots(azimuthRespDFFNorm,azimuthTitles);
+print(fullfile(fn,retFolder,'azimuthMeanDFF'),'-dpdf','-fillpage')
+respElevationFig = plotImageStackAsSubplots(elevationRespDFFNorm,elevationTitles);
+print(fullfile(fn,retFolder,'elevationMeanDFF'),'-dpdf','-fillpage')
 
-data_TCavgTrialsCells = squeeze(mean(mean(data_TCtrialsSort(:,:,:,:),3),2));
-figure;
-for istim = 1:nStim
-    subplot(2,3,istim)
-    hold on
-    plot(data_TCavgTrialsCells(:,istim))
-
-    hold on
-    vline(nOFF,'c');
-    hold on
-end
-
-%average each trial response per cell
-nCells = size(data_TC,2);
-dFoverF_meanONbyCell = zeros(nTrials,nCells);
-for icell = 1:nCells
-    for itrial = 1:nTrials
-        tri = data_TC((nON_ind_firsts(itrial):(nON_ind_firsts(itrial)+nON)-1),icell);
-        dFoverF_meanONbyCell(itrial,icell) =  mean(tri,1);
-    end
-end
+plotRGBImage(azimuthRespDFFNorm);
+title(sprintf('azimuth: %s (RGB)',num2str(azimuths)))
+print(fullfile(fn,retFolder,'azimuthRGB'),'-dpdf','-fillpage')
+plotRGBImage(elevationRespDFFNorm)
+title(sprintf('elevation: %s (RGB)',num2str(elevations)))
+print(fullfile(fn,retFolder,'elevationRGB'),'-dpdf','-fillpage')
