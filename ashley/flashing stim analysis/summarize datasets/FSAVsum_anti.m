@@ -1,8 +1,9 @@
 clear all
 close all
-ds = '_V1';
+ds = '_audControl';
 doDendrites = 0;
 doExptPlot = 0;
+doCorrPlot = 0;
 %%
 rc = behavConstsAV;
 if strcmp(rc.name,'ashle')
@@ -24,10 +25,12 @@ if doDendrites
     load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells_dendrites.mat']));
 % titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
     fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr '_den_startAlign']); 
+elseif strcmp('_audControl',ds)
+    load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
+    fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr '_startAlign']); 
 else
     load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
     load(fullfile(rc.caOutputDir,dataGroup,[titleStr '_' mouse_str '_modCells.mat']));
-% titleStr = [titleStr mouse(1).expt(1).cells(cellsInd).name];
     fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr '_startAlign']); 
 end
 
@@ -96,6 +99,10 @@ H_aearly = [];
 H_alate = [];
 H_av_early = [];
 H_av_late = [];
+Hshuff_av_early = [];
+Hshuff_av_late = [];
+H_av_early_2rep = [];
+H_av_late_2rep = [];
 
 vTC_shuff = [];
 aTC_shuff = [];
@@ -104,6 +111,15 @@ vPrev_mat = cell(1,6);
 vis_nTrials = zeros(1,3);
 aPrev_mat = cell(1,6);
 aud_nTrials = zeros(1,3);
+
+pCorr = [];
+pCpl = [];
+
+tuning = [];
+OSI = [];
+
+v_tr = [];
+a_tr = [];
 
 ori_pref = [];
 untuned = [];
@@ -137,6 +153,13 @@ for imouse = 1:size(mouse,2)
         dv = d.av(visual).outcome(hits);
         da = d.av(auditory).outcome(hits);
         
+        if strcmp(ds,'_V1')
+            pCorr = cat(2,pCorr,mouse(imouse).expt(iexp).pCorr);
+            pCpl = cat(2,pCpl,zscore(mouse(imouse).expt(iexp).pCorr));
+        end
+        
+%         tuning = cat(2,tuning,mouse(imouse).expt(iexp).fitPeak);
+%         OSI = cat(2,OSI,mouse(imouse).expt(iexp).tuning(2).outcome);
         
         % resp to first stim and mid-trial length;
         vR = dv.resp;
@@ -208,15 +231,13 @@ for imouse = 1:size(mouse,2)
                 % early and late window response - ttest
                 if ibin == analysis_bin
                    getEarlyLateWinTTest 
-                   depOnPrevTrialType  
+                   
+                   depOnPrevTrialType 
+                   
+                   nsCorrExpt
                    [vTC_shuff_temp, aTC_shuff_temp] = shuffleTrials(vlong, along);  
                    vTC_shuff = cat(2,vTC_shuff,vTC_shuff_temp);
                    aTC_shuff = cat(2,aTC_shuff,aTC_shuff_temp);
-                   L = length(tr_start:size(vTC_bin{ibin},1));tt = -bl_fr:L-bl_fr-1;
-                    ttS = tt./frRateHz;
-                    ind_500ms = find(ttS-0.5 >= -0.0001,1);
-                    early_win = ind_500ms:ind_500ms+floor(frRateHz/2);
-                    late_win = ind_500ms+floor(1.5*frRateHz):ind_500ms+floor(2*frRateHz);
                    
                 end
                 
@@ -242,16 +263,12 @@ for imouse = 1:size(mouse,2)
                     H_alate = cat(2,H_alate,r_nan);
                     H_av_early = cat(2,H_av_early,r_nan);
                     H_av_late = cat(2,H_av_late,r_nan);
+                    Hshuff_av_early = cat(2,Hshuff_av_early,r_nan);
+                    Hshuff_av_late = cat(2,Hshuff_av_late,r_nan);
                     vPrev_mat{imat} = cat(2,vPrev_mat{imat},tc_nan);
                     aPrev_mat{imat} = cat(2,aPrev_mat{imat},tc_nan);
-                   vTC_shuff = cat(2,vTC_shuff,tc_nan);
-                   aTC_shuff = cat(2,aTC_shuff,tc_nan);
-                    L = length(tr_start:size(vTC_bin{ibin},1));
-                    ttS = tt./frRateHz;
-                    ind_500ms = find(ttS-0.5 >= -0.0001,1);
-                    early_win = ind_500ms:ind_500ms+floor(frRateHz/2);
-                    late_win = ind_500ms+floor(1.5*frRateHz):ind_500ms+floor(2*frRateHz);
-
+                    vTC_shuff = cat(2,vTC_shuff,tc_nan);
+                    aTC_shuff = cat(2,aTC_shuff,tc_nan);
                 end
             end 
         end
@@ -263,9 +280,9 @@ for imouse = 1:size(mouse,2)
         dirtuning = expt(expt_ind).dirtuning;
         mName = expt(expt_ind).mouse;
         if doDendrites
-        load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect_dendrites.mat'))
+            load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect_dendrites.mat'))
         else
-        load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect.mat'))
+            load(fullfile(rc.ashleyAnalysis,mName,'two-photon imaging',mouse(imouse).expt(iexp).date,dirtuning,'cellsSelect.mat'))
         end
         ori_pref = cat(2,ori_pref,ori_ind_all);
 %         %untuned
@@ -297,17 +314,19 @@ for imouse = 1:size(mouse,2)
         end
         temp_ci = temp_ci+temp;
         base_sust = cat(2,base_sust,temp);
-%         %auroc first vs. target
-        mi = msModCells(imouse).expt(iexp).av(visual).outcome(hits).mi(1).comp(auroc_comp1).auc(3);
-        auc1_inc = cat(2,auc1_inc,mi.value >= 0.5);
-        auc1_dec = cat(2,auc1_dec,mi.value < 0.5);
-        rst1 = cat(2,rst1,mi.ustat);        
-        rst1_dir = cat(2,rst1_dir, ind2log(cell2mat(mi.rst_dirs'),length(mi.ustat)));
-%         %auroc last bs vs. target
-        mi = msModCells(imouse).expt(iexp).av(visual).outcome(hits).mi(1).comp(auroc_compL).auc(3);
-        aucL_inc = cat(2,aucL_inc,mi.value >= 0.5);
-        aucL_dec = cat(2,aucL_dec,mi.value < 0.5);
-        rstL = cat(2,rstL,mi.rst);
+        if ~strcmp('_audControl',ds)
+    %         %auroc first vs. target
+            mi = msModCells(imouse).expt(iexp).av(visual).outcome(hits).mi(1).comp(auroc_comp1).auc(3);
+            auc1_inc = cat(2,auc1_inc,mi.value >= 0.5);
+            auc1_dec = cat(2,auc1_dec,mi.value < 0.5);
+            rst1 = cat(2,rst1,mi.ustat);        
+            rst1_dir = cat(2,rst1_dir, ind2log(cell2mat(mi.rst_dirs'),length(mi.ustat)));
+    %         %auroc last bs vs. target
+            mi = msModCells(imouse).expt(iexp).av(visual).outcome(hits).mi(1).comp(auroc_compL).auc(3);
+            aucL_inc = cat(2,aucL_inc,mi.value >= 0.5);
+            aucL_dec = cat(2,aucL_dec,mi.value < 0.5);
+            rstL = cat(2,rstL,mi.rst);
+        end
         
         if doExptPlot
         temp_ci = temp_ci > 0;

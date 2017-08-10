@@ -1,4 +1,4 @@
-function mouse = createAVCaDataStruct(datasetStr,cellsOnly);
+function mouse = createAVCaDataStruct(datasetStr,cellsOnly)
 %collects all data from each experiment according to dataset type
 %set cellsOnly to 1 to grab data from cells only masks (rather than cells
 %and dendrites)
@@ -684,7 +684,21 @@ eval(['awFSAVdatasets' datasetStr])
                 end
             end
         end
-                     
+        
+        %% get correlation and coupling of each neuron to population rate
+        f = mean(dataTC,1);
+        dff = bsxfun(@rdivide, bsxfun(@minus, dataTC, f), f);
+        
+        % Pearson's correleation to population, each neuron
+        timebinS = 0.24;        
+        mouse(imouse).expt(s(:,imouse)).pCorr = popCorr(dff,expt(iexp).frame_rate,timebinS);   
+        
+        % Population coupling
+        mouse(imouse).expt(s(:,imouse)).pCpl = popCouple(dff,expt(iexp).frame_rate);
+        
+        %% get each neuron's fit tuning
+        pref_ind = fitPref(cellFits);
+        mouse(imouse).expt(s(:,imouse)).fitPeak = pref_ind;
         
         %% Align data to lever down
         ialign = 1;

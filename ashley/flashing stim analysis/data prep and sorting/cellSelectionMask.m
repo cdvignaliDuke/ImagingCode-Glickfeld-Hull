@@ -1,9 +1,10 @@
 clear all
 close all
 rc = behavConstsAV;
-awFSAVdatasets_audControl
-for iexp = 6:size(expt,2)
-
+ds = '_V1gad';
+eval([awFSAVdatasets' ds])
+doFOVsegment = 1;
+for iexp = 1
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;
@@ -18,13 +19,31 @@ dFF_stack = cat(3,dir_crop,bx_crop);
 %% ****select cells
 nstim = size(dir_crop,3);
 
-mask_cell = maskFromMultiMaxDFFStack(dFF_stack);
+if doFOVsegment
+    FOVsegment = readtiff(fullfile(fnout,'FOVborders.tif'));
+    dFFstackWithBorders = zeros(size(dFF_stack));
+    for iimage = 1:size(dFF_stack,3)
+        thisImage = dFF_stack(:,:,iimage);
+        imageWithBorders = mean(cat(3,thisImage,FOVsegment),3);
+        dFFstackWithBorders(:,:,iimage) = imageWithBorders;
+    end
+    mask_cell = maskFromMultiMaxDFFStack(dFFstackWithBorders);
+    figure; setFigParams4Print('portrait')
+    imagesc(mask_cell);
+    title({[num2str(length(unique(mask_cell(:)))-1) ' cells with behavior'];[mouse '-' expDate]})
+    print(fullfile(fnout,['final_mask' ds]),'-dpdf')
 
-figure; setFigParams4Print('portrait')
-imagesc(mask_cell);
-title({[num2str(length(unique(mask_cell(:)))-1) ' cells with behavior'];[mouse '-' expDate]})
-print(fullfile(fnout,'final_mask'),'-dpdf')
+    save(fullfile(fnout,['final_mask' ds '.mat']),'mask_cell');
+    close all
+else
+    mask_cell = maskFromMultiMaxDFFStack(dFF_stack);
+    figure; setFigParams4Print('portrait')
+    imagesc(mask_cell);
+    title({[num2str(length(unique(mask_cell(:)))-1) ' cells with behavior'];[mouse '-' expDate]})
+    print(fullfile(fnout,'final_mask'),'-dpdf')
 
-save(fullfile(fnout,'final_mask.mat'),'mask_cell');
-close all
+    save(fullfile(fnout,'final_mask.mat'),'mask_cell');
+    close all
+end
+
 end

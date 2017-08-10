@@ -1,5 +1,5 @@
-ds = '_V1';
-doDendrites = 1;
+ds = '_AL';
+doDendrites = 0;
 %% load data
 close all
 eval(['awFSAVdatasets' ds])

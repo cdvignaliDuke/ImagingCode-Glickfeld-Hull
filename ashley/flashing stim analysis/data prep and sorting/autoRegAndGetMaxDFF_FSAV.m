@@ -1,10 +1,10 @@
 clear all
 close all
-ds = '_audControl';
-slct_expt = 6;
-%%
+ds = '_V1gad';
 rc = behavConstsAV;
 eval(['awFSAVdatasets' ds])
+slct_expt = 3;
+%%
 for iexp = slct_expt
 
 SubNum = expt(iexp).SubNum;
@@ -71,7 +71,11 @@ down = 10;
 fntun = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,dirFolder);
 fName = [dirFolder '_000_000'];
 
-[input_tun, data_tun] = Load_SBXdataPlusMWorksData(SubNum,expDate,dirTime,mouse,dirFolder,fName);  
+if any(strcmp(fieldnames(expt),'nTunFrames'))
+    [input_tun, data_tun] = Load_SBXdataPlusMWorksData(SubNum,expDate,dirTime,mouse,dirFolder,fName,expt(iexp).nTunFrames);  
+else
+    [input_tun, data_tun] = Load_SBXdataPlusMWorksData(SubNum,expDate,dirTime,mouse,dirFolder,fName);
+end
 
 % down-sample
 data_tun_down = stackGroupProject(data_tun,down);

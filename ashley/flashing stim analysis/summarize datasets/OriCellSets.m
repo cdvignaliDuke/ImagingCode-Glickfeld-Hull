@@ -1,8 +1,8 @@
-function [cellsSelect, OSI, DSI] = OriCellSets(rc, expt, iexp,cellsOnly);
+function [cellsSelect, OSI, DSI] = OriCellSets(rc, expt, iexp,cellsOnly)
 %display experiment
 disp([num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum)])
 %load direction tuning data
-dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
+dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,'two-photon imaging', expt(iexp).date, expt(iexp).dirtuning);
 if cellsOnly == 1
     load(fullfile(dataPath,'cell&dendriteTC.mat'))
     data_tc_subnp = cell_tc;
@@ -21,14 +21,22 @@ nON = (input.nScansOn)./10;
 nOFF = (input.nScansOff)./10;
 nStim = input.gratingDirectionStepN;
 nTrials = input.trialSinceReset;
-% nRep = size(data_tc_subnp,1)./((nON+nOFF)*nStim);
-% nTrials = (nStim.*nRep);
+
+nfr = size(data_tc_subnp,1);
+if mod(nfr,nTrials) > 0
+    nfr_tr = nTrials*(nON+nOFF);
+    if nfr_tr > nfr
+        nTrials = floor(nfr/(nON+nOFF));
+    end 
+end
 data_tc_subnp = data_tc_subnp(1:(nON+nOFF)*nTrials,:);
+        
 DirectionDeg = cell2mat(input.tGratingDirectionDeg);
 Dirs = unique(DirectionDeg);
 base_win = 6:10;
 resp_win = 12:16;
-
+nboot = 1000;
+tuningReliabilityThresh = 45;
 
 
 %find dF/F of responses for all cells
@@ -81,14 +89,14 @@ resp_ori_ind = find(sum(h_ori,1)>0);
 resp_ind = unique([resp_dir_ind resp_ori_ind]);
 
 %bootstrap to find reliable tuning
-dFoverF_DirResp_avg_boot = zeros(nStim, size(dFoverFCellsTrials,2), 1000);
-dFoverF_OriResp_avg_boot = zeros(nStim/2, size(dFoverFCellsTrials,2), 1000);
+dFoverF_DirResp_avg_boot = zeros(nStim, size(dFoverFCellsTrials,2), nboot);
+dFoverF_OriResp_avg_boot = zeros(nStim/2, size(dFoverFCellsTrials,2), nboot);
 for i = 1:nStim
     trials = find(DirectionDeg(:,1:nTrials) == Dirs(i));
     if i <= nStim/2
         trials_ori = find(DirectionDeg(:,1:nTrials) == Dirs(i) | DirectionDeg(:,1:nTrials) == Dirs(i+nStim/2));
     end
-    for ii = 1:1000;
+    for ii = 1:nboot;
         samp = randsample(trials, length(trials), 1);
         dFoverF_DirResp_avg_boot(i,:,ii) = squeeze(mean(mean(dFoverFCellsTrials(resp_win,:,samp),1),3) - mean(mean(dFoverFCellsTrials(base_win,:,samp),1),3));
         if i <= nStim/2
@@ -111,19 +119,28 @@ for i= 1:size(dFoverFCellsTrials,2)
     [n_dir(:,i)] = histc(squeeze(boot_dir_ind(1,i,:)),[1:nStim]);
     [n_ori(:,i)] = histc(squeeze(boot_ori_ind(1,i,:)),[1:nStim]);
     [a, b] =  sort(n_dir(:,i), 'descend');
-    if a(1) > 900 
+    if a(1) > round(0.9*nboot)
     	max_dir_ind(:,i) = b(1);
-    elseif abs(b(1)-b(2)) == nStim/2  & a(1)+a(2)>900
+    elseif abs(b(1)-b(2)) == nStim/2  & a(1)+a(2)>round(0.9*nboot)
         max_dir_ind(:,i) = b(1);
     end
     [a, b] =  sort(n_ori(:,i), 'descend');
-    if a(1) > 900
+    if a(1) > round(0.9*nboot)
         max_ori_ind(:,i) = b(1);
     end
-    if a(nStim/2) >= 100
+    if a(nStim/2) >= round(0.1*nboot)
         no_ori_ind(:,i) = 1;
     end
 end
+
+%find cells with reliable tunning by fitting
+cellFits = vonmisesFits(dFoverF_OriResp_avg,dFoverF_OriResp_avg_boot,tuningReliabilityThresh,Dirs);
+disp([num2str(sum(~isnan(mean(cellFits,1))/size(cellFits,2))) ' fits'])
+fit_ind = ~isnan(mean(cellFits,1)) & mean(cellFits,1) ~= 0;
+[~, fit_pref_ind] = max(cellFits,[],1);
+fit_pref_ind(~fit_ind) = NaN;
+fit_pref_ind = fit_pref_ind-1;
+fit_pref_ind(fit_pref_ind == 180) = 0;
 
 %find cells with <10% CI of having Ori preference, but still driven
 untuned_ind = intersect(find(~isnan(no_ori_ind)),resp_ind);
@@ -137,7 +154,7 @@ ori_null_val = nan(1, size(dFoverFCellsTrials,2));
 dir_null_val = nan(1, size(dFoverFCellsTrials,2));
 dFoverF_DirResp_avg_rect = dFoverF_DirResp_avg;
 dFoverF_DirResp_sem_rect = dFoverF_DirResp_sem;
-dFoverF_DirResp_avg_rect(find(dFoverF_DirResp_avg<0))= 0;
+c(find(dFoverF_DirResp_avg<0))= 0;
 dFoverF_DirResp_sem_rect(find(dFoverF_DirResp_avg<0))= NaN;
 dFoverF_OriResp_avg_rect = dFoverF_OriResp_avg;
 dFoverF_OriResp_sem_rect = dFoverF_OriResp_sem;
@@ -155,6 +172,13 @@ for i = 1:size(dFoverFCellsTrials,2)
 end
 OSI = (pref_val-ori_null_val)./(pref_val+ori_null_val);
 DSI = (pref_val-dir_null_val)./(pref_val+dir_null_val);
+
+% %find cells with reliable tunning by fitting
+% dFoverF_OriResp_avg_boot_rect = dFoverF_OriResp_avg_boot;
+% dFoverF_OriResp_avg_boot_rect(find(dFoverF_OriResp_avg_boot_rect<0))= 0;
+% 
+% cellFits = vonmisesFits(dFoverF_OriResp_avg_rect,dFoverF_OriResp_avg_boot_rect,tuningReliabilityThresh,Dirs);
+% disp([num2str(sum(~isnan(mean(cellFits,1))/size(cellFits,2))) ' fits'])
 
 %find preferred ori for dir selective cells
 dir_ori_ind = max_dir_ind;
@@ -182,7 +206,8 @@ if cellsOnly == 1
 elseif cellsOnly == 2
     save(fullfile(dataPath, 'cellsSelect_dendrites.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
 else
-    save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+    save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC','cellFits','fit_pref_ind');
+    save(fullfile(dataPath,'cellFits.mat'),'cellFits');
 end
 
 end

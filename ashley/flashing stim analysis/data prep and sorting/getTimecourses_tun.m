@@ -2,11 +2,11 @@ clear all
 close all
 %%
 doDendrites = 0;
-%%
 rc = behavConstsAV;
-awFSAVdatasets_audControl
-for iexp = 5:size(expt,2)
-
+awFSAVdatasets_V1gad
+slct_expt = 1:size(expt,2);
+%%
+for iexp = slct_expt
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;
@@ -17,9 +17,12 @@ down = 10;
 fntun = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging', expDate, dirFolder);
 fn = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging', expDate);
 %% load tuning data
-fName = [dirFolder '_000_000'];
-[input, data] = Load_SBXdataPlusMWorksData(SubNum,expDate,dirTime,mouse,dirFolder,fName);  
-
+fName = [dirFolder '_000_000'];  
+if any(strcmp(fieldnames(expt),'nTunFrames'))
+    [input, data] = Load_SBXdataPlusMWorksData(SubNum,expDate,dirTime,mouse,dirFolder,fName,expt(iexp).nTunFrames);  
+else
+    [input, data] = Load_SBXdataPlusMWorksData(SubNum,expDate,dirTime,mouse,dirFolder,fName);
+end
 % down-sample
 data_down = stackGroupProject(data,down);
 clear data

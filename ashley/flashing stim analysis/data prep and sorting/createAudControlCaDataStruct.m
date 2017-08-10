@@ -430,7 +430,11 @@ function mouse = createAudControlCaDataStruct(datasetStr,cellsOnly);
                 end
             end
         end
-                     
+        
+        
+        %% get each neuron's fit tuning
+        pref_ind = fitPref(cellFits);
+        mouse(imouse).expt(s(:,imouse)).fitPeak = pref_ind;
         
         %% Align data to lever down
         ialign = 1;

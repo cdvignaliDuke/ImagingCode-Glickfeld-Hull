@@ -1,9 +1,9 @@
 clear all
 close all
 rc = behavConstsAV;
-awFSAVdatasets_audControl
+awFSAVdatasets_V1gad
 %%
-iexp = 6;
+iexp = 1;
     %%
 %% expt specs
 SubNum = expt(iexp).SubNum;
@@ -32,8 +32,8 @@ ypix = size(tun_img,1);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:2 794:xpix];
-ycrop = [1:11 262:ypix];
+xcrop = [1:9 794:xpix];
+ycrop = [1:13 263:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;
@@ -73,3 +73,9 @@ bx_crop(ycrop,:,:) = 0;
 %% save cropped images
 save(fullfile(fnbx,'max_images_crop.mat'),'dir_crop', 'bx_crop','xcrop','ycrop');
 
+% % %% red channel
+% % if isfield(expt,'redChannelOn')
+% %     if expt(iexp).redChannelOn
+% %         redChannelMask
+% %     end
+% % end
