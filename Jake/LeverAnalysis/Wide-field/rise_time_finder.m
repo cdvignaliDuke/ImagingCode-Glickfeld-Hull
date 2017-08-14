@@ -123,6 +123,6 @@ for k = 1:size(corr_cue_aligned_TCs,2);
     assert(corr_cue_ninety_time(k)<=corr_cue_aligned_lat(k) | corr_cue_ninety_time(k)>=corr_cue_min_ind_vec(k));
     assert(corr_cue_ten_time(k)<=corr_cue_aligned_lat(k) | corr_cue_ten_time(k)>=corr_cue_min_ind_vec(k));
 end
-rise_time_data.corr_cue_aligned_rise_times  = corr_cue_ninety_time-corr_cue_ten_time; 
+rise_time_data.corr_cue_aligned_rise_times  = corr_cue_ninety_time-corr_cue_ten_time;
 rise_time_data.corr_cue_aligned_onset_times = corr_cue_ten_time;
 end

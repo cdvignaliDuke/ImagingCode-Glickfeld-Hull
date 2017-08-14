@@ -1,6 +1,6 @@
 %% Modified version of the anaylysis overview for analyzing the licking behavior of cue-reward trials. 
 %SECTION ONE - assign pathnames and datasets to be analyzed/written. 
-clear;
+%clear;
 %days = {'161212_img73', '161213_img73', '161214_img73', '161215_img73'};
 %days = {'161212_img74', '161214_img74', '161215_img74', '161216_img74'};
 %days = {'170131_img75', '170201_img75', '170202_img75', '170203_img75', '170206_img75', '170207_img75', '170208_img75', '170209_img75', '170210_img75', '170212_img75', '170213_img75', '170214_img75'};
@@ -14,6 +14,7 @@ time_after_ms = 3000;
 %days = {'170306_img81', '170307_img81', '170308_img81', '170309_img81', '170310_img81', '170311_img81', '170312_img81', '170313_img81', '170314_img81', '170315_img81', '170316_img81', '170318_img81', '170319_img81'};
 %days = {'170306_img82', '170307_img82', '170308_img82', '170309_img82', '170310_img82', '170311_img82', '170313_img82', '170314_img82', '170315_img82', '170316_img82', '170317_img82', '170319_img82', '170320_img82'}; 
 %days = {'170313_img83', '170314_img83', '170315_img83', '170316_img83', '170317_img83', '170319_img83', '170320_img83', '170321_img83', '170322_img83', '170323_img83', '170324_img83', '170327_img83'};
+
 %days = {'170321_img86', '170322_img86', '170323_img86', '170325_img86', '170326_img86', '170327_img86', '170330_img86'};
 
 %days = {'170408_img87', '170410_img87', '170411_img87', '170412_img87', '170413_img87', '170414_img87', '170415_img87', '170417_img87', '170418_img87', '170419_img87', '170420_img87', '170422_img87', '170423_img87', '170424_img87', '170425_img87', '170426_img87'};
@@ -25,9 +26,10 @@ time_after_ms = 3000;
 %days = {'170513_img89', '170515_img89', '170516_img89', '170517_img89', '170518_img89', '170519_img89', '170522_img89', '170523_img89', '170524_img89', '170525_img89', '170526_img89', '170527_img89', '170529_img89', '170530_img89', '170531_img89'};
 %days = {'170524_img94', '170525_img94', '170526_img94', '170527_img94', '170529_img94', '170530_img94', '170531_img94', '170601_img94', '170602_img94', '170604_img94', '170605_img94', '170606_img94'};
 %days = {'170605_img95', '170606_img95', '170607_img95', '170608_img95', '170609_img95', '170610_img95', '170611_img95', '170612_img95', '170613_img95', '170614_img95'};
-days = {'170612_img96', '170613_img96', '170614_img96', '170615_img96', '170620_img96', '170621_img96', '170622_img96'};
-days = {'170628_img98', '170629_img98', '170701_img98', '170703_img98', '170704_img98', '170705_img98'};
-days = {'170705_img99', '170706_img99', '170707_img99', '170708_img99'};
+
+%days = {'170612_img96', '170613_img96', '170614_img96', '170615_img96', '170620_img96', '170621_img96', '170622_img96', '170623_img96', '170624_img96'};
+%days = {'170628_img98', '170629_img98', '170701_img98', '170703_img98', '170704_img98', '170705_img98', '170706_img98'};
+%days = {'170705_img99', '170706_img99', '170707_img99', '170708_img99', '170710_img99', '170711_img99', '170712_img99'};
 
 %check and make sure the figure destinations exist
 session_fig_dir = [CRP_fig_dir_base, days{1}(end-4:end), '_sessions\'];
@@ -128,17 +130,17 @@ for ii = 1:length(days)
     %REWARD plot licking histograms for rewarded trials
     x_axis_range = [-1*time_before_ms:time_after_ms];
     if exist([session_fig_dir, days{ii}, '_rew_cum_hist.fig'], 'file')==0;
-        figure;
-        plot(x_axis_range, avg_licks_per_ms_rew, 'r', 'LineWidth', 3);  %plot average cum lick hist for t by t analysis
-        ylabel('cumulative # of licks');
-        xlabel('time (ms) relative to release cue onset');
-        title(['Rewarded Trials: cumulative hist of licking ', days{ii}(end-4:end), ' ' days{ii}(1:6) ' n=' num2str(size(licks_by_trial_rewarded,1))]);
-        hold on;
-        for kk = 1:6:size(all_trials_lick_hist,1)
-            plot(x_axis_range, all_trials_lick_hist(kk,:), 'Color', [0,0,0]+(1-(kk/size(all_trials_lick_hist,1))));
-        end
-        vline((b_data.RewardDelayDurationMs + round(mean(react_time))), 'b');
-        savefig([session_fig_dir, days{ii}, '_rew_cum_hist']);
+%         figure;
+%         plot(x_axis_range, avg_licks_per_ms_rew, 'r', 'LineWidth', 3);  %plot average cum lick hist for t by t analysis
+%         ylabel('cumulative # of licks');
+%         xlabel('time (ms) relative to release cue onset');
+%         title(['Rewarded Trials: cumulative hist of licking ', days{ii}(end-4:end), ' ' days{ii}(1:6) ' n=' num2str(size(licks_by_trial_rewarded,1))]);
+%         hold on;
+%         for kk = 1:6:size(all_trials_lick_hist,1)
+%             plot(x_axis_range, all_trials_lick_hist(kk,:), 'Color', [0,0,0]+(1-(kk/size(all_trials_lick_hist,1))));
+%         end
+%         vline((b_data.RewardDelayDurationMs + round(mean(react_time))), 'b');
+%         savefig([session_fig_dir, days{ii}, '_rew_cum_hist']);
     end
     
     if b_data.rewardOmissionPercent > 0
@@ -149,16 +151,16 @@ for ii = 1:length(days)
         
         %OMISSION plot licking histograms for omission trials
         if exist([session_fig_dir, days{ii}, '_om_cum_hist.fig'], 'file')==0;
-            figure;
-            plot(x_axis_range, avg_licks_per_ms, 'r', 'LineWidth', 3);  %plot average cum lick hist for t by t analysis
-            ylabel('cumulative # of licks');
-            xlabel('time (ms) relative to release cue onset');
-            title(['Reward Omission Trials: cumulative hist of licking ', days{ii}(end-4:end), ' ', days{ii}(1:6) ' n=' num2str(size(licks_by_trial_omit,1))]);
-            hold on;
-            for kk = 1:size(all_trials_lick_hist,1)
-                plot(x_axis_range, all_trials_lick_hist(kk,:), 'Color', [0,0,0]+(1-(kk/size(all_trials_lick_hist,1))));
-            end
-            savefig([session_fig_dir, days{ii}, '_om_cum_hist']);
+%             figure;
+%             plot(x_axis_range, avg_licks_per_ms, 'r', 'LineWidth', 3);  %plot average cum lick hist for t by t analysis
+%             ylabel('cumulative # of licks');
+%             xlabel('time (ms) relative to release cue onset');
+%             title(['Reward Omission Trials: cumulative hist of licking ', days{ii}(end-4:end), ' ', days{ii}(1:6) ' n=' num2str(size(licks_by_trial_omit,1))]);
+%             hold on;
+%             for kk = 1:size(all_trials_lick_hist,1)
+%                 plot(x_axis_range, all_trials_lick_hist(kk,:), 'Color', [0,0,0]+(1-(kk/size(all_trials_lick_hist,1))));
+%             end
+%             savefig([session_fig_dir, days{ii}, '_om_cum_hist']);
         end
     end
     
@@ -170,16 +172,16 @@ for ii = 1:length(days)
         
         %UNEXPECTED plot licking histograms for omission trials
         if exist([session_fig_dir, days{ii}, '_unexp_cum_hist.fig'], 'file')==0;
-            figure;
-            plot(x_axis_range, avg_licks_per_ms_unexp, 'r', 'LineWidth', 3);  %plot average cum lick hist for t by t analysis
-            ylabel('cumulative # of licks');
-            xlabel(['reward delivered at ', num2str(b_data.RewardDelayDurationMs), 'ms']);
-            title(['Unexpected Reward Trials: cumulative hist of licking ', days{ii}(end-4:end), ' ', days{ii}(1:6) ' n=' num2str(size(licks_by_trial_unexp,1))]);
-            hold on;
-            for kk = 1:size(all_trials_lick_hist,1)
-                plot(x_axis_range, all_trials_lick_hist(kk,:), 'Color', [0,0,0]+(1-(kk/size(all_trials_lick_hist,1))));
-            end
-            savefig([session_fig_dir, days{ii}, '_unexp_cum_hist']);
+%             figure;
+%             plot(x_axis_range, avg_licks_per_ms_unexp, 'r', 'LineWidth', 3);  %plot average cum lick hist for t by t analysis
+%             ylabel('cumulative # of licks');
+%             xlabel(['reward delivered at ', num2str(b_data.RewardDelayDurationMs), 'ms']);
+%             title(['Unexpected Reward Trials: cumulative hist of licking ', days{ii}(end-4:end), ' ', days{ii}(1:6) ' n=' num2str(size(licks_by_trial_unexp,1))]);
+%             hold on;
+%             for kk = 1:size(all_trials_lick_hist,1)
+%                 plot(x_axis_range, all_trials_lick_hist(kk,:), 'Color', [0,0,0]+(1-(kk/size(all_trials_lick_hist,1))));
+%             end
+%             savefig([session_fig_dir, days{ii}, '_unexp_cum_hist']);
         end
     end
     
@@ -199,6 +201,11 @@ for ii = 1:length(days)
         avg_licks_pre_cue = [avg_licks_pre_cue, avg_licks_pre_cue_this_day];
         avg_licks_post_cue_sem = [avg_licks_post_cue_sem, std(licks_lick_window_by_trial)/sqrt(num_om_trials)]; %calculate and store standard error of the mean
         avg_licks_pre_cue_sem  = [avg_licks_pre_cue_sem, std(licks_pre_window_by_trial)/sqrt(num_om_trials)];
+    else 
+        avg_licks_post_cue = [avg_licks_post_cue, NaN]; %this allows the training day # to be aligned to the pre/post cue lick rate for that day across animals
+        avg_licks_pre_cue = [avg_licks_pre_cue, NaN];
+        avg_licks_post_cue_sem = [avg_licks_post_cue_sem, NaN]; 
+        avg_licks_pre_cue_sem  = [avg_licks_pre_cue_sem, NaN];
     end
     
     %determine lick rate in the middle of the iti, just before the cue, and after reward delivery. 
@@ -233,11 +240,11 @@ for ii = 1:length(days)
     
     %plot RT within days relative to cue onset 
     if exist([session_fig_dir, days{ii}, '_RT_plot.fig'], 'file')==0;
-        figure; plot(RT_this_session);
-        title(['RT for individual trials within for day ' days{ii}(1:6), days{ii}(end-4:end)]);
-        xlabel('trial #');
-        ylabel('RT (ms)');
-        savefig([session_fig_dir, days{ii}, '_RT_plot']);
+%         figure; plot(RT_this_session);
+%         title(['RT for individual trials within for day ' days{ii}(1:6), days{ii}(end-4:end)]);
+%         xlabel('trial #');
+%         ylabel('RT (ms)');
+%         savefig([session_fig_dir, days{ii}, '_RT_plot']);
     end
     
     %store trial-by-trial RTs for across days plot 
@@ -283,6 +290,8 @@ for ii = 1:length(days)
     else 
         post_cue_window_lick = floor([min_cue_to_end/bin_size])*bin_size-1;
     end
+    pre_cue_window_lick = 18000;
+    post_cue_window_lick = 5999;
     
     %get lick traces (1ms resolution) for rewarded and omission trials
     full_trial_licks = zeros(length(cue_presentation)-1,(pre_cue_window_lick+post_cue_window_lick+1)); %dim1=trial# dim2=ms
@@ -316,36 +325,38 @@ for ii = 1:length(days)
     %plot rewarded trials
     full_trial_licks_rewarded_bin = (full_trial_licks_rewarded_bin/size(full_trial_licks_rewarded,1))*(1000/bin_size); % convert to lick rate in Hz
     x_axis_bin = ([1:length(full_trial_licks_rewarded_bin)]-cue_presentation_binned)*(bin_size/1000);
+    save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_hist_data\', days{ii}, 'rew_hist'], 'full_trial_licks_rewarded_bin');
     if exist([session_fig_dir, days{ii}, '_rew_lick_hist.fig'], 'file')==0; 
-        figure; bar(x_axis_bin, full_trial_licks_rewarded_bin);
-        title(['Rewarded trials: lick rate per ', num2str(bin_size), 'ms', days{ii}(1:6), days{ii}(8:end), 'n=', num2str(size(full_trial_licks_rewarded,1))]);
-        xlabel('time (s) relative to cue onset');
-        ylabel('lick rate (Hz)');
-        vline(0,'k');
-        savefig([session_fig_dir, days{ii}, '_rew_lick_hist']);
+%         figure; bar(x_axis_bin, full_trial_licks_rewarded_bin);
+%         title(['Rewarded trials: lick rate per ', num2str(bin_size), 'ms', days{ii}(1:6), days{ii}(8:end), 'n=', num2str(size(full_trial_licks_rewarded,1))]);
+%         xlabel('time (s) relative to cue onset');
+%         ylabel('lick rate (Hz)');
+%         vline(0,'k');
+%         savefig([session_fig_dir, days{ii}, '_rew_lick_hist']);
     end
     %plot reward omission trials
     full_trial_licks_omit_bin = (full_trial_licks_omit_bin/size(full_trial_licks_omit,1))*(1000/bin_size); % convert to lick rate in Hz
     if b_data.rewardOmissionPercent >0
         if exist([session_fig_dir, days{ii}, '_om_lick_hist.fig'], 'file')==0;
-            figure; bar(x_axis_bin, full_trial_licks_omit_bin);
-            title(['Reward omission: lick rate per ', num2str(bin_size), 'ms', ' ', days{ii}(1:6), ' ', days{ii}(8:end), 'n=', num2str(size(full_trial_licks_omit,1))]);
-            xlabel('time (s) relative to cue onset');
-            ylabel('lick rate (Hz)');
-            vline(0,'k');
-            savefig([session_fig_dir, days{ii}, '_om_lick_hist']);
+%             figure; bar(x_axis_bin, full_trial_licks_omit_bin);
+%             title(['Reward omission: lick rate per ', num2str(bin_size), 'ms', ' ', days{ii}(1:6), ' ', days{ii}(8:end), 'n=', num2str(size(full_trial_licks_omit,1))]);
+%             xlabel('time (s) relative to cue onset');
+%             ylabel('lick rate (Hz)');
+%             vline(0,'k');
+%             savefig([session_fig_dir, days{ii}, '_om_lick_hist']);
         end
+        save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_hist_data\', days{ii}, 'rew_om_hist'], 'full_trial_licks_omit_bin');
     end
     %plot unexpected reward trials
     full_trial_licks_unexp_bin = (full_trial_licks_unexp_bin/size(full_trial_licks_unexp,1))*(1000/bin_size); % convert to lick rate in Hz
     if b_data.rewardUnexpectPercent >0
         if exist([session_fig_dir, days{ii}, '_unexp_lick_hist.fig'], 'file')==0;
-            figure; bar(x_axis_bin, full_trial_licks_unexp_bin);
-            title(['Unexpected reward: lick rate per ', num2str(bin_size), 'ms', days{ii}(1:6),' ', days{ii}(8:end), 'n=', num2str(size(full_trial_licks_unexp,1))]);
-            xlabel(['Reward delivered at ' num2str(b_data.RewardDelayDurationMs), 'ms']);
-            ylabel('lick rate (Hz)');
-            vline(b_data.RewardDelayDurationMs,'b');
-            savefig([session_fig_dir, days{ii}, '_unexp_lick_hist']);
+%             figure; bar(x_axis_bin, full_trial_licks_unexp_bin);
+%             title(['Unexpected reward: lick rate per ', num2str(bin_size), 'ms', days{ii}(1:6),' ', days{ii}(8:end), 'n=', num2str(size(full_trial_licks_unexp,1))]);
+%             xlabel(['Reward delivered at ' num2str(b_data.RewardDelayDurationMs), 'ms']);
+%             ylabel('lick rate (Hz)');
+%             vline(b_data.RewardDelayDurationMs,'b');
+%             savefig([session_fig_dir, days{ii}, '_unexp_lick_hist']);
         end
     end
     
@@ -366,95 +377,108 @@ for ii = 1:length(days)
     iti_lick_rate_sem = [iti_lick_rate_sem , iti_lick_rate_sem_this_session];
 end 
 
-%==============might want to do one of these for unexp reward to see if
-%animal can dettect it===================
+%save the pre/post cue data to be use in across animals summary
+%save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_post_cue_lick\', days{ii}(end-4:end), 'rew_om_post_cue_lick'], 'avg_licks_post_cue', 'avg_licks_pre_cue', 'avg_licks_post_cue_sem', 'avg_licks_pre_cue_sem'); 
+% avg_licks_post_cue = avg_licks_post_cue(~isnan(avg_licks_post_cue)); %this allows the training day # to be aligned to the pre/post cue lick rate for that day across animals
+% avg_licks_pre_cue = avg_licks_pre_cue(~isnan(avg_licks_pre_cue));
+% avg_licks_post_cue_sem = avg_licks_post_cue_sem(~isnan(avg_licks_post_cue_sem));
+% avg_licks_pre_cue_sem  = avg_licks_pre_cue_sem(~isnan(avg_licks_pre_cue_sem));
+
+%save RT std, FA rate and miss rate
+%save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT_stats\', days{ii}(end-4:end), 'RTstd_FA_misses'], 'std_of_RT_across_days', 'TFT_rates', 'miss_rates');
+
 % Plot summary statistics 
 if b_data.rewardOmissionPercent > 1
-    figure; subplot(1,2,2); 
-    bar(avg_licks_post_cue);
-    hold on; errorbar(avg_licks_post_cue, avg_licks_post_cue_sem);
-    title('Omission trials: avg # of licks in 500ms window post cue across days');
-    xlabel('day');
-    ylabel('# of licks');
-    
-    subplot(1,2,1); bar(avg_licks_pre_cue);
-    hold on; errorbar(avg_licks_pre_cue, avg_licks_pre_cue_sem);
-    title('Omission trials: avg # of licks in 500ms window before cue across days');
-    xlabel('day');
-    ylabel('# of licks');
-    max_y_val = max([avg_licks_post_cue, avg_licks_pre_cue]);
-    if max_y_val > 0
-        subplot(1,2,1); ylim([0 ceil(max_y_val)]);
-        subplot(1,2,2); ylim([0 ceil(max_y_val)]);
-    end
-    savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_licks_pre_vs_post_cue']);
+%     figure; subplot(1,2,2); 
+%     bar(avg_licks_post_cue);
+%     hold on; errorbar(avg_licks_post_cue, avg_licks_post_cue_sem);
+%     title('Omission trials: avg # of licks in 500ms window post cue across days');
+%     xlabel('day');
+%     ylabel('# of licks');
+%     
+%     subplot(1,2,1); bar(avg_licks_pre_cue);
+%     hold on; errorbar(avg_licks_pre_cue, avg_licks_pre_cue_sem);
+%     title('Omission trials: avg # of licks in 500ms window before cue across days');
+%     xlabel('day');
+%     ylabel('# of licks');
+%     max_y_val = max([avg_licks_post_cue, avg_licks_pre_cue]);
+%     if max_y_val > 0
+%         subplot(1,2,1); ylim([0 ceil(max_y_val)]);
+%         subplot(1,2,2); ylim([0 ceil(max_y_val)]);
+%     end
+%     savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_licks_pre_vs_post_cue']);
 end
 
-figure; subplot(2,2,1);
-suptitle(days{ii}(end-4:end));
-errorbar(RT_across_days, RT_across_days_sem);
-title(['RT across days']);
-xlabel('day');
-ylabel('RT (ms)');
-
-subplot(2,2,2); plot(std_of_RT_across_days);
-title('std of RT across days');
-xlabel('day');
-ylabel('standard deviation');
-
-subplot(2,2,3); plot(TFT_rates);
-title('too fast lick rates as a % of all trials by day: FA = RT<200ms');
-xlabel('day');
-ylabel('% false alarms');
-
-subplot(2,2,4); plot(miss_rates);
-title('Miss rates as a % of all trials by day: misses = RT>1000ms or 1500ms');
-xlabel('day');
-ylabel('% misses');
-savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_RTstd_misses_TFT']);
+% figure; subplot(2,2,1);
+% suptitle(days{ii}(end-4:end));
+% errorbar(RT_across_days, RT_across_days_sem);
+% title(['RT across days']);
+% xlabel('day');
+% ylabel('RT (ms)');
+% 
+% subplot(2,2,2); plot(std_of_RT_across_days);
+% title('std of RT across days');
+% xlabel('day');
+% ylabel('standard deviation');
+% 
+% subplot(2,2,3); plot(TFT_rates);
+% title('too fast lick rates as a % of all trials by day: FA = RT<200ms');
+% xlabel('day');
+% ylabel('% false alarms');
+% 
+% subplot(2,2,4); plot(miss_rates);
+% title('Miss rates as a % of all trials by day: misses = RT>1000ms or 1500ms');
+% xlabel('day');
+% ylabel('% misses');
+% savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_RTstd_misses_TFT']);
 
 if length(days_divider_inx) > 0
-    figure; plot(RT_across_sessions);
-    title(['RTs across days. No delay. ' days{ii}(end-4:end)]);
-    xlabel('trial num');
-    ylabel('RT(ms)');
-    vline(days_divider_inx, 'k');
-    if ~isempty(non_consecutive_inx)
-        vline(non_consecutive_inx, 'r');
-    end
-    savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_0ms_summary']);
+%     figure; plot(RT_across_sessions);
+%     title(['RTs across days. No delay. ' days{ii}(end-4:end)]);
+%     xlabel('trial num');
+%     ylabel('RT(ms)');
+%     vline(days_divider_inx, 'k');
+%     if ~isempty(non_consecutive_inx)
+%         vline(non_consecutive_inx, 'r');
+%     end
+%     savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_0ms_summary']);
 end
 
 if length(RT_across_sessions_delay) > 0
-    figure; plot(RT_across_sessions_delay);
-    title(['RTs across days. 500ms delay. ' days{ii}(end-4:end)]);
-    xlabel('trial num');
-    ylabel('RT(ms)');
-    vline(days_divider_inx_delay, 'k');
-    if ~isempty(non_consecutive_inx_delay)
-        vline(non_consecutive_inx_delay, 'r');
-    end
-    savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_500ms_summary']);
+%     figure; plot(RT_across_sessions_delay);
+%     title(['RTs across days. 500ms delay. ' days{ii}(end-4:end)]);
+%     xlabel('trial num');
+%     ylabel('RT(ms)');
+%     vline(days_divider_inx_delay, 'k');
+%     if ~isempty(non_consecutive_inx_delay)
+%         vline(non_consecutive_inx_delay, 'r');
+%     end
+%     savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_500ms_summary']);
 end
 
 if length(RT_across_sessions_1000ms_delay) > 0
-    figure; plot(RT_across_sessions_1000ms_delay);
-    title(['RTs across days. 1000ms delay. ' days{ii}(end-4:end)]);
-    xlabel('trial num');
-    ylabel('RT(ms)');
-    vline(days_divider_inx_1000ms_delay, 'k');
-    if ~isempty(non_consecutive_inx_1000ms_delay)
-        vline(non_consecutive_inx_1000ms_delay, 'r');
-    end
-    savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_1000ms_summary']);
+%     figure; plot(RT_across_sessions_1000ms_delay);
+%     title(['RTs across days. 1000ms delay. ' days{ii}(end-4:end)]);
+%     xlabel('trial num');
+%     ylabel('RT(ms)');
+%     vline(days_divider_inx_1000ms_delay, 'k');
+%     if ~isempty(non_consecutive_inx_1000ms_delay)
+%         vline(non_consecutive_inx_1000ms_delay, 'r');
+%     end
+%     savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_1000ms_summary']);
 end
 
 %plot # of licks in iti window vs pre-cue window
-figure; errorbar(iti_lick_window_avg, iti_lick_rate_sem, 'k');
-hold on; 
-errorbar(pre_cue_lick_window_avg, pre_cue_lick_rate_sem, 'b');
-title('licking in iti (black) vs pre-cue (blue)');
-ylabel('avg # of licks in 500ms window');
-xlabel('day #')
-savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_iti_vs_pre-cue_licking']);
+% figure; errorbar(iti_lick_window_avg, iti_lick_rate_sem, 'k');
+% hold on; 
+% errorbar(pre_cue_lick_window_avg, pre_cue_lick_rate_sem, 'b');
+% title('licking in iti (black) vs pre-cue (blue)');
+% ylabel('avg # of licks in 500ms window');
+% xlabel('day #')
+% savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_iti_vs_pre-cue_licking']);
+
+%save variables for across animals RT plot
+
+% out_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT\';
+% save([out_dir, days{ii}(end-4:end), 'RT_sem_across_days'], 'RT_across_days', 'RT_across_days_sem');
 

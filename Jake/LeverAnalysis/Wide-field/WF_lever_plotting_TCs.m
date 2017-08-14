@@ -5,8 +5,8 @@ clear
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
-days = {'170705_img99'}; % '170321_img86'
- 
+days = {'170705_img98', '170711_img99'}; 
+
 for kk=1:length(days)
     %set directories and load bxOutputs and cluter data. 
     ROI_name  =  days{kk};
@@ -335,35 +335,37 @@ for kk=1:length(days)
         
         %plot reward omission trials
         use_ev_rew_omission = trial_outcome.rew_omission_trial_time;
-        [rew_om_roi, use_times_rew_om, lick_trace_rew_om, lick_trace_rew_om_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_rew_omission, pre_frames, post_frames);
-        avg_rew_om_roi = squeeze(func(rew_om_roi,1));
-        if cluster.num_cluster == 1
-            avg_rew_om_roi = avg_rew_om_roi';
+        if length(use_ev_rew_omission) >2
+            [rew_om_roi, use_times_rew_om, lick_trace_rew_om, lick_trace_rew_om_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_rew_omission, pre_frames, post_frames);
+            avg_rew_om_roi = squeeze(func(rew_om_roi,1));
+            if cluster.num_cluster == 1
+                avg_rew_om_roi = avg_rew_om_roi';
+            end
+            std_rew_om = squeeze(std(squeeze(rew_om_roi),1));
+            sm_rewarded = std_rew_om./sqrt(size(rew_om_roi,1));
+            for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
+                shift = (-1)*avg_rew_om_roi(i,1);
+                avg_rew_om_roi(i,:) = avg_rew_om_roi(i,:)+shift;
+            end
+            subplot(1,3,3); lickBars = bar(ts(1,:), mean(lick_trace_rew_om)/10); hold on
+            alpha(.25);
+            for i = 1:size(ts,1);
+                subplot(1,3,3); errorbar(ts(i,:), avg_rew_om_roi(i,:), sm_rewarded(i,:), 'Color', colors(i,:)); hold on;
+            end
+            if b_data.rewardDelayPercent >0 %set axes for reward delay condition
+                assert(b_data.rewardDelayPercent == 100);
+                rewardDelay = b_data.RewardDelayDurationMs;
+                xlabel(['Time from cue termination (ms)']);
+                vert_lines(rewardDelay);
+            elseif b_data.rewardDelayPercent ==0;
+                xlabel('Time from cue termination (ms)');
+                rewardDelay = b_data.RewardDelayDurationMs;
+            end
+            ylabel('dF/F');
+            title(['Reward omission trials n=', num2str(size(rew_om_roi,1))]);
+            legend(['avg licks/frame'; cellstr(num2str([1:cluster.num_cluster]'))]);
+            axis tight;
         end
-        std_rew_om = squeeze(std(squeeze(rew_om_roi),1));
-        sm_rewarded = std_rew_om./sqrt(size(rew_om_roi,1));
-        for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
-            shift = (-1)*avg_rew_om_roi(i,1);
-            avg_rew_om_roi(i,:) = avg_rew_om_roi(i,:)+shift;
-        end
-        subplot(1,3,3); lickBars = bar(ts(1,:), mean(lick_trace_rew_om)/10); hold on
-        alpha(.25);
-        for i = 1:size(ts,1);
-            subplot(1,3,3); errorbar(ts(i,:), avg_rew_om_roi(i,:), sm_rewarded(i,:), 'Color', colors(i,:)); hold on;
-        end
-        if b_data.rewardDelayPercent >0 %set axes for reward delay condition
-            assert(b_data.rewardDelayPercent == 100);
-            rewardDelay = b_data.RewardDelayDurationMs; 
-            xlabel(['Time from cue termination (ms)']);
-            vert_lines(rewardDelay);
-        elseif b_data.rewardDelayPercent ==0; 
-            xlabel('Time from cue termination (ms)');
-            rewardDelay = b_data.RewardDelayDurationMs; 
-        end
-        ylabel('dF/F');
-        title(['Reward omission trials n=', num2str(size(rew_om_roi,1))]);
-        legend(['avg licks/frame'; cellstr(num2str([1:cluster.num_cluster]'))]);
-        axis tight;
         hold off
         
         %STANDARDIZE YLIMS, SAVE VARIABLES, REPORT Ns---------------------------------
@@ -380,7 +382,7 @@ for kk=1:length(days)
         disp(['day/animal: ' num2str(ROI_name)])
         disp(['reward delay of ', num2str(rewardDelay), 'ms on ', num2str(b_data.rewardDelayPercent), '% of trials'])
         disp(['# of rewarded trials = ' num2str(size(rewarded_roi,1))])
-        disp(['# of reward omission trials = ' num2str(size(rew_om_roi,1))])
+        if exist('rew_om_roi'); disp(['# of reward omission trials = ' num2str(size(rew_om_roi,1))]); end
        
         %Save figure before opening next one
         destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
@@ -391,7 +393,7 @@ for kk=1:length(days)
             figure;
             %aligned to time of reward
             use_ev_unexp_rew = trial_outcome.unexpected_rew_time;
-            disp(['# of unexpected reward trials ', num2str(use_ev_unexp_rew)]);
+            disp(['# of unexpected reward trials ', num2str(length(use_ev_unexp_rew))]);
             [unexp_rew_roi, use_times_unexp_rew, lick_trace_unexp_rew, lick_trace_unexp_rew_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_unexp_rew, pre_frames, post_frames);
             avg_unexp_rew_roi = squeeze(func(unexp_rew_roi,1));
             if cluster.num_cluster == 1
@@ -461,24 +463,28 @@ for kk=1:length(days)
         end
         
         %SAVE matfiles  ----------------------------------------------
-        rewarded_roi = squeeze(rewarded_roi);
-        rew_om_roi = squeeze(rew_om_roi);
         
-        destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_reward_trials');
-        destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_rew_om_trials');
-        save([destySucc], 'rewarded_roi');
-        save([destyFail], 'rew_om_roi');
+        destyNR = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_reward_trials');
+        rewarded_roi = squeeze(rewarded_roi);
+        save([destyNR], 'rewarded_roi');
+        licking_data.lick_trace_rew = lick_trace_rew;
+        licking_data.lick_trace_rew_10ms = lick_trace_rew_10ms;
+        if exist('rew_om_roi') && size(rew_om_roi,1) >2
+            destyOR = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_rew_om_trials');
+            rew_om_roi = squeeze(rew_om_roi);
+            save([destyOR], 'rew_om_roi');
+            licking_data.lick_trace_rew_om = lick_trace_rew_om;
+            licking_data.lick_trace_rew_om_10ms = lick_trace_rew_om_10ms;
+        end
         if b_data.rewardUnexpectPercent >0
+            destyUR = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_unexp_trials');
             unexp_rew_roi = squeeze(unexp_rew_roi);
-            save([destyFail], 'unexp_rew_roi');
-            destyUnexp = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_unexp_rew_trials');
+            save([destyUR], 'unexp_rew_roi');
+            licking_data.lick_trace_unexp_rew = lick_trace_unexp_rew; 
+            licking_data.lick_trace_unexp_rew_10ms=lick_trace_unexp_rew_10ms;
         end
         
         %SAVE lick traces
-        licking_data.lick_trace_rew = lick_trace_rew;
-        licking_data.lick_trace_rew_10ms = lick_trace_rew_10ms;
-        licking_data.lick_trace_rew_om = lick_trace_rew_om;
-        licking_data.lick_trace_rew_om_10ms = lick_trace_rew_om_10ms;
         save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
     end
 end

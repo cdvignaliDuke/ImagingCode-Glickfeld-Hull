@@ -1,48 +1,139 @@
 %script for using ITI lick bouts to ID licking related neurons and ID them
 %will us dfoverf_TC
 
-%THINGS TO DO BEFORE THIS CODE IS USEABLE
-%1) figure out counter alignment issue
-%2) apply mask to all useable frames for animals limiited to the first 70k
-%3) finish the actual code
-
-
-% Window shoulld start 5s after reward delivery and end 4s before cue onset
-%timepoints needed: reward delivery and cue onset
-%want to plot 1s before lick bout onset and 4s after onset. 
-
-% need to make sure OR and UR trials do not fuck this up
-%trial_outcome variables zeroed to .....
-%for CRP trials lever.press is the time of cue onset
-%unequal # of frames in frame_info, lick_data and df/f TC
+%this code was originally designed to isolate lick bouts in the ITI and
+%plot df/f licking from those bouts. Was adapted to plot liick triggered
+%avgs from the ITI
 
 clear;
-file_info_CRP;
+file_info_CRP; clear days89 days90 days91 days92 days93 days94 days_1 days_post days_UR days_1000 days_1000_post comp_500ms irun;
 dir_base = 'Z:\Analysis\Cue_reward_pairing_analysis\2P\';
+bx_dir_base = 'Z:\Data\2P_imaging\behavior\';
+post_lick_frames = round(2000/33.33); %ms of df/f and licking to be plotted after the first lick of the lick bout
+pre_lick_frames = round(1000/33.33); 
+post_reward_buffer = 5000;
+max_diff =6; %maximum number of difference in frame # between licks in a bout
+min_licks_per_bout = 1;
+pre_bout_int = 15;
 
-for ii = [2, 5, 9, 22, 23, 31]; %1:length(dates)
+for ii = [3, 6, 10, 25, 27, 32,     2, 5, 9, 22, 23, 31]%  % %post learning          []; day 1
     %assign an output directory for the results
-    out_dir = [dir_base, 'ITI licking\', dates{ii}, '_', mouseID{ii}];
+    out_dir = [dir_base, 'ITI licking\', dates{ii}, '_', mouseID{ii}, '\'];
+    if ~exist(out_dir);
+        mkdir(out_dir);
+    end
     
     %check to see if the file exists
     for rID = 1:3;
         data_dir = [dir_base, dates{ii}, '_', runID{rID}, '_', mouseID{ii}, '\'];
-        TC_fn = dir([data_dir, '_dFOverF_TC.mat']);
+        TC_fn = dir([data_dir, 'Results.mat']);
         if ~isempty(TC_fn);
             break
         end
     end
     
     %load TCs  bx data and licking data
-    load([data_dir, TC_fn.name]);
-    load([data_dir, 'parse_behavior'], 'lick_data', 'lever');
+    load([data_dir, TC_fn.name], 'tc_avg');
+    load([data_dir, 'parse_behavior'], 'lick_data', 'lever', 'frame_info');
+    b_data = get_bx_data(bx_dir_base, [dates{ii}, '_', mouseID{ii}]);
+    rew_delay = b_data.RewardDelayDurationMs;
+    cue_on = frame_info.counter(lever.press); %converts cue on/off times to framesfa
+    cue_off = frame_info.counter(lever.release);
+    ifi = mean(diff(frame_info.times)); assert(ifi>32 && ifi<34);
+    licks_by_frame = lick_data.licksByFrame;
     
+    %generate index of frames which could be used to ITI licks
+    valid_frame_inx = ones(1,length(tc_avg));
+    assert( length(cue_on) == length(cue_off) );
+    assert( cue_on(1) < cue_off(1) );
+    for iii = 1:length(cue_on)
+        invalid_frames = [ (cue_on(iii)-post_lick_frames) : cue_off(iii)+round((rew_delay+post_reward_buffer)/ifi) ];
+        if invalid_frames(end) > length(valid_frame_inx);  %if the invalid frame inx exceeds matrix dims then just go to the end of the movie
+            invalid_frames = [ (cue_on(iii)-post_lick_frames) : length(valid_frame_inx) ];
+        end
+        valid_frame_inx(invalid_frames) = 0;
+        valid_frame_inx([1:pre_bout_int]) = 0;
+        valid_frame_inx([end-(1+min_licks_per_bout*max_diff):end]) = 0;
+    end
+    
+    %identify frames which correspond to the beginning of a lick bout
+    bout_start_inx = [];
+    if length(licks_by_frame) > length(valid_frame_inx)
+        licks_by_frame = licks_by_frame(1:length(valid_frame_inx));
+    end
+    for iii = find(valid_frame_inx(1:length(licks_by_frame)));
+        if licks_by_frame(iii)==0 %if there is no lick in this frame then skip to the next
+            continue
+        elseif ~isempty(bout_start_inx) && bout_start_inx(end) >= iii-max_diff; %prevents counting the second lick in a bout as a bout onset
+            continue;
+        elseif sum( licks_by_frame([(iii-pre_bout_int):(iii-1)]) ) > 0 %if there is more than one lick in the time before the current frame
+            continue
+        %elseif sum( licks_by_frame( [(iii+1) : (iii+1+min_licks_per_bout*max_diff)] )) < min_licks_per_bout;  %minimum # of licks per bout 
+            %continue
+        %elseif max(diff(find( licks_by_frame([iii:(iii+1+min_licks_per_bout*max_diff)])  ))) > max_diff %maximum difference between lick frames in order to avoid confounds due one lick counting as multiple
+            %continue 
+        end
+        bout_start_inx = [bout_start_inx, iii];
+    end
+    
+    if isempty(bout_start_inx)
+        disp(['no ITI lick bouts for ' dates{ii}, ' ', mouseID{ii}]);
+        continue
+    end
+    
+    %save bout start inx, parameters for determining valid bouts and valid frames
+    save([out_dir, 'ITI_lick_parameters_', date], 'bout_start_inx', 'max_diff', 'min_licks_per_bout', 'post_lick_frames', 'pre_lick_frames', 'post_reward_buffer');
+   
+    %pull out TCs from each neuron aligned to the lick bout starts
+    use_ev_ITI_bout = frame_info.times([bout_start_inx]) -frame_info.imaging_start_MW_T +10; %added the extra 10ms so that the reported ev times will be well within their own fram_num's duration instead of on the border. 
+    [ITI_bout_movie, ~, lick_trace_ITI_bout, ~] = trigger_movie_by_event(tc_avg', frame_info, ...
+        use_ev_ITI_bout, pre_lick_frames, post_lick_frames, lick_data);
+    
+    %calculate df/f for each trial and each neuron
+    base_f_window = [pre_lick_frames-20:pre_lick_frames-10];
+    base_f = mean( ITI_bout_movie(:,:,[base_f_window]) ,3);
+    base_f = repmat(base_f,1,1,size(ITI_bout_movie,3));
+    ITI_bout_movie_dfof = (ITI_bout_movie-base_f)./base_f;
+    
+    %determine which cells significantly respond to licking
+    [LR_h, LR_p, LR_resp_cells, LR_resp_avg, LR_resp_sem, LR_base, LR_resp] = findRespCell2(ITI_bout_movie_dfof, pre_lick_frames, ifi);
+    
+    %plot avg df/f and licking for all neurons
+    x_axis = ([1:size(ITI_bout_movie_dfof,3)]-pre_lick_frames-1)*round(ifi);
+    figure; subplot(1,2,1); 
+    suptitle([' avg df/f and licking ' , dates{ii}, ' ', mouseID{ii}, ' ']);
+    bar( x_axis, mean(lick_trace_ITI_bout,1)*30/100 );  hold on;
+    plot( x_axis, squeeze(mean(mean(ITI_bout_movie_dfof,1),2)) ,'g');
+    errorbar( x_axis, squeeze(mean(mean(ITI_bout_movie_dfof,1),2)), std(squeeze(mean(ITI_bout_movie_dfof,1)),[],1)/sqrt(size(ITI_bout_movie_dfof,2)),'g');
+    title(['All cells:  ',  'lick bouts=', num2str(size(ITI_bout_movie_dfof,1)), ' neurons=', num2str(size(ITI_bout_movie_dfof,2))]);
+    xlabel('time relative to cue (ms)');
+    ylabel('df/f  and  lick rate (Hz/100)');
+    xlim([-1000 2000]); ylim([-0.02 max(squeeze(mean(mean(ITI_bout_movie_dfof(:,[LR_resp_cells],:),1),2)))*1.3]);
+    
+    %plot df/f and licking for lick responsive neurons
+    subplot(1,2,2); 
+    bar( x_axis, mean(lick_trace_ITI_bout,1)*30/100 );  hold on;
+    plot( x_axis, squeeze(mean(mean(ITI_bout_movie_dfof(:,[LR_resp_cells],:),1),2)) ,'g');
+    errorbar( x_axis, squeeze(mean(mean(ITI_bout_movie_dfof(:,[LR_resp_cells],:),1),2)), std(squeeze(mean(ITI_bout_movie_dfof(:,[LR_resp_cells],:),1)),[],1)/sqrt(length(LR_resp_cells)),'g');
+    title(['Lick Responsive cells: ', 'lick bouts=', num2str(size(ITI_bout_movie_dfof,1)), ' neurons=', num2str(length(LR_resp_cells))]);
+    xlabel('time relative to cue (ms)');
+    ylabel('df/f  and  lick rate (Hz/100)');
+    xlim([-1000 2000]); ylim([-0.02 max(squeeze(mean(mean(ITI_bout_movie_dfof(:,[LR_resp_cells],:),1),2)))*1.3]);
+    
+    %save figs and data
+    savefig([out_dir, 'avg_TCs']);
+    save([out_dir, 'ITI_licking_outputs'], 'ITI_bout_movie', 'ITI_bout_movie_dfof', 'lick_trace_ITI_bout', 'LR_h', 'LR_p', 'LR_resp_cells', 'LR_resp_avg', 'LR_resp_sem', 'LR_base', 'LR_resp');
 end
 
-%% Ashley and Lindsey ran some experiments on the 2P for frame/bx alignment. So it appears there is about a 1 frame delay between the command HAD_2P_frames sends to deliver the cue and when 
-%the cue actually changes. I will need to correct for that. However, they
+
+
+
+
+%% Ashley and Lindsey ran some experiments on the 2P for frame/bx alignment. So it appears there is about a 1 
+% frame delay between the command HAD_2P_frames sends to deliver the cue and when 
+% the cue actually changes. I will need to correct for that. However, they
 % seem to think that the frame pulse 1s before the 2nd pulse actually does
-% correspond to an imaged frame. They said that the two extrac pulses come
+% correspond to an imaged frame. They said that the two extra pulses come
 % from frames remaining in the buffer which were never saved. So the last
 % two pulses do not have associated frames. 
 

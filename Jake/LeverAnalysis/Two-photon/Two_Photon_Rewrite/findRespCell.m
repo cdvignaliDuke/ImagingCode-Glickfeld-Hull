@@ -19,7 +19,6 @@ NR_resp = zeros(size(NR_movie,1),nCells);
 
 %main forloop to...
 for ic = 1:nCells
-    ic
     if indc(ic) - round(50./double(ifi)) <= 0   %indc is the indeces of the min TC values in the baseline window for each cell's avg TC. If the min value is less than 50ms into the TC...
         NR_base(:,ic) = squeeze(mean(NR_movie(:,ic,base_NR_window(indc(ic)):base_NR_window(indc(ic))+round(100./double(ifi))),3)); %then this baseline value = the avg of the min value and the following 3 frames
     else

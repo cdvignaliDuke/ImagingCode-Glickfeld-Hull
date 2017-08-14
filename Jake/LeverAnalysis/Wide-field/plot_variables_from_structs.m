@@ -85,7 +85,7 @@ for ii = 1:length(struct_files)
     end
 end
 
-%peak magnitude df/f correct vs early
+%peak magnitude df/f correct vs tooFaast
 figure; hold on;
 for ii = 1: length(corr_magnitude_mean)
     plot(corr_magnitude_mean(ii), tooFast_magnitude_mean(ii),'Marker', 'o', 'Linestyle', 'none', 'Color', color_palette(days_used(ii),:), 'MarkerFaceColor', color_palette(ii,:)); hold on;
@@ -121,8 +121,8 @@ for ii = 1:length(struct_files)
     corr_magnitude_sem = [corr_magnitude_sem, meta_struct.(['i', struct_files(ii).name(1:12)]).curr_struct.corr_magnitude_std / sqrt(size(meta_struct.(['i', struct_files(ii).name(1:12)]).curr_struct.corr_TCs,2))];
     early_magnitude_sem = [early_magnitude_sem, meta_struct.(['i', struct_files(ii).name(1:12)]).curr_struct.early_magnitude_std / sqrt(size(meta_struct.(['i', struct_files(ii).name(1:12)]).curr_struct.early_TCs,2))];
     load([bx_outputs_dir, struct_files(ii).name(1:12), '_bx_outputs'], 'licking_data');
-    corr_tbyt_lick_rate = mean(licking_data.lick_trace_succ(:,[lever_release+1:lever_release+interval]),2)*(10/interval)*10;   %find the lick rate for the first 0.5s after lever release for each trial
-    early_tbyt_lick_rate = mean(licking_data.lick_trace_fail(:,[lever_release+1:lever_release+interval]),2)*(10/interval)*10;
+    corr_tbyt_lick_rate = mean(licking_data.lick_trace_succ(:,[lever_release+1:lever_release+interval]),2)*10;   %find the lick rate for the first 0.5s after lever release for each trial
+    early_tbyt_lick_rate = mean(licking_data.lick_trace_fail(:,[lever_release+1:lever_release+interval]),2)*10;
     corr_lick_rate_mean = [corr_lick_rate_mean, mean(corr_tbyt_lick_rate)];
     early_lick_rate_mean = [early_lick_rate_mean, mean(early_tbyt_lick_rate)];
     corr_lick_rate_sem = [corr_lick_rate_sem, std(corr_tbyt_lick_rate)/sqrt(length(corr_tbyt_lick_rate))];

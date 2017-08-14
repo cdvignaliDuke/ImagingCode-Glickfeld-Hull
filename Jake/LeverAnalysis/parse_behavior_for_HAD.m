@@ -41,6 +41,9 @@ for i = 1:length(b_data.reactTimesMs)
 end
 
 %calculate trial outcome for all categories for all trials. Put into indeces. Values = time of lever release zeroed relative to f frame time MW
+if fake_mouse ==1; %if this is a cue reward pairing session then align to cue onset
+    release_time = release_time - react_time;
+end
 early_inx = (early_time.*release_time);  %right now early time is just a bunch of 1s and 0s indexing the early trials. 
 corr_inx = (has_reward.*release_time); 
 corr_inx(find(unexp_rew)) = 0;

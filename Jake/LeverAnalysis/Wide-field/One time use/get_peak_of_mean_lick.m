@@ -13,46 +13,65 @@ max_rates_succ = [];
 max_rates_fail = [];
 late_lick_succ = [];
 late_lick_fail = [];
+late_lick_succ_sem = [];
+late_lick_fail_sem = [];
 late_f_succ = [];
 late_f_fail = []; 
+late_f_succ_sem = [];
+late_f_fail_sem = [];
+num_trials_succ = 0;
+num_trials_fail = 0;
 
 %main forloop for extracting data from crash
 for ii = [1:2, 5:length(days)];
     %load lick traces
     lick_dir = [lick_dir_base, days{ii}, '_bx_outputs'];
-    %TC_dir = [TC_dir_base, days{ii}, '\'];
     load(lick_dir, 'licking_data');
     load([TC_dir, days{ii}, '_success']);
     load([TC_dir, days{ii}, '_fail']);
     
-    %take average traces
+    %find mean and sem for lick traces
     mean_lick_succ = mean(licking_data.lick_trace_succ,1);
     mean_lick_fail = mean(licking_data.lick_trace_fail,1);
     assert(length(mean_lick_succ)==16);
     assert(length(mean_lick_fail)==16);
-    mean_late_f_succ = squeeze(mean(success_roi(:,:,[end-2:end]),1)); %avg together all the trials
-    mean_late_f_succ = mean(mean(mean_late_f_succ(ROI{ii},:),2),1); %avg together all the frames, then the ROIs
-    mean_late_f_fail = squeeze(mean(fail_roi(:,:,[end-2:end]),1)); %avg together all the trials
-    mean_late_f_fail = mean(mean(mean_late_f_fail(ROI{ii},:),2),1); %avg together all the frames, then the ROIs
+    
+    %find mean and sem for f on correct trials
+    mean_late_f_succ = squeeze(mean(mean(success_roi(:,ROI{ii},[end-2:end]),3),2)); %ROIs and frames in a given trial
+    this_late_f_succ_sem = std(mean_late_f_succ)/sqrt(length(mean_late_f_succ));
+    mean_late_f_succ = mean(mean_late_f_succ); %avg together all the frames, then the ROIs
+    
+    %find mean and sem for f on early trials
+    mean_late_f_fail = squeeze(mean(mean(fail_roi(:,ROI{ii},[end-2:end]),3),2)); %ROIs and frames in a given trial
+    this_late_f_fail_sem = std(mean_late_f_fail)/sqrt(length(mean_late_f_fail));
+    mean_late_f_fail = mean(mean_late_f_fail); %avg together all the frames, then the ROIs
     
     %find peak of the mean lick trace
     max_rates_succ = [max_rates_succ, max(mean_lick_succ(7:16))];
     max_rates_fail = [max_rates_fail, max(mean_lick_fail(7:16))];
     
-    %find lick rate for late in the TC
-    late_lick_succ = [late_lick_succ, mean(mean_lick_succ(end-2:end))];
-    late_lick_fail = [late_lick_fail, mean(mean_lick_fail(end-2:end))];
+    %find lick rate for late in the TC and sem
+    mean_lick_succ = mean(licking_data.lick_trace_succ(:,[end-2:end]),2)*10;
+    mean_lick_fail = mean(licking_data.lick_trace_fail(:,[end-2:end]),2)*10;
+    late_lick_succ = [late_lick_succ, mean(mean_lick_succ)];
+    late_lick_fail = [late_lick_fail, mean(mean_lick_fail)];
+    late_lick_succ_sem = [late_lick_succ_sem, std(mean_lick_succ)/sqrt(length(mean_lick_succ))];
+    late_lick_fail_sem = [late_lick_fail_sem, std(mean_lick_fail)/sqrt(length(mean_lick_fail))];
     
-    %find the mean df/f for late in the TC
+    %store the mean/sem df/f for late in the TC
     late_f_succ = [late_f_succ, mean_late_f_succ];
     late_f_fail = [late_f_fail, mean_late_f_fail];
+    late_f_succ_sem = [late_f_succ_sem, this_late_f_succ_sem];
+    late_f_fail_sem = [late_f_fail_sem, this_late_f_fail_sem];
+    
+    %record total trial nums
+    num_trials_succ = num_trials_succ + size(success_roi, 1);
+    num_trials_fail = num_trials_fail + size(fail_roi, 1);
 end
 
 %in the WF_lever_plotting_TCs the lick rates were divided by 10 in order to fit on the same plot as the df/f. correcting for that here. 
 max_rates_succ= max_rates_succ*10;
 max_rates_fail= max_rates_fail*10;
-late_lick_succ = late_lick_succ*10;
-late_lick_fail = late_lick_fail*10;
 
 %make scatterplot to check that the data make sense 
 figure; 
@@ -61,14 +80,21 @@ xlabel('correct trials');
 ylabel('incorrect trials');
 title('peak lick rate of average lick traces');
 ylim([0 20]); xlim([0 20]);
+[h,p] = ttest(max_rates_succ, max_rates_fail)
 
 %report mean and SEM. 
 disp(['mean lick rate for correct trials = ' num2str(mean(max_rates_succ)) 'Hz  ', 'SEM=', num2str(std(max_rates_succ)/sqrt(length(max_rates_succ)))]);
 disp(['mean lick rate for incorrect trials = ' num2str(mean(max_rates_fail)) 'Hz  ', 'SEM=', num2str(std(max_rates_fail)/sqrt(length(max_rates_fail)))]);
 
-%scatterplot of late df/f vs late lick rate
+%% scatterplot of late df/f vs late lick rate
 figure; scatter(late_f_succ, late_lick_succ, 'k'); hold on;
 scatter(late_f_fail, late_lick_fail, 'r');
+errorbar(late_f_succ, late_lick_succ, late_lick_succ_sem, 'Linestyle', 'none', 'Color', 'k');
+errorbar(late_f_fail, late_lick_fail, late_lick_fail_sem, 'Linestyle', 'none', 'Color', 'r');
+for ii = 1:length(late_f_succ)
+    plot( [(late_f_succ(ii)-late_f_succ_sem(ii)),(late_f_succ(ii)+late_f_succ_sem(ii))] , [late_lick_succ(ii),late_lick_succ(ii)] , 'k'); %'Linestyle', 'none', 'Color', 'k'
+    plot( [(late_f_fail(ii)-late_f_fail_sem(ii)),(late_f_fail(ii)+late_f_fail_sem(ii))] , [late_lick_fail(ii),late_lick_fail(ii)] , 'r');
+end
 xlabel('df/f');
 ylabel('lick rate Hz');
 title('df/f vs lick rate for frames 800 to 1000ms following lever release');
@@ -77,7 +103,7 @@ title('df/f vs lick rate for frames 800 to 1000ms following lever release');
 fitlm(late_f_succ, late_lick_succ)
 fitlm(late_f_fail, late_lick_fail)
 
-%scatterplot of late df/f ratio vs late lick rate ratio
+%% scatterplot of late df/f ratio vs late lick rate ratio
 figure;
 scatter((late_f_fail./late_f_succ), (late_lick_fail./late_lick_succ), 'k');
 xlabel('df/f (early/correct)');
