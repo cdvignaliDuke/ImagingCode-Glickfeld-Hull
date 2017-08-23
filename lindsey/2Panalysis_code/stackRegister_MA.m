@@ -1,4 +1,4 @@
-function [outs,stack]=stackRegisterMA(stack,target,usFacs,shifts_xy);
+function [outs,stack]=stackRegister_MA(stack,target,usFacs,shifts_xy)
 %STACKREGISTER Fourier-domain subpixel 2d rigid body registration.
 % [OUTS]=STACKREGISTER(STACK,TARGET) where 
 %      stack is 3d array containing stack to register
