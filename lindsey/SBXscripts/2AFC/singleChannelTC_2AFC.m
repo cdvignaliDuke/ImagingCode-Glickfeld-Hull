@@ -1,8 +1,8 @@
 %% get path names
-date = '170630';
+date = '170816';
 ImgFolder = strvcat('001');
-time = strvcat('1323');
-mouse = 'i550';
+time = strvcat('1320');
+mouse = 'i567';
 doFromRef = 0;
 ref = strvcat('005');
 nrun = size(ImgFolder,1);
@@ -65,7 +65,7 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*10000):50
 
 %% Register data
 
-data_avg = mean(data(:,:,40001:40500),3);
+data_avg = mean(data(:,:,50001:50500),3);
 
 if exist(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
     load(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
@@ -96,7 +96,7 @@ clear data
 
 figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data_reg(:,:,1+((i-1)*10000):500+((i-1)*10000)),3)); title([num2str(1+((i-1)*10000)) '-' num2str(500+((i-1)*10000))]); end
 figure; imagesq(mean(data_reg(:,:,1:10000),3)); truesize;
-print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.pdf']))
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.pdf']),'-dpdf', '-bestfit')
 %% find activated cells
 
 tLeftTrial = celleqel2mat_padded(input.tLeftTrial);
@@ -110,9 +110,7 @@ data_f = nan(sz(1),sz(2),nTrials);
 data_targ = nan(sz(1),sz(2),nTrials);
 data_targ_late = nan(sz(1),sz(2),nTrials);
 data_resp = nan(sz(1),sz(2),nTrials);
-data_tc = nan(sz(1),sz(2),30,nTrials);
 for itrial = 1:nTrials
-    data_tc(:,:,:,itrial) = data_reg(:,:,cStimOn(itrial)-10:cStimOn(itrial)+19);
     data_f(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)-20:cStimOn(itrial)-1),3);
     data_targ(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)+5:cStimOn(itrial)+25),3);
     data_targ_late(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)+5+ceil(input.stimOnTimeMs./frame_rate):cStimOn(itrial)+25+ceil(input.stimOnTimeMs./frame_rate)),3);
@@ -158,7 +156,7 @@ mask_all = zeros(sz(1), sz(2));
 mask_data = data_dfof;
 
 for iStim = 1:size(data_dfof,3)
-    mask_data_temp = mask_data(:,:,end+1-iStim);
+    mask_data_temp = mask_data(:,:,iStim);
     mask_data_temp(find(mask_exp >= 1)) = 0;
     bwout = imCellEditInteractive(mask_data_temp);
     mask_all = mask_all+bwout;
@@ -266,8 +264,12 @@ for iCell = 1:nCells
        hold on;
     end
     vline(([resp_win(1) resp_win(end)]-20)*(1000/frame_rate))
-    if find(good_ind_stim == iCell)
-        good_str = 'Resp';
+    if find(find(sum(h_stim,1)== 2) == iCell)
+        good_str = 'Resp Both';
+    elseif find(good_ind_stim_side{1} == iCell)
+        good_str = 'Resp Contra';
+    elseif find(good_ind_stim_side{2} == iCell)
+        good_str = 'Resp Ipsi';
     else
         good_str = 'Not resp';
     end
@@ -287,16 +289,23 @@ for iCell = 1:nCells
            indS = intersect(find(tGratingContrast == cons(icon)), intersect(find(SIx), find(tLeftTrial == iS-1)));
            plot(tt,nanmean(data_stim_dfof(:,iCell,indS),3),'Color',cmap(icon+((iS-1)*ncon),:));
            hold on;
-           if find(good_ind_stim == iCell)
-                good_str = 'Resp';
-           else
+           if find(find(sum(h_stim,1)== 2) == iCell)
+                good_str = 'Resp Both';
+            elseif find(good_ind_stim_side{1} == iCell)
+                good_str = 'Resp Contra';
+            elseif find(good_ind_stim_side{2} == iCell)
+                good_str = 'Resp Ipsi';
+            else
                 good_str = 'Not resp';
-           end
-           title(good_str)
+            end
+           %title(good_str)
+           axis off
         end
     end
 end
 suptitle([mouse ' ' date '- stimAlign- by side and contrast- blue is right; red is left'])
+h=gcf;
+set(h,'PaperOrientation','landscape');
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimAlignResp_bySide&Contrast_byCell.pdf']), '-dpdf', '-bestfit')
 
 % for iCell = 1:nCells
@@ -539,7 +548,8 @@ end
 %% Wheel analysis
 
 Iix = find(strcmp(input.trialOutcomeCell, 'ignore'));
-Tix = setdiff(1:length(input.trialOutcomeCell), Iix);
+Nix = find(celleqel2mat_padded(input.didNoGo));
+Tix = setdiff(1:length(input.trialOutcomeCell), [Nix Iix]);
 maxD = max(cell2mat(input.tDecisionTimeMs(Tix)),[],2);
 qVals_final = nan(18001, uint16(length(input.trialOutcomeCell)));
 qTimes_act = nan(18001, uint16(length(input.trialOutcomeCell)));
@@ -596,34 +606,34 @@ for it = 1:30
 end
 
 
-SIx = strcmp(input.trialOutcomeCell, 'success');
-MIx = strcmp(input.trialOutcomeCell, 'incorrect');
-left = cell2mat(input.tLeftTrial);
+SIx = setdiff(find(strcmp(input.trialOutcomeCell, 'success')),Nix);
+MIx = setdiff(find(strcmp(input.trialOutcomeCell, 'incorrect')),Nix);
+left = celleqel2mat_padded(input.tLeftTrial);
 maxR = input.reactionTimeMs;
-lowR = intersect(find(cell2mat(input.tDecisionTimeMs)<maxR), find(cell2mat(input.tDecisionTimeMs)>minR));
+lowR = intersect(find(celleqel2mat_padded(input.tDecisionTimeMs)<maxR), find(celleqel2mat_padded(input.tDecisionTimeMs)>minR));
 
 qVals_offset = bsxfun(@minus, qVals_final, qVals_final(8001,:));
 figure;
 subplot(2,2,1)
-plot(qTimes_final, qVals_offset(:,intersect(lowR, intersect(find(SIx),find(left)))))
+plot(qTimes_final, qVals_offset(:,intersect(lowR, intersect(SIx,find(left)))))
 xlim([-500 2000])
 vline(minR)
 title('Correct Left Trials')
 
 subplot(2,2,2)
-plot(qTimes_final, qVals_offset(:,intersect(lowR, intersect(find(SIx),find(left==0)))))
+plot(qTimes_final, qVals_offset(:,intersect(lowR, intersect(SIx,find(left==0)))))
 xlim([-500 2000])
 vline(minR)
 title('Correct Right Trials')
 
 subplot(2,2,3)
-plot(qTimes_final, qVals_offset(:,intersect(lowR, intersect(find(MIx),find(left)))))
+plot(qTimes_final, qVals_offset(:,intersect(lowR, intersect(MIx,find(left)))))
 xlim([-500 2000])
 vline(minR)
 title('Incorrect Left Trials')
 
 subplot(2,2,4)
-plot(qTimes_final, qVals_offset(:,intersect(lowR, intersect(find(MIx),find(left==0)))))
+plot(qTimes_final, qVals_offset(:,intersect(lowR, intersect(MIx,find(left==0)))))
 xlim([-500 2000])
 vline(minR)
 title('Incorrect Right Trials')
@@ -634,25 +644,27 @@ print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_
 
 figure
 con_str = strvcat('g', 'c', 'b', 'k');
+cons(find(cons<0.0001)) = [];
+ncon = length(cons);
 subplot(2,2,1)
-shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(find(SIx), find(left)))),2), nanstd(qVals_offset(:,(intersect(find(SIx), find(left)))),[],2)./sqrt(length(intersect(find(SIx), find(left)))),'b');
+shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(SIx, find(left)))),2), nanstd(qVals_offset(:,(intersect(SIx, find(left)))),[],2)./sqrt(length(intersect(SIx, find(left)))),'b');
 hold on;
-shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(find(SIx), find(left==0)))),2), nanstd(qVals_offset(:,(intersect(find(SIx), find(left==0)))),[],2)./sqrt(length(intersect(find(SIx), find(left==0)))),'r');
+shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(SIx, find(left==0)))),2), nanstd(qVals_offset(:,(intersect(SIx, find(left==0)))),[],2)./sqrt(length(intersect(SIx, find(left==0)))),'r');
 xlim([-500 2000])
 vline(minR)
 title('Avg all correct trials')
 
 subplot(2,2,2)
-shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(find(MIx), find(left)))),2), nanstd(qVals_offset(:,(intersect(find(MIx), find(left)))),[],2)./sqrt(length(intersect(find(MIx), find(left)))),'b');
+shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(MIx, find(left)))),2), nanstd(qVals_offset(:,(intersect(MIx, find(left)))),[],2)./sqrt(length(intersect(MIx, find(left)))),'b');
 hold on;
-shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(find(MIx), find(left==0)))),2), nanstd(qVals_offset(:,(intersect(find(MIx), find(left==0)))),[],2)./sqrt(length(intersect(find(MIx), find(left==0)))),'r');
+shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,intersect(lowR,intersect(MIx, find(left==0)))),2), nanstd(qVals_offset(:,(intersect(MIx, find(left==0)))),[],2)./sqrt(length(intersect(MIx, find(left==0)))),'r');
 xlim([-500 2000])
 vline(minR)
 title('Avg all incorrect trials')
 
 subplot(2,2,3)
 for icon = 1:ncon
-    ind = intersect(find(tGratingContrast == cons(icon)), intersect(lowR,intersect(find(SIx), find(left))));
+    ind = intersect(find(tGratingContrast == cons(icon)), intersect(lowR,intersect(SIx, find(left))));
     if length(ind)>0
         shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,ind),2), nanstd(qVals_offset(:,ind),[],2)./sqrt(length(ind)),con_str(icon));
         hold on;
@@ -664,7 +676,7 @@ title('Avg left correct trials by contrast')
 
 subplot(2,2,4)
 for icon = 1:ncon
-    ind = intersect(find(tGratingContrast == cons(icon)), intersect(lowR,intersect(find(SIx), find(left==0))));
+    ind = intersect(find(tGratingContrast == cons(icon)), intersect(lowR,intersect(SIx, find(left==0))));
     shadedErrorBar(qTimes_final, nanmean(qVals_offset(:,ind),2), nanstd(qVals_offset(:,ind),[],2)./sqrt(length(ind)),con_str(icon));
     hold on
 end
@@ -843,13 +855,13 @@ postevent_frames = ceil(post_event_time*(frame_rate/1000));
     rad_mat_decide = bsxfun(@times, rad_mat_decide, calib);
     centroid_mat_decide = bsxfun(@times,centroid_mat_decide,calib);       
     
-    save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str  '_pupil.mat']), 'Area', 'Centroid', 'frame_rate' , 'rad_mat_start','centroid_mat_start','rad_mat_decide','centroid_mat_decide', 'input', 'cDecision', 'cTrialStart' );
+    save(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str  '_pupil.mat']), 'Area', 'Centroid', 'frame_rate' , 'rad_mat_start','centroid_mat_start','rad_mat_decide','centroid_mat_decide', 'input', 'cDecision', 'cStimOn' );
 
     %% plot eyetracking data
     
-    tLeftTrial = cell2mat(input.tLeftTrial);
-tLeftResponse  = cell2mat(input.tLeftResponse);
-tRightResponse = cell2mat(input.tRightResponse);
+tLeftTrial = celleqel2mat_padded(input.tLeftTrial);
+tLeftResponse  = celleqel2mat_padded(input.tLeftResponse);
+tRightResponse = celleqel2mat_padded(input.tRightResponse);
 centroid_mat_start = permute(centroid_mat_start,[1,3,2]);
 centroid_mat_decide = permute(centroid_mat_decide,[1,3,2]);
 
@@ -857,10 +869,10 @@ rad_mat_norm = rad_mat_start./nanmean(nanmean(rad_mat_start(preevent_frames/2:pr
 centroid_mat_norm = bsxfun(@minus,centroid_mat_start,nanmean(nanmean(centroid_mat_start(preevent_frames/2:preevent_frames,:,:),1),2));
 centroid_mat_norm = permute(centroid_mat_norm,[1,3,2]);
 
-indLcorr = intersect(find(tLeftResponse),find(tLeftTrial));
-indLincorr = intersect(find(tLeftResponse),find(~tLeftTrial));
-indRcorr = intersect(find(tRightResponse),find(~tLeftTrial));
-indRincorr = intersect(find(tRightResponse),find(tLeftTrial));
+indLcorr = setdiff(intersect(find(tLeftResponse),find(tLeftTrial)),Nix);
+indLincorr = setdiff(intersect(find(tLeftResponse),find(~tLeftTrial)),Nix);
+indRcorr = setdiff(intersect(find(tRightResponse),find(~tLeftTrial)),Nix);
+indRincorr = setdiff(intersect(find(tRightResponse),find(tLeftTrial)),Nix);
 
 figure;
 subplot(3,2,1)
@@ -919,10 +931,10 @@ ylim([-.05 .15])
 suptitle([mouse ' ' date '- trial start align'])
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_byResp.pdf']),'-dpdf', '-bestfit')
 
-indLcorr = intersect(find(tLeftResponse),find(tLeftTrial));
-indLincorr = intersect(find(tLeftResponse),find(~tLeftTrial));
-indRcorr = intersect(find(tRightResponse),find(~tLeftTrial));
-indRincorr = intersect(find(tRightResponse),find(tLeftTrial));
+indLcorr = setdiff(intersect(find(tLeftResponse),find(tLeftTrial)),Nix);
+indLincorr = setdiff(intersect(find(tLeftResponse),find(~tLeftTrial)),Nix);
+indRcorr = setdiff(intersect(find(tRightResponse),find(~tLeftTrial)),Nix);
+indRincorr = setdiff(intersect(find(tRightResponse),find(tLeftTrial)),Nix);
 
 figure;
 subplot(3,2,1)
@@ -978,61 +990,63 @@ title(['Left Trials- incorrect: ' num2str(length(indLincorr)) '; Right trials- i
 ylabel('Vertical Position')
 xlabel('Time (ms)')
 ylim([-.05 .15])
-suptitle([mouse ' ' date '- trial start align'])
+suptitle([mouse ' ' date '- trial start align; left: green; right: blue'])
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_bySide.pdf']),'-dpdf', '-bestfit')
 
-probList = cell2mat(input.ProbList);
-tProbLeft = celleqel2mat_padded(input.tStimProbAvgLeft);
-col_mat = strvcat('b', 'k', 'g');
-indL_n = [];
-indR_n = [];
-figure;
-for iprob = 1:length(probList)
-    prob = probList(iprob);
-    ind = find(tProbLeft == prob);
-    ind = 1+((iprob-1)*80):80+((iprob-1)*80);
-    indL = intersect(ind, intersect(find(tLeftResponse),find(tLeftTrial)));
-    indR = intersect(ind, intersect(find(tRightResponse),find(~tLeftTrial)));
-    indL_n = [indL_n length(indL)];
-    indR_n = [indR_n length(indR)];
+if doRandProb
+    probList = cell2mat(input.ProbList);
+    tProbLeft = celleqel2mat_padded(input.tStimProbAvgLeft);
+    col_mat = strvcat('b', 'k', 'g');
+    indL_n = [];
+    indR_n = [];
+    figure;
+    for iprob = 1:length(probList)
+        prob = probList(iprob);
+        ind = find(tProbLeft == prob);
+        ind = 1+((iprob-1)*80):80+((iprob-1)*80);
+        indL = intersect(ind, intersect(find(tLeftResponse),find(tLeftTrial)));
+        indR = intersect(ind, intersect(find(tRightResponse),find(~tLeftTrial)));
+        indL_n = [indL_n length(indL)];
+        indR_n = [indR_n length(indR)];
+        subplot(3,2,1)
+        shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(rad_mat_norm(:,indL),2)', nanstd(rad_mat_norm(:,indL),[],2)./sqrt(length(indL))',col_mat(iprob));
+        hold on
+        subplot(3,2,2)
+        shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(rad_mat_norm(:,indR),2)', nanstd(rad_mat_norm(:,indR),[],2)./sqrt(length(indR))',col_mat(iprob));
+        hold on
+        subplot(3,2,3)
+        shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(squeeze(centroid_mat_norm(:,1,indL)),2)', nanstd(squeeze(centroid_mat_norm(:,1,indL)),[],2)./sqrt(length(indL))',col_mat(iprob));
+        hold on
+        subplot(3,2,4)
+        shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(squeeze(centroid_mat_norm(:,1,indR)),2)', nanstd(squeeze(centroid_mat_norm(:,1,indR)),[],2)./sqrt(length(indR))',col_mat(iprob));
+        hold on
+        subplot(3,2,5)
+        shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(squeeze(centroid_mat_norm(:,2,indL)),2)', nanstd(squeeze(centroid_mat_norm(:,2,indL)),[],2)./sqrt(length(indL))',col_mat(iprob));
+        hold on
+        subplot(3,2,6)
+        shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(squeeze(centroid_mat_norm(:,2,indR)),2)', nanstd(squeeze(centroid_mat_norm(:,2,indR)),[],2)./sqrt(length(indR))',col_mat(iprob));
+        hold on
+    end
     subplot(3,2,1)
-    shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(rad_mat_norm(:,indL),2)', nanstd(rad_mat_norm(:,indL),[],2)./sqrt(length(indL))',col_mat(iprob));
-    hold on
+    title(['Left trials- ' num2str(indL_n)])
+    ylim([.95 1.25])
+    ylabel('Radius')
     subplot(3,2,2)
-    shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(rad_mat_norm(:,indR),2)', nanstd(rad_mat_norm(:,indR),[],2)./sqrt(length(indR))',col_mat(iprob));
-    hold on
+    title(['Right trials- ' num2str(indR_n)])
+    ylim([.95 1.25])    
+    ylabel('Radius')
     subplot(3,2,3)
-    shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(squeeze(centroid_mat_norm(:,1,indL)),2)', nanstd(squeeze(centroid_mat_norm(:,1,indL)),[],2)./sqrt(length(indL))',col_mat(iprob));
-    hold on
+    ylim([-.1 .2])
+    ylabel('Horizontal Position')
     subplot(3,2,4)
-    shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(squeeze(centroid_mat_norm(:,1,indR)),2)', nanstd(squeeze(centroid_mat_norm(:,1,indR)),[],2)./sqrt(length(indR))',col_mat(iprob));
-    hold on
+    ylim([-.1 .2])
+    ylabel('Horizontal Position')
     subplot(3,2,5)
-    shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(squeeze(centroid_mat_norm(:,2,indL)),2)', nanstd(squeeze(centroid_mat_norm(:,2,indL)),[],2)./sqrt(length(indL))',col_mat(iprob));
-    hold on
+    ylim([-.1 .2])
+    ylabel('Vertical Position')
     subplot(3,2,6)
-    shadedErrorBar((1-preevent_frames:postevent_frames).*frame_rate, nanmean(squeeze(centroid_mat_norm(:,2,indR)),2)', nanstd(squeeze(centroid_mat_norm(:,2,indR)),[],2)./sqrt(length(indR))',col_mat(iprob));
-    hold on
+    ylim([-.1 .2])
+    ylabel('Vertical Position')
+    suptitle([mouse ' ' date '- trial start align; Block order: black, blue, cyan, green'])
+    print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_byBlock.pdf']),'-dpdf', '-bestfit')
 end
-subplot(3,2,1)
-title(['Left trials- ' num2str(indL_n)])
-ylim([.95 1.25])
-ylabel('Radius')
-subplot(3,2,2)
-title(['Right trials- ' num2str(indR_n)])
-ylim([.95 1.25])    
-ylabel('Radius')
-subplot(3,2,3)
-ylim([-.1 .2])
-ylabel('Horizontal Position')
-subplot(3,2,4)
-ylim([-.1 .2])
-ylabel('Horizontal Position')
-subplot(3,2,5)
-ylim([-.1 .2])
-ylabel('Vertical Position')
-subplot(3,2,6)
-ylim([-.1 .2])
-ylabel('Vertical Position')
-suptitle([mouse ' ' date '- trial start align; Block order: black, blue, cyan, green'])
-print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_startAlign_EyeTC_byBlock.pdf']),'-dpdf', '-bestfit')
