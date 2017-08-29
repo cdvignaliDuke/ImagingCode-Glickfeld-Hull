@@ -12,9 +12,15 @@
 clear
 file_info;
 
+date = {'170828'};
+mouseID = {'img034'};
+behavID = {'034'};
+runID = {'000', '001', '002'};
+irun = 1;
+
 usFacs = 100;
 behav_dir = 'Z:\Data\2P_imaging\behavior\';
-for sub = [1]%size(mouseID,2) 
+for sub = [22]%size(mouseID,2) 
     for rID = 1
         file_info;
         

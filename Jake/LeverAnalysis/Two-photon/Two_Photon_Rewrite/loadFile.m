@@ -13,7 +13,7 @@ if size(img_fn,1) ~= 0
     load(config_fn.name);
     nframes = info.config.frames;
     fprintf('loading sbx image file: %s %s\n', date{i}, img_fn);
-    data = squeeze( sbxread(img_fn,0,70249) );
+    data = squeeze( sbxread(img_fn,0,nframes) );
 else
     skip_run = 1;
     data = [];
