@@ -14,168 +14,173 @@ file_info;
 
 usFacs = 100;
 behav_dir = 'Z:\Data\2P_imaging\behavior\';
-for sub = [1]%size(mouseID,2) 
+for sub = [1] %size(mouseID,2) 
     for rID = 1
         file_info;
-        
         usFacs = 100; % upsample factor
-       
         out_dir  = fullfile('Z:', 'Analysis','Cue_reward_pairing_analysis','2P',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
- 
+        
         [img, skip_run, img_fn] = loadFile(sub, rID);
         
         if skip_run == 1
             continue
-        else
-            if ~exist(out_dir)
-                mkdir(out_dir);
-            end
-            %%
-            % not cropping images anymore
-%             if exist([out_dir, 'ROI_xy.mat'],'file') == 2
-%                 load([out_dir, 'ROI_xy.mat']);
-%             else
-%                 [ROI_x, ROI_y] = get_2P_ROI(img); % get the ROI -  must be a rectangle
-%                 save([out_dir 'ROI_xy.mat'],  'ROI_x', 'ROI_y');
-%             end
-%             %
-%             img = img(ROI_x,ROI_y,:);
-            %             img = img(:,:,22976:end);
-            %%
-            [npw, nph, nt] = size(img);
-            
-            if exist([out_dir, 'Reg_out.mat'],'file') == 2
-                load([out_dir, 'Reg_out.mat']);
-                [~,img_reg]=stackRegister_MA(img,img(:,:,1),usFacs,reg_out);
-            else
-                % find most stable reference image among the 100 randomly
-                % selected images
-                ref30 = img(:,:,randi([1,nt],1,30));
-                
-                sf = 200*100+10;
-                samp100 = img(:,:,11:200:sf);
-                dshift = [];
-                for r = 1:size(ref30,3)
-                    
-                    [reg_out,aa] = stackRegister(samp100, ref30(:,:,r));
-                    dshift = [dshift;mean(((reg_out(:,3).^2)+(reg_out(:,4).^2)))];
-                    
-                end
-               
-                min_f = find(dshift == min(dshift));
-                img_ref = ref30(:,:,min_f);
-                [reg_out, img_reg] = stackRegister(img, img_ref);
-                save([out_dir, 'Reg_out.mat'], 'reg_out','img_ref');
-                clear img
-            end
-            
-            nPCA = 500; %100 for old datasets, 500 for newer
-            img_pca = img_reg(:,:,1:2:end); % downsample in time by 2 or 5
-            nf = size(img_pca,3);
-            [mixedsig, mixedfilters, CovEvals, ~, ~, ...
-                ~] = CellsortPCA2(img_pca,[1 nf], nPCA,[], out_dir, img_fn, []);
-            %             [mixedsig, mixedfilters, CovEvals, ~, ~, ~] = CellsortPCA2(img_reg,[1 nFrames], nPCA, [], out_dir, img_fn, []);
-            
-            PCuse = 1:nPCA;
-            % to view PCs
-            %             [PCuse] = CellsortChoosePCs(mixedfilters);
-            
-            %% Compute independent components
-            mu = 0.98; % spatial temporal mix
-            nIC = 300;  %400- img90 100- img91 
-            termtol = 0.00001;
-            maxrounds = 1000;
-            
-            [ica_sig, mixedfilters, ica_A, numiter] = CellsortICA(mixedsig, ...
-                mixedfilters, CovEvals, PCuse, mu, nIC, [], termtol, maxrounds);
-            
-            icasig = permute(mixedfilters,[2,3,1]);
-            
-            save([out_dir, 'ICA.mat'], 'ica_sig', 'icasig'); 
-            
-            nIC = size(icasig,3);
-            
-            icasig = stackFilter(icasig);
-            
-            mask_cell = zeros(size(icasig));
-            sm_logical = zeros(npw,nph);
-            cluster_threshold = 95; %97- img90 97- img91   XXXXXXXXXXXX
-            
-            for ic = 1:nIC
-                icasig(:,:,ic) = imclearborder(icasig(:,:,ic));
-                sm_logical((icasig(:,:,ic)>mean([max(prctile(icasig(:,:,ic),cluster_threshold,1)) max(prctile(icasig(:,:,ic),cluster_threshold,2))])))=1;
-                sm_logical((icasig(:,:,ic)<=mean([max(prctile(icasig(:,:,ic),cluster_threshold,1)) max(prctile(icasig(:,:,ic),cluster_threshold,2))])))=0;
-                sm_logical = logical(sm_logical);
-                mask_cell(:,:,ic) = bwlabel(sm_logical);
-            end
-            
-            %                         mask_cell = zeros(size(icasig));
-            %                         for ic = 1:nIC
-            %                             bwimgcell = imCellEditInteractive(icasig(:,:,ic),[]);
-            %                             mask_cell(:,:,ic) = bwlabel(bwimgcell);
-            %                             close all
-            %                         end
-            mask_final = processMask(mask_cell);
-            
-            mask_raw = reshape(mask_final, npw, nph);
-            figure;imagesc(mask_raw);truesize
-            
-            threshold = 0.8; % correlation threshold
-            
-            [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:10:end), mask_final, threshold, out_dir);
-            
-            %% Plotting TCs
-            nmask = size(mask3D,3);
-            FrameRate = 30;
-            tc_avg = getTC(img_reg, mask3D, nmask);
-            
-            % check bad TC
-            %             ICbad = [];
-            %             saveData = 0;
-            %             kl = floormask/5);
-            %             for k = 1:kl
-            %                 plotTC(tc_avg, mask3D, reg_sum, (k-1)*5+1:k*5, FrameRate, out_dir,saveData);
-            %                 ICbad_input = input('Number of bad IC ', 's');
-            %                 ICbad = [ICbad str2num(ICbad_input)];
-            %
-            %             end
-            %             if mod(nmask,5) ~= 0
-            %                plotTC(tc_avg, mask3D, reg_sum, 5*kl+1:nmask, FrameRate, out_dir,saveData);
-            %                ICbad_input = input('Number of bad IC ', 's');
-            %                ICbad = [ICbad str2num(ICbad_input)];
-            %             end
-            %             close all
-            %             tc_avg(:,ICbad) = []; mask3D(:,:,ICbad) = [];
-            saveData = 1;
-            reg_sum = sum(img_reg,3);
-            plotTC(tc_avg, mask3D, reg_sum, 1:size(tc_avg,2), FrameRate, out_dir, saveData);
-            mask_flat = plotMask(mask3D, saveData, out_dir);
-            
-            data_corr = corrcoef(tc_avg);
-            figure; fig = imagesc(data_corr);
-            saveas(fig, [out_dir, 'data_corr.fig']);
-            print([out_dir, 'data_corr.eps'],'-depsc')
-            
-            mask_final = processMask(mask3D);
-            sz = [npw, nph];
-            save([out_dir, 'Results.mat'], 'tc_avg', 'mask_raw', 'mask_flat', 'mask3D', 'mask_final', 'data_corr');
-            save([out_dir, 'ROI_TCs.mat'],'tc_avg', 'mask_final', 'sz');
-            close all
-            
-            mouse = mouseID{sub};
-            dateID = date;
-            date = dateID{sub};
-            
-            subMat = dir([behav_dir '*' '9' mouse(end-1:end) '*' date '*']);
-            
-            load([behav_dir, subMat.name]);
-            dest = out_dir;
-            
-            getTC_events;
-            CuePair_2P_TC_quantification;
-            close all
-%             clear
         end
+        
+        [img_mat_file, laser_power_vec] = get_laser_power_data(sub, rID);
+        if ~exist(out_dir)
+            mkdir(out_dir);
+        end
+        %
+        % not cropping images anymore
+        %             if exist([out_dir, 'ROI_xy.mat'],'file') == 2
+        %                 load([out_dir, 'ROI_xy.mat']);
+        %             else
+        %                 [ROI_x, ROI_y] = get_2P_ROI(img); % get the ROI -  must be a rectangle
+        %                 save([out_dir 'ROI_xy.mat'],  'ROI_x', 'ROI_y');
+        %             end
+        %             %
+        %             img = img(ROI_x,ROI_y,:);
+        %             img = img(:,:,22976:end);
+        %% Motion registration
+        %find the most stable frame among randomly selected frames and motion register to that frame
+        [npw, nph, nt] = size(img);
+        %if reg_out already exists use that instead
+        if exist([out_dir, 'Reg_out.mat'],'file') == 2
+            load([out_dir, 'Reg_out.mat']);
+            [~,img_reg]=stackRegister_MA(img,img(:,:,1),usFacs,reg_out);
+        else
+            %restrict frame selection to frames with laser on
+            if isempty(laser_power_vec)
+                laser_power_vec = ones(1,nt);
+            end
+            laser_on_ind = find(laser_power_vec);   %frame numbers of frames with laser power on
+            frame_nums_for_ref30 = laser_on_ind(randi([1,size(laser_on_ind,2)],1,30));
+            frame_nums_for_samp100 = laser_on_ind(round(linspace(1,size(laser_on_ind,2))));
+            
+            % select 30 random frames from throughout the movie
+            ref30 = img(:,:,frame_nums_for_ref30);
+            
+            %motion register each of the 30 random frames to 100 frames from the movie. Find the one with the lowerst dshift
+            samp100 = img(:,:,frame_nums_for_samp100);
+            dshift = [];
+            for r = 1:size(ref30,3)
+                [reg_out,aa] = stackRegister(samp100, ref30(:,:,r));
+                dshift = [dshift;mean(((reg_out(:,3).^2)+(reg_out(:,4).^2)))];
+            end
+            
+            min_f = find(dshift == min(dshift));
+            img_ref = ref30(:,:,min_f);
+            [reg_out, img_reg] = stackRegister(img, img_ref);
+            save([out_dir, 'Reg_out.mat'], 'reg_out','img_ref');
+            clear img
+        end
+        
+        nPCA = 500; %100 for old datasets, 500 for newer
+        img_pca = img_reg(:,:,1:2:end); % downsample in time by 2 or 5
+        nf = size(img_pca,3);
+        [mixedsig, mixedfilters, CovEvals, ~, ~, ...
+            ~] = CellsortPCA2(img_pca,[1 nf], nPCA,[], out_dir, img_fn, []);
+        %             [mixedsig, mixedfilters, CovEvals, ~, ~, ~] = CellsortPCA2(img_reg,[1 nFrames], nPCA, [], out_dir, img_fn, []);
+        
+        PCuse = 1:nPCA;
+        % to view PCs
+        %             [PCuse] = CellsortChoosePCs(mixedfilters);
+        
+        %% Compute independent components
+        mu = 0.98; % spatial temporal mix
+        nIC = 300;  %400- img90 100- img91
+        termtol = 0.00001;
+        maxrounds = 1000;
+        
+        [ica_sig, mixedfilters, ica_A, numiter] = CellsortICA(mixedsig, ...
+            mixedfilters, CovEvals, PCuse, mu, nIC, [], termtol, maxrounds);
+        
+        icasig = permute(mixedfilters,[2,3,1]);
+        
+        save([out_dir, 'ICA.mat'], 'ica_sig', 'icasig');
+        
+        nIC = size(icasig,3);
+        
+        icasig = stackFilter(icasig);
+        
+        mask_cell = zeros(size(icasig));
+        sm_logical = zeros(npw,nph);
+        cluster_threshold = 95; %97- img90 97- img91   XXXXXXXXXXXX
+        
+        for ic = 1:nIC
+            icasig(:,:,ic) = imclearborder(icasig(:,:,ic));
+            sm_logical((icasig(:,:,ic)>mean([max(prctile(icasig(:,:,ic),cluster_threshold,1)) max(prctile(icasig(:,:,ic),cluster_threshold,2))])))=1;
+            sm_logical((icasig(:,:,ic)<=mean([max(prctile(icasig(:,:,ic),cluster_threshold,1)) max(prctile(icasig(:,:,ic),cluster_threshold,2))])))=0;
+            sm_logical = logical(sm_logical);
+            mask_cell(:,:,ic) = bwlabel(sm_logical);
+        end
+        
+        %                         mask_cell = zeros(size(icasig));
+        %                         for ic = 1:nIC
+        %                             bwimgcell = imCellEditInteractive(icasig(:,:,ic),[]);
+        %                             mask_cell(:,:,ic) = bwlabel(bwimgcell);
+        %                             close all
+        %                         end
+        mask_final = processMask(mask_cell);
+        
+        mask_raw = reshape(mask_final, npw, nph);
+        figure;imagesc(mask_raw);truesize
+        
+        threshold = 0.8; % correlation threshold
+        
+        [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:10:end), mask_final, threshold, out_dir);
+        
+        %% Plotting TCs
+        nmask = size(mask3D,3);
+        FrameRate = 30;
+        tc_avg = getTC(img_reg, mask3D, nmask);
+        
+        % check bad TC
+        %             ICbad = [];
+        %             saveData = 0;
+        %             kl = floor(nmask/5);
+        %             for k = 1:kl
+        %                 plotTC(tc_avg, mask3D, reg_sum, (k-1)*5+1:k*5, FrameRate, out_dir,saveData);
+        %                 ICbad_input = input('Number of bad IC ', 's');
+        %                 ICbad = [ICbad str2num(ICbad_input)];
+        %             end
+        %             if mod(nmask,5) ~= 0
+        %                 plotTC(tc_avg, mask3D, reg_sum, 5*kl+1:nmask, FrameRate, out_dir,saveData);
+        %                 ICbad_input = input('Number of bad IC ', 's');
+        %                 ICbad = [ICbad str2num(ICbad_input)];
+        %             end
+        %             close all
+        %             tc_avg(:,ICbad) = []; mask3D(:,:,ICbad) = [];
+        
+        saveData = 1;
+        reg_sum = sum(img_reg,3);
+        plotTC(tc_avg, mask3D, reg_sum, 1:size(tc_avg,2), FrameRate, out_dir, saveData);
+        mask_flat = plotMask(mask3D, saveData, out_dir);
+        
+        data_corr = corrcoef(tc_avg);
+        figure; fig = imagesc(data_corr);
+        saveas(fig, [out_dir, 'data_corr.fig']);
+        print([out_dir, 'data_corr.eps'],'-depsc')
+        
+        mask_final = processMask(mask3D);
+        sz = [npw, nph];
+        save([out_dir, 'Results.mat'], 'tc_avg', 'mask_raw', 'mask_flat', 'mask3D', 'mask_final', 'data_corr');
+        save([out_dir, 'ROI_TCs.mat'],'tc_avg', 'mask_final', 'sz');
+        close all
+        
+        mouse = mouseID{sub};
+        dateID = date;
+        date = dateID{sub};
+        
+        subMat = dir([behav_dir '*' mouse(end-2:end) '*' date '*']);
+        
+        load([behav_dir, subMat.name]);
+        dest = out_dir;
+        
+        getTC_events;
+        CuePair_2P_TC_quantification;
+        close all
+        %             clear
     end
 end
 
