@@ -188,6 +188,8 @@ tt = [-9:30]*100;
             ii = ii+1;
         end
     end
+        print('Z:\home\lindsey\Duke\Concepts\BootcampLab2017\V1summaryAllData.pdf','-dpdf','-bestfit')
+
     
     figure;
     for iIcon = 1:ncon_I
@@ -198,14 +200,13 @@ tt = [-9:30]*100;
                 errorbar(cons, data_tc_ori_avg(1,:,iIcon,iori), data_tc_ori_sem(1,:,iIcon,iori),'-o')
                 hold on;
             end
-            ylim([-0.02 0.1])
-            xlim([-0.2 1.2])
-            xlabel('Contrast')
         end
     end
-    text(0,0.08,['p-noIpsiVsHor: ' num2str(p_noIpsiVsHor)])
-    text(0,0.07,['p-noIpsiVsVert: ' num2str(p_noIpsiVsVert)])
-    text(0,0.06,['p-HorVsVert: ' num2str(p_HorVsVert)])
+    ylim([-0.02 0.1])
+    xlim([-0.2 1.2])
+    xlabel('Contrast')
+    ylabel('dF/F')
+    legend({'noIpsi', 'vertical', 'horizontal'},'Location','southeast')
     
     iarea = 1;
     ind_con = find(rightGratingContrast == cons(1));
@@ -218,26 +219,48 @@ tt = [-9:30]*100;
     ind_Hor = intersect(ind_Ipsi, find(leftGratingOrientation == oris(2)));
     
     [h_noIpsiVsVert p_noIpsiVsVert] = ttest2(mean(data_tc_dfof(13:30,1,ind_noIpsi),1),mean(data_tc_dfof(13:30,1,ind_Vert),1));
-        [h_noIpsiVsHor p_noIpsiVsHor] = ttest2(mean(data_tc_dfof(13:30,1,ind_noIpsi),1),mean(data_tc_dfof(13:30,1,ind_Hor),1));
-        [h_HorVsVert p_HorVsVert] = ttest2(mean(data_tc_dfof(13:30,1,ind_Hor),1),mean(data_tc_dfof(13:30,1,ind_Vert),1));
-
+    [h_noIpsiVsHor p_noIpsiVsHor] = ttest2(mean(data_tc_dfof(13:30,1,ind_noIpsi),1),mean(data_tc_dfof(13:30,1,ind_Hor),1));
+    [h_HorVsVert p_HorVsVert] = ttest2(mean(data_tc_dfof(13:30,1,ind_Hor),1),mean(data_tc_dfof(13:30,1,ind_Vert),1));
+    text(-.1,0.08,['noIpsiVsHor: p=' num2str(chop(p_noIpsiVsHor,2))])
+    text(-.1,0.07,['noIpsiVsVert: p=' num2str(chop(p_noIpsiVsVert,2))])
+    text(-.1,0.06,['HorVsVert: p=' num2str(chop(p_HorVsVert,2))])
     
-        for iIcon = 1:ncon_I
-            ind2 = intersect(ind, find(leftGratingContrast == iIcon-1));
-            for iori = 1:nori_I
-                if iIcon == 1
-                    ind3 = ind2;
-                    if iori == 2
-                        continue
-                    end
-                else
-                    ind3 = intersect(ind2, find(leftGratingOrientation == oris(iori)));
-                end
-                n(icon,iIcon,iori) = length(ind3);
-                data_tc_ori(:,:,icon,iIcon,iori) = ttest(mean(data_tc_dfof(13:30,iarea,ind),1);
-                data_tc_ori_avg(:,icon,iIcon,iori) = squeeze(mean(mean(data_tc_dfof(13:30,iarea,ind3),1),3));
-    %end
-
+    iarea = 1;
+    ind_con = find(rightGratingContrast == cons(2));
+    iIcon = 1;
+    ind_noIpsi = intersect(ind_con, find(leftGratingContrast == iIcon-1));
+    iIcon = 2;
+    ind_Ipsi = intersect(ind_con, find(leftGratingContrast == iIcon-1));
+    iori = 1;
+    ind_Vert = intersect(ind_Ipsi, find(leftGratingOrientation == oris(1)));
+    ind_Hor = intersect(ind_Ipsi, find(leftGratingOrientation == oris(2)));
+    
+    [h_noIpsiVsVert p_noIpsiVsVert] = ttest2(mean(data_tc_dfof(13:30,1,ind_noIpsi),1),mean(data_tc_dfof(13:30,1,ind_Vert),1));
+    [h_noIpsiVsHor p_noIpsiVsHor] = ttest2(mean(data_tc_dfof(13:30,1,ind_noIpsi),1),mean(data_tc_dfof(13:30,1,ind_Hor),1));
+    [h_HorVsVert p_HorVsVert] = ttest2(mean(data_tc_dfof(13:30,1,ind_Hor),1),mean(data_tc_dfof(13:30,1,ind_Vert),1));
+    text(.4,0.08,['p=' num2str(chop(p_noIpsiVsHor,2))])
+    text(.4,0.07,['p=' num2str(chop(p_noIpsiVsVert,2))])
+    text(.4,0.06,['p=' num2str(chop(p_HorVsVert,2))])
+    
+    iarea = 1;
+    ind_con = find(rightGratingContrast == cons(3));
+    iIcon = 1;
+    ind_noIpsi = intersect(ind_con, find(leftGratingContrast == iIcon-1));
+    iIcon = 2;
+    ind_Ipsi = intersect(ind_con, find(leftGratingContrast == iIcon-1));
+    iori = 1;
+    ind_Vert = intersect(ind_Ipsi, find(leftGratingOrientation == oris(1)));
+    ind_Hor = intersect(ind_Ipsi, find(leftGratingOrientation == oris(2)));
+    
+    [h_noIpsiVsVert p_noIpsiVsVert] = ttest2(mean(data_tc_dfof(13:30,1,ind_noIpsi),1),mean(data_tc_dfof(13:30,1,ind_Vert),1));
+    [h_noIpsiVsHor p_noIpsiVsHor] = ttest2(mean(data_tc_dfof(13:30,1,ind_noIpsi),1),mean(data_tc_dfof(13:30,1,ind_Hor),1));
+    [h_HorVsVert p_HorVsVert] = ttest2(mean(data_tc_dfof(13:30,1,ind_Hor),1),mean(data_tc_dfof(13:30,1,ind_Vert),1));
+    text(.9,0.08,['p=' num2str(chop(p_noIpsiVsHor,2))])
+    text(.9,0.07,['p=' num2str(chop(p_noIpsiVsVert,2))])
+    text(.9,0.06,['p=' num2str(chop(p_HorVsVert,2))])
+    
+    print('Z:\home\lindsey\Duke\Concepts\BootcampLab2017\V1summaryByIpsiStim.pdf','-dpdf','-bestfit')
+    
     
             
                     
