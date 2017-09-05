@@ -48,7 +48,7 @@ if exist('usfac')~=1, usfac=1; end
 
 c = class(buf1ft);
 
-assert(strcmp(c,'single')||strcmp(c,'double'),'buf1t should be of class single or double');
+assert(strcmp(c,'single')||strcmp(c,'double')||strcmp(c, 'gpuArray'),'buf1t should be of class single or double or gpuArray');
 
 % Compute error for no pixel shift
 if usfac == 0,

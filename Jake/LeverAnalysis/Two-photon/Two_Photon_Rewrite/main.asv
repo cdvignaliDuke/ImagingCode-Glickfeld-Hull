@@ -50,18 +50,16 @@ for sub = [1] %size(mouseID,2)
             [~,img_reg]=stackRegister_MA(img,img(:,:,1),usFacs,reg_out);
         else
             %restrict frame selection to frames with laser on
-            if isempty(laser_power_vec)
-                laser_power_vec = ones(1,nt);
+            if ~isempty(laser_power_vec)
+                laser_on_ind = find(laser_power_vec);
+                rand_frame_vec = 
             end
-            laser_on_ind = find(laser_power_vec);   %frame numbers of frames with laser power on
-            frame_nums_for_ref30 = laser_on_ind(randi([1,size(laser_on_ind,2)],1,30));
-            frame_nums_for_samp100 = laser_on_ind(round(linspace(1,size(laser_on_ind,2))));
             
             % select 30 random frames from throughout the movie
-            ref30 = img(:,:,frame_nums_for_ref30);
+            ref30 = img(:,:,randi([1,nt],1,30));
             
             %motion register each of the 30 random frames to 100 frames from the movie. Find the one with the lowerst dshift
-            samp100 = img(:,:,frame_nums_for_samp100);
+            samp100 = img(:,:,11:round(nt/110):nt);
             dshift = [];
             for r = 1:size(ref30,3)
                 [reg_out,aa] = stackRegister(samp100, ref30(:,:,r));

@@ -39,7 +39,7 @@ tic
 
 
 %-----------------------
-c = class(rt);
+c = 'double';
 
 global nt useframes jj jjind
 useframes = setdiff((flims(1):flims(2)), badframes);
@@ -151,21 +151,14 @@ toc
                 end
             end
         else
-            if strcmp(sclass, 'gpuArray')
-                [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space));
-            else
-                [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space, 'bilinear' ));
-            end
-            
+%             [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space, 'bilinear' ));
+            [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space));
             mov = zeros(pixw_dsamp, pixh_dsamp, nt, sclass);
            
             for jjind=1:nt
                 jj = useframes(jjind);
-                if strcmp(sclass, 'gpuArray')
-                    mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space);
-                else
-                    mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space, 'bilinear' );
-                end
+%                 mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space, 'bilinear' );
+                mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space);
                 if mod(jjind,500)==1
                     fprintf(' Read frame %4.0f out of %4.0f; ', jjind, nt)
                     toc
@@ -225,23 +218,15 @@ toc
                 end
             end
         else
-
-            if strcmp(sclass, 'gpuArray')
-                [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space));
-            else
-                [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space, 'bilinear' ));
-            end
-            
+%             [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space, 'bilinear' ));
+            [pixw_dsamp,pixh_dsamp] = size(imresize( rt(:,:,1), 1/dsamp_space));
             mov = zeros(pixw_dsamp, pixh_dsamp, nt, sclass);
             
             
             for jjind=1:nt
                 jj = useframes(jjind);
-                if strcmp(sclass, 'gpuArray')
-                    mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space);
-                else
-                    mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space, 'bilinear' );
-                end
+%                 mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space, 'bilinear' );
+                mov(:,:,jjind) = imresize( rt(:,:,jj), 1/dsamp_space);
                 if mod(jjind,500)==1
                     fprintf(' Read frame %4.0f out of %4.0f; ', jjind, nt)
                     toc
