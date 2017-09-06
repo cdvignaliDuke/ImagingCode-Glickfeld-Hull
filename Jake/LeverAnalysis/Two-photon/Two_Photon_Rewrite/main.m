@@ -68,6 +68,7 @@ for sub = [1] %size(mouseID,2)
                 dshift = [dshift;mean(((reg_out(:,3).^2)+(reg_out(:,4).^2)))];
             end
             
+            %pick the frame which had the lowest dshift and motion register full movie to that frame
             min_f = find(dshift == min(dshift));
             img_ref = ref30(:,:,min_f);
             [reg_out, img_reg] = stackRegister(img, img_ref);
@@ -75,37 +76,40 @@ for sub = [1] %size(mouseID,2)
             clear img
         end
         
+        %% Compute principle components 
         nPCA = 500; %100 for old datasets, 500 for newer
-        img_pca = img_reg(:,:,1:2:end); % downsample in time by 2 or 5
+        img_pca = img_reg(:,:,laser_on_ind); %only run PCA on frames with laser power on
+        if size(img_pca, 3) > 65000 % downsample in time by 2 or 5
+            img_pca = img_pca(:,:,1:2:end);
+        end
         nf = size(img_pca,3);
         [mixedsig, mixedfilters, CovEvals, ~, ~, ...
             ~] = CellsortPCA2(img_pca,[1 nf], nPCA,[], out_dir, img_fn, []);
-        %             [mixedsig, mixedfilters, CovEvals, ~, ~, ~] = CellsortPCA2(img_reg,[1 nFrames], nPCA, [], out_dir, img_fn, []);
-        
         PCuse = 1:nPCA;
         % to view PCs
         %             [PCuse] = CellsortChoosePCs(mixedfilters);
         
         %% Compute independent components
+        %set variable values
         mu = 0.98; % spatial temporal mix
         nIC = 300;  %400- img90 100- img91
         termtol = 0.00001;
         maxrounds = 1000;
         
+        %run ICA and save outputs
         [ica_sig, mixedfilters, ica_A, numiter] = CellsortICA(mixedsig, ...
             mixedfilters, CovEvals, PCuse, mu, nIC, [], termtol, maxrounds);
-        
         icasig = permute(mixedfilters,[2,3,1]);
-        
         save([out_dir, 'ICA.mat'], 'ica_sig', 'icasig');
         
         nIC = size(icasig,3);
-        
         icasig = stackFilter(icasig);
         
+        %% Create mask and process ICA outputs
+        cluster_threshold = 95; %97- img90 97- img91   XXXXXXXXXXXX
+        threshold = 0.8; % correlation threshold
         mask_cell = zeros(size(icasig));
         sm_logical = zeros(npw,nph);
-        cluster_threshold = 95; %97- img90 97- img91   XXXXXXXXXXXX
         
         for ic = 1:nIC
             icasig(:,:,ic) = imclearborder(icasig(:,:,ic));
@@ -122,11 +126,8 @@ for sub = [1] %size(mouseID,2)
         %                             close all
         %                         end
         mask_final = processMask(mask_cell);
-        
         mask_raw = reshape(mask_final, npw, nph);
-        figure;imagesc(mask_raw);truesize
-        
-        threshold = 0.8; % correlation threshold
+        figure; imagesc(mask_raw); truesize;
         
         [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:10:end), mask_final, threshold, out_dir);
         
@@ -154,7 +155,9 @@ for sub = [1] %size(mouseID,2)
         
         saveData = 1;
         reg_sum = sum(img_reg,3);
+        %plot TCs with and without the frames without laser power
         plotTC(tc_avg, mask3D, reg_sum, 1:size(tc_avg,2), FrameRate, out_dir, saveData);
+        plotTC(tc_avg(:,laser_on_ind), mask3D, reg_sum, 1:length(laser_on_ind), FrameRate, out_dir, 0);
         mask_flat = plotMask(mask3D, saveData, out_dir);
         
         data_corr = corrcoef(tc_avg);
