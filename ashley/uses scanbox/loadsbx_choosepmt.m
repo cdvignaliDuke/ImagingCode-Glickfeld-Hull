@@ -1,4 +1,4 @@
-function data = loadsbx_choosepmt(pmt,mouse,expdate,imgfolder,fname,varargin)
+function [data,nframes] = loadsbx_choosepmt(pmt,mouse,expdate,imgfolder,fname,varargin)
 
 %% Set current directory to imaging data location
 fdir = fullfile('Z:\data\', mouse, 'two-photon imaging',expdate,imgfolder);
@@ -9,10 +9,8 @@ imgMatFile = [fname '.mat'];
 load(imgMatFile);
 
 %% get number of frames
-if nargout > 1
-    if ~isempty(varargin)
-        nframes = varargin{1}; 
-    end
+if ~isempty(varargin)
+    nframes = varargin{1}; 
 else
     nframes = info.config.frames;
 end

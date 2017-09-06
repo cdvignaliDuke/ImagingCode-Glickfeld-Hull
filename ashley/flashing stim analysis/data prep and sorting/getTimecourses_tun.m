@@ -34,7 +34,6 @@ clear data_down
 
 %% load outs and re-regester data
 load(fullfile(fn,'regOuts&Img.mat'));
-
 [out data_reg] = stackRegister_MA(data_sub,[],[],out_tun);
 
 %% load mask

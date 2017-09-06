@@ -3,7 +3,7 @@ close all
 ds = '_V1gad';
 rc = behavConstsAV;
 eval(['awFSAVdatasets' ds])
-slct_expt = 2;
+slct_expt = 6;
 %%
 iexp = slct_expt;
 subnum = expt(iexp).SubNum;
@@ -18,10 +18,15 @@ fName = [retFolder '_000_000'];
 retData = loadsbx_choosepmt(1,mouse,expDate,retFolder,fName);
 
 fn = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging', expDate);
-load(fullfile(fn,'regOuts&Img.mat'))
-
-retDataDownSampled = stackGroupProject(retData,downSampleRate);
-[~,retDataRegistered] = stackRegister(retDataDownSampled,data_corr_img);
+if expt(iexp).greenredsimultaneous
+    load(fullfile(fn,'reg2RedOuts&Img.mat'))
+    retDataDownSampled = stackGroupProject(retData,downSampleRate);
+    [~,retDataRegistered] = stackRegister(retDataDownSampled,image4Reg);
+else
+    load(fullfile(fn,'regOuts&Img.mat'))
+    retDataDownSampled = stackGroupProject(retData,downSampleRate);
+    [~,retDataRegistered] = stackRegister(retDataDownSampled,data_corr_img);
+end
 
 %% get trial types
 tAzimuth = cell2mat_padded(visStimData.tGratingAzimuthDeg);

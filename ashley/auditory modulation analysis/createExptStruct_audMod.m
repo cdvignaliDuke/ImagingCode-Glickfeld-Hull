@@ -1,11 +1,10 @@
 clear all
 close all
-ds = '_V16s';
+ds = '_V1pairedpulse';
 doRedOnly = 0;
 motionThreshold = 0.05;
 %%
 rc = behavConstsAV;
-awData_temp
 eval(['awData_audMod' ds])
 ms = struct;
 for iexp = 1:size(expt,2)
@@ -40,7 +39,7 @@ for iexp = 1:size(expt,2)
         else
             load(fullfile(fn,'timecourses.mat'))
         end
-        input = Load_SBXdataPlusMWorksData(subnum,expDate,runTime,mouse,runFolder,fName);
+        input = loadMworksFile(subnum,expDate,runTime);
         
 %         plotExptAudDelay(input,data_tc_subnp,mouse,expDate,irun)
         % combine data

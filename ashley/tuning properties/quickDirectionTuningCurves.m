@@ -13,7 +13,7 @@ fn = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging', expDate);
 fName = [dirFolder '_000_000'];
 [input] = Load_SBXdataPlusMWorksData(SubNum,expDate,dirTime,mouse,dirFolder,fName);  
 
-load(fullfile(fntun,'timecourses.mat'))
+% load(fullfile(fntun,'timecourses.mat'))
 
 %% some expt variables
 if iscell(input.nScansOn)

@@ -26,7 +26,7 @@ for irun = 1:expt(iexp).nrun
     runFolder = expt(iexp).runs(irun,:);
     expTime = expt(iexp).time_mat(irun,:);
     fName = [runFolder '_000_000'];
-        [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);
+    [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);
     disp(t)
     
     if irun == 1

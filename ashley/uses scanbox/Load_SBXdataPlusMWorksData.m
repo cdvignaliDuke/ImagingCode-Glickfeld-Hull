@@ -18,13 +18,19 @@ load(imgMatFile);
 if nargout > 1
 %new datasets
 if ~isempty(varargin)
-    nframes = varargin{1};    
+    nframes = varargin{1}; 
+    if isempty(nframes)
+        nframes = info.config.frames;
+    end
 else
     nframes = info.config.frames;
 end
 
 tic
 data = sbxread(fName,0,nframes);
+if size(data,1) > 1
+    data = data(1,:,:,:);
+end
 t = toc;
 % pmt = 1; %1 = green 2 = red
 % data = squeeze(data(pmt,:,:,:,:));
