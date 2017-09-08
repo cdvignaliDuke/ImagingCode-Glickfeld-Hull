@@ -59,7 +59,7 @@ for k = 1:N
 	bwRP = bwRP([bwRP.Eccentricity] >= maxRoiEccentricity); %  Enforce Elliptical SHAPE
 % 	bwRP = bwRP([bwRP.Perimeter]./([bwRP.Area]) < maxPerimOverSqArea); %  Enforce LOOSELY CIRCULAR/SQUARE SHAPE
 % 	bwRP = bwRP([bwRP.Perimeter]./sqrt([bwRP.Area]) > minPerimOverSqArea); %  Enforce NON-HOLINESS (SELF-FULFILLMENT?)
-    bwRP = bwRP([bwRP.Orientation] < 10 & [bwRP.Orientation] > -65); % orientation of cells, [0,65] for img92, 
+    bwRP = bwRP([bwRP.Orientation] < 10 & [bwRP.Orientation] > -65); % orientation of cells
 	if isempty(bwRP)
 		continue
 	end

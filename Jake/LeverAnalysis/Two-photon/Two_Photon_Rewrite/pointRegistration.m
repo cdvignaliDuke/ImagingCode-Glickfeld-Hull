@@ -18,7 +18,7 @@
 %% Thresholding Method
 % session 1, do not need many frames
 % homomorphic filtering remove multiplicative noise
-[data, pre] = homomorphicFilter(img_reg(:,:,1:10000));
+[data, pre] = homomorphicFilter(img_reg(:,:,1:10:120000/2));
 % select rois based on intensity
 roi = detectSingleFrameRois(data);
 % combine/remove overlapped cells 
@@ -28,7 +28,7 @@ threshold = 0.8;
 [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:10000), mask_final, threshold, out_dir);
 
 % session 2
-[data2, pre] = homomorphicFilter(img_reg2(:,:,1:10000));
+[data2, pre] = homomorphicFilter(img_reg2(:,:,1:10:130000/2));
 roi_2 = detectSingleFrameRois(data2);
 mask_final_2 = processMaskpfgc(roi_2);
 threshold = 0.8;
@@ -50,8 +50,8 @@ end
 
 % the amount of xy shift based on visual inspection, can adjust after 
 % viewing the merged mask in ImageJ
-xshift = -6; %img92 ((87 - 107) + (99 - 120))/2; img90 -6;
-yshift = 12;%img92 ((184 - 192) + (60 - 66))/2 or -24; img90 12;
+xshift = -6; %img92 ((87 - 107) + (99 - 120))/2 or -24; img90 -6;
+yshift = 12;%img92 ((184 - 192) + (60 - 66))/2 ; img90 12;
 img_reg_1000_1 = img_reg(:,:,1:1000);
 img_reg_1000_2 = img_reg2(:,:,1:1000);
 
