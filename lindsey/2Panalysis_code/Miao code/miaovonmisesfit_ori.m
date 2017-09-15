@@ -50,9 +50,9 @@ b_ub = b(1);
 k1_lb = .3466;
 k1_ub = 4;
 R1_lb = 0;
-R1_ub = 2*b(1);
-u1_lb = 0;
-u1_ub = pi;
+R1_ub = b(1);
+u1_lb = maxtheta-(pi/ntheta);
+u1_ub = maxtheta+(pi/ntheta);
 
 
 u1_guess=maxtheta;% try the first peak 
