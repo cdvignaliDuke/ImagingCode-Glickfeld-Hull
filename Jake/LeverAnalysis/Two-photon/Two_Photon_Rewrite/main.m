@@ -21,6 +21,10 @@ for sub = [1] %size(mouseID,2)
         out_dir  = fullfile('Z:', 'Analysis','Cue_reward_pairing_analysis','2P',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
         
         [img, skip_run, img_fn] = loadFile(sub, rID);
+        if length(size(img))==4;
+            img2 = img(1,:,:,:);
+            img= squeeze(img(2,:,:,:));
+        end
         
         if skip_run == 1
             continue

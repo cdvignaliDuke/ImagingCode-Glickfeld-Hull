@@ -1,12 +1,12 @@
 
 
 clear;
-cd('Z:\Data\2P_imaging\170911_img033\img033');
+cd('Z:\Data\2P_imaging\170912_img033\img033');
 %cd('Z:\Data\2P_imaging\img036\170910_img036\img036');
-fname = 'img033_000_000';
+fname = 'img033_000_004';
 for ii = 1%:20
     data = squeeze(sbxread(fname,0,500));
-    data_avg = mean(data,3);
+    c
     data_max= max(data,[],3);
     figure; imagesc(data_avg); colormap gray; truesize;
     title(['30HZ img033 170911 recon avg frames 1:1000']);

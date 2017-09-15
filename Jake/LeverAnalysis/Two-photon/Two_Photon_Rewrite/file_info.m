@@ -21,3 +21,9 @@ mouseID = {'img030'};
 behavID = {'030'};
 runID = {'000', '001', '002'};
 irun = 1;
+
+date = {'170911'};
+mouseID = {'img036'};
+behavID = {'036'};
+runID = {'000', '001', '002'};
+irun = 1;

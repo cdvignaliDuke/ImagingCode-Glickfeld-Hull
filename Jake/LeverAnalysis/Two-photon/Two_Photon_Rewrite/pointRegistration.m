@@ -1,4 +1,6 @@
 %% control point method
+%selects three points and uses those to register the image. Linear
+%registration. Lindsey. 
 % data_avg = mean(img2,3);
 % target_avg = mean(img2,3);
 % AVG = double(data_avg);
