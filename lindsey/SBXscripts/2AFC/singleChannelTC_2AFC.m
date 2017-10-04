@@ -73,7 +73,7 @@ plot(smooth(MIx,10));
 %% Crop data and input struct
 %change trial range in trialChopper
 input = trialChopper(input,[1 415]);
-data = data(:,:,1:input.counterValues{end}(end));
+data = data(:,:,input.counterValues{1}(1):input.counterValues{end}(end));
 
 %% Choose register interval
 nep = floor(size(data,3)./10000);
