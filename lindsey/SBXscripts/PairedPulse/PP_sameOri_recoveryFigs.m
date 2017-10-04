@@ -218,6 +218,8 @@ end
 
 %average all cells by interval all directions
 tt = (1-20:1+99).*(1000/frameRateHz);
+b_tt = (base_win-20).*(1000/frameRateHz);
+r_tt = (resp_win-20).*(1000/frameRateHz);
 figure;
 temp_resp_tc = bsxfun(@minus,data_dfof(:,:,:,:),nanmean(data_dfof(base_win,:,:,:),1));
 ind_off = [];
@@ -263,6 +265,7 @@ for ioff = 1:noff
     hold on;
 end
 ylim([0 1.2])
+subplot(2,1,1)
 suptitle([mouse ' ' date '- ' num2str(length(good_ind)) ' cells- ' num2str(ind_off)]) 
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_avgResp_byInt_allDir_norm.pdf']),'-dpdf','-bestfit')
 

@@ -1,13 +1,39 @@
 % current datasets
-%% V1
+%% V1 old
+dataset = '';
 mouse_mat = strvcat('i684', 'i689');
 date_mat = strvcat('170316', '170327');
 run_str_mat = strvcat('runs-002-004','runs-002-003');
 
+%% V1 new
+dataset = 'V1new_';
+mouse_mat = strvcat('i720','i738','i739');
+date_mat = strvcat('170802','170710','170802');
+run_str_mat = strvcat('runs-002-003','runs-002-003','runs-002-003');
+
+%% V1 all
+dataset = 'V1all_';
+mouse_mat = strvcat('i684', 'i689','i720','i738','i739');
+date_mat = strvcat('170316', '170327','170802','170710','170802');
+run_str_mat = strvcat('runs-002-004','runs-002-003','runs-002-003','runs-002-003','runs-002-003');
+
+%% LM
+dataset = 'LM_';
+mouse_mat = strvcat('i720','i739','i738');
+date_mat = strvcat('170704','170711','170712');
+run_str_mat = strvcat('runs-003-004','runs-002-003','runs-002-003');
+
 %% PM
-mouse_mat = strvcat('i720', 'i739');
-date_mat = strvcat('170628', '170630');
-run_str_mat = strvcat('runs-002-003','runs-003-004');
+dataset = 'PM_';
+mouse_mat = strvcat('i720', 'i739', 'i738');
+date_mat = strvcat('170628', '170630', '170705');
+run_str_mat = strvcat('runs-002-003','runs-003-004','runs-002-003');
+
+%% AL
+dataset = 'AL_';
+mouse_mat = strvcat('i720', 'i738', 'i739');
+date_mat = strvcat('170730', '170730', '170731');
+run_str_mat = strvcat('runs-002-003','runs-003-004','runs-002-003');
 
 %%
 nexp = size(mouse_mat,1);
@@ -116,6 +142,8 @@ fit_plot = 1-A.*exp(x_range./(-tau));
 hold on; plot(x_range,fit_plot,'r');
 title(['All dirs- No sub- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
 ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
 subplot(2,2,2)
 errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_maxdir_all(good_ind_all,:),1)),squeeze(std(norm_maxdir_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all))), 'ok');
 [tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_maxdir_all(good_ind_all,:),1)');
@@ -124,6 +152,8 @@ hold on; plot(x_range,fit_plot,'r');
 title(['Max dirs only- No sub- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
 ylim([0 1.2])
 ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
 subplot(2,2,3)
 errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_all_sub(good_ind_all,:),1)),squeeze(std(norm_all_sub(good_ind_all,:),[],1)./sqrt(length(good_ind_all))), 'ok');
 [tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_all_sub(good_ind_all,:),1)');
@@ -131,13 +161,17 @@ fit_plot = 1-A.*exp(x_range./(-tau));
 hold on; plot(x_range,fit_plot,'r');
 title(['All dirs- Sub- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
 ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
 subplot(2,2,4)
 errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_maxdir_all_sub(good_ind_all,:),1)),squeeze(std(norm_maxdir_all_sub(good_ind_all,:),[],1)./sqrt(length(good_ind_all))), 'ok');
 [tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_maxdir_all_sub(good_ind_all,:),1)');
 fit_plot = 1-A.*exp(x_range./(-tau));
 hold on; plot(x_range,fit_plot,'r');title(['Max dirs only- Sub- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
 ylim([0 1.2])
-suptitle(['Paired Pulse- Same Ori- ' mouse_str ' - n = ' num2str(length(good_ind_all)) ' Cells'])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+suptitle(['Paired Pulse- Same Ori- ' dataset(1,1:length(dataset)-1) ' ' mouse_str ' - n = ' num2str(length(good_ind_all)) ' Cells'])
 
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'ppAdaptation_summary.pdf'),'-dpdf','-fillpage')
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'ppAdaptation_summary.mat'),'norm_all_avg', 'norm_all_sem', 'mouse_mat', 'date_mat', 'run_str_mat', 'norm_all', 'norm_all_sub', 'norm_maxdir_all', 'norm_maxdir_all_sub', 'good_ind_all');
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', [dataset 'ppAdaptation_summary.pdf']),'-dpdf','-fillpage')
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', [dataset 'ppAdaptation_summary.mat']),'norm_all_avg', 'norm_all_sem', 'mouse_mat', 'date_mat', 'run_str_mat', 'norm_all', 'norm_all_sub', 'norm_maxdir_all', 'norm_maxdir_all_sub', 'good_ind_all');

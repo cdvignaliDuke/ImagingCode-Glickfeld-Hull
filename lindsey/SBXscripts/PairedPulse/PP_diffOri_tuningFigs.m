@@ -66,7 +66,7 @@ else
 end
 
 %count trials
-ind_n = zeros(noff_all, nDelta);
+ind_n = zeros(noff_all, nDelta,ndir);
 for ioff = 1:noff_all
     if length(ind_con)== 0 || ioff<noff_all 
         ind = setdiff(find(tFramesOff == off_all(ioff)),ind_con);
@@ -74,7 +74,10 @@ for ioff = 1:noff_all
         ind = ind_con;
     end
     for idelta = 1:nDelta
-        ind_n(ioff,idelta) = length(intersect(ind,find(targetDelta == deltas(idelta))));
+        ind_delta = find(targetDelta == deltas(idelta));
+        for idir = 1:ndir
+            ind_n(ioff,idelta,idir) = length(intersect(intersect(ind,ind_delta),find(baseDir == dirs(idir))));
+        end
     end
 end
 
@@ -129,19 +132,20 @@ save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mo
     
 nboot = 1000;
 theta_smooth = (0:1:180);
-theta = [0 deltas];
+theta = deltas;
 [n n2] = subplotn(length(good_ind));
 
 delta_resp = nan(nCells,nDelta,noff_all,1+nboot);
 delta_resp_sub = nan(nCells,nDelta,noff_all,1+nboot);
 max_dir = nan(nCells,1+nboot);
 max_dir_sub = nan(nCells,1+nboot);
-k_hat = nan(nCell,noff_all);
-k_hat_sub = nan(nCell,noff_all);
+k_hat = nan(nCells,noff_all);
+k_hat_sub = nan(nCells,noff_all);
 y_fit = nan(length(theta_smooth),nCells,noff_all,nboot+1);
 y_fit_sub = nan(length(theta_smooth),nCells,noff_all,nboot+1);
 max_ori = nan(nCells,noff_all,nboot+1);
 max_ori_sub = nan(nCells,noff_all,nboot+1);
+R_square = nan(nCells,noff_all,nboot+1);
 
 figure;
 for iCell = 1:length(good_ind)    
@@ -174,12 +178,12 @@ for iCell = 1:length(good_ind)
                     delta_resp_sub(iC,idelta,ioff,1) = nanmean(mean(data_dfof_sub(resp_win,iC,ind2),1)-mean(data_dfof_sub(base_win,iC,ind2),1),3);
                 end
             end
-            data = squeeze(cat(2,delta_resp(iC,end,ioff,1), delta_resp(iC,:,ioff,1)));
-            data_sub = squeeze(cat(2,delta_resp_sub(iC,end,ioff,1), delta_resp_sub(iC,:,ioff,1)));
-            [b_hat, k_hat(iC,ioff), R_hat,u_hat,sse,R_square(iC,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta),data);
+            data = squeeze(delta_resp(iC,:,ioff,1));
+            data_sub = squeeze(delta_resp_sub(iC,:,ioff,1));
+            [b_hat, k_hat(iC,ioff), R_hat,u_hat,sse(iC,ioff),R_square(iC,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta),data);
             y_fit(:,iC,ioff,1) = b_hat+R_hat.*exp(k_hat(iC,ioff).*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
             [y_max max_ori(iC,ioff,1)] = max(y_fit(:,iC,ioff,1),[],1);
-            [b_hat, k_hat_sub(iC,ioff), R_hat,u_hat,sse,R_square_sub(iC,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta),data_sub);
+            [b_hat, k_hat_sub(iC,ioff), R_hat,u_hat,sse_sub(iC,ioff),R_square_sub(iC,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta),data_sub);
             y_fit_sub(:,iC,ioff,1) = b_hat+R_hat.*exp(k_hat_sub(iC,ioff).*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
             [y_max max_ori_sub(iC,ioff,1)] = max(y_fit_sub(:,iC,ioff,1),[],1);
             if ioff == noff_all
@@ -187,15 +191,17 @@ for iCell = 1:length(good_ind)
                 for iboot = 2:nboot+1
                     fprintf('.')
                     [max_resp max_dir(iC,iboot)] = max(delta_resp(iC,:,ioff,iboot),[],2);
-                    data = squeeze(cat(2,delta_resp(iC,end,ioff,iboot), delta_resp(iC,:,ioff,iboot)));
+                    data = squeeze(delta_resp(iC,:,ioff,iboot));
                     [b_hat, k_hat_boot, R_hat,u_hat,sse,R_square(iC,ioff,iboot)] = miaovonmisesfit_ori(deg2rad(theta),data);
                     y_fit(:,iC,ioff,iboot) = b_hat+R_hat.*exp(k_hat_boot.*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
                     [y_max max_ori(iC,ioff,iboot)] = max(y_fit(:,iC,ioff,iboot),[],1);
+                    data_sub = squeeze(delta_resp_sub(iC,:,ioff,iboot));
+                    [b_hat, k_hat_boot, R_hat,u_hat,sse,R_square_sub(iC,ioff,iboot)] = miaovonmisesfit_ori(deg2rad(theta),data_sub);
                     y_fit_sub(:,iC,ioff,iboot) = b_hat+R_hat.*exp(k_hat_boot.*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
                     [y_max max_ori_sub(iC,ioff,iboot)] = max(y_fit_sub(:,iC,ioff,iboot),[],1);
                 end
                 subplot(n, n2, iCell)
-                scatter(deg2rad(theta), squeeze(cat(2,delta_resp(iC,end,ioff,1), delta_resp(iC,:,ioff,1))),'ok');
+                scatter(deg2rad(theta), squeeze(delta_resp(iC,:,ioff,1)),'ok');
                 hold on; plot(deg2rad(0:1:180), y_fit(:,iC,ioff,1),'-r')
                 title(num2str(chop(R_square(iC,ioff,1),2)))
             end
@@ -209,7 +215,7 @@ theta_90 = nan(1,nCells);
 max_dir_n = nan(1,nCells);
 for iCell = 1:length(good_ind)
     iC = good_ind(iCell);
-    if ~isnan(R_square(iC,3,1))
+    if ~isnan(R_square(iC,noff_all,1))
         max_dir_n(1,iC) = length(find(max_dir(iC,2:end)==max_dir(iC,1)));
         for ioff = noff_all
             theta_dist = abs(theta_smooth(squeeze(max_ori(iC,ioff,1)))-theta_smooth(squeeze(max_ori(iC,ioff,2:nboot+1))));
@@ -261,7 +267,7 @@ OSI_k_sub = 1-exp(-2.*k_hat_sub);
 HWHM = 0.5.*acos((log(0.5)+k_hat)./k_hat);
 HWHM_sub = 0.5.*acos((log(0.5)+k_hat_sub)./k_hat_sub);
 
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_deltaResp.mat']), 'delta_resp', 'theta_90', 'max_dir', 'max_dir_n', 'pref_ori', 'OSI', 'y_fit', 'delta_resp_sub', 'pref_ori_sub', 'OSI_sub', 'y_fit_sub', 'k_hat', 'k_hat_sub', 'OSI_k', 'OSI_k_sub', 'HWHM', 'HWHM_sub')
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_deltaResp.mat']), 'delta_resp', 'theta_90', 'max_dir', 'max_dir_n', 'pref_ori', 'OSI', 'y_fit', 'delta_resp_sub', 'pref_ori_sub', 'OSI_sub', 'y_fit_sub', 'k_hat', 'k_hat_sub', 'OSI_k', 'OSI_k_sub', 'HWHM', 'HWHM_sub', 'R_square', 'R_square_sub','sse','sse_sub')
 
 %% test roc analysis
 ppResp = cell(noff_all, nDelta);
@@ -295,7 +301,7 @@ for iCell = 1:length(good_ind)
     end
 end
 
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_roc180v23.mat']), 'roc_resp', 'roc_resp_sub','PP_resp','PP_resp_sub')
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_roc180v23.mat']), 'roc_resp', 'roc_resp_sub','ppResp','ppResp_sub')
 
 %% cell by cell figures
 for iCell = 1:5 %length(good_ind)

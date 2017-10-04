@@ -1,8 +1,8 @@
 %% get path names
-date = '170816';
-ImgFolder = strvcat('001');
-time = strvcat('1320');
-mouse = 'i567';
+date = '171003';
+ImgFolder = strvcat('001','002');
+time = strvcat('1426','1529');
+mouse = 'i560';
 doFromRef = 0;
 ref = strvcat('005');
 nrun = size(ImgFolder,1);
@@ -29,19 +29,15 @@ for irun = 1:nrun
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
 
-    nframes = info.config.frames;
-    fprintf(['Reading run ' num2str(irun) '- ' num2str(nframes) ' frames \r\n'])
-    tic
-    data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
-    toc
-    
     if size(time,1) >= irun
         fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
         load(fName);
         temp(irun) = input;
         if irun>1
-            if isfield(input, 'tLeftTrial') 
+            if isfield(input, 'tLeftTrial')
+                ntrials = size(input.trialOutcomeCell,2);
                 for itrial = 1:ntrials
+                    temp(irun).counterValues{itrial} = bsxfun(@plus,temp(irun).counterValues{itrial},offset);
                     temp(irun).cTrialStart{itrial} = temp(irun).cTrialStart{itrial}+offset;
                     temp(irun).cStimOn{itrial} = temp(irun).cStimOn{itrial}+offset;
                     temp(irun).cDecision{itrial} = temp(irun).cDecision{itrial}+offset;
@@ -49,6 +45,13 @@ for irun = 1:nrun
             end
         end
     end
+    
+    nframes = min([info.config.frames input.counterValues{end}(end)]);
+    fprintf(['Reading run ' num2str(irun) '- ' num2str(nframes) ' frames \r\n'])
+    tic
+    data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
+    toc
+    
     offset = offset+nframes;
 
     data_temp = squeeze(data_temp);
@@ -57,6 +60,20 @@ end
 input = concatenateDataBlocks(temp);
 clear data_temp
 clear temp
+
+%% Plot outcome by trial number
+SIx = strcmp(input.trialOutcomeCell, 'success');
+MIx = strcmp(input.trialOutcomeCell, 'ignore');
+
+figure;
+plot(smooth(SIx,10));
+hold on
+plot(smooth(MIx,10));
+
+%% Crop data and input struct
+%change trial range in trialChopper
+input = trialChopper(input,[1 415]);
+data = data(:,:,1:input.counterValues{end}(end));
 
 %% Choose register interval
 nep = floor(size(data,3)./10000);
@@ -145,6 +162,14 @@ subplot(2,3,5)
 imagesc(data_dfof_resp)
 title('Decision')
 print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_dFoF.pdf']), '-dpdf')
+figure;
+subplot(2,1,1)
+imagesc(data_dfof_L)
+title('Left Stim')
+subplot(2,1,2)
+imagesc(data_dfof_R)
+title('Right Stim')
+print(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_stimResp.pdf']), '-dpdf')
 data_dfof = cat(3, data_dfof_resp,data_dfof_late_L, data_dfof_late_R,data_dfof_L,data_dfof_R);
 data_dfof_max = max(data_dfof,[],3);
 figure; imagesc(data_dfof_max)

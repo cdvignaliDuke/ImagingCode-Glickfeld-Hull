@@ -1,27 +1,19 @@
 %% current datasets
-
-mouse_mat = strvcat('i674', 'i689', 'i696','i684','i711','i712','i574');
-date_mat = strvcat('170324', '170323', '170323','170327','170503','170503','170510');
+mouse_mat = strvcat('i674', 'i689', 'i696','i684','i711','i712','i574','i720','i738','i739','i745','i746');
+date_mat = strvcat('170324', '170323', '170323','170327','170503','170503','170510','170808','170810','170811','170816','170826');
 ImgFolder = strvcat('002', '003');
 nrun = size(ImgFolder,1);
 run_str = catRunName(ImgFolder, nrun);
 
 %%
 nexp = size(mouse_mat,1);
-ind_min = cell(1,nexp);
 for iexp = 1:nexp
     mouse = mouse_mat(iexp,:);
     date = date_mat(iexp,:);
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']))
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']))
-    
-    ind{iexp} = zeros(nDelta,noff);
-    for idelta = 1:nDelta
-        for ioff = 1:noff
-            ind{iexp}(idelta,ioff) = length(intersect(find(tFramesOff(:,end) == offs(ioff)), find(targetDelta == deltas(idelta))));
-        end
-    end
-    [ind_min{iexp} i] = min(min(ind{iexp},[],1),[],2);
+    load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_deltaResp.mat']))
+    ori_fit = y_fit(:,:,3,1);
+    R_square = R_square(:,3,1);
+    save(['\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P\ForJeff\' date '_' mouse '_' run_str '_newFits.mat'],'ori_fit','R_square','theta_90');
 end
 
 %% collect datasets
@@ -29,6 +21,7 @@ nexp = size(mouse_mat,1);
 max_dir_all = [];
 pref_ori_all = [];
 theta_90_all = [];
+R_square_all = [];
 max_dir_n_all = [];
 fit_all = [];
 OSI_all = [];
@@ -45,6 +38,7 @@ delta_resp_sub_all = [];
 roc_resp_sub_all = [];
 nCells = [];
 ppResp_all = cell(1,nexp);
+ntot = zeros(1,nexp);
 for iexp = 1:nexp
     mouse = mouse_mat(iexp,:);
     date = date_mat(iexp,:);
@@ -52,6 +46,7 @@ for iexp = 1:nexp
     max_dir_all = [max_dir_all; max_dir];
     pref_ori_all = [pref_ori_all; pref_ori];
     theta_90_all = [theta_90_all; theta_90'];
+    R_square_all = [R_square_all; R_square(:,3,1)];
     max_dir_n_all = [max_dir_n_all; max_dir_n'];
     OSI_all = [OSI_all; OSI];
     OSI_k_all = [OSI_k_all; OSI_k];
@@ -183,6 +178,7 @@ for idiff = 1:ndiff
     group_list(cell_ind,1) = idiff;
 end
 
+col_mat = strvcat('b', 'r', 'y');
 figure;
 subplot(2,2,1)
 osi_diff = zeros(noff, ndiff,2);
@@ -406,6 +402,7 @@ xlim([-10 100])
 ylim([0 0.2])
 subplot(2,2,2)
 delta_resp_norm_sum = zeros(noff*nCells,ndiff);
+diff_resp_norm = zeros(size(delta_resp_norm_all,1),ndiff,noff_all);
 start = 1;
 off_ii = [];
 diff_ii = [];
@@ -413,6 +410,10 @@ for i = 1:noff
     for idiff = 1:ndiff
         del = find(delta_diff == diffs(idiff));
         errorbar(diffs(idiff), squeeze(mean(mean(delta_resp_norm_all(good_ind_theta,del,3),2)-mean(delta_resp_norm_all(good_ind_theta,del,i),2),1)), squeeze(std(mean(delta_resp_norm_all(good_ind_theta,del,3),2)-mean(delta_resp_norm_all(good_ind_theta,del,i),2),[],1))./sqrt(length(good_ind_theta)), ['o' col_mat(i,:)])
+        diff_resp_norm(:,idiff,i) = mean(delta_resp_norm_all(:,del,i),2);
+        if i == 1
+            diff_resp_norm(:,idiff,3) = mean(delta_resp_norm_all(:,del,3),2);
+        end
         hold on
         delta_resp_norm_sum(start:start+nCells-1,idiff) = mean(delta_resp_norm_all(good_ind_theta,del,3),2)-mean(delta_resp_norm_all(good_ind_theta,del,i),2);
     end
@@ -426,9 +427,8 @@ set(gca, 'Xtick', 0:30:90)
 xlim([-10 100])
 ylim([-0.2 0.4])
 
-[n bin] = histc(pref_ori_all_diff(:,3),[0 20 70 91]);
-figure
-%subplot(2,2,3)
+[n, bin] = histc(pref_ori_all_diff(:,3),[0 15 75 91]);
+subplot(2,2,3)
 delta_resp_group = nan(sum(noff.*n,1),1);
 start = 1;
 off_id = [];
@@ -497,6 +497,24 @@ end
 xlabel(['Diff of Pref from adaptor (deg)'])
 ylabel(['Difference in OSI'])
 title('OSI')
+ylim([-.3 .3])
+xlim([-10 100])
+hline(0)
+subplot(2,2,3)
+k = nan(sum(noff.*n,1),1);
+start = 1;
+for idiff = 1:length(n)-1
+    ind = intersect(good_ind_theta, find(bin == idiff));
+    for ioff = 1:noff
+        errorbarxy(mean(pref_ori_all_diff(ind,3),1), mean(OSI_k_all(ind,ioff)-OSI_k_all(ind,3),1),std(pref_ori_all_diff(ind,3),[],1)./sqrt(length(ind)), std(OSI_k_all(ind,ioff)-OSI_k_all(ind,3),[],1)./sqrt(length(ind)), {['o' col_mat(ioff,:)], col_mat(ioff,:),col_mat(ioff,:)})
+        hold on
+        OSIk_group(start:start+length(ind)-1,1) = OSI_k_all(ind,ioff)-OSI_k_all(ind,3);
+        start= start +length(ind);
+    end
+end
+xlabel(['Diff of Pref from adaptor (deg)'])
+ylabel(['Difference in OSI-k'])
+title('OSI-k')
 ylim([-.3 .3])
 xlim([-10 100])
 hline(0)
@@ -731,6 +749,7 @@ print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation
 save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'maxLogLike_summary.mat'),'delta_sq_boot','delta_sq','maxloglike_all','loglike_all_neurons','loglike_all_sum', 'loglike_all_fact')
 
 %% max log likelihood by trials
+col_mat = strvcat('b','r','y');
 OSI_cells = good_ind_theta;
 cellN = length(OSI_cells);
 sz_fit = size(fit_all,1);
@@ -769,38 +788,39 @@ end
 
 cellN = length(good_ind_theta);
 nCells = size(fit_all_thresh,2);
-nboot = 1000;
+nboot = 100;
 sz_fit = size(fit_all,1);
-loglike_all_neurons = cell(nDelta,noff_all,nboot+1);
-loglike_all_fact = cell(nDelta,noff_all,nboot+1);
-loglike_all_sum = cell(nDelta,noff_all,nboot+1);
+loglike_all_neurons = cell(nDelta,noff_all);
+loglike_all_fact = cell(nDelta,noff_all);
+loglike_all_sum = cell(nDelta,noff_all);
 loglike_all_fun = cell(nDelta,noff_all,nboot+1);
 maxloglike_all = cell(nDelta,noff_all,nboot+1);
 maxloglike_change = cell(nDelta,noff_all,nboot+1);
-maxloglike_change_diff = cell(ndiff,noff_all,nboot+1);
-for iboot = 1:nboot+1
-    if iboot>1
-        ind_cells_temp = good_ind_theta(randsample(cellN, cellN, 1));
-    else
-        ind_cells_temp = good_ind_theta;
-    end
-    fprintf('.')
-    for idelta = 1:nDelta
-        for ioff = 1:noff_all
-            loglike_all_neurons{idelta,ioff,iboot} = zeros(sz_fit,cellN,min_trials(idelta,ioff));
-            loglike_all_sum{idelta,ioff,iboot} = zeros(sz_fit,cellN,min_trials(idelta,ioff));
-            loglike_all_fact{idelta,ioff,iboot} = zeros(1,cellN,min_trials(idelta,ioff));
-            for i = 1:min_trials(idelta,ioff)
-                for iCell = 1:cellN
-                    iC = ind_cells_temp(iCell);
-                    loglike_all_neurons{idelta,ioff,iboot}(:,iC,i) = squeeze(bsxfun(@times,log(fit_all_thresh(:,iC)'),ppResp_trials{ioff,idelta}(iC,i)))';
-                    loglike_all_sum{idelta,ioff,iboot}(:,iC,i) = fit_all_thresh(:,iC);
-                    loglike_all_fact{idelta,ioff,iboot}(1,iC,i) = log(gamma(ppResp_trials{ioff,idelta}(iC,i)+1));
-                end
+
+for idelta = 1:nDelta
+    for ioff = 1:noff_all
+        loglike_all_neurons{idelta,ioff} = zeros(sz_fit,nCells,min_trials(idelta,ioff));
+        loglike_all_sum{idelta,ioff} = zeros(sz_fit,nCells,min_trials(idelta,ioff));
+        loglike_all_fact{idelta,ioff} = zeros(1,nCells,min_trials(idelta,ioff));
+        for i = 1:min_trials(idelta,ioff)
+            for iCell = 1:cellN
+                iC = good_ind_theta(iCell);
+                loglike_all_neurons{idelta,ioff}(:,iC,i) = squeeze(bsxfun(@times,log(fit_all_thresh(:,iC)'),ppResp_trials{ioff,idelta}(iC,i)))';
+                loglike_all_sum{idelta,ioff}(:,iC,i) = fit_all_thresh(:,iC);
+                loglike_all_fact{idelta,ioff}(1,iC,i) = log(gamma(ppResp_trials{ioff,idelta}(iC,i)+1));
             end
-            loglike_all_fun{idelta,ioff,iboot} =  squeeze(bsxfun(@minus, nansum(loglike_all_neurons{idelta,ioff,iboot}(:,ind_cells_temp,:),2), bsxfun(@plus,(nansum(loglike_all_sum{idelta,ioff,iboot}(:,ind_cells_temp,:),2)),nansum(loglike_all_fact{idelta,ioff,iboot}(:,ind_cells_temp,:),2))));
+        end
+        for iboot = 1:nboot+1
+            fprintf('.')
+            if iboot>1
+                ind_cells_temp = good_ind_theta(randsample(cellN, cellN, 1));
+            else
+                ind_cells_temp = good_ind_theta;
+            end
+   
+            loglike_all_fun{idelta,ioff,iboot} =  squeeze(bsxfun(@minus, nansum(loglike_all_neurons{idelta,ioff}(:,ind_cells_temp,:),2), bsxfun(@plus,(nansum(loglike_all_sum{idelta,ioff}(:,ind_cells_temp,:),2)),nansum(loglike_all_fact{idelta,ioff}(:,ind_cells_temp,:),2))));
             [max_val maxloglike_all{idelta,ioff,iboot}] = max(loglike_all_fun{idelta,ioff,iboot},[],1);
-            maxloglike_change{idelta,ioff,iboot} = maxloglike_all{idelta,ioff,iboot};
+            maxloglike_change{idelta,ioff,iboot} = maxloglike_all{idelta,ioff,iboot}-1;
             maxloglike_change{idelta,ioff,iboot}(find(maxloglike_all{idelta,ioff,iboot}>90)) = 179-maxloglike_change{idelta,ioff,iboot}(find(maxloglike_all{idelta,ioff,iboot}>90));
         end
     end
@@ -847,7 +867,10 @@ for iboot = 1:nboot+1
         print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'loglike_is0_combo_allCells_byTrial_100X.pdf'),'-dpdf','-fillpage')
         [p_like0, table_like0, stats_like0] = anovan(likely_all,{off_id});
     end
+end
 
+maxloglike_change_diff = cell(ndiff,noff_all,nboot+1);
+for iboot = 1:nboot+1
     for idiff = 1:ndiff
         del = find(delta_diff == diffs(idiff));
         for ioff = 1:noff_all
@@ -860,6 +883,42 @@ end
 save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'maxloglike_change.mat'),'maxloglike_change_diff','maxloglike_change','loglike_all_fun')
 
 figure;
+dv = zeros(91,ndiff,noff_all,nboot+1);
+for iboot = 1:nboot+1
+    for idiff = 1:ndiff
+        for ioff = 1:noff_all
+            for itheta = 1:91
+                dv(itheta,idiff,ioff,iboot) = length(find(maxloglike_change_diff{idiff,ioff,iboot}>(itheta-1)))./size(maxloglike_change_diff{idiff,ioff,iboot},2);
+            end
+        end
+    end
+end
+
+dv_sort = sort(dv(:,:,:,2:end),4,'ascend');
+dv_lb = dv(:,:,:,1)-dv_sort(:,:,:,5);
+dv_ub = dv_sort(:,:,:,95)-dv(:,:,:,1);
+
+figure;
+subplot(2,2,1)
+for ioff = 1:noff_all
+    shadedErrorBar(1:91,dv(:,1,ioff,1),std(dv(:,1,ioff,2:end),[],4),{[col_mat(ioff,:) '-'], 'markerfacecolor',col_mat(ioff,:)},0)
+    hold on
+end
+ylabel('FA rate')
+xlabel('Decision variable (deg)')
+ylim([0 1])
+
+subplot(2,2,2)
+for ioff = 1:noff_all
+    shadedErrorBar(1:91,dv(:,2,ioff,1),std(dv(:,2,ioff,2:end),[],4),{[col_mat(ioff,:) '-'], 'markerfacecolor',col_mat(ioff,:)},0)
+    hold on
+end
+ylabel('Hit rate')
+xlabel('Decision variable (deg)')
+ylim([0 1])
+suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4])])
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'allCell_CDFP_decisionVariable.pdf'),'-dpdf','-fillpage')
+
 maxloglike_change_diff_all = [];
 maxloglike_change_diff_all_1 = [];
 maxloglike_change_diff_all_2 = [];
@@ -869,10 +928,11 @@ off_id_1 = [];
 diff_id_1 = [];
 off_id_2 = [];
 diff_id_2 = [];
+subplot(2,2,3)
 for idiff = 1:ndiff
     for ioff = 1:noff_all
-        %errorbar(diffs(idiff),mean(maxloglike_change_diff{idiff,ioff,1},2), std(maxloglike_change_diff{idiff,ioff,1},[],2)./sqrt(size(maxloglike_change_diff{idiff,ioff,1},2)),['-o' col_mat(ioff,:)]);
-        %hold on
+        errorbar(diffs(idiff),mean(maxloglike_change_diff{idiff,ioff,1},2), std(maxloglike_change_diff{idiff,ioff,1},[],2)./sqrt(size(maxloglike_change_diff{idiff,ioff,1},2)),['-o' col_mat(ioff,:)]);
+        hold on
         sz = size(maxloglike_change_diff{idiff,ioff,1});
         maxloglike_change_diff_all = [maxloglike_change_diff_all maxloglike_change_diff{idiff,ioff,1}];
         off_id = [off_id ioff*ones(sz)];
@@ -895,6 +955,347 @@ xlim([-10 100])
 ylim([-10 100])
 suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Max Log Likelihood dist from Adapter - by trial- scaled sub- 100X'])
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'maxloglike_distAdapt_byTrial_scaledsub_100X.pdf'),'-dpdf','-fillpage')
+% [p_max, table_max, stats_max] = anovan(maxloglike_change_diff_all,{off_id, diff_id});
+% [p_max_1, table_max_1, stats_max_1] = anovan(maxloglike_change_diff_all_1,{off_id_1});
+% [p_max_2, table_max_2, stats_max_2] = anovan(maxloglike_change_diff_all_2,{off_id_2});
+% [comp_max_1] = multcompare(stats_max_1);
+% [comp_max_2] = multcompare(stats_max_2);
+
+
+
+figure;
+loglike_diff_all = [];
+loglike_diff_all_1 = [];
+for idiff = 1:ndiff
+    del = find(delta_diff == diffs(idiff));
+    for ioff = 1:noff_all
+        loglike_diff{idiff,ioff} = [];
+        for idel = 1:length(del)
+            loglike_diff{idiff,ioff} = [loglike_diff{idiff,ioff} loglike_all_fun{del(idel),ioff,1}];
+        end
+        temp_likely = loglike_diff{idiff,ioff};
+        errorbar(diffs(idiff),mean(temp_likely(end,:),2), std(temp_likely(end,:),[],2)./sqrt(size(temp_likely,2)),['-o' col_mat(ioff,:)]);
+        hold on
+        sz = size(loglike_diff{idiff,ioff});
+        loglike_diff_all = [loglike_diff_all temp_likely(end,:)];
+        if idiff == 1
+            loglike_diff_all_1 = [loglike_diff_all_1 temp_likely(end,:)];
+        end
+    end
+end
+xlabel('Stim - Adapter')
+ylabel('Likelyhood = 0')
+xlim([-10 100])
+ylim([-18000 0])
+suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Log Likelihood is 0 - by trial- scaled sub- 100X'])
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'loglike_is0_distAdapt_byTrial_scaledsub_100X.pdf'),'-dpdf','-fillpage')
+% [p_like0, table_like0, stats_like0] = anovan(loglike_diff_all,{off_id, diff_id});
+% [p_like0_1, table_like0_1, stats_like0_1] = anovan(loglike_diff_all_1,{off_id_1});
+% [comp_like0_1] = multcompare(stats_like0_1);
+% %save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'loglike_params.mat'),'loglike_all_neurons','loglike_all_sum','loglike_all_fact')
+
+%% max log likelihood by trials by experiment
+deltas = 22.5:22.5:180;
+delta_diff = 180-deltas;
+delta_diff(find(delta_diff>90)) = 180- delta_diff(find(delta_diff>90));
+diffs = unique(delta_diff);
+ndiff = length(diffs);
+
+ppResp_trials = cell(nDelta,noff_all,nexp);
+loglike_all_neurons = cell(nDelta,noff_all,nexp);
+loglike_all_sum = cell(nDelta,noff_all,nexp);
+loglike_all_fact = cell(nDelta,noff_all,nexp);
+loglike_all_fun = cell(nDelta,noff_all,nexp);
+maxloglike_all = cell(nDelta,noff_all,nexp);
+maxloglike_change = cell(nDelta,noff_all,nexp);
+maxloglike_change_dv = cell(nDelta,noff_all,nexp);
+maxloglike_change_diff = cell(ndiff,noff_all,nexp);
+maxloglike_change_diff_dv = cell(ndiff,noff_all,nexp);
+max_ind = cell(1,nexp);
+good_ind = cell(1,nexp);
+sz_fit = size(fit_all,1);
+cellN = zeros(1,nexp);
+start = 1;
+for iexp = 1:nexp
+    ppTemp = ppResp_all{iexp};
+    nc = size(ppTemp{1,1},1);
+    good_ind{1,iexp} = find(theta_90_all(start:nc+start-1,:)<=22.5);
+    cellN(1,iexp) = length(good_ind{1,iexp});
+    [max_fit, max_ind{1,iexp}] = max(fit_all(:,start:nc+start-1,3),[],1);
+    fit_all_thresh =  bsxfun(@rdivide,fit_all(:,start:nc+start-1,3),max_fit)*100;
+    fit_all_thresh(find(fit_all_thresh<1)) = 1;
+    fit_all_thresh(find(fit_all_thresh>170)) = 170;
+    for idelta = 1:nDelta
+        for ioff = 1:noff_all
+            ppT = ppTemp{ioff,idelta};
+            nTrials = size(ppT,2);
+            ppT_norm = bsxfun(@rdivide, ppT, max_fit')*100;
+            ppT_norm(find(ppT_norm<1)) = 1;
+            ppT_norm(find(ppT_norm>170)) = 170;
+            ppResp_trials{idelta,ioff,iexp} = ppT_norm;
+
+            loglike_all_neurons{idelta,ioff,iexp} = zeros(sz_fit,cellN(1,iexp),nTrials);
+            loglike_all_sum{idelta,ioff,iexp} = zeros(sz_fit,cellN(1,iexp),nTrials);
+            loglike_all_fact{idelta,ioff,iexp} = zeros(1,cellN(1,iexp),nTrials);
+            for i = 1:nTrials
+                for iCell = 1:cellN(1,iexp)
+                    iC = good_ind{1,iexp}(iCell);
+                    loglike_all_neurons{idelta,ioff,iexp}(:,iCell,i) = squeeze(bsxfun(@times,log(fit_all_thresh(:,iC)'),ppT_norm(iC,i)))';
+                    loglike_all_sum{idelta,ioff,iexp}(:,iCell,i) = fit_all_thresh(:,iC);
+                    loglike_all_fact{idelta,ioff,iexp}(1,iCell,i) = log(gamma(ppT_norm(iC,i)+1));
+                end
+            end
+%             loglike_all_neurons{idelta,ioff,iexp} = zeros(sz_fit,cellN(1,iexp));
+%             loglike_all_sum{idelta,ioff,iexp} = zeros(sz_fit,cellN(1,iexp));
+%             loglike_all_fact{idelta,ioff,iexp} = zeros(1,cellN(1,iexp));
+%             for i = 1:nTrials
+%                 for iCell = 1:cellN(1,iexp)
+%                     iC = good_ind{1,iexp}(iCell);
+%                     loglike_all_neurons{idelta,ioff,iexp}(:,iCell) = squeeze(bsxfun(@times,log(fit_all_thresh(:,iC)'),mean(ppResp_trials{idelta,ioff,iexp}(iC,:),2)))';
+%                     loglike_all_sum{idelta,ioff,iexp}(:,iCell) = fit_all_thresh(:,iC);
+%                     loglike_all_fact{idelta,ioff,iexp}(1,iCell) = log(gamma(mean(ppResp_trials{idelta,ioff,iexp}(iC,:),2)+1));
+%                 end
+%             end
+            loglike_all_fun{idelta,ioff,iexp} =  squeeze(bsxfun(@minus, nansum(loglike_all_neurons{idelta,ioff,iexp},2), bsxfun(@plus,(nansum(loglike_all_sum{idelta,ioff,iexp},2)),nansum(loglike_all_fact{idelta,ioff,iexp},2))));
+            [max_val maxloglike_all{idelta,ioff,iexp}] = max(loglike_all_fun{idelta,ioff,iexp},[],1);
+            maxloglike_change{idelta,ioff,iexp} = maxloglike_all{idelta,ioff,iexp}-1;
+            maxloglike_change{idelta,ioff,iexp}(find(maxloglike_all{idelta,ioff,iexp}>90)) = 180-maxloglike_change{idelta,ioff,iexp}(find(maxloglike_all{idelta,ioff,iexp}>90));
+            maxloglike_change_dv{idelta,ioff,iexp}=zeros(1,91);
+            for itheta = 0:90
+                maxloglike_change_dv{idelta,ioff,iexp}(1,itheta+1) = length(find(maxloglike_change{idelta,ioff,iexp}>itheta))/nTrials;
+            end
+        end
+    end
+    for idiff = 1:ndiff
+        del = find(delta_diff == diffs(idiff));
+        for ioff = 1:noff_all
+            for i =1:length(del)
+                maxloglike_change_diff{idiff,ioff,iexp} = [maxloglike_change_diff{idiff,ioff,iexp} maxloglike_change{del(i),ioff,iexp}];
+                for itheta = 0:90
+                    maxloglike_change_diff_dv{idiff,ioff,iexp}(1,itheta+1) = length(find(maxloglike_change_diff{idiff,ioff,iexp}>itheta))/size(maxloglike_change_diff{idiff,ioff,iexp},2);
+                end
+            end
+            maxloglike_change_diff{idiff,ioff,iexp} = mean(maxloglike_change_diff{idiff,ioff,iexp},2);
+        end
+    end
+    start = start+nc;
+end
+    
+avgFADV = zeros(91,nexp,noff);
+avgCDDV = zeros(91,nexp,noff);
+for iexp = 1:nexp
+    for ioff = 1:noff_all
+        avgFADV(:,iexp,ioff) = maxloglike_change_dv{8,ioff,iexp}';
+        avgCDDV(:,iexp,ioff) = maxloglike_change_diff_dv{2,ioff,iexp}';
+    end
+end
+avgReadout = zeros(ndiff,nexp,noff);
+figure;
+for iexp = 1:nexp
+    subplot(3,4,iexp)
+    for ioff = 1:noff_all
+        for idiff = 1:ndiff
+            avgReadout(idiff,iexp,ioff) = mean(maxloglike_change_diff{idiff,ioff,iexp},2);
+            %avgReadout(idiff,iexp,ioff) = maxloglike_change_diff{idiff,ioff,iexp};
+        end
+        plot(diffs,avgReadout(:,iexp,ioff),'-o')
+        hold on
+    end
+    xlim([0 90])
+    ylim([0 90])
+    title(num2str(cellN(1,iexp)))
+end
+figure;
+good_exp = find(cellN>15);
+subplot(2,2,1)
+for ioff = 1:noff_all
+    shadedErrorBar(0:90,mean(avgCDDV(:,good_exp,ioff),2),std(avgCDDV(:,good_exp,ioff),[],2)./sqrt(length(good_exp)),{['-' col_mat(ioff,:)],'markerfacecolor',col_mat(ioff,:)},0);
+    hold on
+end
+ylabel('Hit Rate')
+xlabel('Decision variable (deg)')
+subplot(2,2,2)
+for ioff = 1:noff_all
+    shadedErrorBar(0:90,mean(avgFADV(:,good_exp,ioff),2),std(avgFADV(:,good_exp,ioff),[],2)./sqrt(length(good_exp)),{['-' col_mat(ioff,:)],'markerfacecolor',col_mat(ioff,:)},0);
+    hold on
+end
+ylabel('FA Rate')
+xlabel('Decision variable (deg)')
+subplot(2,2,3)
+for ioff = 1:noff_all
+    errorbar(diffs, mean(avgReadout(:,good_exp,ioff),2),std(avgReadout(:,good_exp,ioff),[],2)./sqrt(length(good_exp)),'-o');
+    hold on
+end
+xlim([0 100])
+ylim([0 100])
+xlabel('Stimulus (deg)')
+ylabel('Readout (deg)')
+suptitle([reshape(flipud(rot90(mouse_mat(good_exp,:))),[1 size(good_exp,2)*4]) '- Hit and FA rate by experiment by trial'])
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'FACD_dist_byExpt_byTrial.pdf'),'-dpdf','-fillpage')
+
+%% max log likelihood by trials - exponential distribution
+OSI_cells = good_ind_theta;
+cellN = length(OSI_cells);
+sz_fit = size(fit_all,1);
+n_ind = zeros(nexp, nDelta,noff_all);
+for iexp = 1:nexp
+    ppTemp = ppResp_all{iexp};
+    for idelta = 1:nDelta
+        for ioff = 1:noff_all
+            n_ind(iexp,idelta,ioff) = size(ppTemp{ioff, idelta},2);
+        end
+    end
+end
+min_trials = squeeze(min(n_ind,[],1));
+
+[max_fit, max_ind] = max(fit_all(:,:,3),[],1);
+fit_all_thresh =  bsxfun(@rdivide,fit_all(:,:,3),max_fit)*100;
+fit_all_thresh(find(fit_all_thresh<1)) = 1;
+fit_all_thresh(find(fit_all_thresh>170)) = 170;
+
+ppResp_trials = cell(noff_all,nDelta);
+start = 1;
+for iexp = 1:nexp
+    ppTemp = ppResp_all{iexp};
+    nc = size(ppTemp{1,1},1);
+    for idelta = 1:nDelta
+        for ioff = 1:noff_all
+            ppT = ppTemp{ioff,idelta};
+            ppT_norm = bsxfun(@rdivide, ppT(:,1:min_trials(idelta,ioff)), max_fit(1,start:nc+start-1)')*100;
+            ppT_norm(find(ppT_norm<1)) = 1;
+            ppT_norm(find(ppT_norm>170)) = 170;
+            ppResp_trials{ioff,idelta}(start:nc+start-1,:) = ppT_norm;
+        end
+    end
+    start = start+nc;
+end
+
+cellN = length(good_ind_theta);
+nCells = size(fit_all_thresh,2);
+nboot = 0;
+sz_fit = size(fit_all,1);
+loglike_all_neurons = cell(nDelta,noff_all,nboot+1);
+loglike_all_sum = cell(nDelta,noff_all,nboot+1);
+loglike_all_fun = cell(nDelta,noff_all,nboot+1);
+maxloglike_all = cell(nDelta,noff_all,nboot+1);
+maxloglike_change = cell(nDelta,noff_all,nboot+1);
+maxloglike_change_diff = cell(ndiff,noff_all,nboot+1);
+for iboot = 1:nboot+1
+    if iboot>1
+        ind_cells_temp = good_ind_theta(randsample(cellN, cellN, 1));
+    else
+        ind_cells_temp = good_ind_theta;
+    end
+    fprintf('.')
+    for idelta = 1:nDelta
+        for ioff = 1:noff_all
+            loglike_all_neurons{idelta,ioff,iboot} = zeros(sz_fit,cellN,min_trials(idelta,ioff));
+            loglike_all_fit{idelta,ioff,iboot} = zeros(sz_fit,cellN);
+            for iCell = 1:cellN
+                iC = ind_cells_temp(iCell);
+                for i = 1:min_trials(idelta,ioff)
+                    loglike_all_neurons{idelta,ioff,iboot}(:,iC,i) = squeeze(bsxfun(@times,sqrt(fit_all_thresh(:,iC))',ppResp_trials{ioff,idelta}(iC,i)))';
+                end
+                loglike_all_fit{idelta,ioff,iboot}(:,iC) = fit_all_thresh(:,iC);
+            end
+            loglike_all_fun{idelta,ioff,iboot} =  squeeze(bsxfun(@minus, nansum(loglike_all_neurons{idelta,ioff,iboot}(:,ind_cells_temp,:),2), nansum(loglike_all_fit{idelta,ioff,iboot}(:,ind_cells_temp,:),2)));
+            [max_val maxloglike_all{idelta,ioff,iboot}] = max(loglike_all_fun{idelta,ioff,iboot},[],1);
+            maxloglike_change{idelta,ioff,iboot} = maxloglike_all{idelta,ioff,iboot};
+            maxloglike_change{idelta,ioff,iboot}(find(maxloglike_all{idelta,ioff,iboot}>90)) = 179-maxloglike_change{idelta,ioff,iboot}(find(maxloglike_all{idelta,ioff,iboot}>90));
+        end
+    end
+
+    if iboot == 1
+        figure;
+        for idelta = 1:nDelta
+            for ioff = 3%1:noff_all
+                subplot(3,3,idelta)
+                shadedErrorBar(0:180, mean(loglike_all_fun{idelta,ioff,iboot},2), std(loglike_all_fun{idelta,ioff,iboot},[],2)./sqrt(size(loglike_all_fun{idelta,ioff,iboot},2)),{['-c'],'markerfacecolor','c'});
+                hold on
+            end
+            title([num2str(deltas(idelta)) 'deg'])
+            xlabel('Orientation')
+            ylabel('Log likelihood')
+            xlim([-10 190])
+            %ylim([-3000 0])
+        end
+        suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Log Likelihood Function- all fits- by trial- 100X- sqrt'])
+        print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'sqrt_loglike_byDelta_byInt_summary_allFits_byTrial.pdf'),'-dpdf','-fillpage')
+
+        %likelihood is 0
+        figure;
+        likely_all = [];
+        off_id = [];
+        for ioff = 1:noff_all
+            for idelta = 1:nDelta
+                temp_likely = loglike_all_fun{idelta,ioff,iboot};
+                errorbar(deltas(idelta), mean(temp_likely(end,:),2),std(temp_likely(end,:),[],2)./sqrt(size(temp_likely,2)),['o' col_mat(ioff,:)]);
+                hold on
+                if idelta == nDelta
+                    errorbar(0, mean(temp_likely(end,:),2),std(temp_likely(end,:),[],2)./sqrt(size(temp_likely,2)),['o' col_mat(ioff,:)]);
+                end
+                if idelta == 1
+                    likely_all = [likely_all temp_likely(end,:)];
+                    off_id = [off_id ioff*ones(size(temp_likely(1,:)))];
+                end
+            end
+            xlim([-22 202])
+            xlabel('Orientation')
+            ylabel('Log likelihood of 0 deg')
+        end
+        suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Log Likelihood of 0 deg stimulus- all cells- by trial- 100X- sqrt'])
+        print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'sqrt_loglike_is0_combo_allCells_byTrial_100X.pdf'),'-dpdf','-fillpage')
+        [p_like0, table_like0, stats_like0] = anovan(likely_all,{off_id});
+    end
+
+    for idiff = 1:ndiff
+        del = find(delta_diff == diffs(idiff));
+        for ioff = 1:noff_all
+            for i =1:length(del)
+                maxloglike_change_diff{idiff,ioff,iboot} = [maxloglike_change_diff{idiff,ioff,iboot} maxloglike_change{del(i),ioff,iboot}];
+            end
+        end
+    end
+end
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'maxloglike_change_sqrt.mat'),'maxloglike_change_diff','maxloglike_change','loglike_all_fun')
+
+figure;
+maxloglike_change_diff_all = [];
+maxloglike_change_diff_all_1 = [];
+maxloglike_change_diff_all_2 = [];
+off_id = [];
+diff_id = [];
+off_id_1 = [];
+diff_id_1 = [];
+off_id_2 = [];
+diff_id_2 = [];
+for idiff = 1:ndiff
+    for ioff = 3 %1:noff_all
+        errorbar(diffs(idiff),mean(maxloglike_change_diff{idiff,ioff,1},2), std(maxloglike_change_diff{idiff,ioff,1},[],2)./sqrt(size(maxloglike_change_diff{idiff,ioff,1},2)), 'ok')%['-o' col_mat(ioff,:)]);
+        hold on
+        sz = size(maxloglike_change_diff{idiff,ioff,1});
+        maxloglike_change_diff_all = [maxloglike_change_diff_all maxloglike_change_diff{idiff,ioff,1}];
+        off_id = [off_id ioff*ones(sz)];
+        diff_id = [diff_id idiff*ones(sz)];
+        if idiff == 1
+            off_id_1 = [off_id_1 ioff*ones(sz)];
+            diff_id_1 = [diff_id_1 idiff*ones(sz)];
+            maxloglike_change_diff_all_1 = [maxloglike_change_diff_all_1 maxloglike_change_diff{idiff,ioff,1}];
+        end
+        if idiff == 2
+            off_id_2 = [off_id_2 ioff*ones(sz)];
+            diff_id_2 = [diff_id_2 idiff*ones(sz)];
+            maxloglike_change_diff_all_2 = [maxloglike_change_diff_all_2 maxloglike_change_diff{idiff,ioff,1}];
+        end
+    end
+end
+xlabel('Stim - Adapter')
+ylabel('Max likely ori - Adapter')
+xlim([-10 100])
+ylim([-10 100])
+axis square
+suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Max Log Likelihood dist from Adapter - by trial- scaled sub- 100X - sqrt'])
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'sqrt_maxloglike_distAdapt_byTrial_scaledsub_100X.pdf'),'-dpdf','-fillpage')
 [p_max, table_max, stats_max] = anovan(maxloglike_change_diff_all,{off_id, diff_id});
 [p_max_1, table_max_1, stats_max_1] = anovan(maxloglike_change_diff_all_1,{off_id_1});
 [p_max_2, table_max_2, stats_max_2] = anovan(maxloglike_change_diff_all_2,{off_id_2});
@@ -925,8 +1326,8 @@ xlabel('Stim - Adapter')
 ylabel('Likelyhood = 0')
 xlim([-10 100])
 ylim([-10000 0])
-suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Log Likelihood is 0 - by trial- scaled sub- 100X'])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'loglike_is0_distAdapt_byTrial_scaledsub_100X.pdf'),'-dpdf','-fillpage')
+suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- Log Likelihood is 0 - by trial- scaled sub- 100X - sqrt'])
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'sqrt_loglike_is0_distAdapt_byTrial_scaledsub_100X.pdf'),'-dpdf','-fillpage')
 [p_like0, table_like0, stats_like0] = anovan(loglike_diff_all,{off_id, diff_id});
 [p_like0_1, table_like0_1, stats_like0_1] = anovan(loglike_diff_all_1,{off_id_1});
 [comp_like0_1] = multcompare(stats_like0_1);
@@ -986,7 +1387,7 @@ for idiff = 1:ndiff
 end
 subplot(2,3,idiff+1)
 errorbar(repmat(diffs, [2 1])', squeeze(avg_roc(:,1,:))', squeeze(avg_roc(:,2,:))', '-o')
-ylim([0.3 0.7])
+ylim([0 1])
 xlim([-10 100])
 axis square
 ylabel('Average auROC')
@@ -1024,6 +1425,133 @@ ylabel('Average auROC')
 xlabel('Diff of Stim from Adaptor (deg)')
 suptitle([reshape(flipud(rot90(mouse_mat)),[1 nexp*4]) '- ROC 0 (short ISI) vs Diff from Adapter- Absolute value']) 
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'rocv180_allCells_summary_abs.pdf'),'-dpdf','-fillpage')
+
+%average ROC for good cells in each experiment
+offset = 0;
+roc_val = nan(nDelta,noff,nexp);
+n_15 = zeros(1,nexp);
+for iexp = 1:nexp
+    ppResp = ppResp_all{iexp};
+    n = size(ppResp{1,1},1);
+    ind = find(theta_90_all(offset+1:offset+n,:)<22.5);
+    %if length(ind)>15
+        for iori = 1:nDelta
+            for ioff = 1:noff
+                roc_val(iori,ioff,iexp) = roc_gh(mean(ppResp{1,8}(ind,:),1), mean(ppResp{ioff,iori}(ind,:),1));
+            end
+        end
+        n_15(1,iexp) =length(ind);
+    %end
+    offset = n+offset;
+end
+
+figure;
+subplot(2,2,1)
+for ioff = 1:noff
+    errorbar(deltas, nanmean(roc_val(:,ioff,:),3), nanstd(roc_val(:,ioff,:),[],3)./sqrt(nexp),'-o')
+    hold on
+end
+ylim([0.5 1])
+xlim([-10 190])
+ylabel('auROC')
+xlabel('Orientation (deg)')
+%title(['theta 90 < 22.5; >15 cells; n = ' num2str(length(find(n_15>0))) 'expts'])
+
+roc_val_diff = zeros(ndiff,noff,nexp);
+for idiff = 1:ndiff
+    del = find(delta_diff ==  diffs(idiff));
+    roc_val_diff(idiff,:,:) = mean(roc_val(del,:,:),1);
+end
+subplot(2,2,2)
+for ioff = 1:noff
+    errorbar(diffs, nanmean(roc_val_diff(:,ioff,:),3), nanstd(roc_val_diff(:,ioff,:),[],3)./sqrt(nexp), '-o')
+    hold on
+end
+ylim([0.5 1])
+xlim([-10 100])
+ylabel('auROC')
+xlabel('Diff of Stim from Adaptor (deg)')
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'rocv180_allExpts_summary.pdf'),'-dpdf','-fillpage')
+roc_val_diff_nonan = roc_val_diff;
+roc_val_diff_nonan(:,:,find(n_15==0)) = [];
+[p_roc_byexp, table_roc_byexp, stats_roc_byexp] = anova2(reshape(permute(roc_val_diff_nonan,[1 3 2]), [ndiff noff*length(find(n_15>0))])', length(find(n_15>0)));
+for idiff = 1:ndiff
+    [p_roc_byexp(idiff), h_roc_byexp(idiff)] = ttest(squeeze(roc_val_diff(idiff,1,:)),squeeze(roc_val_diff(idiff,2,:)));
+end
+strtmp = [];
+for i = 2:4
+    strtmp = [strtmp num2str(chop(table_roc_byexp{i,6},3)) ' '];
+end
+title(strtmp)
+
+%hit/FA rate by DV
+%FA rate
+offset = 0;
+nbin = 101;
+dv_FA_mat = zeros(nbin,noff_all,nexp);
+dv_CD_mat = zeros(nbin,noff_all,nexp);
+figure
+for iexp = 1:nexp
+    subplot(3,4,iexp)
+    ppResp = ppResp_all{iexp};
+    for ioff = noff_all:-1:1
+        data_resp_off_zero = ppResp{ioff,8};
+        data_resp_off_22 = [ppResp{ioff,1} ppResp{ioff,7}];
+        [n, ntrials_zero] = size(data_resp_off_zero);
+        [n, ntrials_22] = size(data_resp_off_22);
+        ind = find(theta_90_all(offset+1:offset+n,:)<22.5);
+        data_resp_off_zero_avg = mean(data_resp_off_zero(ind,:),1);
+        data_resp_off_22_avg = mean(data_resp_off_22(ind,:),1);
+        if ioff == 3
+            min_data_zero = min(data_resp_off_zero_avg,[],2);
+            max_data_zero = max(data_resp_off_zero_avg,[],2);
+            min_data_22 = min(data_resp_off_22_avg,[],2);
+            max_data_22 = max(data_resp_off_22_avg,[],2);
+            data_incr_zero = (max_data_zero-min_data_zero)./nbin;
+            data_incr_22 = (max_data_22-min_data_22)./nbin;
+        end
+        for ibin = 1:nbin
+            dv_FA_mat(ibin,ioff,iexp) = length(find(data_resp_off_zero_avg>=min_data_zero+((ibin-1)*(data_incr_zero))))./ntrials_zero;
+            dv_CD_mat(ibin,ioff,iexp) = length(find(data_resp_off_22_avg>=min_data_22+((ibin-1)*(data_incr_22))))./ntrials_22;
+        end
+        plot(0:0.01:1,dv_FA_mat(:,ioff,iexp))
+        hold on
+    end
+    title(length(ind))
+    offset = n+offset;
+end
+
+figure; 
+gray_mat = grays(3);
+for ioff = 1:noff_all
+    subplot(2,2,1)
+    shadedErrorBar(0:0.01:1,mean(dv_CD_mat(:,ioff,:),3),std(dv_CD_mat(:,ioff,:),[],3)./sqrt(nexp),{col_mat(ioff,:),'markerfacecolor',col_mat(ioff,:)},0);
+    hold on
+    ylabel('CD rate')
+    xlabel('Norm decision variable')
+    subplot(2,2,2)
+    shadedErrorBar(0:0.01:1,mean(dv_FA_mat(:,ioff,:),3),std(dv_FA_mat(:,ioff,:),[],3)./sqrt(nexp),{col_mat(ioff,:),'markerfacecolor',col_mat(ioff,:)},0);
+    hold on
+    ylabel('FA rate')
+    xlabel('Norm decision variable')
+    legend({'250','750','control'})
+end
+
+% for ioff = 1:noff_all
+%     subplot(2,2,3)
+%     errorbar(0:0.01:1,mean(dv_CD_mat(:,ioff,find(n_15)),3),std(dv_CD_mat(:,ioff,find(n_15)),[],3)./sqrt(length(find(n_15))));
+%     hold on
+%     ylabel('CD rate')
+%     xlabel('Norm decision variable')
+%     subplot(2,2,4)
+%     errorbar(0:0.01:1,mean(dv_FA_mat(:,ioff,find(n_15)),3),std(dv_FA_mat(:,ioff,find(n_15)),[],3)./sqrt(length(find(n_15))));
+%     hold on
+%     ylabel('FA rate')
+%     xlabel('Norm decision variable')
+%     legend({'250','750','control'})
+% end
+
+print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', 'Adaptation', 'CD_FA_sum_allExpts_summary.pdf'),'-dpdf','-fillpage')
 
 %% tuning figures- sub
 delta_resp_norm_all = bsxfun(@rdivide, delta_resp_sub_all, max(delta_resp_sub_all(:,:,3),[],2));
