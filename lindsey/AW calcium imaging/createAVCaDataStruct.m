@@ -276,7 +276,7 @@ eval(['awFSAVdatasets' datasetStr])
         F2oneStim = intersect(AV_ind,F1Ix);
         
         FIx = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'failure')));
-        SIx = intersect(intersect(Ix, find(reactTimes>200)), find(strcmp(input.trialOutcomeCell, 'success')));
+        SIx = intersect(intersect(Ix, find(Times>200)), find(strcmp(input.trialOutcomeCell, 'success')));
         SIxAllReact = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'success')));
         MIx = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'ignore')));
         FIxlong = intersect(find(tCyclesOn>3), FIx);
