@@ -42,7 +42,6 @@ imshow(mat2gray(mean(img_test,3)));truesize
 for i = 1:size(mask3D,3) 
     hold on
     contour(mask3D(:,:,i),'g')
-    
 end
 for i = 1:size(mask3D_2,3)
     hold on

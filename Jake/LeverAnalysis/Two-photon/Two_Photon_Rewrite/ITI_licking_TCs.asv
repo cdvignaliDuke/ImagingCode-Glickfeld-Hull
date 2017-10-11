@@ -65,7 +65,7 @@ for ii = [3, 6, 10, 25, 27, 32,   2, 5, 9, 22, 23, 31]  %     2, 5, 9, 22, 23, 3
         if licks_by_frame(iii)==0 %if there is no lick in this frame then skip to the next
             continue
         elseif ~isempty(bout_start_inx) && bout_start_inx(end) >= iii-max_diff; %prevents counting the second lick in a bout as a bout onset
-            continue
+            continue;
         elseif sum( licks_by_frame([(iii-pre_bout_int):(iii-1)]) ) > 0 %if there is a lick in the time before the current frame
             continue
         %elseif sum( licks_by_frame( [(iii+1) : (iii+1+min_licks_per_bout*max_diff)] )) < min_licks_per_bout;  %minimum # of licks per bout 

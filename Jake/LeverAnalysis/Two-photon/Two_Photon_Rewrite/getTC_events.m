@@ -22,7 +22,7 @@ holdT_min  = 500000;  %us
 frame_info.ifi = ifi;
 
 data_dest = [dest 'parse_behavior.mat'];
-save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'Sampeling_rate', 'holdT_min', 'ifi')
+save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'lick_data', 'Sampeling_rate', 'holdT_min', 'ifi')
 
 %% 2. Obtain a df/f TC from baseline times
 data_tc = tc_avg;

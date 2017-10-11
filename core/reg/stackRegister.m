@@ -53,7 +53,7 @@ if nframes > verbose_threshold
 end
 
 for index = 1:nframes
-    if mod(index,50)==0 
+    if mod(index,250)==0 
         fprintf(1,'Frame %i (%2.1f fps)\n',index,index/toc);
     end
     SLICE = fft2(cast(stack(:,:,index),'single'));

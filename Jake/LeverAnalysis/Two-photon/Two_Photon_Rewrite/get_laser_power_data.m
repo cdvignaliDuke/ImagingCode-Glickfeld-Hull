@@ -10,13 +10,12 @@ function [img_mat_file, laser_power_vec] = get_laser_power_data(sub, rID);
 file_info;
 data_dir = fullfile('Z:\Data\2P_imaging',[date{sub} '_' mouseID{sub}], mouseID{sub});
 config_fn = dir(fullfile(data_dir,['*' runID{rID} '.mat']));
-laser_power_fn = dir(fullfile(data_dir,['*' runID{rID} 'realtime.mat']));
+laser_power_fn = dir(fullfile(data_dir,['*' runID{rID} '_realtime.mat']));
 
 %load imaging .mat file
 if size(config_fn,1) ~= 0
     cd(data_dir);
-    load(config_fn.name);
-    img_mat_file = info; 
+    img_mat_file = load(config_fn.name);
 else 
     img_mat_file = [];
 end

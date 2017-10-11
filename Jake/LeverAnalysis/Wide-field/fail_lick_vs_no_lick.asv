@@ -47,10 +47,10 @@ for ii = 1:length(days);
     
     %skip plotting if nothing to plot
     if isempty(no_lick_fail_trials)
-        disp([days{ii}, ' no trials WITHOUT lickiing in window']);
+        disp([days{ii}, 'no trials WITHOUT lickiing in window']);
         continue;
     elseif isempty(lick_fail_trials)
-        disp([days{ii}, ' no trials WITH lickiing in window']);
+        disp([days{ii}, 'no trials WITH lickiing in window']);
         continue;
     end
     
@@ -82,18 +82,15 @@ for ii = 1:length(days);
     end
     axis tight;
     vline(0);
-    title([['no licking in frames 0:3' , days(ii)], ['failed trials with licks n=', num2str(length(lick_fail_trials)), ' (magenta).'] ['Without licks n=', num2str(length(no_lick_fail_trials)), '(red)']]);
+    title(['no licking in frames 0:3', days(ii), 'failed trials with licks n=', num2str(length(lick_fail_trials)), ' (magenta). Without licks n=', num2str(length(no_lick_fail_trials)), '(red)']);
     xlabel('frame number relative to lever release');
     ylabel('df/f segregated by ROI');
     %savefig(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\', days{ii}]);
-   
-    %save the time courses for use in other scripts
+end
     early_TCs.no_lick_TCs = fail_roi(no_lick_fail_trials, :, :);
     early_TCs.lick_TCs    = fail_roi(lick_fail_trials, :, :);
-    save(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\no_licks_-2_to_2\', days{ii}], 'early_TCs');
-
-end
-
+    save(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\no_licks_-2_to_2', days{ii}], 'early_TCs');
+ 
 %% Section THREE CORRECT TRIALS
 for ii = 1:length(days);
     %load bx and correct trials TCs
@@ -119,10 +116,10 @@ for ii = 1:length(days);
     
     %skip plotting if nothing to plot
     if isempty(no_lick_corr_trials)
-        disp([days{ii}, ' no trials WITHOUT lickiing in window']);
+        disp([days{ii}, 'no trials WITHOUT lickiing in window']);
         continue;
     elseif isempty(lick_corr_trials)
-        disp([days{ii}, ' no trials WITH lickiing in window']);
+        disp([days{ii}, 'no trials WITH lickiing in window']);
         continue;
     end
     
@@ -154,16 +151,14 @@ for ii = 1:length(days);
     end
     axis tight;
     vline(0);
-    title([['no licking in frames -2:2 ', days(ii)], ['correct trials with licks n=', num2str(length(lick_corr_trials)), ' (magenta)'], ['Without licks n=', num2str(length(no_lick_corr_trials)), '(red)']]);
+    title(['no licking in frames -2:2', days(ii), 'correct trials with licks n=', num2str(length(lick_corr_trials)), ' (magenta). Without licks n=', num2str(length(no_lick_corr_trials)), '(red)']);
     xlabel('frame number relative to lever release');
     ylabel('df/f segregated by ROI');
-    %savefig(['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\', days{ii}]);
-    
-    %save the time courses for use in other scripts
+    savefig(['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\', days{ii}]);
+end
     corr_TCs.no_lick_TCs = success_roi(no_lick_corr_trials, :, :);
     corr_TCs.lick_TCs    = success_roi(lick_corr_trials, :, :);
-    save(['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\no_licks_-2_to_2\', days{ii}], 'corr_TCs');
-end
+    save(['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\', days{ii}], 'corr_TCs');
 
 %% section four - plot percent fail vs corr trials with licks
 figure; scatter(percent_corr_lick_all, percent_fails_lick_all, 'o'); 

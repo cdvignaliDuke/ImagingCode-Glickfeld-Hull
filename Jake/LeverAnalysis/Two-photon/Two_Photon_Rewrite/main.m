@@ -17,20 +17,18 @@ behav_dir = 'Z:\Data\2P_imaging\behavior\';
 for sub = [1] %size(mouseID,2) 
     for rID = 1
         file_info;
-        usFacs = 100; % upsample factor
         out_dir  = fullfile('Z:', 'Analysis','Cue_reward_pairing_analysis','2P',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
         
         [img, skip_run, img_fn] = loadFile(sub, rID);
-        if length(size(img))==4;
-            img2 = img(1,:,:,:);
-            img= squeeze(img(2,:,:,:));
+        if length(size(img))==4;  %two channels were collected...
+            img2 = img(2,:,:,:);   %red channel
+            img= squeeze(img(1,:,:,:));  %green channel
         end
         
         if skip_run == 1
             continue
         end
         
-        [img_mat_file, laser_power_vec] = get_laser_power_data(sub, rID);
         if ~exist(out_dir)
             mkdir(out_dir);
         end
@@ -53,15 +51,19 @@ for sub = [1] %size(mouseID,2)
             load([out_dir, 'Reg_out.mat']);
             [~,img_reg]=stackRegister_MA(img,img(:,:,1),usFacs,reg_out);
         else
-            %restrict frame selection to frames with laser on
-            if isempty(laser_power_vec)
-                laser_power_vec = ones(1,nt);
-            end
-            laser_on_ind = find(laser_power_vec);   %frame numbers of frames with laser power on
-            frame_nums_for_ref30 = laser_on_ind(randi([1,size(laser_on_ind,2)],1,30));
-            frame_nums_for_samp100 = laser_on_ind(round(linspace(1,size(laser_on_ind,2))));
             
-            % select 30 random frames from throughout the movie
+            %restrict frame selection to frames with laser on
+            [img_mat_file, laser_power_vec_ttl] = get_laser_power_data(sub, rID);
+            if isempty(laser_power_vec_ttl)
+                laser_power_vec_ttl = ones(1,nt);
+            else
+                laser_on_ind_conserv = conservative_laser_on(laser_power_vec_ttl);
+            end
+            laser_on_ind = find(laser_power_vec_ttl);   %frame numbers of frames with laser power on determined by _realtime ttl_log
+            frame_nums_for_ref30 = laser_on_ind_conserv(randi([1,length(laser_on_ind_conserv)],1,30));
+            frame_nums_for_samp100 = laser_on_ind_conserv(round(linspace(1,length(laser_on_ind_conserv))));
+            
+            %select 30 random frames from throughout the movie
             ref30 = img(:,:,frame_nums_for_ref30);
             
             %motion register each of the 30 random frames to 100 frames from the movie. Find the one with the lowerst dshift
@@ -76,13 +78,16 @@ for sub = [1] %size(mouseID,2)
             min_f = find(dshift == min(dshift));
             img_ref = ref30(:,:,min_f);
             [reg_out, img_reg] = stackRegister(img, img_ref);
-            save([out_dir, 'Reg_out.mat'], 'reg_out','img_ref');
-            clear img
+            if ~exist(out_dir)
+                mkdir(out_dir);
+            end
+            save([out_dir, 'Reg_out.mat'], 'reg_out','img_ref', 'laser_on_ind');
+            clear img img2
         end
         
         %% Compute principle components 
         nPCA = 500; %100 for old datasets, 500 for newer
-        img_pca = img_reg(:,:,laser_on_ind); %only run PCA on frames with laser power on
+        img_pca = img_reg(:,:,laser_on_ind_conserv); %only run PCA on frames with laser power on
         if size(img_pca, 3) > 65000 % downsample in time by 2 or 5
             img_pca = img_pca(:,:,1:2:end);
         end
@@ -161,7 +166,7 @@ for sub = [1] %size(mouseID,2)
         reg_sum = sum(img_reg,3);
         %plot TCs with and without the frames without laser power
         plotTC(tc_avg, mask3D, reg_sum, 1:size(tc_avg,2), FrameRate, out_dir, saveData);
-        plotTC(tc_avg(:,laser_on_ind), mask3D, reg_sum, 1:length(laser_on_ind), FrameRate, out_dir, 0);
+        plotTC(tc_avg(laser_on_ind,:), mask3D, reg_sum, 1:length(laser_on_ind), FrameRate, out_dir, 0);
         mask_flat = plotMask(mask3D, saveData, out_dir);
         
         data_corr = corrcoef(tc_avg);

@@ -18,9 +18,9 @@ unexpected_roi_all = [];
 lick_trace_rew_all = [];
 lick_trace_rew_om_all = [];
 
-%figure;
-subplot(2,2,3); hold on;  colors = {'k', 'r', 'b', 'm', 'g', 'c', 'y', 'k', 'r'}; title('all sessions df/f TCs omission');
-for ii = 1:length(days)
+%figure; subplot(2,2,3); hold on;  
+colors = {'k', 'r', 'b', 'm', 'g', 'c', 'y', 'k', 'r'}; %title('all sessions df/f TCs omission');
+for ii = 5 % 1:length(days)
     if isempty(days{ii});
         continue;
     end
@@ -44,16 +44,43 @@ for ii = 1:length(days)
     disp([days{ii}, ' rewarded n=', num2str(length(rew_no_lick_inx)), '   omission n=', num2str(length(rew_om_no_lick_inx))]);
     
     %remove trials with licking between cue and reward
-    lick_trace_rew = lick_trace_rew([rew_no_lick_inx], :);
-    lick_trace_rew_om = lick_trace_rew_om([rew_om_no_lick_inx], :);
-    rewarded_roi = rewarded_roi([rew_no_lick_inx], :, :);
-    rew_om_roi = rew_om_roi([rew_om_no_lick_inx], :, :);
+%     lick_trace_rew = lick_trace_rew([rew_no_lick_inx], :);
+%     lick_trace_rew_om = lick_trace_rew_om([rew_om_no_lick_inx], :);
+%     rewarded_roi = rewarded_roi([rew_no_lick_inx], :, :);
+%     rew_om_roi = rew_om_roi([rew_om_no_lick_inx], :, :);
     
     %store avg of remaining trials
     lick_trace_rew = mean(lick_trace_rew,1);
     lick_trace_rew_om = mean(lick_trace_rew_om,1);
     lick_trace_rew_all = [lick_trace_rew_all; lick_trace_rew];
     lick_trace_rew_om_all = [lick_trace_rew_om_all; lick_trace_rew_om];
+    
+    %====================================================================
+    %plot the lick trace and df/f traces for each animal
+    x_axis = [1:size(rewarded_roi,3)]*100-600;
+    temp_n = size(rewarded_roi,1);
+    rewarded_roi_error = std(squeeze(rewarded_roi(:,3,:)),[],1)/sqrt(size(rewarded_roi,1));
+    rewarded_roi = squeeze(mean(rewarded_roi,1));
+    figure; subplot(2,1,1);
+    bar(x_axis, lick_trace_rew/10); hold on;
+    for iii = 3% 1:size(rewarded_roi,1)
+        plot(x_axis, rewarded_roi(iii, :)', 'Color', colors{iii});
+        errorbar(x_axis, rewarded_roi(iii, :)', rewarded_roi_error);
+    end
+    title([days{ii}, ' day 1 rewarded trials, no lick window, n=', num2str(temp_n)]); xlabel('ms relative to cue onset');
+    %--------- reward omission
+    subplot(2,1,2); hold on;
+    temp_n = size(rew_om_roi,1);
+    rew_om_roi_error = std(squeeze(rew_om_roi(:,3,:)),[],1)/sqrt(size(rew_om_roi,1));
+    rew_om_roi = squeeze(mean(rew_om_roi,1));
+    bar(x_axis, lick_trace_rew_om/10);
+    for iii = 3% 1:size(rew_om_roi,1)
+        plot(x_axis, rew_om_roi(iii, :)', 'Color', colors{iii});
+        errorbar(x_axis, rew_om_roi(iii, :)', rew_om_roi_error);
+    end
+    title([days{ii}, ' day 1 omission trials, no lick window, n=', num2str(temp_n)]); xlabel('ms relative to cue onset');
+    continue
+    %=================================================================
     
     %avg together the ROIs (dim2) and trials (dim1)
     rewarded_roi = squeeze(mean(rewarded_roi(:,ROI_cell{ii},:),2));

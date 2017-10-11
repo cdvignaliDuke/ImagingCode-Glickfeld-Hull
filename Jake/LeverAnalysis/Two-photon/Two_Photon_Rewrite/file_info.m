@@ -22,8 +22,20 @@ behavID = {'030'};
 runID = {'000', '001', '002'};
 irun = 1;
 
-date = {'170911'};
-mouseID = {'img036'};
-behavID = {'036'};
+date = {'170912'};
+mouseID = {'img039'};
+behavID = {'039'};
+runID = {'000', '001', '002'};
+irun = 1;
+
+date = {'170917'};
+mouseID = {'img039'};
+behavID = {'039'};
+runID = {'000', '001', '002'};
+irun = 1;
+
+date = {'170918'};
+mouseID = {'img039'};
+behavID = {'039'};
 runID = {'000', '001', '002'};
 irun = 1;
