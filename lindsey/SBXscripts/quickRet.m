@@ -1,7 +1,7 @@
-date = '171101';
-mouse = 'i746';
+date = '171102';
+mouse = 'i561';
 ImgFolder = '001';
-time = '1736';
+time = '1315';
 doReg = 0;
 nrun = size(ImgFolder,1);
 rc = behavConstsAV;
@@ -113,6 +113,9 @@ input = concatenateDataBlocks(temp);
     if strcmp(rc.name,'linds')
         mkdir(['Z:\home\lindsey\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:)]);
         print(['Z:\home\lindsey\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:) '\' date '_' mouse '_' ImgFolder(irun,:) '_retinotopy.pdf'], '-dpdf','-bestfit')
+    elseif strcmp(rc.name,'robin')
+        mkdir(['R:\home\robin\Imaging\Analysis\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:)]);
+        print(['R:\home\robin\Imaging\Analysis\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:) '\' date '_' mouse '_' ImgFolder(irun,:) '_retinotopy.pdf'], '-dpdf','-bestfit')    
     end
     
     figure
@@ -129,6 +132,8 @@ input = concatenateDataBlocks(temp);
     figure; imagesc(mean(data,3));
     axis off
     title([mouse ' ' date])
+    if strcmp(rc.name,'linds')
     print(['Z:\home\lindsey\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:) '\' date '_' mouse '_' ImgFolder(irun,:) '_FOV.pdf'], '-dpdf','-bestfit')
-
-    
+    elseif strcmp(rc.name,'robin')
+           print(['R:\home\robin\Imaging\Analysis\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:) '\' date '_' mouse '_' ImgFolder(irun,:) '_FOV.pdf'], '-dpdf','-bestfit')
+    end
