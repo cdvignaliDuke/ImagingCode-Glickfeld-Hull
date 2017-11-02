@@ -1,5 +1,8 @@
-function quickRet(date,mouse,ImgFolder,time,subnum)
-
+date = '171101';
+mouse = 'i746';
+ImgFolder = '001';
+time = '1736';
+doReg = 0;
 nrun = size(ImgFolder,1);
 rc = behavConstsAV;
 
@@ -22,7 +25,7 @@ for irun = 1:nrun
 
     nframes = info.config.frames;
     data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
-    
+    fprintf(['Loaded ' num2str(nframes) ' frames \r\n'])
     
     if strcmp(rc.name,'ashle')        
     fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' subnum '-' date '-' time(irun,:) '.mat'];
@@ -36,6 +39,9 @@ for irun = 1:nrun
     nOff = temp(irun).nScansOff;
     ntrials = size(temp(irun).tGratingDirectionDeg,2);
     
+    if size(data_temp,1) == 2
+        data_temp = data_temp(1,:,:,:);
+    end
     data_temp = squeeze(data_temp);
 %     if nframes>ntrials*(nOn+nOff)
 %         data_temp = data_temp(:,:,1:ntrials*(nOn+nOff));
@@ -48,7 +54,6 @@ end
 clear data_temp
 input = concatenateDataBlocks(temp);
 
-
     nOn = input.nScansOn;
     nOff = input.nScansOff;
     ntrials = size(input.tGratingDirectionDeg,2);
@@ -56,11 +61,18 @@ input = concatenateDataBlocks(temp);
    %use if pmt 2 was saved
 %     data = squeeze(data(1,:,:,:));
     
+    if doReg
+    data_avg = mean(data(:,:,1000:1500),3);
+    [out data_reg] = stackRegister(data,data_avg);
+    data = data_reg;
+    clear data_reg
+    end
+    
     sz = size(data);
     data_tr = reshape(data,[sz(1), sz(2), nOn+nOff, ntrials]);
     data_f = mean(data_tr(:,:,nOff/2:nOff,:),3);
-    data_df = bsxfun(@minus, double(data_tr), data_f); 
-    data_dfof = bsxfun(@rdivide,data_df, data_f); 
+    data_df = bsxfun(@minus, double(permute(data_tr,[1 2 4 3])), squeeze(data_f)); 
+    data_dfof = permute(bsxfun(@rdivide,data_df, squeeze(data_f)),[1 2 4 3]); 
     clear data_f data_df data_tr
 
     Az = celleqel2mat_padded(input.tGratingAzimuthDeg);
@@ -98,6 +110,11 @@ input = concatenateDataBlocks(temp);
         img_avg_resp(i) = mean(mean(mean(data_dfof_avg_all(:,:,i),3),2),1);
         %clim([0 max(data_dfof_avg_all(:))./2])
     end
+    if strcmp(rc.name,'linds')
+        mkdir(['Z:\home\lindsey\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:)]);
+        print(['Z:\home\lindsey\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:) '\' date '_' mouse '_' ImgFolder(irun,:) '_retinotopy.pdf'], '-dpdf','-bestfit')
+    end
+    
     figure
     heatmap = imagesc(reshape(img_avg_resp,length(Els),length(Azs)));
     heatmap.Parent.YTick = 1:length(Els);
@@ -108,4 +125,10 @@ input = concatenateDataBlocks(temp);
     ylabel('Elevation');
     colorbar
     caxis([-0.1 0.1])
+    
+    figure; imagesc(mean(data,3));
+    axis off
+    title([mouse ' ' date])
+    print(['Z:\home\lindsey\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:) '\' date '_' mouse '_' ImgFolder(irun,:) '_FOV.pdf'], '-dpdf','-bestfit')
+
     
