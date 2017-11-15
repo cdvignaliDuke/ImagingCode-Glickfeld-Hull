@@ -1,17 +1,27 @@
-function [cellsSelect, OSI, DSI] = OriCellSets(rc, expt, iexp,cellsOnly)
+function [cellsSelect, OSI, DSI] = OriCellSets(rc, expt, iexp,cellsOnly,isFSAV)
 %display experiment
 disp([num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum)])
 %load direction tuning data
 dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,'two-photon imaging', expt(iexp).date, expt(iexp).dirtuning);
-if cellsOnly == 1
-    load(fullfile(dataPath,'cell&dendriteTC.mat'))
-    data_tc_subnp = cell_tc;
-elseif cellsOnly == 2    
-    load(fullfile(dataPath,'timecourses_dendrites.mat'))
-else
-    load(fullfile(dataPath, 'timecourses.mat'));
-end
 
+if isFSAV
+    if cellsOnly == 1
+        load(fullfile(dataPath,'timecourses_tun_cells.mat'))
+        data_tc_subnp = data_tun_tc_subnp;
+    elseif cellsOnly == 2    
+        load(fullfile(dataPath,'timecourses_tun_dendrites.mat'))
+        data_tc_subnp = data_tun_den_tc_subnp;
+    end
+else
+    if cellsOnly == 1
+        load(fullfile(dataPath,'cell&dendriteTC.mat'))
+        data_tc_subnp = cell_tc;
+    elseif cellsOnly == 2    
+        load(fullfile(dataPath,'timecourses_dendrites.mat'))
+    else
+        load(fullfile(dataPath, 'timecourses.mat'));
+    end
+end
 %load mworks file
 mworks = ['data-' 'i' expt(iexp).SubNum '-' expt(iexp).date '-' expt(iexp).dirtuning_time]; 
 load (fullfile(rc.pathStr,mworks));
@@ -133,14 +143,14 @@ for i= 1:size(dFoverFCellsTrials,2)
     end
 end
 
-%find cells with reliable tunning by fitting
-cellFits = vonmisesFits(dFoverF_OriResp_avg,dFoverF_OriResp_avg_boot,tuningReliabilityThresh,Dirs);
-disp([num2str(sum(~isnan(mean(cellFits,1))/size(cellFits,2))) ' fits'])
-fit_ind = ~isnan(mean(cellFits,1)) & mean(cellFits,1) ~= 0;
-[~, fit_pref_ind] = max(cellFits,[],1);
-fit_pref_ind(~fit_ind) = NaN;
-fit_pref_ind = fit_pref_ind-1;
-fit_pref_ind(fit_pref_ind == 180) = 0;
+% %find cells with reliable tunning by fitting
+% cellFits = vonmisesFits(dFoverF_OriResp_avg,dFoverF_OriResp_avg_boot,tuningReliabilityThresh,Dirs);
+% disp([num2str(sum(~isnan(mean(cellFits,1))/size(cellFits,2))) ' fits'])
+% fit_ind = ~isnan(mean(cellFits,1)) & mean(cellFits,1) ~= 0;
+% [~, fit_pref_ind] = max(cellFits,[],1);
+% fit_pref_ind(~fit_ind) = NaN;
+% fit_pref_ind = fit_pref_ind-1;
+% fit_pref_ind(fit_pref_ind == 180) = 0;
 
 %find cells with <10% CI of having Ori preference, but still driven
 untuned_ind = intersect(find(~isnan(no_ori_ind)),resp_ind);
@@ -201,15 +211,22 @@ ylabel('n cells')
 title([expt(iexp).mouse '-' expt(iexp).date])
 print(fullfile(dataPath,'OSI_hist'),'-dpdf')
 
-if cellsOnly == 1
-    save(fullfile(dataPath, 'cellsSelect_cellsOnly.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
-elseif cellsOnly == 2
-    save(fullfile(dataPath, 'cellsSelect_dendrites.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
-else
-    save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC','cellFits','fit_pref_ind');
-    save(fullfile(dataPath,'cellFits.mat'),'cellFits');
-end
-
+    if isFSAV
+        if cellsOnly == 1
+            save(fullfile(dataPath, 'oriResp_cells.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+        elseif cellsOnly == 2    
+            save(fullfile(dataPath, 'oriResp_dendrites.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+        end
+    else
+        if cellsOnly == 1
+            save(fullfile(dataPath, 'cellsSelect_cellsOnly.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+        elseif cellsOnly == 2
+            save(fullfile(dataPath, 'cellsSelect_dendrites.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC');
+        else
+            save(fullfile(dataPath, 'cellsSelect.mat'), 'cellsSelect', 'OSI', 'DSI','ori_ind_all','max_dir_ind','dFoverF_OriResp_avg_rect','dFoverF_OriResp_sem_rect','dFoverF_DirResp_avg_rect','dFoverF_DirResp_sem_rect','dFoverF_OriResp_TC','cellFits','fit_pref_ind');
+        %     save(fullfile(dataPath,'cellFits.mat'),'cellFits');
+        end
+    end
 end
 
 

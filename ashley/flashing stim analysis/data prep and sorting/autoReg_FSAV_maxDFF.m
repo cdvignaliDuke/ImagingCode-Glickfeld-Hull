@@ -1,11 +1,11 @@
 clear all
 close all
 %%
-ds = '_V1gad';
+ds = '';
 doDendrites = 0;
 rc = behavConstsAV;
 eval(['awFSAVdatasets' ds])
-slct_expt = 5:size(expt,2);
+slct_expt = 17;
 
 %%
 for iexp = slct_expt

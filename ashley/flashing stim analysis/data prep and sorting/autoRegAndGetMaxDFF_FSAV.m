@@ -1,9 +1,9 @@
 clear all
 close all
-ds = '_V1gad';
+ds = '_naive100ms';
 rc = behavConstsAV;
 eval(['awFSAVdatasets' ds])
-slct_expt = 3;
+slct_expt = 1:size(expt,2);
 %%
 for iexp = slct_expt
 
