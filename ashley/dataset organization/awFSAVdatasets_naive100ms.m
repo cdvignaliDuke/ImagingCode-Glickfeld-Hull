@@ -82,6 +82,8 @@ expt(1).dirtuning = '006';
 expt(1).dirtuning_time = '2148';
 expt(1).rettuning = {'005';'2139'};
 expt(1).motionTestBimodal = 0;
+expt(1).virus = false;
+expt(1).regImgStartFrame = 45255;
 
 %% AW54 160614
 expt(2).SubNum = '654';
@@ -99,6 +101,8 @@ expt(2).dirtuning = '005';
 expt(2).dirtuning_time = '1359';
 expt(2).rettuning = {'004';'1355'};
 expt(2).motionTestBimodal = 0;
+expt(2).virus = false;
+expt(2).regImgStartFrame = 25237;
 %% AW60 160616 
 expt(3).SubNum = '660';
 expt(3).mouse = 'AW60';
@@ -115,6 +119,8 @@ expt(3).dirtuning = '004';
 expt(3).dirtuning_time = '1501';
 expt(3).rettuning = {'003';'1454'};
 expt(3).motionTestBimodal = 0;
+expt(3).virus = false;
+expt(3).regImgStartFrame = 8333;
 % %% AW56 160616 - not well driven
 % expt(4).SubNum = '656';
 % expt(4).mouse = 'AW56';
@@ -180,6 +186,8 @@ expt(4).dirtuning = '005';
 expt(4).dirtuning_time = '1456';
 expt(4).rettuning = {'004';'1447'};
 expt(4).motionTestBimodal = 0;
+expt(4).virus = true;
+expt(4).regImgStartFrame = 2050;
 % %% AW66 160815 V1 injection - not well driven
 % expt(8).SubNum = '666';
 % expt(8).mouse = 'AW66';

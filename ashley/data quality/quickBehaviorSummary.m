@@ -1,30 +1,39 @@
+function quickBehaviorSummary(expt,iexp,varargin)
 %% concatenate input structures
+SubNum = expt(iexp).SubNum;
+date = expt(iexp).date;
+taskTimeAll = expt(iexp).time_mat;
+
 mworksLocation = 'Y:\home\andrew\Behavior\Data';
 
 for ifile = 1:size(taskTimeAll,1)
-            if ifile == 1
-                input_temp = mwLoadData(fullfile(mworksLocation, ['data-' 'i' SubNum '-' date '-' taskTimeAll(ifile,:) '.mat']), [], []);
-            else
-                next_input = mwLoadData(fullfile(mworksLocation, ['data-' 'i' SubNum '-' date '-' taskTimeAll(ifile,:) '.mat']), [], []);
-                fn1 = fieldnames(input_temp);
-                fn2 = fieldnames(next_input);
-                missingVariables = [];
-                if length(fn2) < length(fn1) %% in case input structures have different number of field names
-                    missingVariables = setdiff(fn1,fn2);
-                    for ivar = 1:length(missingVariables)
-                        next_input.(char(missingVariables{ivar})) = [];
-                    end 
-                    input_temp = [input_temp next_input];
-                elseif length(fn2) > length(fn1)
-                    missingVariables = setdiff(fn2 , fn1);
-                    for ivar = 1:length(missingVariables)
-                        input_temp.(char(missingVariables{ivar})) = [];
-                    end
-                    input_temp = [input_temp next_input];
-                else
-                    input_temp = [input_temp next_input];
-                end
+    if ifile == 1
+        input_temp = mwLoadData(fullfile(mworksLocation,...
+            ['data-' 'i' SubNum '-' date '-' taskTimeAll(ifile,:) '.mat']),...
+            [], []);
+    else
+        next_input = mwLoadData(fullfile(mworksLocation,...
+            ['data-' 'i' SubNum '-' date '-' taskTimeAll(ifile,:) '.mat']),...
+            [], []);
+        fn1 = fieldnames(input_temp);
+        fn2 = fieldnames(next_input);
+        missingVariables = [];
+        if length(fn2) < length(fn1) %% in case input structures have different number of field names
+            missingVariables = setdiff(fn1,fn2);
+            for ivar = 1:length(missingVariables)
+                next_input.(char(missingVariables{ivar})) = [];
+            end 
+            input_temp = [input_temp next_input];
+        elseif length(fn2) > length(fn1)
+            missingVariables = setdiff(fn2 , fn1);
+            for ivar = 1:length(missingVariables)
+                input_temp.(char(missingVariables{ivar})) = [];
             end
+            input_temp = [input_temp next_input];
+        else
+            input_temp = [input_temp next_input];
+        end
+    end
             
 end
 input_temp = concatenateDataBlocks(input_temp);
@@ -57,8 +66,13 @@ end
 
 
 %% plot hit rates
-figure(exptSummary);
-subplot(3,3,3);
+if ~isempty(varargin)
+    figure(exptSummary);
+    subplot(3,3,3);
+else
+    figure
+    subplot 121
+end
 xAxis_V = oris(2:end);
 xAxis_AV = 100;
 % try 
@@ -89,8 +103,12 @@ cumMiss = tsmovavg(cumsum(missedIx)./(1:length(failureIx)),'s',lag,2);
 cumSuccess = tsmovavg(cumsum(successIx)./(1:length(failureIx)),'s',lag,2);
 
 %% calc cumulative FA, miss, and correct
-figure(exptSummary)
-subplot(3,3,6);
+if ~isempty(varargin)
+    figure(exptSummary);
+    subplot(3,3,6);
+else
+    subplot 122
+end
 ax = gca;
 plot(cumFA,'c')
 hold on
@@ -114,3 +132,5 @@ legend(avgRates, 'Location', 'north')
 %% if there are catch trials...
 
 %% if there are multiple sound target amplitudes
+
+end

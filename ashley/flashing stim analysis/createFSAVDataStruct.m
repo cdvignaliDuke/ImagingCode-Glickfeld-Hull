@@ -1,38 +1,20 @@
-function mouse = createAVCaDataStruct(datasetStr,cellsOnly)
-%collects all data from each experiment according to dataset type
-%set cellsOnly to 1 to grab data from cells only masks (rather than cells
-%and dendrites)
+function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
+%cellsOrDendrites: 1 == cells; 2 == dendrites
 
     % set analysis windows
-    pre_event_time = 1000;
-    post_event_time = 4000; 
+    pre_event_time = 1000; %ms
+    post_event_time = 4500; %ms
     pre_win_time = [-30 70];
     trans_win_time = [150 250]; %this is actually ~166-266 ms at 30 Hz
     minTrialLengthMs = 2500; % time in ms of trial rather than hard-coding cycle number for analysis
     
-    %load experiment parameters
     
-% if cellsOnly == 1 & strcmp(datasetStr,'_V1')
-%     eval(['awFSAVdatasets' datasetStr '_cellsOnly'])
-% elseif cellsOnly == 1 & strcmp(datasetStr,'_V1')
-%     eval(['awFSAVdatasets' datasetStr '_cellsOnly'])
-% else
-if strcmp(datasetStr(1:4),'FSAV')
-    eval(datasetStr)
-else
-    eval(['awFSAVdatasets' datasetStr])
-end
-% end
-%     av = behavParamsAV;
     rc = behavConstsAV;
-    if strcmp(rc.name,'ashle') & strcmp(datasetStr(1:4),'FSAV')
-        dataGroup = datasetStr;
-    elseif strcmp(rc.name,'ashle')
-        dataGroup = ['awFSAVdatasets' datasetStr];
-    else
-        dataGroup = [];
-    end
 
+    eval(datasetStr)
+
+    dataGroup = datasetStr;
+    
     %create list of mice for file names
     nMice = length(unique({expt.SubNum}));
     str = unique({expt.SubNum});
@@ -43,9 +25,7 @@ end
     mouse = struct;
     Dirs_all = [];
     
-    set(0,'defaultfigurepaperorientation','portrait');
-    set(0,'defaultfigurepapersize',[8.5 11]);
-    set(0,'defaultfigurepaperposition',[.25 .25 [8.5 11]-0.5]);
+    setFigParams4Print('portrait')
     nexp = size(expt,2);
     n = ceil(sqrt(nexp+1));
     if (n^2)-n > nexp+1
@@ -123,6 +103,7 @@ end
         %convert important fields to matrices
         run_trials = input.trialsSinceReset;
         cLeverDown = celleqel2mat_padded(input.cLeverDown);
+        cFirstStim = celleqel2mat_padded(input.cFirstStim);
         cLeverUp = celleqel2mat_padded(input.cLeverUp);
         cTargetOn = celleqel2mat_padded(input.cTargetOn);
         cStimOn = celleqel2mat_padded(input.cStimOn);
@@ -142,29 +123,27 @@ end
         
         %account for accumulation of frames across multiple runs 
         dataTC = [];
-        fnTC = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date);
+        fnTC = fullfile(rc.ashleyAnalysis,...
+            expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
         
-        if cellsOnly == 2
-            load(fullfile(fnTC,'timecourses_dendrites.mat'))
-        else
-            load(fullfile(fnTC,'timecourses.mat'))
+        if cellsOrDendrites == 1
+            load(fullfile(fnTC,'timecourses_bx_cells.mat'))
+            dataTC = data_bx_tc_subnp;
+        elseif cellsOrDendrites == 2
+            load(fullfile(fnTC,'timecourses_bx_dendrites.mat'))
+            dataTC = data_bx_den_tc_subnp;
         end
-        dataTC = data_tc_subnp;
                 
         offset = 0;
         for irun = 1:nrun
             ImgFolder = expt(iexp).runs(irun,:);
-%             fnTC = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,ImgFolder);
-%             cd(fnTC);
-%                 load('Timecourses.mat')
-% 
-%             dataTC = cat(1, dataTC, dataTimecourse.dataTCsub);
             nfr_run = nFramesSbxDataset(expt(iexp).mouse,expt(iexp).date,ImgFolder);
             offset = offset+nfr_run;
             if irun < nrun
                 startTrial = sum(run_trials(1, 1:irun),2)+1;
                 endTrial = sum(run_trials(1,1:irun+1),2);
                 cLeverDown(1,startTrial:endTrial) = cLeverDown(1,startTrial:endTrial)+offset;
+                cFirstStim(1,startTrial:endTrial) = cFirstStim(1,startTrial:endTrial)+offset;
                 cLeverUp(1,startTrial:endTrial) = cLeverUp(1,startTrial:endTrial)+offset;
                 cTargetOn(1,startTrial:endTrial) = cTargetOn(1,startTrial:endTrial)+offset;
                 cStimOn(1,startTrial:endTrial) = cStimOn(1,startTrial:endTrial)+offset;
@@ -174,19 +153,10 @@ end
                 end
             end
         end
-%         if cellsOnly > 0
-%             load(fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,expt(iexp).dirtuning,'cell&dendriteIndices.mat'))
-%             if cellsOnly == 1
-%                 dataTC = dataTC(:,cellsMatch);
-%             elseif cellsOnly == 2
-%                 dataTC = dataTC(:,dendritesMatch);
-%             end
-%         end
 
         ntrials = length(input.trialOutcomeCell);
         tCyclesOn = cell2mat(input.tCyclesOn);
         minCyclesOn = input.minCyclesOn;
-        cycles = unique(tCyclesOn);
         V_ind = find(cell2mat(input.tBlock2TrialNumber) == 0);
         AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
         
@@ -258,16 +228,14 @@ end
         tGratingDirectionDeg = chop(celleqel2mat_padded(input.tGratingDirectionDeg),4);
         Dirs = unique(tGratingDirectionDeg);
         Dirs_all = unique([Dirs_all Dirs]);
-        clear dataTimecourse
         
         %load direction tuning data
-        dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
-        if cellsOnly == 1
-            load(fullfile(dataPath, 'cellsSelect_cellsOnly.mat'));
-        elseif cellsOnly == 2
-            load(fullfile(dataPath, 'cellsSelect_dendrites.mat'));
-        else
-            load(fullfile(dataPath, 'cellsSelect.mat'));
+        fnTun = fullfile(rc.ashleyAnalysis,...
+            expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
+        if cellsOrDendrites == 1
+            load(fullfile(fnTun, 'oriResp_cells.mat'));
+        elseif cellsOrDendrites == 2
+            load(fullfile(fnTun, 'oriResp_dendrites.mat'));
         end
         
         %sort by trial type
@@ -692,21 +660,21 @@ end
             end
         end
         
-        %% get correlation and coupling of each neuron to population rate
-        f = mean(dataTC,1);
-        dff = bsxfun(@rdivide, bsxfun(@minus, dataTC, f), f);
-        
-        % Pearson's correleation to population, each neuron
-        timebinS = 0.24;        
-        mouse(imouse).expt(s(:,imouse)).pCorr = popCorr(dff,expt(iexp).frame_rate,timebinS);   
-        
-        % Population coupling
-        mouse(imouse).expt(s(:,imouse)).pCpl = popCouple(dff,expt(iexp).frame_rate);
-        
-        %% get each neuron's fit tuning
-        pref_ind = fitPref(cellFits);
-        mouse(imouse).expt(s(:,imouse)).fitPeak = pref_ind;
-        
+%         %% get correlation and coupling of each neuron to population rate
+%         f = mean(dataTC,1);
+%         dff = bsxfun(@rdivide, bsxfun(@minus, dataTC, f), f);
+%         
+%         % Pearson's correleation to population, each neuron
+%         timebinS = 0.24;        
+%         mouse(imouse).expt(s(:,imouse)).pCorr = popCorr(dff,expt(iexp).frame_rate,timebinS);   
+%         
+%         % Population coupling
+%         mouse(imouse).expt(s(:,imouse)).pCpl = popCouple(dff,expt(iexp).frame_rate);
+%         
+%         %% get each neuron's fit tuning
+%         pref_ind = fitPref(cellFits);
+%         mouse(imouse).expt(s(:,imouse)).fitPeak = pref_ind;
+%         
         %% Align data to lever down
         ialign = 1;
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
@@ -738,6 +706,12 @@ end
         %divide data by trial type and outcome
         for iav = 1:2
             if length(eval(['SbAR' num2str(iav) 'Ix']))>0
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).F = Data(:,:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).F = Data(:,:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));        
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).F = Data(:,:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).F = Data(:,:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).F = Data(:,:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion)); 
+                
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = DataDFoverF(:,:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = DataDFoverF(:,:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));        
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
@@ -785,6 +759,12 @@ end
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = NaN(sz(1), sz(2));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = NaN(sz(1), sz(2));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).resp = NaN(sz(1), sz(2));
+                
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).F = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).F = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).F = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).F = NaN(sz(1), sz(2));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).F = NaN(sz(1), sz(2));
                
             end
         end
@@ -1116,28 +1096,27 @@ end
         mouse(imouse).expt(s(:,imouse)).cells(11).ind = intersect(find(mean(tarStimRespDiff,2) < 0),resp_ind);
         mouse(imouse).expt(s(:,imouse)).cells(12).ind = base_ind;
         mouse(imouse).expt(s(:,imouse)).cells(13).ind = resp_ind;
-        mouse(imouse).expt(s(:,imouse)).cells(14).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(8).ind));
+        if isempty(mouse(imouse).expt(s(:,imouse)).cells(1).ind) & isempty(mouse(imouse).expt(s(:,imouse)).cells(8).ind)
+            mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(1).ind;
+        elseif isempty(mouse(imouse).expt(s(:,imouse)).cells(1).ind)
+            mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(8).ind;
+        elseif isempty(mouse(imouse).expt(s(:,imouse)).cells(8).ind)
+            mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(1).ind;
+        else
+            mouse(imouse).expt(s(:,imouse)).cells(14).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(8).ind));
+        end
     end
     
     figure(motionHist)
-    if strcmp(datasetStr(1:4),'FSAV')
-        if cellsOnly == 1
-            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_cells' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
-        elseif cellsOnly == 2
-            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_dendrites' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
-        else
-            print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
-            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
-        end
+    if cellsOrDendrites == 1
+        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_cells' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+        print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
+    elseif cellsOrDendrites == 2
+        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_dendrites' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+        print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
     else
-        if cellsOnly == 1
-            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_cells' datasetStr '.mat']), 'mouse','-v7.3');
-        elseif cellsOnly == 2
-            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_dendrites' datasetStr '.mat']), 'mouse','-v7.3');
-        else
-        print(fullfile(rc.caOutputDir, dataGroup, [datasetStr '_motionHist.pdf']), '-dpdf')
-        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary' datasetStr '.mat']), 'mouse','-v7.3');
-        end
+        print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
+        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
     end
 end
         

@@ -14,12 +14,12 @@ mouse_ind = find(intersect(cell2mat({av.mouse}),values));
 %     mouse_str = [mouse_str 'i' num2str(av(mouse_ind(imouse)).mouse) '_'];  
 % end
 % try
-%     fnout = fullfile(rc.eyeOutputDir, ['10-Nov-2015_' mouse_str]);
+%     fnout = fullfile(rc.eyeOutputDir, ['10-Nov-2016_' mouse_str]);
 %     load([fnout 'EyeSummary.mat'])
 % catch
         fnout = [rc.eyeOutputDir '\'];        
         fnin = rc.eyeInputDir;
-        load(fullfile(fnin, ['\' date '_' mouse_str 'EyeSummary.mat']));
+        load(fullfile(fnin, ['\10-Nov-2016_' mouse_str 'EyeSummary.mat']));
 % end
 
 set(0,'defaultfigurepaperorientation','landscape');
@@ -228,7 +228,7 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- transient- absolute vertical change from baseline'])
-        print([fnout '_summary_' align 'align_trans.pdf'], '-dpdf');
+        print([fnout '_summary_' align 'align_trans.pdf'], '-dpdf','-fillpage');
 %         savefig([fnout '_summary_' align 'align_trans_vert.fig']);
 
         %sustained
@@ -266,7 +266,7 @@ for j = [1 3];
         axis square
         %legend(legendInfo,'Location','Southeast')
         title([align ' aligned summary- sustained- absolute vertical change from baseline'])
-        print([fnout '_summary_' align 'align_sust.pdf'], '-dpdf');
+        print([fnout '_summary_' align 'align_sust.pdf'], '-dpdf','-fillpage');
 %         savefig([fnout '_summary_' align 'align_sust_vert.fig']);
 %     end
 end

@@ -33,7 +33,7 @@ figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
 xcrop = [1:4 794:xpix];
-ycrop = [1:6 240:ypix];
+ycrop = [1:12 240:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;
@@ -42,7 +42,6 @@ tun_crop(ycrop,:) = 0;
 imagesc(tun_crop)
 
 % check if behavior image still needs cropping
-% tuning image
 figure;colormap gray; imagesc(bx_img)
 
 bx_crop = bx_img;
