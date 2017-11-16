@@ -4,59 +4,63 @@ fidgetMax = 1;
 corrMin = 0.00;
 lapseMax = 1;
 min_peak_percent = 60;
-daysUnfiltered = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
-LS_ROIs =          {[2],               [2],           [1:3],           [1,2,3],        [1:2],          [1:3],        [1:3],           [1:3],           [1:3],         [1:3],           [1,2,3],         [1,2,3],        [1,2,3],        [1:2],           [3:4],        [1:4],          [1:5]}; %updated 10/10/17 LS
-V_ROIs =          {[],                [],            [4,5],           [4,5],          [3:4],          [4:5],           [],              [],              [],           [],             [4],            [5],             [4],            [6],             [5],           [],             []}; %updated 10/10/17 V 
-C1_ROIs =          {[1],               [1],           [],              [],               [],             [],           [],             [],              [],           [],             [5,6],            [4],            [5],            [4,5],           [],           [],               []}; %updated 10/10/17 C1
-ROIcell = {[2], [2], [1:3], [1,3], [1:4], [1:5], [1:2], [1:2], [1:2], [1:2], [3:4], [2,3,5], [1], [1:2], [3:4], [1,2,3], [3:5]}; % ROIs used for the main scatterplot in the manuscript
-
+WF_plotting_lists_of_days;
+daysUnfiltered = days;
 peak_percent_correct = [74,74, 89,89, 89,89, 67,67, 82,82, 63,63, 76,76, 83, 84, 68];
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
+DATA_DIR = 'Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\';
 curr_cd = cd;
-days = {};
+colors = {'r', 'c', 'b', 'm', 'r', 'b', 'm', 'g', 'k', 'c', 'y', 'r', 'r', 'b', 'b', 'r', 'b', 'm', 'g', 'k', 'c', 'y',};
+%colors = {'k', 'k', 'b', 'g', 'c', 'm', 'm', 'r', 'y', 'b'}; %for %corr>50 
+colors = {'k','k', 'b','b', 'g','g', 'c','c', 'm','m', 'r','r', 'y','y', 'k', 'b', 'r'}; %60%corr
+ROIcell = LS_ROIs;
+%days = {};
 
-%% This forloop loads individual datasets, checks to see if they fit the bx criteria and edits the sessions included accordingly
-pop_peak_corr = [];
-pop_corr = [];
-pop_fidget = [];
-for kk= 1:length(daysUnfiltered);
-    destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_success');
-    destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_fail');
-    destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_fidget');
-    destyTooFast = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_tooFast');
-    destyLapse = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_lapse');
-    load(destySucc);
-    load(destyFail);
-    load(destyFidget);
-    load(destyTooFast);
-    %check to see if lapse_roi exists. If there is only one lapse then it will be a different size than the others. 
-    if exist(strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_lapse.mat'))==2;
-        load(destyLapse);
-        lapse = size(lapse_roi,1);
-    else
-        lapse=0;
-    end
-    corr = size(success_roi,1);
-    early = size(fail_roi,1);
-    fidget = size(fidget_roi,1);
-    tooFast = size(tooFast_roi,1);
-    total = corr + early + fidget + tooFast + lapse; 
-    curr_peak_percent = peak_percent_correct(kk);
-    %Bx criteria for inclusion
-    if curr_peak_percent > min_peak_percent
-        if fidget/total < fidgetMax
-            if corr/total >= corrMin
-                if lapse/total < lapseMax
-                    days = [days, daysUnfiltered{kk}];
-                    pop_peak_corr = [pop_peak_corr, curr_peak_percent];
-                    pop_corr = [pop_corr,  corr/total];
-                    pop_fidget = [pop_fidget, fidget/total];
-                end
-            end
-        end
-    end
-end
-days  %report the days that meet bx criteria
+%% OPTIONAL - This forloop loads individual datasets, checks to see if they fit the bx criteria and edits the sessions included accordingly
+% pop_peak_corr = [];
+% pop_corr = [];
+% pop_fidget = [];
+% for kk= 1:length(daysUnfiltered);
+%     destySucc = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_success');
+%     destyFail = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_fail');
+%     destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_fidget');
+%     destyTooFast = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_tooFast');
+%     destyLapse = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_lapse');
+%     load(destySucc);
+%     load(destyFail);
+%     load(destyFidget);
+%     load(destyTooFast);
+%     
+%     %check to see if lapse_roi exists. If there is only one lapse then it will be a different size than the others. 
+%     if exist(strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', daysUnfiltered{kk}, '_lapse.mat'))==2;
+%         load(destyLapse);
+%         lapse = size(lapse_roi,1);
+%     else
+%         lapse=0;
+%     end
+%     
+%     %Bx criteria for inclusion
+%     corr = size(success_roi,1);
+%     early = size(fail_roi,1);
+%     fidget = size(fidget_roi,1);
+%     tooFast = size(tooFast_roi,1);
+%     total = corr + early + fidget + tooFast + lapse; 
+%     curr_peak_percent = peak_percent_correct(kk);
+%     if curr_peak_percent > min_peak_percent
+%         if fidget/total < fidgetMax
+%             if corr/total >= corrMin
+%                 if lapse/total < lapseMax
+%                     days = [days, daysUnfiltered{kk}];
+%                     pop_peak_corr = [pop_peak_corr, curr_peak_percent];
+%                     pop_corr = [pop_corr,  corr/total];
+%                     pop_fidget = [pop_fidget, fidget/total];
+%                 end
+%             end
+%         end
+%     end
+% end
+
+%days  %report the days that meet bx criteria
 
 % %Non-LS areas
 %daysUnfiltered = {'151009_img30', '151011_img30', '160129_img36', '160314_img38', '160315_img38', '160606_img46'};
@@ -70,51 +74,105 @@ days  %report the days that meet bx criteria
 % colors = {'b', 'g', 'm', 'k'};
 % ROIcell = {[2], [3], [2:3], [1:2]};
 
+%% OPTIONAL - use ttest results to select sessions and ROIs instead of bx results from section above. 
+
+% %restrict scatterplot to sessions with a valid ttest result
+% load(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\no_licks_-2_to_2\ttest_results'], 'ttest_results', 'LS_ROIs');
+% ttest_days = load(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\no_licks_-2_to_2\ttest_results'], 'days');
+% ttest_days = ttest_days.days;
+% valid_LS_ROIs = {};
+% assert(length(ttest_days) == length(days));
+% for session_num = 1:length(ttest_results)
+%     assert(strcmp(ttest_days{session_num}, days{session_num}));
+%     valid_LS_ROIs{session_num} = [];
+%     %only use sessions with ttest results
+%     if isempty(ttest_results{session_num})
+%         continue
+%     end
+%     
+%     %only use sessions/ROIs where the null was rejected
+%     for ROI_num = 1:size(ttest_results{session_num},2)
+%         if ttest_results{session_num}(1,ROI_num) == 0
+%             continue
+%         elseif ttest_results{session_num}(1, ROI_num) == 1 &  ttest_results{session_num}(2, ROI_num) < 0.05
+%             valid_LS_ROIs{session_num} = [valid_LS_ROIs{session_num}, LS_ROIs{session_num}(ROI_num)];
+%         end
+%     end
+% end
+% days = days(find(~cellfun(@isempty, valid_LS_ROIs)));
+% ROI_cell = valid_LS_ROIs(find(~cellfun(@isempty, valid_LS_ROIs)));
+% colors = colors(find(~cellfun(@isempty, valid_LS_ROIs)));
+
 
 %% (2)SUMMARY STATISTIC
 %loads all the datasets again and stores them in summary_succ and summary_fail
-%days = {'150518_img24', '150519_img24', '150518_img25', '150517_img25', '150716_img27', '150718_img27', '150716_img28', '150717_img28', '151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41'}; %'150718_img27', '150719_img27',
-%ROIcell = {[1:2], [2:3], [1:2], [1:2], [1,2], [1,2,4], [1], [1:5], [2], [2], [1:3], [1,3], [1:2], [1:2], [1:2], [1:2], [1:2], [1:2], [3:6], [2,3,5], [4], [1:2]};
-
-colors = {'r', 'c', 'b', 'm', 'r', 'b', 'm', 'g', 'k', 'c', 'y', 'r', 'r', 'b', 'b', 'r', 'b', 'm', 'g', 'k', 'c', 'y',};
-DATA_DIR = 'Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\';
 summary_succ = {}; 
 summary_fail = {};
 summary_cue  = {};
-for kk = 1:length(days)   %probably a much more efficient way to do this
-    curr_file_succ = strcat(DATA_DIR, days{kk}, '_success');
-    summary_succ{kk} = load(curr_file_succ);
-    curr_file_fail = strcat(DATA_DIR, days{kk}, '_fail');
-    summary_fail{kk} = load(curr_file_fail);
-    curr_file_cue = strcat(DATA_DIR, days{kk}, '_cue');
-    summary_cue{kk} = load(curr_file_cue);
+for session_num = 1:length(days)   %probably a much more efficient way to do this
+    curr_file_succ = strcat(DATA_DIR, days{session_num}, '_success');
+    summary_succ{session_num} = load(curr_file_succ);
+    curr_file_fail = strcat(DATA_DIR, days{session_num}, '_fail');
+    summary_fail{session_num} = load(curr_file_fail);
+    curr_file_cue = strcat(DATA_DIR, days{session_num}, '_cue');
+    summary_cue{session_num} = load(curr_file_cue);
 end
-for kk = 1:length(daysUnfiltered)
-    temp = strcat('i', daysUnfiltered{kk});
-    days_roi_matcher.(temp)= ROIcell{kk};
+for session_num = 1:length(daysUnfiltered)
+    temp = strcat('i', daysUnfiltered{session_num});
+    days_roi_matcher.(temp)= ROIcell{session_num};
 end
 
 %shift all TCs of individual trials so they are baselined to the mean of the first 3 frames
-for i = 1:length(days);
-    for ii = 1:size(summary_succ{i}.success_roi,2); %#of ROIs
-        for iii = 1:size(summary_succ{i}.success_roi,1); % #of trials
-            shift = mean(summary_succ{i}.success_roi(iii,ii,[1:3]));
-            summary_succ{i}.success_roi(iii,ii,:) = summary_succ{i}.success_roi(iii,ii,:)-shift;
+for session_num = 1:length(days);
+    for ROI_num = 1:size(summary_succ{session_num}.success_roi,2); %#of ROIs
+        for trial_num = 1:size(summary_succ{session_num}.success_roi,1); % #of trials
+            shift = mean(summary_succ{session_num}.success_roi(trial_num,ROI_num,[1:3]));
+            summary_succ{session_num}.success_roi(trial_num,ROI_num,:) = summary_succ{session_num}.success_roi(trial_num,ROI_num,:)-shift;
         end
-        for iii = 1:size(summary_fail{i}.fail_roi,1);
-            shift = mean(summary_fail{i}.fail_roi(iii,ii,[1:3]));
-            summary_fail{i}.fail_roi(iii,ii,:) = summary_fail{i}.fail_roi(iii,ii,:)-shift;
+        for trial_num = 1:size(summary_fail{session_num}.fail_roi,1);
+            shift = mean(summary_fail{session_num}.fail_roi(trial_num,ROI_num,[1:3]));
+            summary_fail{session_num}.fail_roi(trial_num,ROI_num,:) = summary_fail{session_num}.fail_roi(trial_num,ROI_num,:)-shift;
         end
-        for iii = 1:size(summary_cue{i}.cue_roi,1);
-            shift = mean(summary_cue{i}.cue_roi(iii,ii,[1:3]));
-            summary_cue{i}.cue_roi(iii,ii,:) = summary_cue{i}.cue_roi(iii,ii,:)-shift;
+        for trial_num = 1:size(summary_cue{session_num}.cue_roi,1);
+            shift = mean(summary_cue{session_num}.cue_roi(trial_num,ROI_num,[1:3]));
+            summary_cue{session_num}.cue_roi(trial_num,ROI_num,:) = summary_cue{session_num}.cue_roi(trial_num,ROI_num,:)-shift;
         end
     end
 end
 
+%% OPTIONAL - only use the trials with licks or alternatively only the trials without licks 
+% for session_num = 1:length(days);
+%     %download licking results 
+%     load(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\no_licks_-2_to_2\', days{session_num}, '_trial_indeces'], 'lick_fail_trials', 'no_lick_fail_trials');
+%     early_trials_no_lick_window = load(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\no_licks_-2_to_2\', days{session_num}, '_trial_indeces'], 'no_lick_window');
+%     load(['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\no_licks_-2_to_2\', days{session_num}, '_trial_indeces'], 'lick_corr_trials', 'no_lick_corr_trials');
+%     corr_trials_no_lick_window =  load(['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\no_licks_-2_to_2\', days{session_num}, '_trial_indeces'], 'no_lick_window');
+%     assert(isequal(early_trials_no_lick_window.no_lick_window, corr_trials_no_lick_window.no_lick_window)); %assert that both data sets come from the same analysis window
+%     
+%     %determine if this session has at least 4 corr/early trials with licks        (or alternatively without licks)
+%     if length(no_lick_corr_trials) < 4 | length(no_lick_fail_trials) < 4 %modify days, LS_ROI, colors, summary_succ/fail
+%         ROIcell{session_num} = [];
+%         days{session_num} = [];
+%         colors{session_num} = [];
+%         summary_succ{session_num} = [];
+%         summary_fail{session_num} = [];
+%         summary_cue{session_num} = [];
+%     else  %remove the no lick trials
+%         summary_succ{session_num}.success_roi = summary_succ{session_num}.success_roi([no_lick_corr_trials], :, :);
+%         summary_fail{session_num}.fail_roi = summary_fail{session_num}.fail_roi([no_lick_fail_trials], :, :);
+%     end
+% end
+% %remove empty cells 
+% ROIcell = ROIcell(~cellfun('isempty', ROIcell));
+% days = days(~cellfun('isempty', days));
+% colors = colors(~cellfun('isempty', colors));
+% summary_succ = summary_succ(~cellfun('isempty', summary_succ));
+% summary_fail = summary_fail(~cellfun('isempty', summary_fail));
+% summary_cue = summary_cue(~cellfun('isempty', summary_cue));
+
 %% FIND PEAK TIME AND VALUES USING LINEAR INTERPOLATION
 
-XVector = [1:.1:size(success_roi,3)];
+XVector = [1:.1:size(summary_succ{1}.success_roi,3)];
 succ_time_to_peak = [];
 fail_time_to_peak = [];
 cue_time_to_peak = [];
@@ -144,28 +202,28 @@ tbyt_peak_val_cue_sm = [];
 %figure;  %uncomment to plot all average TCs on a single figure. 
 time_before = 5;
 time_after = 5;
-for kk = 1:length(days)  %for each animal..
+for session_num = 1:length(days)  %for each animal..
     %does interpolation here
-    success_roi = summary_succ{kk}.success_roi(:,[days_roi_matcher.(strcat('i', days{kk}))], :); %collects only the ROIs of interest. dims: 1=trial# 2=ROI# 3=Time
+    success_roi = summary_succ{session_num}.success_roi(:,[days_roi_matcher.(strcat('i', days{session_num}))], :); %collects only the ROIs of interest. dims: 1=trial# 2=ROI# 3=Time
     success_roi_interp = nan(length(XVector), size(success_roi,1), size(success_roi,2)); %dims: 1=T2 2=trial# 3=ROI#
-    for i = 1:size(success_roi,2); %for each roi...
-        succ_temp = squeeze(success_roi(:,i,:))';  %dims 1=Time 2=trial number
+    for ROI_num = 1:size(success_roi,2); %for each roi...
+        succ_temp = squeeze(success_roi(:,ROI_num,:))';  %dims 1=Time 2=trial number
         succ_temp = interp1(succ_temp, XVector);
-        success_roi_interp(:,:,i) = succ_temp;  %dims 1=Time 2=trialNumber  3=roi
+        success_roi_interp(:,:,ROI_num) = succ_temp;  %dims 1=Time 2=trialNumber  3=roi
     end
-    fail_roi = summary_fail{kk}.fail_roi(:,[days_roi_matcher.(strcat('i', days{kk}))], :); %collects only the ROIs of interest
+    fail_roi = summary_fail{session_num}.fail_roi(:,[days_roi_matcher.(strcat('i', days{session_num}))], :); %collects only the ROIs of interest
     fail_roi_interp = nan(length(XVector), size(fail_roi,1), size(fail_roi,2));
-    for i = 1:size(fail_roi,2);
-        fail_temp = squeeze(fail_roi(:,i,:))';  %dims 1=Time 2=trial number
+    for ROI_num = 1:size(fail_roi,2);
+        fail_temp = squeeze(fail_roi(:,ROI_num,:))';  %dims 1=Time 2=trial number
         fail_temp = interp1(fail_temp, XVector);
-        fail_roi_interp(:,:,i) = fail_temp;   %dim 3=roi
+        fail_roi_interp(:,:,ROI_num) = fail_temp;   %dim 3=roi
     end
-    cue_roi = summary_cue{kk}.cue_roi(:,[days_roi_matcher.(strcat('i', days{kk}))], :); %collects only the ROIs of interest
+    cue_roi = summary_cue{session_num}.cue_roi(:,[days_roi_matcher.(strcat('i', days{session_num}))], :); %collects only the ROIs of interest
     cue_roi_interp = nan(length(XVector), size(cue_roi,1), size(cue_roi,2));
-    for i = 1:size(cue_roi,2);
-        cue_temp = squeeze(cue_roi(:,i,:))';  %dims 1=Time 2=trial number
+    for ROI_num = 1:size(cue_roi,2);
+        cue_temp = squeeze(cue_roi(:,ROI_num,:))';  %dims 1=Time 2=trial number
         cue_temp = interp1(cue_temp, XVector);
-        cue_roi_interp(:,:,i) = cue_temp;   %dim 3=roi
+        cue_roi_interp(:,:,ROI_num) = cue_temp;   %dim 3=roi
     end 
     
     %creates various averages of the interpolated data
@@ -179,6 +237,8 @@ for kk = 1:length(days)  %for each animal..
     fail_roi_interp_avg3    = squeeze(mean(fail_roi_interp,3));
     cue_roi_interp_avg3     = squeeze(mean(cue_roi_interp,3));
     
+    %save(['Z:\Analysis\WF Lever Analysis\licking_investigation\corr_early_diff_by_ROI\', days{session_num}], 'success_roi_interp_avg2', 'fail_roi_interp_avg2');
+    save(['Z:\Analysis\WF Lever Analysis\licking_investigation\corr_early_diff_by_ROI\', days{session_num}, '_all'], 'success_roi_interp', 'fail_roi_interp');
 %     plot([-500:10:1000], success_roi_interp_avg,  'g'); hold on  %for showing all average curves on one plot
 %     plot([-500:10:1000], fail_roi_interp_avg, 'r');
 %     plot([-500:10:1000], cue_roi_interp_avg, 'b');
@@ -189,15 +249,15 @@ for kk = 1:length(days)  %for each animal..
     succ_time_to_peak = [succ_time_to_peak, find(success_roi_interp_avg==max(success_roi_interp_avg(51:110)))];  %finds peak within window of -1:5 frames relative to lever release frame (frame 6)
     fail_time_to_peak = [fail_time_to_peak, find(fail_roi_interp_avg==max(fail_roi_interp_avg(51:110)))];
     cue_time_to_peak  = [cue_time_to_peak, find(cue_roi_interp_avg==max(cue_roi_interp_avg(51:110)))];
-    peak_value_succ = [peak_value_succ, mean(success_roi_interp_avg((succ_time_to_peak(kk)-time_before):(succ_time_to_peak(kk)+time_after)))];
-    peak_value_fail = [peak_value_fail, mean(fail_roi_interp_avg((fail_time_to_peak(kk)-time_before):(fail_time_to_peak(kk)+time_after)))];
-    peak_value_cue  = [peak_value_cue, mean(cue_roi_interp_avg((cue_time_to_peak(kk)-time_before):(cue_time_to_peak(kk)+time_after)))];
-    plot_succ_sm = [plot_succ_sm, std(success_roi_interp_avg((succ_time_to_peak(kk)-time_before):(succ_time_to_peak(kk)+time_after)))/sqrt(time_before+time_after+1)]; %calculates the sem of the 11 points form the avg curve used to get the peak value
-    plot_fail_sm = [plot_fail_sm, std(fail_roi_interp_avg((fail_time_to_peak(kk)-time_before):(fail_time_to_peak(kk)+time_after)))/sqrt(time_before+time_after+1)];
-    plot_cue_sm  = [plot_cue_sm, std(cue_roi_interp_avg((cue_time_to_peak(kk)-time_before):(cue_time_to_peak(kk)+time_after)))/sqrt(time_before+time_after+1)];
+    peak_value_succ = [peak_value_succ, mean(success_roi_interp_avg((succ_time_to_peak(session_num)-time_before):(succ_time_to_peak(session_num)+time_after)))];
+    peak_value_fail = [peak_value_fail, mean(fail_roi_interp_avg((fail_time_to_peak(session_num)-time_before):(fail_time_to_peak(session_num)+time_after)))];
+    peak_value_cue  = [peak_value_cue, mean(cue_roi_interp_avg((cue_time_to_peak(session_num)-time_before):(cue_time_to_peak(session_num)+time_after)))];
+    plot_succ_sm = [plot_succ_sm, std(success_roi_interp_avg((succ_time_to_peak(session_num)-time_before):(succ_time_to_peak(session_num)+time_after)))/sqrt(time_before+time_after+1)]; %calculates the sem of the 11 points form the avg curve used to get the peak value
+    plot_fail_sm = [plot_fail_sm, std(fail_roi_interp_avg((fail_time_to_peak(session_num)-time_before):(fail_time_to_peak(session_num)+time_after)))/sqrt(time_before+time_after+1)];
+    plot_cue_sm  = [plot_cue_sm, std(cue_roi_interp_avg((cue_time_to_peak(session_num)-time_before):(cue_time_to_peak(session_num)+time_after)))/sqrt(time_before+time_after+1)];
     
     %find peak times for each trial   SHOULD ADAPT SO IT ALSO USES 100MS WINDOW
-    %correct trials -------------------
+    %correct trials-------------------
     temp_lat_peak_succ = [];
     temp_tbyt_peak_val_succ = [];
     for i = 1:size(success_roi_interp_avg3,2);
@@ -286,44 +346,42 @@ disp(['Average time to peak for cue triggered trials = ' num2str(mean((tbyt_lat_
 
 %% METHOD 1
 %plot scatter of correct vs early with shift and 100ms window around peak
-succ_peak_val_mean = mean(peak_value_succ);
-fail_peak_val_mean = mean(peak_value_fail);
-min_scatter =  min([peak_value_succ,peak_value_fail]);
-max_scatter =  max([peak_value_succ,peak_value_fail]);
-colors = {'k', 'k', 'b', 'g', 'c', 'm', 'm', 'r', 'y', 'b'}; %for %corr>50 
-colors = {'k','k', 'b','b', 'g','g', 'c','c', 'm','m', 'r','r', 'y','y', 'k', 'b', 'r'}; %60%corr
-figure; hold on;
-for i = 1:length(days);
-plot(peak_value_succ(i),peak_value_fail(i), ['o' colors{i}], 'MarkerFaceColor', colors{i});  
-end
-xlim([-0.02 [max_scatter*1.1]]);
-ylim([-0.02 [max_scatter*1.1]]);
-x = -.1:.1:1;
-y = x;
-hold on; plot(x,y,'k')
-hline(0,'--k')
-vline(0,'--k')
-xlabel('df/f success condition');
-ylabel('df/f fail condition');
-title({'corr vs early scatter Shift'; ['corrAvg=', num2str(succ_peak_val_mean), ' earlyAvg=', num2str(fail_peak_val_mean)]});
-legend(days{1:length(days)});
-for i = 1:length(days);
-    errorbarxy(peak_value_succ(i), peak_value_fail(i), plot_succ_sm(i)', plot_fail_sm(i)');
-    hold on;
-end
+% succ_peak_val_mean = mean(peak_value_succ);
+% fail_peak_val_mean = mean(peak_value_fail);
+% min_scatter =  min([peak_value_succ,peak_value_fail]);
+% max_scatter =  max([peak_value_succ,peak_value_fail]);
+% figure; hold on;
+% for i = 1:length(days);
+%     plot(peak_value_succ(i),peak_value_fail(i), ['o' colors{i}], 'MarkerFaceColor', colors{i});  
+% end
+% xlim([-0.02 [max_scatter*1.1]]);
+% ylim([-0.02 [max_scatter*1.1]]);
+% x = -.1:.1:1;
+% y = x;
+% hold on; plot(x,y,'k')
+% hline(0,'--k');
+% vline(0,'--k');
+% xlabel('df/f success condition');
+% ylabel('df/f fail condition');
+% title({'corr vs early scatter Shift'; ['corrAvg=', num2str(succ_peak_val_mean), ' earlyAvg=', num2str(fail_peak_val_mean)]});
+% legend(days{1:length(days)});
+% for i = 1:length(days);
+%     errorbarxy(peak_value_succ(i), peak_value_fail(i), plot_succ_sm(i)', plot_fail_sm(i)');
+%     hold on;
+% end
 
-%% METHOD 2
+%% METHOD 2 - this method used for main scatterpoit
 min_scatter =  min([tbyt_peak_val_succ, tbyt_peak_val_fail]);
 max_scatter =  max([tbyt_peak_val_succ, tbyt_peak_val_fail]);
 figure; hold on;
 for i = 1:length(days);
-plot(tbyt_peak_val_succ(i),tbyt_peak_val_fail(i), ['o' colors{i}], 'MarkerFaceColor', colors{i});  
+    plot(tbyt_peak_val_succ(i),tbyt_peak_val_fail(i), ['o' colors{i}], 'MarkerFaceColor', colors{i});  
 end
 xlim([-0.02 [max_scatter*1.1]]);
 ylim([-0.02 [max_scatter*1.1]]);
 x = -.1:.1:1;
 y = x;
-hold on; plot(x,y,'k')
+hold on; plot(x,y,'k');
 hline(0,'--k')
 vline(0,'--k')
 xlabel('df/f success condition');

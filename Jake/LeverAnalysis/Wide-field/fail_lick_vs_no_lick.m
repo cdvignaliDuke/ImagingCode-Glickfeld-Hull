@@ -2,10 +2,6 @@ clear;
 %trying to compare failed trials with licking to failed trials without
 %licking. 
 
-days = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
-
-%naive mice 
-
 %sessions to be analyzed
 %days = {'160904_img55', '160905_img55', '160916_img61', '160918_img61', '160920_img61', '160921_img61', '161030_img62', '160904_img55'};
 %days = {'161031_img68','161101_img68', '161030_img69', '161030_img70', '161101_img69', '161101_img70'};
@@ -15,8 +11,11 @@ image_source_base  = ['Z:\Data\WidefieldImaging\GCaMP\']; %location of permanent
 image_dest_base    = ['Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the lever analysis folder
 bx_outputs_dir = ['Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\'];
 TC_dir = ['Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\'];
+output_dir_early = ['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\'];
+output_dir_corr = ['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\'];
 colors = [1,0,0; 0,1,0; 0,0,1; 0.5,0.5,0.5; 1,0,1; 1,1,0; 0,1,1]; %sets up the color scheme for plotting multiple ROIs with errorbar     
 old_cd = cd; %save old cd so I can restore it later
+WF_plotting_lists_of_days;
 no_lick_window = [6:9];
 lever_frame = 6;
 percent_fails_lick_all = [];
@@ -35,6 +34,7 @@ for ii = 1:length(days);
     lick_fail_trials = find(sum(lick_trace_fail(:, no_lick_window),2))';
     no_lick_fail_trials = [1:size(lick_trace_fail,1)];
     no_lick_fail_trials(lick_fail_trials) = [];
+    save([output_dir_early, days{ii}, '_trial_indeces'], 'lick_fail_trials', 'no_lick_fail_trials', 'no_lick_window');
     
     %quantify percent of failed trials w/ licks in the window
     num_failed_trials = size(lick_trace_fail,1);
@@ -82,16 +82,16 @@ for ii = 1:length(days);
     end
     axis tight;
     vline(0);
-    title([['no licking in frames 0:3' , days(ii)], ['failed trials with licks n=', num2str(length(lick_fail_trials)), ' (magenta).'] ['Without licks n=', num2str(length(no_lick_fail_trials)), '(red)']]);
+    title([['no licking in frames ', num2str(no_lick_window-lever_frame), days(ii)], ['failed trials with licks n=', num2str(length(lick_fail_trials)), ' (magenta).'] ['Without licks n=', num2str(length(no_lick_fail_trials)), '(red)']]);
     xlabel('frame number relative to lever release');
     ylabel('df/f segregated by ROI');
-    %savefig(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\', days{ii}]);
+    savefig([output_dir_early, days{ii}]);
    
     %save the time courses for use in other scripts
     early_TCs.no_lick_TCs = fail_roi(no_lick_fail_trials, :, :);
     early_TCs.lick_TCs    = fail_roi(lick_fail_trials, :, :);
-    save(['Z:\Analysis\WF Lever Analysis\licking_investigation\early_trials_lick_v_no_lick\no_licks_-2_to_2\', days{ii}], 'early_TCs');
-
+    save([output_dir_early, days{ii}], 'early_TCs');
+    
 end
 
 %% Section THREE CORRECT TRIALS
@@ -107,6 +107,7 @@ for ii = 1:length(days);
     lick_corr_trials = find(sum(lick_trace_corr(:, no_lick_window),2))';
     no_lick_corr_trials = [1:size(lick_trace_corr,1)];
     no_lick_corr_trials(lick_corr_trials) = [];
+    save([output_dir_corr, days{ii}, '_trial_indeces'], 'lick_corr_trials', 'no_lick_corr_trials', 'no_lick_window');
     
     %quantify percent of correct trials w/ licks in the window
     num_corr_trials = size(lick_trace_corr,1);
@@ -154,15 +155,15 @@ for ii = 1:length(days);
     end
     axis tight;
     vline(0);
-    title([['no licking in frames -2:2 ', days(ii)], ['correct trials with licks n=', num2str(length(lick_corr_trials)), ' (magenta)'], ['Without licks n=', num2str(length(no_lick_corr_trials)), '(red)']]);
+    title([['no licking in frames ', num2str(no_lick_window-lever_frame), days(ii)], ['correct trials with licks n=', num2str(length(lick_corr_trials)), ' (magenta)'], ['Without licks n=', num2str(length(no_lick_corr_trials)), '(red)']]);
     xlabel('frame number relative to lever release');
     ylabel('df/f segregated by ROI');
-    %savefig(['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\', days{ii}]);
+    savefig([output_dir_corr, days{ii}]);
     
     %save the time courses for use in other scripts
     corr_TCs.no_lick_TCs = success_roi(no_lick_corr_trials, :, :);
     corr_TCs.lick_TCs    = success_roi(lick_corr_trials, :, :);
-    save(['Z:\Analysis\WF Lever Analysis\licking_investigation\correct_trials_lick_v_no_lick\no_licks_-2_to_2\', days{ii}], 'corr_TCs');
+    save([output_dir_corr, days{ii}], 'corr_TCs');
 end
 
 %% section four - plot percent fail vs corr trials with licks
@@ -177,12 +178,12 @@ title(['WF data % of trials with lick(s) in window ' num2str(no_lick_window(1)-l
 xlim([0 1]);
 ylim([0 1]); hold on; 
 plot([0:.1:1], [0:.1:1]);
-savefig(['Z:\Analysis\WF Lever Analysis\licking_investigation\percent_with_licks_scatter']);
+%savefig(['Z:\Analysis\WF Lever Analysis\licking_investigation\percent_with_licks_scatter']);
 
-%% section five - scatterplot of peak magnitude for failed trials with licks vs correct trials
-% ID animals that have >5 early trials with licks 
-% pull those animals' correct trials
-% find peak mags   - FOUND THIS PLOT ELSEWHERE
+
+
+
+
 
 
 

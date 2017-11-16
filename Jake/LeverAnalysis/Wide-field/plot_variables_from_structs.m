@@ -1,9 +1,7 @@
 %script for loading and plotting a bunch of variables
 %list of current days being analyzed
 clear;
-all_days = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36','160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %not really all days but it was the days I had LS ROIs selected for already '150716_img28', '150717_img28', 
-%days_chrono_order = {'150716_img28', '150717_img28', '151009_img30', '151011_img30', '151022_img29', '151211_img32', '151212_img32', '160129_img35', '160129_img36', '160131_img35', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46'}; %not really all days but it was the days I had LS ROIs selected for already
-days_chrono_order = {'151009_img30', '151011_img30','151021_img29', '151022_img29', '151211_img32', '151212_img32', '160129_img35', '160129_img36', '160131_img35', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
+WF_plotting_lists_of_days;
 struct_dir = 'Z:\Analysis\WF Lever Analysis\StructuresForPlotting\'; 
 xls_dir = 'Z:\Data\WidefieldImaging\GCaMP\WF_exp_spreadsheet';
 struct_files = dir(struct_dir);
@@ -102,8 +100,6 @@ xlabel('correct trials mean peak magnitude (df/f)');
 ylabel('tooFast trials mean peak magnitude (df/f)');
 
 %% mean lick rate over 0.5s post release   VS   peak df/f
-%variables needed. peak df/f and lick_TC for corr and early
-%get peak mags for corr and early
 interval = 5; %interval overwhich we will look at the lick rate (in frame numbers at 10Hz)
 lever_release = 6; %frame on which lever release occurs
 bx_outputs_dir = 'Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\';
@@ -163,6 +159,8 @@ xlabel('peak df/f ratio (early/correct)')
 ylabel('lick rate ratio (early/correct)')
 xlim([-0.1 1]);
 ylim([-0.1 1]);
+
+
 %% get onset latency std for Corr v Early 
 corr_onset_latency_std = [];
 early_onset_latency_std = [];

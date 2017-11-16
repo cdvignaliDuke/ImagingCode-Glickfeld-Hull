@@ -16,26 +16,32 @@ runID = {'000', '001', '002'};
 irun = 1;
 
 
-date = {'170826'};
-mouseID = {'img030'};
-behavID = {'030'};
+date = {'171115'};
+mouseID = {'img043'};
+behavID = {'043'};
 runID = {'000', '001', '002'};
 irun = 1;
-
-date = {'170912'};
-mouseID = {'img039'};
-behavID = {'039'};
-runID = {'000', '001', '002'};
-irun = 1;
-
-date = {'170917'};
-mouseID = {'img039'};
-behavID = {'039'};
-runID = {'000', '001', '002'};
-irun = 1;
-
-date = {'170918'};
-mouseID = {'img039'};
-behavID = {'039'};
-runID = {'000', '001', '002'};
-irun = 1;
+% 
+% date = {'170826'};
+% mouseID = {'img030'};
+% behavID = {'030'};
+% runID = {'000', '001', '002'};
+% irun = 1;
+% 
+% date = {'170912'};
+% mouseID = {'img039'};
+% behavID = {'039'};
+% runID = {'000', '001', '002'};
+% irun = 1;
+% 
+% date = {'170917'};
+% mouseID = {'img039'};
+% behavID = {'039'};
+% runID = {'000', '001', '002'};
+% irun = 1;
+% 
+% date = {'170918'};
+% mouseID = {'img039'};
+% behavID = {'039'};
+% runID = {'000', '001', '002'};
+% irun = 1;

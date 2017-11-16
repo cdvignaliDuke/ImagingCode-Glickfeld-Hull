@@ -4,7 +4,7 @@ function tc_dfoverf = tbyt_dfoverf(b_data, bx_out_dir);
 %load variables from bx_outputs
 load(bx_out_dir, 'lever', 'frame_info', 'data_tc');
 
-shift = 10;
+shift = 4;
 baseline_timesMs = lever.baseline_timesMs;
 first_baseline = find(~isnan(baseline_timesMs(1,:)),1, 'first');    %find the first trial / baseline_timesMs window that is not NaN
 StartT = frame_info.imaging_start_MW_T; %time of imaging onset in MWorks time. 
@@ -27,11 +27,11 @@ for iT=frame_info.f_frame_trial_num+1: frame_info.l_frame_trial_num-1;    %only 
         t_range = frame_info.counter(round(cell2mat(b_data.tThisTrialStartTimeMs(iT))-StartT)):(frame_info.counter(round(cell2mat(b_data.tThisTrialStartTimeMs(iT+1))-StartT))-1);
     end
     if iT == frame_info.l_frame_trial_num-1;
-        t_range = (t_range(1)+4):length(data_tc);
+        t_range = (t_range(1)+shift):length(data_tc);
     elseif iT == frame_info.f_frame_trial_num+1;
-        t_range = 1:(t_range(end)+4);
+        t_range = 1:(t_range(end)+shift);
     else
-        t_range = t_range + 4;    %added this shift because we have a 1s anaylsis window post release but trial ends 600ms after release.
+        t_range = t_range + shift;    %added this shift because we have a 1s anaylsis window post release but trial ends 600ms after release.
     end
     
     %calculate df/f 

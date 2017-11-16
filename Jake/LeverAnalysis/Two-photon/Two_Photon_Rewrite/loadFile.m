@@ -11,7 +11,11 @@ if size(img_fn,1) ~= 0
     skip_run = 0;
     cd(data_dir);
     load(config_fn.name);
-    nframes = info.config.frames;
+    if strcmp('img043_000_000', img_fn)
+        nframes = 74463;
+    else
+        nframes = info.config.frames;
+    end
     fprintf('loading sbx image file: %s %s\n', date{i}, img_fn);
     data = squeeze( sbxread(img_fn,0,nframes) );
 else

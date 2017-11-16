@@ -13,21 +13,11 @@ for sub = 1:20
         % foldName = subfold.name;
         % data_dir = fullfile(data_dir,foldName,'\');
         dataName   = dir(fullfile(subfold,'*frame_times.mat'));
-        %tc_dir  = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis',[dateID{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');  
-        tc_dir = fullfile('Z:','Analysis','2P', 'Analysis','Lever', [dateID{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
+        tc_dir  = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis',[dateID{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');  %CHANGE 
         dest = tc_dir;
         dest_sub = dest;
        % dest_sub = Z:\home\jake\Analysis\2P Analysis\Ziye_2P_figure
         
-        getTC_events;
-            TC_quantification;
-            close all
-            
-            getTC_Spike
-            %             spike_outcomes  %dont run this one
-            spike_quantification
-            close all
-       
         if exist(dest_sub)
             load([tc_dir, 'ROI_TCs.mat']);
 %             load([tc_dir, '_npSubTCs.mat']);
@@ -59,7 +49,7 @@ for sub = 1:20
                 subfold = 'Z:\home\andrew\Behavior\Data\';
                 %                 dataName   = dir(fullfile(subfold, ['*' behavID{sub} '*' date]));
                 load([subfold, dataName]);
-            elseif strcmp(mouse, 'img59') && strcmp(date, '161103')
+             elseif strcmp(mouse, 'img59') && strcmp(date, '161103')
                 dataName = 'data-i959-161103-1719.mat';
                 subfold = 'Z:\home\andrew\Behavior\Data\';
                 %                 dataName   = dir(fullfile(subfold, ['*' behavID{sub} '*' date]));
@@ -68,14 +58,14 @@ for sub = 1:20
             else
                 error('subject %s_%s and subNum is %d input not found\n', date, mouse, sub);
             end
-            %
-            getTC_events;
-            TC_quantification;
-            close all
-            
+%             
+                        getTC_events;
+                        TC_quantification;
+                         close all
+
             getTC_Spike
-            %             spike_outcomes  %dont run this one
-            spike_quantification
+%             spike_outcomes  %dont run this one
+             spike_quantification
             close all
             clearvars -except mouseID sub rID
         end

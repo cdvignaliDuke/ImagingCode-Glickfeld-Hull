@@ -18,7 +18,7 @@ for sub = [1] %size(mouseID,2)
     for rID = 1
         file_info;
         out_dir  = fullfile('Z:', 'Analysis','Cue_reward_pairing_analysis','2P',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
-        
+        out_dir  = fullfile('Z:', 'Analysis','2P Analysis','Lever',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
         [img, skip_run, img_fn] = loadFile(sub, rID);
         if length(size(img))==4;  %two channels were collected...
             img2 = img(2,:,:,:);   %red channel
