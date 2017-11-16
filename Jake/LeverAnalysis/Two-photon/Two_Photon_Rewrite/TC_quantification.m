@@ -27,7 +27,7 @@ sem_release_all = std(avg_release,1)./sqrt(size(avg_release,1));
 
 %average and sem across success
 avg_success = squeeze(mean(success_movie,1));
-avg_success = bsxfun(@minus, avg_success, avg_success(:,1));
+% avg_success = bsxfun(@minus, avg_success, avg_success(:,1));
 sem_success = squeeze(std(success_movie,1)./sqrt(size(avg_success,1)));
 %average and sem across cells (and trials)
 avg_success_all = mean(avg_success,1);
@@ -35,7 +35,7 @@ sem_success_all = std(avg_success,1)./sqrt(size(avg_success,1));
 
 %average and sem across tooFast
 avg_tooFast = squeeze(mean(tooFastCorrect_movie,1));
-avg_tooFast = bsxfun(@minus, avg_tooFast, avg_tooFast(:,1));
+% avg_tooFast = bsxfun(@minus, avg_tooFast, avg_tooFast(:,1));
 sem_tooFast = squeeze(std(tooFastCorrect_movie,1)./sqrt(size(tooFastCorrect_movie,1)));
 %average and sem across cells (and trials)
 avg_tooFast_all = mean(avg_tooFast,1);
@@ -43,7 +43,7 @@ sem_tooFast_all = std(avg_tooFast,1)./sqrt(size(avg_tooFast,1));
 
 %average and sem across failures
 avg_fail = squeeze(mean(fail_movie,1));
-avg_fail = bsxfun(@minus, avg_fail, avg_fail(:,1));
+% avg_fail = bsxfun(@minus, avg_fail, avg_fail(:,1));
 sem_fail = squeeze(std(fail_movie,1)./sqrt(size(avg_fail,1)));
 %average and sem across ROIs (and trials)
 avg_fail_all = mean(avg_fail,1);
