@@ -34,7 +34,7 @@ avg_success_all = mean(avg_success,1);
 sem_success_all = std(avg_success,1)./sqrt(size(avg_success,1));
 
 %average and sem across tooFast
-avg_tooFast = squeeze(mean(tooFastCorrect_movie,1))*0.6;
+avg_tooFast = squeeze(mean(tooFastCorrect_movie,1));
 avg_tooFast = bsxfun(@minus, avg_tooFast, avg_tooFast(:,1));
 sem_tooFast = squeeze(std(tooFastCorrect_movie,1)./sqrt(size(tooFastCorrect_movie,1)));
 %average and sem across cells (and trials)
