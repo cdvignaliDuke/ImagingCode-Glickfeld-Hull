@@ -25,7 +25,7 @@ for session_num = [1,2, 5:length(days)] %img30 has some confound in the licking 
     load([TC_dir, days{session_num}, '_fail']);   %already baselined
     load([TC_dir, days{session_num}, '_success']);
     
-    %remove non LS ROIs
+    %remove non-LS ROIs
     fail_roi = fail_roi(:,[LS_ROIs{session_num}],:);
     success_roi = success_roi(:,[LS_ROIs{session_num}],:);
     

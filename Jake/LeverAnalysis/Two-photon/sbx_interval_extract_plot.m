@@ -1,9 +1,9 @@
 
 clear all; clear global; clear cd;
-cd('Z:\Data\2P_imaging\170911_img036\img036');
+cd('Z:\Data\2P_imaging\171121_img050\img050');
 %cd('Z:\Data\2P_imaging\img040\170912_img039\img039');
 %cd('Z:\Data\2P_imaging\WindowOutcomes\img044\170921_img044\img044');
-fname = 'img036_000_002';
+fname = 'img050_000_000';
 data = squeeze(sbxread(fname,0,1000));
 if length(size(data)) ==4
     data1 = squeeze(data(1,:,:,:));
@@ -14,23 +14,22 @@ else
 end
 data_max= max(data,[],3);
 figure; imagesc(data_avg); colormap gray; truesize;
-title(['30HZ img036 170911 recon avg frames 1:1000 001']);
-
+title(['30HZ img050 171121 recon avg frames 1:1000 000']);
 
 %% write a tiff movie to analyze diff. in sessions
 
-cd('Z:\Data\2P_imaging\170912_img039\img039');
+cd('Z:\Data\2P_imaging\171115_img043\img043');
 %cd('Z:\Data\2P_imaging\img039\170910_img039\img039');
-fname = 'img039_000_000';
+fname = 'img043_000_000';
 for ii = 1%:20
-    data = squeeze(sbxread(fname,0,1000));
+    data = squeeze(sbxread(fname,30000,1000));
     data_avg = mean(data,3);
     data_max= max(data,[],3);
     data2 = data(:,:,[1:3:end]);
     figure; imagesc(data_max); colormap gray;
-    title(['30HZ img039 170912 recon max proj frames 1:1000']);
+    title(['30HZ img043 171115 recon max proj frames  30001:31000']);
 end
-writetiff(data, 'Z:\Data\2P_imaging\170912_img039\img039_tiff_1_1000');
+writetiff(data, 'Z:\Data\2P_imaging\171115_img043\img043_tiff_ 30001_31000');
 
 
 %% motion registration 

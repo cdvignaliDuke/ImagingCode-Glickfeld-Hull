@@ -7,7 +7,7 @@ function [img_mat_file, laser_power_vec] = get_laser_power_data(sub, rID);
 %the .mat file logs the frame in which the laser turned on and off. The
 %ttl_log variable in the _realtime file logs a zero for when the laser is
 %off and a 1 for when it is on for each frame
-file_info;
+file_info_CRP;
 data_dir = fullfile('Z:\Data\2P_imaging',[date{sub} '_' mouseID{sub}], mouseID{sub});
 config_fn = dir(fullfile(data_dir,['*' runID{rID} '.mat']));
 laser_power_fn = dir(fullfile(data_dir,['*' runID{rID} '_realtime.mat']));

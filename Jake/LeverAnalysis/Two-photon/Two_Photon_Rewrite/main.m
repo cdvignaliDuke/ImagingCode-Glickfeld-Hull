@@ -10,15 +10,15 @@
 % 7. Extrack timecourse (manually inspect TC and remove bad ones) and create a single layer mask for display
 
 clear
-file_info;
+file_info_CRP;
 
 usFacs = 100;
 behav_dir = 'Z:\Data\2P_imaging\behavior\';
 for sub = [1] %size(mouseID,2) 
     for rID = 1
-        file_info;
+        file_info_CRP;
         out_dir  = fullfile('Z:', 'Analysis','Cue_reward_pairing_analysis','2P',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
-        out_dir  = fullfile('Z:', 'Analysis','2P Analysis','Lever',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
+        %out_dir  = fullfile('Z:', 'Analysis','2P Analysis','Lever',[date{sub}, '_', runID{rID}, '_', mouseID{sub}],'\');
         [img, skip_run, img_fn] = loadFile(sub, rID);
         if length(size(img))==4;  %two channels were collected...
             img2 = img(2,:,:,:);   %red channel
@@ -56,12 +56,13 @@ for sub = [1] %size(mouseID,2)
             [img_mat_file, laser_power_vec_ttl] = get_laser_power_data(sub, rID);
             if isempty(laser_power_vec_ttl)
                 laser_power_vec_ttl = ones(1,nt);
+                laser_on_ind = find(laser_power_vec_ttl);   %frame numbers of frames with laser power on determined by _realtime ttl_log
             else
-                laser_on_ind_conserv = conservative_laser_on(laser_power_vec_ttl);
+                laser_on_ind = conservative_laser_on(laser_power_vec_ttl);
             end
-            laser_on_ind = find(laser_power_vec_ttl);   %frame numbers of frames with laser power on determined by _realtime ttl_log
-            frame_nums_for_ref30 = laser_on_ind_conserv(randi([1,length(laser_on_ind_conserv)],1,30));
-            frame_nums_for_samp100 = laser_on_ind_conserv(round(linspace(1,length(laser_on_ind_conserv))));
+            
+            frame_nums_for_ref30 = laser_on_ind(randi([1,length(laser_on_ind)],1,30));
+            frame_nums_for_samp100 = laser_on_ind(round(linspace(1,length(laser_on_ind))));
             
             %select 30 random frames from throughout the movie
             ref30 = img(:,:,frame_nums_for_ref30);
@@ -87,8 +88,8 @@ for sub = [1] %size(mouseID,2)
         
         %% Compute principle components 
         nPCA = 500; %100 for old datasets, 500 for newer
-        img_pca = img_reg(:,:,laser_on_ind_conserv); %only run PCA on frames with laser power on
-        if size(img_pca, 3) > 65000 % downsample in time by 2 or 5
+        img_pca = img_reg(:,:,laser_on_ind); %only run PCA on frames with laser power on
+        if size(img_pca, 3) > 80000 % downsample in time by 2 or 5
             img_pca = img_pca(:,:,1:2:end);
         end
         nf = size(img_pca,3);
@@ -136,7 +137,7 @@ for sub = [1] %size(mouseID,2)
         %                         end
         mask_final = processMask(mask_cell);
         mask_raw = reshape(mask_final, npw, nph);
-        figure; imagesc(mask_raw); truesize;
+        figure; imagesc(mask_raw); %truesize;
         
         [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:10:end), mask_final, threshold, out_dir);
         

@@ -40,6 +40,8 @@ days = {'170911_img036', '170912_img036', '170913_img036', '170914_img036', '170
 %days = {'170921_img041', '170922_img041', '170923_img041', '170924_img041', '170925_img041'};
 %days = {'170921_img044', '170922_img044', '170923_img044', '170924_img044', '170925_img044'};
 
+days = {'171113_img050', '171115_img050', '171116_img050', '171119_img050', '171120_img050'};
+
 
 %check and make sure the figure destinations exist
 session_fig_dir = [CRP_fig_dir_base, days{1}(end-4:end), '_sessions\'];
