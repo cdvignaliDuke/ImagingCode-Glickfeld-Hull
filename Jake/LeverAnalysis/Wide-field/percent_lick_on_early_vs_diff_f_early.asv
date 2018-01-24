@@ -100,7 +100,6 @@ for session_num = [[1,2], [5:length(days)]]
             peak_lick_corr = max(lick_TCs(:,:,peak_window),[],3);
             lick_TCs = early_TCs.lick_TCs;
             lick_TCs = lick_TCs(:,LS_ROIs{session_num},:);
-            peak_lick_fail = max(lick_TCs(:,:,peak_window),[],3);
             peak_ratio_lick_corr_early{session_num} = mean(peak_lick_corr)./mean(peak_lick_fail);
         end
     end
@@ -167,7 +166,7 @@ percent_early_with_lick_mat = [];
 figure; diag_line = [-1:10];
 for session_num = find(~cellfun(@isempty, peak_ratio_lick_corr_early));
     plot(peak_ratio_lick_corr_early{session_num}, percent_early_with_lick{session_num}*100, strcat('o', colors{session_num}) ); hold on;
-    peak_diff_mat = [peak_diff_mat, mean(peak_ratio_lick_corr_early{session_num})];
+    peak_diff_mat = [peak_diff_mat, peak_ratio_lick_corr_early{session_num}];
     percent_early_with_lick_mat = [percent_early_with_lick_mat, percent_early_with_lick{session_num}];
 end
 [Rho, P_value] = corr(peak_diff_mat', percent_early_with_lick_mat');

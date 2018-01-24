@@ -5,7 +5,6 @@ corrMin = 0.00;
 lapseMax = 1;
 min_peak_percent = 60;
 WF_plotting_lists_of_days;
-daysUnfiltered = days;
 peak_percent_correct = [74,74, 89,89, 89,89, 67,67, 82,82, 63,63, 76,76, 83, 84, 68];
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 DATA_DIR = 'Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\';
@@ -13,7 +12,11 @@ curr_cd = cd;
 colors = {'r', 'c', 'b', 'm', 'r', 'b', 'm', 'g', 'k', 'c', 'y', 'r', 'r', 'b', 'b', 'r', 'b', 'm', 'g', 'k', 'c', 'y',};
 %colors = {'k', 'k', 'b', 'g', 'c', 'm', 'm', 'r', 'y', 'b'}; %for %corr>50 
 colors = {'k','k', 'b','b', 'g','g', 'c','c', 'm','m', 'r','r', 'y','y', 'k', 'b', 'r'}; %60%corr
+session_list = find(~cellfun(@isempty, valid_LS_ROIs)); %1:length(days)
+days = days(session_list);
+daysUnfiltered = days;
 ROIcell = LS_ROIs;
+ROIcell = valid_LS_ROIs(session_list);
 %days = {};
 
 %% OPTIONAL - This forloop loads individual datasets, checks to see if they fit the bx criteria and edits the sessions included accordingly
@@ -109,7 +112,7 @@ ROIcell = LS_ROIs;
 summary_succ = {}; 
 summary_fail = {};
 summary_cue  = {};
-for session_num = 1:length(days)   %probably a much more efficient way to do this
+for session_num = 1:1:length(days)   %probably a much more efficient way to do this
     curr_file_succ = strcat(DATA_DIR, days{session_num}, '_success');
     summary_succ{session_num} = load(curr_file_succ);
     curr_file_fail = strcat(DATA_DIR, days{session_num}, '_fail');
@@ -123,7 +126,7 @@ for session_num = 1:length(daysUnfiltered)
 end
 
 %shift all TCs of individual trials so they are baselined to the mean of the first 3 frames
-for session_num = 1:length(days);
+for session_num = 1:1:length(days);
     for ROI_num = 1:size(summary_succ{session_num}.success_roi,2); %#of ROIs
         for trial_num = 1:size(summary_succ{session_num}.success_roi,1); % #of trials
             shift = mean(summary_succ{session_num}.success_roi(trial_num,ROI_num,[1:3]));
@@ -202,7 +205,7 @@ tbyt_peak_val_cue_sm = [];
 %figure;  %uncomment to plot all average TCs on a single figure. 
 time_before = 5;
 time_after = 5;
-for session_num = 1:length(days)  %for each animal..
+for session_num =  1:length(days)  %for each animal..
     %does interpolation here
     success_roi = summary_succ{session_num}.success_roi(:,[days_roi_matcher.(strcat('i', days{session_num}))], :); %collects only the ROIs of interest. dims: 1=trial# 2=ROI# 3=Time
     success_roi_interp = nan(length(XVector), size(success_roi,1), size(success_roi,2)); %dims: 1=T2 2=trial# 3=ROI#
@@ -238,7 +241,7 @@ for session_num = 1:length(days)  %for each animal..
     cue_roi_interp_avg3     = squeeze(mean(cue_roi_interp,3));
     
     %save(['Z:\Analysis\WF Lever Analysis\licking_investigation\corr_early_diff_by_ROI\', days{session_num}], 'success_roi_interp_avg2', 'fail_roi_interp_avg2');
-    save(['Z:\Analysis\WF Lever Analysis\licking_investigation\corr_early_diff_by_ROI\', days{session_num}, '_all'], 'success_roi_interp', 'fail_roi_interp');
+    %save(['Z:\Analysis\WF Lever Analysis\licking_investigation\corr_early_diff_by_ROI\', days{session_num}, '_all'], 'success_roi_interp', 'fail_roi_interp');
 %     plot([-500:10:1000], success_roi_interp_avg,  'g'); hold on  %for showing all average curves on one plot
 %     plot([-500:10:1000], fail_roi_interp_avg, 'r');
 %     plot([-500:10:1000], cue_roi_interp_avg, 'b');
@@ -374,7 +377,7 @@ disp(['Average time to peak for cue triggered trials = ' num2str(mean((tbyt_lat_
 min_scatter =  min([tbyt_peak_val_succ, tbyt_peak_val_fail]);
 max_scatter =  max([tbyt_peak_val_succ, tbyt_peak_val_fail]);
 figure; hold on;
-for i = 1:length(days);
+for i = 1:1:length(days)
     plot(tbyt_peak_val_succ(i),tbyt_peak_val_fail(i), ['o' colors{i}], 'MarkerFaceColor', colors{i});  
 end
 xlim([-0.02 [max_scatter*1.1]]);
@@ -388,7 +391,7 @@ xlabel('df/f success condition');
 ylabel('df/f fail condition');
 title('trial by trial corr vs early scatter Shift');
 legend(days{1:length(days)});
-for i = 1:length(days);
+for i = 1:1:length(days)
     errorbarxy(tbyt_peak_val_succ(i), tbyt_peak_val_fail(i), tbyt_peak_val_succ_sm(i)', tbyt_peak_val_fail_sm(i)');
     hold on;
 end

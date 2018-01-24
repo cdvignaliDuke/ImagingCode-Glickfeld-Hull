@@ -198,21 +198,18 @@ for session_num = 1:length(days);
         end
         
         %make a color coded plot: trial by trial TCs of sig vs non-sig trials
-        figure; 
+        figure; hold on;
         for ROI_num = 1:size(tbyt_peak_mag,2)
-            subplot(1,size(tbyt_peak_mag,2),ROI_num); hold on;
-            title(['ROI #', num2str(ROI_num)]);
-            ylabel('df/f'); xlabel('frames relative to lick');
-            for trial_num = 1:size(tbyt_peak_mag,1)
-                if sig_lick_resp_mat(trial_num, ROI_num) == 1
-                    plot([-pre_frames:post_frames], squeeze(lick_start_trig(trial_num, ROI_num, :)), 'b');
-                elseif sig_lick_resp_mat(trial_num, ROI_num) == 0
-                    plot([-pre_frames:post_frames], squeeze(lick_start_trig(trial_num, ROI_num, :)), 'k');
-                end
-            end
+             for trial_num = 1:sizt(tbyt_peak_mag,1)
+                 subplot(1,size(tbyt_peak_mag,2),ROI_num);
+                 title
+                 if sig_lick_resp_mat(trial_num, ROI_num) == 1
+                     plot([-pre_frames:post_frames], lick_start_trig(trial_num, ROI_num, :), 'b');
+                 elseif sig_lick_resp_mat(trial_num, ROI_num) == 0
+                     plot([-pre_frames:post_frames], lick_start_trig(trial_num, ROI_num, :), 'k');
+                 end
+             end
         end
-        suptitle([days(session_num), 'trial by trial lick triggered TCs: blue=significant black=non-sig (>2 St.Dev)']);
-        savefig(['Z:\Analysis\WF Lever Analysis\licking_investigation\lick_triggered_averages\individual lick bout TCs\', days{session_num}, '_bout']);
     end
 end
 
