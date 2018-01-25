@@ -1,6 +1,10 @@
-function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
+function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites,varargin)
 %cellsOrDendrites: 1 == cells; 2 == dendrites
-
+if nargin > 2
+    doRawData = varargin{1};
+else
+    doRawData = 0;
+end
     % set analysis windows
     pre_event_time = 1000; %ms
     post_event_time = 4500; %ms
@@ -70,7 +74,8 @@ function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
         input = [];
         for irun = 1:nrun
             time = expt(iexp).time_mat(irun,:);
-            fn_mworks = [rc.pathStr '\data-i' expt(iexp).SubNum '-' expt(iexp).date '-' time '.mat'];
+            fn_mworks = [rc.pathStr...
+                '\data-i' expt(iexp).SubNum '-' expt(iexp).date '-' time '.mat'];
             if irun == 1
                 input = mwLoadData(fn_mworks, [], []);
             else
@@ -85,7 +90,8 @@ function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
                         inpPlusInd = ismember(inpNames1,inpNames2);
                         inpPlus = inpNames1(~inpPlusInd);
                         for i = 1:length(inpPlus)
-                            input2.(genvarname(inpPlus{i})) = cell(1,input2.trialSinceReset);
+                            input2.(genvarname(inpPlus{i})) = ...
+                                cell(1,input2.trialSinceReset);
                         end
                     else
                         inpPlusInd = ismember(inpNames2,inpNames1);
@@ -127,11 +133,23 @@ function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
             expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
         
         if cellsOrDendrites == 1
-            load(fullfile(fnTC,'timecourses_bx_cells.mat'))
-            dataTC = data_bx_tc_subnp;
+                load(fullfile(fnTC,'timecourses_bx_cells_temp.mat'))
+            if doRawData == 1
+                dataTC = data_bx_tc;
+            else
+                try
+                    dataTC = data_bx_tc_subnp;
+                catch
+                    dataTC = dataTC_npSub;
+                end
+            end
         elseif cellsOrDendrites == 2
             load(fullfile(fnTC,'timecourses_bx_dendrites.mat'))
-            dataTC = data_bx_den_tc_subnp;
+            if doRawData == 1
+                dataTC = data_bx_den_tc;
+            else
+                dataTC = data_bx_den_tc_subnp;
+            end
         end
                 
         offset = 0;
@@ -229,14 +247,14 @@ function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
         Dirs = unique(tGratingDirectionDeg);
         Dirs_all = unique([Dirs_all Dirs]);
         
-        %load direction tuning data
-        fnTun = fullfile(rc.ashleyAnalysis,...
-            expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
-        if cellsOrDendrites == 1
-            load(fullfile(fnTun, 'oriResp_cells.mat'));
-        elseif cellsOrDendrites == 2
-            load(fullfile(fnTun, 'oriResp_dendrites.mat'));
-        end
+%         %load direction tuning data
+%         fnTun = fullfile(rc.ashleyAnalysis,...
+%             expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
+%         if cellsOrDendrites == 1
+%             load(fullfile(fnTun, 'oriResp_cells.mat'));
+%         elseif cellsOrDendrites == 2
+%             load(fullfile(fnTun, 'oriResp_dendrites.mat'));
+%         end
         
         %sort by trial type
         if expt(iexp).catch
@@ -575,27 +593,32 @@ function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
             mouse(imouse).expt(s(:,imouse)).target(iDir).cind = find(tCatchGratingDirectionDeg==Dirs(iDir));
             end
         end
-        mouse(imouse).expt(s(:,imouse)).cells(1).name = 'resp';
-        mouse(imouse).expt(s(:,imouse)).cells(2).name = '0';
-        mouse(imouse).expt(s(:,imouse)).cells(3).name = '45';
-        mouse(imouse).expt(s(:,imouse)).cells(4).name = '90';
-        mouse(imouse).expt(s(:,imouse)).cells(5).name = '135';
-        mouse(imouse).expt(s(:,imouse)).cells(6).name = 'untuned';
-        mouse(imouse).expt(s(:,imouse)).cells(7).name = 'all tuned';
-        mouse(imouse).expt(s(:,imouse)).cells(8).name = 'base_excit';
-        mouse(imouse).expt(s(:,imouse)).cells(9).name = 'base_inhib';
-        mouse(imouse).expt(s(:,imouse)).cells(10).name = 'tar_excit';
-        mouse(imouse).expt(s(:,imouse)).cells(11).name = 'tar_inhib';
-        mouse(imouse).expt(s(:,imouse)).cells(12).name = 'base1_resp';
-        mouse(imouse).expt(s(:,imouse)).cells(13).name = 'tar1_resp';
-        mouse(imouse).expt(s(:,imouse)).cells(14).name = 'all cells';
-        mouse(imouse).expt(s(:,imouse)).cells(1).ind = [];
-        mouse(imouse).expt(s(:,imouse)).cells(2).ind = cellsSelect{1};
-        mouse(imouse).expt(s(:,imouse)).cells(3).ind = cellsSelect{2};
-        mouse(imouse).expt(s(:,imouse)).cells(4).ind = cellsSelect{3};
-        mouse(imouse).expt(s(:,imouse)).cells(5).ind = cellsSelect{4};
-        mouse(imouse).expt(s(:,imouse)).cells(6).ind = cellsSelect{5};
-        mouse(imouse).expt(s(:,imouse)).cells(7).ind = cellsSelect{6};
+        
+        if expt(iexp).redChannelOn
+            mouse(imouse).expt(s(:,imouse)).cells.isLabeledCell = isLabeledCell;
+            mouse(imouse).expt(s(:,imouse)).cells.cellType = expt(iexp).redChannelLabel;
+        else
+            mouse(imouse).expt(s(:,imouse)).cells = [];
+        end
+%         mouse(imouse).expt(s(:,imouse)).cells(3).name = '45';
+%         mouse(imouse).expt(s(:,imouse)).cells(4).name = '90';
+%         mouse(imouse).expt(s(:,imouse)).cells(5).name = '135';
+%         mouse(imouse).expt(s(:,imouse)).cells(6).name = 'untuned';
+%         mouse(imouse).expt(s(:,imouse)).cells(7).name = 'all tuned';
+%         mouse(imouse).expt(s(:,imouse)).cells(8).name = 'base_excit';
+%         mouse(imouse).expt(s(:,imouse)).cells(9).name = 'base_inhib';
+%         mouse(imouse).expt(s(:,imouse)).cells(10).name = 'tar_excit';
+%         mouse(imouse).expt(s(:,imouse)).cells(11).name = 'tar_inhib';
+%         mouse(imouse).expt(s(:,imouse)).cells(12).name = 'base1_resp';
+%         mouse(imouse).expt(s(:,imouse)).cells(13).name = 'tar1_resp';
+%         mouse(imouse).expt(s(:,imouse)).cells(14).name = 'all cells';
+%         mouse(imouse).expt(s(:,imouse)).cells(1).ind = [];
+%         mouse(imouse).expt(s(:,imouse)).cells(2).ind = cellsSelect{1};
+%         mouse(imouse).expt(s(:,imouse)).cells(3).ind = cellsSelect{2};
+%         mouse(imouse).expt(s(:,imouse)).cells(4).ind = cellsSelect{3};
+%         mouse(imouse).expt(s(:,imouse)).cells(5).ind = cellsSelect{4};
+%         mouse(imouse).expt(s(:,imouse)).cells(6).ind = cellsSelect{5};
+%         mouse(imouse).expt(s(:,imouse)).cells(7).ind = cellsSelect{6};
         mouse(imouse).expt(s(:,imouse)).align(1).name = 'press';
         mouse(imouse).expt(s(:,imouse)).align(2).name = 'targetStim';
         mouse(imouse).expt(s(:,imouse)).align(3).name = 'catchStim';
@@ -611,12 +634,12 @@ function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
         mouse(imouse).expt(s(:,imouse)).info.minTrialLengthFrames = minTrialLengthFrames;
         mouse(imouse).expt(s(:,imouse)).info.dirs = Dirs;
         mouse(imouse).info.allDirs = Dirs_all;
-        mouse(imouse).expt(s(:,imouse)).tuning(1).name = 'ori preference';
-        mouse(imouse).expt(s(:,imouse)).tuning(2).name = 'OSI';
-        mouse(imouse).expt(s(:,imouse)).tuning(3).name = 'DSI';
-        mouse(imouse).expt(s(:,imouse)).tuning(1).outcome = ori_ind_all;
-        mouse(imouse).expt(s(:,imouse)).tuning(2).outcome = OSI;
-        mouse(imouse).expt(s(:,imouse)).tuning(3).outcome = DSI;
+%         mouse(imouse).expt(s(:,imouse)).tuning(1).name = 'ori preference';
+%         mouse(imouse).expt(s(:,imouse)).tuning(2).name = 'OSI';
+%         mouse(imouse).expt(s(:,imouse)).tuning(3).name = 'DSI';
+%         mouse(imouse).expt(s(:,imouse)).tuning(1).outcome = ori_ind_all;
+%         mouse(imouse).expt(s(:,imouse)).tuning(2).outcome = OSI;
+%         mouse(imouse).expt(s(:,imouse)).tuning(3).outcome = DSI;
         
         for i = 1:5
             mouse(imouse).expt(s(:,imouse)).align(i).av(1).name = 'visual';
@@ -689,7 +712,11 @@ function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
         end
         
         %identify trials with motion (large peaks in the derivative)
-        motionThreshold = 0.1;
+        if cellsOrDendrites == 1
+            motionThreshold = 0.1;
+        elseif cellsOrDendrites == 2
+            motionThreshold = 0.15;
+        end
         sz = size(DataDFoverF);
         ind_motion = find(max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold);
         mouse(imouse).expt(s(:,imouse)).align(ialign).ind_motion = ind_motion;
@@ -1085,35 +1112,43 @@ function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites)
             
         end
         end
-        %% find cells that are responsive to at least one of the target
-        %directions or the first baseline visual stimulus 
-        base_ind = find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_trans);
-        resp_ind = find(sum(mouse(imouse).expt(s(:,imouse)).align(2).ttest_trans,2)>=1);
-        mouse(imouse).expt(s(:,imouse)).cells(1).ind = unique([base_ind; resp_ind]);
-        mouse(imouse).expt(s(:,imouse)).cells(8).ind = intersect(find(baseStimRespDiff > 0),(find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_sust)));
-        mouse(imouse).expt(s(:,imouse)).cells(9).ind = intersect(find(baseStimRespDiff < 0),(find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_sust)));
-        mouse(imouse).expt(s(:,imouse)).cells(10).ind = intersect(find(mean(tarStimRespDiff,2) > 0),resp_ind);
-        mouse(imouse).expt(s(:,imouse)).cells(11).ind = intersect(find(mean(tarStimRespDiff,2) < 0),resp_ind);
-        mouse(imouse).expt(s(:,imouse)).cells(12).ind = base_ind;
-        mouse(imouse).expt(s(:,imouse)).cells(13).ind = resp_ind;
-        if isempty(mouse(imouse).expt(s(:,imouse)).cells(1).ind) & isempty(mouse(imouse).expt(s(:,imouse)).cells(8).ind)
-            mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(1).ind;
-        elseif isempty(mouse(imouse).expt(s(:,imouse)).cells(1).ind)
-            mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(8).ind;
-        elseif isempty(mouse(imouse).expt(s(:,imouse)).cells(8).ind)
-            mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(1).ind;
-        else
-            mouse(imouse).expt(s(:,imouse)).cells(14).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(8).ind));
-        end
+%         %% find cells that are responsive to at least one of the target
+%         %directions or the first baseline visual stimulus 
+%         base_ind = find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_trans);
+%         resp_ind = find(sum(mouse(imouse).expt(s(:,imouse)).align(2).ttest_trans,2)>=1);
+%         mouse(imouse).expt(s(:,imouse)).cells(1).ind = unique([base_ind; resp_ind]);
+%         mouse(imouse).expt(s(:,imouse)).cells(8).ind = intersect(find(baseStimRespDiff > 0),(find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_sust)));
+%         mouse(imouse).expt(s(:,imouse)).cells(9).ind = intersect(find(baseStimRespDiff < 0),(find(mouse(imouse).expt(s(:,imouse)).align(1).ttest_sust)));
+%         mouse(imouse).expt(s(:,imouse)).cells(10).ind = intersect(find(mean(tarStimRespDiff,2) > 0),resp_ind);
+%         mouse(imouse).expt(s(:,imouse)).cells(11).ind = intersect(find(mean(tarStimRespDiff,2) < 0),resp_ind);
+%         mouse(imouse).expt(s(:,imouse)).cells(12).ind = base_ind;
+%         mouse(imouse).expt(s(:,imouse)).cells(13).ind = resp_ind;
+%         if isempty(mouse(imouse).expt(s(:,imouse)).cells(1).ind) & isempty(mouse(imouse).expt(s(:,imouse)).cells(8).ind)
+%             mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(1).ind;
+%         elseif isempty(mouse(imouse).expt(s(:,imouse)).cells(1).ind)
+%             mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(8).ind;
+%         elseif isempty(mouse(imouse).expt(s(:,imouse)).cells(8).ind)
+%             mouse(imouse).expt(s(:,imouse)).cells(14).ind = mouse(imouse).expt(s(:,imouse)).cells(1).ind;
+%         else
+%             mouse(imouse).expt(s(:,imouse)).cells(14).ind = unique(cat(1,mouse(imouse).expt(s(:,imouse)).cells(1).ind,mouse(imouse).expt(s(:,imouse)).cells(8).ind));
+%         end
     end
     
     figure(motionHist)
     if cellsOrDendrites == 1
-        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_cells' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
-        print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
+        if doRawData == 1
+            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_rawDataTC_CaSummary_cells' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+        else
+            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_cells' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+            print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
+        end
     elseif cellsOrDendrites == 2
-        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_dendrites' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
-        print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
+        if doRawData == 1
+            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_rawDataTC_CaSummary_dendrites' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+        else
+            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary_dendrites' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+            print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
+        end
     else
         print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
         save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_CaSummary' datasetStr(5:end) '.mat']), 'mouse','-v7.3');

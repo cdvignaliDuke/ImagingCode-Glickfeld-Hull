@@ -1,7 +1,8 @@
 clear all
 close all
-ds = 'FSAV_V1_100ms';
+ds = 'FSAV_V1_100ms_naive';
 cellsOrDendrites = 1;
+doRawData = 0;
 %%
 rc = behavConstsAV;
 if strcmp(rc.name,'ashle') & isempty(ds)
@@ -24,6 +25,10 @@ elseif strcmp(titleStr(1:4), 'FSAV')
 end
 str = unique({expt.SubNum});
 mouse_str = ['i' strjoin(str,'_i')];
+if doRawData == 1
+    mouse_str = [mouse_str '_rawDataTC'];
+    titleStr = [titleStr '_rawDataTC'];
+end
 
 if isempty(ds)
     load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
@@ -73,13 +78,23 @@ end
 exptDates = {expt.date};
 exptMice = {expt.SubNum};
 %% orientation tuning
+exptIndicator = cell(1,nexp);
 tuningReliabilityThresh = 45;
 tuningDownSampFactor = 10;
 avgResponseEaOri = cell(1,nexp);
 semResponseEaOri = cell(1,nexp);
-fitReliability = cell(1,nexp);
-vonMisesFitAllCells = cell(1,nexp);
+avgResponseEaDir = cell(1,nexp);
+semResponseEaDir = cell(1,nexp);
+oriFitReliability = cell(1,nexp);
+dirFitReliability = cell(1,nexp);
+oriVonMisesFitAllCells = cell(1,nexp);
+dirVonMisesFitAllCells = cell(1,nexp);
 oriTuningTCs = cell(1,nexp);
+dirTuningTCs = cell(1,nexp);
+OSIEaExpt = cell(1,nexp);
+DSIEaExpt = cell(1,nexp);
+% oriRSqEaExpt = cell(1,nexp);
+% dirRSqEaExpt = cell(1,nexp);
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
         if imouse == 1 && iexp == 1
@@ -92,25 +107,68 @@ for imouse = 1:size(mouse,2)
         ind = strcmp(exptMice,ms) & strcmp(exptDates,dt);
         dataPath = fullfile(rc.ashleyAnalysis,expt(ind).mouse,...
             'two-photon imaging', dt, expt(ind).dirtuning);
-        tuningData = load(fullfile(dataPath,'oriTuningAndFits.mat'));
+        if cellsOrDendrites == 1
+            tuningData = load(fullfile(dataPath,'oriTuningAndFits.mat'));
+        else
+            tuningData = load(fullfile(dataPath,'oriTuningAndFits_den.mat'));
+        end
         avgResponseEaOri{exptN} = tuningData.avgResponseEaOri;
         semResponseEaOri{exptN} = tuningData.semResponseEaOri;
-        fitReliability{exptN} = tuningData.fitReliability;
-        vonMisesFitAllCells{exptN} = squeeze(tuningData.vonMisesFitAllCells);
+        oriFitReliability{exptN} = tuningData.fitReliability;
+        oriVonMisesFitAllCells{exptN} = squeeze(tuningData.vonMisesFitAllCells);
         load(fullfile(dataPath,'oriTuningTCs'))
         oriTuningTCs{exptN} = tuningTC;
+        OSIEaExpt{exptN} = getOSIfromFit(oriVonMisesFitAllCells{exptN});
+%         oriRSqEaExpt{exptN} = tuningData.R_square(1,:);
+        
+        tuningData = load(fullfile(dataPath,'dirTuningAndFits.mat'));
+        avgResponseEaDir{exptN} = tuningData.avgResponseEaDir;
+        semResponseEaDir{exptN} = tuningData.semResponseEaDir;
+        dirFitReliability{exptN} = tuningData.fitReliability;
+        dirVonMisesFitAllCells{exptN} = squeeze(tuningData.vonMisesFitAllCells);
+        load(fullfile(dataPath,'dirTuningTCs'))
+        dirTuningTCs{exptN} = tuningTC;
+        DSIEaExpt{exptN} = getDSIfromFit(dirVonMisesFitAllCells{exptN});
+%         dirRSqEaExpt{exptN} = tuningData.R_square(1,:);
+                
+        if strcmp(ds(end-4:end),'naive')
+            exptIndicator{exptN} = strjoin(expt(ind).indicator);
+        end
     end
 end
 for iexp = 1:nexp
-    noFit = sum(vonMisesFitAllCells{iexp}) == 0;
-    thisExptFitReliability = fitReliability{iexp};
+    noFit = sum(oriVonMisesFitAllCells{iexp}) == 0;
+    thisExptFitReliability = oriFitReliability{iexp};
     thisExptFitReliability(noFit) = 90;
-    fitReliability{iexp} = thisExptFitReliability;
+    oriFitReliability{iexp} = thisExptFitReliability;
 end
 
-isTuned = cellfun(@(x) x < tuningReliabilityThresh,fitReliability,'unif',0)';
+isOriTuned = cellfun(@(x) x < tuningReliabilityThresh,oriFitReliability,'unif',0)';
+isDirTuned = cellfun(@(x) x < tuningReliabilityThresh,dirFitReliability,'unif',0)';
+%%
+szEaExpt = nan(1,nexp);
+exptDepth = nan(1,nexp);
+for imouse = 1:size(mouse,2)
+    for iexp = 1:size(mouse(imouse).expt,2)
+        if imouse == 1 && iexp == 1
+            exptN = 1;
+        else
+            exptN = exptN+1;
+        end
+        ms = mouse(imouse).expt(iexp).mouse_name;
+        dt = mouse(imouse).expt(iexp).date;
+        ind = strcmp(exptMice,ms) & strcmp(exptDates,dt);
+        dirTuningMworks = loadMworksFile(expt(ind).SubNum,dt,expt(ind).dirtuning_time);
+        szEaExpt(exptN) = dirTuningMworks.gratingDiameterDeg;
+        if strcmp(ds(end-4:end),'naive')
+            exptIndicator{exptN} = strjoin(expt(ind).indicator);
+        end
+        exptDepth(exptN) = expt(ind).z;
+    end
+end
 %% responses
-basewin = 32:34;
+basewin = 1:34;
+basewin_0 = 32:34;
 respwin = 36:38;
 basewinTarget = 31:33;
 respwinTarget = 35:37;
@@ -125,6 +183,7 @@ nTrialsEaCycAllOutcome = zeros(nCycles,nexp,nav);
 tcEaCellEaCycByOutcome = cell(nCycles,nexp,nav,nout);
 nTrialsEaCycByOutcome = zeros(nCycles,nexp,nav,nout);
 exptName = cell(1,nexp);
+exptSN = nan(1,nexp);
 h = cell(1,nexp);
 p = cell(nexp,nCycles);
 responsiveCellsTtestEaCyc = cell(nexp,nCycles);
@@ -168,6 +227,8 @@ itiFEaExpt = cell(nexp,1);
 lateWinFEaExpt = cell(nexp,1);
 itiCorrEaExpt = cell(nexp,1);
 firstStimSuppressedCellsV = cell(nexp,1);
+% % pmtResponsive = cell(nexp,1);
+nCatchTrials = zeros(nexp,1);
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
             if imouse == 1 && iexp == 1
@@ -175,14 +236,22 @@ for imouse = 1:size(mouse,2)
             else
                 exptN = exptN+1;
             end
+            if mouse(imouse).expt(iexp).info.isCatch
+                catchHit = sum(cellfun(@length,mouse(imouse).expt(iexp).align(3)...
+                    .av(visualTrials).outcome(3).tcyc));
+                catchMiss = sum(cellfun(@length,mouse(imouse).expt(iexp).align(3)...
+                    .av(visualTrials).outcome(4).tcyc));
+                nCatchTrials(exptN) = catchHit+catchMiss;
+            end
         exptName{exptN} = [mouse(imouse).expt(iexp).mouse_name '-' ...
             mouse(imouse).expt(iexp).date];
-%         dAV_cycle1 = cat(3,mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{1},...
-%             mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{1});
+        exptSN(exptN) = str2num(mouse(imouse).expt(iexp).mouse_name);
+        dAV_cycle1 = cat(3,mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{1},...
+            mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{1});
         dV_cycle1 = mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{1};
         dA_cycle1 = mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{1};
-        responsiveCellsV{exptN} = ttest(squeeze(mean(dV_cycle1(respwin,:,:),1)),...
-            squeeze(mean(dV_cycle1(basewin,:,:),1)),'dim',2,'tail','right','alpha',cellGroupsAlpha)';
+        responsiveCellsV{exptN} = ttest(squeeze(mean(dAV_cycle1(respwin,:,:),1)),...
+            squeeze(mean(dAV_cycle1(basewin,:,:),1)),'dim',2,'tail','right','alpha',cellGroupsAlpha)';
         firstStimSuppressedCellsV{exptN} = ttest(squeeze(mean(dV_cycle1(respwin,:,:),1)),...
             squeeze(mean(dV_cycle1(basewin,:,:),1)),'dim',2,'tail','left')';
         responsiveCellsA{exptN} = ttest(squeeze(mean(dA_cycle1(respwin,:,:),1)),...
@@ -197,6 +266,9 @@ for imouse = 1:size(mouse,2)
             .align(targetAlign).av(visualTrials).outcome(hitTrials).stimResp{3},3);
         visTargetTCsHM{exptN,missTrials} = mean(mouse(imouse).expt(iexp)...
             .align(targetAlign).av(visualTrials).outcome(missTrials).stimResp{3},3);
+% %         pmtResponsive{exptN} = ttest(squeeze(mean(dV_cycle1(respwin-4,:,:),1)),...
+% %             squeeze(mean(dV_cycle1(basewin-4,:,:),1)),'dim',2,'tail','left')';
+        
         
         responseAllTrials = cell(nCycles,nav);
 
@@ -213,10 +285,10 @@ for imouse = 1:size(mouse,2)
             squeeze(mean(dV_nCycles(basewin,:,:),1)),'dim',2,'tail','right','alpha',cellGroupsAlpha)';
         lateSuppressedCellsAV{exptN} = ttest(squeeze(mean(dV_nCycles(respwin(1):end,:,:),1)),...
             squeeze(mean(dV_nCycles(basewin,:,:),1)),'dim',2,'tail','left','alpha',cellGroupsAlpha)';
-        lateResponsiveCellsA{exptN} = ttest(squeeze(mean(dV_nCycles(respwin(1):end,:,:),1)),...
-            squeeze(mean(dV_nCycles(basewin,:,:),1)),'dim',2,'tail','right','alpha',cellGroupsAlpha)';
-        lateSuppressedCellsA{exptN} = ttest(squeeze(mean(dV_nCycles(respwin(1):end,:,:),1)),...
-            squeeze(mean(dV_nCycles(basewin,:,:),1)),'dim',2,'tail','left','alpha',cellGroupsAlpha)';
+        lateResponsiveCellsA{exptN} = ttest(squeeze(mean(dA_nCycles(respwin(1):end,:,:),1)),...
+            squeeze(mean(dA_nCycles(basewin,:,:),1)),'dim',2,'tail','right','alpha',cellGroupsAlpha)';
+        lateSuppressedCellsA{exptN} = ttest(squeeze(mean(dA_nCycles(respwin(1):end,:,:),1)),...
+            squeeze(mean(dA_nCycles(basewin,:,:),1)),'dim',2,'tail','left','alpha',cellGroupsAlpha)';
         
         
         ntr = size(dAV_nCycles,3);
@@ -354,7 +426,7 @@ for imouse = 1:size(mouse,2)
                     end
                 end
 %                 thisExptRespEaCyc = nan(nCycles,size(tcThisCycAllOutcome,2));
-                baselineAllTrials = mean(tcThisCycAllOutcome(basewin+extraFrames,:,:),1);
+                baselineAllTrials = mean(tcThisCycAllOutcome(basewin_0+extraFrames,:,:),1);
                 responseAllTrials{icyc,iav} = mean(tcThisCycAllOutcome(...
                     respwin+extraFrames,:,:),1) - baselineAllTrials;
 %                 thisExptRespEaCyc(icyc,:) = squeeze(mean(responseAllTrials{icyc,iav} - ...
@@ -483,13 +555,13 @@ for imouse = 1:size(mouse,2)
             for iav = 1:nav
                 %prev vis
                 tcThisCycAV = tcPrevVisThisCyc{iav,:};
-                base_resp_thisCyc = mean(tcThisCycAV(basewin+extraFrames,:,:),1);
+                base_resp_thisCyc = mean(tcThisCycAV(basewin_0+extraFrames,:,:),1);
                 prevVisTCEaCycAV{icyc,iav,exptN} = bsxfun(@minus,...
                     tcThisCycAV(end-(cycLengthFr+nBaselineFr)+1:end,:,:),...
                     base_resp_thisCyc);
                 %prev aud
                 tcThisCycAV = tcPrevAudThisCyc{iav,:};
-                base_resp_thisCyc = mean(tcThisCycAV(basewin+extraFrames,:,:),1);
+                base_resp_thisCyc = mean(tcThisCycAV(basewin_0+extraFrames,:,:),1);
                 prevAudTCEaCycAV{icyc,iav,exptN} = bsxfun(@minus,...
                     tcThisCycAV(end-(cycLengthFr+nBaselineFr)+1:end,:,:),...
                     base_resp_thisCyc);
@@ -628,6 +700,7 @@ nCellsSupp6Stim = size(tcEaCycLateSuppCells{1,1},2);
     targetResponsiveCells,visualTrials,respwin,0);
 nCellsTargetStim = size(tcEaCycTargetCells{1,1},2);
 
+
 figure
 suptitle('responsive cells, adaptation analysis window, visual vs auditory trials')
 subplot(2,2,1)
@@ -640,7 +713,7 @@ xlabel('Time (ms)')
 ylabel('dF/F')
 vline((respwin([1 end])-33).*(1000/frRateHz))
 hold on
-vline((basewin([1 end])-33).*(1000/frRateHz),'k:')
+vline((basewin_0([1 end])-33).*(1000/frRateHz),'k:')
 figAxForm([])
 
 avcolmat = {[0 0 0],[0 1 1]};
@@ -682,7 +755,7 @@ xlabel('Time (ms)')
 ylabel('Normalized dF/F')
 vline((respwin([1 end])-33).*(1000/frRateHz))
 hold on
-vline((basewin([1 end])-33).*(1000/frRateHz),'k:')
+vline((basewin_0([1 end])-33).*(1000/frRateHz),'k:')
 figAxForm([])
 
 subplot(2,2,4)
@@ -699,6 +772,51 @@ figAxForm([])
 
 
 print([fnout 'adaptationAVResponsiveCells'],'-dpdf','-fillpage')
+
+%% expt cell counts table
+nRespCellEaExpt = cellfun(@(x,y,z) sum((x & y) | z),responsiveCellsV,...
+    responseCutoffMet,lateResponseCellInd);
+nSuppCellEaExpt = cellfun(@sum,lateSuppCellInd);
+nAllSuppCell = cellfun(@sum,lateSuppressedCellsAV);
+nTargetRespCellEaExpt = cellfun(@sum,targetResponsiveCells);
+exptCellCountTable = table(exptIndicator',nCellEaExpt,nRespCellEaExpt,nSuppCellEaExpt,nAllSuppCell,nTargetRespCellEaExpt,szEaExpt',exptDepth');
+exptCellCountTable.Properties.RowNames = exptName';
+exptCellCountTable.Properties.VariableNames([1,7]) = {'indicator','stimSize'};
+
+%%
+colors = cat(1,brewermap(8,'Dark2'),brewermap(8,'Set2'));
+pctSuppLate = nAllSuppCell./nCellEaExpt;
+pctResp = nRespCellEaExpt./nCellEaExpt;
+
+pctLim = [-0.1 1];
+zLim = [180 300];
+
+figure
+for iexp = 1:nexp
+    if isnan(exptDepth(iexp))
+        continue
+    else
+        subplot 121
+        hold on
+        h = plot(exptDepth(iexp),pctSuppLate(iexp),'ko');
+        h.MarkerFaceColor = colors(iexp,:);
+        figXAxis([],'z (um)',zLim);
+        figYAxis([], '% supp',pctLim)
+        figAxForm
+        subplot 122
+        hold on
+        h = plot(exptDepth(iexp),pctResp(iexp),'ko');
+        h.MarkerFaceColor = colors(iexp,:);
+        figXAxis([],'z (um)',zLim);
+        figYAxis([], '% resp',pctLim)
+        figAxForm
+    end
+end
+subplot 121
+legend(exptName(~isnan(exptDepth)),'location','northeastoutside')
+subplot 122
+legend(exptName(~isnan(exptDepth)),'location','northeastoutside')
+print([fnout '_eaExptPctRespSuppByDepth'],'-dpdf','-fillpage')
 %% cell groups AV
 setFigParams4Print('portrait')
 responseLim = [-0.01 0.02];
@@ -956,19 +1074,19 @@ print([fnout '_tcAVallAntiCells'],'-dpdf','-fillpage')
 
 [avgBaselineEaCycAV,semBaselineEaCycAV] = ...
     getCycBaseline4CellIndAV(trialTCEaCycEaCell,...
-    responsiveCellsV,visualTrials,basewin,respwin,cycLengthFr,1);
+    responsiveCellsV,visualTrials,basewin_0,respwin,cycLengthFr,1);
 
 [avgBaselineLateRespEaCycAV,semBaselineLateRespEaCycAV] = ...
     getCycBaseline4CellIndAV(trialTCEaCycEaCell,...
-    lateResponseCellInd,visualTrials,basewin,respwin,cycLengthFr,0);
+    lateResponseCellInd,visualTrials,basewin_0,respwin,cycLengthFr,0);
 
 [avgBaselineLateSuppEaCycAV,semBaselineLateSuppEaCycAV] = ...
     getCycBaseline4CellIndAV(trialTCEaCycEaCell,...
-    lateSuppCellInd,visualTrials,basewin,respwin,cycLengthFr,0);
+    lateSuppCellInd,visualTrials,basewin_0,respwin,cycLengthFr,0);
 
 [avgBaselineTargetCellsEaCycAV,semBaselineTargetCellsEaCycAV] = ...
     getCycBaseline4CellIndAV(trialTCEaCycEaCell,...
-    targetResponsiveCells,visualTrials,basewin,respwin,cycLengthFr,1);
+    targetResponsiveCells,visualTrials,basewin_0,respwin,cycLengthFr,1);
 
 setFigParams4Print('landscape')
 responseLim = [-0.025 0.04];
@@ -1006,9 +1124,9 @@ print([fnout 'baseAVCellGroups'],'-dpdf','-fillpage')
 
 %% tuning
 binEdgesOri = 0:1:181;
-[~, tuningPeak] = cellfun(@(x) max(x),vonMisesFitAllCells,'unif',0);
+[~, tuningPeak] = cellfun(@(x) max(x),oriVonMisesFitAllCells,'unif',0);
 figure;
-ind = cellfun(@(x,y) x & logical(y),isTuned,responsiveCellsV,'unif',0);
+ind = cellfun(@(x,y) x & logical(y),isOriTuned,responsiveCellsV,'unif',0);
 tp = cell2mat(cellfun(@(x,y) x(y),tuningPeak',ind,'unif',0)'); 
 tp_rad = deg2rad(tp) - (pi/2);
 subplot(2,2,1)
@@ -1017,7 +1135,7 @@ title({sprintf('%s (%s/%s)',cellType{1},...
     num2str(sum(cellfun(@sum,ind))),num2str(nCellsResp1Stim))...
     ['avg= ' num2str(mean(tp)) ' (deg)']})
     
-ind = cellfun(@(x,y) x & logical(y),isTuned,lateResponseCellInd,'unif',0);
+ind = cellfun(@(x,y) x & logical(y),isOriTuned,lateResponseCellInd,'unif',0);
 tp = cell2mat(cellfun(@(x,y) x(y),tuningPeak',ind,'unif',0)');  
 tp_rad = deg2rad(tp) - (pi/2);  
 subplot(2,2,2)
@@ -1026,7 +1144,7 @@ title({sprintf('%s (%s/%s)',cellType{2},...
     num2str(sum(cellfun(@sum,ind))),num2str(nCellsResp6Stim))...
     ['avg= ' num2str(mean(tp)) ' (deg)']})
 
-ind = cellfun(@(x,y) x & logical(y),isTuned,lateSuppCellInd,'unif',0);
+ind = cellfun(@(x,y) x & logical(y),isOriTuned,lateSuppCellInd,'unif',0);
 tp = cell2mat(cellfun(@(x,y) x(y),tuningPeak',ind,'unif',0)');   
 tp_rad = deg2rad(tp) - (pi/2); 
 subplot(2,2,3)
@@ -1035,7 +1153,7 @@ title({sprintf('%s (%s/%s)',cellType{3},...
     num2str(sum(cellfun(@sum,ind))),num2str(nCellsSupp6Stim)),...
     ['avg= ' num2str(mean(tp)) ' (deg)']})
 
-ind = cellfun(@(x,y) x & logical(y),isTuned,targetResponsiveCells,'unif',0);
+ind = cellfun(@(x,y) x & logical(y),isOriTuned,targetResponsiveCells,'unif',0);
 tp = cell2mat(cellfun(@(x,y) x(y),tuningPeak',ind,'unif',0)');   
 tp_rad = deg2rad(tp) - (pi/2); 
 subplot(2,2,4)
@@ -1251,7 +1369,7 @@ figAxForm([])
 title(sprintf('late modulated cells, V < A (%s)', num2str(sum(ind))))
 print([fnout 'cycRespModCells'],'-dpdf','-fillpage')
 
-%% adaptatoin across +/- SI groups
+%% adaptation across +/- SI groups
 
 respLim = [0 0.035];
 figure
@@ -1516,6 +1634,7 @@ title({sprintf('significantly modulated late (%s/%s)'...
 h = vline(mean(lateRespSI(lateBLSuppCells & lateRespModAV)),'m-');
 h.LineWidth = 2;
 print([fnout 'SISuppModCellsLateWin'],'-dpdf','-fillpage')
+
 %% selectivity across late window for responsive and suppressed cells
 lateWinSI = cell2mat(lateWinSIEaExpt');
 lateWinModAV = cell2mat(ttestLateWinAVEaExpt');
@@ -1733,7 +1852,7 @@ title('suppressed late')
 print([fnout '_tcAVCellGroups'],'-dpdf','-fillpage')
 %% tuning of mod cells
 tuningPeakAllCells = cell2mat(tuningPeak);
-isTunedAllCells = cell2mat(isTuned');
+isTunedAllCells = cell2mat(isOriTuned');
 
 binEdgesOri = 0:22.5:180;
 nBinnedRespCells = histcounts(tuningPeakAllCells(respCells & isTunedAllCells)-1,binEdgesOri);
@@ -2851,6 +2970,158 @@ title('V - A');
 
 print([fnout 'heatmapsAnticipation'],'-dpdf','-fillpage')
 
+%%
+figure;
+colormap(brewermap([],'*RdBu'));
+subplot 221
+h = histogram(lateRespSI,binEdgesSI);
+h.FaceColor = [0.5 0.5 0.5];
+h.EdgeColor = [1 1 1];
+h = vline(0,'k-');
+h.LineWidth = 2;
+h = vline(mean(lateRespSI),'r-');
+h.LineWidth = 2;
+hold on
+h = histogram(lateRespSI(logical(lateRespModAV)),binEdgesSI);
+h.FaceColor = 'k';
+h.EdgeColor = [1 1 1];
+h = vline(mean(lateRespSI(logical(lateRespModAV))),'m-');
+h.LineWidth = 2;
+figXAxis([],'late resp selectivity index (using cycles 5-8)',siLim)
+figYAxis([],'n ncells',[])
+figAxForm([])
+title({sprintf('significantly modulated late (%s/%s)'...
+    ,num2str(sum(lateRespModAV)),num2str(length(lateRespSI))),...
+    'red: avg SI all cels, pink: avg SI signif cells'})
+
+% visModHeatmap = flipud(AVTCAllCells(:,sortAllCellsInd(lateRespModAV & lateRespSI > 0))');
+% audModHeatmap = flipud(AVTCAllCells(:,sortAllCellsInd(lateRespModAV & lateRespSI < 0))');
+
+visModTC = AVTCAllCells(:,lateRespModAV & lateRespSI > 0);
+[~,visModSortInd] = sort(mean(visModTC(end-lateWinFrames:end,:),1));
+visModHeatmap = flipud(visModTC(:,visModSortInd)');
+audModTC = AVTCAllCells(:,lateRespModAV & lateRespSI < 0);
+[~,audModSortInd] = sort(mean(audModTC(end-lateWinFrames:end,:),1));
+audModHeatmap = flipud(audModTC(:,audModSortInd)');
+
+subplot 222
+h = imagesc(visModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('Vis Selective Cells (+SI), All Trials');
+subplot 224
+h = imagesc(audModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('Aud Selective Cells (-SI), All Trials');
+
+print([fnout '_modCellsSelectivity&Heatmaps'],'-dpdf','-fillpage')
+
+vis_visModTC = visTCAllCells(:,lateRespModAV & lateRespSI > 0);
+aud_visModTC = audTCAllCells(:,lateRespModAV & lateRespSI > 0);
+
+vis_visModHeatmap = flipud(vis_visModTC(:,visModSortInd)');
+aud_visModHeatmap = flipud(aud_visModTC(:,visModSortInd)');
+
+vis_audModTC = visTCAllCells(:,lateRespModAV & lateRespSI < 0);
+aud_audModTC = audTCAllCells(:,lateRespModAV & lateRespSI < 0);
+
+vis_audModHeatmap = flipud(vis_audModTC(:,audModSortInd)');
+aud_audModHeatmap = flipud(aud_audModTC(:,audModSortInd)');
+
+figure
+colormap(brewermap([],'*RdBu'));
+subplot 221
+h = imagesc(vis_visModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('+SI Cells, Visual Trials');
+subplot 222
+h = imagesc(aud_visModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('+SI Cells, Auditory Trials');
+subplot 223
+h = imagesc(vis_audModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('-SI Cells, Visual Trials');
+subplot 224
+h = imagesc(aud_audModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('-SI Cells, Auditory Trials');
+print([fnout '_modCellsSelectivity&Heatmaps_visVSaudTrials'],'-dpdf','-fillpage')
+
+[~,visModSortInd] = sort(mean(AVTCAllCells(end-lateWinFrames:end,lateRespSI > 0),1));
+[~,audModSortInd] = sort(mean(AVTCAllCells(end-lateWinFrames:end,lateRespSI < 0),1));
+
+vis_visModTC = visTCAllCells(:,lateRespSI > 0);
+aud_visModTC = audTCAllCells(:,lateRespSI > 0);
+
+vis_visModHeatmap = flipud(vis_visModTC(:,visModSortInd)');
+aud_visModHeatmap = flipud(aud_visModTC(:,visModSortInd)');
+
+vis_audModTC = visTCAllCells(:,lateRespSI < 0);
+aud_audModTC = audTCAllCells(:,lateRespSI < 0);
+
+vis_audModHeatmap = flipud(vis_audModTC(:,audModSortInd)');
+aud_audModHeatmap = flipud(aud_audModTC(:,audModSortInd)');
+
+figure
+colormap(brewermap([],'*RdBu'));
+subplot 221
+h = imagesc(vis_visModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('+SI Cells, Visual Trials');
+subplot 222
+h = imagesc(aud_visModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('+SI Cells, Auditory Trials');
+subplot 224
+h = imagesc(vis_audModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('-SI Cells, Visual Trials');
+subplot 223
+h = imagesc(aud_audModHeatmap(:,26:end));
+figXAxis([],'time (ms)',[],ttAxisTick,ttAxisLabel)
+figYAxis([],'cell #',[])
+figAxForm([])
+colorbar
+caxis(respLim)
+title('-SI Cells, Auditory Trials');
+print([fnout '_allCellsSelectivity&Heatmaps_visVSaudTrials'],'-dpdf','-fillpage')
+
 %% example neuron responses
 visStimOnTimeMs = ((0:cycLengthFr:cycLengthFr*(nCycles-1))/frRateHz)*1000;
 visStimOffTimeMs = visStimOnTimeMs+100;
@@ -2905,7 +3176,7 @@ print([fnout 'exampleCellsTC'],'-dpdf','-fillpage')
 % direction tuning
 avgOriRespAllCells = cell2mat(avgResponseEaOri');
 semOriRespAllCells = cell2mat(semResponseEaOri');
-fitOriAllCells = cell2mat(vonMisesFitAllCells);
+fitOriAllCells = cell2mat(oriVonMisesFitAllCells);
 
 tunLim = {[-0.05 0.5],[-0.05 0.1],[-0.05 0.1]};
 exCells = [exRespCell exLateRespCell exLateSuppCell];
@@ -2984,7 +3255,7 @@ print([fnout 'oriTuningHeatmap'],'-dpdf','-fillpage')
 
 avgOriRespAllCells = cell2mat(avgResponseEaOri');
 semOriRespAllCells = cell2mat(semResponseEaOri');
-fitOriAllCells = cell2mat(vonMisesFitAllCells);
+fitOriAllCells = cell2mat(oriVonMisesFitAllCells);
 
 exCell_0 = 593;
 exCell_90 = 387;
@@ -3094,7 +3365,7 @@ subplot 121
 p = polarplot(deg2rad(tuningPeakAllCells((BLRespCells | lateBLRespCells) & isTunedAllCells)), lateWinSI((BLRespCells | lateBLRespCells)  & isTunedAllCells),'ok');
 hold on
 p = polarplot(deg2rad(tuningPeakAllCells((BLRespCells | lateBLRespCells)   & lateWinModAV & isTunedAllCells)), lateWinSI((BLRespCells | lateBLRespCells)  & lateWinModAV & isTunedAllCells),'or');
-title({'Selectivity index by tuning for all tuned cells- selective cells are red';'first stim responsive'})
+title({'Selectivity index by tuning for all tuned cells- selective cells are red';'responsive'})
 
 subplot 122
 p = polarplot(deg2rad(tuningPeakAllCells(lateBLSuppCells & isTunedAllCells)), lateWinSI(lateBLSuppCells & isTunedAllCells),'ok');
@@ -3102,13 +3373,13 @@ hold on
 p = polarplot(deg2rad(tuningPeakAllCells(lateBLSuppCells  & lateWinModAV & isTunedAllCells)), lateWinSI(lateBLSuppCells & lateWinModAV & isTunedAllCells),'or');
 title({'Selectivity index by tuning for all tuned cells- selective cells are red';'suppressed'})
 print([fnout 'selectivityTuningPolarPlot'],'-dpdf','-fillpage')
-
+%%
+targetCells = cell2mat(targetResponsiveCells');
 %% target hit vs miss
 targetTCsHits = cell2mat(visTargetTCsHM(:,hitTrials)');
 targetTCsHitsBL = targetTCsHits - mean(targetTCsHits(basewinTarget,:));
 targetTCsMiss = cell2mat(visTargetTCsHM(:,missTrials)');
 targetTCsMissBL = targetTCsMiss - mean(targetTCsMiss(basewinTarget,:));
-targetCells = cell2mat(targetResponsiveCells');
 
 targetResponsiveTCsHM = cat(1,{targetTCsHitsBL(:,targetCells)'}...
     ,{targetTCsMissBL(:,targetCells)'});
@@ -3440,6 +3711,7 @@ subplot 133
 legData = [];
 for igroup = 1:3
     y = mean(visTargetBL(1:frRateHz*2,auROCGroupInd{igroup} & cellTypeGroups{1}),2);
+vline(ttRespwinBL,'k:')
     yerr = ste(visTargetBL(1:frRateHz*2,auROCGroupInd{igroup} & cellTypeGroups{1}),2);
     h = shadedErrorBar(ttTarget,y,yerr,auROCColors{igroup});
     legData(igroup) = h.mainLine;
@@ -3449,7 +3721,6 @@ figXAxis([],'time(ms)',[-1000 1000],ttTargetAxisTick,ttTargetAxisLabel)
 figYAxis([],'dF/F',respLim)
 figAxForm([])
 vline(ttRespwinTarget,'k:')
-vline(ttRespwinBL,'k:')
 legend(legData,auROCGroups,'location','northwest')
 title('target cells, auROC groups')
 print([fnout '_targetTCAnti&TargetGroupedNoOverlap'],'-dpdf','-fillpage')
@@ -3697,7 +3968,7 @@ ttAxisLabel = ttTargetAxisTick;
 %% auroc groups first base:target, anticipation responses
 
 setFigParams4Print('landscape')
-suptitle('all anticipation cells')
+% suptitle('all anticipation cells')
 for igroup = 1:3
     figure(aurocCellGroupsTCFig)
     responseLim = [-0.02 0.1];
@@ -3832,9 +4103,55 @@ figXAxis([],'time (ms)',[tt(1) tt(end)])
 figYAxis([],'dF/F',responseLim) 
 title(sprintf('late suppressed, n = %s',auROCGroups{igroup},num2str(sum(ind))))
 
-
 print([fnout '_antiTCAudResponsiveCellSelection'],'-dpdf','-fillpage')
 
+setFigParams4Print('portrait')
+binEdgesSI = -10:0.5:10;
+siLim = [-10 10];
+figure
+subplot 211
+ind = audResponsiveCells | lateAudRespCells;
+h=histogram(lateWinSI(ind),binEdgesSI);
+h.FaceColor = [0.5 0.5 0.5];
+h.EdgeColor = [1 1 1];
+h = vline(0,'k-');
+h.LineWidth = 2;
+h = vline(mean(lateWinSI(ind)),'r-');
+h.LineWidth = 2;
+hold on
+h = histogram(lateWinSI(lateWinModAV & ind),binEdgesSI);
+h.FaceColor = 'k';
+h.EdgeColor = [1 1 1];
+h = vline(mean(lateWinSI(ind & lateWinModAV)),'m-');
+h.LineWidth = 2;
+figXAxis([],'late trial selectivity index (using cycles 5-8)',siLim)
+figYAxis([],'n ncells',[])
+figAxForm([])
+title({sprintf('responsive cells (%s/%s)'...
+    ,num2str(sum(lateWinModAV & ind)),num2str(sum(ind)));...
+    'red: avg SI all cels, pink: avg SI signif cells'})
+
+subplot 212
+ind = lateAudSuppCells;
+h=histogram(lateWinSI(ind),binEdgesSI);
+h.FaceColor = [0.5 0.5 0.5];
+h.EdgeColor = [1 1 1];
+h = vline(0,'k-');
+h.LineWidth = 2;
+h = vline(mean(lateWinSI(ind)),'r-');
+h.LineWidth = 2;
+hold on
+h = histogram(lateWinSI(lateWinModAV & ind),binEdgesSI);
+h.FaceColor = 'k';
+h.EdgeColor = [1 1 1];
+h = vline(mean(lateWinSI(ind & lateWinModAV)),'m-');
+h.LineWidth = 2;
+figXAxis([],'late trial selectivity index (using cycles 5-8)',siLim)
+figYAxis([],'n ncells',[])
+figAxForm([])
+title(sprintf('suppressed cells (%s/%s)'...
+    ,num2str(sum(lateWinModAV & ind)),num2str(sum(ind))))
+% print([fnout '_SICellGroupsLateWin'],'-dpdf','-fillpage')
 %% iti F for suppressed cells
 
 itiF = cell2mat(itiFEaExpt');
@@ -3867,8 +4184,6 @@ sCells = lateSuppCellInd;
 
 lateWinSIEaExpt_rCells = cellfun(@(x,y) x(y),lateWinSIEaExpt,rCells,'unif',0);
 lateWinSIEaExpt_sCells = cellfun(@(x,y) x(y),lateWinSIEaExpt,sCells,'unif',0);
-
-[~,p] = 
 
 leg = [];
 siLim = [-5 5];
@@ -3920,3 +4235,117 @@ fig.Box = 'off';
 fig.TickDir = 'out';
 title('color is n cells')
 print([fnout '_SIeaExptCellGroups'],'-dpdf','-fillpage')
+
+%% OSI and DSI of cell groups
+isDirTunedAllCells = cell2mat(isDirTuned');
+OSI = cell2mat(OSIEaExpt);
+DSI = cell2mat(DSIEaExpt);
+
+bin_edges = 0:0.05:1;
+
+nLim = [0 150];
+
+figure
+suptitle('tuned cells drifting grating selectivity')
+subplot 231
+histogram(OSI((BLRespCells | lateBLRespCells) & (isTunedAllCells | isDirTunedAllCells)),bin_edges)
+figXAxis([],'OSI',[-0.1 1.1],[0:0.2:1],[0:0.2:1])
+figYAxis([],'n cells',nLim)
+figAxForm([])
+hold on
+vline(mean(OSI((BLRespCells | lateBLRespCells) & (isTunedAllCells | isDirTunedAllCells))),'r-');
+title('responsive')
+subplot 234
+histogram(OSI(lateBLSuppCells & (isTunedAllCells | isDirTunedAllCells)),bin_edges)
+figXAxis([],'OSI',[-0.1 1.1],[0:0.2:1],[0:0.2:1])
+figYAxis([],'n cells',nLim)
+figAxForm([])
+hold on
+vline(mean(OSI(lateBLSuppCells & (isTunedAllCells | isDirTunedAllCells))),'r-');
+title('suppressed')
+subplot 232
+histogram(DSI((BLRespCells | lateBLRespCells) & (isTunedAllCells | isDirTunedAllCells)),bin_edges)
+figXAxis([],'DSI',[-0.1 1.1],[0:0.2:1],[0:0.2:1])
+figYAxis([],'n cells',nLim)
+figAxForm([])
+hold on
+vline(mean(DSI((BLRespCells | lateBLRespCells) & (isTunedAllCells | isDirTunedAllCells))),'r-');
+title('responsive')
+subplot 235
+histogram(DSI(lateBLSuppCells & (isTunedAllCells | isDirTunedAllCells)),bin_edges)
+figXAxis([],'DSI',[-0.1 1.1],[0:0.2:1],[0:0.2:1])
+figYAxis([],'n cells',nLim)
+figAxForm([])
+hold on
+vline(mean(DSI(lateBLSuppCells & (isTunedAllCells | isDirTunedAllCells))),'r-');
+title('suppressed')
+
+subplot 233
+scatter(OSI((BLRespCells | lateBLRespCells) & (isTunedAllCells | isDirTunedAllCells)),...
+    DSI((BLRespCells | lateBLRespCells) & (isTunedAllCells | isDirTunedAllCells)), 'ko')
+figXAxis([],'OSI',[-0.2 1.2])
+figYAxis([],'DSI',[-0.2 1.2])
+hold on
+plot([-0.2 1.2],[-0.2 1.2],'k--')
+figAxForm([])
+subplot 236
+scatter(OSI(lateBLSuppCells & (isTunedAllCells | isDirTunedAllCells)),...
+    DSI(lateBLSuppCells& (isTunedAllCells | isDirTunedAllCells)), 'ko')
+figXAxis([],'OSI',[-0.2 1.2])
+figYAxis([],'DSI',[-0.2 1.2])
+hold on
+plot([-0.2 1.2],[-0.2 1.2],'k--')
+figAxForm([])
+print([fnout '_Ori&DirectionSelectivityHist'],'-dpdf','-fillpage')
+%% first response for aud and vis selected cells
+responseCutoffA = cellfun(@(x) mean(x(respwin,:),1) > 0.002,...
+    squeeze(tcEaCellEaCycAllOutcome(1,:,auditoryTrials)),'unif',0);
+respCellA = cell2mat(cellfun(@(x,y) x & y, responsiveCellsA',responseCutoffA,'unif',0));
+respCellV = cell2mat(cellfun(@(x,y) x & y, responsiveCellsV,responseCutoffMet,'unif',0)');
+% 
+% visTC1stim = cell2mat(squeeze(tcEaCellEaCycAllOutcome(1,:,visualTrials)));
+% audTC1stim = cell2mat(squeeze(tcEaCellEaCycAllOutcome(1,:,auditoryTrials)));
+
+respLim = [-0.005 0.04];
+figure;
+suptitle(sprintf('cells selected from (%s cells overlap) ...',num2str(sum(respCellA & respCellV))))
+for iplot = 1:4
+    visTC = cell2mat(squeeze(tcEaCellEaCycAllOutcome(iplot,:,visualTrials)));
+    audTC = cell2mat(squeeze(tcEaCellEaCycAllOutcome(iplot,:,auditoryTrials)));
+    tt = ((26:size(visTC,1))-33).*(1000/frRateHz);
+    subplot(2,4,iplot)
+    y = mean(visTC(26:end,respCellV),2);
+    yerr = ste(visTC(26:end,respCellV),2);
+    shadedErrorBar(tt,y,yerr,'k');
+    hold on
+    y = mean(audTC(26:end,respCellV),2);
+    yerr = ste(audTC(26:end,respCellV),2);
+    shadedErrorBar(tt,y,yerr,'c');
+    if iplot == 1
+        title(sprintf('visual trials, n = %s, stim %s',num2str(sum(respCellV)),...
+            num2str(iplot)))
+    else
+        title(sprintf('stim %s',num2str(iplot)))
+    end
+    figXAxis([],'time(ms)',[],[-200:200:200],[-200:200:200])
+    figYAxis([],'dF/F',respLim)
+    figAxForm([],0)
+    subplot(2,4,iplot+4)
+    y = mean(visTC(26:end,respCellA),2);
+    yerr = ste(visTC(26:end,respCellA),2);
+    shadedErrorBar(tt,y,yerr,'k');
+    hold on
+    y = mean(audTC(26:end,respCellA),2);
+    yerr = ste(audTC(26:end,respCellA),2);
+    shadedErrorBar(tt,y,yerr,'c');
+    if iplot == 1
+        title(sprintf('auditory trials, n = %s, stim %s',num2str(sum(respCellA)),...
+            num2str(iplot)))
+    else
+        title(sprintf('stim %s',num2str(iplot)))
+    end
+    figXAxis([],'time(ms)',[],[-200:200:200],[-200:200:200])
+    figYAxis([],'dF/F',respLim)
+end
+
+print([fnout '_tcFirstStimAud&VisSelectCells'],'-dpdf','-fillpage')

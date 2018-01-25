@@ -14,8 +14,9 @@ expt(1).catchRew = 0;
 expt(1).dirtuning = '006';
 expt(1).dirtuning_time = '1518';
 expt(1).rettuning = {'005';'1514'};
-expt(1).motionTestBimodal = 1;
+expt(1).z = 299;
 expt(1).regImgStartFrame = 49839;
+expt(1).trial_range = nan;
 
 %% AW13 150508
 expt(2).SubNum = '613';
@@ -33,8 +34,9 @@ expt(2).catchRew = 0;
 expt(2).dirtuning = '006';
 expt(2).dirtuning_time = '1510';
 expt(2).rettuning = {'005';'1506'};
-expt(2).motionTestBimodal = 0;
+expt(2).z = 294;
 expt(2).regImgStartFrame = 41998;
+expt(2).trial_range = nan;
 
 %% AW13 150511 - FA rate high
 expt(3).SubNum = '613';
@@ -52,8 +54,9 @@ expt(3).catchRew = 0;
 expt(3).dirtuning = '005';
 expt(3).dirtuning_time = '1513';
 expt(3).rettuning = {'004';'1509'};
-expt(3).motionTestBimodal = 0;
+expt(3).z = 301;
 expt(3).regImgStartFrame = nan;
+expt(3).trial_range = nan;
 
 
 %% AW14 150623
@@ -72,8 +75,9 @@ expt(4).catchRew = 0;
 expt(4).dirtuning = '006';
 expt(4).dirtuning_time = '1239';
 expt(4).rettuning = {'005';'1235'};
-expt(4).motionTestBimodal = 1;
+expt(4).z = 303;
 expt(4).regImgStartFrame = nan;
+expt(4).trial_range = nan;
 
 %% AW14 150626
 expt(5).SubNum = '614';
@@ -91,8 +95,9 @@ expt(5).catchRew = 0;
 expt(5).dirtuning = '005';
 expt(5).dirtuning_time = '1558';
 expt(5).rettuning = {'004';'1553'};
-expt(5).motionTestBimodal = 0;
+expt(5).z = 300;
 expt(5).regImgStartFrame = 28393;
+expt(5).trial_range = nan;
 
 %% AW14 150701 - might need to cut off trials for behavior
 expt(6).SubNum = '614';
@@ -110,8 +115,9 @@ expt(6).catchRew = 0;
 expt(6).dirtuning = '006';
 expt(6).dirtuning_time = '1659';
 expt(6).rettuning = {'005';'1650'};
-expt(6).motionTestBimodal = 0;
+expt(6).z = 292;
 expt(6).regImgStartFrame = 76434;
+expt(6).trial_range = nan;
 
 % %% AW16 151019 - miss rate high
 % expt(7).SubNum = '616';
@@ -127,7 +133,7 @@ expt(6).regImgStartFrame = 76434;
 % expt(7).catch = 1;
 % expt(7).dirtuning = '008';
 % expt(7).rettuning = {'007';'1208'};
-% expt(7).motionTestBimodal = 0;
+% expt(7).z = 0;
 
 % %% AW16 151028 - FA rate high
 % expt(8).SubNum = '616';
@@ -143,7 +149,7 @@ expt(6).regImgStartFrame = 76434;
 % expt(8).catch = 1;
 % expt(8).dirtuning = '007';
 % expt(8).rettuning = {'006';'1146'};
-% expt(8).motionTestBimodal = 0;
+% expt(8).z = 0;
 % 
 % %% AW16 151030 - FA rate high
 % expt(9).SubNum = '616';
@@ -159,7 +165,7 @@ expt(6).regImgStartFrame = 76434;
 % expt(9).catch = 1;
 % expt(9).dirtuning = '006';
 % expt(9).rettuning = {'005';'1140'};
-% expt(9).motionTestBimodal = 1;
+% expt(9).z = 1;
 
 % %% AW16 151105 - maybe suppressed, good behavior, not enough long trials
 % expt(7).SubNum = '616';
@@ -177,7 +183,7 @@ expt(6).regImgStartFrame = 76434;
 % expt(7).dirtuning = '008';
 % expt(7).dirtuning_time = '1351';
 % expt(7).rettuning = {'008';'1347'};
-% expt(7).motionTestBimodal = 0;
+% expt(7).z = 0;
 
 %% AW70 170222 - 100ms 
 expt(7).SubNum = '670';
@@ -195,9 +201,10 @@ expt(7).catchRew = 1;
 expt(7).dirtuning = '004';
 expt(7).dirtuning_time = '1158';
 expt(7).rettuning = {'005';'1208'};
-expt(7).motionTestBimodal = 0;
+expt(7).z = 0;
 expt(7).z = 256;
 expt(7).regImgStartFrame = nan;
+expt(7).trial_range = nan;
 
 %% AW13 150430
 expt(8).SubNum = '613';
@@ -215,9 +222,9 @@ expt(8).catchRew = 1;
 expt(8).dirtuning = '006';
 expt(8).dirtuning_time = '1559';
 expt(8).rettuning = {'005';'1555'};
-expt(8).motionTestBimodal = 0;
 expt(8).z = 299;
 expt(8).regImgStartFrame = 79176;
+expt(8).trial_range = nan;
 
 % %% AW25 160316 - 100ms, not enough long trials
 % expt(9).SubNum = '625';
@@ -235,7 +242,7 @@ expt(8).regImgStartFrame = 79176;
 % expt(9).dirtuning = '006';
 % expt(9).dirtuning_time = '1333';
 % expt(9).rettuning = {'005';'1328'};
-% expt(9).motionTestBimodal = 0;
+% expt(9).z = 0;
 % expt(9).z = 267;
 % 
 % %% AW13 150428
@@ -253,7 +260,7 @@ expt(8).regImgStartFrame = 79176;
 % expt(10).dirtuning = '008';
 % expt(10).dirtuning_time = '1050';
 % expt(10).rettuning = {'007';'1046'};
-% expt(10).motionTestBimodal = 0;
+% expt(10).z = 0;
 % expt(10).z = 288;
 
 % %% AW68 161019 - 100ms - high FA rate
@@ -271,7 +278,7 @@ expt(8).regImgStartFrame = 79176;
 % expt(10).dirtuning = '005';
 % expt(10).dirtuning_time = '1212';
 % expt(10).rettuning = {'006';'1221'};
-% expt(10).motionTestBimodal = 0;
+% expt(10).z = 0;
 % expt(10).z = 230;
 
 % %% AW68 161021 - 100ms - imaging very dim, some files corrupted
@@ -289,7 +296,7 @@ expt(8).regImgStartFrame = 79176;
 % expt(10).dirtuning = '004';
 % expt(10).dirtuning_time = '1142';
 % expt(10).rettuning = {'005';'1151'};
-% expt(10).motionTestBimodal = 0;
+% expt(10).z = 0;
 % expt(10).z = 203;
 
 %% AW68 161024 - 100ms
@@ -308,9 +315,9 @@ expt(9).catchRew = 1;
 expt(9).dirtuning = '006';
 expt(9).dirtuning_time = '1147';
 expt(9).rettuning = {'007';'1156'};
-expt(9).motionTestBimodal = 0;
 expt(9).z = 203;
 expt(9).regImgStartFrame = nan;
+expt(9).trial_range = nan;
 
 %% AW68 161031 - 100ms
 expt(10).SubNum = '668';
@@ -328,9 +335,9 @@ expt(10).catchRew = 1;
 expt(10).dirtuning = '006';
 expt(10).dirtuning_time = '1231';
 expt(10).rettuning = {'007';'1246'};
-expt(10).motionTestBimodal = 0;
 expt(10).z = 249;
 expt(10).regImgStartFrame = 55561;
+expt(10).trial_range = 1:208;
 
 % %% AW60 161101 - 100ms % not  enout cells or trials
 % expt(11).SubNum = '660';
@@ -348,11 +355,11 @@ expt(10).regImgStartFrame = 55561;
 % expt(11).dirtuning = '005';
 % expt(11).dirtuning_time = '1335';
 % expt(11).rettuning = {'006';'1344'};
-% expt(11).motionTestBimodal = 0;
+% expt(11).z = 0;
 % expt(11).z = 220;
 % expt(11).regImgStartFrame = 37844;
 
-% %% AW68 161102 - 100ms - **same data as 161031? check it out
+% %% AW68 161102 - 100ms - **same data as 161031? check it out, FA too high
 % expt(13).SubNum = '668';
 % expt(13).mouse = 'AW68';
 % expt(13).date = '161102';
@@ -367,7 +374,7 @@ expt(10).regImgStartFrame = 55561;
 % expt(13).dirtuning = '006';
 % expt(13).dirtuning_time = '1233';
 % expt(13).rettuning = {'007';'1242'};
-% expt(13).motionTestBimodal = 0;
+% expt(13).z = 0;
 % expt(13).z = 266;
 
 % %% AW68 161121 - 100ms
@@ -385,7 +392,7 @@ expt(10).regImgStartFrame = 55561;
 % expt(13).dirtuning = '007';
 % expt(13).dirtuning_time = '1235';
 % expt(13).rettuning = {'008';'1244'};
-% expt(13).motionTestBimodal = 0;
+% expt(13).z = 0;
 % expt(13).z = 228;
 
 %% AW68 170103 - 100ms
@@ -404,9 +411,9 @@ expt(11).catchRew = 1;
 expt(11).dirtuning = '006';
 expt(11).dirtuning_time = '1559';
 expt(11).rettuning = {'007';'1613'};
-expt(11).motionTestBimodal = 0;
 expt(11).z = 244;
 expt(11).regImgStartFrame = 25169;
+expt(11).trial_range = nan;
 
 %% AW68 161121 - 100ms %needs to be registered
 expt(12).SubNum = '668';
@@ -424,11 +431,11 @@ expt(12).catchRew = 1;
 expt(12).dirtuning = '007';
 expt(12).dirtuning_time = '1235';
 expt(12).rettuning = {'008';'1244'};
-expt(12).motionTestBimodal = 0;
 expt(12).z = 228;
 expt(12).regImgStartFrame = 54798;
+expt(12).trial_range = nan;
 
-%% AW72 170224 - 100ms %needs to be registered **high lapse rate on auditory trials
+%% AW72 170224 - 100ms **high lapse rate on auditory trials
 expt(13).SubNum = '672';
 expt(13).mouse = 'AW72';
 expt(13).date = '170224';
@@ -444,9 +451,9 @@ expt(13).catchRew = 1;
 expt(13).dirtuning = '006';
 expt(13).dirtuning_time = '1102';
 expt(13).rettuning = {'007';'1111'};
-expt(13).motionTestBimodal = 0;
 expt(13).z = 288;
 expt(13).regImgStartFrame = nan;
+expt(13).trial_range = nan;
 
 %% AW72 170303 - 100ms %needs to be registered
 expt(14).SubNum = '672';
@@ -464,10 +471,9 @@ expt(14).catchRew = 1;
 expt(14).dirtuning = '003';
 expt(14).dirtuning_time = '1018';
 expt(14).rettuning = {'004';'1027'};
-expt(14).motionTestBimodal = 0;
 expt(14).z = 252;
 expt(14).regImgStartFrame = nan;
-
+expt(14).trial_range = [1:155];
 
 %% AW70 170320 - 100ms %miss rate may be too high
 expt(15).SubNum = '670';
@@ -485,9 +491,10 @@ expt(15).catchRew = 1;
 expt(15).dirtuning = '005';
 expt(15).dirtuning_time = '1224';
 expt(15).rettuning = {'006';'1236'};
-expt(15).motionTestBimodal = 0;
+expt(15).z = 0;
 expt(15).z = 219;
 expt(15).regImgStartFrame = 73279;
+expt(15).trial_range = nan;
 
 %% AW82 170925 - 100ms
 expt(16).SubNum = '682';
@@ -505,6 +512,6 @@ expt(16).catchRew = 1;
 expt(16).dirtuning = '003';
 expt(16).dirtuning_time = '1207';
 expt(16).rettuning = {'004';'1217'};
-expt(16).motionTestBimodal = 0;
 expt(16).z = 214;
 expt(16).regImgStartFrame = 45509;
+expt(16).trial_range = nan;

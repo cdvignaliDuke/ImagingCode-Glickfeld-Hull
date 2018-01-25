@@ -3,7 +3,7 @@ close all
 ds = 'awFSAVdatasets_naive100ms';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 2;
+slct_expt = 6;
 %%
 iexp = slct_expt
 
@@ -135,7 +135,7 @@ bx_img = max(dFF_bxMax,[],3);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:40 752:xpix];
+xcrop = [1:2 792:xpix];
 ycrop = [1:2 262:ypix];
 
 tun_crop = tun_img;

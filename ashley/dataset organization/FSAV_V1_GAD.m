@@ -1,32 +1,9 @@
-% %% AW99 170718 *first run has high lapse rate *not enough trials
-% expt(1).SubNum = '699';
-% expt(1).mouse = 'AW99';
-% expt(1).date = '170718';
-% expt(1).img_loc  = {'V1';'L2/3'};
-% expt(1).img_strct  = {'cells'};
-% expt(1).time_mat = ['1153'];
-% expt(1).runs = ['002'];
-% expt(1).nrun = size(expt(1).runs,1);
-% expt(1).frame_rate = 30;
-% expt(1).folder = 'two-photon imaging';
-% expt(1).catch = 1;
-% expt(1).catchRew = 1;
-% expt(1).dirtuning = '003';
-% expt(1).dirtuning_time = '1230';
-% expt(1).rettuning = {'004';'1240'};
-% expt(1).stimOnMs = 100;
-% expt(1).motionTestBimodal = 1;
-% expt(1).motionThreshold = 0.05;
-% expt(1).redChannelOn = 1;
-% expt(1).redChannelLabel = 'GAD';
-% expt(1).redChannelRun = '006';
-% expt(1).greenredsimultaneous = 1;
-
 %% AW99 170724 ** mostly LM
 expt(1).SubNum = '699';
 expt(1).mouse = 'AW99';
 expt(1).date = '170724';
 expt(1).img_loc  = {'V1';'L2/3'};
+expt(1).z = -278;
 expt(1).img_strct  = {'cells'};
 expt(1).time_mat = ['1116';'1147'];
 expt(1).runs = ['001';'002'];
@@ -48,64 +25,12 @@ expt(1).greenredsimultaneous = 0;
 expt(1).areaBorders = 1;
 expt(1).regImgStartFrame = 74846;
 
-% % 
-% % %% AW99 170725 **mostly LM
-% % expt(2).SubNum = '699';
-% % expt(2).mouse = 'AW99';
-% % expt(2).date = '170725';
-% % expt(2).img_loc  = {'V1';'L2/3'};
-% % expt(2).img_strct  = {'cells'};
-% % expt(2).time_mat = ['1057';'1128'];
-% % expt(2).runs = ['001';'002'];
-% % expt(2).nrun = size(expt(2).runs,1);
-% % expt(2).frame_rate = 30;
-% % expt(2).folder = 'two-photon imaging';
-% % expt(2).catch = 1;
-% % expt(2).catchRew = 1;
-% % expt(2).dirtuning = '004';
-% % expt(2).dirtuning_time = '1219';
-% % expt(2).rettuning = {'005';'1227'};
-% % expt(2).stimOnMs = 100;
-% % expt(2).motionTestBimodal = 1;
-% % expt(2).motionThreshold = 0.05;
-% % expt(2).redChannelOn = 1;
-% % expt(2).redChannelLabel = 'GAD';
-% % expt(2).redChannelRun = '006';
-% % expt(2).greenredsimultaneous = 0;
-% % expt(2).areaBorders = 1;
-% % expt(2).regImgStartFrame = 55713;
-
-% %% AW99 170802 *red image not registered well
-% expt(2).SubNum = '699';
-% expt(2).mouse = 'AW99';
-% expt(2).date = '170802';
-% expt(2).img_loc  = {'V1';'L2/3'};
-% expt(2).img_strct  = {'cells'};
-% expt(2).time_mat = ['1138';'1209'];
-% expt(2).runs = ['002';'003'];
-% expt(2).nrun = size(expt(2).runs,1);
-% expt(2).frame_rate = 30;
-% expt(2).folder = 'two-photon imaging';
-% expt(2).catch = 1;
-% expt(2).catchRew = 1;
-% expt(2).dirtuning = '005';
-% expt(2).dirtuning_time = '1248';
-% expt(2).rettuning = {'006';'1259'};
-% expt(2).stimOnMs = 100;
-% expt(2).motionTestBimodal = 1;
-% expt(2).motionThreshold = 0.05;
-% expt(2).redChannelOn = 1;
-% expt(2).redChannelLabel = 'GAD';
-% expt(2).redChannelRun = '009';
-% expt(2).greenredsimultaneous = 1;
-% expt(2).areaBorders = 1;
-% expt(2).regImgStartFrame = nan;
-
 %% AW98 170816
 expt(2).SubNum = '698';
 expt(2).mouse = 'AW98';
 expt(2).date = '170816';
 expt(2).img_loc  = {'V1';'L2/3'};
+expt(2).z = -272;
 expt(2).img_strct  = {'cells'};
 expt(2).time_mat = ['1057';'1129'];
 expt(2).runs = ['001';'002'];
@@ -126,32 +51,6 @@ expt(2).redChannelRun = '005';
 expt(2).greenredsimultaneous = 1;
 expt(2).areaBorders = 0;
 expt(2).regImgStartFrame = 73336;
-
-% % %% AW98 170818
-% % expt(3).SubNum = '698';
-% % expt(3).mouse = 'AW98';
-% % expt(3).date = '170818';
-% % expt(3).img_loc  = {'V1';'L2/3'};
-% % expt(3).z = -254;
-% % expt(3).img_strct  = {'cells'};
-% % expt(3).time_mat = ['1117';'1148'];
-% % expt(3).runs = ['001';'002'];
-% % expt(3).nrun = size(expt(3).runs,1);
-% % expt(3).frame_rate = 30;
-% % expt(3).folder = 'two-photon imaging';
-% % expt(3).catch = 1;
-% % expt(3).catchRew = 1;
-% % expt(3).dirtuning = '003';
-% % expt(3).dirtuning_time = '1228';
-% % expt(3).rettuning = {'004';'1238'};
-% % expt(3).stimOnMs = 100;
-% % expt(3).motionTestBimodal = 1;
-% % expt(3).motionThreshold = 0.05;
-% % expt(3).redChannelOn = 1;
-% % expt(3).redChannelLabel = 'GAD';
-% % expt(3).redChannelRun = '005';
-% % expt(3).greenredsimultaneous = 0;
-% % expt(3).areaBorders = 0;
 
 %% AW98 170821 ***looks like same cells as 170818 dataset
 expt(3).SubNum = '698';
@@ -287,60 +186,6 @@ expt(7).redChannelRun = '005';
 expt(7).greenredsimultaneous = 1;
 expt(7).areaBorders = 0;
 expt(7).regImgStartFrame = 73109;
-% 
-% %% AW98 190909 * only one pmt saved for red image?
-% expt(8).SubNum = '698';
-% expt(8).mouse = 'AW98';
-% expt(8).date = '170909';
-% expt(8).img_loc  = {'V1';'L2/3'};
-% expt(8).z = -249;
-% expt(8).img_strct  = {'cells'};
-% expt(8).time_mat = ['0958';'1030'];
-% expt(8).runs = ['001';'002'];
-% expt(8).nrun = size(expt(8).runs,1);
-% expt(8).frame_rate = 30;
-% expt(8).folder = 'two-photon imaging';
-% expt(8).catch = 1;
-% expt(8).catchRew = 1;
-% expt(8).dirtuning = '003';
-% expt(8).dirtuning_time = '1103';
-% expt(8).rettuning = {'004';'1112'};
-% expt(8).stimOnMs = 100;
-% expt(8).motionTestBimodal = 1;
-% expt(8).motionThreshold = 0.05;
-% expt(8).redChannelOn = 1;
-% expt(8).redChannelLabel = 'GAD';
-% expt(8).redChannelRun = '005';
-% expt(8).greenredsimultaneous = 0;
-% expt(8).areaBorders = 0;
-% expt(8).regImgStartFrame = 35880;
-
-% %% AW99 190910 ***no red channel
-% expt(8).SubNum = '699';
-% expt(8).mouse = 'AW99';
-% expt(8).date = '170910';
-% expt(8).img_loc  = {'V1';'L2/3'};
-% expt(8).z = -247;
-% expt(8).img_strct  = {'cells'};
-% expt(8).time_mat = ['1121';'1153'];
-% expt(8).runs = ['001';'002'];
-% expt(8).nrun = size(expt(8).runs,1);
-% expt(8).frame_rate = 30;
-% expt(8).folder = 'two-photon imaging';
-% expt(8).catch = 1;
-% expt(8).catchRew = 1;
-% expt(8).dirtuning = '003';
-% expt(8).dirtuning_time = '1225';
-% expt(8).rettuning = {'004';'1235'};
-% expt(8).stimOnMs = 100;
-% expt(8).motionTestBimodal = 1;
-% expt(8).motionThreshold = 0.05;
-% expt(8).redChannelOn = 1;
-% expt(8).redChannelLabel = 'GAD';
-% expt(8).redChannelRun = '';
-% expt(8).greenredsimultaneous = 0;
-% expt(8).areaBorders = 0;
-% expt(8).regImgStartFrame = 100427;
 
 %% AW99 190913
 expt(8).SubNum = '699';
@@ -368,32 +213,3 @@ expt(8).redChannelRun = '005';
 expt(8).greenredsimultaneous = 1;
 expt(8).areaBorders = 0;
 expt(8).regImgStartFrame = 89579;
-
-% % %% AW99 170914 *** red channel not aligned/moved?
-% % expt(11).SubNum = '699';
-% % expt(11).mouse = 'AW99';
-% % expt(11).date = '170914';
-% % expt(11).img_loc  = {'V1';'L2/3'};
-% % expt(11).z = -269;
-% % expt(11).img_strct  = {'cells'};
-% % expt(11).time_mat = ['1204';'1236'];
-% % expt(11).runs = ['001';'002'];
-% % expt(11).nrun = size(expt(11).runs,1);
-% % expt(11).frame_rate = 30;
-% % expt(11).folder = 'two-photon imaging';
-% % expt(11).catch = 1;
-% % expt(11).catchRew = 1;
-% % expt(11).dirtuning = '003';
-% % expt(11).dirtuning_time = '1307';
-% % expt(11).rettuning = {'004';'1319'};
-% % expt(11).stimOnMs = 100;
-% % expt(11).motionTestBimodal = 1;
-% % expt(11).motionThreshold = 0.05;
-% % expt(11).redChannelOn = 1;
-% % expt(11).redChannelLabel = 'GAD';
-% % expt(11).redChannelRun = '005';
-% % expt(11).greenredsimultaneous = 1;
-% % expt(11).areaBorders = 0;
-% % expt(11).regImgStartFrame = 69555;
-
-

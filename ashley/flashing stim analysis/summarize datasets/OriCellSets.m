@@ -126,8 +126,8 @@ max_dir_ind = nan(1, size(dFoverFCellsTrials,2));
 max_ori_ind = nan(1, size(dFoverFCellsTrials,2));
 no_ori_ind = nan(1, size(dFoverFCellsTrials,2));
 for i= 1:size(dFoverFCellsTrials,2)
-    [n_dir(:,i)] = histc(squeeze(boot_dir_ind(1,i,:)),[1:nStim]);
-    [n_ori(:,i)] = histc(squeeze(boot_ori_ind(1,i,:)),[1:nStim]);
+    [n_dir(:,i)] = histcounts(squeeze(boot_dir_ind(1,i,:)),[0:nStim])';
+    [n_ori(:,i)] = histcounts(squeeze(boot_ori_ind(1,i,:)),[0:nStim])';
     [a, b] =  sort(n_dir(:,i), 'descend');
     if a(1) > round(0.9*nboot)
     	max_dir_ind(:,i) = b(1);
