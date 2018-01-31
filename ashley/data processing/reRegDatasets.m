@@ -126,7 +126,7 @@ writetiff(F_tun,fullfile(fnout,'FImages_tun'))
 getTaskMaxDFF
 
 dirTuningMaxDFF
-%% get cell mask
+%% crop cells image
 
 %crop it
 tun_img = max(dFF_dirmax,[],3);

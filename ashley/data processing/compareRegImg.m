@@ -1,6 +1,6 @@
 clear all
 close all
-ds = 'FSAV_V1_100ms_naive';
+ds = 'FSAV_V1_100ms_naiv_temp';
 rc = behavConstsAV;
 eval(ds)
 slct_expt = 15;
