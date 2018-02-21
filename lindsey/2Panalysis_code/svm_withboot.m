@@ -7,9 +7,8 @@ function pct_corr = svm_withboot(data, groups, nboot)
 pct_corr = nan(1,nboot);
 for i = 1:nboot
     [train, test] = crossvalind('holdOut',groups);
-    cp = classperf(groups);
     svmStruct = fitcsvm(data(train,:),groups(train));
     out = predict(svmStruct, data(test,:));
-    pct_corr(1,i) = 1-sum(abs(groups(test,:)-out))./length(test);
+    pct_corr(1,i) = 1-(sum(abs(groups(test,:)-out))./sum(test));
 end
 
