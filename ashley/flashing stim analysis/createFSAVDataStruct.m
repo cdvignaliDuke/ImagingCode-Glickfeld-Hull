@@ -133,7 +133,7 @@ end
             expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
         
         if cellsOrDendrites == 1
-                load(fullfile(fnTC,'timecourses_bx_cells_temp.mat'))
+                load(fullfile(fnTC,'timecourses_bx_cells.mat'))
             if doRawData == 1
                 dataTC = data_bx_tc;
             else
@@ -208,7 +208,7 @@ end
             catchReactFrames = cLeverUp-cCatchOn;
             catchTrialReactTimeMs = NaN(1,ntrials);
             catchTrialReactTimeMs(catchIndex) = catchReactFrames(catchIndex)/frameratems;
-            catchCyclesOn = cell2mat(input.catchCyclesOn);
+            catchCyclesOn = cell2mat_padded(input.catchCyclesOn);
             
             if ~any(strcmp(fieldnames(input),'catchTrialOutcomeCell'))
                 catchTrialOutcome = cell(1,ntrials);
@@ -247,14 +247,21 @@ end
         Dirs = unique(tGratingDirectionDeg);
         Dirs_all = unique([Dirs_all Dirs]);
         
-%         %load direction tuning data
-%         fnTun = fullfile(rc.ashleyAnalysis,...
-%             expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, expt(iexp).dirtuning);
-%         if cellsOrDendrites == 1
-%             load(fullfile(fnTun, 'oriResp_cells.mat'));
-%         elseif cellsOrDendrites == 2
-%             load(fullfile(fnTun, 'oriResp_dendrites.mat'));
-%         end
+        %load direction tuning data
+        fnTun = fullfile(rc.ashleyAnalysis,...
+            expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, ...
+            expt(iexp).dirtuning);
+        if cellsOrDendrites == 1
+            load(fullfile(fnTun, 'oriTuningAndFits.mat'));
+        elseif cellsOrDendrites == 2
+            load(fullfile(fnTun, 'oriTuningAndFits_den.mat'));
+        end
+        
+        mouse(imouse).expt(s(:,imouse)).cells.oriTuning.oriResp = avgResponseEaOri;
+        mouse(imouse).expt(s(:,imouse)).cells.oriTuning.oriRespSem = semResponseEaOri;
+        mouse(imouse).expt(s(:,imouse)).cells.oriTuning.oriFit = vonMisesFitAllCells;
+        mouse(imouse).expt(s(:,imouse)).cells.oriTuning.oriFitReliability = ...
+            fitReliability;
         
         %sort by trial type
         if expt(iexp).catch
@@ -594,12 +601,16 @@ end
             end
         end
         
-        if expt(iexp).redChannelOn
-            mouse(imouse).expt(s(:,imouse)).cells.isLabeledCell = isLabeledCell;
-            mouse(imouse).expt(s(:,imouse)).cells.cellType = expt(iexp).redChannelLabel;
-        else
-            mouse(imouse).expt(s(:,imouse)).cells = [];
+        if isfield(expt,'redChannelOn')
+            if expt(iexp).redChannelOn
+                mouse(imouse).expt(s(:,imouse)).cells.isLabeledCell = isLabeledCell;
+                mouse(imouse).expt(s(:,imouse)).cells.cellType = expt(iexp).redChannelLabel;
+            else
+                mouse(imouse).expt(s(:,imouse)).cells.isLabeledCell = [];
+                mouse(imouse).expt(s(:,imouse)).cells.cellType = [];
+            end
         end
+        
 %         mouse(imouse).expt(s(:,imouse)).cells(3).name = '45';
 %         mouse(imouse).expt(s(:,imouse)).cells(4).name = '90';
 %         mouse(imouse).expt(s(:,imouse)).cells(5).name = '135';
@@ -697,7 +708,8 @@ end
 %         %% get each neuron's fit tuning
 %         pref_ind = fitPref(cellFits);
 %         mouse(imouse).expt(s(:,imouse)).fitPeak = pref_ind;
-%         
+%       
+
         %% Align data to lever down
         ialign = 1;
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
@@ -752,6 +764,12 @@ end
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).tcyc = tCyclesOn(:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion))-1;
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).tcyc = tCyclesOn(:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(6).tcyc = tCyclesOn(:,setdiff(eval(['Mb' num2str(iav) 'IxMatch']),ind_motion));
+                
+                if iav == 1
+                    mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).targetOri = tGratingDirectionDeg(:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
+                    mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).targetOri = tGratingDirectionDeg(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
+                    mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).targetOri = tGratingDirectionDeg(:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+                end
                 
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).prevTrType = prevTrType(:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).prevTrType = prevTrType(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
@@ -876,15 +894,17 @@ end
         %divide data by trial type and outcome
         for iav = 1:6
             if length(eval(['Sb' num2str(iav) 'Ix']))>0
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = DataDFoverF(:,:,setdiff(eval(['Sb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).resp = DataDFoverF(:,:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).resp = DataDFoverF(:,:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).resp = DataDFoverF(:,:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).reactTimes = reactTimes(setdiff(eval(['Sb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).reactTimes = reactTimes(setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).reactTimes = reactTimes(setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).reactTimes = reactTimes(setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
-                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).tcyc = tCyclesOn(:,setdiff(eval(['Sb' num2str(iav) 'Ix']),ind_motion));
+                mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(1).tcyc = tCyclesOn(:,setdiff(eval(['SbAR' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(2).tcyc = tCyclesOn(:,setdiff(eval(['Mb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(3).tcyc = tCyclesOn(:,setdiff(eval(['Fb' num2str(iav) 'Ix']),ind_motion));
+                
+                
                 if iav < 3
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(4).resp = DataDFoverF_CR(:,:,setdiff(eval(['Rb' num2str(iav) 'Ix']),ind_motion));
                 mouse(imouse).expt(s(:,imouse)).align(ialign).av(iav).outcome(5).resp = DataDFoverF(:,:,setdiff(eval(['Sb' num2str(iav) 'IxMatch']),ind_motion));
@@ -1006,10 +1026,10 @@ end
             end
         end
         
-        %identify trials with motion (large peaks in the derivative)
-        ind_motion = find(max(diff(squeeze(nanmean(DataDFoverF,2)),1),[],1)>motionThreshold);
-        disp(length(ind_motion));
-        mouse(imouse).expt(s(:,imouse)).align(ialign).ind_motion = ind_motion;
+%         %identify trials with motion (large peaks in the derivative)
+%         ind_motion = find(max(diff(squeeze(nanmean(DataDFoverF,2)),1),[],1)>motionThreshold);
+%         disp(length(ind_motion));
+%         mouse(imouse).expt(s(:,imouse)).align(ialign).ind_motion = ind_motion;
                 
         %divide data by trial type and outcome
         iav = 1;
