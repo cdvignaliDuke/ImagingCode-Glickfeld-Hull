@@ -4,6 +4,7 @@ ds = 'audDelay_V1_SOM';
 rc = behavConstsAV;
 eval(ds)
 slct_expt = 1;
+rc = behavConstsAV;
 %%
 for iexp = slct_expt
 
@@ -87,7 +88,7 @@ try
 catch
     disp('no corr image')
 end
-print(['Z:\Analysis\Expt Summaries\' ds '\rand image samples_' SubNum '-' expDate],'-dpdf','-fillpage')
-savefig(['Z:\Analysis\Expt Summaries\' ds '\rand image samples_' SubNum '-' expDate])
+print([rc.ashleyAnalysis '\Expt Summaries\' ds '\rand image samples_' SubNum '-' expDate],'-dpdf','-fillpage')
+savefig([rc.ashleyAnalysis '\Expt Summaries\' ds '\rand image samples_' SubNum '-' expDate])
 end
 clear all

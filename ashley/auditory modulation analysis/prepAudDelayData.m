@@ -60,7 +60,8 @@ if stimOnTimeMs ~= mworks.stimOnTimeMs
     error(sprintf('Vis stim time is %sms',num2str(mworks.stimOnTimeMs)))
 end
 nBaselineFr = params.nBaselineMs./1000*frameRateHz;
-nStimFr = params.nStimMs./1000*frameRateHz;
+nStimFr_visAlign = params.nStimMs_visAlign./1000*frameRateHz;
+nStimFr_audAlign = params.nStimMs_audAlign./1000*frameRateHz;
 %%
 blk2 = cell2mat(mworks.tBlock2TrialNumber);
 blk2BaseCon = mworks.block2BaseGratingContrast;
@@ -102,8 +103,8 @@ for i = 1:expt(iexp).nrun
         tVisStimOn( (cmlvTrials(i-1)+1):cmlvTrials(i))+cmlvFrames(i-1);
 end
 
-if any((tVisStimOn + nStimFr) > nfr)
-    ind = (tVisStimOn + nStimFr) > nfr;
+if any((tVisStimOn + nStimFr_audAlign) > nfr)
+    ind = (tVisStimOn + nStimFr_audAlign) > nfr;
     tAudStimOn = tAudStimOn(~ind);
     tVisStimOn = tVisStimOn(~ind);
     tOrientation = tOrientation(~ind);
@@ -111,17 +112,17 @@ if any((tVisStimOn + nStimFr) > nfr)
 end
 %% vis and aud aligned df/f
 nTrials = length(tAudStimOn);
-F_audAligned = nan(nBaselineFr+nStimFr,nCells,nTrials);
+F_audAligned = nan(nBaselineFr+nStimFr_audAlign,nCells,nTrials);
 for i = 1:nTrials
-    ind = (tAudStimOn(i) +1 - nBaselineFr):(tAudStimOn(i)+nStimFr);
+    ind = (tAudStimOn(i) +1 - nBaselineFr):(tAudStimOn(i)+nStimFr_audAlign);
     F_audAligned(:,:,i) = dataTC(ind,:);
 end
 F = mean(F_audAligned(1:nBaselineFr,:,:),1);
 dFF_audAligned = (F_audAligned - F)./F;
 
-F_visAligned = nan(nBaselineFr+nStimFr,nCells,nTrials);
+F_visAligned = nan(nBaselineFr+nStimFr_visAlign,nCells,nTrials);
 for i = 1:nTrials
-    ind = (tVisStimOn(i) +1 - nBaselineFr):(tVisStimOn(i)+nStimFr);
+    ind = (tVisStimOn(i) +1 - nBaselineFr):(tVisStimOn(i)+nStimFr_visAlign);
     F_visAligned(:,:,i) = dataTC(ind,:);
 end
 F = mean(F_visAligned(1:nBaselineFr,:,:),1);

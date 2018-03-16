@@ -1,7 +1,8 @@
 params.frameRate = 30;
 params.stimOnTime = 100;
 params.nBaselineMs = 1000;
-params.nStimMs = 5000;
+params.nStimMs_visAlign = 3000;
+params.nStimMs_audAlign = 9000;
 params.nFramesVisDelay = 4;
 params.motionCutoff = 0.2;
 
