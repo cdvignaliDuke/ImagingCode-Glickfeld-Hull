@@ -46,6 +46,7 @@ days = {'171203_img053', '171204_img053', '171205_img053', '171206_img053', '171
 days = {'171227_img067', '171228_img067', '171229_img067', '171230_img067', '180101_img067', '180102_img067'};
 %days = {'171229_img069', '171230_img069', '171231_img069', '180101_img069'};
 days = {'180104_img070', '180105_img070', '180106_img070', '180107_img070'};
+days = {'180224_img075', '180225_img075', '180226_img075', '180227_img075', '180228_img075', '180301_img075'};
 
 
 %check and make sure the figure destinations exist
@@ -123,6 +124,9 @@ for ii = 1:length(days)
     %identify reward omission trials and unexpected reward trials
     if b_data.rewardOmissionPercent == 0 %created this if statement because in 170417_img90 there were empty cells in b_data.rewardOmissionPercent which caused the script to fail
         reward_omit_inx = [];
+    elseif sum(cellfun(@isempty, b_data.tRewardOmissionTrial)) > 0
+        b_data.tRewardOmissionTrial{find(cellfun(@isempty, b_data.tRewardOmissionTrial))} = int64(0);
+        reward_omit_inx = find(cell2mat(b_data.tRewardOmissionTrial(1:end-1))); %exclude last trial in case it is incomplete
     else
         reward_omit_inx = find(cell2mat(b_data.tRewardOmissionTrial(1:end-1))); %exclude last trial in case it is incomplete
     end

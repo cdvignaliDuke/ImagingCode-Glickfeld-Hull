@@ -122,33 +122,14 @@ for ii = 1%4:length(all_days);
     tooFast_roi = tooFast_roi(:,ROIcell{ii},:); %remove non-LS areas
     
     %interpolate TC data and store in structure   %the new x-value for the lever release is 501
-    XVector = [1:.01:size(success_roi,3)];
-    success_roi_interp = nan(length(XVector), size(success_roi,1), size(success_roi,2)); %dims: 1=T2 2=trial# 3=ROI#
-    for i = 1:size(success_roi,2); %for each roi...
-        succ_temp = squeeze(success_roi(:,i,:))';  %dims 1=Time 2=trial number
-        succ_temp = interp1(succ_temp, XVector);
-        success_roi_interp(:,:,i) = succ_temp;  %dims 1=Time 2=trialNumber  3=roi
-    end
-    fail_roi_interp = nan(length(XVector), size(fail_roi,1), size(fail_roi,2));
-    for i = 1:size(fail_roi,2);
-        fail_temp = squeeze(fail_roi(:,i,:))';  %dims 1=Time 2=trial number
-        fail_temp = interp1(fail_temp, XVector);
-        fail_roi_interp(:,:,i) = fail_temp;   %dim 3=roi
-    end
-    cue_roi_interp = nan(length(XVector), size(cue_roi,1), size(cue_roi,2));
-    for i = 1:size(cue_roi,2);
-        cue_temp = squeeze(cue_roi(:,i,:))';  %dims 1=Time 2=trial number
-        cue_temp = interp1(cue_temp, XVector);
-        cue_roi_interp(:,:,i) = cue_temp;   %dim 3=roi
-    end 
+    step_size = 0.1;
+    success_roi_interp = interpolate_TC_data(success_roi, step_size);
+    fail_roi_interp = interpolate_TC_data(fail_roi, step_size);
+    cue_roi_interp = interpolate_TC_data(cue_roi, step_size);
     if ~isempty(tooFast_roi)
-        tooFast_roi_interp = nan(length(XVector), size(tooFast_roi,1), size(tooFast_roi,2)); %dims: 1=T2 2=trial# 3=ROI#
-        for i = 1:size(tooFast_roi,2); %for each roi...
-            tooFast_temp = squeeze(tooFast_roi(:,i,:))';  %dims 1=Time 2=trial number
-            tooFast_temp = interp1(tooFast_temp, XVector);
-            tooFast_roi_interp(:,:,i) = tooFast_temp;  %dims 1=Time 2=trialNumber  3=roi
-        end
+        tooFast_roi_interp = interpolate_TC_data(tooFast_roi, step_size);
     end
+    
     %if there is more than one LS ROI then average them together
     if size(ROIcell{ii},2) > 1
         success_roi_interp = mean(success_roi_interp,3); %average together the ROIs

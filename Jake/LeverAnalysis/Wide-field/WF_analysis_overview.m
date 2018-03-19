@@ -6,6 +6,7 @@ clear;
 days = {'151021_img29', '151022_img29', '151009_img30', '151011_img30', '151211_img32', '151212_img32', '160129_img35', '160131_img35', '160129_img36', '160131_img36', '160314_img38', '160315_img38', '160319_img41', '160320_img41', '160606_img46', '160722_img53', '160904_img55'}; %'150718_img27', '150719_img27', '150716_img28', '150717_img28', 
 
 days = {'170705_img98', '170421_img87', '170706_img98'}; %img86_10%OR_10%%UR  170420_img87_10%/10%   170417_img88_10/10
+days = {'180301_img075'};
 
 bx_source     = ['Z:\Data\WidefieldImaging\GCaMP\behavior\'];
 image_source_base  = ['Z:\Data\WidefieldImaging\GCaMP\']; %location of permanently stored image files for retreiving meta data
@@ -17,7 +18,7 @@ kmeans_output_dir_base = ['Z:\Analysis\WF Lever Analysis\kmeans_output_dir\'];
 %% SECTION TWO - Uses a gui to allow user to draw ROIs 
 for ii = 1:length(days)
     days{ii}
-    image_source = [image_source_base, days{ii}];
+    image_source = [image_source_base, days{ii}, '_1'];
     image_dest = [image_dest_base days{ii} '\' days{ii}];
     if exist([image_dest_base days{ii}], 'file') ~= 7;
         mkdir(image_dest_base, days{ii});
@@ -27,7 +28,7 @@ end
 
 %% SECTION THREE - find/save frame times and meta data collected from the tiff files 
 for ii = 1:length(days)
-    image_source = [image_source_base, days{ii}];
+    image_source = [image_source_base, days{ii}, '_1'];
     [all_files, meta_data, meta_data2] = obtain_tif_meta_data(image_source);
     frame_times = get_frame_time_by_movie_info(meta_data);
     dest =  [image_dest_base days{ii} '\' days{ii}];

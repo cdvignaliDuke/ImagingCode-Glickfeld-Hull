@@ -5,7 +5,7 @@ clear
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
-days = {'170705_img98', '170711_img99'}; 
+days = {'160722_img53'}; 
 
 for kk=1:length(days)
     %set directories and load bxOutputs and cluter data. 
@@ -52,10 +52,13 @@ for kk=1:length(days)
             shift = (-1)*avg_success_roi(i,1);
             avg_success_roi(i,:) = avg_success_roi(i,:)+shift;
         end
-        subplot(2,3,2); lickBars = bar(ts(1,:), mean(lick_trace_succ)/10); hold on
-        alpha(.25);
-        for i = 1:size(ts,1);
-            subplot(2,3,2); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'Color', colors(i,:)); hold on;
+        subplot(2,3,2);
+        subplot(1,2,1); lickBars = bar(ts(1,:), mean(lick_trace_succ)/10); hold on
+        errorbar(ts(1,:), mean(lick_trace_succ)/10, std(lick_trace_succ./10)/sqrt(size(lick_trace_succ,1)), 'LineStyle', 'none');
+        %alpha(.25);
+        for i = 2%1:size(ts,1);
+            %subplot(2,3,2); 
+            subplot(1,2,1); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'k'); %'Color', colors(i,:)); hold on;
         end
         xlabel('Time from release (ms)');
         ylabel('dF/F');
@@ -82,10 +85,13 @@ for kk=1:length(days)
             shift = (-1)*avg_fail_roi(i,1);
             avg_fail_roi(i,:) = avg_fail_roi(i,:)+shift;
         end
-        subplot(2,3,3); bar(ts(1,:), mean(lick_trace_fail)/10); hold on
-        alpha(.25);
-        for i = 1:size(ts,1);
-            hold on; subplot(2,3,3); errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
+        %subplot(2,3,3); 
+        subplot(1,2,2); bar(ts(1,:), mean(lick_trace_fail)/10); hold on
+        errorbar(ts(1,:), mean(lick_trace_fail)/10, std(lick_trace_fail./10)/sqrt(size(lick_trace_fail,1)), 'LineStyle', 'none');
+        %alpha(.25);
+        for i = 2%1:size(ts,1);
+            hold on; %subplot(1,2,2); 
+            errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'r');%'Color', colors(i,:));
         end
         xlabel('Time from release (ms)');
         ylabel('dF/F');
@@ -203,7 +209,7 @@ for kk=1:length(days)
         
         %Save figure before opening next one
         destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
-        savefig([destyFig]);
+%         savefig([destyFig]);
     end
 
     
@@ -226,7 +232,7 @@ for kk=1:length(days)
             if length(trial_outcome.success_time) == size(success_roi,1)+1;
                 trial_outcome.success_time(end) =[];
                 trial_outcome.succ_hold_dur(end) = [];
-                save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'trial_outcome', '-append')
+%                 save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'trial_outcome', '-append')
             end
         end
         avg_cue_roi = squeeze(func(cue_roi,1));
@@ -251,7 +257,7 @@ for kk=1:length(days)
         ylim([min(YL(:,1)) max(YL(:,2))]);
         legend(['avg licks/frame'; cellstr(num2str([1:cluster.num_cluster]'))])
         destyFig2 = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_cue');
-        savefig([destyFig2]);
+%         savefig([destyFig2]);
         hold off
     end
     
@@ -267,11 +273,11 @@ for kk=1:length(days)
         destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fidget');
         destyTooFast = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_tooFast');
         destyCue = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_cue');
-        save([destySucc], 'success_roi');
-        save([destyFail], 'fail_roi');
-        save([destyFidget], 'fidget_roi');
-        save([destyTooFast], 'tooFast_roi');
-        save([destyCue], 'cue_roi');
+%         save([destySucc], 'success_roi');
+%         save([destyFail], 'fail_roi');
+%         save([destyFidget], 'fidget_roi');
+%         save([destyTooFast], 'tooFast_roi');
+%         save([destyCue], 'cue_roi');
     end
     
     %save lapsed trials 
@@ -281,7 +287,7 @@ for kk=1:length(days)
             [lapse_roi, use_times_lapse, lick_trace_lapse, lick_trace_lapse_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_lapse, pre_frames, post_frames);
             lapse_roi = squeeze(lapse_roi);
             destyLapse = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_lapse');
-            save([destyLapse], 'lapse_roi');
+            %save([destyLapse], 'lapse_roi');
         end
     end
     
@@ -297,7 +303,7 @@ for kk=1:length(days)
         licking_data.lick_trace_tooFast_10ms = lick_trace_tooFast_10ms;
         licking_data.lick_trace_cue = lick_trace_cue;
         licking_data.lick_trace_cue_10ms = lick_trace_cue_10ms;
-        save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
+        %save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
     end
     
     %----PLOT CUE REWARD PAIRING SESSIONS------------------------------------------
@@ -386,7 +392,7 @@ for kk=1:length(days)
        
         %Save figure before opening next one
         destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
-        savefig([destyFig]);
+        %savefig([destyFig]);
         
         %PLOT UNEXPECTED REWARD TRIALS -------------------------------------------------
         if b_data.rewardUnexpectPercent >0
@@ -459,7 +465,7 @@ for kk=1:length(days)
             ylim([min(YL(:,1)) max(YL(:,2))]);
             hold off
             destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_unexp_fig');
-            savefig([destyFig]);
+            %savefig([destyFig]);
         end
         
         %SAVE matfiles  ----------------------------------------------
@@ -485,7 +491,7 @@ for kk=1:length(days)
         end
         
         %SAVE lick traces
-        save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
+        %save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
     end
 end
 

@@ -16,27 +16,39 @@ day_N_onsets = [];
 %figure; plot_num=1;
 for session_num = 1:length(days_1);
     if exist([mean_TC_dir, 'day_1_vars_', days_1{session_num}, '.mat']) && exist([mean_TC_dir, 'day_N_vars_', days_post{session_num}, '.mat']);
+        %load TC data
         load([mean_TC_dir, 'day_1_vars_', days_1{session_num}]);
-        %figure; plot(rew_roi_interp); title(['day 1 first half of trials. lick excemption. n=', size(rew_roi_interp,2), ' ', days_1(session_num)]); xlabel('cue at 500'); ylabel('df/f'); vline(cue_time_interp); vline(cue_time_interp+600, 'b');
+        %plot each trial indivudally
+        figure; plot(rew_roi_interp); title(['day 1 first half of trials. lick excemption. n=', size(rew_roi_interp,2), ' ', days_1(session_num)]); xlabel('cue at 500'); ylabel('df/f'); vline(cue_time_interp); vline(cue_time_interp+600, 'b');
         %subplot(2,3,plot_num); plot(diff(mean(rew_roi_interp, 2)')); plot_num=plot_num+1; vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['day 1 first half of trials. lick excemption. n=', size(rew_roi_interp,2), ' ', days_1(session_num)]);
+        
+        %find the mean TC and the derivative of that mean TC
         rew_roi_interp = mean(rew_roi_interp, 2)';
         rew_roi_interp_diff = diff(rew_roi_interp);
-        %figure; plot(rew_roi_interp);  vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title('mean timecourse');
+        figure; plot(rew_roi_interp);  vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['day 1 mean timecourse', ' ', days_1(session_num)]); %plot the mean TC
+        
+        %find the peak times in the mean TC
         this_peak = findpeaks(rew_roi_interp(peak_window));
-        if size(this_peak) == 1 & this_peak < max(rew_roi_interp(1:cue_time_interp))
+        if size(this_peak) == 1 & this_peak < max(rew_roi_interp(1:cue_time_interp)) %if the peak magnitude was less than the max value before the cue then do not count the peak
             this_peak = [];
         end
-        if isempty(this_peak)
+        if isempty(this_peak) %if there was no peak in peak_window then simply take the max in the peak window
             this_peak = [this_peak, max(rew_roi_interp(peak_window));];
         end
-        this_peak = max(this_peak);
+        this_peak = max(this_peak);  %if there are two peaks then take the later one
+        
+        %find the peak latency
         this_peak_lat = find(rew_roi_interp(peak_window) == this_peak, 1, 'first') + min(peak_window)-1;
-        if this_peak_lat-max(baseline_window) < cue_time_interp
-            this_baseline = min(rew_roi_interp([cue_time_interp:this_peak_lat]));
-        else
-            this_baseline = min(rew_roi_interp([this_peak_lat-baseline_window]));
-        end
-        this_onset_lat = find(rew_roi_interp_diff == max(rew_roi_interp_diff([this_peak_lat-peak_diff_window:this_peak_lat])));  
+        
+%         %find a baseline window (this variable is not used again in this forloop)
+%         if this_peak_lat-max(baseline_window) < cue_time_interp   %if the peak latency - (duration+offset) of the baseline window 
+%             this_baseline = min(rew_roi_interp([cue_time_interp:this_peak_lat]));
+%         else
+%             this_baseline = min(rew_roi_interp([this_peak_lat-baseline_window]));
+%         end
+
+        %find the onset latency
+        this_onset_lat = find(rew_roi_interp_diff == max(rew_roi_interp_diff([this_peak_lat-peak_diff_window:this_peak_lat])));  %find the maximum rate of change in df/f in a 500ms window before the peak
         this_onset_lat = this_onset_lat+1; %adjust for the diff
         this_onset_lat = this_onset_lat(this_onset_lat>this_peak_lat-peak_diff_window); %just in case there were two copies of the same rate. Must have occured within the window
         this_onset_lat = this_onset_lat(1); %this value will be equal to the first value where the rate reached peak
@@ -45,11 +57,11 @@ for session_num = 1:length(days_1);
         
         load([mean_TC_dir, 'day_N_vars_', days_post{session_num}]);
         load([mean_TC_dir, 'day_N_vars_', days_post{session_num}]);
-        %figure; plot(rew_roi_interp); title(['day N rewarded trials. lick excemption. n=', size(rew_roi_interp,2), ' ', days_post(session_num)]); xlabel('cue at 500'); ylabel('df/f'); vline(cue_time_interp); vline(cue_time_interp+600, 'b');
+        figure; plot(rew_roi_interp); title(['day N rewarded trials. lick excemption. n=', size(rew_roi_interp,2), ' ', days_post(session_num)]); xlabel('cue at 500'); ylabel('df/f'); vline(cue_time_interp); vline(cue_time_interp+600, 'b');
         %subplot(2,3,plot_num); plot(diff(mean(rew_roi_interp, 2)')); plot_num=plot_num+1; vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['day N rewarded trials. lick excemption. n=', size(rew_roi_interp,2), ' ', days_post(session_num)]);
         rew_roi_interp = mean(rew_roi_interp, 2)';
         rew_roi_interp_diff = diff(rew_roi_interp);
-        %figure; plot(rew_roi_interp);  vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title('mean timecourse');
+        figure; plot(rew_roi_interp);  vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title('mean timecourse');
         %find the peak df/f value
         this_peak = findpeaks(rew_roi_interp(peak_window));
         if size(this_peak) == 1 & this_peak < max(rew_roi_interp(1:cue_time_interp))
@@ -60,11 +72,11 @@ for session_num = 1:length(days_1);
         end
         this_peak = max(this_peak);
         this_peak_lat = find(rew_roi_interp(peak_window) == this_peak, 1, 'first') + min(peak_window)-1;
-        if this_peak_lat-max(baseline_window) < cue_time_interp
-            this_baseline = min(rew_roi_interp([cue_time_interp:this_peak_lat]));
-        else
-            this_baseline = min(rew_roi_interp([this_peak_lat-baseline_window]));
-        end
+%         if this_peak_lat-max(baseline_window) < cue_time_interp
+%             this_baseline = min(rew_roi_interp([cue_time_interp:this_peak_lat]));
+%         else
+%             this_baseline = min(rew_roi_interp([this_peak_lat-baseline_window]));
+%         end
         this_onset_lat = find(rew_roi_interp_diff == max(rew_roi_interp_diff([this_peak_lat-peak_diff_window:this_peak_lat])));  
         this_onset_lat = this_onset_lat+1; %adjust for the diff
         this_onset_lat = this_onset_lat(this_onset_lat>this_peak_lat-peak_diff_window); %just in case there were two copies of the same rate. Must have occured within the window
@@ -74,7 +86,7 @@ for session_num = 1:length(days_1);
 end
 figure; hold on; 
 scatter(day_1_onsets-cue_time_interp, day_N_onsets-cue_time_interp, 'k', 'filled');
-plot(yy, 'k'); xlim([0 800]); ylim([0 800]);
+plot(yy, 'k'); xlim([0 1000]); ylim([0 1000]);
 xlabel('day 1'); ylabel('day N'); title('rewarded trials onset latency relative to cue onset');
 [day_1_onsets_mean, day_1_onsets_sem] = get_mean_and_sem(day_1_onsets-cue_time_interp);
 [day_N_onsets_mean, day_N_onsets_sem] = get_mean_and_sem(day_N_onsets-cue_time_interp);
@@ -164,21 +176,28 @@ day_UR_une_onsets = [];
 for session_num = 1:length(days_UR);
     if  exist([mean_TC_dir, 'day_N+1_vars_', days_UR{session_num}, '.mat'])
         load([mean_TC_dir, 'day_N+1_vars_', days_UR{session_num}]);
-        if size(rew_roi_interp,2) > 2 && size(unexp_rew_roi_interp,2) > 2
-            %figure; plot(rew_roi_interp); title(['expected reward. lick excemption. n=', size(rew_roi_interp,2), ' ', days_UR(session_num)]); xlabel('cue at 500'); ylabel('df/f'); vline(cue_time_interp); vline(cue_time_interp+600, 'b');
-            %figure; plot(mean(rew_roi_interp, 2)');  vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['Mean: expected reward. lick excemption. n=', size(rew_roi_interp,2), ' ', days_UR(session_num)]); xlabel('cue at 500');
-            %subplot(2,3,plot_num); plot(diff(mean(rew_roi_interp, 2)')); plot_num=plot_num+1; vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['expected reward. lick excemption. n=', size(rew_roi_interp,2), ' ', days_UR(session_num)]);
+        if size(rew_roi_interp,2) > 2 && size(unexp_rew_roi_interp,2) > 2  %must have a minimum of two trials to count...  %actual minimum trial number is 7 though
+              figure; plot(rew_roi_interp); title(['expected reward. lick excemption. n=', size(rew_roi_interp,2), ' ', days_UR(session_num)]); xlabel('cue at 500'); ylabel('df/f'); vline(cue_time_interp); vline(cue_time_interp+600, 'b');
+              figure; plot(mean(rew_roi_interp, 2)');  vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['Mean: expected reward. lick excemption. n=', size(rew_roi_interp,2), ' ', days_UR(session_num)]); xlabel('cue at 500');
+              %subplot(2,3,plot_num); plot(diff(mean(rew_roi_interp, 2)')); plot_num=plot_num+1; vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['expected reward. lick excemption. n=', size(rew_roi_interp,2), ' ', days_UR(session_num)]);
+            
+            %get the mean TC and the derivative of that mean
             rew_roi_interp = mean(rew_roi_interp, 2)';
             rew_roi_interp_diff = diff(rew_roi_interp);
+            
+            %find peak magnitude and latency in the mean TC
             this_peak = findpeaks(rew_roi_interp(peak_window));
-            this_peak = [this_peak, max(rew_roi_interp(peak_window));];
-            this_peak = max(this_peak);
+            this_peak = [this_peak, max(rew_roi_interp(peak_window));]; %peak must be within the peak window
+            this_peak = max(this_peak); %take the peak with the largest magnitude 
             this_peak_lat = find(rew_roi_interp(peak_window) == this_peak, 1, 'first') + min(peak_window)-1;
-            if this_peak_lat-max(baseline_window) < cue_time_interp
-                this_baseline = min(rew_roi_interp([cue_time_interp:this_peak_lat]));
-            else
-                this_baseline = min(rew_roi_interp([this_peak_lat-baseline_window]));
-            end
+
+%             if this_peak_lat-max(baseline_window) < cue_time_interp
+%                 this_baseline = min(rew_roi_interp([cue_time_interp:this_peak_lat]));
+%             else
+%                 this_baseline = min(rew_roi_interp([this_peak_lat-baseline_window]));
+%             end
+            
+            %find the onset latency before the peak
             this_onset_lat = find(rew_roi_interp_diff == max(rew_roi_interp_diff([this_peak_lat-peak_diff_window:this_peak_lat])));
             this_onset_lat = this_onset_lat+1; %adjust for the diff
             this_onset_lat = this_onset_lat(this_onset_lat>this_peak_lat-peak_diff_window); %just in case there were two copies of the same rate. Must have occured within the window
@@ -186,19 +205,26 @@ for session_num = 1:length(days_UR);
             day_UR_rew_onsets = [day_UR_rew_onsets, this_onset_lat];
             
             
-            %figure; plot(mean(unexp_rew_roi_interp, 2)');  vline(cue_time_interp+600, 'b'); title(['Mean: unexpected reward. lick excemption. n=', size(unexp_rew_roi_interp,2), ' ', days_UR(session_num)]); 
-           % subplot(2,3,plot_num); plot(diff(mean(unexp_rew_roi_interp, 2)')); plot_num=plot_num+1; vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['unexpected reward. lick excemption. n=', size(rew_roi_interp,2), ' ', days_UR(session_num)]);
+               figure; plot(mean(unexp_rew_roi_interp, 2)');  vline(cue_time_interp+600, 'b'); title(['Mean: unexpected reward. lick excemption. n=', size(unexp_rew_roi_interp,2), ' ', days_UR(session_num)]); 
+               %subplot(2,3,plot_num); plot(diff(mean(unexp_rew_roi_interp, 2)')); plot_num=plot_num+1; vline(cue_time_interp); vline(cue_time_interp+600, 'b'); title(['unexpected reward. lick excemption. n=', size(rew_roi_interp,2), ' ', days_UR(session_num)]);
+            
+            %get the mean TC and the derivative of that mean
             unexp_rew_roi_interp = mean(unexp_rew_roi_interp, 2)';
             unexp_rew_roi_interp_diff = diff(unexp_rew_roi_interp);
+            
+            %find peak magnitude and latency in the mean TC
             this_peak = findpeaks(unexp_rew_roi_interp(peak_window));
             this_peak = [this_peak, max(unexp_rew_roi_interp(peak_window));];
             this_peak = max(this_peak);
             this_peak_lat = find(unexp_rew_roi_interp(peak_window) == this_peak, 1, 'first') + min(peak_window)-1;
-            if this_peak_lat-max(baseline_window) < cue_time_interp
-                this_baseline = min(unexp_rew_roi_interp([cue_time_interp:this_peak_lat]));
-            else
-                this_baseline = min(unexp_rew_roi_interp([this_peak_lat-baseline_window]));
-            end
+            
+%             if this_peak_lat-max(baseline_window) < cue_time_interp
+%                 this_baseline = min(unexp_rew_roi_interp([cue_time_interp:this_peak_lat]));
+%             else
+%                 this_baseline = min(unexp_rew_roi_interp([this_peak_lat-baseline_window]));
+%             end
+
+
             this_onset_lat = find(unexp_rew_roi_interp_diff == max(unexp_rew_roi_interp_diff([this_peak_lat-peak_diff_window:this_peak_lat])));
             this_onset_lat = this_onset_lat+1; %adjust for the diff
             this_onset_lat = this_onset_lat(this_onset_lat>this_peak_lat-peak_diff_window); %just in case there were two copies of the same rate. Must have occured within the window

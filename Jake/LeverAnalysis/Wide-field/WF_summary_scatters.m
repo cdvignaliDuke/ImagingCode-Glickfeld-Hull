@@ -13,10 +13,10 @@ colors = {'r', 'c', 'b', 'm', 'r', 'b', 'm', 'g', 'k', 'c', 'y', 'r', 'r', 'b', 
 %colors = {'k', 'k', 'b', 'g', 'c', 'm', 'm', 'r', 'y', 'b'}; %for %corr>50 
 colors = {'k','k', 'b','b', 'g','g', 'c','c', 'm','m', 'r','r', 'y','y', 'k', 'b', 'r'}; %60%corr
 session_list = find(~cellfun(@isempty, valid_LS_ROIs)); %1:length(days)
-days = days(session_list);
+%days = days(session_list);
 daysUnfiltered = days;
-ROIcell = LS_ROIs;
-ROIcell = valid_LS_ROIs(session_list);
+%ROIcell = LS_ROIs;
+%ROIcell = valid_LS_ROIs(session_list);
 %days = {};
 
 %% OPTIONAL - This forloop loads individual datasets, checks to see if they fit the bx criteria and edits the sessions included accordingly
@@ -377,8 +377,8 @@ disp(['Average time to peak for cue triggered trials = ' num2str(mean((tbyt_lat_
 min_scatter =  min([tbyt_peak_val_succ, tbyt_peak_val_fail]);
 max_scatter =  max([tbyt_peak_val_succ, tbyt_peak_val_fail]);
 figure; hold on;
-for i = 1:1:length(days)
-    plot(tbyt_peak_val_succ(i),tbyt_peak_val_fail(i), ['o' colors{i}], 'MarkerFaceColor', colors{i});  
+for session_num = 1:1:length(days)
+    plot(tbyt_peak_val_succ(session_num),tbyt_peak_val_fail(session_num), ['o' colors{session_num}], 'MarkerFaceColor', colors{session_num});  
 end
 xlim([-0.02 [max_scatter*1.1]]);
 ylim([-0.02 [max_scatter*1.1]]);
@@ -391,8 +391,8 @@ xlabel('df/f success condition');
 ylabel('df/f fail condition');
 title('trial by trial corr vs early scatter Shift');
 legend(days{1:length(days)});
-for i = 1:1:length(days)
-    errorbarxy(tbyt_peak_val_succ(i), tbyt_peak_val_fail(i), tbyt_peak_val_succ_sm(i)', tbyt_peak_val_fail_sm(i)');
+for session_num = 1:1:length(days)
+    errorbarxy(tbyt_peak_val_succ(session_num), tbyt_peak_val_fail(session_num), tbyt_peak_val_succ_sm(session_num)', tbyt_peak_val_fail_sm(session_num)');
     hold on;
 end
 
