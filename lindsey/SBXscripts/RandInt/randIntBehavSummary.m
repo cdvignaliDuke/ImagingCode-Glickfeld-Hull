@@ -137,6 +137,8 @@ for imouse = 1:size(mouse_mat,1)
         expt(t).targInt(find(FAIx)) = FAInt(find(FAIx));
         expt(t).lastBaseInt(find(FAIx)) = preFAInt(find(FAIx));
         targ_resp = squeeze(bsxfun(@minus,data_dfof_targ,mean(data_dfof_targ(base_win,:,:),1)));
+        deltas = unique(tGratingDir);
+        nDelta = length(deltas);
         h_targ = zeros(nCells,nDelta);
         for i = 1:nDelta
             ind = find(tGratingDir==deltas(i));
@@ -168,7 +170,7 @@ for imouse = 1:size(mouse_mat,1)
         expt(t).targetOrientation(find(FIx)) = nan;
         expt(t).targetOrientation(find(FAIx)) = 0;
         expt(t).signifResponsiveCells = zeros(1,sz(2));
-        expt(t).signifResponsiveCells(good_ind) = 1;
+        expt(t).signifResponsiveCells(1,good_ind) = 1;
         expt(t).lastBaseCycN= targCyc-1;
         expt(t).mouse = mouse;
         expt(t).date = date;

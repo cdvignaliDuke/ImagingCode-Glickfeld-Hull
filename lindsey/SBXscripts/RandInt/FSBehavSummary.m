@@ -13,9 +13,9 @@ dir_mat{3} = {'006'};
 %%
 
 t = 1;
-for imouse = 1:size(mouse_mat,1)
+for imouse = 1:size(mouse_mat,2)
     mouse = mouse_mat{imouse};
-    for iexp = 1:size(date_mat{imouse},1)
+    for iexp = 1:size(date_mat{imouse},2)
         date = date_mat{imouse}{iexp};
         run = run_mat{imouse}{iexp};
         
@@ -117,6 +117,8 @@ for imouse = 1:size(mouse_mat,1)
         end
         targCyc(find(FAIx)) = FACyc(find(FAIx));
         targ_resp = squeeze(bsxfun(@minus,data_dfof_targ,mean(data_dfof_targ(base_win,:,:),1)));
+        deltas = unique(tGratingDir);
+        nDelta = length(deltas);
         h_targ = zeros(nCells,nDelta);
         for i = 1:nDelta
             ind = find(tGratingDir==deltas(i));
@@ -124,7 +126,7 @@ for imouse = 1:size(mouse_mat,1)
         end
         good_ind_targ = find(sum(h_targ,2));
         good_ind = unique([good_ind_base; good_ind_targ]);
-
+        
         expt(t).firstBaseResp = squeeze(mean(data_dfof(resp_win,:,1,:),1)- mean(data_dfof(base_win,:,1,:),1));
         expt(t).targetResp = squeeze(mean(data_dfof_targ(resp_win,:,:),1)-mean(data_dfof_targ(base_win,:,:),1));
         expt(t).targetResp(:,find(FAIx)) = FA_resp(:,find(FAIx));
@@ -148,7 +150,7 @@ for imouse = 1:size(mouse_mat,1)
         expt(t).targetOrientation(find(FIx)) = nan;
         expt(t).targetOrientation(find(FAIx)) = 0;
         expt(t).signifResponsiveCells = zeros(1,sz(2));
-        expt(t).signifResponsiveCells(good_ind) = 1;
+        expt(t).signifResponsiveCells(1,good_ind) = 1;
         expt(t).lastBaseCycN= targCyc-1;
         expt(t).mouse = mouse;
         expt(t).date = date;
@@ -173,4 +175,4 @@ for imouse = 1:size(mouse_mat,1)
         t = 1+t;
     end
 end
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P\Adaptation', 'randIntBehavData.mat'),'expt')
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P\Adaptation', 'FSBehavData.mat'),'expt')
