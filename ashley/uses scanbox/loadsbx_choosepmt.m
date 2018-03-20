@@ -1,7 +1,12 @@
 function [data,nframes] = loadsbx_choosepmt(pmt,mouse,expdate,imgfolder,fname,varargin)
 
 %% Set current directory to imaging data location
-fdir = fullfile('Z:\data\', mouse, 'two-photon imaging',expdate,imgfolder);
+if length(varargin) > 1
+    rc = varargin{2};
+    fdir = fullfile(rc.ashleyData,mouse,'two-photon imaging',expdate,imgfolder);
+else
+    fdir = fullfile('Z:\data\', mouse, 'two-photon imaging',expdate,imgfolder);
+end
 cd(fdir);
 
 %% load sbx info file
@@ -10,7 +15,11 @@ load(imgMatFile);
 
 %% get number of frames
 if ~isempty(varargin)
-    nframes = varargin{1}; 
+    if ~isempty(varargin{1})
+        nframes = varargin{1}; 
+    else
+        nframes = info.config.frames;
+    end
 else
     nframes = info.config.frames;
 end

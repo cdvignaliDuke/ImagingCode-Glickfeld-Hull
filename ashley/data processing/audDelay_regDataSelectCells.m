@@ -26,10 +26,11 @@ for irun = 1:expt(iexp).nrun
     fName = [runFolder '_000_000'];
     
     if strcmp(ds, 'audDelay_V1_EMX') & irun == 3 & strcmp(expDate,'180302')
-        input = loadMworksFile(SubNum,expDate,expTime);
-        data_temp = loadsbx_choosepmt(1,mouse,expDate,runFolder,fName,31174);
+        input = loadMworksFile(SubNum,expDate,expTime,rc.behavData);
+        data_temp = loadsbx_choosepmt(1,mouse,expDate,runFolder,fName,31174,rc);      
     else
-        [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);
+        input = loadMworksFile(SubNum,expDate,expTime,rc.behavData);
+        data_temp = loadsbx_choosepmt(1,mouse,expDate,runFolder,fName,[],rc);  
     end
     
     disp(t)

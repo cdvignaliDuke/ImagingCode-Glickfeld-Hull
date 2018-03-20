@@ -4,7 +4,6 @@ ds = 'audDelay_V1_SOM';
 rc = behavConstsAV;
 eval(ds)
 slct_expt = 1;
-rc = behavConstsAV;
 %%
 for iexp = slct_expt
 
@@ -20,12 +19,11 @@ for irun = 1:expt(iexp).nrun
     expTime = expt(iexp).time_mat(irun,:);
     fName = [runFolder '_000_000'];
     if strcmp(ds, 'audDelay_V1_EMX') & irun == 3 & strcmp(expDate,'180302')
-        input = loadMworksFile(SubNum,expDate,expTime);
-        data_temp = loadsbx_choosepmt(1,mouse,expDate,runFolder,fName,31174);      
+        input = loadMworksFile(SubNum,expDate,expTime,rc.behavData);
+        data_temp = loadsbx_choosepmt(1,mouse,expDate,runFolder,fName,31174,rc);      
     else
-        [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
-            SubNum,expDate,expTime,mouse,runFolder,fName);
-        disp(t)
+        input = loadMworksFile(SubNum,expDate,expTime,rc.behavData);
+        data_temp = loadsbx_choosepmt(1,mouse,expDate,runFolder,fName,[],rc);  
     end
     
     if irun == 1

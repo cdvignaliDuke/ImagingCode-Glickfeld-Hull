@@ -5,17 +5,17 @@ rc = behavConstsAV;
 fn = fullfile(rc.ashleyAnalysis,'Expt Summaries',ds);
 load(fullfile(fn,'dataSummary'))
 
-doLoadPreviousTuning = false;
+doLoadPreviousTuning = true;
 
 basewinS = 0.1;
 respwinS = 0.1;
 
-minVisOnlyMs = 4000;
+minVisOnlyMs = 8000;
 nBoot = 1000;
 
 orisSmooth = 0:180;
 tuningCenterFit = 90;
-fitReliabilityCutoff = 67.5;
+fitReliabilityCutoff =85;
 
 nBaselineFr = params.nBaselineMs.*params.frameRate./1000;
 basewin = nBaselineFr-round(basewinS*params.frameRate):nBaselineFr;
@@ -28,6 +28,7 @@ iexp = 1;
 
 tOris = ms(im).expt(iexp).tOrientation;
 orientations = unique(tOris);
+oriRespAlpha = 0.05./(length(orientations));
 tuningCenterResp = find(orientations == tuningCenterFit);
 nOri = length(orientations);
 tDelay = ms(im).expt(iexp).tAudVisDelay;
@@ -36,6 +37,7 @@ visTC = ms(im).expt(iexp).tVisAlignResp;
 audTC = ms(im).expt(iexp).tAudAlignResp;
 
 visResp = squeeze(mean(visTC(respwin,:,:),1));
+blResp = squeeze(mean(visTC(basewin,:,:),1));
 
 [trialLength,nCells,~] = size(visTC);
 
@@ -75,6 +77,8 @@ nDelay = length(delays);
 
 visDelayTuning = cell(1,nDelay);
 visDelayTuningErr = cell(1,nDelay);
+visDelayTuningTTest = cell(1,nDelay);
+visDelayRespTTest = cell(1,nDelay);
 visTCTuning = cell(1,nDelay); 
 visTCTuningErr = cell(1,nDelay);
 nTrialsEaDelay = zeros(nOri,nDelay);
@@ -87,15 +91,28 @@ for i = 1:nDelay
         ind = tOris == orientations(iori) & tDelay == delays(i);
         tuning(:,iori) = mean(visResp(:,ind),2);
         tuningErr(:,iori) = ste(visResp(:,ind),2);
+        tuning_ttest(:,iori) = ttest(...
+            visResp(:,ind),blResp(:,ind),...
+            'dim',2,'tail','right','alpha',oriRespAlpha);
+        
         tc(:,:,iori) = mean(visTC(:,:,ind),3);
         tcErr(:,:,iori) = ste(visTC(:,:,ind),3);
         nTrialsEaDelay(iori,i) = sum(ind);
     end    
+    ind = tDelay == delays(i);
+    alltuning_ttest = ttest(...
+            visResp(:,ind),blResp(:,ind),...
+            'dim',2,'tail','right','alpha',0.05);
     visDelayTuning{i} = tuning;
     visDelayTuningErr{i} = tuningErr;
+    visDelayTuningTTest{i} = tuning_ttest;
+    visDelayRespTTest{i} = alltuning_ttest;
     visTCTuning{i} = tc;
     visTCTuningErr{i} = tcErr;
 end
+isResponsive = cellfun(@(x,y) x | y,...
+                cellfun(@(x) sum(x,2) > 0,visDelayTuningTTest,'unif',0),...
+                cellfun(@logical,visDelayRespTTest,'unif',0),'unif',0);
 
 vonMisesFits_delays = cell(1,nDelay);
 for i = 1:nDelay
