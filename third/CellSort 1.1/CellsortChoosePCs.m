@@ -1,4 +1,4 @@
-function [PCuse] = CellsortChoosePCs(fn, mixedfilters)
+function [PCuse] = CellsortChoosePCs(mixedfilters)
 % [PCuse] = CellsortChoosePCs(fn, mixedfilters)
 %
 % Allows the user to select which principal components will be kept
@@ -18,60 +18,58 @@ function [PCuse] = CellsortChoosePCs(fn, mixedfilters)
 %
 
 fprintf('-------------- CellsortChoosePCs %s -------------- \n', date)
-[pixw,pixh] = size(fn);
 
-npcs = 20; % Number of PCs to display concurrently
+[pixw,pixh,nIC] = size(mixedfilters);
+
+npcs = 50; % Number of PCs to display concurrently
 currpcs = [1:npcs];
-PCf = [];
-while isempty(PCf)
+PCall = 1:nIC;
+PCbad = [];
+while true
     showpcs(currpcs, mixedfilters, pixw, pixh)
     yl = ylim;
     xl = xlim;
     set(gca,'Units','pixels')
     title(['Choose first PC; showing PCs [',num2str(currpcs(1)),':',num2str(currpcs(end)),']'])
-    PCf = input('Number of first PC to retain, Klow (''b/f'' to scroll backwards/forwards)): ','s');
-    if PCf=='b'
-        currpcs = currpcs - min(npcs,currpcs(1)-1);
-        PCf = [];
-    elseif (PCf=='f')
-        currpcs = currpcs+npcs;
-        if nnz(currpcs>size(mixedfilters,2))
-            currpcs = [-npcs+1:0]+size(mixedfilters,2);
-            fprintf('Reached end of stored PCs.\n')
-        end
-        PCf = [];
-    else
-        PCf = str2num(PCf);
+    
+    PCbad_input = input('Number of bad PC ', 's');
+    PCbad = [PCbad str2num(PCbad_input)];
+    
+    currpcs = currpcs+npcs;
+    if nnz(currpcs>nIC)
+        %             currpcs = [-npcs+1:0]+nIC;
+        fprintf('Reached end of stored PCs.\n')
+        break
     end
 end
-PCl=[];
-currpcs = [PCf:PCf+npcs-1];
-while isempty(PCl)
-    showpcs(currpcs, mixedfilters, pixw, pixh)
-    title(['Choose last PC; showing PCs [',num2str(currpcs(1)),':',num2str(currpcs(end)),']'])
-    PCl = input('Number of last PC to retain, Khigh (''b/f'' to scroll backwards/forwards): ','s');
-    if PCl=='b'
-        currpcs = currpcs - min(npcs,currpcs(1)-1);
-        PCl = [];
-    elseif (PCl=='f')
-        currpcs = currpcs+npcs;
-        if nnz(currpcs>size(mixedfilters,2))
-            currpcs = [-npcs+1:0]+size(mixedfilters,2);
-            fprintf('Reached end of stored PCs.\n')
-        end
-        PCl = [];
-    else
-        PCl = str2num(PCl);
-    end
-end
-currpcs = [PCf:PCl];
-PCbad=[];
-showpcs(currpcs, mixedfilters, pixw, pixh)
 
-PCuse = setdiff(currpcs, PCbad);
-showpcs(PCuse, mixedfilters, pixw, pixh)
+% currpcs = [PCf:PCf+npcs-1];
+% while isempty(PCl)
+%     showpcs(currpcs, mixedfilters, pixw, pixh)
+%     title(['Choose last PC; showing PCs [',num2str(currpcs(1)),':',num2str(currpcs(end)),']'])
+%     PCl = input('Number of last PC to retain, Khigh (''b/f'' to scroll backwards/forwards): ','s');
+%     if PCl=='b'
+%         currpcs = currpcs - min(npcs,currpcs(1)-1);
+%         PCl = [];
+%     elseif (PCl=='f')
+%         currpcs = currpcs+npcs;
+%         if nnz(currpcs>size(mixedfilters,2))
+%             currpcs = [-npcs+1:0]+size(mixedfilters,2);
+%             fprintf('Reached end of stored PCs.\n')
+%         end
+%         PCl = [];
+%     else
+%         PCl = str2num(PCl);
+%     end
+% end
+%currpcs = [PCf:PCl];
 
-fprintf('  Retaining PCs in the range [Klow - Khigh] = [%d - %d].\n', PCf,PCl)
+%showpcs(currpcs, mixedfilters, pixw, pixh)
+
+PCuse = setdiff(PCall, PCbad);
+%showpcs(PCuse, mixedfilters, pixw, pixh)
+
+%fprintf('  Retaining PCs in the range [Klow - Khigh] = [%d - %d].\n', PCf,PCl)
 
 function showpcs(usepcs, Efull, pixw, pixh)
 
@@ -92,7 +90,7 @@ for j=usepcs
 end
 pcs = reshape(Efull(:,usepcs), pixw, pixh, []);
 pcs = permute(pcs, [1, 2, 4, 3]);
-montage(pcs)
+figure;montage(pcs)
 colormap(hot)
 axis on
 xl = xlim;
