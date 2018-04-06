@@ -33,8 +33,8 @@ for irun = 1:expt(iexp).nrun
     runFolder = expt(iexp).runs(irun,:);
     expTime = expt(iexp).time_mat(irun,:);
     fName = [runFolder '_000_000'];
-    
-    input = loadMworksFile(subnum,expDate,expTime);
+   
+    input = loadMworksFile(subnum,expDate,expTime,rc.behavData);
     
     if strcmp(ds, 'audDelay_V1_EMX') & irun == 3 & strcmp(expDate,'180302')
         nFrPerRun(irun) = 31174;
