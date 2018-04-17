@@ -14,11 +14,9 @@ peak_ind_l = [peak_x(idx,:) peak_y(idx,:)];
 
 c_ind = find(ismember(peak_ind_l(:,2),peak_ind_f(:,2)));
 
-if size(peak_ind_l,1) > size(peak_ind_f,1)
-    peak_ind = peak_ind_l;
-else
-    peak_ind = peak_ind_f;
-end
+add_ind = find(~ismember(peak_ind_l(:,2),peak_ind_f(:,2)));
+
+peak_ind = [peak_ind_f; peak_ind_l(add_ind,:)];
 
 if ~isempty(c_ind)
     for ii = c_ind'

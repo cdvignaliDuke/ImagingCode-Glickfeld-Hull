@@ -11,7 +11,11 @@ function roi = detectSingleFrameRois(data,info)
 
 % GET SAMPLE VIDEO STATISTICS AND DEFINE MIN/MAX ROI AREA
 sz = size(data);
-N = sz(3);
+if length(sz) < 3
+    N = 1;
+else
+    N = sz(3);
+end
 frameSize = sz(1:2);
 % dsamp = getDataSample(data);
 % stat.Min = min(data,[],3);
@@ -37,7 +41,7 @@ else
 	frameNum = cat(1,info.frame);
 end
 frameROI = cell(N,1);
-Ithreshold = 82; %85 for 0420_img92, 90 for 0427_img90, 
+Ithreshold = 30; %85 for 0420_img92, 90 for 0427_img92, 82 for 0426_img90, 82 for 170513_img89
 for k = 1:N
     k
 % 	[bwmask(:,:,k), signalThreshold] = getAdaptiveHotspots(data(:,:,k), signalThreshold);
@@ -45,9 +49,9 @@ for k = 1:N
     diffImage = gpuArray(data(:,:,k));
 %   bw = diffImage > signalThreshold;
 		% changed from: bw = imclose(imopen( bw, S.disk6), S.disk4);
-    bw (diffImage > 0.65*mean([max(prctile(diffImage,Ithreshold,1)) max(prctile(diffImage,Ithreshold,2))])) = 1;
-%     bw = gather(bwmorph(bwmorph( bw, 'open'), 'majority'));
-    bw = gather(bwmorph( bw, 'open'));
+    bw (diffImage > 1*mean([max(prctile(diffImage,Ithreshold,1)) max(prctile(diffImage,Ithreshold,2))])) = 1;
+    bw = gather(bwmorph(bwmorph( bw, 'open'), 'majority'));
+%     bw = gather(bwmorph( bw, 'open'));
 % 	bw = gather(bwmorph(bwmorph(bwmorph( bw, 'open'), 'shrink'), 'majority'));%4
 %   bw = gather(bwmorph(bwmorph(bwmorph( bw, 'hbreak'), 'spur'), 'majority'));
     bwRP =  regionprops(bw,...
@@ -59,7 +63,7 @@ for k = 1:N
 	bwRP = bwRP([bwRP.Eccentricity] >= maxRoiEccentricity); %  Enforce Elliptical SHAPE
 % 	bwRP = bwRP([bwRP.Perimeter]./([bwRP.Area]) < maxPerimOverSqArea); %  Enforce LOOSELY CIRCULAR/SQUARE SHAPE
 % 	bwRP = bwRP([bwRP.Perimeter]./sqrt([bwRP.Area]) > minPerimOverSqArea); %  Enforce NON-HOLINESS (SELF-FULFILLMENT?)
-    bwRP = bwRP([bwRP.Orientation] < 10 & [bwRP.Orientation] > -65); % orientation of cells
+    bwRP = bwRP([bwRP.Orientation] < 20 & [bwRP.Orientation] > -80); % orientation of cells
 	if isempty(bwRP)
 		continue
 	end
@@ -75,7 +79,7 @@ roi = cat(1,frameROI{:});
 % 	info = [];
 % 	frameNum = 1:N;
 % else
-% 	frameNum = cat(1,info.frame);
+% 	frameNum = cat(1,info.frame);`
 % end
 % frameROI = cell(N,1);
 % parfor kp = 1:N

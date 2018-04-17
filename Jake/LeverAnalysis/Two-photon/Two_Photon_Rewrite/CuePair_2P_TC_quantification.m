@@ -41,6 +41,8 @@ avg_UR_all = mean(avg_UR,1);
 sem_UR_all = std(avg_UR,1)./sqrt(size(avg_UR,1));
 
 %average and sem across Trials
+% nTrial = size(NR_movie_nolick,1);
+% avg_NR_nolick = squeeze(nanmean(NR_movie_nolick(1:round(nTrial/2),:,:),1));
 avg_NR_nolick = squeeze(nanmean(NR_movie_nolick,1));
 NR_movie_nolick_temp = NR_movie_nolick(~isnan(NR_movie_nolick(:,1,1)),:,:);
 sem_NR_nolick = squeeze(nanstd(NR_movie_nolick,1)./sqrt(size(NR_movie_nolick_temp,1)));
@@ -49,6 +51,8 @@ avg_NR_all_nolick = mean(avg_NR_nolick,1);
 sem_NR_all_nolick = std(avg_NR_nolick,1)./sqrt(size(avg_NR_nolick,1));
 
 %average and sem across Trials
+% nTrial = size(OR_movie_nolick,1);
+% avg_OR_nolick = squeeze(nanmean(OR_movie_nolick(1:round(nTrial/2),:,:),1));
 avg_OR_nolick = squeeze(nanmean(OR_movie_nolick,1));
 OR_movie_nolick_temp = OR_movie_nolick(~isnan(OR_movie_nolick(:,1,1)),:,:);
 sem_OR_nolick = squeeze(nanstd(OR_movie_nolick,1)./sqrt(size(OR_movie_nolick_temp,1)));
@@ -64,9 +68,12 @@ sem_UR_nolick = squeeze(nanstd(UR_movie_nolick,1)./sqrt(size(UR_movie_nolick_tem
 avg_UR_all_nolick = mean(avg_UR_nolick,1);
 sem_UR_all_nolick = std(avg_UR_nolick,1)./sqrt(size(avg_UR_nolick,1));
 
+% get Negative resp 300ms after reward
+
+% save([dest '_cell_TCs_half.mat'], 'avg_NR', 'sem_NR', 'avg_OR', 'sem_OR', 'avg_UR', 'sem_UR', ...
+%     'avg_NR_nolick', 'sem_NR_nolick', 'avg_OR_nolick', 'sem_OR_nolick', 'avg_UR_nolick', 'sem_UR_nolick')
 save([dest '_cell_TCs.mat'], 'avg_NR', 'sem_NR', 'avg_OR', 'sem_OR', 'avg_UR', 'sem_UR', ...
     'avg_NR_nolick', 'sem_NR_nolick', 'avg_OR_nolick', 'sem_OR_nolick', 'avg_UR_nolick', 'sem_UR_nolick')
-
 
 % % Plot timecourse for each cell 
 % tt =((-pre_cue_frames:post_cue_frames).*double(ifi))./1000;
@@ -113,36 +120,36 @@ save([dest '_cell_TCs.mat'], 'avg_NR', 'sem_NR', 'avg_OR', 'sem_OR', 'avg_UR', '
 base_cue_buffer = 500;
 resp_cue_buffer = 400;
 
-[NR_Cue_h, NR_Cue_p, NR_Cue_resp_cells, NR_Cue_resp_avg, NR_Cue_resp_sem, NR_Cue_base, NR_Cue_resp, ~, ~] = findRespCell(NR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer);
+[NR_Cue_h, NR_Cue_p, NR_Cue_resp_cells, NR_Cue_resp_avg, NR_Cue_resp_sem, NR_Cue_base, NR_Cue_resp] = findRespCell(NR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer);
 
-[OR_Cue_h, OR_Cue_p, OR_Cue_resp_cells, OR_Cue_resp_avg, OR_Cue_resp_sem, OR_Cue_base, OR_Cue_resp, ~, ~] = findRespCell(OR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer);
+[OR_Cue_h, OR_Cue_p, OR_Cue_resp_cells, OR_Cue_resp_avg, OR_Cue_resp_sem, OR_Cue_base, OR_Cue_resp] = findRespCell(OR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer);
 
 % omission trial responsive window from cue to reward 0-600
-[OR_Cue_h2, OR_Cue_p2, OR_Cue_resp_cells2, OR_Cue_resp_avg2, OR_Cue_resp_sem2, OR_Cue_base2, OR_Cue_resp2, ~, ~] = findRespCell(OR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer+200);
+[OR_Cue_h2, OR_Cue_p2, OR_Cue_resp_cells2, OR_Cue_resp_avg2, OR_Cue_resp_sem2, OR_Cue_base2, OR_Cue_resp2] = findRespCell(OR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer+200);
 
-[UR_Cue_h, UR_Cue_p, UR_Cue_resp_cells, UR_Cue_resp_avg, UR_Cue_resp_sem, UR_Cue_base, UR_Cue_resp, ~, ~] = findRespCell(UR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer);
+[UR_Cue_h, UR_Cue_p, UR_Cue_resp_cells, UR_Cue_resp_avg, UR_Cue_resp_sem, UR_Cue_base, UR_Cue_resp] = findRespCell(UR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer);
 
 base_reward_buffer = 500;
-resp_reward_buffer = 2000;
+resp_reward_buffer = 1000;
 pre_rew_frames = pre_cue_frames + round((trial_outcome.normalReward(1) - trial_outcome.normalRewardCue(1))/ifi);
 
-[NR_Rew_h, NR_Rew_p, NR_Rew_resp_cells, NR_Rew_resp_avg, NR_Rew_resp_sem, NR_Rew_base, NR_Rew_resp, ~, ~] = findRespCell(NR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
+[NR_Rew_h, NR_Rew_p, NR_Rew_resp_cells, NR_Rew_resp_avg, NR_Rew_resp_sem, NR_Rew_base, NR_Rew_resp] = findRespCell(NR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
 
-[OR_Rew_h, OR_Rew_p, OR_Rew_resp_cells, OR_Rew_resp_avg, OR_Rew_resp_sem, OR_Rew_base, OR_Rew_resp, ~, ~] = findRespCell(OR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
+[OR_Rew_h, OR_Rew_p, OR_Rew_resp_cells, OR_Rew_resp_avg, OR_Rew_resp_sem, OR_Rew_base, OR_Rew_resp] = findRespCell(OR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
 
-[UR_Rew_h, UR_Rew_p, UR_Rew_resp_cells, UR_Rew_resp_avg, UR_Rew_resp_sem, UR_Rew_base, UR_Rew_resp, ~, ~] = findRespCell(UR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
+[UR_Rew_h, UR_Rew_p, UR_Rew_resp_cells, UR_Rew_resp_avg, UR_Rew_resp_sem, UR_Rew_base, UR_Rew_resp] = findRespCell(UR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
 
-% find cells with negative response and positive response shortly after
-% reward
-base_reward_buffer = 200;
-resp_reward_buffer = 400;
-
-[~, ~, ~, ~, ~, NR_Rew_pn_base, NR_Rew_pn_resp, NR_Rew_pos_h, NR_Rew_neg_h] = findRespCell(NR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
-
-[~, ~, ~, ~, ~, OR_Rew_pn_base, OR_Rew_pn_resp, OR_Rew_pos_h, OR_Rew_neg_h] = findRespCell(OR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
+% % find cells with negative response and positive response shortly after
+% % reward
+% base_reward_buffer = 200;
+% resp_reward_buffer = 400;
+% 
+% [~, ~, ~, ~, ~, NR_Rew_pn_base, NR_Rew_pn_resp, NR_Rew_pos_h, NR_Rew_neg_h] = findRespCell(NR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
+% 
+% [~, ~, ~, ~, ~, OR_Rew_pn_base, OR_Rew_pn_resp, OR_Rew_pos_h, OR_Rew_neg_h] = findRespCell(OR_movie_nolick, pre_rew_frames, ifi, base_reward_buffer, resp_reward_buffer);
 
 save([dest '_cell_resp.mat'], 'NR_Cue_base', 'NR_Cue_resp', 'OR_Cue_base', 'OR_Cue_base2', 'OR_Cue_resp', 'OR_Cue_resp2', 'UR_Cue_base', 'UR_Cue_resp',...
-    'NR_Rew_base', 'NR_Rew_resp', 'OR_Rew_base', 'OR_Rew_resp', 'UR_Rew_base', 'UR_Rew_resp', 'NR_Rew_pn_base', 'NR_Rew_pn_resp', 'OR_Rew_pn_base', 'OR_Rew_pn_resp');
+    'NR_Rew_base', 'NR_Rew_resp', 'OR_Rew_base', 'OR_Rew_resp', 'UR_Rew_base', 'UR_Rew_resp');
 
 % noresponse_cells = find((NR_h+OR_h+UR_h)==0);
 
@@ -165,18 +172,12 @@ end
 cue_cells_perc = sum(cue_cells) / nCells;
 rew_cells_perc = sum(rew_cells) / nCells;
 
-NR_Rew_resp_pos_cells = find(NR_Rew_pos_h);
-NR_Rew_resp_neg_cells = find(NR_Rew_neg_h);
-
-OR_Rew_resp_pos_cells = find(OR_Rew_pos_h);
-OR_Rew_resp_neg_cells = find(OR_Rew_neg_h);
-
 save([dest '_cell_categories.mat'], 'NR_Cue_resp_cells', 'OR_Cue_resp_cells', 'OR_Cue_resp_cells2', 'UR_Cue_resp_cells', 'NR_Rew_resp_cells',...
-    'OR_Rew_resp_cells', 'NR_Rew_resp_cells', 'NR_Rew_resp_pos_cells', 'NR_Rew_resp_neg_cells', 'OR_Rew_resp_pos_cells', 'OR_Rew_resp_neg_cells', ...
+    'OR_Rew_resp_cells', 'NR_Rew_resp_cells', ...
     'allresp_cells', 'nCells', 'cue_cells', 'rew_cells', 'cue_cells_perc', 'rew_cells_perc');
 
 save([dest '_pvals.mat'], 'NR_Cue_p', 'NR_Cue_h', 'NR_Rew_p', 'NR_Rew_h', 'OR_Cue_p', 'OR_Cue_p2','OR_Cue_h', 'OR_Cue_h2', 'OR_Rew_p', 'OR_Rew_h', ...
-    'UR_Cue_p', 'UR_Cue_h', 'UR_Rew_p', 'UR_Rew_h', 'NR_Rew_pos_h', 'NR_Rew_neg_h', 'OR_Rew_pos_h', 'OR_Rew_pos_h');
+    'UR_Cue_p', 'UR_Cue_h', 'UR_Rew_p', 'UR_Rew_h');
 
 [NR_riseIdx] = findRisetime(avg_NR_nolick, pre_cue_frames);
 
@@ -238,32 +239,34 @@ save([dest '_F_risetime.mat'], 'NR_riseIdx', 'OR_riseIdx', 'UR_riseIdx');
 % save([dest '_cell_resp2.mat'], 'NR_base', 'NR_resp', 'UR_base', 'UR_resp', 'OR_base', 'OR_resp');
 
 %%
-% %% 4. plotting
-% tt =((-pre_cue_frames:post_cue_frames).*double(ifi))./1000;
-% %overlay average success/failure for each ROI
-% figure;
-% avg_all = [avg_NR avg_OR avg_UR];
-% ymax = max(max(avg_all,[],2),[],1);
-% ymin = min(min(avg_all,[],2),[],1);
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-% %     errorbar(tt,avg_NR(ic,:), sem_NR(ic,:),'k');hold on;
-% %     errorbar(tt,avg_OR(ic,:), sem_OR(ic,:),'r');
-% %     errorbar(tt,avg_UR(ic,:), sem_UR(ic,:),'b');
-%     plot(tt,avg_NR(ic,:),'k');hold on;
-%     if ~isempty(OR_movie)
-%         plot(tt,avg_OR(ic,:),'r');
-%     end
-%     if ~isempty(UR_movie)
-%         plot(tt,avg_UR(ic,:),'g');
-%     end
-%     ylim([ymin*1.1 ymax*1.1])
-%     xlim([tt(1) tt(end)])
-% end
-% suptitle([date ' ' mouse ' Average cue resp: Normal- black (n = ' num2str(size(NR_movie,1)) ' trials); Omit- red (n = ' num2str(size(OR_movie,1)) ' trials); Unexpect- green (n = ' num2str(size(UR_movie,1)) ' trials)'])
-% orient landscape
-% print([dest '_allTCs.eps'], '-depsc');
-% print([dest '_allTCs.pdf'], '-dpdf');
+%% 4. plotting
+tt =((-pre_cue_frames:post_cue_frames).*double(ifi))./1000;
+%overlay average success/failure for each ROI
+figure;
+avg_all_nolick = [avg_NR_nolick avg_OR_nolick avg_UR_nolick];
+ymax = max(max(avg_all_nolick,[],2),[],1);
+ymin = -0.1;
+% ymin = min(min(avg_all_nolick,[],2),[],1);
+for ic = 1:nCells
+    subplot(n,n2,ic)
+%     errorbar(tt,avg_NR(ic,:), sem_NR(ic,:),'k');hold on;
+%     errorbar(tt,avg_OR(ic,:), sem_OR(ic,:),'r');
+%     errorbar(tt,avg_UR(ic,:), sem_UR(ic,:),'b');
+    plot(tt,avg_NR_nolick(ic,:),'k');hold on;
+    if ~isempty(OR_movie_nolick)
+        plot(tt,avg_OR_nolick(ic,:),'r');
+    end
+    if ~isempty(UR_movie_nolick)
+        plot(tt,avg_UR_nolick(ic,:),'g');
+    end
+    ylim([ymin*1.1 ymax*1.1])
+    xlim([-1 2])
+%     set(gca,'XTick',[)
+end
+suptitle([date ' ' mouse ' Average cue resp: Normal- black (n = ' num2str(size(NR_movie,1)) ' trials); Omit- red (n = ' num2str(size(OR_movie,1)) ' trials); Unexpect- green (n = ' num2str(size(UR_movie,1)) ' trials)'])
+orient landscape
+print([dest '_allTCs.eps'], '-depsc');
+print([dest '_allTCs.pdf'], '-dpdf');
 % 
 % %overlay average success/failure across ROIs
 % h=figure; 

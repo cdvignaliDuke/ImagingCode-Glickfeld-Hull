@@ -16,8 +16,9 @@ for i = 1:size(movie,1)
 %         end
         peak(i,j) = mean(tc_tot( (indx - floor(50./double(ifi))) : (indx + floor(50./double(ifi)))) );
 %         base_window = (frame + ((indx - floor(50./double(ifi)) - 1 -1)) - 6):(frame + ((indx - floor(50./double(ifi)) - 1 -1)) - 3);
-        base_end = indx - round(100./double(ifi));
-         base_window = 1 : base_end;
+%         base_end = indx - round(300./double(ifi));
+%         base_end = indx - round(300./double(ifi));
+         base_window = 1 : (frame - round(300./double(ifi)));
         peak_base(i,j) = squeeze(mean(movie(i,j,base_window),3));
         peak_amp(i,j) = peak(i,j) - peak_base(i,j);
     end

@@ -2,7 +2,7 @@ clear
 file_info_CRP;
 doPlotexample = 0; % if flaggged, will plot single cell Time course and segmentation
 doCombMask = 0; % if flagged, it'll try find the folder with the combined session results
-for sub =  [3, 6, 10, 25, 27, 32, 21, 8, 15, 28, 30, 34]
+for sub = [3, 6, 10, 25, 27, 32, 37 39 44 46 49 55]%[3 4 38 39 43 44 45 46 48 49 54 55] %36:55%[3, 6, 10, 25, 27, 32, 21, 8, 15, 28, 30, 34]
     %[2,5, 9, 22, 23, 31, 3, 6, 10, 25, 27, 32] for day1 and dayN
     %1:length(dates) 
     %[2, 5, 9, 22, 23, 31] day1, [3, 6, 10, 25, 27, 32] dayN
@@ -16,22 +16,24 @@ for sub =  [3, 6, 10, 25, 27, 32, 21, 8, 15, 28, 30, 34]
         data_dir = fullfile('Z:\home\jake\Analysis\Cue_reward_pairing_analysis\2P\');
         
         if doCombMask == 1
-            subfold = fullfile(data_dir,[days_pair_folder{sub} '\']);
-            dates = days_post;
-            mouse = days_1_mouse{sub}
+%             subfold = fullfile(data_dir,[days_pair_folder{sub} '\']);
+%             dates = days_post;
+%             mouse = days_1_mouse{sub}
+            subfold = fullfile(data_dir,['Registration_acrossdays\' mouseID{sub} '\']);
+            mouse = mouseID{sub}
         else
             subfold = fullfile(data_dir,[dateID{sub} '_' runID{rID} '_' mouseID{sub} '\']);
             mouse = mouseID{sub}
         end
         
-        if exist(subfold)
+        if exist(subfold) 
             load([subfold, 'ROI_TCs.mat']);
-            load([subfold, '_cue_movies.mat'])
+%             load([subfold, '_cue_movies.mat'])
             
             
             date = dates{sub};
             
-            dataName   = dir([behav_dir, '*', '9', mouse(end-1:end), '-', date(1:6), '*']);
+            dataName   = dir([behav_dir, '*', 'i', behavID{sub}, '-', date(1:6), '*']);
             load([behav_dir, dataName(end).name]);
             tc_dir  = subfold;
             dest = tc_dir;
@@ -39,11 +41,11 @@ for sub =  [3, 6, 10, 25, 27, 32, 21, 8, 15, 28, 30, 34]
             
             
             if doPlotexample == 0
-%                 getTC_events;  %umcomment to run, extract time course for each cell for event of interest
-                CuePair_2P_TC_quantification; % quantify cell types and event types
+                getTC_events;  %umcomment to run, extract time course for each cell for event of interest
+%                 CuePair_2P_TC_quantification; % quantify cell types and event types
 %                 getTC_Spike_CRP; %umcomment to run, extract spikes
 %                 spike_quantification_CRP; %umcomment to run, quantify spikes for rates and PSTH
-                
+                close all
             else
                 %%% plot example segmentation
                 figure;
@@ -129,8 +131,8 @@ for sub =  [3, 6, 10, 25, 27, 32, 21, 8, 15, 28, 30, 34]
                 title('Raw Trace--Black  1st Derivative--Blue');
             end
         end
-        close all
-        clearvars -except sub doPlotexample doCombMask
+%         close all
+%         clearvars -except sub doPlotexample doCombMask
         
     end
 end

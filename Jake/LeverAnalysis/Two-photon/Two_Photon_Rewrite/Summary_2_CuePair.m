@@ -1,104 +1,114 @@
 clear
 file_info_CRP
 out_base = fullfile('Z:\home\jake\Analysis\Cue_reward_pairing_analysis\2P\');
-outD1 = []; day = 1;
-for id = 1:size(days_1,2)
-    mouse = days_1{id}
-    for rID  = 1:2
-        dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[mouse(1:6), '_', runID{rID}, '_', mouse(8:end)],'\');
-        
-        outD1 = getData2Cell(dest_sub, outD1, id, day);
-        
-        if length(outD1.NR_F_onset) == id
-            outD1.NR_F_onset_RS{id} = outD1.NR_F_onset{id}(outD1.RS_cells{id});
-            outD1.OR_F_onset_RS{id} = outD1.OR_F_onset{id}(outD1.RS_cells{id});
-        end
-    end
-end
-outPast1 = []; day = 5; doCombMask = 0;
-for id = 1:size(days_post,2)
-    id
-    mouse = days_post{id};
-    if doCombMask == 1
-        dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',days_pair_folder{id},'\');
-        
-        outPast1 = getData2Cell(dest_sub, outPast1, id, day);
-        
-        outPast1.NR_F_onset_RS{id} = outPast1.NR_F_onset{id}(outD1.RS_cells{id});
-        
-        outPast1.OR_F_onset_RS{id} = outPast1.OR_F_onset{id}(outD1.RS_cells{id});
-        
-        outPast1.cue_rew_fr{id} = sum(outPast1.cue_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
-        
-        outPast1.rew_cue_fr{id} = sum(outPast1.rew_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
-        
-        % find OR resp in Day5 for omission resp cells
-        D1D5_OR_resp_cells = (outD1.OR_resp_cells{id}) & (outPast1.OR_resp_cells{id});
-        
-        dis_OR_resp_cells = (~D1D5_OR_resp_cells) & (outPast1.OR_resp_cells{id}); % OR resp cells in Day5 but not Day1, set resp to 0 for Day1
-        
-        outPast1.OR_resp_RS{id} = outPast1.OR_resp_all{id}(outPast1.OR_resp_cells{id});
-        
-        outD1.OR_resp_RS{id} = outD1.OR_resp_all{id};
-        outD1.OR_resp_RS{id}(dis_OR_resp_cells) = 0; % remove resp from non-resp omission cells 
-        outD1.OR_resp_RS{id}= outD1.OR_resp_RS{id}(outPast1.OR_resp_cells{id});
-
-    else
-        
-        for rID  = 1:2
-            
-            dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[mouse(1:6), '_', runID{rID}, '_', mouse(8:end)],'\');
-            
-            
-            outPast1 = getData2Cell(dest_sub, outPast1, id, day);
-            
+% outD1 = []; day = 1;
+% for id = 1:size(days_s1,2)
+%     days = days_s1{id}
+%     for rID  = 1:2
+%         dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[days(1:6), '_', runID{rID}, '_', mouse_s1{id}],'\');
+%         
+%         outD1 = getData2Cell(dest_sub, outD1, id, day);
+%         
+% %         if ~isempty(outD1)  && length(outD1.NR_F_onset) == id
+% %             outD1.NR_F_onset_RS{id} = outD1.NR_F_onset{id}(outD1.RS_cells{id});
+% %             outD1.OR_F_onset_RS{id} = outD1.OR_F_onset{id}(outD1.RS_cells{id});
+% %         end
+%     end
+% end
+% outPast1 = []; day = 5; doCombMask = 0;
+% for id = 1:size(days_s2,2)
+%     id
+%     mouse = days_s2{id};
+%     if doCombMask == 1
+%         dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',days_pair_folder{id},'\');
+%         
+%         outPast1 = getData2Cell(dest_sub, outPast1, id, day);
+%         
+%         outPast1.NR_F_onset_RS{id} = outPast1.NR_F_onset{id}(outD1.RS_cells{id});
+%         
+%         outPast1.OR_F_onset_RS{id} = outPast1.OR_F_onset{id}(outD1.RS_cells{id});
+%         
+%         outPast1.cue_rew_fr{id} = sum(outPast1.cue_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
+%         
+%         outPast1.rew_cue_fr{id} = sum(outPast1.rew_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
+%         
+%         % find OR resp in Day5 for omission resp cells
+%         D1D5_OR_resp_cells = (outD1.OR_resp_cells{id}) & (outPast1.OR_resp_cells{id});
+%         
+%         dis_OR_resp_cells = (~D1D5_OR_resp_cells) & (outPast1.OR_resp_cells{id}); % OR resp cells in Day5 but not Day1, set resp to 0 for Day1
+%         
+%         outPast1.OR_resp_RS{id} = outPast1.OR_resp_all{id}(outPast1.OR_resp_cells{id});
+%         
+%         outD1.OR_resp_RS{id} = outD1.OR_resp_all{id};
+%         outD1.OR_resp_RS{id}(dis_OR_resp_cells) = 0; % remove resp from non-resp omission cells 
+%         outD1.OR_resp_RS{id}= outD1.OR_resp_RS{id}(outPast1.OR_resp_cells{id});
+% 
+%     else
+%         
+%         for rID  = 1:2
+%             
+%             dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[mouse(1:6), '_', runID{rID}, '_', mouse(8:end)],'\');
+%             
+%             
+%             outPast1 = getData2Cell(dest_sub, outPast1, id, day);
+%             
 %             outPast1.cue_rew_fr{id} = sum(outPast1.cue_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
 %             
 %             outPast1.rew_cue_fr{id} = sum(outPast1.rew_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
-        end
+%         end
+%     end
+% end
+
+out_daysPost = [];
+for id = 1:size(days_post,2)
+    days = days_post{id}
+    for rID  = 1:2
+        dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[days(1:6), '_', runID{rID}, '_img', days(regexp(days, 'g')+1:end)],'\');
+        
+        out_daysPost = getData2Cell(dest_sub, out_daysPost, id, 6);
+        
     end
 end
-
-outPN2 = []; day = 7; doCombMask = 0;
-for id = 1:size(days_1000,2)
-    mouse = days_1000{id};
-    if doCombMask == 1
-        dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',days_pair_folder{id},'\');
-        
-        outPast1 = getData2Cell(dest_sub, outPast1, id, day);
-        
-        outPast1.NR_F_onset_RS{id} = outPast1.NR_F_onset{id}(outD1.RS_cells{id});
-        
-        outPast1.OR_F_onset_RS{id} = outPast1.OR_F_onset{id}(outD1.RS_cells{id});
-        
-        outPast1.cue_rew_fr{id} = sum(outPast1.cue_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
-        
-        outPast1.rew_cue_fr{id} = sum(outPast1.rew_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
-        
-        % find OR resp in Day5 for omission resp cells
-        D1D5_OR_resp_cells = (outD1.OR_resp_cells{id}) & (outPast1.OR_resp_cells{id});
-        
-        dis_OR_resp_cells = (~D1D5_OR_resp_cells) & (outPast1.OR_resp_cells{id}); % OR resp cells in Day5 but not Day1, set resp to 0 for Day1
-        
-        outPast1.OR_resp_RS{id} = outPast1.OR_resp_all{id}(outPast1.OR_resp_cells{id});
-        
-        outD1.OR_resp_RS{id} = outD1.OR_resp_all{id};
-        outD1.OR_resp_RS{id}(dis_OR_resp_cells) = 0; % remove resp from non-resp omission cells 
-        outD1.OR_resp_RS{id}= outD1.OR_resp_RS{id}(outPast1.OR_resp_cells{id});
-
-    else
-        
-        for rID  = 1:2
-            
-            dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[mouse(1:6), '_', runID{rID}, '_', mouse(8:end)],'\');
-            
-            
-            outPN2 = getData2Cell(dest_sub, outPN2, id, day);
-            
-            
-        end
-    end
-end
+% outPN2 = []; day = 7; doCombMask = 0;
+% for id = 1:size(days_1000,2)
+%     mouse = days_1000{id};
+%     if doCombMask == 1
+%         dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',days_pair_folder{id},'\');
+%         
+%         outPast1 = getData2Cell(dest_sub, outPast1, id, day);
+%         
+%         outPast1.NR_F_onset_RS{id} = outPast1.NR_F_onset{id}(outD1.RS_cells{id});
+%         
+%         outPast1.OR_F_onset_RS{id} = outPast1.OR_F_onset{id}(outD1.RS_cells{id});
+%         
+%         outPast1.cue_rew_fr{id} = sum(outPast1.cue_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
+%         
+%         outPast1.rew_cue_fr{id} = sum(outPast1.rew_cells{id} & outD1.rew_cells{id}) / sum(outD1.rew_cells{id});
+%         
+%         % find OR resp in Day5 for omission resp cells
+%         D1D5_OR_resp_cells = (outD1.OR_resp_cells{id}) & (outPast1.OR_resp_cells{id});
+%         
+%         dis_OR_resp_cells = (~D1D5_OR_resp_cells) & (outPast1.OR_resp_cells{id}); % OR resp cells in Day5 but not Day1, set resp to 0 for Day1
+%         
+%         outPast1.OR_resp_RS{id} = outPast1.OR_resp_all{id}(outPast1.OR_resp_cells{id});
+%         
+%         outD1.OR_resp_RS{id} = outD1.OR_resp_all{id};
+%         outD1.OR_resp_RS{id}(dis_OR_resp_cells) = 0; % remove resp from non-resp omission cells 
+%         outD1.OR_resp_RS{id}= outD1.OR_resp_RS{id}(outPast1.OR_resp_cells{id});
+% 
+%     else
+%         
+%         for rID  = 1:2
+%             
+%             dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[mouse(1:6), '_', runID{rID}, '_', mouse(8:end)],'\');
+%             
+%             
+%             outPN2 = getData2Cell(dest_sub, outPN2, id, day);
+%             
+%             
+%         end
+%     end
+% end
 
 day1_ncells = sum(cell2mat(outD1.ncells));
 day1_respcells = sum(cell2mat(outD1.tot_resp));
@@ -168,27 +178,21 @@ print([out_base 'Summary_day1-5_resp_cell.pdf'], '-dpdf');
 
 
 fig = figure;
-subplot(1,2,1)
-scatter_plot(days_1_mouse, outD1.NR_F_onset, outPast1.NR_F_onset, col_mat_s); 
+scatter_plot(days_1_mouse, outD1.NR_F_onset, outPast1.NR_F_onset, [0.5 0.5 0.5]); 
 axis square;
-axis([0 1000 0 1000]);
-x = 0:0.05:1000;
-hold on; plot(x,x,'-k');
+axis([0 1500 0 1500]);
+x = 0:1:1500;
+hold on; plot(x,x,'k');
 xlabel('day 1 latency (ms)'); ylabel('day 5 latency (ms)');
-title('Reward All Cells')
-
-subplot(1,2,2)
-scatter_plot(days_1_mouse, outD1.NR_F_onset_RS, outPast1.NR_F_onset_RS, col_mat_s); 
-axis square;
-axis([0 1000 0 1000]);
-x = 0:0.05:1000;
-hold on; plot(x,x,'-k');
-xlabel('day 1 latency (ms)'); ylabel('day 5 latency (ms)');
+% subplot(1,2,2)
+% scatter_plot(days_1_mouse, outD1.NR_F_onset_RS, outPast1.NR_F_onset_RS, col_mat_s); 
+% axis square;
+% axis([0 1000 0 1000]);
+% x = 0:0.05:1000;
+% hold on; plot(x,x,'-k');
+% xlabel('day 1 latency (ms)'); ylabel('day 5 latency (ms)');
 title(['Reward Responsive Cells From Day1', 'Resp Cells n = ', num2str(day1_respcells)]);
 
-
-
-supertitle('F onset latency relative to cue');
 saveas(fig, [out_base 'Summary_day1-5_Fonset2Cue_resp.fig']);
 print([out_base 'Summary_day1-5_Fonset2Cue_resp.eps'], '-depsc');
 print([out_base 'Summary_day1-5_Fonset2Cue_resp.pdf'], '-dpdf');
@@ -228,13 +232,13 @@ print([out_base 'Summary_day1-5_Fonset2bout_resp.pdf'], '-dpdf');
 % title('Reward')
 
 fig = figure;
-scatter_plot(days_1_mouse, outD1.OR_resp_RS, outPast1.OR_resp_RS, col_mat_s);
+scatter_plot(days_1_mouse, outD1.OR_resp_sc, outPast1.OR_resp_sc, [0.5 0.5 0.5]);
 axis square;
 axis([0 0.6 0 0.6]);
 x = 0:0.1:0.6;
 hold on; plot(x,x,'-k');
 xlabel('day 1 dF/F Peak Amp'); ylabel('day 5 dF/F Peak Amp');
-title(['Reward Omission Resp Peak Amplitude ', 'Day5 omission resp cell n = ', num2str(day5_OR_resp_cells)])
+title(['Reward Omission Resp Peak Amplitude ', 'Day5 omission resp cell n = ', num2str(day1_respcells)])
 
 saveas(fig, [out_base 'Summary_day1-5_FPeak_scatter_omission_resp.fig']);
 print([out_base 'Summary_day1-FPeak_scatter_omission_resp.eps'], '-depsc');
@@ -284,6 +288,47 @@ title(['Reward Omission p=', num2str(p_OR2)]);
 saveas(fig, [out_base 'Summary_day1-5_FonsetLatency_scatter_cells_resp.fig']);
 print([out_base 'Summary_day1-5_FonsetLatency_scatter_cells_resp.eps'], '-depsc');
 print([out_base 'Summary_day1-5_FonsetLatency_scatter_cells_resp.pdf'], '-dpdf');
+
+dest_sub = 'Z:\home\jake\Analysis\Cue_reward_pairing_analysis\2P\180108_000_img070\';
+load([dest_sub '_cue_movies.mat']);
+
+tth = [-pre_cue_frames:post_cue_frames].*double(min((ifi)));
+OR_TC_prevR = cell2mat(out_daysPost.OR_TC_prevR');
+
+OR_TC_prevNR = out_daysPost.OR_TC_prevNR;
+OR_TC_prevNR = cell2mat(OR_TC_prevNR(~cellfun('isempty',OR_TC_prevNR))');
+
+fig = figure;
+hold on
+shadedErrorBar(tth, nanmean(OR_TC_prevR,1), nanstd(OR_TC_prevR,[],1)./sqrt(size(OR_TC_prevR,1)), 'b');
+shadedErrorBar(tth, nanmean(OR_TC_prevNR,1)+0.005, nanstd(OR_TC_prevNR,[],1)./sqrt(size(OR_TC_prevNR,1)), 'r');
+xlabel('Time (ms)')
+ylabel('dff')
+% title('Omission after NoReward: red after Reward: blue');
+title(['Omission after NoReward: red n = ', num2str(size(OR_TC_prevNR,1)), ' after Reward: blue n = ', num2str(size(OR_TC_prevR,1))]);
+saveas(fig, [out_base 'Summary_TC_OR.fig']);
+print([out_base 'Summary_TC_OR.eps'], '-depsc');
+print([out_base 'Summary_TC_OR.pdf'], '-dpdf');
+
+trialLen_prevR = cell2mat(out_daysPost.trialLen_prevR);
+all_resp = cell2mat(out_daysPost.all_resp_RS')';
+trialLen_prevR(isnan(all_resp)) = [];
+all_resp(isnan(all_resp)) = [];
+[LinearCoeff, fit] = polyfit(trialLen_prevR, all_resp, 1);
+Corrfit = polyval(LinearCoeff, trialLen_prevR);
+
+fig = figure;
+scatter_plot(days_1_mouse, out_daysPost.trialLen_prevR, out_daysPost.all_resp_RS', [0.5 0.5 0.5]);
+hold on
+plot(trialLen_prevR, Corrfit, 'color', [0.5, 0.5,0.5], 'Linewidth', 1.5);
+axis square;
+
+xlabel('Time (s)'); ylabel('dF/F Peak Amp');
+title(['Reward Omission Resp Peak Amplitude and Trial Length for trials with previous reward'])
+
+saveas(fig, [out_base 'Summary_PostLearning_dff_trialLength.fig']);
+print([out_base 'Summary_PostLearning_dff_trialLength.eps'], '-depsc');
+print([out_base 'Summary_PostLearning_dff_trialLength.pdf'], '-dpdf');
 
 % hold on
 % plot(x,y,'-k')

@@ -1,13 +1,13 @@
-function [baseline_timesMs, trial_outcome] = find_baseline_times_2P(b_data, trial_outcome, holdT_min);
+function [baseline_timesMs, trial_outcome] = find_baseline_times_2P(b_data, trial_outcome, holdT_min)
 %Determine baseline times: Time windows in which to take an F for df/f
 
 nTrials = length(b_data.trialOutcomeCell);
 baseline_times = zeros(2,nTrials);   %baseline_times will be matrix containing the times (beg and end) of each window during the iti
 %if session is a no-lever control...
-if b_data.doLever == 0 || b_data.doAnalogLever == 0  %if no lever event occurs during that trial   i.e. REWARD ONLY CONDITION
+if  b_data.doLever == 0 || (isfield(b_data, 'doAnalogLever') && b_data.doAnalogLever == 0)  %if no lever event occurs during that trial   i.e. REWARD ONLY CONDITION
     for iT = 1:nTrials;
-        baseline_times(1,iT) = round(b_data.holdStartsMs{iT}+b_data.tTotalReqHoldTimeMs{iT}-900);  %in reward only conditions the window for F is the last 700ms of the iti
-        baseline_times(2,iT) = round(b_data.holdStartsMs{iT}+b_data.tTotalReqHoldTimeMs{iT}-200);
+        baseline_times(1,iT) = round(b_data.holdStartsMs{iT}+b_data.tTotalReqHoldTimeMs{iT}-1000)*1000;  %in reward only conditions the window for F is the last 700ms of the iti
+        baseline_times(2,iT) = round(b_data.holdStartsMs{iT}+b_data.tTotalReqHoldTimeMs{iT})*1000;
     end
 else
     %identify windows of at least 400ms between a lever release and subsequent press. Only takes windows during the iti.
@@ -40,7 +40,7 @@ else
                 ip = tag_prerelease(i);
                 if sum(ismember(ind_press,ip),2)
                     if ip == 1
-                        if leverTimes(1)- (cell2mat(b_data.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 100000; 
+                        if leverTimes(1)- (cell2mat(b_data.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 100000;
                             baseline_times(1,iT) = leverTimes(1) - holdT_min - 100000;
                             baseline_times(2,iT) = leverTimes(1) - 100000;
                             break
@@ -52,7 +52,7 @@ else
                             baseline_times(1,iT) = leverTimes(ip) - holdT_min - 100000;
                             baseline_times(2,iT) = leverTimes(ip) - 100000;
                             break
-                        elseif leverTimes(1)- (cell2mat(b_data.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 100000; 
+                        elseif leverTimes(1)- (cell2mat(b_data.tThisTrialStartTimeMs(iT))*1000) > holdT_min + 100000;
                             baseline_times(1,iT) = leverTimes(1) - holdT_min - 100000;
                             baseline_times(2,iT) = leverTimes(1) - 100000;
                             break
@@ -63,10 +63,8 @@ else
         end
     end
 end
-ex_trials = length(find(isnan(baseline_times(1,:)))); 
-if b_data.doLever == 0 || b_data.doAnalogLever == 0
-    baseline_timesMs = baseline_times;
-else
-    baseline_timesMs = round(baseline_times/1000);
+ex_trials = length(find(isnan(baseline_times(1,:))));
+
+baseline_timesMs = round(baseline_times/1000);
 end
 

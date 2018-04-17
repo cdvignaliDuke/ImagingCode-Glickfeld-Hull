@@ -11,7 +11,8 @@ load([dest 'parse_behavior.mat'])
 load([dest_sub '_pvals.mat'])
 load([dest_sub '_cell_categories.mat']);
 load([dest_sub 'ROI_TCs.mat'])
-load([dest_sub '_cue_movies_lick.mat'])
+load([dest_sub '_cue_movies_lick.mat']); load([dest_sub '_cue_movies.mat']); 
+pre_rew_frames = pre_cue_frames + round((trial_outcome.normalReward(1) - trial_outcome.normalRewardCue(1))/ifi);
 
 nCells = size(tc_avg,2);
 RS_cells = allresp_cells;
@@ -365,6 +366,7 @@ all_UR_hist = zeros(sz1,nCells);
 all_NR_nolick_hist = zeros(sz1,nCells);
 all_OR_nolick_hist = zeros(sz1,nCells);
 all_UR_nolick_hist = zeros(sz1,nCells);
+NegRate_cell = [];
 % all_success_syn = zeros(sz1,sz_s,nCells);
 % all_fail_syn = zeros(sz1,sz_f,nCells);
 
@@ -393,6 +395,31 @@ for ic = 1:nCells
     
     if ~isempty(omitCue)
         all_OR_hist(:,ic) = mean(omitCue(ic).hist,2);
+        all_OR_hist_baseRate(:,ic) = all_OR_hist(pre_cue_frames - 6 : pre_cue_frames, ic);
+        all_OR_hist_NegRate(:,ic) = all_OR_hist(pre_rew_frames : pre_rew_frames + 12, ic);
+        
+        diff_NegRate = diff(all_OR_hist_NegRate(:,ic));
+        decrease_idx = find(diff_NegRate < 0, 1, 'first');
+        
+        if ( diff_NegRate(2) < 0) && ( mean(all_OR_hist_NegRate(1:2,ic),1) < mean(all_OR_hist_baseRate(:,ic),1) )
+            NegRate_cell = [NegRate_cell ic];
+        end
+%         v = all_OR_hist_NegRate(:,ic);
+%         [maxtab, mintab] = peakdet(v, 0.001);
+%         if ~isempty(mintab) && ~isempty(maxtab)
+%             max_peak = maxtab(maxtab(:,2) == max(maxtab(:,2)),:);
+%             max_peak_idx = max_peak(1,1);
+%             max_peak = max_peak(1,2);
+%             
+%             
+%             min_peak = mintab(mintab(:,2) == min(mintab(:,2)),:);
+%             min_peak_idx = min_peak(1,1);
+%             min_peak = min_peak(1,2);
+%             
+%             if min_peak < mean(all_OR_hist_baseRate(:,ic)) && max_peak_idx > min_peak_idx
+%                 NegRate_cell = [NegRate_cell ic];
+%             end
+%         end
     end
     if ~isempty(unexpCue)
         all_UR_hist(:,ic) = mean(unexpCue(ic).hist,2);
@@ -410,15 +437,18 @@ for ic = 1:nCells
 end
 
 fig=figure;
-errorbar(ts,nanmean(all_NR_hist.*(1000/double(ifi)),2),nanstd(all_NR_hist.*(1000/double(ifi)),[],2)./sqrt(size(all_NR_hist,2)),'k')
+% errorbar(ts,nanmean(all_NR_hist.*(1000/double(ifi)),2),nanstd(all_NR_hist.*(1000/double(ifi)),[],2)./sqrt(size(all_NR_hist,2)),'k')
+plot(ts,nanmean(all_NR_hist.*(1000/double(ifi)),2), 'k');
 if ~isempty(omitCue)
     hold on
-    errorbar(ts,nanmean(all_OR_hist.*(1000/double(ifi)),2),nanstd(all_OR_hist.*(1000/double(ifi)),[],2)./sqrt(size(all_OR_hist,2)),'r')
+%     errorbar(ts,nanmean(all_OR_hist.*(1000/double(ifi)),2),nanstd(all_OR_hist.*(1000/double(ifi)),[],2)./sqrt(size(all_OR_hist,2)),'r')
+    plot(ts, nanmean(all_OR_hist.*(1000/double(ifi)),2), 'r');
 end
 
 if ~isempty(unexpCue)
     hold on
-    errorbar(ts,nanmean(all_UR_hist.*(1000/double(ifi)),2),nanstd(all_UR_hist.*(1000/double(ifi)),[],2)./sqrt(size(all_UR_hist,2)),'r')
+%     errorbar(ts,nanmean(all_UR_hist.*(1000/double(ifi)),2),nanstd(all_UR_hist.*(1000/double(ifi)),[],2)./sqrt(size(all_UR_hist,2)),'g')
+    plot(ts, nanmean(all_UR_hist.*(1000/double(ifi)),2), 'g');
 end
 
 xlabel('Time (ms)')
@@ -428,6 +458,47 @@ saveas(fig, [dest_sub '_all_event_avgPSTH.fig']);
 print([dest_sub '_all_event_avgPSTH.eps'], '-depsc');
 print([dest_sub '_all_event_avgPSTH.pdf'], '-dpdf');
 
+% errorbar(ts,nanmean(all_NR_hist.*(1000/double(ifi)),2),nanstd(all_NR_hist.*(1000/double(ifi)),[],2)./sqrt(size(all_NR_hist,2)),'k')
+
+if ~isempty(omitCue) && ~isempty(NegRate_cell)
+    fig = figure;
+    
+    nn = ceil(sqrt(length(NegRate_cell)));
+    if length(NegRate_cell) <((nn.^2)-nn)
+        nn2= nn-1;
+    else
+        nn2 = nn;
+    end
+    for ic = 1:length(NegRate_cell)
+        subplot(nn,nn2,ic)
+        %     errorbar(tt,avg_NR(ic,:), sem_NR(ic,:),'k');hold on;
+        %     errorbar(tt,avg_OR(ic,:), sem_OR(ic,:),'r');
+        %     errorbar(tt,avg_UR(ic,:), sem_UR(ic,:),'b');
+        plot(ts,all_OR_hist(:,NegRate_cell(ic)).*(1000/double(ifi)),'r');hold on;
+        hold on; vline((pre_rew_frames - pre_buffer)*33, '--k');
+        ylim([0 4])
+        xlim([500 1000])
+        %     set(gca,'XTick',[)
+    end
+    suptitle([date ' ' mouse ' Average cue resp: Normal- black (n = ' num2str(size(NR_movie,1)) ' trials); Omit- red (n = ' num2str(size(OR_movie,1)) ' trials); Unexpect- green (n = ' num2str(size(UR_movie,1)) ' trials)'])
+    orient landscape
+    
+    
+    fig=figure;
+    hold on
+    %     errorbar(ts,nanmean(all_OR_hist.*(1000/double(ifi)),2),nanstd(all_OR_hist.*(1000/double(ifi)),[],2)./sqrt(size(all_OR_hist,2)),'r')
+    plot(ts, nanmean(all_OR_hist(:, NegRate_cell).*(1000/double(ifi)),2), 'r');
+    vline((pre_rew_frames - pre_buffer)*33, '--k');
+    title(['nCells with decrease firing rate = ', num2str(length(NegRate_cell))]);
+    xlabel('Time (ms)')
+    ylabel('Firing rate (Hz)')
+    saveas(fig, [dest_sub '_neg_event_avgPSTH.fig']);
+    print([dest_sub '_neg_event_avgPSTH.eps'], '-depsc');
+    print([dest_sub '_neg_event_avgPSTH.pdf'], '-dpdf');
+    all_OR_hist_negR = all_OR_hist(:, NegRate_cell);
+else
+    all_OR_hist_negR = [];
+end
 
 % all_success_syn = permute(all_success_syn,[1 3 2]); % frames cells events
 % success_syn_all = zeros(1,sz_s);
@@ -677,7 +748,7 @@ end
 %     'fail_syn_all', 'fail_syn_cell', 'success_syn_all', 'success_syn_cell', 'fail_syn_RS', 'fail_syn_cell_RS', 'success_syn_cell', ...
 %     'success_syn_cell_RS', 'success_syn_RS');
 save([dest_sub '_event_hist.mat'], 'NR_ind_all', 'OR_ind_all', 'all_NR_hist', 'all_OR_hist', 'all_UR_hist', 'all_NR_nolick_hist', ...
-    'all_OR_nolick_hist', 'all_UR_nolick_hist', 'NR_ind_RS', 'OR_ind_RS');
+    'all_OR_nolick_hist', 'all_UR_nolick_hist', 'NR_ind_RS', 'OR_ind_RS', 'all_OR_hist_negR');
 
 %% compare spontaneous and evoked event amplitudes and waveforms
 %compare amplitude distributions of triggered events

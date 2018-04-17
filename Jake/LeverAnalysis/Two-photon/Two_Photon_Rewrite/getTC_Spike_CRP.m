@@ -17,7 +17,7 @@ load([dest 'parse_behavior.mat'])
 %extract spontaneous windows
 
 Sampeling_rate = 1000/ifi;
-pre_buffer = ceil(2000/double(ifi));  
+pre_buffer = ceil(1000/double(ifi));  
 post_buffer = ceil(2000/double(ifi));
 
 empty_ind = find(~cellfun(@isempty, input.counterValues));
@@ -133,7 +133,7 @@ else
 end
 
 % find Cue for NR and OR
-pre_buffer = ceil(2000/double(ifi));
+pre_buffer = ceil(1000/double(ifi));
 post_buffer = ceil(2000/double(ifi));
 Cuedata_start = ceil(300/double(ifi));
 Cuedata_end = ceil(600/double(ifi));

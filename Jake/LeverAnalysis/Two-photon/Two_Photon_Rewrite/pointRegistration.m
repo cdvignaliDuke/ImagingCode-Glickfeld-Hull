@@ -1,6 +1,4 @@
 %% control point method
-%selects three points and uses those to register the image. Linear
-%registration. Lindsey. 
 % data_avg = mean(img2,3);
 % target_avg = mean(img2,3);
 % AVG = double(data_avg);
@@ -20,7 +18,20 @@
 %% Thresholding Method
 % session 1, do not need many frames
 % homomorphic filtering remove multiplicative noise
-[data, pre] = homomorphicFilter(img_reg(:,:,1:10:120000/2));
+% [data, pre] = homomorphicFilter(img(:,:,1:10:end/2));
+data = [];
+for ff = 1:floor(size(img_reg,3)/5)
+    ff
+    data = cat(3, data, mean(img_reg(:,:,(ff-1)*5+1:ff*5),3));
+end
+
+data2 = [];
+for ff = 1:floor(size(img_reg2,3)/5)
+    ff
+    data2 = cat(3, data2, mean(img_reg2(:,:,(ff-1)*5+1:ff*5),3));
+end
+
+[data, pre] = homomorphicFilter(img_reg(:,:,1:4:end));
 % select rois based on intensity
 roi = detectSingleFrameRois(data);
 % combine/remove overlapped cells 
@@ -30,18 +41,20 @@ threshold = 0.8;
 [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:10000), mask_final, threshold, out_dir);
 
 % session 2
-[data2, pre] = homomorphicFilter(img_reg2(:,:,1:10:130000/2));
+
+[data2, pre] = homomorphicFilter(img_reg2(:,:,1:4:end));
 roi_2 = detectSingleFrameRois(data2);
 mask_final_2 = processMaskpfgc(roi_2);
 threshold = 0.8;
-[ ~, mask3D, ~] = finalMask(img_reg2(:,:,1:10000), mask_final, threshold, out_dir);
+[ ~, mask3D, ~] = finalMask(img_reg2(:,:,1:10000), mask_final_2, threshold, out_dir);
 
 % some ways to show cells like contour
 figure;
-imshow(mat2gray(mean(img_test,3)));truesize
+imshow(mat2gray(mean(overlay,3)));truesize
 for i = 1:size(mask3D,3) 
     hold on
     contour(mask3D(:,:,i),'g')
+    
 end
 for i = 1:size(mask3D_2,3)
     hold on
@@ -51,21 +64,22 @@ end
 
 % the amount of xy shift based on visual inspection, can adjust after 
 % viewing the merged mask in ImageJ
-xshift = -6; %img92 ((87 - 107) + (99 - 120))/2 or -24; img90 -6;
-yshift = 12;%img92 ((184 - 192) + (60 - 66))/2 ; img90 12;
+xshift = 12; %img92 ((87 - 107) + (99 - 120))/2 or -24; img90 -6;
+yshift = 10;%img92 ((184 - 192) + (60 - 66))/2 ; img90 12;
 img_reg_1000_1 = img_reg(:,:,1:1000);
 img_reg_1000_2 = img_reg2(:,:,1:1000);
 
 % using Matlab imtranslate first to move image and then stackRegister to
 % register and upsampling
-registered = imtranslate(img_reg_1000_2(:,:,1), [xshift,yshift]);
+registered = imtranslate(img_reg2(:,:,1), [xshift,yshift]);
 [~,registered] = stackRegister(img_reg_1000_2, registered, 10);
 
 % just some ways to show before and after
 % session 1 sample image
 [data, ~] = homomorphicFilter(img_reg_1000_1(:,:,2:end));
 mean_data1 = mean(data,3);
-figure;imagesc(mean_data1); truesize
+% figure;imagesc(mean_data1);truesize;
+% figure;imshow(mat2gray(mean_data1)); truesize
 % session 2 sample image
 [data2_ori, ~] = homomorphicFilter(img_reg_1000_2(:,:,2:end));
 mean_data2_ori = mean(data2_ori,3);
@@ -73,9 +87,25 @@ figure;imagesc(mean_data2_ori);truesize
 % cross session registration example of session 2
 [data2, ~] = homomorphicFilter(registered(:,:,2:end));
 mean_data2 = mean(data2,3);
-figure;imagesc(mean_data2);truesize
+figure;subplot(1,2,1);imagesc(mean_data1); axis off
+subplot(1,2,2);imagesc(img_comb_ref); axis off; truesize
 
-overlay = imfuse(mean_data1, mean_data2,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);figure;imagesc(overlay);truesize
+figure;subplot(1,2,1);imshow(histeq(mat2gray(mean_data1))); axis off
+subplot(1,2,2);imshow(mat2gray(img_comb_ref)); axis off;truesize
 
-boundaries = rangefilt(reshape(mask_final,264,796),ones(3)) > 0;
-figure;imoverlay(mask1,boundaries,[0 0 0]);
+[D, img_comb_ref] = imregdemons(mean_data2, mean_data1, [32 16 8 4],'AccumulatedFieldSmoothing',2.5,'PyramidLevels',4);
+
+overlay = imfuse(mean_data1, img_comb_ref,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);figure;imagesc(overlay);truesize
+
+mask1 = mask_raw; mask1(mask1>0) = 1; 
+mask2 = warp_test; mask2(mask2>0) = 2;
+mask3 = mask1 + mask2;
+mask1 = mask_raw; mask2 = warp_test;
+mask1(mask3==3) = 200;
+mask2(mask3==3) = 0;
+mask3 = mask1 + mask2;
+overlay = imfuse(mask1, mask2,'falsecolor','Scaling','independent','ColorChannels',[2 1 0]);figure;imagesc(overlay);truesize
+
+overlay = imfuse(mask1,mask2,'blend','Scaling','joint');figure;imagesc(overlay);truesize
+% boundaries = rangefilt(mask2,ones(3)) > 0;
+% figure;imoverlay(mask1,boundaries,[0 0 0]);

@@ -34,9 +34,6 @@ end
 %     end
 % end
 figure;
-if ~isempty(find(sm_dsum>1))
-    sm_dsum(find(sm_dsum>1)) = 1;
-end
 fig = image(sm_dsum);
 axis image;
 if saveData == 1

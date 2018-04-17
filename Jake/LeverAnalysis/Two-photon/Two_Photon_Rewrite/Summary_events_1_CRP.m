@@ -19,7 +19,7 @@ for id = 1:size(days_1,2)
             load([dest_sub '_cell_TCs.mat']);
             load([dest_sub '_event_hist.mat']);
             load([dest_sub '_cue_movies.mat']);
-            load([dest_sub '_norm2spont.mat']);
+%             load([dest_sub '_norm2spont.mat']);
 %             load([out_base, 'cell_count.mat']);
             
             ncells(id) = nCells;
@@ -71,29 +71,29 @@ for id = 1:size(days_1,2)
             NR_RS_D1_plot{id} = ones(size(NR_ind_RS));
             OR_RS_D1_plot{id} = ones(size(OR_ind_RS));
             
-            normalR_norm_all_D1{id} = normalR_norm_avg;
-            omitR_norm_all_D1{id} = omitR_norm_avg;
-            spont_norm_all_D1{id} = spont_norm_avg;
-            normalCue_norm_all_D1{id} = normalCue_norm_avg;
-            omitCue_norm_all_D1{id} = omitCue_norm_avg;
+%             normalR_norm_all_D1{id} = normalR_norm_avg;
+%             omitR_norm_all_D1{id} = omitR_norm_avg;
+%             spont_norm_all_D1{id} = spont_norm_avg;
+%             normalCue_norm_all_D1{id} = normalCue_norm_avg;
+%             omitCue_norm_all_D1{id} = omitCue_norm_avg;
             
-            normalR_norm_RS_D1{id} = normalR_norm_avg(:,RS_cells_D1{id});
-            omitR_norm_RS_D1{id} = omitR_norm_avg(:,RS_cells_D1{id});
-            spont_norm_RS_D1{id} = spont_norm_avg(:,RS_cells_D1{id});
-            normalCue_norm_RS_D1{id} = normalCue_norm_avg(:,RS_cells_D1{id});
-            omitCue_norm_RS_D1{id} = omitCue_norm_avg(:,RS_cells_D1{id});
+%             normalR_norm_RS_D1{id} = normalR_norm_avg(:,RS_cells_D1{id});
+%             omitR_norm_RS_D1{id} = omitR_norm_avg(:,RS_cells_D1{id});
+%             spont_norm_RS_D1{id} = spont_norm_avg(:,RS_cells_D1{id});
+%             normalCue_norm_RS_D1{id} = normalCue_norm_avg(:,RS_cells_D1{id});
+%             omitCue_norm_RS_D1{id} = omitCue_norm_avg(:,RS_cells_D1{id});
+%             
+%             normalR_norm1_all_D1{id} = normalR_norm1_avg;
+%             omitR_norm1_all_D1{id} = omitR_norm1_avg;
+%             spont_norm1_all_D1{id} = spont_norm1_avg;
+%             normalCue_norm1_all_D1{id} = normalCue_norm1_avg;
+%             omitCue_norm1_all_D1{id} = omitCue_norm1_avg;
             
-            normalR_norm1_all_D1{id} = normalR_norm1_avg;
-            omitR_norm1_all_D1{id} = omitR_norm1_avg;
-            spont_norm1_all_D1{id} = spont_norm1_avg;
-            normalCue_norm1_all_D1{id} = normalCue_norm1_avg;
-            omitCue_norm1_all_D1{id} = omitCue_norm1_avg;
-            
-            normalR_norm1_RS_D1{id} = normalR_norm1_avg(:,RS_cells_D1{id});
-            omitR_norm1_RS_D1{id} = omitR_norm1_avg(:,RS_cells_D1{id});
-            spont_norm1_RS_D1{id} = spont_norm1_avg(:,RS_cells_D1{id});
-            normalCue_norm1_RS_D1{id} = normalCue_norm1_avg(:,RS_cells_D1{id});
-            omitCue_norm1_RS_D1{id} = omitCue_norm1_avg(:,RS_cells_D1{id});
+%             normalR_norm1_RS_D1{id} = normalR_norm1_avg(:,RS_cells_D1{id});
+%             omitR_norm1_RS_D1{id} = omitR_norm1_avg(:,RS_cells_D1{id});
+%             spont_norm1_RS_D1{id} = spont_norm1_avg(:,RS_cells_D1{id});
+%             normalCue_norm1_RS_D1{id} = normalCue_norm1_avg(:,RS_cells_D1{id});
+%             omitCue_norm1_RS_D1{id} = omitCue_norm1_avg(:,RS_cells_D1{id});
 %             
             rate_D1{id} = events_rate;
             
@@ -125,7 +125,7 @@ for id = 1:size(days_post,2)
             load([dest_sub '_cell_TCs.mat']);
             load([dest_sub '_event_hist.mat']);
             load([dest_sub '_cue_movies.mat']);
-            load([dest_sub '_norm2spont.mat']);
+%             load([dest_sub '_norm2spont.mat']);
             load([dest_sub '_spont_events.mat']);
              
             RS_cells_P1{id} = allresp_cells;
@@ -135,22 +135,24 @@ for id = 1:size(days_post,2)
             normalR_hist_RS_P1{id} = all_NR_hist(:,RS_cells_P1{id}).*(1000/double(ifi));
             omitR_hist_RS_P1{id} = all_OR_hist(:,RS_cells_P1{id}).*(1000/double(ifi));
             
-            normalR_hist_rewPos_P1{id} = all_NR_hist(:,NR_Rew_resp_pos_cells).*(1000/double(ifi));
-            normalR_hist_rewNeg_P1{id} = all_NR_hist(:,NR_Rew_resp_neg_cells).*(1000/double(ifi));
-            omitR_hist_rewPos_P1{id} = all_OR_hist(:,OR_Rew_resp_pos_cells).*(1000/double(ifi));
-            omitR_hist_rewNeg_P1{id} = all_OR_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
-            normalR_hist_ORNeg_P1{id} = all_NR_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             normalR_hist_rewPos_P1{id} = all_NR_hist(:,NR_Rew_resp_pos_cells).*(1000/double(ifi));
+%             normalR_hist_rewNeg_P1{id} = all_NR_hist(:,NR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             omitR_hist_rewPos_P1{id} = all_OR_hist(:,OR_Rew_resp_pos_cells).*(1000/double(ifi));
+%             omitR_hist_rewNeg_P1{id} = all_OR_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             normalR_hist_ORNeg_P1{id} = all_NR_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
             
             normalR_hist_nolick_P1{id} = all_NR_nolick_hist.*(1000/double(ifi));
             omitR_hist_nolick_P1{id} = all_OR_nolick_hist.*(1000/double(ifi));
             normalR_hist_nolick_RS_P1{id} = all_NR_nolick_hist(:,RS_cells_P1{id}).*(1000/double(ifi));
             omitR_hist_nolick_RS_P1{id} = all_OR_nolick_hist(:,RS_cells_P1{id}).*(1000/double(ifi));
             
-            normalR_hist_nolick_rewPos_P1{id} = all_NR_nolick_hist(:,NR_Rew_resp_pos_cells).*(1000/double(ifi));
-            normalR_hist_nolick_rewNeg_P1{id} = all_NR_nolick_hist(:,NR_Rew_resp_neg_cells).*(1000/double(ifi));
-            omitR_hist_nolick_rewPos_P1{id} = all_OR_nolick_hist(:,OR_Rew_resp_pos_cells).*(1000/double(ifi));
-            omitR_hist_nolick_rewNeg_P1{id} = all_OR_nolick_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
-            normalR_hist_nolick_ORNeg_P1{id} = all_NR_nolick_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             normalR_hist_nolick_rewPos_P1{id} = all_NR_nolick_hist(:,NR_Rew_resp_pos_cells).*(1000/double(ifi));
+%             normalR_hist_nolick_rewNeg_P1{id} = all_NR_nolick_hist(:,NR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             omitR_hist_nolick_rewPos_P1{id} = all_OR_nolick_hist(:,OR_Rew_resp_pos_cells).*(1000/double(ifi));
+%             omitR_hist_nolick_rewNeg_P1{id} = all_OR_nolick_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             normalR_hist_nolick_ORNeg_P1{id} = all_NR_nolick_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+            
+            omitR_hist_nolick_NegRate_P1{id} = all_OR_hist_negR.*(1000/double(ifi));
             
             NR_ind_P1{id} = (NR_ind_all-1).*double(ifi);
             OR_ind_P1{id} = (OR_ind_all-1).*double(ifi);
@@ -162,29 +164,29 @@ for id = 1:size(days_post,2)
             NR_RS_P1_plot{id} = 2*ones(size(NR_ind_RS));
             OR_RS_P1_plot{id} = 2*ones(size(OR_ind_RS));
             
-            normalR_norm_all_P1{id} = normalR_norm_avg;
-            omitR_norm_all_P1{id} = omitR_norm_avg;
-            spont_norm_all_P1{id} = spont_norm_avg;
-            normalCue_norm_all_P1{id} = normalCue_norm_avg;
-            omitCue_norm_all_P1{id} = omitCue_norm_avg;
-            
-            normalR_norm_RS_P1{id} = normalR_norm_avg(:,RS_cells_P1{id});
-            omitR_norm_RS_P1{id} = omitR_norm_avg(:,RS_cells_P1{id});
-            spont_norm_RS_P1{id} = spont_norm_avg(:,RS_cells_P1{id});
-            normalCue_norm_RS_P1{id} = normalCue_norm_avg(:,RS_cells_P1{id});
-            omitCue_norm_RS_P1{id} = omitCue_norm_avg(:,RS_cells_P1{id});
-            
-            normalR_norm1_all_P1{id} = normalR_norm1_avg;
-            omitR_norm1_all_P1{id} = omitR_norm1_avg;
-            spont_norm1_all_P1{id} = spont_norm1_avg;
-            normalCue_norm1_all_P1{id} = normalCue_norm1_avg;
-            omitCue_norm1_all_P1{id} = omitCue_norm1_avg;
-            
-            normalR_norm1_RS_P1{id} = normalR_norm1_avg(:,RS_cells_P1{id});
-            omitR_norm1_RS_P1{id} = omitR_norm1_avg(:,RS_cells_P1{id});
-            spont_norm1_RS_P1{id} = spont_norm1_avg(:,RS_cells_P1{id});
-            normalCue_norm1_RS_P1{id} = normalCue_norm1_avg(:,RS_cells_P1{id});
-            omitCue_norm1_RS_P1{id} = omitCue_norm1_avg(:,RS_cells_P1{id});
+%             normalR_norm_all_P1{id} = normalR_norm_avg;
+%             omitR_norm_all_P1{id} = omitR_norm_avg;
+%             spont_norm_all_P1{id} = spont_norm_avg;
+%             normalCue_norm_all_P1{id} = normalCue_norm_avg;
+%             omitCue_norm_all_P1{id} = omitCue_norm_avg;
+%             
+%             normalR_norm_RS_P1{id} = normalR_norm_avg(:,RS_cells_P1{id});
+%             omitR_norm_RS_P1{id} = omitR_norm_avg(:,RS_cells_P1{id});
+%             spont_norm_RS_P1{id} = spont_norm_avg(:,RS_cells_P1{id});
+%             normalCue_norm_RS_P1{id} = normalCue_norm_avg(:,RS_cells_P1{id});
+%             omitCue_norm_RS_P1{id} = omitCue_norm_avg(:,RS_cells_P1{id});
+%             
+%             normalR_norm1_all_P1{id} = normalR_norm1_avg;
+%             omitR_norm1_all_P1{id} = omitR_norm1_avg;
+%             spont_norm1_all_P1{id} = spont_norm1_avg;
+%             normalCue_norm1_all_P1{id} = normalCue_norm1_avg;
+%             omitCue_norm1_all_P1{id} = omitCue_norm1_avg;
+%             
+%             normalR_norm1_RS_P1{id} = normalR_norm1_avg(:,RS_cells_P1{id});
+%             omitR_norm1_RS_P1{id} = omitR_norm1_avg(:,RS_cells_P1{id});
+%             spont_norm1_RS_P1{id} = spont_norm1_avg(:,RS_cells_P1{id});
+%             normalCue_norm1_RS_P1{id} = normalCue_norm1_avg(:,RS_cells_P1{id});
+%             omitCue_norm1_RS_P1{id} = omitCue_norm1_avg(:,RS_cells_P1{id});
             
             rate_P1{id} = events_rate;
             
@@ -244,22 +246,24 @@ for id = 1:size(days_1000,2)
             normalR_hist_RS_PN2{id} = all_NR_hist(:,RS_cells_PN2{id}).*(1000/double(ifi));
             omitR_hist_RS_PN2{id} = all_OR_hist(:,RS_cells_PN2{id}).*(1000/double(ifi));
             
-            normalR_hist_rewPos_PN2{id} = all_NR_hist(:,NR_Rew_resp_pos_cells).*(1000/double(ifi));
-            normalR_hist_rewNeg_PN2{id} = all_NR_hist(:,NR_Rew_resp_neg_cells).*(1000/double(ifi));
-            omitR_hist_rewPos_PN2{id} = all_OR_hist(:,OR_Rew_resp_pos_cells).*(1000/double(ifi));
-            omitR_hist_rewNeg_PN2{id} = all_OR_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
-            normalR_hist_ORNeg_PN2{id} = all_NR_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             normalR_hist_rewPos_PN2{id} = all_NR_hist(:,NR_Rew_resp_pos_cells).*(1000/double(ifi));
+%             normalR_hist_rewNeg_PN2{id} = all_NR_hist(:,NR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             omitR_hist_rewPos_PN2{id} = all_OR_hist(:,OR_Rew_resp_pos_cells).*(1000/double(ifi));
+%             omitR_hist_rewNeg_PN2{id} = all_OR_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             normalR_hist_ORNeg_PN2{id} = all_NR_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             
+            omitR_hist_nolick_NegRate_PN2{id} = all_OR_hist_negR.*(1000/double(ifi));
             
             normalR_hist_nolick_PN2{id} = all_NR_nolick_hist.*(1000/double(ifi));
             omitR_hist_nolick_PN2{id} = all_OR_nolick_hist.*(1000/double(ifi));
             normalR_hist_nolick_RS_PN2{id} = all_NR_nolick_hist(:,RS_cells_PN2{id}).*(1000/double(ifi));
             omitR_hist_nolick_RS_PN2{id} = all_OR_nolick_hist(:,RS_cells_PN2{id}).*(1000/double(ifi));
             
-            normalR_hist_nolick_rewPos_PN2{id} = all_NR_nolick_hist(:,NR_Rew_resp_pos_cells).*(1000/double(ifi));
-            normalR_hist_nolick_rewNeg_PN2{id} = all_NR_nolick_hist(:,NR_Rew_resp_neg_cells).*(1000/double(ifi));
-            omitR_hist_nolick_rewPos_PN2{id} = all_OR_nolick_hist(:,OR_Rew_resp_pos_cells).*(1000/double(ifi));
-            omitR_hist_nolick_rewNeg_PN2{id} = all_OR_nolick_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
-            normalR_hist_nolick_ORNeg_PN2{id} = all_NR_nolick_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             normalR_hist_nolick_rewPos_PN2{id} = all_NR_nolick_hist(:,NR_Rew_resp_pos_cells).*(1000/double(ifi));
+%             normalR_hist_nolick_rewNeg_PN2{id} = all_NR_nolick_hist(:,NR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             omitR_hist_nolick_rewPos_PN2{id} = all_OR_nolick_hist(:,OR_Rew_resp_pos_cells).*(1000/double(ifi));
+%             omitR_hist_nolick_rewNeg_PN2{id} = all_OR_nolick_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
+%             normalR_hist_nolick_ORNeg_PN2{id} = all_NR_nolick_hist(:,OR_Rew_resp_neg_cells).*(1000/double(ifi));
             
             rate_PN2{id} = events_rate;
             
@@ -619,18 +623,19 @@ normalR_hist_nolick_RS_P1{3} = [];
 omitR_hist_nolick_RS_P1{3}=[];
 NR_hist_NL_RS_P1 = cell2mat(normalR_hist_nolick_RS_P1)';
 OR_hist_NL_RS_P1 = cell2mat(omitR_hist_nolick_RS_P1)';
+OR_hist_NL_NegCell_P1 = cell2mat(omitR_hist_nolick_NegRate_P1)';
 
-NR_hist_RewPos_P1 = cell2mat(normalR_hist_rewPos_P1)';
-NR_hist_RewNeg_P1 = cell2mat(normalR_hist_rewNeg_P1)';
-OR_hist_RewPos_P1 = cell2mat(omitR_hist_rewPos_P1)';
-OR_hist_RewNeg_P1 = cell2mat(omitR_hist_rewNeg_P1)';
-NR_hist_ORNeg_P1 = cell2mat(normalR_hist_ORNeg_P1)';
-
-NR_hist_NL_RewPos_P1 = cell2mat(normalR_hist_nolick_rewPos_P1)';
-NR_hist_NL_RewNeg_P1 = cell2mat(normalR_hist_nolick_rewNeg_P1)';
-OR_hist_NL_RewPos_P1 = cell2mat(omitR_hist_nolick_rewPos_P1)';
-OR_hist_NL_RewNeg_P1 = cell2mat(omitR_hist_nolick_rewNeg_P1)';
-NR_hist_NL_ORNeg_P1 = cell2mat(normalR_hist_nolick_ORNeg_P1)';
+% NR_hist_RewPos_P1 = cell2mat(normalR_hist_rewPos_P1)';
+% NR_hist_RewNeg_P1 = cell2mat(normalR_hist_rewNeg_P1)';
+% OR_hist_RewPos_P1 = cell2mat(omitR_hist_rewPos_P1)';
+% OR_hist_RewNeg_P1 = cell2mat(omitR_hist_rewNeg_P1)';
+% NR_hist_ORNeg_P1 = cell2mat(normalR_hist_ORNeg_P1)';
+% 
+% NR_hist_NL_RewPos_P1 = cell2mat(normalR_hist_nolick_rewPos_P1)';
+% NR_hist_NL_RewNeg_P1 = cell2mat(normalR_hist_nolick_rewNeg_P1)';
+% OR_hist_NL_RewPos_P1 = cell2mat(omitR_hist_nolick_rewPos_P1)';
+% OR_hist_NL_RewNeg_P1 = cell2mat(omitR_hist_nolick_rewNeg_P1)';
+% NR_hist_NL_ORNeg_P1 = cell2mat(normalR_hist_nolick_ORNeg_P1)';
 
 NR_hist_PN1 = cell2mat(normalR_hist_PN1)';
 UR_hist_PN1 = cell2mat(unexpR_hist_PN1)';
@@ -651,6 +656,7 @@ normalR_hist_nolick_RS_PN2{3}=[];
 omitR_hist_nolick_RS_PN2{3}=[];
 NR_hist_NL_RS_PN2 = cell2mat(normalR_hist_nolick_RS_PN2)';
 OR_hist_NL_RS_PN2 = cell2mat(omitR_hist_nolick_RS_PN2)';
+OR_hist_NL_NegCell_PN2 = cell2mat(omitR_hist_nolick_NegRate_PN2)';
 
 NR_hist_RewPos_PN2 = cell2mat(normalR_hist_rewPos_PN2)';
 NR_hist_RewNeg_PN2 = cell2mat(normalR_hist_rewNeg_PN2)';
@@ -665,6 +671,32 @@ OR_hist_NL_RewNeg_PN2 = cell2mat(omitR_hist_nolick_rewNeg_PN2)';
 NR_hist_NL_ORNeg_PN2 = cell2mat(normalR_hist_nolick_ORNeg_PN2)';
 
 tth = [1-(size(NR_hist_D1,2)/2):(size(NR_hist_D1,2)/2)].*double(min((ifi)));
+
+fig = figure;
+subplot(1,2,1)
+shadedErrorBar(tth, nanmean(OR_hist_NL_NegCell_P1,1), nanstd(OR_hist_NL_NegCell_P1,[],1)./sqrt(size(OR_hist_NL_NegCell_P1,1)), 'r')
+xlim([-1500 1500])
+ylim([0 3])
+hold on; vline(600, '--k')
+axis square
+xlabel('Time (ms)')
+ylabel('Firing rate (Hz)')
+title(['Post Learning DayN+1 for Cells with Decreased Spike Rate, nCell = ', num2str(size(OR_hist_NL_NegCell_P1,1))]);
+
+
+subplot(1,2,2)
+shadedErrorBar(tth, nanmean(OR_hist_NL_NegCell_PN2,1), nanstd(OR_hist_NL_NegCell_PN2,[],1)./sqrt(size(OR_hist_NL_NegCell_PN2,1)), 'r')
+xlim([-1500 1500])
+ylim([0 3])
+hold on; vline(1100, '--k')
+axis square
+xlabel('Time (ms)')
+ylabel('Firing rate (Hz)')
+title(['Post Learning DayN+3 for Cells with Decreased Spike Rate, nCell = ', num2str(size(OR_hist_NL_NegCell_PN2,1))]);
+saveas(fig, [out_base 'Summary_PSTH_avgexpt_30Hz_OR.fig']);
+print([out_base 'Summary_PSTH_avgexpt_30Hz_OR.eps'], '-depsc');
+print([out_base 'Summary_PSTH_avgexpt_30Hz_OR.pdf'], '-dpdf');
+
 
 fig=figure;
 subplot(2,2,1)

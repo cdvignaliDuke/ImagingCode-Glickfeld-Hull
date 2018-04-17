@@ -2,60 +2,6 @@ function mask_final = processMask(mask_cell)
 [npw, nph, nIC] = size(mask_cell);
 mask_cell_temp = zeros(npw*nph, nIC);
 
-% icasig = reshape(icasig,npw*nph,[]);
-% ica_new = icasig;
-% lr_offsets = [npw, -npw];
-% ud_offsets = [1,-1, npw+1, npw-1,-npw+1,-npw-1];
-%
-% mask_cell_tt = zeros(npw*nph,nIC);
-% icasig = reshape(icasig,npw*nph,[]);
-% i = 1;
-% while i <= nIC
-% %     mask_temp   = zeros(npw*nph);
-%
-%     temp_ica = icasig(:,i);
-%     peak_ica = max(temp_ica);
-%     active_pixels = find(mask_cell(:,:,i)>0);
-%
-%     init = 1;
-%     while ~isempty(init)
-%
-%         active_pixels1 = bsxfun(@plus, active_pixels, lr_offsets);
-%
-%         active_pixels1 = active_pixels1(:);
-%
-%         active_pixels1(temp_ica(active_pixels1) < 0.6*peak_ica) = [];
-% %         active_pixels2 = bsxfun(@plus, active_pixels, ud_offsets);
-% %         active_pixels2 = active_pixels2(:);
-% %
-% %         active_pixels2(temp_ica(active_pixels2) < 0.99*peak_ica) = [];
-%
-%         active_pixels1 = unique(active_pixels1);
-%         active_pixels = [active_pixels(:); active_pixels1];
-%         active_pixels(active_pixels <=0)=[];
-%         active_pixels = unique(active_pixels);
-%         init = [init;length(active_pixels1)];
-%         if (length(init)>10)
-%             if init(end) - init(end-1) < 4
-%                 init=[];
-%             end
-%         end
-%
-%     end
-%     if length(active_pixels) > 200
-% %         mask_temp(active_pixels) = 1;
-%         mask_cell_tt(active_pixels,i) = 1;
-% %         mask_cell_tt(active_pixels2,i) = 1;
-%         i = i + 1;
-%     else
-%         icasig(:,i) = [];
-%         mask_cell(:,:,i) = [];
-%         mask_cell_tt(:,i) = [];
-%         nIC = nIC - 1;
-%     end
-%
-% end
-% mask_cell = reshape(mask_cell_tt,[npw,nph,nIC]);
 for ic = 1:nIC
     if length(unique(reshape(mask_cell(:,:,ic),[1 npw*nph])))>2
         %         data_tc_temp = stackGetTimeCourses(img_reg,mask_cell(:,:,ic));
@@ -82,58 +28,7 @@ for ic = 1:nIC
 %         ica_new(:,ic) = icasig(:,ic);
     end
 end
-% lr_offsets = [npw, -npw];
-% ud_offsets = [1,-1,npw-1, -npw+1, npw+1,-npw-1];
-% 
-% mask_cell_tt = zeros(npw*nph,nIC);
-% 
-% i = 1;
-% while i <= nIC
-% %     mask_temp   = zeros(npw*nph);
-% 
-%     temp_ica = icasig(:,i);
-%     peak_ica = max(temp_ica);
-%     active_pixels = find(mask_cell(:,:,i)>0);
-% 
-%     init = 1;
-%     while ~isempty(init)
-% 
-%         active_pixels1 = bsxfun(@plus, active_pixels, lr_offsets);
-% 
-%         active_pixels1 = active_pixels1(:);
-% 
-%         active_pixels1(temp_ica(active_pixels1) < 0.55*peak_ica) = [];
-%         active_pixels2 = bsxfun(@plus, active_pixels, ud_offsets);
-%         active_pixels2 = active_pixels2(:);
-% 
-%         active_pixels2(temp_ica(active_pixels2) < 0.9*peak_ica) = [];
-% 
-%         active_pixels1 = unique(active_pixels1);
-%         active_pixels = [active_pixels(:); active_pixels1;active_pixels2];
-%         active_pixels(active_pixels <=0)=[];
-%         active_pixels = unique(active_pixels);
-%         init = [init;length(active_pixels1)];
-%         if (length(init)>10)
-%             if init(end) - init(end-1) < 4
-%                 init=[];
-%             end
-%         end
-% 
-%     end
-%     if length(active_pixels) > 200
-% %         mask_temp(active_pixels) = 1;
-%         mask_cell_tt(active_pixels,i) = 1;
-% %         mask_cell_tt(active_pixels2,i) = 1;
-%         i = i + 1;
-%     else
-%         icasig(:,i) = [];
-%         mask_cell(:,:,i) = [];
-%         mask_cell_tt(:,i) = [];
-%         nIC = nIC - 1;
-%     end
-% 
-% end
-% mask_cell = reshape(mask_cell_tt,[npw,nph,nIC]);
+
 %finds overlapping pixels of ROIs and based on correlations decides whether
 %to group them or to split them- if splitting, then overlapping pixels are
 %eliminated from both ROIs

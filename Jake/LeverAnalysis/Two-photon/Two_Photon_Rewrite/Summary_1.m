@@ -1,10 +1,14 @@
-clear all
+clear 
 file_info
-out_base = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis\');
+% out_base = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis\');
+out_base = fullfile('Z:\home\ziye\2P_Analysis\2P_Analysis\');
+mouseID = mouseID(1:30);
 tot_cells = 0; tot_sus = 0; tot_trans = 0; press_trans_tot = 0; press_sus_tot = 0;
+tot_success = 0; tot_fail = 0; tot_press = 0;
 for id = 1:size(mouseID,2)
     for rID  = 1:2
-        dest_sub  = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis',[date{id}, '_', runID{rID}, '_', mouseID{id}],'\');
+%         dest_sub  = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis',[date{id}, '_', runID{rID}, '_', mouseID{id}],'\');
+        dest_sub = ['Z:\home\jake\Analysis\2P Analysis\Ziye_2P_figure\', date{id}, '_', runID{rID}, '_', mouseID{id}, '\'];
         if exist(dest_sub)
             load([dest_sub '_cell_resp.mat']);
             load([dest_sub '_cell_categories.mat']);
@@ -37,11 +41,16 @@ for id = 1:size(mouseID,2)
             press_only(id) = length(press_resp_cells(find(ismember(press_resp_cells,release_resp)==0)))./tot_resp(id);
             release_only(id) = length(release_resp(find(ismember(release_resp,press_resp_cells)==0)))./tot_resp(id);
             
-            
+            tot_success = tot_success + length(success_resp_cells);
+            tot_fail = tot_fail + length(fail_resp_cells);
+            tot_press = tot_press + length(press_resp_cells);
         end
     end
 end
-
+tot_resp_cells = sum(tot_resp);
+pct_success_tot = tot_success/tot_resp_cells*100;
+pct_fail_tot = tot_fail/tot_resp_cells*100;
+pct_press_tot = tot_press/tot_resp_cells*100;
 % col_mat = strvcat('r', 'b', 'r', 'b', 'g', 'm', 'c');
 col_mat = [ 0.9  0.9  0;
     1  0  1;
@@ -53,7 +62,8 @@ col_mat = [ 0.9  0.9  0;
     0  0  0;
     1  0.8 0.4
     0  0.5 0.7
-    0.5 0.4 0];
+    0.5 0.4 0; 0.5 0.5 0.5; 0.3 0.5 1; 0.1 0.5 0.7; 0 0.6 0.2;0.8 0.8 0.4;0.1 0.1 0.1;0.3 0.7 0; 0 0 0; 0.1 0.5 0.5];
+% col_mat = repmat([0 0 0], id, 1);
 
 %number of cells
 fig = figure;
@@ -133,7 +143,7 @@ fig=figure;
 subplot(2,2,1)
 cid = 1;
 for id = 1:size(mouseID,2)
-    
+    id
     if id > 1
         if strcmp(mouseID{id},mouseID{id-1})
             scatter(pct_release(id), pct_press(id), 'MarkerEdgeColor',col_mat(cid,:),'MarkerFaceColor',col_mat(cid,:))

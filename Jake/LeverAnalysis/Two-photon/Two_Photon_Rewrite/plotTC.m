@@ -41,6 +41,7 @@ if saveData == 0
     h1 = subplot(1,2,1);
     imshow(mat2gray(reg_mean))
     for i = ICuse
+        
         hold on
         contour(sm(:,:,i),'Color',colord(mod(i-1,size(colord,1))+1,:))
         
@@ -79,7 +80,7 @@ else
         %     if ismember(i, [5,10,15,20,25,30,35,40,45,50])
         %         hline(shift);
         %     end
-        shift = shift+10000;
+        shift = shift+10000;  %10000 for 2P
     end
     set(gca,'YTick',10000:10000:shift);
     set(gca,'YTicklabel',(ICuse));

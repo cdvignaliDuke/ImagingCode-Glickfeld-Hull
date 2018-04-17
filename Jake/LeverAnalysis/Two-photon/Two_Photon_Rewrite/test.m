@@ -1,25 +1,10 @@
-[x,y,z] = size(img);
-sm_logical = zeros(x,y);
-sm = zeros(x,y,z);
-Ithreshold = 95;
-for i = 1: size(img,3)
-    sm_logical (img(:,:,i) > 0.6*mean([max(prctile(img(:,:,i),Ithreshold,1)) max(prctile(img(:,:,i),Ithreshold,2))])) = 1;
-    sm(:,:,i) = sm_logical;
+for i = 1:size(success_resp_RS_2,2)
+    sResp = success_resp_RS_2{i};
+    sResp(isnan(sResp)) = [];
+    sHold = succ_hold_dur{i};
+    sHold(isnan(sHold)) = [];
+    [BS,idx] = histc(sHold,0:0.25:max(sHold)+0.25);
+    sHold_bins_all{i} = accumarray(idx(:),sHold,[],@nanmean);
+    sResp_std_all{i} = accumarray(idx(:),sHold,[],@sem);
+    sResp_bins_all{i} = accumarray(idx(:),sResp,[],@nanmean);
 end
-sm_logical = zeros(x,y);
-sm_logical(sum(sm,3) > round(0.9*z)) = 1;
-bwmask = bwlabel(sm_logical);
-bwRP =  regionprops(bwmask, 'Area'); minRoiPixArea = 200;
-regionIdx = find([bwRP.Area] > minRoiPixArea);
-
-bkMask = 0*sm_logical;
-for i = 1:length(regionIdx)
-    bkMask(bwmask == regionIdx(i)) = 1;
-end
-bkMask = stackFilter(bkMask);
-bkMask(bkMask > 0) = 1;
-figure;imagesc(bkMask);
-
-% apply mask
-imgMasked = bsxfun(@times, img, cast(bkMask, 'like', img));
-figure;imagesc(imgMasked(:,:,1));

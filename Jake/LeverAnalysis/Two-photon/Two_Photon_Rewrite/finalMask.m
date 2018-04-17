@@ -6,6 +6,14 @@ sm = zeros(npw,nph,nmask);
 
 for ii=1:nmask
     sm_placeholder = zeros(npw,nph);
+%     offsets = [1,-1, npw+1, npw-1,-npw+1,-npw-1, npw, -npw];
+%     active_pixels = find(mask_final == ii);
+%     active_pixels1 = bsxfun(@plus, active_pixels, offsets);
+%     active_pixels1 = active_pixels1(:);
+% 
+%     active_pixels1(mask_final(active_pixels1) < 0.5*ii)= [];
+%     mask_final(active_pixels1) = ii;
+
     sm_placeholder(mask_final==ii) = 1;
     sm(:,:,ii)= sm_placeholder;
 end
