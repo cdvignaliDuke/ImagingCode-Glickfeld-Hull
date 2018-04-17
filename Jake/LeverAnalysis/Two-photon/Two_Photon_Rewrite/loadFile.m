@@ -10,7 +10,9 @@ if size(img_fn,1) ~= 0
     skip_run = 0;
     cd(data_dir);
     load(config_fn.name);
-    if isempty(nframes)
+    if strcmp('img043_000_000', img_fn)
+        nframes = 74463;
+    elseif isempty(nframes)
         nframes = info.config.frames;
     end
     fprintf('loading sbx image file: %s %s\n', data_dir, img_fn);
