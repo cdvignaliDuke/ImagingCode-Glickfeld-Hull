@@ -23,7 +23,7 @@ days_chrono_order = {'151009_img30', '151011_img30','151021_img29', '151022_img2
 LS_ROIs =          {[2],               [2],           [1:3],           [1,2,3],        [1:2],          [1:3],        [1:3],           [1:3],           [1:3],         [1:3],           [1,2,3],         [1,2,3],        [1,2,3],        [1:2],           [3:4],        [1:4],          [1:5]}; %updated 10/10/17 LS
 V_ROIs =          {[],                [],            [4,5],           [4,5],          [3:4],          [4:5],           [],              [],              [],           [],             [4],            [5],             [4],            [6],             [5],           [],             []}; %updated 10/10/17 V 
 C1_ROIs =          {[1],               [1],           [],              [],               [],             [],           [],             [],              [],           [],             [5,6],            [4],            [5],            [4,5],           [],           [],               []}; %updated 10/10/17 C1
-ROIcell = {[2], [2], [1:3], [1,3], [1:4], [1:5], [1:2], [1:2], [1:2], [1:2], [3:4], [2,3,5], [1], [1:2], [3:4], [1,2,3], [3:5]}; % ROIs used for the main scatterplot in the manuscript
+ROIcell = {        [2],               [2],           [1:3],            [1,3],           [1:4],           [1:5],       [1:2],           [1:2],           [1:2],         [1:2],           [3:4],           [2,3,5],         [1],            [1:2],         [3:4],        [1,2,3],         [3:5]}; % ROIs used for the main scatterplot in the manuscript
 
 %Determined via by comparing the ratio of the peak corr df/f to that of the peak early df/f for only trials with licks. 
 %Required to have a ratio of at least 1.15:1 corr:early. Calculated in

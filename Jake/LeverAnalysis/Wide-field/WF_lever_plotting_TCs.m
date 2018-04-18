@@ -5,7 +5,7 @@ clear
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
-days = {'160722_img53'}; 
+days = {'151211_img32'};  %'151212_img32',  
 
 for kk=1:length(days)
     %set directories and load bxOutputs and cluter data. 
@@ -22,7 +22,7 @@ for kk=1:length(days)
     end
     
     %define variables to help with plotting
-    func = @median; %func = @mean; %func = @std;
+    func = @mean; %func = @std; @median;
     pre_frames = 5;
     post_frames = 20;
     sampling_rate = round(1000/mode(diff(frame_info.times)));
@@ -52,13 +52,11 @@ for kk=1:length(days)
             shift = (-1)*avg_success_roi(i,1);
             avg_success_roi(i,:) = avg_success_roi(i,:)+shift;
         end
-        subplot(2,3,2);
-        subplot(1,2,1); lickBars = bar(ts(1,:), mean(lick_trace_succ)/10); hold on
+        subplot(2,3,2); lickBars = bar(ts(1,:), mean(lick_trace_succ)/10); hold on
         errorbar(ts(1,:), mean(lick_trace_succ)/10, std(lick_trace_succ./10)/sqrt(size(lick_trace_succ,1)), 'LineStyle', 'none');
         %alpha(.25);
-        for i = 2%1:size(ts,1);
-            %subplot(2,3,2); 
-            subplot(1,2,1); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'k'); %'Color', colors(i,:)); hold on;
+        for i = 1:size(ts,1);
+            subplot(2,3,2); errorbar(ts(i,:), avg_success_roi(i,:), sm_success(i,:), 'Color', colors(i,:)); hold on;
         end
         xlabel('Time from release (ms)');
         ylabel('dF/F');
@@ -85,13 +83,12 @@ for kk=1:length(days)
             shift = (-1)*avg_fail_roi(i,1);
             avg_fail_roi(i,:) = avg_fail_roi(i,:)+shift;
         end
-        %subplot(2,3,3); 
-        subplot(1,2,2); bar(ts(1,:), mean(lick_trace_fail)/10); hold on
+        subplot(2,3,3); bar(ts(1,:), mean(lick_trace_fail)/10); hold on
         errorbar(ts(1,:), mean(lick_trace_fail)/10, std(lick_trace_fail./10)/sqrt(size(lick_trace_fail,1)), 'LineStyle', 'none');
         %alpha(.25);
-        for i = 2%1:size(ts,1);
-            hold on; %subplot(1,2,2); 
-            errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'r');%'Color', colors(i,:));
+        for i = 1:size(ts,1);
+            hold on; 
+            errorbar(ts(i,:), avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
         end
         xlabel('Time from release (ms)');
         ylabel('dF/F');
@@ -131,7 +128,7 @@ for kk=1:length(days)
     if fake_mouse == 0;
         sub_sm = sqrt(sm_fail.^2+sm_success.^2);
         for i = 1:size(ts,1);
-            hold on; subplot(2,3,5); errorbar(ts(i,:), avg_success_roi(i,:) - avg_fail_roi(i,:), sm_fail(i,:), 'Color', colors(i,:));
+            hold on; subplot(2,3,5); errorbar(ts(i,:), avg_success_roi(i,:) - avg_fail_roi(i,:), sub_sm(i,:), 'Color', colors(i,:));
         end
         xlabel('Time from release (ms)');
         ylabel('dF/F');

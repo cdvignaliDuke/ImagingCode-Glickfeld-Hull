@@ -249,9 +249,10 @@ for session_num =  1:length(days)  %for each animal..
 
     %finding and storing peak times and values here for averaged trials using 100 ms window
     %Measuere of error is not a good one. 
-    succ_time_to_peak = [succ_time_to_peak, find(success_roi_interp_avg==max(success_roi_interp_avg(51:110)))];  %finds peak within window of -1:5 frames relative to lever release frame (frame 6)
-    fail_time_to_peak = [fail_time_to_peak, find(fail_roi_interp_avg==max(fail_roi_interp_avg(51:110)))];
-    cue_time_to_peak  = [cue_time_to_peak, find(cue_roi_interp_avg==max(cue_roi_interp_avg(51:110)))];
+    peak_window = [51:110]; %these are the values in the currect scatterplot (3/27/18)
+    succ_time_to_peak = [succ_time_to_peak, find(success_roi_interp_avg==max(success_roi_interp_avg(peak_window)))];  %finds peak within window of -1:5 frames relative to lever release frame (frame 6)
+    fail_time_to_peak = [fail_time_to_peak, find(fail_roi_interp_avg==max(fail_roi_interp_avg(peak_window)))];
+    cue_time_to_peak  = [cue_time_to_peak, find(cue_roi_interp_avg==max(cue_roi_interp_avg(peak_window)))];
     peak_value_succ = [peak_value_succ, mean(success_roi_interp_avg((succ_time_to_peak(session_num)-time_before):(succ_time_to_peak(session_num)+time_after)))];
     peak_value_fail = [peak_value_fail, mean(fail_roi_interp_avg((fail_time_to_peak(session_num)-time_before):(fail_time_to_peak(session_num)+time_after)))];
     peak_value_cue  = [peak_value_cue, mean(cue_roi_interp_avg((cue_time_to_peak(session_num)-time_before):(cue_time_to_peak(session_num)+time_after)))];
@@ -261,15 +262,16 @@ for session_num =  1:length(days)  %for each animal..
     
     %find peak times for each trial   SHOULD ADAPT SO IT ALSO USES 100MS WINDOW
     %correct trials-------------------
+    peak_window = [51:110];
     temp_lat_peak_succ = [];
     temp_tbyt_peak_val_succ = [];
-    for i = 1:size(success_roi_interp_avg3,2);
-        temp_val = find(success_roi_interp_avg3(:,i)==max(success_roi_interp_avg3([51:110],i)));  %finds the peak time of each trials TC
+    for trial_num = 1:size(success_roi_interp_avg3,2);
+        temp_val = find(success_roi_interp_avg3(:,trial_num)==max(success_roi_interp_avg3([51:110],trial_num)));  %finds the peak time of each trial's TC
         if size(temp_val,1) > 1 %in case of finding multiple values it will select the first one
             temp_val = temp_val(find(temp_val >= 50,1, 'first'));
         end
         temp_lat_peak_succ = [temp_lat_peak_succ, temp_val]; %give peak time for each trial
-        temp_tbyt_peak_val_succ = [temp_tbyt_peak_val_succ, success_roi_interp_avg3(temp_val,i)]; %collects all the trial by trial peak magnitudes
+        temp_tbyt_peak_val_succ = [temp_tbyt_peak_val_succ, success_roi_interp_avg3(temp_val,trial_num)]; %collects all the trial by trial peak magnitudes
     end
     tbyt_peak_val_succ = [tbyt_peak_val_succ, mean(temp_tbyt_peak_val_succ)];  %collects the average peak value for all mice. Collected trial by trial. The peak value for that trial's peak
     tbyt_peak_val_succ_sm = [tbyt_peak_val_succ_sm, std(temp_tbyt_peak_val_succ)/sqrt(length(temp_tbyt_peak_val_succ))];
@@ -377,7 +379,7 @@ disp(['Average time to peak for cue triggered trials = ' num2str(mean((tbyt_lat_
 min_scatter =  min([tbyt_peak_val_succ, tbyt_peak_val_fail]);
 max_scatter =  max([tbyt_peak_val_succ, tbyt_peak_val_fail]);
 figure; hold on;
-for session_num = 1:1:length(days)
+for session_num = 5 %[5,6] %1:1:length(days)
     plot(tbyt_peak_val_succ(session_num),tbyt_peak_val_fail(session_num), ['o' colors{session_num}], 'MarkerFaceColor', colors{session_num});  
 end
 xlim([-0.02 [max_scatter*1.1]]);

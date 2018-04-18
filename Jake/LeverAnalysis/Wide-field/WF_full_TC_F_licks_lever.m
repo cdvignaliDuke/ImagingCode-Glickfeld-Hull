@@ -25,7 +25,7 @@ days = {[], [], [], [], '151211_img32', '151212_img32', '160129_img35', '160131_
 summary_bout_TCs = [];
 summary_bout_TCs_early = [];
 %% SECTION TWO  
-for session_num = 1:length(days);
+for session_num = 5% 1:length(days);
     if isempty(days{session_num})
         lick_triggered_ttest{session_num}= [];
         continue
@@ -69,11 +69,12 @@ for session_num = 1:length(days);
     earlyInx = find(corrInx == 0);
     corrInx  = find(corrInx == 1);
     
-%     changeOrientation = changeOrientation(find(corrInx)); %trim changeOr so it only includes corrects
-%     cueByFrame = [];
-%     for iii = 1:length(changeOrientation) 
-%         cueByFrame = [cueByFrame, frame_info.counter(changeOrientation(iii))];
-%     end
+    %changeOrientation = changeOrientation(find(corrInx)); %trim changeOr so it only includes corrects
+    changeOrientation = round(changeOrientation(find(~isnan(changeOrientation)))); %get rid of the NaNs
+    cueByFrame = [];
+    for iii = 1:length(changeOrientation) 
+        cueByFrame = [cueByFrame, frame_info.counter(changeOrientation(iii))];
+    end
     
     no_fidget_earlyInx = zeros(1, length(holdDur));
     for iii = 1:length(holdDur)
@@ -91,27 +92,57 @@ for session_num = 1:length(days);
     end
     no_TFC_corrInx = find(no_TFC_corrInx == 1);
     
-%     figure; 
-%     bar(licksByFrame);
-%     alpha(.25);
-%     hold on; 
-%     for iii = 1:size(tc_dfoverf,1)
-%         plot([1:length(licksByFrame)], tc_dfoverf(iii,[1:length(licksByFrame)]), 'Color', colors(iii,:))
-%     end
-%     for iii = 1:length(leverPressFrame)
-%         vline(leverPressFrame(iii),'k');
-%     end
-%     for iii = 1:length(earlyInx)
-%         vline(leverReleaseFrame(earlyInx(iii)),'r');
-%     end
-%     for iii = 1:length(corrInx)
-%         vline(leverReleaseFrame(corrInx(iii)),'g');
-%     end
-%     title(days(ii));
-    %hold off
     
+    figure; 
+    bar(licksByFrame*0.01);
+    alpha(.25);
+    hold on; 
+    for iii = 1%:size(tc_dfoverf,1)
+        plot([1:length(licksByFrame)], tc_dfoverf(iii,[1:length(licksByFrame)]), 'Color', colors(iii,:))
+    end
+    for iii = 1:length(leverPressFrame)
+        vline(leverPressFrame(iii),'k');
+    end
+    for iii = 1:length(earlyInx)
+        vline(leverReleaseFrame(earlyInx(iii)),'r');
+    end
+    for iii = 1:length(corrInx)
+        vline(leverReleaseFrame(corrInx(iii)),'g');
+    end
+    
+    %plot individual trials
+    frame_int = [1003:1021];    %correct examples:   [459:483] [5097:5121]  [9508:9545]    early examples: [8470:8509]   [7787:7819]  [5011:5030]
+    lever_press_plot = intersect(frame_int, leverPressFrame)-frame_int(1)+1;
+    corr_release_plot = intersect(frame_int, leverReleaseFrame(corrInx))-frame_int(1)+1;
+    early_release_plot = intersect(frame_int, leverReleaseFrame(earlyInx))-frame_int(1)+1;
+    cue_plot = intersect(frame_int, cueByFrame)-frame_int(1)+1;
+    figure; hold on;
+    iii=1;
+    bar(licksByFrame([frame_int])*0.01);
+    plot([1:length(frame_int)], tc_dfoverf(iii,[frame_int]), 'r');
+    ylim([-0.05 0.15])
+    vline(lever_press_plot,'k');
+    if ~isempty(early_release_plot)
+        vline(early_release_plot,'r');
+    end
+    if ~isempty(corr_release_plot)
+        vline(corr_release_plot,'g');
+        vline(cue_plot,'m');
+    end
+    title(['early trial examlpe: frame range ', num2str(frame_int(1)), ' ', num2str(frame_int(end))]);
+    xlim([1 40]);
+    
+    hold off
+    
+    % make figure for example traces
+    %early lever release example
+    early_ex_press_inx = [2026, 7793, 8475];
+    early_ex_hold_inx = [8 26, 13];
+    figure; 
+    plot()
 
-%%  corrInx is the trial # of correct trials not the frame nuber
+
+%%  corrInx is the trial # of correct trials not the frame number
     %plot y frames before and x frames after the lever release   Write a
     %different one for the cue-reward pairing sessions
 %     corr_release_by_frame = leverReleaseFrame(no_TFC_corrInx);

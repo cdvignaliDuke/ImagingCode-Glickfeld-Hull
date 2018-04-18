@@ -39,6 +39,8 @@ peak_corr_short_mat= [];
 peak_early_short_mat=[];
 across_animals_corr_bin_N = [];
 across_animals_early_bin_N = [];
+corr_trial_num{1} = [];
+early_trial_num{1} = [];
 
 for session_num = 1:length(days)
     %load data
@@ -171,6 +173,8 @@ for session_num = 1:length(days)
     
     %log sample sizes
     sample_sizes{session_num, :} = [length(corr_hold_dur), length(early_hold_dur)];
+    corr_trial_num{session_num} = length(peak_corr);
+    early_trial_num{session_num} = length(peak_early);
     
     %store normalized df/f for corr/early in long_dur or short_dur
     if long_hold == 1
@@ -193,9 +197,11 @@ end
 x_axis = [1:22].*bin_duration;
 figure; %subplot(2,1,1);
 errorbar(x_axis,nanmean(across_animals_corr_peak_binned,2), nanstd(across_animals_corr_peak_binned, [],2)./sqrt(sum(~isnan(across_animals_corr_peak_binned),2)), '-ok'); hold on;
-errorbar(x_axis,nanmean(across_animals_fail_peak_binned,2), nanstd(across_animals_fail_peak_binned, [],2)./sqrt(sum(~isnan(across_animals_fail_peak_binned),2)), '-or');
+%errorbar(x_axis,nanmean(across_animals_fail_peak_binned,2), nanstd(across_animals_fail_peak_binned, [],2)./sqrt(sum(~isnan(across_animals_fail_peak_binned),2)), '-or');
+errorbar(x_axis(1:end-5),nanmean(across_animals_fail_peak_binned([1:end-5],:),2), nanstd(across_animals_fail_peak_binned([1:end-5],:), [],2)./sqrt(sum(~isnan(across_animals_fail_peak_binned([1:end-5],:)),2)), '-or'); %excluded two data points to match the 2P data
 plot(x_axis,nanmean(across_animals_corr_peak_binned,2),'ok');
-plot(x_axis,nanmean(across_animals_fail_peak_binned,2),'or');
+%plot(x_axis,nanmean(across_animals_fail_peak_binned,2),'or');
+plot(x_axis(1:end-5),nanmean(across_animals_fail_peak_binned([1:end-5],:),2),'or');
 xlabel('hold duration (250ms bins)'); ylabel('normalized df/f'); 
 %ylim([0 3.6]); 
 xlim([0 5700]);
@@ -204,12 +210,16 @@ title('hold duration vs peak df/f: all sessions n=17');
 % corr_fit = fitlm(x_axis,nanmean(across_animals_corr_peak_binned,2));
 % early_fit = fitlm(x_axis,nanmean(across_animals_fail_peak_binned,2));
 [corr_fit, corr_gof] = fit(x_axis(3:end)',nanmean(across_animals_corr_peak_binned([3:end],:),2), 'poly1');
-[early_fit, early_gof] = fit(x_axis(1:end-2)',nanmean(across_animals_fail_peak_binned([1:end-2],:),2), 'poly1');
-subplot(2,1,2);
-plot(corr_fit, x_axis(3:end)',nanmean(across_animals_corr_peak_binned([3:end],:),2)); hold on;
-plot(early_fit);
-[Rho_corr, p_corr] = corr(x_axis(3:end)',nanmean(across_animals_corr_peak_binned([3:end],:),2));
-[Rho_early, p_early] = corr(x_axis',nanmean(across_animals_fail_peak_binned,2));
+[early_fit, early_gof] = fit(x_axis(1:end-5)',nanmean(across_animals_fail_peak_binned([1:end-5],:),2), 'poly1');
+%subplot(2,1,2);
+%plot(corr_fit, x_axis(3:end)',nanmean(across_animals_corr_peak_binned([3:end],:),2)); hold on;
+plot(early_fit); hold on;
+plot(corr_fit);
+[Rho_corr, p_corr] = corr(x_axis(3:end)',nanmean(across_animals_corr_peak_binned([3:end],:),2), 'type', 'Spearman');
+[Rho_early, p_early] = corr(x_axis(1:end-5)',nanmean(across_animals_fail_peak_binned([1:end-5],:),2), 'type', 'Spearman');
+
+modifier_mat = nanmean(across_animals_fail_peak_binned([1:end-5],:),2)- nanmean(across_animals_fail_peak_binned(1,:),2)
+[Rho_early, p_early] = corr(x_axis(1:end-5)',nanmean(across_animals_fail_peak_binned([1:end-5],:),2)-modifier_mat, 'type', 'Spearman');
 
 %plot only the long duration sessions
 figure; 

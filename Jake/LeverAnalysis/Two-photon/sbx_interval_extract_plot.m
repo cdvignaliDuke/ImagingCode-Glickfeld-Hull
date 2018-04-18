@@ -2,9 +2,10 @@
 clear all; clear global; clear cd;
 %cd('Z:\Data\2P_imaging\171121_img050\img050');
 %cd('Z:\Data\2P_imaging\img040\170912_img039\img039');
-cd('Z:\Data\2P_imaging\180110_img065\img065');
-fname = 'img065_000_000';
-data = squeeze(sbxread(fname,0,1000));
+cd('Z:\Data\2P_imaging\180411_img080\img080');
+%cd('Z:\Data\2P_imaging\WindowOutcomes\180409_img079\img079');
+fname = 'img080_000_001';
+data = squeeze(sbxread(fname,0,800));
 if length(size(data)) ==4
     data1 = squeeze(data(1,:,:,:));
     data2 = squeeze(data(2,:,:,:));
@@ -14,24 +15,25 @@ else
 end
 data_max= max(data,[],3);
 figure; imagesc(data_avg); colormap gray; truesize;
-title(['30HZ img065 180110 recon avg frames 1:1000 000']);
+title(['30HZ img079 180411 recon avg frames 1:800 001']);
 
 %% write a tiff movie to analyze diff. in sessions
 
-subjNum = '065';
-session_date = '180111';
-cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
-%cd('Z:\Data\2P_imaging\img039\170910_img039\img039');
+subjNum = '079';
+session_date = '180409';
+%cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
+cd(['Z:\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
 fname = ['img', subjNum, '_000_000'];
 for ii = 1%:20
-    data = squeeze(sbxread(fname,0,1000));
+    data = squeeze(sbxread(fname,0,800));
     data_avg = mean(data,3);
     data_max= max(data,[],3);
     data2 = data(:,:,[1:3:end]);
     figure; imagesc(data_max); colormap gray;
-    title(['30HZ ', subjNum, ' ', session_date, '  recon max proj frames  1:1000']);
+    title(['15HZ ', subjNum, ' ', session_date, '  recon max proj frames  1:800']);
 end
-writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_1000']);
+%writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_1000']);
+writetiff(data, ['Z:\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_800']);
 
 %% motion registration 
 
