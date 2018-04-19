@@ -1,3 +1,5 @@
+%plots percentages of cells responsive to various conditions
+
 clear 
 file_info
 % out_base = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis\');

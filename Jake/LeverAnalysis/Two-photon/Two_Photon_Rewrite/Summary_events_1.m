@@ -1,3 +1,5 @@
+%compares event magnitudes, event rates(PSTHs), event synchrony across conditions
+
 clear
 file_info
 % out_base = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis\');

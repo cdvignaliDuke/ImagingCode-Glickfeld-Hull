@@ -134,7 +134,7 @@ for ii = 1:size(fr_iti,1)
     end
     iti_events = 0*diff_iti;
     for ic = 1:nIC
-        [~, iti_ind, ~] = CellsortFindspikes(diff_iti(:,ic), 1, dt, deconvtau, normalization);
+        [~, iti_ind, ~] = CellsortFindspikes(diff_iti(:,ic), 2, dt, deconvtau, normalization);
         iti_ind(find(diff(iti_ind)==1)+1)=[];
         iti_events(iti_ind,ic) = 1;
         iti_acor(ic,:) = autocorr(iti_events(:,ic), round(2000/double(ifi)))';

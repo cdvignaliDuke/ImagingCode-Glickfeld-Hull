@@ -1,3 +1,6 @@
+%plots session averages of timecourses for various conditions as well as
+%early-earlies and late-earlies
+
 clear
 file_info
 out_base = fullfile('Z:\home\ziye\2P_Analysis\2P_Analysis\');

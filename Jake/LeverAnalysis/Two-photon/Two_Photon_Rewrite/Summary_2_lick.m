@@ -1,4 +1,7 @@
-%% second part of analysis for licking
+%handles omission reward condition for lever task as well as licking
+%averages. Correlation between licking and df/f magnitude. 
+
+% second part of analysis for licking
 % scatter for lick rate and dF/F
 clear
 file_info
