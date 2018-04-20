@@ -159,7 +159,7 @@ for iCell = 1:length(good_ind)
             else
                 ind = ind_con;
             end
-%             if ioff == noff_all
+            if ioff == noff_all
                 for iboot = 1:nboot+1
                     for idelta = 1:nDelta
                         ind2 = intersect(ind,find(targetDelta == deltas(idelta)));
@@ -172,13 +172,13 @@ for iCell = 1:length(good_ind)
                         delta_resp_sub(iC,idelta,ioff,iboot) = nanmean(mean(data_dfof_sub(resp_win,iC,ind_use),1)-mean(data_dfof_sub(base_win,iC,ind_use),1),3);
                     end
                 end
-%             else
-%                 for idelta = 1:nDelta
-%                     ind2 = intersect(ind,find(targetDelta == deltas(idelta)));
-%                     delta_resp(iC,idelta,ioff,1) = nanmean(mean(data_dfof(resp_win,iC,2,ind2),1)-mean(data_dfof(base_win,iC,2,ind2),1),4);
-%                     delta_resp_sub(iC,idelta,ioff,1) = nanmean(mean(data_dfof_sub(resp_win,iC,ind2),1)-mean(data_dfof_sub(base_win,iC,ind2),1),3);
-%                 end
-%             end
+            else
+                for idelta = 1:nDelta
+                    ind2 = intersect(ind,find(targetDelta == deltas(idelta)));
+                    delta_resp(iC,idelta,ioff,1) = nanmean(mean(data_dfof(resp_win,iC,2,ind2),1)-mean(data_dfof(base_win,iC,2,ind2),1),4);
+                    delta_resp_sub(iC,idelta,ioff,1) = nanmean(mean(data_dfof_sub(resp_win,iC,ind2),1)-mean(data_dfof_sub(base_win,iC,ind2),1),3);
+                end
+            end
             data = squeeze(delta_resp(iC,:,ioff,1));
             data_sub = squeeze(delta_resp_sub(iC,:,ioff,1));
             [b_hat, k_hat(iC,ioff), R_hat,u_hat,sse(iC,ioff),R_square(iC,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta),data);
@@ -187,7 +187,7 @@ for iCell = 1:length(good_ind)
             [b_hat, k_hat_sub(iC,ioff), R_hat,u_hat,sse_sub(iC,ioff),R_square_sub(iC,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta),data_sub);
             y_fit_sub(:,iC,ioff,1) = b_hat+R_hat.*exp(k_hat_sub(iC,ioff).*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
             [y_max max_ori_sub(iC,ioff,1)] = max(y_fit_sub(:,iC,ioff,1),[],1);
-%             if ioff == noff_all
+            if ioff == noff_all
                 [max_resp max_dir(iC,1)] = max(delta_resp(iC,:,ioff,1),[],2);
                 for iboot = 2:nboot+1
                     fprintf('.')
@@ -205,24 +205,24 @@ for iCell = 1:length(good_ind)
                 scatter(deg2rad(theta), squeeze(delta_resp(iC,:,ioff,1)),'ok');
                 hold on; plot(deg2rad(0:1:180), y_fit(:,iC,ioff,1),'-r')
                 title(num2str(chop(R_square(iC,ioff,1),2)))
-%             end
+            end
         end
     end
 end 
 suptitle([date ' ' mouse])
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_tuningFits.pdf']),'-dpdf','-bestfit')
+print(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_tuningFits.pdf']),'-dpdf','-bestfit')
 
-theta_90 = nan(noff_all,nCells);
+theta_90 = nan(1,nCells);
 max_dir_n = nan(1,nCells);
 for iCell = 1:length(good_ind)
     iC = good_ind(iCell);
     if ~isnan(R_square(iC,noff_all,1))
         max_dir_n(1,iC) = length(find(max_dir(iC,2:end)==max_dir(iC,1)));
-        for ioff = 1:noff_all
+        for ioff = noff_all
             theta_dist = abs(theta_smooth(squeeze(max_ori(iC,ioff,1)))-theta_smooth(squeeze(max_ori(iC,ioff,2:nboot+1))));
             theta_dist(find(theta_dist>90)) = 180-theta_dist(find(theta_dist>90));
             theta_sort = sort(theta_dist,'ascend');
-            theta_90(ioff,iC) = theta_sort(ceil(nboot*.9));
+            theta_90(1,iC) = theta_sort(ceil(nboot*.9));
         end
     end
 end
@@ -233,7 +233,7 @@ OSI_sub = nan(nCells,noff_all);
 pref_ori_sub = nan(nCells,noff_all);
 for iCell = 1:length(good_ind)
     iC = good_ind(iCell);
-    if theta_90(3,iC) <= 22.5
+    if theta_90(1,iC) <= 22.5
         for ioff = 1:noff_all
             pref_ori(iC,ioff) = theta_smooth(max_ori(iC,ioff,1));
             null_ori = max_ori(iC,ioff,1)-90;
@@ -268,7 +268,7 @@ OSI_k_sub = 1-exp(-2.*k_hat_sub);
 HWHM = 0.5.*acos((log(0.5)+k_hat)./k_hat);
 HWHM_sub = 0.5.*acos((log(0.5)+k_hat_sub)./k_hat_sub);
 
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_deltaResp.mat']), 'delta_resp', 'theta_90', 'max_dir', 'max_dir_n', 'pref_ori', 'OSI', 'y_fit', 'delta_resp_sub', 'pref_ori_sub', 'OSI_sub', 'y_fit_sub', 'k_hat', 'k_hat_sub', 'OSI_k', 'OSI_k_sub', 'HWHM', 'HWHM_sub', 'R_square', 'R_square_sub','sse','sse_sub')
+save(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_deltaResp.mat']), 'delta_resp', 'theta_90', 'max_dir', 'max_dir_n', 'pref_ori', 'OSI', 'y_fit', 'delta_resp_sub', 'pref_ori_sub', 'OSI_sub', 'y_fit_sub', 'k_hat', 'k_hat_sub', 'OSI_k', 'OSI_k_sub', 'HWHM', 'HWHM_sub', 'R_square', 'R_square_sub','sse','sse_sub')
 
 %% test roc analysis
 ppResp = cell(noff_all, nDelta);
@@ -302,7 +302,7 @@ for iCell = 1:length(good_ind)
     end
 end
 
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_roc180v23.mat']), 'roc_resp', 'roc_resp_sub','ppResp','ppResp_sub')
+save(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_roc180v23.mat']), 'roc_resp', 'roc_resp_sub','ppResp','ppResp_sub')
 
 %% cell by cell figures
 for iCell = 1:5 %length(good_ind)
@@ -337,7 +337,7 @@ for iCell = 1:5 %length(good_ind)
 %         end
     end
     suptitle([mouse ' ' date '- Cell #' num2str(iC)]) 
-    print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDelta_Cell' num2str(iC) '.pdf']),'-dpdf')
+    print(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDelta_Cell' num2str(iC) '.pdf']),'-dpdf')
 end
 
 
@@ -405,7 +405,7 @@ for idel = 1:nDelta
     end
 end
 suptitle([mouse ' ' date]) 
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDelta_byInt.pdf']),'-dpdf')
+print(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDelta_byInt.pdf']),'-dpdf')
 
 figure;
 g = grays(noff_all);
@@ -431,7 +431,7 @@ for idel = 1:nDelta
     end
 end
 suptitle([mouse ' ' date]) 
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDelta_byInt_overlay.pdf']),'-dpdf', '-fillpage')
+print(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDelta_byInt_overlay.pdf']),'-dpdf', '-fillpage')
 
 figure;
 g = grays(noff_all);
@@ -457,7 +457,7 @@ for idelta = 1:nDelta
     title(['Delta ' num2str(deltas(idelta)) ' deg change'])
 end
 suptitle([mouse ' ' date]) 
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDeltaGroup_byInt_overlay.pdf']),'-dpdf','-fillpage')
+print(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDeltaGroup_byInt_overlay.pdf']),'-dpdf','-fillpage')
 
 data_dfof_resp = squeeze(mean(data_dfof(resp_win,:,:,:),1)-mean(data_dfof(base_win,:,:,:),1));
 if length(ind_con)== 0
@@ -501,7 +501,7 @@ for idelta = 1:nDelta
     title(['Delta ' num2str(deltas(idelta)) ' deg change'])
 end
 suptitle([mouse ' ' date]) 
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDeltaGroup_byInt_overlay_norm.pdf']),'-dpdf','-fillpage')
+print(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_testResp_byDeltaGroup_byInt_overlay_norm.pdf']),'-dpdf','-fillpage')
 
 %ori_resp = (nDelta,noff,nDelta), where the first column is the cell group,
 %and the last column is the actual orientation- values are normalized so
@@ -539,7 +539,7 @@ for idelta = 1:nDelta
     ylabel('Log Likelihood')
     title([num2str(deltas(idelta)) ' deg change'])
 end
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_loglikelihood_byDelta_byInt.pdf']),'-dpdf','-fillpage')
+print(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_loglikelihood_byDelta_byInt.pdf']),'-dpdf','-fillpage')
 
 figure; 
 for ioff = 1:noff_all
@@ -554,4 +554,4 @@ for ioff = 1:noff_all
     xlabel('Ori- actual')
     ylabel('Ori- max log likelihood')
 end
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str 'scatter_maxloglike_byInt.pdf']),'-dpdf','-fillpage')
+print(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str 'scatter_maxloglike_byInt.pdf']),'-dpdf','-fillpage')

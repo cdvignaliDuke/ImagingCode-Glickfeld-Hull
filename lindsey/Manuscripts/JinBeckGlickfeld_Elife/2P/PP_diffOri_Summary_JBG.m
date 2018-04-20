@@ -16,55 +16,6 @@ for iexp = 1:nexp
     load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']))
     load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_respSig.mat']))
     load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_decaySub.mat']))
-[y_max max_ori] = max(y_fit,[],1);
-max_ori = squeeze(max_ori);
-[y_max max_ori_sub] = max(y_fit_sub,[],1);
-max_ori_sub = squeeze(max_ori_sub);
-nboot = 1000;
-theta_smooth = (0:1:180);
-OSI = nan(nCells,noff_all);
-pref_ori = nan(nCells,noff_all);
-OSI_sub = nan(nCells,noff_all);
-pref_ori_sub = nan(nCells,noff_all);
-for iCell = 1:length(good_ind)
-    iC = good_ind(iCell);
-    if theta_90(3,iC) <= 22.5
-        for ioff = 1:noff_all
-            pref_ori(iC,ioff) = theta_smooth(max_ori(iC,ioff,1));
-            null_ori = max_ori(iC,ioff,1)-90;
-            if null_ori <= 0
-                null_ori= 180+null_ori;
-            end
-            pref_val = y_fit(max_ori(iC,ioff,1),iC,ioff,1);
-            null_val = y_fit(null_ori,iC,ioff,1);
-            if null_val < 0
-                null_val = 0;
-            end
-            OSI(iC,ioff) = (pref_val-null_val)./ (pref_val+null_val);
-        end
-        for ioff = 1:noff_all
-            pref_ori_sub(iC,ioff) = theta_smooth(max_ori_sub(iC,ioff,1));
-            null_ori = max_ori_sub(iC,ioff,1)-90;
-            if null_ori <= 0
-                null_ori= 180+null_ori;
-            end
-            pref_val = y_fit_sub(max_ori_sub(iC,ioff,1),iC,ioff,1);
-            null_val = y_fit_sub(null_ori,iC,ioff,1);
-            if null_val < 0
-                null_val = 0;
-            end
-            OSI_sub(iC,ioff) = (pref_val-null_val)./ (pref_val+null_val);
-        end
-    end
-end
-
-OSI_k = 1-exp(-2.*k_hat);
-OSI_k_sub = 1-exp(-2.*k_hat_sub);
-HWHM = 0.5.*acos((log(0.5)+k_hat)./k_hat);
-HWHM_sub = 0.5.*acos((log(0.5)+k_hat_sub)./k_hat_sub);
-
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_deltaResp.mat']), 'delta_resp', 'theta_90', 'max_dir', 'max_dir_n', 'pref_ori', 'OSI', 'y_fit', 'delta_resp_sub', 'pref_ori_sub', 'OSI_sub', 'y_fit_sub', 'k_hat', 'k_hat_sub', 'OSI_k', 'OSI_k_sub', 'HWHM', 'HWHM_sub', 'R_square', 'R_square_sub','sse','sse_sub')
-
 end
 
 %% collect datasets
@@ -101,6 +52,7 @@ for iexp = 1:nexp
     pref_ori_all = [pref_ori_all; pref_ori];
     R_square_all = [R_square_all; R_square(:,:,1)];
     max_dir_n_all = [max_dir_n_all; max_dir_n'];
+    theta_90_all = [theta_90_all; theta_90'];
     ori_sig_all = [ori_sig_all; h2'];
     OSI_all = [OSI_all; OSI];
     OSI_k_all = [OSI_k_all; OSI_k];
@@ -113,8 +65,6 @@ for iexp = 1:nexp
     HWHM_sub_all = [HWHM_sub_all; HWHM_sub];
     delta_resp_sub_all = cat(1,delta_resp_sub_all, delta_resp_sub(:,:,:,1));
     fit_sub_all = cat(2, fit_sub_all, y_fit_sub(:,:,:,1));
-    load(fullfile(LG_base, 'Analysis\2P', 'ForJeff', [date '_' mouse '_' run_str '_newFits.mat']))
-    theta_90_all = [theta_90_all; theta_90'];
     load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_roc180v23.mat']))
     roc_resp_all = cat(1,roc_resp_all, roc_resp);
     roc_resp_sub_all = cat(1,roc_resp_sub_all, roc_resp_sub);

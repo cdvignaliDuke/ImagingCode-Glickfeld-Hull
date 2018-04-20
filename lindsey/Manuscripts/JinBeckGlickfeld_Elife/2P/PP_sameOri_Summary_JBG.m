@@ -1,39 +1,9 @@
 % current datasets
-%% V1 old
-dataset = '';
-mouse_mat = strvcat('i684', 'i689');
-date_mat = strvcat('170316', '170327');
-run_str_mat = strvcat('runs-002-004','runs-002-003');
-
-%% V1 new
-dataset = 'V1new_';
-mouse_mat = strvcat('i720','i738','i739');
-date_mat = strvcat('170802','170710','170802');
-run_str_mat = strvcat('runs-002-003','runs-002-003','runs-002-003');
-
 %% V1 all
 dataset = 'V1all_';
 mouse_mat = strvcat('i684', 'i689','i720','i738','i739');
 date_mat = strvcat('170316', '170327','170802','170710','170802');
 run_str_mat = strvcat('runs-002-004','runs-002-003','runs-002-003','runs-002-003','runs-002-003');
-
-%% LM
-dataset = 'LM_';
-mouse_mat = strvcat('i720','i739','i738');
-date_mat = strvcat('170704','170711','170712');
-run_str_mat = strvcat('runs-003-004','runs-002-003','runs-002-003');
-
-%% PM
-dataset = 'PM_';
-mouse_mat = strvcat('i720', 'i739', 'i738');
-date_mat = strvcat('170628', '170630', '170705');
-run_str_mat = strvcat('runs-002-003','runs-003-004','runs-002-003');
-
-%% AL
-dataset = 'AL_';
-mouse_mat = strvcat('i720', 'i738', 'i739');
-date_mat = strvcat('170730', '170730', '170731');
-run_str_mat = strvcat('runs-002-003','runs-003-004','runs-002-003');
 
 %%
 nexp = size(mouse_mat,1);

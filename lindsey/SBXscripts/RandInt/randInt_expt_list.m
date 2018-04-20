@@ -1,8 +1,7 @@
 
-load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']))
+load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']))
 load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']))
 load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']))
-
 %% V1 cell bodies, FS single interval, during behavior
 date = '150626';
 ImgFolder = strvcat('001','002','003');
@@ -129,6 +128,28 @@ date = '170220';
 ImgFolder = strvcat('004');
 time = strvcat('1717');
 mouse = 'i684';
+doFromRef = 0;
+ref = strvcat('005');
+nrun = size(ImgFolder,1);
+frame_rate = 30;
+run_str = catRunName(ImgFolder, nrun);
+
+%% PM cell bodies, FS random interval, passive
+date = '170301';
+ImgFolder = strvcat('002');
+time = strvcat('1704');
+mouse = 'i684';
+doFromRef = 0;
+ref = strvcat('005');
+nrun = size(ImgFolder,1);
+frame_rate = 30;
+run_str = catRunName(ImgFolder, nrun);
+
+%% PM cell bodies, FS random interval, passive
+date = '170314';
+ImgFolder = strvcat('002');
+time = strvcat('1748');
+mouse = 'i696';
 doFromRef = 0;
 ref = strvcat('005');
 nrun = size(ImgFolder,1);

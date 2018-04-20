@@ -32,14 +32,13 @@ if nDelta>1
 else
     data_dfof_delta(:,:,1) = nanmean(data_dfof(:,:,2,:),4);
 end
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_respSig.mat']), 'p2','h2')
 
 good_ind_temp = find(x1+x2+sum(h1,1)+sum(h2,1));
 
 %find late responding cells and remove
 tc_all = squeeze(nanmean(mean(bsxfun(@minus,data_dfof(:,:,:,:),mean(data_dfof(base_win,:,:,:),1)),3),4));
 resp_diff = diff(tc_all);
-[max_val max_time] = max(resp_diff(20:end,:),[],1);
+[max_val max_time] = max(resp_diff(20:40,:),[],1);
 
 ind1 = find(max_time<base_win(end)-20);
 ind2 = find(max_time>resp_win(end)-20);
@@ -130,145 +129,200 @@ end
 
 save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_decaySub.mat']), 'data_dfof_sub', 'good_ind', 'off_all', 'noff_all')
 %% measure tuning function and bootstrap
-    
+ndir = 3;    
 nboot = 1000;
 theta_smooth = (0:1:180);
-theta = deltas;
 [n n2] = subplotn(length(good_ind));
-
-delta_resp = nan(nCells,nDelta,noff_all,1+nboot);
-delta_resp_sub = nan(nCells,nDelta,noff_all,1+nboot);
-max_dir = nan(nCells,1+nboot);
-max_dir_sub = nan(nCells,1+nboot);
-k_hat = nan(nCells,noff_all);
-k_hat_sub = nan(nCells,noff_all);
-y_fit = nan(length(theta_smooth),nCells,noff_all,nboot+1);
-y_fit_sub = nan(length(theta_smooth),nCells,noff_all,nboot+1);
-max_ori = nan(nCells,noff_all,nboot+1);
-max_ori_sub = nan(nCells,noff_all,nboot+1);
-R_square = nan(nCells,noff_all,nboot+1);
+theta = setdiff(unique(tGratingDir),dirs);
+nTheta = length(theta);
+delta_resp = nan(nCells,nTheta,ndir,noff_all,1+nboot);
+k_hat = nan(nCells,ndir,noff_all);
+y_fit = nan(length(theta_smooth),nCells,ndir,noff_all,nboot+1);
+max_ori = nan(nCells,ndir,noff_all,nboot+1);
+R_square = nan(nCells,ndir,noff_all,nboot+1);
 
 figure;
 for iCell = 1:length(good_ind)    
     iC = good_ind(iCell);
     fprintf('%d\n', iC)
-    if ~isnan(data_dfof_sub(1,iC,1))
+    if ~isnan(data_dfof(1,iC,1))
         for ioff = 1:noff_all
             if length(ind_con)== 0 || ioff<noff_all 
                 ind = setdiff(find(tFramesOff == off_all(ioff)),ind_con);
             else
                 ind = ind_con;
             end
-%             if ioff == noff_all
+            if ioff == noff_all
                 for iboot = 1:nboot+1
-                    for idelta = 1:nDelta
-                        ind2 = intersect(ind,find(targetDelta == deltas(idelta)));
+                    fprintf('.')
+                    for idelta = 1:nTheta
+                        ind2 = intersect(ind,find(tGratingDir == theta(idelta)));
                         if iboot>1
                             ind_use = ind2(randsample(1:length(ind2),length(ind2),1));
                         else
                             ind_use = ind2;
                         end
-                        delta_resp(iC,idelta,ioff,iboot) = nanmean(mean(data_dfof(resp_win,iC,2,ind_use),1)-mean(data_dfof(base_win,iC,2,ind_use),1),4);
-                        delta_resp_sub(iC,idelta,ioff,iboot) = nanmean(mean(data_dfof_sub(resp_win,iC,ind_use),1)-mean(data_dfof_sub(base_win,iC,ind_use),1),3);
+                        if length(ind_use)>0
+                            delta_resp(iC,idelta,1,ioff,iboot) = nanmean(mean(data_dfof(resp_win,iC,2,ind_use),1)-mean(data_dfof(base_win,iC,2,ind_use),1),4);
+                        end
+                    end
+                    data = squeeze(delta_resp(iC,:,1,ioff,iboot));
+                    ind_nonan = find(~isnan(data));
+                    [b_hat, k_hat(iC,1,ioff), R_hat,u_hat,sse(iC,1,ioff),R_square(iC,1,ioff,iboot)] = miaovonmisesfit_ori(deg2rad(theta(ind_nonan)),data(ind_nonan));
+                    y_fit(:,iC,1,ioff,iboot) = b_hat+R_hat.*exp(k_hat(iC,1,ioff).*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
+                    if iboot == 1
+                        subplot(n, n2, iCell)
+                        scatter(deg2rad(theta), squeeze(delta_resp(iC,:,1,ioff,1)),'ok');
+                        hold on; plot(deg2rad(0:1:180), y_fit(:,iC,1,ioff,1),'-r')
+                        title(num2str(chop(R_square(iC,1,ioff,1),2)))
                     end
                 end
-%             else
-%                 for idelta = 1:nDelta
-%                     ind2 = intersect(ind,find(targetDelta == deltas(idelta)));
-%                     delta_resp(iC,idelta,ioff,1) = nanmean(mean(data_dfof(resp_win,iC,2,ind2),1)-mean(data_dfof(base_win,iC,2,ind2),1),4);
-%                     delta_resp_sub(iC,idelta,ioff,1) = nanmean(mean(data_dfof_sub(resp_win,iC,ind2),1)-mean(data_dfof_sub(base_win,iC,ind2),1),3);
-%                 end
-%             end
-            data = squeeze(delta_resp(iC,:,ioff,1));
-            data_sub = squeeze(delta_resp_sub(iC,:,ioff,1));
-            [b_hat, k_hat(iC,ioff), R_hat,u_hat,sse(iC,ioff),R_square(iC,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta),data);
-            y_fit(:,iC,ioff,1) = b_hat+R_hat.*exp(k_hat(iC,ioff).*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
-            [y_max max_ori(iC,ioff,1)] = max(y_fit(:,iC,ioff,1),[],1);
-            [b_hat, k_hat_sub(iC,ioff), R_hat,u_hat,sse_sub(iC,ioff),R_square_sub(iC,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta),data_sub);
-            y_fit_sub(:,iC,ioff,1) = b_hat+R_hat.*exp(k_hat_sub(iC,ioff).*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
-            [y_max max_ori_sub(iC,ioff,1)] = max(y_fit_sub(:,iC,ioff,1),[],1);
-%             if ioff == noff_all
-                [max_resp max_dir(iC,1)] = max(delta_resp(iC,:,ioff,1),[],2);
-                for iboot = 2:nboot+1
-                    fprintf('.')
-                    [max_resp max_dir(iC,iboot)] = max(delta_resp(iC,:,ioff,iboot),[],2);
-                    data = squeeze(delta_resp(iC,:,ioff,iboot));
-                    [b_hat, k_hat_boot, R_hat,u_hat,sse,R_square(iC,ioff,iboot)] = miaovonmisesfit_ori(deg2rad(theta),data);
-                    y_fit(:,iC,ioff,iboot) = b_hat+R_hat.*exp(k_hat_boot.*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
-                    [y_max max_ori(iC,ioff,iboot)] = max(y_fit(:,iC,ioff,iboot),[],1);
-                    data_sub = squeeze(delta_resp_sub(iC,:,ioff,iboot));
-                    [b_hat, k_hat_boot, R_hat,u_hat,sse,R_square_sub(iC,ioff,iboot)] = miaovonmisesfit_ori(deg2rad(theta),data_sub);
-                    y_fit_sub(:,iC,ioff,iboot) = b_hat+R_hat.*exp(k_hat_boot.*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
-                    [y_max max_ori_sub(iC,ioff,iboot)] = max(y_fit_sub(:,iC,ioff,iboot),[],1);
+                fprintf('\n')
+            else
+                for idir = 1:ndir
+                    ind_dir = intersect(ind, find(baseDir==dirs(idir)));
+                    for idelta = 1:nTheta
+                        ind2 = intersect(ind_dir,find(tGratingDir == theta(idelta)));
+                        if length(ind2)>0
+                            delta_resp(iC,idelta,idir,ioff,1) = nanmean(mean(data_dfof(resp_win,iC,2,ind2),1)-mean(data_dfof(base_win,iC,2,ind2),1),4);
+                        end
+                    end
+                    data = squeeze(delta_resp(iC,:,idir,ioff,1));
+                    ind_nonan = find(~isnan(data));
+                    [b_hat, k_hat(iC,idir,ioff), R_hat,u_hat,sse(iC,idir,ioff),R_square(iC,idir,ioff,1)] = miaovonmisesfit_ori(deg2rad(theta(ind_nonan)),data(ind_nonan));
+                    y_fit(:,iC,idir,ioff,1) = b_hat+R_hat.*exp(k_hat(iC,idir,ioff).*(cos(2.*(deg2rad(theta_smooth)-u_hat))-1));
                 end
-                subplot(n, n2, iCell)
-                scatter(deg2rad(theta), squeeze(delta_resp(iC,:,ioff,1)),'ok');
-                hold on; plot(deg2rad(0:1:180), y_fit(:,iC,ioff,1),'-r')
-                title(num2str(chop(R_square(iC,ioff,1),2)))
-%             end
+            end
         end
     end
 end 
 suptitle([date ' ' mouse])
 print(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_tuningFits.pdf']),'-dpdf','-bestfit')
 
-theta_90 = nan(noff_all,nCells);
-max_dir_n = nan(1,nCells);
+theta_90 = nan(1,nCells);
 for iCell = 1:length(good_ind)
     iC = good_ind(iCell);
-    if ~isnan(R_square(iC,noff_all,1))
-        max_dir_n(1,iC) = length(find(max_dir(iC,2:end)==max_dir(iC,1)));
-        for ioff = 1:noff_all
-            theta_dist = abs(theta_smooth(squeeze(max_ori(iC,ioff,1)))-theta_smooth(squeeze(max_ori(iC,ioff,2:nboot+1))));
+    if ~isnan(R_square(iC,1,noff_all,1))
+        for ioff = noff_all
+            [max_val max_ori] = max(squeeze(y_fit(:,iC,1,ioff,:)),[],1);
+            theta_dist = abs(theta_smooth(max_ori(1,1))-theta_smooth(max_ori(1,2:nboot+1)));
             theta_dist(find(theta_dist>90)) = 180-theta_dist(find(theta_dist>90));
             theta_sort = sort(theta_dist,'ascend');
-            theta_90(ioff,iC) = theta_sort(ceil(nboot*.9));
+            theta_90(1,iC) = theta_sort(ceil(nboot*.9));
         end
     end
 end
 
-OSI = nan(nCells,noff_all);
-pref_ori = nan(nCells,noff_all);
-OSI_sub = nan(nCells,noff_all);
-pref_ori_sub = nan(nCells,noff_all);
+OSI = nan(nCells,ndir,noff_all);
+pref_ori = nan(nCells,ndir,noff_all);
+max_ori = nan(1,nCells,ndir,noff_all,nboot+1);
 for iCell = 1:length(good_ind)
     iC = good_ind(iCell);
-    if theta_90(3,iC) <= 22.5
+    if theta_90(1,iC) <= 22.5
         for ioff = 1:noff_all
-            pref_ori(iC,ioff) = theta_smooth(max_ori(iC,ioff,1));
-            null_ori = max_ori(iC,ioff,1)-90;
-            if null_ori <= 0
-                null_ori= 180+null_ori;
+            for idir = 1:ndir
+                [max_val, max_ori(1,iC,idir,ioff,:)] = max(y_fit(:,iC,idir,ioff,:),[],1);
+                pref_ori(iC,idir,ioff) = theta_smooth(max_ori(1,iC,idir,ioff,1));
+                null_ori = max_ori(1,iC,idir,ioff,1)-90;
+                if null_ori <= 0
+                    null_ori= 180+null_ori;
+                end
+                pref_val = y_fit(max_ori(1,iC,idir,ioff,1),iC,idir,ioff,1);
+                null_val = y_fit(null_ori,iC,idir,ioff,1);
+                if null_val < 0
+                    null_val = 0;
+                end
+                OSI(iC,idir,ioff) = (pref_val-null_val)./ (pref_val+null_val);
             end
-            pref_val = y_fit(max_ori(iC,ioff,1),iC,ioff,1);
-            null_val = y_fit(null_ori,iC,ioff,1);
-            if null_val < 0
-                null_val = 0;
-            end
-            OSI(iC,ioff) = (pref_val-null_val)./ (pref_val+null_val);
-        end
-        for ioff = 1:noff_all
-            pref_ori_sub(iC,ioff) = theta_smooth(max_ori_sub(iC,ioff,1));
-            null_ori = max_ori_sub(iC,ioff,1)-90;
-            if null_ori <= 0
-                null_ori= 180+null_ori;
-            end
-            pref_val = y_fit_sub(max_ori_sub(iC,ioff,1),iC,ioff,1);
-            null_val = y_fit_sub(null_ori,iC,ioff,1);
-            if null_val < 0
-                null_val = 0;
-            end
-            OSI_sub(iC,ioff) = (pref_val-null_val)./ (pref_val+null_val);
         end
     end
 end
 
 OSI_k = 1-exp(-2.*k_hat);
-OSI_k_sub = 1-exp(-2.*k_hat_sub);
 HWHM = 0.5.*acos((log(0.5)+k_hat)./k_hat);
-HWHM_sub = 0.5.*acos((log(0.5)+k_hat_sub)./k_hat_sub);
 
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_deltaResp.mat']), 'delta_resp', 'theta_90', 'max_dir', 'max_dir_n', 'pref_ori', 'OSI', 'y_fit', 'delta_resp_sub', 'pref_ori_sub', 'OSI_sub', 'y_fit_sub', 'k_hat', 'k_hat_sub', 'OSI_k', 'OSI_k_sub', 'HWHM', 'HWHM_sub', 'R_square', 'R_square_sub','sse','sse_sub')
+save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_deltaResp.mat']), 'delta_resp', 'theta_90', 'pref_ori', 'OSI', 'y_fit', 'k_hat', 'OSI_k', 'HWHM', 'R_square','sse')
+
+%%
+
+figure;
+good_ind_theta = find(theta_90<=22.5);
+[n n2] = subplotn(length(good_ind_theta));
+for iCell = 1:length(good_ind_theta)
+    subplot(n,n2,iCell)
+    iC = good_ind_theta(iCell);
+    for idir = 1:ndir
+        for ioff = 1
+            scatter(theta, delta_resp(iC,:,idir,ioff,1));
+            hold on
+        end
+    end
+end
+
+figure
+for ioff = 1:noff
+    subplot(2,2,ioff)
+    plot(dirs(1:ndir), squeeze(max_ori(1,good_ind_theta,:,ioff,1)))
+    title([num2str(offs(ioff)) ' frames off'])
+    ylim([0 180])
+end
+max_ori_diff = max_ori;
+max_ori_diff(find(max_ori>90)) = max_ori_diff(find(max_ori>90))-180;
+max_ori_diff_sub = max_ori_diff-max_ori_diff(:,:,2,:,:);
+max_ori_diff_sub(find(max_ori_diff_sub>90)) = max_ori_diff_sub(find(max_ori_diff_sub>90))-180;
+max_ori_diff_sub(find(max_ori_diff_sub<-90)) = max_ori_diff_sub(find(max_ori_diff_sub<-90))+180;
+for ioff = 1:noff
+    subplot(2,2,ioff+2)
+    plot(dirs(1:ndir), squeeze(max_ori_diff_sub(1,good_ind_theta,:,ioff,1)))
+    hold on
+    errorbar(dirs(1:ndir), squeeze(mean(max_ori_diff_sub(1,good_ind_theta,:,ioff,1),2)), squeeze(std(max_ori_diff_sub(1,good_ind_theta,:,ioff,1),[],2)./sqrt(length(good_ind_theta))),'-ok')
+    title([num2str(offs(ioff)) ' frames off'])
+    ylim([-90 90])
+end
+
+figure;
+good_ind_theta = find(theta_90<=22.5);
+[n n2] = subplotn(length(good_ind_theta));
+for iCell = 1:length(good_ind_theta)
+    subplot(n,n2,iCell)
+    iC = good_ind_theta(iCell);
+    plot(theta, delta_resp(iC,:,1,noff_all,1),'o');
+    hold on
+    for idir = 1:ndir
+            plot(theta, mean(delta_resp(iC,:,idir,1:2,1),4),'o');
+            hold on
+    end
+    if iCell == 1
+        legend({'Control',num2str(dirs(1)),num2str(dirs(2)),num2str(dirs(3))})
+    end
+end
+
+
+delta_resp_norm = squeeze(bsxfun(@rdivide,delta_resp(:,:,:,:,1),max(delta_resp(:,:,1,3,1),[],2)));
+
+figure;
+for ioff = 1:noff
+    subplot(1,2,ioff)
+    for idir = 1:ndir
+        errorbar(theta,mean(delta_resp_norm(good_ind_theta,:,idir,ioff),1), ste(delta_resp_norm(good_ind_theta,:,idir,ioff),1),'-o')
+        hold on
+    end
+    ylim([0 1])
+    legend(num2str(dirs(1:ndir)'))
+end
+
+figure; 
+for ioff = 1:noff_all
+    subplot(1,noff_all,ioff)
+    if ioff < noff_all
+        hist(pref_ori(good_ind_theta,:,ioff))
+        title(['Off frames = ' num2str(off_all(ioff))])
+    else
+        hist(pref_ori(good_ind_theta,1,:))
+        title(['Control vs adaptation'])
+    end
+end
+
 
 %% test roc analysis
 ppResp = cell(noff_all, nDelta);
