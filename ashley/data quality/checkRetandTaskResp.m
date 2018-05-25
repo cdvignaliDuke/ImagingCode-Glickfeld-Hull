@@ -1,6 +1,6 @@
 %% run this after doing direction tuning analysis (need cell mask)
-awFSAVdatasets_audControl
-iexp = 7;
+FSAV_V1_SOM_naive
+iexp = 1;
 % for iexp = 4:5
 % % try
 SubNum = expt(iexp).SubNum;

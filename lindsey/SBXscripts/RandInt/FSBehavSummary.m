@@ -11,6 +11,14 @@ dir_mat{2} = {'006','005'};
 dir_mat{3} = {'006'};
 
 %%
+doLG = false
+if doLG
+    LG_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
+else
+    AW_dir = 'Z:\Analysis';
+end
+
+%%
 
 t = 1;
 for imouse = 1:size(mouse_mat,2)
@@ -19,10 +27,13 @@ for imouse = 1:size(mouse_mat,2)
         date = date_mat{imouse}{iexp};
         run = run_mat{imouse}{iexp};
         
-        load(fullfile('Z:\home\lindsey\Analysis\2P',[date '_' mouse],[date '_' mouse '_runs-' run],[date '_' mouse '_runs-' run '_input.mat']));
-        load(fullfile('Z:\home\lindsey\Analysis\2P',[date '_' mouse],[date '_' mouse '_runs-' run],[date '_' mouse '_runs-' run '_dfofData.mat']));
-        load(fullfile('Z:\home\lindsey\Analysis\2P',[date '_' mouse],[date '_' mouse '_runs-' run],[date '_' mouse '_runs-' run '_stimData.mat']));
-
+        if doLG
+            load(fullfile(LG_dir,[date '_' mouse],[date '_' mouse '_runs-' run],[date '_' mouse '_runs-' run '_input.mat']));
+            load(fullfile(LG_dir,[date '_' mouse],[date '_' mouse '_runs-' run],[date '_' mouse '_runs-' run '_dfofData.mat']));
+            load(fullfile(LG_dir,[date '_' mouse],[date '_' mouse '_runs-' run],[date '_' mouse '_runs-' run '_stimData.mat']));
+        else
+            
+        end
         b2 = celleqel2mat_padded(input.tBlock2TrialNumber);
         tGratingDir = celleqel2mat_padded(input.tGratingDirectionDeg);
         tGratingDir(find(b2))=[];
@@ -163,7 +174,7 @@ for imouse = 1:size(mouse_mat,2)
         
         if ~isnan(dir_mat{imouse}{iexp})
             dir_run = dir_mat{imouse}{iexp};
-            load(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mouse], [date '_' mouse '_runs-' dir_run], ['oriTuningAndFits.mat']))
+            load(fullfile(LG_dir, [date '_' mouse], [date '_' mouse '_runs-' dir_run], ['oriTuningAndFits.mat']))
             [~,max_ori] = max(vonMisesFitAllCells,[],1);
             expt(t).oriTuning = max_ori(1,:)-1;
             expt(t).oriTuningTheta90 = fitReliability;
@@ -175,4 +186,4 @@ for imouse = 1:size(mouse_mat,2)
         t = 1+t;
     end
 end
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P\Adaptation', 'FSBehavData.mat'),'expt')
+% save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P\Adaptation', 'FSBehavData.mat'),'expt')

@@ -1,6 +1,6 @@
 clear all
 close all
-ds = 'FSAV_V1_100ms_naive';
+ds = 'FSAV_V1_100ms';
 cellsOrDendrites = 1;
 doRawData = 0;
 %%
@@ -77,74 +77,74 @@ for imouse = 1:size(mouse,2)
 end
 exptDates = {expt.date};
 exptMice = {expt.SubNum};
-%% orientation tuning
-exptIndicator = cell(1,nexp);
-tuningReliabilityThresh = 45;
-tuningDownSampFactor = 10;
-avgResponseEaOri = cell(1,nexp);
-semResponseEaOri = cell(1,nexp);
-avgResponseEaDir = cell(1,nexp);
-semResponseEaDir = cell(1,nexp);
-oriFitReliability = cell(1,nexp);
-dirFitReliability = cell(1,nexp);
-oriVonMisesFitAllCells = cell(1,nexp);
-dirVonMisesFitAllCells = cell(1,nexp);
-oriTuningTCs = cell(1,nexp);
-dirTuningTCs = cell(1,nexp);
-OSIEaExpt = cell(1,nexp);
-DSIEaExpt = cell(1,nexp);
-% oriRSqEaExpt = cell(1,nexp);
-% dirRSqEaExpt = cell(1,nexp);
-for imouse = 1:size(mouse,2)
-    for iexp = 1:size(mouse(imouse).expt,2)
-        if imouse == 1 && iexp == 1
-            exptN = 1;
-        else
-            exptN = exptN+1;
-        end
-        ms = mouse(imouse).expt(iexp).mouse_name;
-        dt = mouse(imouse).expt(iexp).date;
-        ind = strcmp(exptMice,ms) & strcmp(exptDates,dt);
-        dataPath = fullfile(rc.ashleyAnalysis,expt(ind).mouse,...
-            'two-photon imaging', dt, expt(ind).dirtuning);
-        if cellsOrDendrites == 1
-            tuningData = load(fullfile(dataPath,'oriTuningAndFits.mat'));
-        else
-            tuningData = load(fullfile(dataPath,'oriTuningAndFits_den.mat'));
-        end
-        avgResponseEaOri{exptN} = tuningData.avgResponseEaOri;
-        semResponseEaOri{exptN} = tuningData.semResponseEaOri;
-        oriFitReliability{exptN} = tuningData.fitReliability;
-        oriVonMisesFitAllCells{exptN} = squeeze(tuningData.vonMisesFitAllCells);
-        load(fullfile(dataPath,'oriTuningTCs'))
-        oriTuningTCs{exptN} = tuningTC;
-        OSIEaExpt{exptN} = getOSIfromFit(oriVonMisesFitAllCells{exptN});
-%         oriRSqEaExpt{exptN} = tuningData.R_square(1,:);
-        
-        tuningData = load(fullfile(dataPath,'dirTuningAndFits.mat'));
-        avgResponseEaDir{exptN} = tuningData.avgResponseEaDir;
-        semResponseEaDir{exptN} = tuningData.semResponseEaDir;
-        dirFitReliability{exptN} = tuningData.fitReliability;
-        dirVonMisesFitAllCells{exptN} = squeeze(tuningData.vonMisesFitAllCells);
-        load(fullfile(dataPath,'dirTuningTCs'))
-        dirTuningTCs{exptN} = tuningTC;
-        DSIEaExpt{exptN} = getDSIfromFit(dirVonMisesFitAllCells{exptN});
-%         dirRSqEaExpt{exptN} = tuningData.R_square(1,:);
-                
-        if strcmp(ds(end-4:end),'naive')
-            exptIndicator{exptN} = strjoin(expt(ind).indicator);
-        end
-    end
-end
-for iexp = 1:nexp
-    noFit = sum(oriVonMisesFitAllCells{iexp}) == 0;
-    thisExptFitReliability = oriFitReliability{iexp};
-    thisExptFitReliability(noFit) = 90;
-    oriFitReliability{iexp} = thisExptFitReliability;
-end
-
-isOriTuned = cellfun(@(x) x < tuningReliabilityThresh,oriFitReliability,'unif',0)';
-isDirTuned = cellfun(@(x) x < tuningReliabilityThresh,dirFitReliability,'unif',0)';
+% % % orientation tuning
+% % exptIndicator = cell(1,nexp);
+% % tuningReliabilityThresh = 45;
+% % tuningDownSampFactor = 10;
+% % avgResponseEaOri = cell(1,nexp);
+% % semResponseEaOri = cell(1,nexp);
+% % avgResponseEaDir = cell(1,nexp);
+% % semResponseEaDir = cell(1,nexp);
+% % oriFitReliability = cell(1,nexp);
+% % dirFitReliability = cell(1,nexp);
+% % oriVonMisesFitAllCells = cell(1,nexp);
+% % dirVonMisesFitAllCells = cell(1,nexp);
+% % oriTuningTCs = cell(1,nexp);
+% % dirTuningTCs = cell(1,nexp);
+% % OSIEaExpt = cell(1,nexp);
+% % DSIEaExpt = cell(1,nexp);
+% % oriRSqEaExpt = cell(1,nexp);
+% % dirRSqEaExpt = cell(1,nexp);
+% % for imouse = 1:size(mouse,2)
+% %     for iexp = 1:size(mouse(imouse).expt,2)
+% %         if imouse == 1 && iexp == 1
+% %             exptN = 1;
+% %         else
+% %             exptN = exptN+1;
+% %         end
+% %         ms = mouse(imouse).expt(iexp).mouse_name;
+% %         dt = mouse(imouse).expt(iexp).date;
+% %         ind = strcmp(exptMice,ms) & strcmp(exptDates,dt);
+% %         dataPath = fullfile(rc.ashleyAnalysis,expt(ind).mouse,...
+% %             'two-photon imaging', dt, expt(ind).dirtuning);
+% %         if cellsOrDendrites == 1
+% %             tuningData = load(fullfile(dataPath,'oriTuningAndFits.mat'));
+% %         else
+% %             tuningData = load(fullfile(dataPath,'oriTuningAndFits_den.mat'));
+% %         end
+% %         avgResponseEaOri{exptN} = tuningData.avgResponseEaOri;
+% %         semResponseEaOri{exptN} = tuningData.semResponseEaOri;
+% %         oriFitReliability{exptN} = tuningData.fitReliability;
+% %         oriVonMisesFitAllCells{exptN} = squeeze(tuningData.vonMisesFitAllCells);
+% %         load(fullfile(dataPath,'oriTuningTCs'))
+% %         oriTuningTCs{exptN} = tuningTC;
+% %         OSIEaExpt{exptN} = getOSIfromFit(oriVonMisesFitAllCells{exptN});
+% %         oriRSqEaExpt{exptN} = tuningData.R_square(1,:);
+% %         
+% %         tuningData = load(fullfile(dataPath,'dirTuningAndFits.mat'));
+% %         avgResponseEaDir{exptN} = tuningData.avgResponseEaDir;
+% %         semResponseEaDir{exptN} = tuningData.semResponseEaDir;
+% %         dirFitReliability{exptN} = tuningData.fitReliability;
+% %         dirVonMisesFitAllCells{exptN} = squeeze(tuningData.vonMisesFitAllCells);
+% %         load(fullfile(dataPath,'dirTuningTCs'))
+% %         dirTuningTCs{exptN} = tuningTC;
+% %         DSIEaExpt{exptN} = getDSIfromFit(dirVonMisesFitAllCells{exptN});
+% %         dirRSqEaExpt{exptN} = tuningData.R_square(1,:);
+% %                 
+% %         if strcmp(ds(end-4:end),'naive')
+% %             exptIndicator{exptN} = strjoin(expt(ind).indicator);
+% %         end
+% %     end
+% % end
+% % for iexp = 1:nexp
+% %     noFit = sum(oriVonMisesFitAllCells{iexp}) == 0;
+% %     thisExptFitReliability = oriFitReliability{iexp};
+% %     thisExptFitReliability(noFit) = 90;
+% %     oriFitReliability{iexp} = thisExptFitReliability;
+% % end
+% % 
+% % isOriTuned = cellfun(@(x) x < tuningReliabilityThresh,oriFitReliability,'unif',0)';
+% % isDirTuned = cellfun(@(x) x < tuningReliabilityThresh,dirFitReliability,'unif',0)';
 %%
 szEaExpt = nan(1,nexp);
 exptDepth = nan(1,nexp);
@@ -221,8 +221,8 @@ visTargetVsLastBaseUTest = cell(nexp,1);
 visTargetTCsHM = cell(nexp,2);
 visTargetTCsEaExpt = cell(nexp,1);
 lateWinNsCorrAV = cell(nexp,nav);
-visTargetVsFirstBaseAuroc{exptN} = cell(nexp,1);
-visTargetVsFirstBaseUTest{exptN} = cell(nexp,1);
+visTargetVsFirstBaseAuroc = cell(nexp,1);
+visTargetVsFirstBaseUTest = cell(nexp,1);
 itiFEaExpt = cell(nexp,1);
 lateWinFEaExpt = cell(nexp,1);
 itiCorrEaExpt = cell(nexp,1);
@@ -281,10 +281,10 @@ for imouse = 1:size(mouse,2)
             visualTrials).outcome(hitTrials).cmlvCycResp{nCycles};
         dA_nCycles = mouse(imouse).expt(iexp).align(pressAlign).av(...
             auditoryTrials).outcome(hitTrials).cmlvCycResp{nCycles};
-        lateResponsiveCellsAV{exptN} = ttest(squeeze(mean(dV_nCycles(respwin(1):end,:,:),1)),...
-            squeeze(mean(dV_nCycles(basewin,:,:),1)),'dim',2,'tail','right','alpha',cellGroupsAlpha)';
-        lateSuppressedCellsAV{exptN} = ttest(squeeze(mean(dV_nCycles(respwin(1):end,:,:),1)),...
-            squeeze(mean(dV_nCycles(basewin,:,:),1)),'dim',2,'tail','left','alpha',cellGroupsAlpha)';
+        lateResponsiveCellsAV{exptN} = ttest(squeeze(mean(dAV_nCycles(respwin(1):end,:,:),1)),...
+            squeeze(mean(dAV_nCycles(basewin,:,:),1)),'dim',2,'tail','right','alpha',cellGroupsAlpha)';
+        lateSuppressedCellsAV{exptN} = ttest(squeeze(mean(dAV_nCycles(respwin(1):end,:,:),1)),...
+            squeeze(mean(dAV_nCycles(basewin,:,:),1)),'dim',2,'tail','left','alpha',cellGroupsAlpha)';
         lateResponsiveCellsA{exptN} = ttest(squeeze(mean(dA_nCycles(respwin(1):end,:,:),1)),...
             squeeze(mean(dA_nCycles(basewin,:,:),1)),'dim',2,'tail','right','alpha',cellGroupsAlpha)';
         lateSuppressedCellsA{exptN} = ttest(squeeze(mean(dA_nCycles(respwin(1):end,:,:),1)),...
@@ -310,15 +310,15 @@ for imouse = 1:size(mouse,2)
         nCells = size(visTargetResp,1);
         
 
-        r = zeros(nCells,1);
-        ut = zeros(nCells,1);
-        for icell = 1:nCells
-                r(icell) = roc_gh(visLastBaseResp(icell,:),visTargetResp(icell,:));
-                [~,ut(icell)] = ranksum(visLastBaseResp(icell,:),visTargetResp(icell,:));
-        end
-
-        visTargetVsLastBaseAuroc{exptN} = r;
-        visTargetVsLastBaseUTest{exptN} = ut;
+%         r = zeros(nCells,1);
+%         ut = zeros(nCells,1);
+%         for icell = 1:nCells
+%                 r(icell) = roc_gh(visLastBaseResp(icell,:),visTargetResp(icell,:));
+%                 [~,ut(icell)] = ranksum(visLastBaseResp(icell,:),visTargetResp(icell,:));
+%         end
+% 
+%         visTargetVsLastBaseAuroc{exptN} = r;
+%         visTargetVsLastBaseUTest{exptN} = ut;
         
         % target vs. first base roc
         visTC = mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).resp;
@@ -332,15 +332,15 @@ for imouse = 1:size(mouse,2)
             targetResp(:,itrial) = squeeze(mean(visTC(respwinThisTrial,:,itrial),1) - mean(visTC(basewinThisTrial,:,itrial),1));
         end
         
-        r = zeros(ncells,1);
-        ut = zeros(ncells,1);
-        for icell = 1:ncells
-                r(icell) = roc_gh(firstBaseResp(icell,:),targetResp(icell,:));
-                [~,ut(icell)] = ranksum(firstBaseResp(icell,:),targetResp(icell,:));
-        end
- 
-        visTargetVsFirstBaseAuroc{exptN} = r;
-        visTargetVsFirstBaseUTest{exptN} = ut;
+%         r = zeros(ncells,1);
+%         ut = zeros(ncells,1);
+%         for icell = 1:ncells
+%                 r(icell) = roc_gh(firstBaseResp(icell,:),targetResp(icell,:));
+%                 [~,ut(icell)] = ranksum(firstBaseResp(icell,:),targetResp(icell,:));
+%         end
+%  
+%         visTargetVsFirstBaseAuroc{exptN} = r;
+%         visTargetVsFirstBaseUTest{exptN} = ut;
         
         f = mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).F;
         minLengthTrialsInd = trNCycles >=nCycles;
@@ -3359,7 +3359,7 @@ title(sprintf('tuning of all suppressed cells (%s/%s)',...
     num2str(sum(lateBLSuppCells & isTunedAllCells)),num2str(sum(lateBLSuppCells))))
 print([fnout 'histTuningSuppCells'],'-dpdf','-fillpage')
 
-%% polor plot of selectivity and tuning
+%% polar plot of selectivity and tuning
 figure;
 subplot 121
 p = polarplot(deg2rad(tuningPeakAllCells((BLRespCells | lateBLRespCells) & isTunedAllCells)), lateWinSI((BLRespCells | lateBLRespCells)  & isTunedAllCells),'ok');

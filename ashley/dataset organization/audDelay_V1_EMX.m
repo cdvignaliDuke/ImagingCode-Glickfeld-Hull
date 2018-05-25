@@ -3,7 +3,7 @@ params.stimOnTime = 100;
 params.nBaselineMs = 1000;
 params.nStimMs_visAlign = 3000;
 params.nStimMs_audAlign = 9000;
-params.nFramesVisDelay = 4;
+params.nFramesVisDelay = 6;
 params.motionCutoff = 0.2;
 
 % %% 842 180302
@@ -57,20 +57,20 @@ expt(1).stimOnMs = 100;
 expt(1).motionThreshold = 0.05;
 expt(1).areaBorders = 0;
 expt(1).regImgStartFrame = 8910;
-% %% 843 180310
-% expt(2).SubNum = '843';
-% expt(2).mouse = '843';
-% expt(2).date = '180310';
-% expt(2).img_loc  = {'V1';'L2/3'};
-% expt(2).z = -290;
-% expt(2).img_strct  = {'cells'};
-% expt(2).indicator = {'tg';'EMX-GCaMP6s'};
-% expt(2).time_mat = ['1048';'1151'];
-% expt(2).runs = ['002';'003'];
-% expt(2).nrun = size(expt(2).runs,1);
-% expt(2).frame_rate = 30;
-% expt(2).rettuning = {'001';'1035'};
-% expt(2).stimOnMs = 100;
-% expt(2).motionThreshold = 0.05;
-% expt(2).areaBorders = 0;
-% expt(2).regImgStartFrame = 127669;
+%% 843 180310
+expt(2).SubNum = '843';
+expt(2).mouse = '843';
+expt(2).date = '180310';
+expt(2).img_loc  = {'V1';'L2/3'};
+expt(2).z = -290;
+expt(2).img_strct  = {'cells'};
+expt(2).indicator = {'tg';'EMX-GCaMP6s'};
+expt(2).time_mat = ['1048';'1151'];
+expt(2).runs = ['002';'003'];
+expt(2).nrun = size(expt(2).runs,1);
+expt(2).frame_rate = 30;
+expt(2).rettuning = {'001';'1035'};
+expt(2).stimOnMs = 100;
+expt(2).motionThreshold = 0.05;
+expt(2).areaBorders = 0;
+expt(2).regImgStartFrame = 127669;

@@ -1,7 +1,7 @@
 %quick behavior imaging check
 clear all
 close all
-awFSAVdatasets_naive100ms
+FSAV_V1_SOM_naive
 iexp = 1;
 irun = 1;
 quickBehaviorSummary(expt,iexp)
@@ -32,11 +32,13 @@ d = double(reshape(trialFrames,ypix,xpix,nBaselineFrames+nTrialFrames,ntrials));
 
 F = mean(d(:,:,1:nBaselineFrames,:),3);
 dFF = bsxfun(@rdivide,bsxfun(@minus,d,F),F);
+clear F
 
 trialMeanFrames = squeeze(mean(dFF(...
     :,:,nBaselineFrames+1:nBaselineFrames+nTrialFrames,:),3));
 
 maxDFF = max(trialMeanFrames,[],3);
+clear dFF
 
 bwout = imCellEditInteractive(maxDFF);
 mask = bwlabel(bwout);

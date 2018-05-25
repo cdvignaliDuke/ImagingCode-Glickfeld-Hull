@@ -1,6 +1,6 @@
 clear all
 close all
-ds = 'awFSAVdatasets_naive100ms';
+ds = 'FSAV_V1_SOM';
 rc = behavConstsAV;
 eval(ds)
 slct_expt = 6;
@@ -103,7 +103,7 @@ if isnan(expt(iexp).regImgStartFrame)
     [~,data_tun_reg] = stackRegister_MA(data_tun,[],[],out_tun);
     clear data_bx data_tun
 else
-    regImg = mean(data_bx(:,:,expt(iexp).regImgStartFrame),3);
+    regImg = mean(data_bx(:,:,expt(iexp).regImgStartFrame:(expt(iexp).regImgStartFrame+99)),3);
     figure;imagesc(regImg);colormap gray
     [out_bx,data_bx_reg] = stackRegister(data_bx,regImg);
     [out_tun,data_tun_reg] = stackRegister(data_tun,regImg);
@@ -126,6 +126,8 @@ writetiff(F_tun,fullfile(fnout,'FImages_tun'))
 getTaskMaxDFF
 
 dirTuningMaxDFF
+
+close all
 %% crop cells image
 
 %crop it
@@ -135,8 +137,8 @@ bx_img = max(dFF_bxMax,[],3);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:2 792:xpix];
-ycrop = [1:2 262:ypix];
+xcrop = [1:5 788:xpix];
+ycrop = [1:10 259:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;

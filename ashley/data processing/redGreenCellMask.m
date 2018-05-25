@@ -128,7 +128,8 @@ if doMaxDFF == 0
             twoColorID = zeros(ypix,xpix);
             redActiveCells = false(1,nRedCells);
         end
-        activeCellPix = activeCellsMask(round(redCellCenters(icell,2)),round(redCellCenters(icell,1)));
+        activeCellPix = activeCellsMask(round(redCellCenters(icell,2)),...
+            round(redCellCenters(icell,1)));
         if activeCellPix > 0
             activeCell = activeCellsMask == activeCellPix;
             redCell = redCellsMask == icell;

@@ -1,21 +1,21 @@
-ds = 'audDelay_V1_EMX';
+ds = 'audDelay_V1_SOM';
 eval(ds)
 rc = behavConstsAV;
 
 fn = fullfile(rc.ashleyAnalysis,'Expt Summaries',ds);
 load(fullfile(fn,'dataSummary'))
 
-doLoadPreviousTuning = true;
+doLoadPreviousTuning = false;
 
 basewinS = 0.1;
 respwinS = 0.1;
 
 minVisOnlyMs = 8000;
-nBoot = 1000;
+nBoot = 10;
 
 orisSmooth = 0:180;
 tuningCenterFit = 90;
-fitReliabilityCutoff =85;
+fitReliabilityCutoff = 22.5;
 
 nBaselineFr = params.nBaselineMs.*params.frameRate./1000;
 basewin = nBaselineFr-round(basewinS*params.frameRate):nBaselineFr;
@@ -23,7 +23,7 @@ respwin = (nBaselineFr+params.nFramesVisDelay):...
     (nBaselineFr+params.nFramesVisDelay+(respwinS.*params.frameRate));
 
 
-im = 1;
+im = 2;
 iexp = 1;
 
 tOris = ms(im).expt(iexp).tOrientation;
@@ -44,12 +44,25 @@ blResp = squeeze(mean(visTC(basewin,:,:),1));
 visTuning = nan(nCells,nOri);
 visTuningErr = nan(nCells,nOri);
 nTrialsPerOri = zeros(1,nOri);
+tVisRespOri = cell(1,nOri);
+tVisBLOri = cell(1,nOri);
 for i = 1:nOri
     ind = tOris == orientations(i) & tDelay >= 6000;
     visTuning(:,i) = mean(visResp(:,ind),2);
     visTuningErr(:,i) = ste(visResp(:,ind),2);
     nTrialsPerOri(i) = sum(ind);
+    
+    tVisRespOri{i} = visResp(:,ind);
+    tVisBLOri{i} = blResp(:,ind);
 end
+
+oriAlpha = 0.05/nOri;
+oriTTest = sum(cell2mat(cellfun(@(x,y) ...
+    ttest(x,y,'dim',2,'tail','right','alpha',oriAlpha),...
+    tVisRespOri,tVisBLOri,'unif',0)),2) > 0;
+allTTest = ttest(cell2mat(tVisRespOri),cell2mat(tVisBLOri),...
+    'dim',2,'tail','right');
+isResponsive = oriTTest | allTTest;
 
 if doLoadPreviousTuning
     load(fullfile(fn,'oriTuning.mat'))
@@ -70,7 +83,8 @@ else
 end
 
 %%
-isTuned = fitReliability > fitReliabilityCutoff;
+% isTuned = fitReliability > fitReliabilityCutoff;
+isTuned = R_square > 0.9;
 
 delays = unique(tDelay);
 nDelay = length(delays);
@@ -82,6 +96,7 @@ visDelayRespTTest = cell(1,nDelay);
 visTCTuning = cell(1,nDelay); 
 visTCTuningErr = cell(1,nDelay);
 nTrialsEaDelay = zeros(nOri,nDelay);
+tVisTCTuning = cell(1,nDelay);
 for i = 1:nDelay
     tuning = nan(nCells,nOri);
     tuningErr = nan(nCells,nOri);
@@ -98,6 +113,7 @@ for i = 1:nDelay
         tc(:,:,iori) = mean(visTC(:,:,ind),3);
         tcErr(:,:,iori) = ste(visTC(:,:,ind),3);
         nTrialsEaDelay(iori,i) = sum(ind);
+        tVisTCTuning{i}{iori} = visTC(:,:,ind);
     end    
     ind = tDelay == delays(i);
     alltuning_ttest = ttest(...
@@ -110,9 +126,6 @@ for i = 1:nDelay
     visTCTuning{i} = tc;
     visTCTuningErr{i} = tcErr;
 end
-isResponsive = cellfun(@(x,y) x | y,...
-                cellfun(@(x) sum(x,2) > 0,visDelayTuningTTest,'unif',0),...
-                cellfun(@logical,visDelayRespTTest,'unif',0),'unif',0);
 
 vonMisesFits_delays = cell(1,nDelay);
 for i = 1:nDelay
@@ -171,7 +184,7 @@ suptitle({sprintf('N Trials Per Condition (avg) = %s',num2str(avgTrials));...
 subplot 121
 plot(orisSmooth,avgFits)
 figXAxis([],'Orientation (deg)',[-10 190],orientations,orientations)
-figYAxis([],'dF/F',[-0.005 0.1])
+figYAxis([],'dF/F',[-0.005 0.3])
 figAxForm
 title('Fits')
 subplot 122
@@ -184,10 +197,60 @@ for i  = 1:nDelay
 end
 legend(strsplit(num2str(delays)))
 figXAxis([],'Orientation (deg)',[-10 190],orientations,orientations)
-figYAxis([],'dF/F',[-0.005 0.1])
+figYAxis([],'dF/F',[-0.005 0.3])
 figAxForm
 title('Responses')
 
+%%
+cellInd = isTuned & isResponsive';
+
+[visOnlyFitPeak, visOnlyPref] = max(vonMisesFit,[],1);
+[~, pairedPref] = max(vonMisesFits_delays{1},[],1);
+pairedFitPeak = nan(1,nCells);
+for i = 1:nCells
+    pairedFitPeak(i) = vonMisesFits_delays{1}(visOnlyPref(i),i);
+end
+
+respLim = [-0.005 0.6];
+figure
+suptitle('Tuned Responsive Cells')
+subplot 121
+x = visOnlyFitPeak(cellInd);
+y = pairedFitPeak(cellInd);
+scatter(x,y)
+hold on
+errorbar(mean(x),mean(y),ste(y,2),ste(y,2),ste(x,2),ste(x,2),'ro')
+plot(respLim,respLim,'k--')
+figXAxis([],'Visual Only',respLim)
+figYAxis([],'Visual + Auditory',respLim)
+figAxForm
+title('Pref Ori Resp (ori from vis only condition)')
+subplot 122
+scatter(visOnlyPref(cellInd)-1,pairedPref(cellInd)-1)
+hold on
+plot(0:180,0:180,'k--')
+figXAxis([],'Visual Only',[0 180])
+figYAxis([],'Visual + Auditory',[0 180])
+figAxForm
+title('Fit Peak Orientation')
+
+fitPeak_delays = nan(nDelay,nCells);
+for i = 1:nCells
+    fitPeak_delays(:,i) = cellfun(@(x) x(visOnlyPref(i),i),...
+        vonMisesFits_delays);
+end
+avgPeakResp_delays = mean(fitPeak_delays(:,cellInd),2);
+errPeakResp_delays = ste(fitPeak_delays(:,cellInd),2);
+
+figure
+bar(avgPeakResp_delays)
+hold on
+errorbar(1:nDelay,avgPeakResp_delays,errPeakResp_delays,'k.')
+figXAxis([],'Aud-Vis Delay (ms)',[0 nDelay+1],1:nDelay,delays)
+figYAxis([],'dF/F',[])
+figAxForm([],0)
+title({'Response to vis only pref ori';...
+    sprintf('Responsive & Tuned (%s)',num2str(sum(cellInd)))})
 %% time-course
 
 [~,oriPref_delay] = cellfun(@(x) max(x,[],2),visDelayTuning,'unif',0);

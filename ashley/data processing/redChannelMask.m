@@ -1,9 +1,9 @@
 clear all
 close all
-ds = 'awFSAVdatasets_V1gad';
+ds = 'FSAV_V1_GAD';
 rc = behavConstsAV;
 eval(ds)
-for iexp = 1:size(expt,2);
+for iexp = 1:size(expt,2)
 %%
 mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;

@@ -1,6 +1,6 @@
 clear all
 close all
-ds = 'audDelay_V1_SOM';
+ds = 'audDelay_V1_PV';
 rc = behavConstsAV;
 eval(ds)
 slct_expt = 1;

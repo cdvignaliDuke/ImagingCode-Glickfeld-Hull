@@ -46,6 +46,9 @@ motion_ind = max(diff(mean(tun_tc,3))) < motionCutoff;
 
 dFF_dirmax = zeros(ypix,xpix,nstim);
 for istim = 1:nstim
+    if sum(tDir_ind == istim & motion_ind) == 0
+        continue
+    end
    dFF_dirmax(:,:,istim) = max(squeeze(mean(...
        dFF(:,:,off+1:off+on,tDir_ind == istim & motion_ind),3)),[],3); 
 end

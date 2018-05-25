@@ -3,7 +3,7 @@ close all
 ds = 'FSAV_V1_100ms';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 1:size(expt,2);
+slct_expt = 6;
 %%
 for iexp = slct_expt
 %     iexp = slct_expt;
@@ -29,6 +29,7 @@ for iexp = slct_expt
             retDataDownSampled = stackGroupProject(retData,downSampleRate);
             [~,retDataRegistered] = stackRegister(retDataDownSampled,data_corr_img);
         end
+    elseif ~exist(fullfile(fn,'data processing','regOuts&Img.mat','file')
     else
         load(fullfile(fn,'data processing','regOuts&Img.mat'))
         retDataDownSampled = stackGroupProject(retData,downSampleRate);

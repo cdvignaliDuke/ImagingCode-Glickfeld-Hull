@@ -1,9 +1,9 @@
 clear all
 close all
-ds = 'FSAV_V1_100ms_naiv_temp';
+ds = 'FSAV_V1_SOM';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 15;
+slct_expt = 6;
 %%
 for iexp = slct_expt
 
@@ -99,7 +99,7 @@ try
 catch
     disp('no corr image')
 end
-print(['Z:\Analysis\FSAV Summaries\' ds '\rand image samples' SubNum expDate],'-dpdf','-fillpage')
-savefig(['Z:\Analysis\FSAV Summaries\' ds '\rand image samples' SubNum expDate])
+print(['Z:\Analysis\FSAV Summaries\' ds '\rand image samples_' SubNum '-' expDate],'-dpdf','-fillpage')
+savefig(['Z:\Analysis\FSAV Summaries\' ds '\rand image samples_' SubNum '-' expDate])
 end
 clear all

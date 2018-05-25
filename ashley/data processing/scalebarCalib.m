@@ -6,6 +6,10 @@ y_um = 233;
 x_um = 673; 
 y_um = 382;
 
+% 16x 2018
+x_um = 1030;
+y_um = 581;
+
 %%
 [y_pix,x_pix] = size(img);
 x_calib = x_um/x_pix;

@@ -1,0 +1,25 @@
+params.frameRate = 30;
+params.stimOnTime = 100;
+params.nBaselineMs = 1000;
+params.nStimMs_visAlign = 3000;
+params.nStimMs_audAlign = 9000;
+params.nFramesVisDelay = 6;
+params.motionCutoff = 0.2;
+
+%% 846 180512
+expt(1).SubNum = '846';
+expt(1).mouse = '846';
+expt(1).date = '180512';
+expt(1).img_loc  = {'V1';'L2/3'};
+expt(1).z = -265;
+expt(1).img_strct  = {'cells'};
+expt(1).indicator = {'tg';'EMX-GCaMP6s'};
+expt(1).time_mat = ['1216';'1254';'1332'];
+expt(1).runs = ['002';'003';'004'];
+expt(1).nrun = size(expt(1).runs,1);
+expt(1).frame_rate = 30;
+expt(1).rettuning = {'001';'1202'};
+expt(1).stimOnMs = 100;
+expt(1).motionThreshold = 0.05;
+expt(1).areaBorders = 0;
+expt(1).regImgStartFrame = 0;

@@ -3,7 +3,8 @@ close all
 ds = 'FSAV_V1_GAD';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 8%1:size(expt,2);
+doRedChannel = 1;
+slct_expt = 2:4;
 %%
 dataImg = cell(1,length(slct_expt));
 dataImgInfo = cell(1,length(slct_expt));
@@ -44,15 +45,23 @@ dataImgInfo{iexp} = [SubNum '-' expDate];
 clear data_bx
 
 %% 
-load(fullfile(fnout,'twoColorMask&CellLabels'))
-dataTC = stackGetTimeCourses(data_bx_reg,twoColorMask);
-buf = 4;
-np = 6;
-dataTC_npSub = getWeightedNeuropilTimeCourse(data_bx_reg,dataTC,twoColorMask,buf,np);
+if doRedChannel
+    load(fullfile(fnout,'twoColorMask&CellLabels'))
+    dataTC = stackGetTimeCourses(data_bx_reg,twoColorMask);
+    buf = 4;
+    np = 6;
+    dataTC_npSub = getWeightedNeuropilTimeCourse(data_bx_reg,dataTC,twoColorMask,buf,np);
 
-save(fullfile(fnout,'timecourses_bx_cells.mat'),'dataTC_npSub','isLabeledCell','isFromActiveMask')
+    save(fullfile(fnout,'timecourses_bx_cells.mat'),'dataTC_npSub','isLabeledCell')
+else
+    load(fullfile(fnout,'final_mask.mat'))
+    dataTC = stackGetTimeCourses(data_bx_reg,mask_cell);
+    buf = 4;
+    np = 6;
+    dataTC_npSub = getWeightedNeuropilTimeCourse(data_bx_reg,dataTC,twoColorMask,buf,np);
+    save(fullfile(fnout,'timecourses_bx_cells.mat'),'dataTC_npSub','dataTC')
 end
-
+end
 [nrows,ncols] = optimizeSubplotDim(length(slct_expt));
 figure; colormap gray
 for iexp = 1:length(slct_expt)
@@ -81,4 +90,3 @@ for iexp = 1:length(slct_expt)
     imagesc(regImg)
     title(dataImgInfo{iexp})
 end
-    

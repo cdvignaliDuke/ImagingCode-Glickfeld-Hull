@@ -27,9 +27,26 @@ for iexp = 1:nexp
     dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,...
         'two-photon imaging', expt(iexp).date, expt(iexp).dirtuning);
     if isFSAV
-        if cellsOrDendrites == 1
+        if strcmp(dataGroup,'FSAV_V1_decode')
+            if ~isnan(expt(iexp).label)
+                try 
+                    load(fullfile(dataPath,'timecourses.mat'));
+                catch
+                    load(fullfile(dataPath,'timecourses_tun_cells.mat'));
+                    try
+                        data_tc_subnp = data_tun_tc_subnp;
+                    catch
+                        data_tc_subnp = dataTC_npSub;
+                    end
+                end
+            end
+        elseif cellsOrDendrites == 1
             load(fullfile(dataPath,'timecourses_tun_cells.mat'))
-            data_tc_subnp = data_tun_tc_subnp;
+            try
+                data_tc_subnp = data_tun_tc_subnp;
+            catch
+                data_tc_subnp = dataTC_npSub;
+            end
         elseif cellsOrDendrites == 2
             load(fullfile(dataPath,'timecourses_tun_dendrites.mat'))
             data_tc_subnp = data_tun_den_tc_subnp;
