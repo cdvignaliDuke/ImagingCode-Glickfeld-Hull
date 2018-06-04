@@ -3,7 +3,9 @@
 clear
 file_info
 % out_base = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis\');
-out_base = fullfile('Z:\home\ziye\2P_Analysis\2P_Analysis\');
+%out_base = fullfile('Z:\home\ziye\2P_Analysis\2P_Analysis\');
+out_base = fullfile('Z:\Analysis\2P Analysis\Lever\');
+count_base = fullfile('\\crash.dhe.duke.edu\data\home\ziye\2P_Analysis\2P_Analysis\');
 mouseID = mouseID(1:30);
 success_nevents_tot = 0; fail_nevents_tot = 0; spont_nevents_tot = 0;
 fail_ntrials = 0; success_ntrials = 0;
@@ -12,17 +14,17 @@ for id = 1:30%size(mouseID,2)
     for rID  = 1:2
 %         dest_sub  = fullfile('C:','Users','ziye','Documents','MATLAB','2P_Analysis',[date{id}, '_', runID{rID}, '_', mouseID{id}],'\');
 %         dest_sub = ['Z:\home\jake\Analysis\2P Analysis\Ziye_2P_figure\', date{id}, '_', runID{rID}, '_', mouseID{id}, '\'];
-        dest_sub  = fullfile('Z:\home\ziye\2P_Analysis\2P_Analysis',[date{id}, '_', runID{rID}, '_', mouseID{id}],'\');
+        dest_sub  = fullfile('\\crash.dhe.duke.edu\data\home\ziye\2P_Analysis\2P_Analysis',[date{id}, '_', runID{rID}, '_', mouseID{id}],'\');
         
         if exist(dest_sub)
             load([dest_sub 'parse_behavior']);
-            load([dest_sub '_cell_categories.mat']);           
+            load([dest_sub '_cell_categories2.mat']);           
             load([dest_sub '_event_peaks.mat']);
             load([dest_sub '_spont_events.mat']);
             load([dest_sub '_event_hist.mat']);
             load([dest_sub '_evoked_events.mat']);
             load([dest_sub '_norm2spont.mat']);
-            load([out_base, 'cell_count.mat']);
+            load([count_base, 'cell_count.mat']);
             load([dest_sub '_event_summary.mat']);
             
             ncells(id) = size(press,2);
@@ -49,26 +51,26 @@ for id = 1:30%size(mouseID,2)
             success_event_peak_RS{id} = all_success_peak(:,RS_cells{id});
             fail_event_peak_RS{id} = all_fail_peak(:,RS_cells{id});
             
-            success_hist{id} = all_success_hist.*(1000/double(ifi));
+            success_hist{id} = all_success_hist.*(1000/double(ifi)); %convert to Hz
             fail_hist{id} = all_fail_hist.*(1000/double(ifi));
             success_hist_RS{id} = resp_success_hist.*(1000/double(ifi));
             fail_hist_RS{id} = resp_fail_hist.*(1000/double(ifi));
             
-            psuccess_hist{id} = all_psuccess_hist.*(1000/double(ifi));
-            pfail_hist{id} = all_pfail_hist.*(1000/double(ifi));
+%             psuccess_hist{id} = all_psuccess_hist.*(1000/double(ifi));
+%             pfail_hist{id} = all_pfail_hist.*(1000/double(ifi));
             psuccess_EndF = trial_outcome.success_ptimeEndF;
             pfail_EndF = trial_outcome.early_ptimeEndF;
             stop_frame = max([psuccess_EndF pfail_EndF]);
-            for ip = 1:length(psuccess_EndF)
-                resp_psuccess_hist(psuccess_EndF(ip)+pre_buffer+2:end,ip) = nan;
-            end
-            for ip = 1:length(pfail_EndF)
-                resp_pfail_hist(pfail_EndF(ip)+pre_buffer+2:end,ip) = nan;
-            end
-            resp_psuccess_hist(stop_frame+1 :end,:) = [];
-            resp_pfail_hist(stop_frame+1 :end,:) = [];
-            psuccess_hist_RS{id} = resp_psuccess_hist.*(1000/double(ifi));
-            pfail_hist_RS{id} = resp_pfail_hist.*(1000/double(ifi));
+%             for ip = 1:length(psuccess_EndF)
+%                 resp_psuccess_hist(psuccess_EndF(ip)+pre_buffer+2:end,ip) = nan;
+%             end
+%             for ip = 1:length(pfail_EndF)
+%                 resp_pfail_hist(pfail_EndF(ip)+pre_buffer+2:end,ip) = nan;
+%             end
+%             resp_psuccess_hist(stop_frame+1 :end,:) = [];
+%             resp_pfail_hist(stop_frame+1 :end,:) = [];
+%             psuccess_hist_RS{id} = resp_psuccess_hist.*(1000/double(ifi));
+%             pfail_hist_RS{id} = resp_pfail_hist.*(1000/double(ifi));
             
             success_rate{id} = success_rate_all.*(1000/double(ifi));
             fail_rate{id} = fail_rate_all.*(1000/double(ifi));
@@ -102,7 +104,29 @@ for id = 1:30%size(mouseID,2)
             fail_syn_all_RS{id}  = fail_syn_RS;
             success_syn_c_RS{id} = success_syn_cell_RS;
             fail_syn_c_RS{id}  = fail_syn_cell_RS;
-           
+            cue_syn_c_RS{id} = cue_syn_cell_RS;
+            
+            %get all cells 
+            success_syn_c{id} = success_syn_cell;
+            fail_syn_c{id} = fail_syn_cell;
+%             cue_syn_cell
+
+            %under construction ==============================================================================
+%             success_syn_all_spike_ind_all{id} = success_syn_all_spike_ind.spike_latency;
+%             success_syn_cell_spike_ind_all{id} = success_syn_cell_spike_ind.spike_latency;
+%             cue_syn_cell_spike_ind_all{id} = cue_syn_cell_spike_ind.spike_latency; 
+
+            %RT_offset_ind_frames_all{id} = RT_offset_ind_frames;
+            %success_syn_RS_spike_ind_all{id} = success_syn_RS_spike_ind; 
+            success_syn_cell_RS_spike_ind_all{id} = success_syn_cell_RS_spike_ind; 
+            fail_syn_cell_RS_spike_ind_all{id} = fail_syn_cell_RS_spike_ind;
+            cue_syn_cell_RS_spike_ind_all{id} = cue_syn_cell_RS_spike_ind;
+            
+            %===================================================================================================
+%             fail_syn_all_spike_ind
+%             fail_syn_RS_spike_ind
+%             fail_syn_cell_spike_ind
+%             fail_syn_cell_RS_spike_ind
             
             ts{id} = [-data_start:data_end].*double(ifi);
             data_start_frame{id} = data_start;
@@ -123,6 +147,28 @@ for id = 1:30%size(mouseID,2)
         end
     end
 end
+
+
+num_trials_succ = 0;
+num_cells_fail = 0; 
+num_cells_succ = 0;
+num_trials_fail = 0;
+num_cells_succ_all = 0;
+num_cells_fail_all = 0;
+
+length(find([fail_syn_c{:}] == 0));
+num_trials_succ = sum(~isnan([success_syn_all_RS{:}]));
+num_trials_fail = sum( ~isnan([fail_syn_all_RS{:}]));
+num_cells_succ =  sum( ~isnan([success_syn_c_RS{:}]));
+num_cells_fail = sum( ~isnan([fail_syn_c_RS{:}]));
+num_cells_succ_all =  sum( ~isnan([success_syn_c{:}]));
+num_cells_fail_all =  sum( ~isnan([fail_syn_c{:}]));
+
+num_cells_succ =  length([success_syn_c_RS{:}]);
+num_cells_fail = length([fail_syn_c_RS{:}]);
+num_cells_succ_all =  length([success_syn_c{:}]);
+num_cells_fail_all =  length([fail_syn_c{:}]);
+
 
 %%plotting
 % ['peach' 'army green' 'yellow' 'purple' 'black']
@@ -509,6 +555,7 @@ print([out_base 'Summary_PSTH_respcells.pdf'], '-dpdf');
 
 
 %% needs to be updated for different acquisition rates
+%PSTH PLOTTED HERE
 success_hist = cellfun(@transpose, success_hist, 'UniformOutput', 0);
 fail_hist = cellfun(@transpose, fail_hist, 'UniformOutput', 0);
 success_hist_RS = cellfun(@transpose, success_hist_RS, 'UniformOutput', 0);
@@ -725,6 +772,7 @@ saveas(fig, [out_base 'Summary_rate_latency_scatter_avg.fig']);
 print([out_base 'Summary_rate_latency_scatter_avg.eps'], '-depsc');
 print([out_base 'Summary_rate_latency_scatter_avg.pdf'], '-dpdf');
 
+%==================================================================================================================================
 col_mat = [ 0  0  0;
     0 0  0;
     0  0  0;
@@ -738,30 +786,45 @@ col_mat = [ 0  0  0;
     0 0 0; 0.5 0.5 0.5; 0.3 0.5 1; 0.1 0.5 0.7; 0 0.6 0.2;0.8 0.8 0.4;0.1 0.1 0.1;0.3 0.7 0; 0 0 0; 0.1 0.5 0.5];
 fig=figure;
 subplot(1,2,1)
-scatter_plot(mouseID, success_syn_all_RS, fail_syn_all_RS, col_mat);
+%scatter_plot(mouseID, success_syn_all_RS, fail_syn_all_RS, col_mat);
+scatter_plot3(mouseID, success_syn_all_RS, fail_syn_all_RS);
 hold on
-x = 0:1:150;
+x = 0:1:250;
 y = x;
-plot(x,y,'k')
+plot(x,y,'k'); xlim([0 215]); ylim([0 215]);
 axis square
 xlabel('Success standard deviation of latency')
 ylabel('Fail standard deviation of latency')
-title(['All cells- standard deviation of latency across cells'])
+title(['All RS cells- st.dev of latency across cells. Averaged across trials'])
 
 subplot(1,2,2)
-scatter_plot(mouseID, success_syn_c_RS, fail_syn_c_RS, col_mat);
+%scatter_plot(mouseID, success_syn_c_RS, fail_syn_c_RS, col_mat);
+scatter_plot3(mouseID, success_syn_c_RS, fail_syn_c_RS);
 hold on
-x = 0:1:150;
+x = 0:1:250;
 y = x;
-plot(x,y,'k'); xlim([0 150])
+plot(x,y,'k'); xlim([0 215]); ylim([0 215]);
 axis square
 xlabel('Success standard deviation of latency')
 ylabel('Fail standard deviation of latency')
-title(['All cells- standard deviation of latency across events'])
+title(['All RS cells- st.dev of latency across trials. Avg across cells.'])   
+
+subplot(1,3,3);  
+scatter_plot(mouseID, success_syn_c_RS, cue_syn_c_RS, col_mat);
+%scatter_plot3(mouseID, success_syn_c_RS, cue_syn_c_RS);
+hold on
+x = 0:1:250;
+y = x;
+plot(x,y,'k'); xlim([0 215]); ylim([0 215]);
+xlabel('lever aligned standard deviation of latency')
+ylabel('cue aligned standard deviation of latency')
+title(['All RS cells- st.dev of latency across trials. avg across cells.'])
+axis square
 supertitle('Syncrony');
 saveas(fig, [out_base 'Summary_std_latency_scatter_avg_abs.fig']);
 print([out_base 'Summary_std_latency_scatter_avg_abs.eps'], '-depsc');
 print([out_base 'Summary_std_latency_scatter_avg_abs.pdf'], '-dpdf');
+%==========================================================================================================================================================
 
 %summary of average event waveform relative to spont
 fig=figure;

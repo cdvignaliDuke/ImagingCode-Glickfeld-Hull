@@ -12,7 +12,7 @@ for i = 1:nIC
             ind_j = singleFrameRoi(j,1).PixelIdxList;
             overlap = ismember(ind_i,ind_j);
             ind_both = find(overlap);
-            if length(ind_both) > 1 && (length(ind_both) / length(ind_j) > 0.7 || length(ind_both) / length(ind_i) > 0.7)
+            if length(ind_both) > 1 && (length(ind_both) / length(ind_j) > 0.7 || length(ind_both) / length(ind_i) > 0.7) %spatial threshold for labelling two masks as one neuron
                 ind_new = unique([ind_i; ind_j]);
                 singleFrameRoi(i,1).PixelIdxList = ind_new;
                 singleFrameRoi(j,1).PixelIdxList = [];

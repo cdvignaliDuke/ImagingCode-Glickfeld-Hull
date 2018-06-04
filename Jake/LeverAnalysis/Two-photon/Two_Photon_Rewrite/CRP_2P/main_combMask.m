@@ -12,20 +12,22 @@
 % clear
 file_info_CRP;
 usFacs = 100;
-behav_dir = 'Z:\home\andrew\Behavior\Data\';
+behav_dir = 'Z:\Data\2P_imaging\behavior\';
+crp_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\2P';
 docombineMask = 0; doRerun = 1;
 useGPU = 1;
 
 for sub = [29, 33, 21,  15, 28] % : size(mouseID,2)
     if docombineMask == 1
         rID = 1;
-        out_dir = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[days_pair{sub}(1:6), '_', runID{rID}, '_', days_pair_mouse{sub}], '\');
+        out_dir = fullfile(crp_dir, [days_pair{sub}(1:6), '_', runID{rID}, '_', days_pair_mouse{sub}], '\');
         while ~exist(out_dir)
             rID = rID + 1;
-            out_dir = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[days_pair{sub}(1:6), '_', runID{rID}, '_', days_pair_mouse{sub}], '\');
+            assert(rID<10);
+            out_dir = fullfile(crp_dir, [days_pair{sub}(1:6), '_', runID{rID}, '_', days_pair_mouse{sub}], '\');
         end
         
-        data_dir = fullfile('Z:\home\jake\Data\2P_imaging',[days_pair{sub}(1:6) '_' days_pair_mouse{sub}], days_pair_mouse{sub}, '\');
+        data_dir = fullfile('Z:\Data\2P_imaging',[days_pair{sub}(1:6) '_' days_pair_mouse{sub}], days_pair_mouse{sub}, '\');
         
         %%%%%%
 %         config_fn = dir(fullfile(data_dir,['*' runID{rID} '.mat']));
@@ -56,6 +58,7 @@ for sub = [29, 33, 21,  15, 28] % : size(mouseID,2)
             end
         end
         
+        %% find and load the second imaging day for combination
         rID = 1;
         out_dir2 = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[days_pair{sub+1}(1:6), '_', runID{rID}, '_', days_pair_mouse{sub+1}], '\');
         while ~exist(out_dir)
@@ -110,17 +113,7 @@ for sub = [29, 33, 21,  15, 28] % : size(mouseID,2)
                 if ~exist(out_dir)
                     mkdir(out_dir);
                 end
-                %%
-                % not cropping images anymore
-                %             if exist([out_dir, 'ROI_xy.mat'],'file') == 2
-                %                 load([out_dir, 'ROI_xy.mat']);
-                %             else
-                %                 [ROI_x, ROI_y] = get_2P_ROI(img); % get the ROI -  must be a rectangle
-                %                 save([out_dir 'ROI_xy.mat'],  'ROI_x', 'ROI_y');
-                %             end
-                %             %
-                %             img = img(ROI_x,ROI_y,:);
-                %             img = img(:,:,22976:end);
+               
                 %%
                 [npw, nph, nt] = size(img);
                 

@@ -27,7 +27,7 @@ for id = 1:size(mouseID,2)
     if size(col_mat,1) > 1 && mean(col_mat(1,:) ~= col_mat(2,:))
         id
         if y1_size ~= 1
-            errorbarxy_2p(y1_mean, y2_mean,  y1_std./sqrt(y1_size), y2_std./sqrt(y2_size),{'o', col_mat(cid,:), col_mat(cid,:),col_mat(cid,:)})
+            errorbarxy(y1_mean, y2_mean,  y1_std./sqrt(y1_size), y2_std./sqrt(y2_size),{'o', 'k', 'k'}); %col_mat(cid,:), col_mat(cid,:),col_mat(cid,:)})
             hold on
 %             scatter(y1_mean, y2_mean, 'MarkerFaceColor', col_mat(cid,:), 'MarkerEdgeColor',col_mat(cid,:), 'LineWidth', 1)
             scatter(y1_mean, y2_mean, 'MarkerEdgeColor',col_mat(cid,:), 'LineWidth', 1)
@@ -40,7 +40,7 @@ for id = 1:size(mouseID,2)
         hold on
         scatter(y1{id}, y2{id}, 4, 'MarkerEdgeColor',col_mat(1,:))
     else
-         errorbarxy(y1_mean, y2_mean,  y1_std./sqrt(y1_size), y2_std./sqrt(y2_size),{'o', col_mat(cid,:), col_mat(cid,:),col_mat(cid,:)})
+         errorbarxy(y1_mean, y2_mean,  y1_std./sqrt(y1_size), y2_std./sqrt(y2_size),{'o', 'k','k'}); %col_mat(cid,:), col_mat(cid,:),col_mat(cid,:)})
             hold on
             scatter(y1_mean, y2_mean, 'MarkerFaceColor', col_mat(cid,:), 'MarkerEdgeColor',col_mat(cid,:), 'LineWidth', 1)
     end
@@ -58,7 +58,7 @@ if size(col_mat,1) == 1%size(col_mat,1) > 1 && mean(col_mat(1,:) == col_mat(2,:)
     if y1_std == 0
         y2_std = std(y2);
     end
-    h = errorbarxy(y1_mean, y2_mean,  y1_std./sqrt(y1_size), y2_std./sqrt(y2_size),{'o', col, col, col});
+    h = errorbarxy(y1_mean, y2_mean,  y1_std./sqrt(y1_size), y2_std./sqrt(y2_size),{'o', 'k', 'k'}); %col, col, col});
     set(h.hMain,'LineWidth', 1);
     [h,p,ci,stats] = ttest(y1, y2);
     

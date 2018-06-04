@@ -5,7 +5,9 @@ clear
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
-days = {'151211_img32'};  %'151212_img32',  
+WF_CRP_list_of_days;
+days = days_1([1,4,5,6,7]);  %'151212_img32',  
+save_data = 1;
 
 for kk=1:length(days)
     %set directories and load bxOutputs and cluter data. 
@@ -206,7 +208,9 @@ for kk=1:length(days)
         
         %Save figure before opening next one
         destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
-%         savefig([destyFig]);
+        if save_data == 1
+            savefig([destyFig]);
+        end
     end
 
     
@@ -254,7 +258,9 @@ for kk=1:length(days)
         ylim([min(YL(:,1)) max(YL(:,2))]);
         legend(['avg licks/frame'; cellstr(num2str([1:cluster.num_cluster]'))])
         destyFig2 = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_cue');
-%         savefig([destyFig2]);
+        if save_data == 1
+            savefig([destyFig2]);
+        end
         hold off
     end
     
@@ -270,11 +276,13 @@ for kk=1:length(days)
         destyFidget = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_fidget');
         destyTooFast = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_tooFast');
         destyCue = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_cue');
-%         save([destySucc], 'success_roi');
-%         save([destyFail], 'fail_roi');
-%         save([destyFidget], 'fidget_roi');
-%         save([destyTooFast], 'tooFast_roi');
-%         save([destyCue], 'cue_roi');
+        if save_data == 1
+            save([destySucc], 'success_roi');
+            save([destyFail], 'fail_roi');
+            save([destyFidget], 'fidget_roi');
+            save([destyTooFast], 'tooFast_roi');
+            save([destyCue], 'cue_roi');
+        end
     end
     
     %save lapsed trials 
@@ -284,7 +292,9 @@ for kk=1:length(days)
             [lapse_roi, use_times_lapse, lick_trace_lapse, lick_trace_lapse_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_lapse, pre_frames, post_frames);
             lapse_roi = squeeze(lapse_roi);
             destyLapse = strcat(ANALYSIS_DIR, 'LeverSummaryFolder\', days{kk}, '_lapse');
-            %save([destyLapse], 'lapse_roi');
+            if save_data == 1
+                save([destyLapse], 'lapse_roi');
+            end
         end
     end
     
@@ -300,7 +310,9 @@ for kk=1:length(days)
         licking_data.lick_trace_tooFast_10ms = lick_trace_tooFast_10ms;
         licking_data.lick_trace_cue = lick_trace_cue;
         licking_data.lick_trace_cue_10ms = lick_trace_cue_10ms;
-        %save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
+        if save_data == 1
+            save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
+        end
     end
     
     %----PLOT CUE REWARD PAIRING SESSIONS------------------------------------------
@@ -389,7 +401,9 @@ for kk=1:length(days)
        
         %Save figure before opening next one
         destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_fig');
-        %savefig([destyFig]);
+        if save_data == 1
+            savefig([destyFig]);
+        end
         
         %PLOT UNEXPECTED REWARD TRIALS -------------------------------------------------
         if b_data.rewardUnexpectPercent >0
@@ -462,7 +476,9 @@ for kk=1:length(days)
             ylim([min(YL(:,1)) max(YL(:,2))]);
             hold off
             destyFig = strcat(ANALYSIS_DIR, 'LeverFigureFolder\', days{kk}, '_unexp_fig');
-            %savefig([destyFig]);
+            if save_data == 1
+                savefig([destyFig]);
+            end
         end
         
         %SAVE matfiles  ----------------------------------------------
@@ -488,7 +504,9 @@ for kk=1:length(days)
         end
         
         %SAVE lick traces
-        %save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
+        if save_data == 1
+            save([ANALYSIS_DIR 'BxAndAnalysisOutputs\BxOutputs\', days{kk}, '_bx_outputs'], 'licking_data', '-append');
+        end
     end
 end
 

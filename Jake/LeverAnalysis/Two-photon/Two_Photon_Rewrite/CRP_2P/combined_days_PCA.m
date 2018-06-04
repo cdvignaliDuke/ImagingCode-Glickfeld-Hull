@@ -44,7 +44,8 @@ cd(currCD);
 
 %% stackRegister
 % find most stable reference image among the 100 randomly selected images
-ref30 = img_comb(:,:,randi([1,frames_session_1],1,30)); %randomly selects frames to sample
+% from the first session. Then motion register both sessions to that image.
+ref30 = img_comb(:,:,randi([1,frames_session_1],1,30)); %randomly selects frames to sample from session 1
 [npw, nph, nt] = size(img_comb);
  
 sf= round(linspace(1, frames_session_1, 100));
@@ -73,7 +74,7 @@ img_pca = img_reg(:,:,1:2:(frames_session_1/2)); % downsample in time by 2 or 5
 nf = size(img_pca,3);
 img_fn = img_fn.name;
 [mixedsig, mixedfilters, CovEvals, ~, ~, ...
-    ~] = CellsortPCA2(img_pca,[1 nf], nPCA,[], out_dir, img_fn, []);    %only use the first session to generate the mask
+    ~] = CellsortPCA_2P(img_pca,[1 nf], nPCA,[], out_dir, img_fn, []);    %only use the first session to generate the mask
 %             [mixedsig, mixedfilters, CovEvals, ~, ~, ~] = CellsortPCA2(img_reg,[1 nFrames], nPCA, [], out_dir, img_fn, []);
 
 PCuse = 1:nPCA;
@@ -89,7 +90,7 @@ end
 termtol = 0.00001;
 maxrounds = 1000;
 
-[ica_sig, mixedfilters, ica_A, numiter] = CellsortICA(mixedsig, ...
+[ica_sig, mixedfilters, ica_A, numiter] = CellsortICA_2P(mixedsig, ...
     mixedfilters, CovEvals, PCuse, mu, nIC, [], termtol, maxrounds);
 
 icasig = permute(mixedfilters,[2,3,1]);

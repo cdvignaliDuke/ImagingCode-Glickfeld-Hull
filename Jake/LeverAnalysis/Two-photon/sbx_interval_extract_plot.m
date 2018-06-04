@@ -1,11 +1,16 @@
 
 clear all; clear global; clear cd;
+subjNum = '081';
+session_date = '180507';
+file_num = '_000_000';
+cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
 %cd('Z:\Data\2P_imaging\171121_img050\img050');
 %cd('Z:\Data\2P_imaging\img040\170912_img039\img039');
-cd('Z:\Data\2P_imaging\180411_img080\img080');
-%cd('Z:\Data\2P_imaging\WindowOutcomes\180409_img079\img079');
-fname = 'img080_000_001';
+%cd('Z:\Data\2P_imaging\180507_img085\img085');
+%cd('Z:\Data\2P_imaging\WindowOutcomes\180509_img085\img085');
+fname = ['img', subjNum, file_num];
 data = squeeze(sbxread(fname,0,800));
+load([fname, '.mat']);
 if length(size(data)) ==4
     data1 = squeeze(data(1,:,:,:));
     data2 = squeeze(data(2,:,:,:));
@@ -15,25 +20,25 @@ else
 end
 data_max= max(data,[],3);
 figure; imagesc(data_avg); colormap gray; truesize;
-title(['30HZ img079 180411 recon avg frames 1:800 001']);
+title(['30HZ', subjNum, session_date, 'recon avg frames 1:800 ', file_num]);
 
 %% write a tiff movie to analyze diff. in sessions
 
-subjNum = '079';
-session_date = '180409';
-%cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
-cd(['Z:\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
+subjNum = '081';
+session_date = '180518';
+cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
+%cd(['Z:\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
 fname = ['img', subjNum, '_000_000'];
 for ii = 1%:20
-    data = squeeze(sbxread(fname,0,800));
+    data = squeeze(sbxread(fname,50000,800));
     data_avg = mean(data,3);
     data_max= max(data,[],3);
     data2 = data(:,:,[1:3:end]);
     figure; imagesc(data_max); colormap gray;
-    title(['15HZ ', subjNum, ' ', session_date, '  recon max proj frames  1:800']);
+    title(['15HZ ', subjNum, ' ', session_date, '  recon max proj frames  50000:8000']);
 end
-%writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_1000']);
-writetiff(data, ['Z:\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_800']);
+writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 50001_50801']);
+%writetiff(data, ['Z:\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_800']);
 
 %% motion registration 
 

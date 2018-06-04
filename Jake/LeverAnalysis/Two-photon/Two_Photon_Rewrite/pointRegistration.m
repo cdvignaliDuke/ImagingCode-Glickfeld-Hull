@@ -1,4 +1,7 @@
 %% control point method
+%alternate method where you pick three points on the two images you think
+%are the same and the algorithm alings them. May be altering the image too
+%much. 
 % data_avg = mean(img2,3);
 % target_avg = mean(img2,3);
 % AVG = double(data_avg);
@@ -31,13 +34,13 @@ for ff = 1:floor(size(img_reg2,3)/5)
     data2 = cat(3, data2, mean(img_reg2(:,:,(ff-1)*5+1:ff*5),3));
 end
 
-[data, pre] = homomorphicFilter(img_reg(:,:,1:4:end));
+[data, pre] = homomorphicFilter(img_reg(:,:,1:4:end)); % helps to remove background noise
 % select rois based on intensity
 roi = detectSingleFrameRois(data);
 % combine/remove overlapped cells 
 mask_final = processMaskpfgc(roi);
 % combine highly correlated cells
-threshold = 0.8;
+threshold = 0.8;  %signal correlation threshold
 [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:10000), mask_final, threshold, out_dir);
 
 % session 2

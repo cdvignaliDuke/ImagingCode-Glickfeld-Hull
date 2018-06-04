@@ -339,7 +339,7 @@ frame.counter = frame.counter;
 %Determine baseline times: Time windows in which to take an F for df/f
 [baseline_timesMs,  trial_outcome] = find_baseline_times_2P(b_data, trial_outcome, holdT_min);
 
-%remove events from baseline_times which do not have associated frames. JH
+%remove events from baseline_times which do not have associated frames. JHl
 for t = 1:length(baseline_timesMs)
     if baseline_timesMs(1,t)<imaging_start_MW_T;
         baseline_timesMs(:,t)=NaN;

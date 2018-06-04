@@ -51,6 +51,11 @@ days = {'180322_img077', '180323_img077', '180324_img077', '180325_img077', '180
 %days = { '180323_img076', '180324_img076', '180325_img076', '180326_img076'};
 %days = {'180104_img666'};
 days = {'180411_img080', '180412_img080', '180413_img080', '180414_img080'};
+days= {'180424_img083', '180425_img083', '180426_img083', '180427_img083', '180428_img083', '180429_img083', '180430_img083', '180501_img083', '180502_img083', '180503_img083', '180504_img083'};
+%days= {'180425_img084', '180426_img084', '180427_img084', '180428_img084', '180429_img084', '180430_img084', '180501_img084', '180502_img084'};
+days = {'180507_img081', '180508_img081', '180509_img081', '180510_img081', '180511_img081', '180512_img081', '180513_img081', '180514_img081', '180515_img081', '180516_img081', '180517_img081', '180518_img081', '180521_img081'};
+%days = {'180509_img085', '180510_img085', '180511_img085', '180512_img085', '180513_img085', '180514_img085', '180515_img085', '180516_img085', '180517_img085', '180518_img085'};
+%days = {'180509_img086', '180510_img086', '180511_img086', '180512_img086', '180513_img086', '180514_img086', '180515_img086', '180516_img086', '180517_img086', '180518_img086'};
 
 %check and make sure the figure destinations exist
 session_fig_dir = [CRP_fig_dir_base, days{1}(end-4:end), '_sessions\'];
@@ -213,6 +218,18 @@ for ii = 1:length(days)
         end
     end
     
+    if exist([session_fig_dir, days{ii}, '_rew_lick_raster.fig'], 'file')==0;
+        %REWARDED trials lick raster plot
+        figure;
+        plotSpikeRaster(logical(licks_by_trial), 'PlotType', 'vertline');
+        vline(time_before_ms+1, 'k');
+        vline(time_before_ms+1+(b_data.RewardDelayDurationMs + round(mean(react_time))), 'b');
+        ylabel('trial # (descending)');
+        xlabel('time (ms) black=cue blue=reward');
+        title(['Rewarded Trials: lick time raster ', days{ii}(end-4:end), ' ' days{ii}(1:6) ' n=' num2str(size(licks_by_trial_rewarded,1))]);
+        savefig([session_fig_dir, days{ii}, '_rew_lick_raster']);
+    end
+    
     %define the windows for summing licks before and after cue
     lick_window = [time_before_ms+201:time_before_ms+700];
     pre_cue_window = [time_before_ms-700:time_before_ms-201];
@@ -255,6 +272,9 @@ for ii = 1:length(days)
     elseif b_data.RewardDelayDurationMs ==1000 & b_data.rewardDelayPercent ==100;
         miss_rate_this_session = length(find(RT_this_session>1500))/(num_trials-1);
         RT_this_session = RT_this_session(find(RT_this_session>200 & RT_this_session<1500));
+    elseif b_data.RewardDelayDurationMs ==450 & b_data.rewardDelayPercent ==100;
+        miss_rate_this_session = length(find(RT_this_session>1000))/(num_trials-1);
+        RT_this_session = RT_this_session(find(RT_this_session>200 & RT_this_session<1000));
     else
         miss_rate_this_session = length(find(RT_this_session>500))/(num_trials-1);
         RT_this_session = RT_this_session(find(RT_this_session>200 & RT_this_session<500));
@@ -453,11 +473,13 @@ subplot(2,2,3); plot(TFT_rates);
 title('too fast lick rates as a % of all trials by day: FA = RT<200ms');
 xlabel('day');
 ylabel('% false alarms');
+ylim([0 1]);
 
 subplot(2,2,4); plot(miss_rates);
 title('Miss rates as a % of all trials by day: misses = RT>1000ms or 1500ms');
 xlabel('day');
 ylabel('% misses');
+ylim([0 1]);
 savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_RTstd_misses_TFT']);
 
 if length(days_divider_inx) > 0

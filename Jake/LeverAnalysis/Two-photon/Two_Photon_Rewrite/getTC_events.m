@@ -74,7 +74,7 @@
         end
     end
     data_dest2 = [dest '_dFOverF_TC.mat'];
-    save(data_dest2, 'tc_dfoverf')
+    %save(data_dest2, 'tc_dfoverf')
 % end
 %% 3. create event triggered movies
 if input.doLeverSolenoidAllTrials == 1 || input.doLever == 1
@@ -97,7 +97,7 @@ if input.doLeverSolenoidAllTrials == 1 || input.doLever == 1
     %         use_ev_success(end) = [];
     %     end
     do_lickAna = 0; do_alignLick = 0;
-    [success_movie, ~, succ_hold_dur, ~, success_lick] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
+    [success_movie, succ_rm_event_idx, succ_hold_dur, ~, success_lick] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
         use_ev_success, pre_release_frames, post_release_frames, lick_data, trial_outcome.succ_hold_dur, do_lickAna, do_alignLick);
     
     [success_movie_long, ~, ~, ~, success_lick_long] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
@@ -114,7 +114,7 @@ if input.doLeverSolenoidAllTrials == 1 || input.doLever == 1
     %failures
     use_ev_fail = trial_outcome.early_time;
     
-    [fail_movie, remove_idx, fail_hold_dur, ~, fail_lick] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
+    [fail_movie, fail_rm_event_idx, fail_hold_dur, ~, fail_lick] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
         use_ev_fail, pre_release_frames, post_release_frames, lick_data, trial_outcome.fail_hold_dur, do_lickAna, do_alignLick);
     
     use_ev_early_fail = trial_outcome.early_early_time;
@@ -133,7 +133,7 @@ if input.doLeverSolenoidAllTrials == 1 || input.doLever == 1
     %tooFast correct
     use_ev_tooFastCorrect = trial_outcome.tooFastCorrects;
    
-    [tooFastCorrect_movie,~, tf_hold_dur] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
+    [tooFastCorrect_movie, TF_rm_event_idx, tf_hold_dur] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
         use_ev_tooFastCorrect, pre_release_frames, post_release_frames, [], trial_outcome.tf_hold_dur, do_lickAna, do_alignLick);
     
     tooFastCorrect_movie_long = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
@@ -282,20 +282,25 @@ if input.doLeverSolenoidAllTrials == 1 || input.doLever == 1
     trial_outcome.fail_hold_dur = fail_hold_dur;
     trial_outcome.tf_hold_dur = tf_hold_dur;
     
-    save([dest  'parse_behavior.mat'], 'lever', 'frame_info', 'trial_outcome', 'lick_data', 'Sampeling_rate', 'holdT_min', 'ifi')
+    trial_outcome.succ_rm_event_idx = succ_rm_event_idx;
+    trial_outcome.fail_rm_event_idx = fail_rm_event_idx;
+    trial_outcome.TF_rm_event_idx = TF_rm_event_idx;
     
-    save([dest '_release_movies.mat'],'fail_movie','success_movie', 'tooFastCorrect_movie', 'cuerelease_movie','fail_movie_long','success_movie_long', ...
-        'tooFastCorrect_movie_long', 'release_long_movie', 'omitReward_movie', 'omitReward_movie_long', 'itiReward_movie', 'itiReward_movie_long', 'use_ev_fidget','pre_release_frames','post_release_frames','ifi',...
-        'pre_release_frames2', 'post_release_frames2', 'pre_cuerelease_frames', 'post_cuerelease_frames', 'cue_remove_idx', 'early_fail_movie', 'late_fail_movie', ...
-        'early_success_movie', 'late_success_movie', 'early_tooFast_movie', 'late_tooFast_movie');
+    save([dest  'parse_behavior.mat'], 'trial_outcome', '-append')
+%     save([dest  'parse_behavior.mat'], 'lever', 'frame_info', 'trial_outcome', 'lick_data', 'Sampeling_rate', 'holdT_min', 'ifi')
     
-    save([dest '_press_movies.mat'],'press_200_movie','press_500_movie','press_long_movie','press_long_movie_long','press_movie',...
-        'pre_press_frames', 'post_press_frames', 'ifi', 'press_success_movie', 'press_fail_movie');
-    
-    save([dest '_lick_movies.mat'], 'lick_movie', 'single_lick_movie');
-    
-    save([dest '_lick_stats.mat'], 'success_lick', 'itiR_lick', 'omitR_lick', 'fail_lick', 'success_lick_long', 'fail_lick_long', 'omitR_lick_long', 'itiR_lick_long',...
-        'lickb_lick', 'licks_lick', 'early_fail_lick', 'late_fail_lick');
+%     save([dest '_release_movies.mat'],'fail_movie','success_movie', 'tooFastCorrect_movie', 'cuerelease_movie','fail_movie_long','success_movie_long', ...
+%         'tooFastCorrect_movie_long', 'release_long_movie', 'omitReward_movie', 'omitReward_movie_long', 'itiReward_movie', 'itiReward_movie_long', 'use_ev_fidget','pre_release_frames','post_release_frames','ifi',...
+%         'pre_release_frames2', 'post_release_frames2', 'pre_cuerelease_frames', 'post_cuerelease_frames', 'cue_remove_idx', 'early_fail_movie', 'late_fail_movie', ...
+%         'early_success_movie', 'late_success_movie', 'early_tooFast_movie', 'late_tooFast_movie');
+%     
+%     save([dest '_press_movies.mat'],'press_200_movie','press_500_movie','press_long_movie','press_long_movie_long','press_movie',...
+%         'pre_press_frames', 'post_press_frames', 'ifi', 'press_success_movie', 'press_fail_movie');
+%     
+%     save([dest '_lick_movies.mat'], 'lick_movie', 'single_lick_movie');
+%     
+%     save([dest '_lick_stats.mat'], 'success_lick', 'itiR_lick', 'omitR_lick', 'fail_lick', 'success_lick_long', 'fail_lick_long', 'omitR_lick_long', 'itiR_lick_long',...
+%         'lickb_lick', 'licks_lick', 'early_fail_lick', 'late_fail_lick');
 else
     pre_cue_ms = 1000;
     post_cue_ms = 2500;

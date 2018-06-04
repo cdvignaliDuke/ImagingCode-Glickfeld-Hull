@@ -191,7 +191,7 @@ total_cells = sum(cell2mat(ncells));
 total_resp = sum(cell2mat(tot_resp));
 total_RL_resp = sum(cell2mat(tot_RL_resp));
 
-save([out_base, 'cell_count.mat'], 'total_cells', 'total_resp', 'total_RL_resp');
+% save([out_base, 'cell_count.mat'], 'total_cells', 'total_resp', 'total_RL_resp');
 
 % stats for paper
 % correct and correct&early cells resp to correct trials
