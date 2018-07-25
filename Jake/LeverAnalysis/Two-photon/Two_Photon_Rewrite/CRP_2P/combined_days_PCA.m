@@ -4,7 +4,8 @@ usFacs = 100;
 currCD = cd;
 frames_session_1 = num_good_frames(1);
 frames_per_preview = 500;
-out_dir_base = 'Z:\Analysis\Cue_reward_pairing_analysis\2P\combined_masks\';
+%out_dir_base = 'Z:\Analysis\Cue_reward_pairing_analysis\2P\combined_masks\';
+out_dir_base = 'Z:\Analysis\Cue_reward_pairing_analysis\2P\FoV_matching_outputs_thresholding\';
 
 img_comb = [];
 iii = 0;
@@ -35,7 +36,7 @@ for sub = [animal_to_be_analyzed]%size(mouseID,2)    %img93 day1 and post learni
     end
     img_comb = cat(3, img_comb, img);
 end
-out_dir = ['Z:\Analysis\Cue_reward_pairing_analysis\2P\combined_masks\', mouseID{sub}, '\'];
+out_dir = [out_dir_base, mouseID{sub}, '\'];
 if ~exist(out_dir);
     mkdir(out_dir);
 end
@@ -69,6 +70,8 @@ writetiff(img_comb_max_proj, [out_dir, 'day1_postlearning_CoReg_Max_projects_for
 clear img_comb
 
 %% PCA/ICA
+
+%compute principal components ---------------------------------
 nPCA = 500; %100 for old datasets, 500 for newer
 img_pca = img_reg(:,:,1:2:(frames_session_1/2)); % downsample in time by 2 or 5
 nf = size(img_pca,3);
@@ -77,8 +80,8 @@ img_fn = img_fn.name;
     ~] = CellsortPCA_2P(img_pca,[1 nf], nPCA,[], out_dir, img_fn, []);    %only use the first session to generate the mask
 %             [mixedsig, mixedfilters, CovEvals, ~, ~, ~] = CellsortPCA2(img_reg,[1 nFrames], nPCA, [], out_dir, img_fn, []);
 
+%compute independent components ------------------------------
 PCuse = 1:nPCA;
-%compute ICs
 mu = 0.98; % spatial temporal mix
 if strcmp(mouseID{sub}, 'img90');
     nIC=400;
@@ -89,13 +92,15 @@ else
 end
 termtol = 0.00001;
 maxrounds = 1000;
-
+%ICA function
 [ica_sig, mixedfilters, ica_A, numiter] = CellsortICA_2P(mixedsig, ...
     mixedfilters, CovEvals, PCuse, mu, nIC, [], termtol, maxrounds);
 
+%save ICA outputs from session 1
 icasig = permute(mixedfilters,[2,3,1]);
 save([out_dir, 'ICA.mat'], 'ica_sig', 'icasig');
 
+%% Create mask and process ICA outputs
 nIC = size(icasig,3);
 icasig = stackFilter(icasig);
 mask_cell = zeros(size(icasig));
@@ -106,22 +111,26 @@ else
     cluster_threshold = 95;
 end
 
+%thresholding to get each IC
 for ic = 1:nIC
-    icasig(:,:,ic) = imclearborder(icasig(:,:,ic));
+    icasig(:,:,ic) = imclearborder(icasig(:,:,ic));% remove ICs touching borders
     sm_logical((icasig(:,:,ic)>mean([max(prctile(icasig(:,:,ic),cluster_threshold,1)) max(prctile(icasig(:,:,ic),cluster_threshold,2))])))=1;
     sm_logical((icasig(:,:,ic)<=mean([max(prctile(icasig(:,:,ic),cluster_threshold,1)) max(prctile(icasig(:,:,ic),cluster_threshold,2))])))=0;
     sm_logical = logical(sm_logical);
     mask_cell(:,:,ic) = bwlabel(sm_logical);
 end
 
-mask_final = processMask(mask_cell);
+% separate multiple ICs and remove small ones and deal with overlapping 
+mask_final = processMask_CRP(mask_cell);
 mask_raw = reshape(mask_final, npw, nph);
-figure; imagesc(mask_raw);truesize
+figure; imagesc(mask_raw); truesize
 threshold = 0.8; % correlation threshold
+
+%combine highly correlated ICs
 [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:10:end), mask_final, threshold, out_dir);
 nmask = size(mask3D,3);
 
-%plot TCs
+%% plot TCs
 FrameRate = 30;
 tc_avg = getTC(img_reg, mask3D, nmask);
 

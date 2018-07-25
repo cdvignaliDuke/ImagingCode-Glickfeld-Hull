@@ -141,8 +141,7 @@ for sub = size(mouseID,2) %- 2
 %             close all
 %         end
         
-        % separate multiple ICs and remove small ones and deal with
-        % overlapping 
+        % separate multiple ICs and remove small ones and deal with overlapping 
         mask_final = processMask(mask_cell);
         mask_raw = reshape(mask_final, npw, nph);
         figure; imagesc(mask_raw); truesize;

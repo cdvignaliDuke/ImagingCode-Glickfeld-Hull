@@ -142,6 +142,9 @@ end
 title(['peak df/f  vs  lick rate for the 0.5s after lever release']);
 xlabel('peak df/f');
 ylabel('lick rate (Hz) in 0.5ms post lever release');
+model_corr = fitlm(corr_magnitude_mean(3:end)', corr_lick_rate_mean(3:end)'); %run a linear regression to look for a relationship between licking and peak df/f
+model_early = fitlm(early_magnitude_mean(3:end)', early_lick_rate_mean(3:end)');
+
 
 % Lick rate ratio (early/corr)  vs  df/f ratio (early/corr)
 lick_rate_ratio = early_lick_rate_mean./corr_lick_rate_mean;

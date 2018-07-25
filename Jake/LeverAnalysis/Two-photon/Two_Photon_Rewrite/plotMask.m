@@ -1,4 +1,4 @@
-function sm_dsum = plotMask(sm, saveData, out_dir)
+function sm_dsum = plotMask(sm, saveData, out_dir, plot_mask)
 
 nmask = size(sm,3);
 sm_d = zeros(size(sm,1),size(sm,2),nmask,3);
@@ -33,9 +33,11 @@ end
 %         sm_dsum2(xx(aa),yy(aa),zz) = 1;
 %     end
 % end
+if plot_mask ==1
 figure;
 fig = image(sm_dsum);
 axis image;
+end
 if saveData == 1
     saveas(fig, [out_dir, 'mask.fig']);
     print([out_dir, 'mask.eps'],'-depsc')

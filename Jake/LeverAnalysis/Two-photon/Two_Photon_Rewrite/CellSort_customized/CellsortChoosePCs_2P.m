@@ -90,7 +90,7 @@ for j=usepcs
 end
 pcs = reshape(Efull(:,usepcs), pixw, pixh, []);
 pcs = permute(pcs, [1, 2, 4, 3]);
-figure;montage(pcs)
+figure; montage(pcs)
 colormap(hot)
 axis on
 xl = xlim;

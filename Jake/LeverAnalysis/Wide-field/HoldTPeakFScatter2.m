@@ -221,6 +221,8 @@ plot(corr_fit);
 modifier_mat = nanmean(across_animals_fail_peak_binned([1:end-5],:),2)- nanmean(across_animals_fail_peak_binned(1,:),2)
 [Rho_early, p_early] = corr(x_axis(1:end-5)',nanmean(across_animals_fail_peak_binned([1:end-5],:),2)-modifier_mat, 'type', 'Spearman');
 
+corr_mdl = fitlm(x_axis(3:end)',nanmean(across_animals_corr_peak_binned([3:end],:),2));
+
 %plot only the long duration sessions
 figure; 
 errorbar(x_axis, nanmean(peak_corr_long_mat,2), nanstd(peak_corr_long_mat, [],2)./sqrt(sum(~isnan(peak_corr_long_mat),2)), '-ok'); hold on;

@@ -22,10 +22,13 @@
 % session 1, do not need many frames
 % homomorphic filtering remove multiplicative noise
 % [data, pre] = homomorphicFilter(img(:,:,1:10:end/2));
-data = [];
-for ff = 1:floor(size(img_reg,3)/5)
-    ff
-    data = cat(3, data, mean(img_reg(:,:,(ff-1)*5+1:ff*5),3));
+data = NaN(size(img_reg,1), size(img_reg,2), floor(size(img_reg,3)/5));
+for ff = 1:size(data,3)
+    if ismember(ff/100, [0:100:5000]/100);
+        ff
+    end
+    data(:,:,ff) = mean(img_reg(:,:,(ff-1)*5+1:ff*5),3);
+    %data = cat(3, data, mean(img_reg(:,:,(ff-1)*5+1:ff*5),3));
 end
 
 data2 = [];
@@ -34,7 +37,7 @@ for ff = 1:floor(size(img_reg2,3)/5)
     data2 = cat(3, data2, mean(img_reg2(:,:,(ff-1)*5+1:ff*5),3));
 end
 
-[data, pre] = homomorphicFilter(img_reg(:,:,1:4:end)); % helps to remove background noise
+[data_filtered, pre] = homomorphicFilter(img_reg(:,:,1:4:end)); % helps to remove background noise
 % select rois based on intensity
 roi = detectSingleFrameRois(data);
 % combine/remove overlapped cells 

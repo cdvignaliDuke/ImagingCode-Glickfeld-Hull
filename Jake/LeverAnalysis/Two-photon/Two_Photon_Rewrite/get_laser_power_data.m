@@ -23,7 +23,13 @@ end
 %load realtime file 
 if size(laser_power_fn,1) ~= 0
     load(laser_power_fn.name);
-    laser_power_vec = ttl_log; 
+    if exist('ttl_log')
+        laser_power_vec = ttl_log; 
+    elseif exist('ttl_log2')
+        laser_power_vec = ttl_log2;
+    else 
+        laser_power_vec= [];
+    end
 else 
     laser_power_vec= [];
 end
