@@ -111,6 +111,18 @@ nOn = input.nFramesOn;
 if iscell(nOn)
     nOn = unique(celleqel2mat_padded(nOn));
 end
+tCyc = cell2mat(input.tCyclesOn);
+cStart = celleqel2mat_padded(input.cFirstStim);
+cTarget = celleqel2mat_padded(input.cTargetOn);
+nTrials = length(tCyc);
+nCells = size(npSub_tc,2);
+maxCyc = max(tCyc,[],2);
+tFramesOff = nan(nTrials,maxCyc);
+SIx = strcmp(input.trialOutcomeCell, 'success');
+MIx = strcmp(input.trialOutcomeCell, 'ignore');
+FIx = strcmp(input.trialOutcomeCell, 'failure');
+nCyc = tCyc;
+nCyc([find(MIx) find(SIx)]) = tCyc([find(MIx) find(SIx)])+1;
 
 area_trial = nan(pre_frames+post_frames,maxCyc+1,nTrials);
 area_target = nan(pre_frames+post_frames,nTrials);
