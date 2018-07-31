@@ -1,4 +1,3 @@
-% current datasets
 %% V1 all
 dataset = 'V1all_';
 mouse_mat = strvcat('i684', 'i689','i720','i738','i739');
@@ -14,26 +13,6 @@ end
 
 %%
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
-
-%%
-ind_min = cell(1,nexp);
-ind_min_alldir = cell(1,nexp);
-for iexp = 1:nexp
-    mouse = mouse_mat(iexp,:);
-    date = date_mat(iexp,:);
-    run_str = run_str_mat(iexp,:);
-    load(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']))
-    load(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']))
-    
-    ind{iexp} = zeros(ndir,noff);
-    for idir = 1:ndir
-        for ioff = 1:noff
-            ind{iexp}(idir,ioff) = length(intersect(find(tFramesOff(:,end) == offs(ioff)), find(baseDir == dirs(idir))));
-        end
-    end
-    [ind_min_alldir{iexp} i] = min(sum(ind{iexp},1),[],2);
-    [ind_min{iexp} i] = min(min(ind{iexp},[],1),[],2);
-end
 
 %% collect datasets
 
@@ -63,6 +42,7 @@ load(fullfile(LG_base, '\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run
 good_ind_all = find(good_ind_temp);
 resp_maxdir_all = nan(size(resp_dir_all,1), size(resp_dir_all,3));
 resp_nextdir_all = nan(size(resp_dir_all,1), size(resp_dir_all,3));
+resp_nulldir_all = nan(size(resp_dir_all,1), size(resp_dir_all,3));
 resp_maxdir_all_sub = nan(size(resp_dir_all,1), size(resp_dir_all,3));
 ndir = length(unique(max_dir_all));
 for iCell = 1:length(good_ind_all)
@@ -77,13 +57,19 @@ for iCell = 1:length(good_ind_all)
     end
     if z < 1
         z = ndir;
-    end 
+    end
+    nulldir = x+(ndir/2);
+    if nulldir>ndir
+        nulldir = rem(nulldir,ndir);
+    end
     resp_nextdir_all(iC,:) = squeeze(mean(resp_dir_all(iC,[y z],:),2));
+    resp_nulldir_all(iC,:) = squeeze(resp_dir_all(iC,nulldir,:));
 end
 
 norm_all = bsxfun(@rdivide, resp_all, resp_all(:,end));
 norm_all_sub = bsxfun(@rdivide, resp_all_sub, resp_all_sub(:,end));
 norm_nextdir_all = bsxfun(@rdivide, resp_nextdir_all, resp_nextdir_all(:,end));
+norm_nulldir_all = (resp_maxdir_all(:,end)-resp_nulldir_all(:,end))./(resp_maxdir_all(:,end)+resp_nulldir_all(:,end));
 norm_maxdir_all = bsxfun(@rdivide, resp_maxdir_all, resp_maxdir_all(:,end));
 norm_maxdir_all_sub = bsxfun(@rdivide, resp_maxdir_all_sub, resp_maxdir_all_sub(:,end));
     
@@ -185,6 +171,101 @@ suptitle(['Paired Pulse- Same Ori- ' dataset(1,1:length(dataset)-1) ' ' mouse_st
 
 print(fullfile(LG_base, '\Analysis\2P', 'Adaptation', [dataset 'ppAdaptation_summary.pdf']),'-dpdf','-fillpage')
 save(fullfile(LG_base, '\Analysis\2P', 'Adaptation', [dataset 'ppAdaptation_summary.mat']),'resp_all', 'norm_all_avg', 'norm_all_sem', 'mouse_mat', 'date_mat', 'run_str_mat', 'norm_all', 'norm_all_sub', 'norm_maxdir_all', 'norm_maxdir_all_sub', 'good_ind_all');
+
+highOSIind = find(norm_nulldir_all>=0.5);
+lowOSIind = find(norm_nulldir_all<0.5);
+figure;
+subplot(3,3,1)
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_all(good_ind_all,:),1)),squeeze(std(norm_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_all(good_ind_all,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['All dirs- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+subplot(3,3,2)
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_maxdir_all(good_ind_all,:),1)),squeeze(std(norm_maxdir_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_maxdir_all(good_ind_all,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['Max dirs only- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+subplot(3,3,3)
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_nextdir_all(good_ind_all,:),1)),squeeze(std(norm_nextdir_all(good_ind_all,:),[],1)./sqrt(length(good_ind_all))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_nextdir_all(good_ind_all,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['Next dirs only- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+
+figure;
+subplot(3,2,1)
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_all(highOSIind,:),1)),squeeze(std(norm_all(highOSIind,:),[],1)./sqrt(length(highOSIind))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_all(highOSIind,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['All dirs- OSI>0.5- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+subplot(3,2,2)
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_all(lowOSIind,:),1)),squeeze(std(norm_all(lowOSIind,:),[],1)./sqrt(length(lowOSIind))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_all(lowOSIind,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['All dirs- OSI<0.5- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+subplot(3,2,3)
+resp_order = sort(resp_all(good_ind_all,end),'ascend');
+midRespVal = resp_order(floor(length(good_ind_all)/2));
+highRespInd = intersect(good_ind_all,find(resp_all(:,end)>=midRespVal));
+lowRespInd = setdiff(good_ind_all,highRespInd);
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_all(highRespInd,:),1)),squeeze(std(norm_all(highRespInd,:),[],1)./sqrt(length(highRespInd))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_all(highRespInd,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['All dirs- High Amp- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+subplot(3,2,4)
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_all(lowRespInd,:),1)),squeeze(std(norm_all(lowRespInd,:),[],1)./sqrt(length(lowRespInd))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_all(lowRespInd,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['All dirs- Low Amp- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+subplot(3,2,5)
+ind_rand1 = randsample(good_ind_all,floor(length(good_ind_all)/2));
+ind_rand2 = setdiff(good_ind_all, ind_rand1);
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_all(ind_rand1,:),1)),squeeze(std(norm_all(ind_rand1,:),[],1)./sqrt(length(ind_rand1))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_maxdir_all(ind_rand1,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['All dirs- rand1 - Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+subplot(3,2,6)
+errorbar(off_all.*(1000/frameRateHz), squeeze(mean(norm_all(ind_rand2,:),1)),squeeze(std(norm_all(ind_rand2,:),[],1)./sqrt(length(ind_rand2))), 'ok');
+[tau, A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_maxdir_all(ind_rand2,:),1)');
+fit_plot = 1-A.*exp(x_range./(-tau));
+hold on; plot(x_range,fit_plot,'r');
+title(['All dirs- rand2- Tau-' num2str(chop(tau,3)) '; R^2- ' num2str(chop(R_square,2))])
+ylim([0 1.2])
+ylabel('Norm amplitude')
+xlabel('ISI (s)')
+print(fullfile(LG_base, '\Analysis\2P', 'Adaptation', [dataset 'ppAdaptation_byOSI&Amp.pdf']),'-dpdf','-fillpage')
+
 
 %% compare electrophysiology to imaging data
 

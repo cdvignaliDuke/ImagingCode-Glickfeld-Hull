@@ -1,3 +1,125 @@
+%expt info
+date = '170704';
+mouse = 'i720';
+run_str = 'runs-003-004';
+LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
+
+%% extract stim parameters
+load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']))
+load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']))
+if iscell(input.nFramesOn)
+    nOn = input.nFramesOn{1};
+else
+    nOn = input.nFramesOn;
+end
+
+tCyc = cell2mat(input.tCyclesOn);
+cStart = celleqel2mat_padded(input.cFirstStim);
+cTarget = celleqel2mat_padded(input.cTargetOn);
+nTrials = length(tCyc);
+nCells = size(npSub_tc,2);
+maxCyc = max(tCyc,[],2);
+tFramesOff = nan(nTrials,maxCyc);
+SIx = strcmp(input.trialOutcomeCell, 'success');
+MIx = strcmp(input.trialOutcomeCell, 'ignore');
+FIx = strcmp(input.trialOutcomeCell, 'failure');
+nCyc = tCyc;
+nCyc([find(MIx) find(SIx)]) = tCyc([find(MIx) find(SIx)])+1;
+for itrial = 1:nTrials
+    if isfield(input, 'tFramesOff')
+        if length(input.tFramesOff{itrial}>0)
+            tempFramesOff = input.tFramesOff{itrial};
+        else
+            tempFramesOff = input.nFramesOff{itrial}.*(ones(1,tCyc(itrial)));
+            input.tFramesOff{itrial} = tempFramesOff;
+        end
+    else
+        if iscell(input.nFramesOff)
+            tempFramesOff = input.nFramesOff{itrial}.*(ones(1,tCyc(itrial)));
+        else
+            tempFramesOff = input.nFramesOff.*(ones(1,tCyc(itrial)));
+        end
+    end
+
+    tFramesOff(itrial,1:tCyc(itrial)) = tempFramesOff(1:tCyc(itrial));
+end
+targCon = celleqel2mat_padded(input.tGratingContrast);
+if isfield(input,'doRandCon') & input.doRandCon
+    baseCon = nan(maxCyc,nTrials);
+    for itrial = 1:nTrials
+        baseCon(:,itrial) = input.tBaseGratingContrast{itrial}(1:tCyc(itrial));
+    end
+    ind_con = [];
+else
+    baseCon = celleqel2mat_padded(input.tBaseGratingContrast);
+    ind_con = intersect(find(targCon == 1),find(baseCon == 0));
+end
+baseDir = celleqel2mat_padded(input.tBaseGratingDirectionDeg);
+dirs = unique(baseDir);
+ndir = length(dirs);
+tGratingDir = round(double(celleqel2mat_padded(input.tGratingDirectionDeg)),0);
+if sum(tGratingDir-baseDir) == 0
+    targetDelta = tGratingDir-baseDir;
+else
+    targetDelta = tGratingDir;
+end
+deltas = unique(targetDelta);
+nDelta = length(deltas);
+offs = unique(tFramesOff(:,1));
+noff = length(offs);
+frameRateHz = input.frameRateHz;
+
+%create trial dfof from params
+data_trial = nan(120,nCells,maxCyc+1,nTrials);
+for itrial = 1:nTrials
+    tempFramesOff = tFramesOff(itrial,1:tCyc(itrial));
+    if ~isnan(cStart(itrial))
+        for icyc = 1:nCyc(itrial)
+            if icyc > 1
+                cyc_add = ((icyc-1)*nOn)+sum(tempFramesOff(1:icyc-1));
+            else
+                cyc_add = 0;
+            end
+            if cStart(itrial)+99+cyc_add <= size(npSub_tc,1)
+                data_trial(:,:,icyc,itrial) = npSub_tc(cStart(itrial)-20+cyc_add:cStart(itrial)+99+cyc_add,:);
+            else
+                data_trial(:,:,icyc,itrial) = NaN(120,nCells);
+            end 
+        end
+    else
+        data_trial(:,:,icyc,itrial) = NaN(120,nCells);
+    end
+end
+data_f = nanmean(data_trial(1:20,:,1,:),1);
+data_dfof = bsxfun(@rdivide,bsxfun(@minus,data_trial,data_f),data_f);
+
+%these need to be adjusted for the experiment
+base_win =21:23;
+resp_win =27:29;
+
+figure;
+subplot(2,1,1)
+plot(squeeze(nanmean(mean(data_dfof(:,:,1,:),2),4)));
+vline(base_win)
+vline(resp_win)
+title('Baseline')
+subplot(2,1,2)
+sz = size(data_dfof);
+data_targ = zeros(sz(1),sz(2),length([find(SIx)]));
+for itrial = 1:sz(4);
+    if find([find(SIx)] == itrial)
+        data_targ(:,:,itrial) = data_dfof(:,:,nCyc(itrial),itrial);
+    end
+end
+plot(squeeze(nanmean(mean(data_targ,2),3)));
+title('Target')
+vline(base_win)
+vline(resp_win)
+
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']),'baseDir', 'dirs', 'ndir', 'tFramesOff', 'offs', 'noff', 'baseCon', 'ind_con', 'tGratingDir', 'targetDelta', 'deltas', 'nDelta', 'tCyc', 'nCyc', 'maxCyc', 'nCells', 'frameRateHz', 'nTrials', 'SIx', 'MIx', 'FIx', 'cTarget', 'cStart', 'base_win','resp_win')
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']), 'data_dfof')
+
+    clear data_tc data_f data_targ np_tc npSub_tc data_trial
 %% Find responsive cells
 %base responsive cells
 [x1,y1] = ttest(squeeze(mean(data_dfof(base_win,:,1,:),1))',squeeze(mean(data_dfof(resp_win,:,1,:),1))','tail','left','alpha',0.05);
