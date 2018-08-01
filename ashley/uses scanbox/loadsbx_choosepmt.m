@@ -2,8 +2,9 @@ function [data,nframes] = loadsbx_choosepmt(pmt,mouse,expdate,imgfolder,fname,va
 
 %% Set current directory to imaging data location
 if length(varargin) > 1
-    rc = varargin{2};
-    fdir = fullfile(rc.ashleyData,mouse,'two-photon imaging',expdate,imgfolder);
+%     rc = varargin{2};
+%     fdir = fullfile(rc.ashleyData,mouse,'two-photon imaging',expdate,imgfolder);
+    fdir = varargin{2};
 else
     fdir = fullfile('Z:\data\', mouse, 'two-photon imaging',expdate,imgfolder);
 end
