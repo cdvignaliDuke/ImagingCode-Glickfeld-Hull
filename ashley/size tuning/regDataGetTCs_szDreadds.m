@@ -43,8 +43,8 @@ for iexp = slct_expt
                 imagesc(mean(data(:,:,randStarterFrames(iimg):randStarterFrames(iimg)+100),3))
                 title(sprintf('%s:%s',num2str(randStarterFrames(iimg)),num2str(randStarterFrames(iimg)+100)))
             end
-            print(['Z:\Analysis\Expt Summaries\' ds '\rand image samples_' subnum '-' expDate],'-dpdf','-fillpage')
-            savefig(['Z:\Analysis\Expt Summaries\' ds '\rand image samples_' subnum '-' expDate])
+            print([fnout '\rand image samples_' subnum '-' expDate],'-dpdf','-fillpage')
+            savefig([fnout '\rand image samples_' subnum '-' expDate])
 
             regImageFramesStart = input('Enter frame number for registration:');
             regImage = mean(data(:,:,regImageFramesStart:(regImageFramesStart+99)),3);
