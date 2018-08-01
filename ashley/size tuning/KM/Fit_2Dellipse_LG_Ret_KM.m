@@ -182,7 +182,12 @@ s.Azhicut_10 = Azhicut_10;
 if PLOTIT_FIT == 1
     if start ==65
         set(gcf, 'Position', [0 0 800 1000]);
-        fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_RFfits' num2str(ifig) '.pdf']);
+        UN = username;
+        if UN(1:3) == 'kev'
+            fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_RFfits' num2str(ifig) '.pdf']);
+        else
+            fn_out = fullfile(fnout, dataFolder, [mouse '_' expDate '_RFfits' num2str(ifig) '.pdf']);
+        end
         print(fn_out,'-dpdf')
         figure;
         ifig = 1+ifig;
