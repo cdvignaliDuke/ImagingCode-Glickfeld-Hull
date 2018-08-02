@@ -132,7 +132,7 @@ expt(6).regImgStartFrame = '';
 expt(6).saveLoc = 'ashley';
 
 %% 844 180728
-expt(7).mouse = '840';
+expt(7).mouse = '844';
 expt(7).date = '180728';
 expt(7).img_loc  = {'V1';'L2/3'};
 expt(7).inj_loc = {'AL'};
