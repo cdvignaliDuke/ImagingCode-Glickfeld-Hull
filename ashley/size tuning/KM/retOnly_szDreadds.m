@@ -9,7 +9,7 @@
 clear all;clc;
 
 ds = 'szTuning_dreadds_V1';
-iexp = 1;
+iexp = 5;
 rc = behavConstsAV;
 eval(ds)
 
@@ -51,7 +51,7 @@ for irun = 1:nrun
     end
 
     % load behavior data
-    fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' mouse '-' expDate '-' time{irun} '.mat'];
+    fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' mouse '-' expDate '-' expTime{irun} '.mat'];
     load(fName);
 
     temp(irun) = input;
@@ -100,7 +100,7 @@ end
 
 %% Register data
 
-chooseInt = 6; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
+chooseInt = 5; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
 
 fprintf('\nBegin registering...\n')
 if exist(fullfile(fnout,dataFolder), 'dir')
