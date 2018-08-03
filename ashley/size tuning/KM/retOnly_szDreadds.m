@@ -9,7 +9,7 @@
 clear all;clc;
 
 ds = 'szTuning_dreadds_V1';
-iexp = 5;
+iexp = 1;
 rc = behavConstsAV;
 eval(ds)
 
@@ -448,7 +448,7 @@ mask_all = mask_all+bwout;
 mask_exp = imCellBuffer(mask_all,3)+mask_all;
 
 % by each stim
-for iStim = 1:size(mask_data,3)
+for iStim = size(mask_data,3)
     fprintf(['Stim ' num2str(iStim) ' / ' num2str(size(mask_data,3)) '\n'])
     mask_data_temp = mask_data(:,:,iStim);
     mask_data_temp(mask_exp >= 1) = 0;
