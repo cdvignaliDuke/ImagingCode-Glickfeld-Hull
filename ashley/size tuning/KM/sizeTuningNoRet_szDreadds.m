@@ -12,13 +12,17 @@ ds = 'szTuning_dreadds_V1';
 iexp = 1;
 rc = behavConstsAV;
 eval(ds)
+doStableOnly = 1;
 
 %%
 mouse = expt(iexp).mouse;
 subnum = mouse;
 expDate = expt(iexp).date;
 runs = expt(iexp).sizeTuningFolder;
-expTime = expt(iexp).sizeTuningTime;
+if doStableOnly
+    runs = runs(expt(iexp).stableSizeOnly);
+end
+expTime = expt(iexp).sizeTuningTime(expt(iexp).stableSizeOnly);
 nrun = length(runs);
 frame_rate = params.frameRate;
 
@@ -32,7 +36,6 @@ end
 %% load data, read with sbxread, and concatenate selected runs
 data = [];
 clear temp
-trial_n = zeros(1,nrun);
 
 fprintf(['\nBegin reading ' num2str(nrun) ' runs...'])
 for irun = 1:nrun
@@ -74,9 +77,7 @@ for irun = 1:nrun
         temp(irun) = trialChopper(temp(irun),1:ceil(nframes./(nOn+nOff)));
         ntrials = ceil(nframes./(nOn+nOff))
     end
-    temp(irun).run = mat2cell(irun.*ones(1,ntrials),1,ntrials);
     data = cat(3,data,data_temp);
-    trial_n(irun) = ntrials;
     fprintf('Complete')
 end
 fprintf('\nAll runs read\n')
@@ -104,6 +105,8 @@ for i = 1:nep
     imagesc(mean(data(:,:,(1:500)+(i-1)*regIntv),3));
     title([num2str(i) ': ' num2str(1+((i-1)*regIntv)) '-' num2str(500+((i-1)*regIntv))]);
 end
+
+%% Register
 chooseInt = 5; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
 
 fprintf('\nBegin registering...\n')
@@ -277,14 +280,10 @@ save(fullfile(fnout, dataFolder, [mouse '_' expDate '_stimActFOV.mat']), 'data_d
 
 %% cell segmentation
 % here use GUI to select cells
-
 fprintf('\nBegin cell segmentation...')
 mask_all = zeros(sz(1), sz(2));
 mask_exp = mask_all;
 mask_data = data_dfof_avg;
-if reduceFlag
-    mask_data=data_dfof_avg_reduced;
-end
 
 %for dir stims
 %mask_data = squeeze(max(reshape(data_dfof_avg_all, [sz(1) sz(2) 2 nStim/2]),[],3));
@@ -298,7 +297,7 @@ mask_all = mask_all+bwout;
 mask_exp = imCellBuffer(mask_all,3)+mask_all;
 
 % by each stim
-for iStim = size(mask_data,3)
+for iStim = 1:size(mask_data,3)
     fprintf(['Stim ' num2str(iStim) ' / ' num2str(size(mask_data,3)) '\n'])
     mask_data_temp = mask_data(:,:,iStim);
     mask_data_temp(mask_exp >= 1) = 0;
@@ -320,29 +319,15 @@ fprintf([num2str(nCells) ' total cells selected\n'])
 fprintf('Cell segmentation complete\n')
 
 figure(11);clf;
-if reduceFlag
-    data_temp = data_dfof_avg_reduced;
-    nStim_temp = nStim_reduced;
-    Stims_temp = Stims_reduced;
-else
-    data_temp = data_dfof_avg;
-    nStim_temp = nStim;
-    Stims_temp = Stims;
-end
+data_temp = data_dfof_avg;
+nStim_temp = nStim;
+
 [n, n2] = subplotn(nStim_temp);
 for i = 1:nStim_temp
     subplot(n,n2,i);
     shade_img = imShade(data_temp(:,:,i), mask_all);
     imagesc(shade_img)
-    if input.doSizeStim
-        title([num2str(szs(i)) ' deg'])
-    elseif input.doRetStim
-        if reduceFlag
-            title([num2str(Stims_temp(i,:)) ' (red.)'])
-        else
-            title(num2str(Stims_temp(i,:)))
-        end
-    end
+    title([num2str(szs(i)) ' deg'])
     clim([0 max(data_temp(:))])
     colormap(gray)
 end
