@@ -9,7 +9,7 @@
 clear all;clc;
 
 ds = 'szTuning_dreadds_V1';
-iexp = 1;
+iexp = 3;
 rc = behavConstsAV;
 eval(ds)
 doStableOnly = 1;
@@ -107,6 +107,10 @@ for i = 1:nep
 end
 
 %% Register
+if nrun>1 
+    dataFolder = [runs{1} '_' runs{nrun}];
+end
+
 chooseInt = 5; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
 
 fprintf('\nBegin registering...\n')
@@ -125,8 +129,8 @@ fprintf('stackRegister\n')
 % save
 fprintf('Registration complete, now saving...\n')
 mkdir(fullfile(fnout,dataFolder))
-save(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']), 'out', 'data_avg','meanrng')
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_input.mat']), 'input')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_reg_shifts.mat']), 'out', 'data_avg','meanrng')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_input.mat']), 'input')
 
 clear data % depending on memory
 
@@ -151,7 +155,7 @@ end
 truesize;
 % print to file
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOV_avg.pdf']))
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_FOV_avg.pdf']))
 
 
 %% find activated cells
@@ -245,7 +249,7 @@ elseif input.doSizeStim
         title(['Size: ' num2str(szs(i)) ' deg'])
     end
     % print to pdf
-    print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOV_resp_Size.pdf']), '-dpdf')
+    print(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_FOV_resp_Size.pdf']), '-dpdf')
     
 elseif input.doTFStim && ~input.doMatrix
     % doTFStim + !doMatrix -> temporal frequency?
@@ -275,7 +279,7 @@ end
 title('Maximum dF/F across all stimuli')
 
 % save stimActFOV.mat containing: data_dfof_max, data_dfof_avg, nStim
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg', 'nStim')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg', 'nStim')
 
 
 %% cell segmentation
@@ -332,10 +336,10 @@ for i = 1:nStim_temp
     colormap(gray)
 end
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOV_overlay.pdf']), '-dpdf')
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_FOV_overlay.pdf']), '-dpdf')
 
 mask_np = imCellNeuropil(mask_cell, 3, 5);
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_mask_cell.mat']), 'mask_cell', 'mask_np', '-v7.3')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_mask_cell.mat']), 'mask_cell', 'mask_np', '-v7.3')
 fprintf('Neuropil mask generated\n')
 
 % clear data_dfof data_dfof_avg max_dfof mask_data mask_all mask_2 data_base data_base_dfof data_targ data_targ_dfof data_f data_base2 data_base2_dfof data_dfof_dir_all data_dfof_max data_dfof_targ data_avg data_dfof2_dir data_dfof_dir
@@ -381,8 +385,7 @@ clear data_reg_down
 
 fprintf('Neuropil subtraction complete, saving data...\n')
 
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_input.mat']), 'input')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
 
 fprintf('Calculating dF/F...\n')
 %get dF/F
@@ -398,10 +401,34 @@ clear tc_mat tc_f
 
 fprintf('Time course extraction complete.\n')
 
+%% now select window to extract response
+fprintf('\nExamine average cell dF/F timecourse to select response window\n')
+respWindow = int64(4:12); % this will be the window to define dF/F response (offset by nITI + nDelay)
+baseWindow = int64(-5:0);
+
+tt = (1-nOff:nOn)*(1000./frame_rate);
+avTC = squeeze(mean(mean(tc_dfof,2),3)); % average all cells,trials
+% plots all trials for one condition + one cell at a time
+figure(2);clf;
+for i = 1:nCells
+    plot(tt', squeeze(mean(tc_dfof(:,i,:),3)), 'LineWidth',1)
+    hold on
+end
+plot(tt', avTC, 'LineWidth', 5)
+title('Average cell timecourses')
+ylim([-0.05 0.6])
+vline(0)
+vline(tt(nOff+respWindow(1)))
+vline(tt(nOff+respWindow(end)))
+h1=vfill([tt(nOff+respWindow(1)),tt(nOff+respWindow(end))],'gray','FaceAlpha',0.5);
+uistack(h1,'bottom')
+
+clear data_reg
 
 %% plot tuning
-load(fullfile(fnout, retFolder, [mouse '_' expDate '_lbub_fits.mat']));
-
+nSize = length(szs);
+sizeTune = cell(nSize,nrun,nCells);
+baseResp = cell(nSize,nrun,nCells);
 tuning_mat = zeros(nStim, nrun, 2, nCells);
 tRun = [];
 for irun = 1:nrun
@@ -418,28 +445,32 @@ tt = (1-nOff:nOn)*(1000./frame_rate);
 figure;
 start = 1;
 f = 1;
+
 for iCell = 1:nCells
-    if ~sum(iCell==goodfit_ind) % only plot goodfit cells
-        continue
-    end
     if start >36
         set(gcf, 'Position', [0 0 800 1000]);
-        print(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs' num2str(f) '.pdf']), '-dpdf')
+        print(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_TCs' num2str(f) '.pdf']), '-dpdf')
         start = 1;
         f= f+1;
         figure;
     end
     subplot(n, n2, start)
-    for iStim = 1:nStim
-        ind_temp = find(sz_mat == szs(iStim));
+    for iSize = 1:nSize
+        ind_temp = find(sz_mat == szs(iSize));
         plot(tt', squeeze(mean(tc_dfof(:,iCell,ind_temp),3)))
         title(iCell)
         for irun = 1:nrun
             ind = intersect(find(tRun == irun),ind_temp);
             hold on
-            tuning_mat(iStim,irun,1,iCell) = mean(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),3),1);
-            tuning_mat(iStim,irun,2,iCell) = std(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),1),[],3)./sqrt(length(ind));
-            Ind_struct(iStim,irun).all_trials = ind;
+            stimOn = mean(tc_dfof(nOff+(respWindow),iCell,ind),1);
+            stimOff = mean(tc_dfof(nOff+(baseWindow),iCell,ind),1);
+            % this cell matrix stores all stimOn for all trials in ind_all
+            % dims (szs, cons, cells)
+            sizeTune{iSize,irun, iCell} = squeeze(stimOn);
+            baseResp{iSize,irun, iCell} = squeeze(stimOff);
+            tuning_mat(iSize,irun,1,iCell) = mean(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),3),1);
+            tuning_mat(iSize,irun,2,iCell) = std(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),1),[],3)./sqrt(length(ind));
+            Ind_struct(iSize,irun).all_trials = ind;
         end
     end
     ylim([-0.05 0.25])
@@ -447,18 +478,15 @@ for iCell = 1:nCells
     start = start + 1;
 end
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs' num2str(f) '.pdf']), '-dpdf')
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_TCs' num2str(f) '.pdf']), '-dpdf')
 
 figure;
 start = 1;
 f = 1;
 for iCell = 1:nCells
-    if ~sum(iCell==goodfit_ind) % only plot goodfit cells
-        continue
-    end
     if start >36
         set(gcf, 'Position', [0 0 800 1000]);
-        print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning' num2str(f) '.pdf']), '-dpdf')
+        print(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_Tuning' num2str(f) '.pdf']), '-dpdf')
         start = 1;
         f= f+1;
         figure;
@@ -474,9 +502,44 @@ for iCell = 1:nCells
     start = start+1;
 end
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning' num2str(f) '.pdf']), '-dpdf')
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'szs', 'Ind_struct')
+tit_str = ['Times = '];
+for i = 1:length(expt(iexp).stableSizeOnly)
+    tit_str = [tit_str ' ' cell2mat(expt(iexp).sizeTuningTimeFromDrugMin(expt(iexp).stableSizeOnly(i)))];
+end
+suptitle(tit_str)
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_Tuning' num2str(f) '.pdf']), '-dpdf')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'szs', 'Ind_struct')
 
+for iCell = 1:nCells
+    resp = [];
+    base = [];
+    for i = 1
+        resp = [resp; sizeTune{i,1,iCell}];
+        base = [base; baseResp{i,1,iCell}];
+    end
+    [h(iCell) p(iCell)] = ttest(resp,base,'tail','right');
+end
+
+temp = squeeze(permute(tuning_mat(:,:,1,:),[1,4,2,3]));
+tuning_norm = bsxfun(@rdivide, temp, max(temp(:,:,1),[],1));
+
+figure;
+ind = find(h);
+for irun = 1:nrun
+    ret_avg = mean(tuning_norm(:,ind,irun),2)';
+    ret_sem= std(tuning_norm(:,ind,irun),[],2)./sqrt(length(ind))';
+    errorbar(szs,ret_avg,ret_sem)
+    hold on 
+end
+ylabel('dF/F (normalized to "pre")')
+xlabel('Size (deg)')
+ylim([-0.3 1.2])
+axis square
+title(['Cells resp to 5 deg- n = ' num2str(length(ind))])
+suptitle([mouse ' ' expDate])
+legend(expt(iexp).sizeTuningTimeFromDrugMin(expt(iexp).stableSizeOnly))
+
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_avgTuningByRun.pdf']), '-dpdf','-bestfit')
 %% present selected cells
 % 
 % % input stimulus location based on experimental choice
