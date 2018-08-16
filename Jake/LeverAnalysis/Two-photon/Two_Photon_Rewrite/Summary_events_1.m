@@ -185,7 +185,7 @@ col_mat = [ 0.9  0.9  0;
     0.5 0.4 0; 0.5 0.5 0.5; 0.3 0.5 1; 0.1 0.5 0.7; 0 0.6 0.2;0.8 0.8 0.4;0.1 0.1 0.1;0.3 0.7 0; 0 0 0; 0.1 0.5 0.5];
 
 % summary of autocorrelation
-stframe_size = cell2mat(cellfun(@size, acor_all, 'UniformOutput', 0));
+frame_size = cell2mat(cellfun(@size, acor_all, 'UniformOutput', 0));
 max_frame = max(frame_size(2:2:end));
 
 acor_all_all = interp_frame(acor_all, max_frame);
@@ -198,9 +198,9 @@ xlim([-2 2])
 xlabel('Lag (s)')
 ylabel('Auto correlation');
 title('auto correlation for spont events for all cells');
-saveas(fig, [out_base 'Summary_autocorrelation.fig']);
-print([out_base 'Summary_autocorrelation.eps'], '-depsc');
-print([out_base 'Summary_autocorrelation.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_autocorrelation.fig']);
+%print([out_base 'Summary_autocorrelation.eps'], '-depsc');
+%print([out_base 'Summary_autocorrelation.pdf'], '-dpdf');
 
 b = acor_all{end}';
 ttb = -2:2/(size(b,1)-1):2;
@@ -216,9 +216,9 @@ subplot(4,1,4); bar(ttb, b4);xlim([-2 2])
 xlabel('Lag (s)')
 ylabel('Auto correlation');
 supertitle('example auto correlation for cells from img 59');
-saveas(fig, [out_base 'img59_autocorrelation.fig']);
-print([out_base 'imd59_autocorrelation.eps'], '-depsc');
-print([out_base 'img59_autocorrelation.pdf'], '-dpdf');
+%saveas(fig, [out_base 'img59_autocorrelation.fig']);
+%print([out_base 'imd59_autocorrelation.eps'], '-depsc');
+%print([out_base 'img59_autocorrelation.pdf'], '-dpdf');
 
 
 % hold time and event rate
@@ -266,9 +266,9 @@ plot(fHold_bins(BF>=10), CorrFfit2, 'color', [0.9, 0,0], 'Linewidth', 1.5);
 title('event rate and hold time for responsive cells, each point is one trial, black-correct, red-early');
 xlabel('hold time(s)');
 ylabel('event rate(Hz)');
-saveas(fig, [out_base 'Summary_eventRate_holdtime_trial_avg.fig']);
-print([out_base 'Summary_eventRate_holdtime_trial_avg.eps'], '-depsc');
-print([out_base 'Summary_eventRate_holdtime_trial_avg.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_eventRate_holdtime_trial_avg.fig']);
+%print([out_base 'Summary_eventRate_holdtime_trial_avg.eps'], '-depsc');
+%print([out_base 'Summary_eventRate_holdtime_trial_avg.pdf'], '-dpdf');
 
 fig = figure;
 col_mat_s = [0.5, 0.5, 0.5];
@@ -285,9 +285,9 @@ plot(fHold, CorrFfit1, 'color', [0.9, 0,0], 'Linewidth', 1.5);
 title('event rate and hold time for responsive cells, each point is one trial, black-correct, red-early');
 xlabel('hold time(s)');
 ylabel('event rate(Hz)');
-saveas(fig, [out_base 'Summary_eventRate_holdtime_trial_scatter.fig']);
-print([out_base 'Summary_eventRate_holdtime_trial_scatter.eps'], '-depsc');
-print([out_base 'Summary_eventRate_holdtime_trial_scatter.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_eventRate_holdtime_trial_scatter.fig']);
+%print([out_base 'Summary_eventRate_holdtime_trial_scatter.eps'], '-depsc');
+%print([out_base 'Summary_eventRate_holdtime_trial_scatter.pdf'], '-dpdf');
 % col_mat_s = repmat([0.5,0.5,0.5],11,1);
 
 %summary of event rate
@@ -310,9 +310,9 @@ xlim([0.5 size(mouseID,2)+.5])
 ylabel('Spike rate (Hz)')
 xlabel('session')
 title(['Avg rate: ' num2str(chop(mean(rate_all,2),3)) ' +/-' num2str(chop(std(rate_all,[],2)./(sqrt(size(rate_all,2))),2)) ' n = ' num2str(size(rate_all,2)) ' cells'])
-saveas(fig, [out_base 'Summary_event_rate.fig']);
-print([out_base 'Summary_event_rate.eps'], '-depsc');
-print([out_base 'Summary_event_rate.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_event_rate.fig']);
+%print([out_base 'Summary_event_rate.eps'], '-depsc');
+%print([out_base 'Summary_event_rate.pdf'], '-dpdf');
 
 fig = figure;
 histogram(rate_all)
@@ -320,9 +320,9 @@ xlabel('Firing rate (HZ)')
 ylabel('#Cell')
 
 title(['Avg rate: ' num2str(chop(mean(rate_all,2),3)) ' +/-' num2str(chop(std(rate_all,[],2)./(sqrt(size(rate_all,2))),2)) ' n = ' num2str(size(rate_all,2)) ' cells'])
-saveas(fig, [out_base 'Summary_event_rate_hist.fig']);
-print([out_base 'Summary_event_rate_hist.eps'], '-depsc');
-print([out_base 'Summary_event_rate_hist.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_event_rate_hist.fig']);
+%print([out_base 'Summary_event_rate_hist.eps'], '-depsc');
+%print([out_base 'Summary_event_rate_hist.pdf'], '-dpdf');
 
 
 %summary of average events
@@ -343,9 +343,9 @@ end
 xlabel('Time (ms)')
 ylabel('dF/F')
 supertitle(['Good events- All cells- Black: success; Red: early; Cyan: press'])
-saveas(fig, [out_base 'Summary_allcells_event_TC.fig']);
-print([out_base 'Summary_allcells_event_TC.eps'], '-depsc');
-print([out_base 'Summary_allcells_event_TC.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_allcells_event_TC.fig']);
+%print([out_base 'Summary_allcells_event_TC.eps'], '-depsc');
+%print([out_base 'Summary_allcells_event_TC.pdf'], '-dpdf');
 fig=figure;
 for id = 1:size(mouseID,2)
     press_events = press_event_TC_RS{id};
@@ -363,9 +363,9 @@ end
 xlabel('Time (ms)')
 ylabel('dF/F')
 supertitle(['Good events- Resp cells- Black: success; Red: early; Cyan: press'])
-saveas(fig, [out_base 'Summary_respcells_event_TC.fig']);
-print([out_base 'Summary_respcells_event_TC.eps'], '-depsc');
-print([out_base 'Summary_respcells_event_TC.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_respcells_event_TC.fig']);
+%print([out_base 'Summary_respcells_event_TC.eps'], '-depsc');
+%print([out_base 'Summary_respcells_event_TC.pdf'], '-dpdf');
 
 
 %% commented to fix acquisition rates
@@ -443,9 +443,9 @@ ylabel('Fail event peak dF/F')
 [h_sfr p_sfr]= ttest(sr,fr);
 title(['Responsive cells- n = ' num2str(total_resp) '; p = ' num2str(chop(p_sfr,2))])
 suptitle('Peak event amplitude')
-saveas(fig, [out_base 'Summary_event_amp_scatter.fig']);
-print([out_base 'Summary_event_amp_scatter.eps'], '-depsc');
-print([out_base 'Summary_event_amp_scatter.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_event_amp_scatter.fig']);
+%print([out_base 'Summary_event_amp_scatter.eps'], '-depsc');
+%print([out_base 'Summary_event_amp_scatter.pdf'], '-dpdf');
 
 %average event amplitude by mouse
 fig=figure;
@@ -518,9 +518,9 @@ xlabel('Success event peak dF/F')
 ylabel('Fail event peak dF/F') 
 title(['Responsive cells'])
 supertitle('Peak event amplitude')
-saveas(fig, [out_base 'Summary_event_amp_avg_scatter.fig']);
-print([out_base 'Summary_event_amp_avg_scatter.eps'], '-depsc');
-print([out_base 'Summary_event_amp_avg_scatter.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_event_amp_avg_scatter.fig']);
+%print([out_base 'Summary_event_amp_avg_scatter.eps'], '-depsc');
+%print([out_base 'Summary_event_amp_avg_scatter.pdf'], '-dpdf');
 
 %summary of PSTH- average
 fig=figure;
@@ -534,9 +534,9 @@ end
 xlabel('Time (ms)')
 ylabel('Firing rate (Hz)')
 supertitle(['PSTH- all cells- Black: success; Red: Failure'])
-saveas(fig, [out_base 'Summary_PSTH_allcells.fig']);
-print([out_base 'Summary_PSTH_allcells.eps'], '-depsc');
-print([out_base 'Summary_PSTH_allcells.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_PSTH_allcells.fig']);
+%print([out_base 'Summary_PSTH_allcells.eps'], '-depsc');
+%print([out_base 'Summary_PSTH_allcells.pdf'], '-dpdf');
 
 fig=figure;
 for id = 1:size(mouseID,2)
@@ -549,9 +549,9 @@ end
 xlabel('Time (ms)')
 ylabel('Firing rate (Hz)')
 supertitle(['PSTH- responsive cells- Black: success; Red: Failure'])
-saveas(fig, [out_base 'Summary_PSTH_respcells.fig']);
-print([out_base 'Summary_PSTH_respcells.eps'], '-depsc');
-print([out_base 'Summary_PSTH_respcells.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_PSTH_respcells.fig']);
+%print([out_base 'Summary_PSTH_respcells.eps'], '-depsc');
+%print([out_base 'Summary_PSTH_respcells.pdf'], '-dpdf');
 
 
 %% needs to be updated for different acquisition rates
@@ -591,9 +591,9 @@ xlabel('Time (ms)')
 ylabel('Firing rate (Hz)')
 title(['PSTH- responsive cells- n = ' num2str(total_resp)])
 supertitle(['PSTH- responsive cells- Black: success; Red: Failure'])
-saveas(fig, [out_base 'Summary_PSTH_avgexpt_30Hz.fig']);
-print([out_base 'Summary_PSTH_avgexpt_30Hz.eps'], '-depsc');
-print([out_base 'Summary_PSTH_avgexpt_30Hz.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_PSTH_avgexpt_30Hz.fig']);
+%print([out_base 'Summary_PSTH_avgexpt_30Hz.eps'], '-depsc');
+%print([out_base 'Summary_PSTH_avgexpt_30Hz.pdf'], '-dpdf');
 
 % second y axis
 fig = figure;
@@ -608,9 +608,9 @@ xlabel('Time (ms)')
 ylabel('Firing rate (Hz)')
 title(['PSTH- responsive cells- n = ' num2str(total_resp)])
 supertitle(['PSTH- responsive cells- Black: success; Red: Failure'])
-saveas(fig, [out_base 'Summary_PSTH_avgexpt_30Hz_resp.fig']);
-print([out_base 'Summary_PSTH_avgexpt_30Hz_resp.eps'], '-depsc');
-print([out_base 'Summary_PSTH_avgexpt_30Hz_resp.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_PSTH_avgexpt_30Hz_resp.fig']);
+%print([out_base 'Summary_PSTH_avgexpt_30Hz_resp.eps'], '-depsc');
+%print([out_base 'Summary_PSTH_avgexpt_30Hz_resp.pdf'], '-dpdf');
 
 % PSTH align to press
 psuccess_hist_RS = cellfun(@transpose, psuccess_hist_RS, 'UniformOutput', 0);
@@ -635,9 +635,9 @@ xlabel('Time (ms)')
 ylabel('Firing rate (Hz)')
 % title(['PSTH- responsive cells- n = ' num2str(total_resp)])
 supertitle(['PSTH- responsive cells- Black: success; Red: Failure'])
-saveas(fig, [out_base 'Summary_PSTH_avgexpt_30Hz_press.fig']);
-print([out_base 'Summary_PSTH_avgexpt_30Hz_press.eps'], '-depsc');
-print([out_base 'Summary_PSTH_avgexpt_30Hz_press.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_PSTH_avgexpt_30Hz_press.fig']);
+%print([out_base 'Summary_PSTH_avgexpt_30Hz_press.eps'], '-depsc');
+%print([out_base 'Summary_PSTH_avgexpt_30Hz_press.pdf'], '-dpdf');
 
 %scatter of peak rate
 fig=figure; 
@@ -722,9 +722,9 @@ ylabel('Early latency (ms)')
 [h_lr p_lr] = ttest(RS_si, RS_fi);
 title(['Responsive cells- n = ' num2str(total_resp) '; p = ' num2str(chop(p_lr,2))])
 supertitle(['Event rate and latency on releases- all cells'])
-saveas(fig, [out_base 'Summary_rate_latency_scatter.fig']);
-print([out_base 'Summary_rate_latency_scatter.eps'], '-depsc');
-print([out_base 'Summary_rate_latency_scatter.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_rate_latency_scatter.fig']);
+%print([out_base 'Summary_rate_latency_scatter.eps'], '-depsc');
+%print([out_base 'Summary_rate_latency_scatter.pdf'], '-dpdf');
 
 fig=figure;
 subplot(2,2,1)
@@ -768,9 +768,9 @@ xlabel('Success latency (ms)')
 ylabel('Fail latency (ms)')
 title(['Responsive cells- latency'])
 supertitle(['Event rate and latency on releases- average within expts'])
-saveas(fig, [out_base 'Summary_rate_latency_scatter_avg.fig']);
-print([out_base 'Summary_rate_latency_scatter_avg.eps'], '-depsc');
-print([out_base 'Summary_rate_latency_scatter_avg.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_rate_latency_scatter_avg.fig']);
+%print([out_base 'Summary_rate_latency_scatter_avg.eps'], '-depsc');
+%print([out_base 'Summary_rate_latency_scatter_avg.pdf'], '-dpdf');
 
 %==================================================================================================================================
 col_mat = [ 0  0  0;
@@ -821,9 +821,9 @@ ylabel('cue aligned standard deviation of latency')
 title(['All RS cells- st.dev of latency across trials. avg across cells.'])
 axis square
 supertitle('Syncrony');
-saveas(fig, [out_base 'Summary_std_latency_scatter_avg_abs.fig']);
-print([out_base 'Summary_std_latency_scatter_avg_abs.eps'], '-depsc');
-print([out_base 'Summary_std_latency_scatter_avg_abs.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_std_latency_scatter_avg_abs.fig']);
+%print([out_base 'Summary_std_latency_scatter_avg_abs.eps'], '-depsc');
+%print([out_base 'Summary_std_latency_scatter_avg_abs.pdf'], '-dpdf');
 %==========================================================================================================================================================
 
 %summary of average event waveform relative to spont
@@ -852,9 +852,9 @@ for id = 1:size(mouseID,2)
     ylabel('Norm dF/F')
 end
 supertitle('All cells- Event waveform normalized to spont')
-saveas(fig, [out_base 'Summary_avgevent_norm2spont.fig']);
-print([out_base 'Summary_avgevent_norm2spont.eps'], '-depsc');
-print([out_base 'Summary_avgevent_norm2spont.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_avgevent_norm2spont.fig']);
+%print([out_base 'Summary_avgevent_norm2spont.eps'], '-depsc');
+%print([out_base 'Summary_avgevent_norm2spont.pdf'], '-dpdf');
 
 fig=figure;
 for id = 1:size(mouseID,2)
@@ -883,9 +883,9 @@ for id = 1:size(mouseID,2)
 %     ylabel('Norm dF/F')
 end
 supertitle('Responsive cells- Event waveform normalized to spont')
-saveas(fig, [out_base 'Summary_avgevent_norm2spont.fig']);
-print([out_base 'Summary_avgevent_norm2spont.eps'], '-depsc');
-print([out_base 'Summary_avgevent_norm2spont.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_avgevent_norm2spont.fig']);
+%print([out_base 'Summary_avgevent_norm2spont.eps'], '-depsc');
+%print([out_base 'Summary_avgevent_norm2spont.pdf'], '-dpdf');
 
 %peak scatters
 r_all = [];
@@ -944,9 +944,9 @@ ylabel('Press amplitude')
 ncells = sum(~isnan(mean([p_RS; r_RS],1)),2);
 title(['Responsive cells- n = ' num2str(total_resp) '; Release p = ' num2str(chop(p_rRS,2)) '; Press p = ' num2str(chop(p_pRS,2))])
 supertitle('Event waveform normalized to spont')
-saveas(fig, [out_base 'Summary_pr_scatter_norm2spont.fig']);
-print([out_base 'Summary_pr_scatter_norm2spont.eps'], '-depsc');
-print([out_base 'Summary_pr_scatter_norm2spont.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_pr_scatter_norm2spont.fig']);
+%print([out_base 'Summary_pr_scatter_norm2spont.eps'], '-depsc');
+%print([out_base 'Summary_pr_scatter_norm2spont.pdf'], '-dpdf');
 
 
 %peak scatters for spont, fail, success and press
@@ -1053,9 +1053,9 @@ ylabel('Early amplitude')
 use_cells_RS = find(~isnan(mean([s_RS; f_RS],1)),2);
 [h_sfRS p_sfRS] = ttest(s_RS(1,use_cells_RS),f_RS(1,use_cells_RS));
 title(['Responsive cells- n = ' num2str(total_resp) '; p = ' num2str(chop(p_sfRS,2))])
-saveas(fig, [out_base 'Summary_event_peak_scatter_CE_norm.fig']);
-print([out_base 'Summary_event_peak_scatter_CE_norm.eps'], '-depsc');
-print([out_base 'Summary_event_peak_scatter_CE_norm.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_event_peak_scatter_CE_norm.fig']);
+%print([out_base 'Summary_event_peak_scatter_CE_norm.eps'], '-depsc');
+%print([out_base 'Summary_event_peak_scatter_CE_norm.pdf'], '-dpdf');
 
 %average across mice
 fig=figure;
@@ -1100,9 +1100,9 @@ xlabel('Release amplitude')
 ylabel('Press amplitude')
 title('Responsive cells')
 supertitle('Avg event waveform normalized to spont')
-saveas(fig, [out_base 'Summary_avgpr_scatter_norm2spont.fig']);
-print([out_base 'Summary_avgpr_scatter_norm2spont.eps'], '-depsc');
-print([out_base 'Summary_avgpr_scatter_norm2spont.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_avgpr_scatter_norm2spont.fig']);
+%print([out_base 'Summary_avgpr_scatter_norm2spont.eps'], '-depsc');
+%print([out_base 'Summary_avgpr_scatter_norm2spont.pdf'], '-dpdf');
 
 
 %press and release alone
@@ -1182,9 +1182,9 @@ set(gca, 'XTick', 1:2, 'XTickLabel', lever);
 ylabel('Normalized amplitude')
 title(['Responsive cells- Release n = ' num2str(total_resp) ' cells; Press n = ' num2str(sum(~isnan(p_RS),2))])
 supertitle('Avg event waveform normalized to spont')
-saveas(fig, [out_base 'Summary_avg_event_norm2spont.fig']);
-print([out_base 'Summary_avg_event_norm2spont.eps'], '-depsc');
-print([out_base 'Summary_avg_event_norm2spont.pdf'], '-dpdf');
+%saveas(fig, [out_base 'Summary_avg_event_norm2spont.fig']);
+%print([out_base 'Summary_avg_event_norm2spont.eps'], '-depsc');
+%print([out_base 'Summary_avg_event_norm2spont.pdf'], '-dpdf');
 
 % %% need to correct for acquisition rate
 % %spont waveform comparison
@@ -1262,7 +1262,7 @@ max_frame = max(frame_size(2:2:end));
 all_press_norm = interp_frame(press_norm_all, max_frame);
 RS_press_norm    = interp_frame(press_norm_RS, max_frame);
 all_success_norm   = interp_frame(success_norm_all, max_frame);
-RS_success_norm = interp_frame(success_norm_RS, max_frame);
+RS_success_norm = interp_frame(success_norm_RS, max_frame); %nCells by nFrames
 all_fail_norm   = interp_frame(fail_norm_all, max_frame);
 RS_fail_norm = interp_frame(fail_norm_RS, max_frame);
 all_spont_norm    = interp_frame(spont_norm_all, max_frame);
@@ -1296,7 +1296,7 @@ ylabel('dF/F')
 title(['Average event- all cells- ' num2str(total_cells) ' cells'])
 
 subplot(1,2,2);
-cell_use = find(~isnan(mean([RS_spont_renorm RS_success_renorm RS_fail_renorm RS_press_renorm],2)));
+cell_use = find(~isnan(mean([RS_spont_renorm RS_success_renorm RS_fail_renorm RS_press_renorm],2))); % find which cells do not have nans
 errorbar(tth, nanmean(RS_spont_renorm(cell_use,:),1), nanstd(RS_spont_renorm(cell_use,:),[],1)./sqrt(length(cell_use)), '-m')
 hold on;
 errorbar(tth, nanmean(RS_success_renorm(cell_use,:),1), nanstd(RS_success_renorm(cell_use,:),[],1)./sqrt(length(cell_use)), '-k')
@@ -1309,7 +1309,7 @@ xlabel('Time (ms)')
 ylabel('dF/F')
 title(['Average event- responsive cells- ' num2str(total_resp) ' cells'])
 suptitle('Average event- Black: success; Red: early; Cyan: press; Magenta: spont')
-saveas(fig, [out_base 'Summary_event_TC_exptavg.fig']);
+%saveas(fig, [out_base 'Summary_event_TC_exptavg.fig']);
 print([out_base 'Summary_event_TC_exptavg.eps'], '-depsc');
 print([out_base 'Summary_event_TC_exptavg.pdf'], '-dpdf');
 

@@ -6,19 +6,18 @@
 % 4. Apply gaussian filter to ICA
 % 5. Threshold ICA signal to get binary mask
 % 6. Process mask (break multiple components on single layer to multiple,
-% combine highly correlated ones and remove small ones)
+%    combine highly correlated ones and remove small ones)
 % 7. Extract timecourse (manually inspect TC and remove bad ones) and create a singal layer mask for display
 
 clear
 file_info_CRP2;
-% file_info;  stable_int = {[1250:1500]}; dates = date;
 usFacs = 100;
 behav_dir = 'Z:\Data\2P_imaging\behavior\';
-crp_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\2P\FoV_mathcing_PCA_ICA';
+crp_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\2P\PCA_ICA_recalibration';
 docombineMask = 0; doRerun = 0; useWarp = 0; doPCA = 0;
 useGPU = 0; checkImg = 0;
 
-for sub =[1:2, 4:(length(stable_int)-2)]; %[2,5, 9, 22, 23, 31, 3, 6, 10, 25, 27, 32]
+for sub = [4:12]    %[1:2, 4:(length(stable_int)-2)]; %[2,5, 9, 22, 23, 31, 3, 6, 10, 25, 27, 32]
     %     days_pair = days_all;
     %if docombineMask == 1   %combines masks for pre and post learning days
     
@@ -153,10 +152,11 @@ for sub =[1:2, 4:(length(stable_int)-2)]; %[2,5, 9, 22, 23, 31, 3, 6, 10, 25, 27
     if ~exist(out_dir)
         mkdir(out_dir);
     end
+    out_dir
             %           load([out_dir, 'img_reg.mat']);
             
-%             %% Extract pockel cell data
-%             
+            %% Extract pockel cell data
+            
 %             %set directories
 %             mouse = mouseID{sub};
 %             subMat = dir([behav_dir, '*', behavID{sub}, '-', dates{sub}, '*']); %sets directory as the behavior file
@@ -181,14 +181,14 @@ for sub =[1:2, 4:(length(stable_int)-2)]; %[2,5, 9, 22, 23, 31, 3, 6, 10, 25, 27
 %                 save([data_dir, mouse, '_', runID{rID}, '_realtime.mat'], 'ttl_log2');  %overwrites existing ttl_log data
 %             end
 %             
-%             %% Motion registration or check for exisint motion reg outputs
+            %% Motion registration or check for exisint motion reg outputs
 %             %             if exist([out_dir, 'Reg_out.mat'],'file') == 2
 % %                 load([out_dir, 'Reg_out.mat']);
 % %                 [~,img_reg]=stackRegister_MA(img,img(:,:,1),usFacs,double(reg_out));
 % %             elseif exist([out_dir, 'img_reg.mat'],'file') == 2
 % %                 load([out_dir, 'img_reg.mat']);
 % %             else
-%                 [img_reg, laser_on_ind_conserv, nt] = motionCorrect(data_dir, runID{rID}, out_dir); %uses stackRegister, automatically saves img_reg and Reg_out
+% %                [img_reg, laser_on_ind_conserv, nt] = motionCorrect(data_dir, runID{rID}, out_dir); %uses stackRegister, automatically saves img_reg and Reg_out
 %                 config_fn = dir(fullfile(data_dir,['*' runID{rID} '.mat']));
 %                 laser_power_fn = dir(fullfile(data_dir,['*' runID{rID} '_realtime.mat']));
 %                 [img, ~, ~] = loadFile( data_dir, runID{rID}, [], []);
@@ -203,16 +203,17 @@ for sub =[1:2, 4:(length(stable_int)-2)]; %[2,5, 9, 22, 23, 31, 3, 6, 10, 25, 27
 %                 [reg_out, img_reg] = stackRegister(img(:,:,laser_on_ind_conserv), img_ref);
 %                 save([out_dir, 'img_reg.mat'], 'img_reg', 'reg_out', 'img_ref', 'laser_on_ind_conserv', '-v7.3');  
 %              %end
-%             %writetiff(img_reg(:,:,1:500), [out_dir, 'img_reg_1_1500']);
+%             writetiff(img_reg(:,:,1:500), [out_dir, 'img_reg_1_1500']);
+%             continue
 %             
             if doRerun == 0 
                  %% compute PRINCIPAL COMPONENTS 
                 cd(data_dir); 
-%                 [npw, nph, ~] = size(img_reg);
                 %nPCA = 400; %100 for old datasets, 500 for newer
-                load([out_dir, 'img_reg']);
-                for this_nPCA = 1:2
-                    nPCA = all_nPCA{sub}(this_nPCA);
+%                 load([out_dir, 'img_reg']);
+%                 [npw, nph, ~] = size(img_reg);
+%                for this_nPCA = 1:2
+%                     nPCA = all_nPCA{sub}(this_nPCA);
 %                     %img_pca = img_reg(:,:,1:2:end); % downsample in time by 2 or 5
 %                     img_pca = stackGroupProject(img_reg, 3);
 %                     nf = size(img_pca,3);
@@ -224,42 +225,43 @@ for sub =[1:2, 4:(length(stable_int)-2)]; %[2,5, 9, 22, 23, 31, 3, 6, 10, 25, 27
 %                     PCuse = [1:nPCA]; %only use 85% of the PCs
 %                     save([out_dir, 'PCA_variables_', num2str(nPCA),'.mat'], 'mixedsig_PCA', 'mixedfilters_PCA', 'CovEvals_PCA', 'nPCA');
 %                     
-%                     % to view PCs
-%                     load([out_dir, 'PCA_variables_', num2str(nPCA),'.mat']);
-%                     %writetiff(mixedfilters_PCA, [out_dir, 'PCuse_for_nPCA_', num2str(nPCA)]);
-%                     
-%                     %manually enter the PC #s to be used 
+                    % to view PCs
+%                      load([out_dir, 'PCA_variables_', num2str(nPCA),'.mat']);
+%                    writetiff(mixedfilters_PCA, [out_dir, 'PCuse_for_nPCA_', num2str(nPCA)]);
+%                     continue
+                    
+                    %manually enter the PC #s to be used 
 %                     if this_nPCA == 1
 %                         PCuse = all_PCuse{sub};
 %                     elseif this_nPCA ==2 
 %                         PCuse = all_PCuse2{sub};
 %                     end
-%                     %[PCuse] = CellsortChoosePCs_2P(mixedfilters_PCA);
-%                     
-%                     %% Compute independent components
+                    %[PCuse] = CellsortChoosePCs_2P(mixedfilters_PCA);
+                    
+                    %% Compute independent components
 %                     %mus = [0.97, 0.7];
 %                     %all_nIC = {[PCuse], [PCuse(1):(PCuse(end)-50)]};
 %                     %for this_mu = mus
-                     mu = 0.97; % spatial temporal mix
+%                       mu = 0.97; % spatial temporal mix
 %                     %for this_nIC = [1:2]
 %                     nIC = round(length(PCuse)*0.9); %length(all_nIC{this_nIC});%300;  %400- img90 100- img91
 %                     termtol = 0.00001;
 %                     maxrounds = 1000;
 %                     nph = 796; npw = 264;
-%                     
-%                     %run ICA and save outputs
+                    
+                    %run ICA and save outputs
 %                     [ica_sig, mixedfilters_ICA, ica_A, numiter] = CellsortICA_2P(mixedsig_PCA, mixedfilters_PCA, CovEvals_PCA, PCuse, mu, nIC, [], termtol, maxrounds);
 %                     icasig = permute(mixedfilters_ICA,[2,3,1]);
 %                     ICA_variables.mu = mu; ICA_variables.nIC = nIC;  ICA_variables.termtol = termtol; ICA_variables.naxrounds = maxrounds;
 %                     ICA_variables.npw = npw;  ICA_variables.nph = nph;
 %                     save([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat'], 'ica_sig', 'icasig', 'ICA_variables');
 %                     writetiff(icasig, [out_dir, 'icasig_for_nPCA_', num2str(nPCA)]);
-                    %figure; imagesc(sum(icasig,3));
-                    %savefig([out_dir, 'icasig_sum']);
-                    %continue
-                    load([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat']);
+%                     figure; imagesc(sum(icasig,3));
+%                     savefig([out_dir, 'icasig_sum_', num2str(nPCA)]);
+%                     continue
+%                      load([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat']);
 %                     load([out_dir, 'img_reg']);
-                    nph=ICA_variables.nph; npw = ICA_variables.npw;
+%                    nph=ICA_variables.nph; npw = ICA_variables.npw;
                     %% Process the masks from the PCA/ICA
                     
                     %select which ICs to keep based on morphology
@@ -269,144 +271,138 @@ for sub =[1:2, 4:(length(stable_int)-2)]; %[2,5, 9, 22, 23, 31, 3, 6, 10, 25, 27
 %                     continue
                     
                     %stack filter - acts as a low pass spatial filter. It will filter out low spatial frequency noise such as small blips and bloops in the ICs which do not belong to dendrites.
-                    icasig = icasig(:,:,[find(IC_use)]);
-                    icasig2 = stackFilter(icasig);
-                    %icasig2 = icasig;
-                    %assign variables and allocate memory
-                    nIC = size(icasig,3);
-                    icasig3 = icasig2;
-                    %                 mask_cell = zeros(size(icasig2));
-                    %                 sm_logical = zeros(npw,nph);
+%                     icasig = icasig(:,:,[find(IC_use)]);
+%                     icasig2 = stackFilter(icasig);
+%                     %icasig2 = icasig;
+%                     %assign variables and allocate memory
+%                     nIC = size(icasig,3);
+%                     icasig3 = icasig2;
+%                     %                 mask_cell = zeros(size(icasig2));
+%                     %                 sm_logical = zeros(npw,nph);
                     
                     %set threshold a threshold for which pixels to include in a given dendrite's mask.
-                    cluster_threshold = 96 % 90:100; %97- img90 97- img91 97- img070
-                        mask_cell = zeros(size(icasig2));
-                        sm_logical = zeros(npw,nph);
-                        %bwimgcell = zeros(size(icasig2));
-                        for ic = 1:nIC
-                            %convert to a binary mask
-                            icasig3(:,:,ic) = imclearborder(icasig2(:,:,ic));
-                            sm_logical((icasig3(:,:,ic)> mean([max(prctile(icasig3(:,:,ic),cluster_threshold,1)) max(prctile(icasig3(:,:,ic),cluster_threshold,2))])))=1;
-                            sm_logical((icasig3(:,:,ic)<=mean([max(prctile(icasig3(:,:,ic),cluster_threshold,1)) max(prctile(icasig3(:,:,ic),cluster_threshold,2))])))=0;
-                            sm_logical = logical(sm_logical);
-                            %bwlabel identifies unconnected objects within a single mask. So 0=background 1=Object#1 2=Object#2
-                            if sum(sum(sm_logical,2),1) <51
-                                sm_logical = 0;
-                            end
-                            mask_cell(:,:,ic) = bwlabel(sm_logical);
-                            
-                            % an older thresholding method? usese a semi manual interface to label cells.
-                            %bwimgcell(:,:,ic) = imCellEditInteractive(icasig2(:,:,ic),[]);
-                            %mask_cell(:,:,ic) = bwlabel(bwimgcell);
-                            %close all
-                        end
-                        %close all
-                        
-                        %                     %save thresholded ICs
-                        %                     IC_cut = find(squeeze(sum(sum(icasig3,2),1))'==0);
-                        %                     icasig3(:,:,[IC_cut]) = [];
-                        %                     IC_ind = [1:nIC];
-                        %                     IC_ind(IC_cut) = [];
-                        %                     figure; imagesc(sm_logical); title(['summed IC mask. Threshold = ', num2str(cluster_threshold)]);
-                        %                     save([out_dir, 'automated_mask_thresh_', num2str(cluster_threshold)], 'sm_logical', 'icasig3');
-                        %                             mask_final = processMask(mask_cell);
-                        %                             mask_final = reshape(mask_final, npw, nph);
-                        out_dir_spec = [out_dir, 'manual_PC_IC_checks\'];
-                        if ~exist(out_dir_spec)
-                            mkdir(out_dir_spec);
-                        end
-                        save([out_dir_spec, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), ...
-                            '_thresh_', num2str(cluster_threshold), '_mask_cell'], 'mask_cell')
-                        %                             figure; imagesc(sum(mask_cell,3));
-                        %                             title([dates{sub}, ' ', mouseID{sub}, ' mask post process stage 1']);
-                        %                             savefig([out_dir_spec, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), ...
-                        %                                 '_thresh_', num2str(cluster_threshold), '.fig']);
-                        
-                        
-                        %                 %manual mask edit
-                        %                 output_mask = manual_mask_editor(bwimgcell, img_reg);
-                        %                 save([out_dir, 'pix_mask_data'], 'output_mask', 'bwimgcell');
-                        %                 plot_mask_contours(reshape(output_mask, npw,nph,size(output_mask,2)), []);
-                        %                 savefig([out_dir, 'pixel mask after manual editing in manual_mask_editor'])
-                        %
-                        %                 figure; imagesc(sum(mask_cell,3)); title([ ' binary_ica_mask_automated nICs=', num2str(size(mask_cell,3))]);
-                        %                 savefig([out_dir, 'binary_ica_mask_automated']);
-                        %                 writetiff(mask_cell, [out_dir, 'binary_ica_mask_automated']);
-                        %                 continue
-                        
-                        %splits or merges overlapping pixel masks, plots output
-                        mask_cell(:,:, [find(sum(sum(mask_cell,2),1) < 51)] ) = [];
-                        mask_final = processMask_CRP(mask_cell);
-                        mask_raw = reshape(mask_final, npw, nph);
-                        %                             figure; subplot(2,2,1); imagesc(max(img_reg(:,:,1:1500),[],3)); title([dates{sub}, ' ', mouseID{sub} 'motion registered max intensity 1500 frames']);
-                        %                             subplot(2,2,2); imagesc(mask_raw); title('post thresholding')%truesize
-                        
-                        %consolidates highly correlated timecourses
-                        threshold = 0.80; % correlation threshold
-                        [ ~, mask3D_all, ~] = finalMask(img_reg(:,:,1:10:end), mask_final, threshold, out_dir);
-                        [mask2D] = plotMask(mask3D_all,0,0,0);
-                        %                             subplot(2,2,3); image(mask2D); title('after consolidating correlated masks');
-                        
-                        %                             %if two masks have overlapping pixels then combine them
-                        %                             mask3D_all = reshape(mask3D_all, npw*nph, size(mask3D_all,3));
-                        %                             for mask_num = 1:size(mask3D_all,2)
-                        %                                 this_mask_ind = find(mask3D_all(:,mask_num));
-                        %                                 if sum(sum( mask3D_all(this_mask_ind,[mask_num+1:end]) ,2),1) > 1 %check for masks with overlapping pixels. Exclude current mask since there will be 100% overlap
-                        %                                     overlapping_masks = find(sum(mask3D_all(this_mask_ind,:),1)); %find indeces of the masks which overlap with this_mask
-                        %                                     for this_overlapping_masks = overlapping_masks;
-                        %                                         mask3D_all( find(mask3D_all(:,this_overlapping_masks)), mask_num )= 1; %add the overlapping mask to the current mask
-                        %                                         mask3D_all(:,this_overlapping_masks) = 0;  %erase the overlapping mask from mask3D_all
-                        %                                     end
-                        %                                 end
-                        %                             end
-                        %                             mask3D_all = reshape(mask3D_all, npw, nph, size(mask3D_all,2));
-                        
-                        %Remove masks < 200 pixels from mask3D
-                        too_small_ind = find( squeeze(sum(sum(mask3D_all(:,:,:),2),1))<200 );
-                        mask3D = mask3D_all;
-                        mask3D(:,:,too_small_ind) = [];
-                        mask2D = plotMask(mask3D, 0,0, 0);
-                        figure; image(mask2D);
-                        title([dates{sub}, ' ', mouseID{sub}, ' final mask']);
-                        savefig([out_dir_spec, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), ...
-                            '_thresh_', num2str(cluster_threshold), '_final', '.fig']);
-                        save( [out_dir_spec, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), ...
-                            '_thresh_', num2str(cluster_threshold), '_mask3D.mat'], 'mask3D');
-                        
-                        mask_3D_buffed = make_mask_buffer(mask3D);
-                        %
-                        %                             too_small_ind = find( squeeze(sum(sum(mask_3D_buffed(:,:,:),2),1))<200 );
-                        %                             mask_3D_buffed(:,:,too_small_ind) = [];
-                        mask_2D_buffed = plotMask(mask_3D_buffed, 0,0, 0);
-                        figure; image(mask_2D_buffed);
-                        title([dates{sub}, ' ', mouseID{sub}, ' final mask with buffer']);
-                        savefig([out_dir_spec, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), ...
-                            '_thresh_', num2str(cluster_threshold), '_final_buffer', '.fig']);
+                    cluster_threshold = 96; % 90:100; %97- img90 97- img91 97- img070
+%                     mask_cell = zeros(size(icasig2));
+%                     sm_logical = zeros(npw,nph);
+%                     %bwimgcell = zeros(size(icasig2));
+%                     for ic = 1:nIC
+%                         %convert to a binary mask
+%                         icasig3(:,:,ic) = imclearborder(icasig2(:,:,ic));
+%                         sm_logical((icasig3(:,:,ic)> mean([max(prctile(icasig3(:,:,ic),cluster_threshold,1)) max(prctile(icasig3(:,:,ic),cluster_threshold,2))])))=1;
+%                         sm_logical((icasig3(:,:,ic)<=mean([max(prctile(icasig3(:,:,ic),cluster_threshold,1)) max(prctile(icasig3(:,:,ic),cluster_threshold,2))])))=0;
+%                         sm_logical = logical(sm_logical);
+%                         %bwlabel identifies unconnected objects within a single mask. So 0=background 1=Object#1 2=Object#2
+%                         if sum(sum(sm_logical,2),1) <51
+%                             sm_logical = 0;
+%                         end
+%                         mask_cell(:,:,ic) = bwlabel(sm_logical);
+%                         
+%                         % an older thresholding method? usese a semi manual interface to label cells.
+%                         %bwimgcell(:,:,ic) = imCellEditInteractive(icasig2(:,:,ic),[]);
+%                         %mask_cell(:,:,ic) = bwlabel(bwimgcell);
+%                         %close all
+%                     end
+%                     %close all
+                    
+%                     save([out_dir, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), '_thresh_', num2str(cluster_threshold), '_mask_cell.mat'], 'mask_cell')
+%                     figure('rend', 'painters', 'pos', [50 150 (796*1.5) (264*1.5)]); imagesc(sum(mask_cell,3)); title([dates{sub}, '_', mouseID{sub}, ' nPCA ', num2str(nPCA), ' mu ', num2str(mu), ' nIC ', num2str(nIC)]);
+%                     savefig([out_dir, dates{sub}, '_', mouseID{sub}, '_nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), '_thresh_', num2str(cluster_threshold), '_mask_cell.fig']);
+                    
+%                     load([out_dir, 'img_reg']);
+%                     load([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat']);
+%                     mu = ICA_variables.mu; npw = ICA_variables.npw; nph = ICA_variables.nph; nIC=ICA_variables.nIC;
+%                     mask_cell_file = dir(fullfile(out_dir, ['nPCA_' num2str(nPCA) '_mu_' num2str(mu) '_nIC_' '*' '_thresh_' num2str(cluster_threshold) '_mask_cell.mat']));
+%                     load([out_dir, mask_cell_file.name]);
+%        
+%                     %split individual masks if their blobs are not touching
+%                     mask_cell_out = blob_buster_CRP(mask_cell);
+%                     %consolidate highly correlated masks  and %combine masks that are overlapping
+%                     threshold = 0.80; % correlation threshold
+%                     mask3D_all = combine_corr_masks(img_reg, mask_cell_out, threshold);
+%                     %cut masks <200 pixels
+%                     too_small_ind = find( squeeze(sum(sum(mask3D_all,2),1))<200 );
+%                     mask3D = mask3D_all;
+%                     mask3D(:,:,too_small_ind) = [];
+%                     %implement buffer
+%                     mask_3D_buffed = make_mask_buffer(mask3D);
+%                     mask2D = plotMask(mask_3D_buffed, 0,0, 1);
+%                     title([dates{sub}, ' ', mouseID{sub}, ' nPCA =', num2str(nPCA)]);
+%                     savefig([out_dir, dates{sub}, '_', mouseID{sub}, '_nPCA_', num2str(nPCA), '_post_process.fig']);
+%                     save([out_dir, dates{sub}, '_', mouseID{sub}, '_nPCA_', num2str(nPCA), '_post_process_outputs.mat'], 'mask2D', 'mask_3D_buffed');
+%                     continue                     
+%                     
+%                     %                 %manual mask edit
+%                     %                 output_mask = manual_mask_editor(bwimgcell, img_reg);
+%                     %                 save([out_dir, 'pix_mask_data'], 'output_mask', 'bwimgcell');
+%                     %                 plot_mask_contours(reshape(output_mask, npw,nph,size(output_mask,2)), []);
+%                     %                 savefig([out_dir, 'pixel mask after manual editing in manual_mask_editor'])
+%                     %                 figure; imagesc(sum(mask_cell,3)); title([ ' binary_ica_mask_automated nICs=', num2str(size(mask_cell,3))]);
+%                     %                 savefig([out_dir, 'binary_ica_mask_automated']);
+%                     %                 writetiff(mask_cell, [out_dir, 'binary_ica_mask_automated']);
+%                     %                 continue
+%                     
+% %                     %splits or merges overlapping pixel masks, plots output
+% %                     mask_cell(:,:, [find(sum(sum(mask_cell,2),1) < 51)] ) = [];
+% %                     mask_final = processMask_CRP(mask_cell);
+% %                     mask_raw = reshape(mask_final, npw, nph);
+% 
+% 
+%                     
+%                     
+%                     %consolidates highly correlated timecourses
+%                     threshold = 0.80; % correlation threshold
+%                     [ ~, mask3D_all, ~] = finalMask(img_reg(:,:,1:10:end), mask_final, threshold, out_dir);
+%                     [mask2D] = plotMask(mask3D_all,0,0,0);
+% 
+%                         %Remove masks < 200 pixels from mask3D
+%                         too_small_ind = find( squeeze(sum(sum(mask3D_all(:,:,:),2),1))<200 );
+%                         mask3D = mask3D_all;
+%                         mask3D(:,:,too_small_ind) = [];
+%                         mask2D = plotMask(mask3D, 0,0, 0);
+%                         figure; image(mask2D);
+%                         title([dates{sub}, ' ', mouseID{sub}, ' final mask']);
+%                         savefig([out_dir_spec, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), ...
+%                             '_thresh_', num2str(cluster_threshold), '_final', '.fig']);
+%                         save( [out_dir_spec, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), ...
+%                             '_thresh_', num2str(cluster_threshold), '_mask3D.mat'], 'mask3D');
+%                         
+%                         mask_3D_buffed = make_mask_buffer(mask3D);
+% 
+%                         mask_2D_buffed = plotMask(mask_3D_buffed, 0,0, 0);
+%                         figure; image(mask_2D_buffed);
+%                         title([dates{sub}, ' ', mouseID{sub}, ' final mask with buffer']);
+%                         savefig([out_dir_spec, 'nPCA_', num2str(nPCA), '_mu_', num2str(mu), '_nIC_', num2str(nIC), ...
+%                             '_thresh_', num2str(cluster_threshold), '_final_buffer', '.fig']);
                         %
                    % end
-                end
+%                end
                 % end
-                continue
-                            %% Plotting TCs
-                            nmask = size(mask3D,3);
-                            FrameRate = 30;
-                            tc_avg = getTC(img_reg, mask3D, nmask);
-                            
-                            saveData = 0;
-                            reg_sum = sum(img_reg,3);
-                            plotTC(tc_avg, mask3D, reg_sum, 1:size(tc_avg,2), FrameRate, out_dir, saveData);
-                            mask_flat = plotMask(mask3D, saveData, out_dir);
-
-                %
-                data_corr = corrcoef(tc_avg);
-                %                     figure; fig = imagesc(data_corr);
-                %                     saveas(fig, [out_dir, 'data_corr.fig']);
-                %                     print([out_dir, 'data_corr.eps'],'-depsc')
+                %continue
                 
-                mask_final = processMask_CRP(mask3D);
+                
+                
+                %% Plotting TCs
+                nPCA = nPCA_to_use(sub);
+                disp('loading img_reg')
+                load([out_dir, 'img_reg']); disp('img_reg loaded');
+                load([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat']);
+                mu = ICA_variables.mu; npw = ICA_variables.npw; nph = ICA_variables.nph; nIC=ICA_variables.nIC;
+                load([out_dir, dates{sub}, '_', mouseID{sub}, '_nPCA_', num2str(nPCA), '_post_process_outputs.mat']);
+                nmask = size(mask_3D_buffed,3);
+                FrameRate = 30;
+                disp('running getTC')
+                tc_avg = getTC(img_reg, mask_3D_buffed, nmask); disp('getTC complete')
+                
+                saveData = 0;
+                reg_sum = sum(img_reg,3);
+                %plotTC(tc_avg, mask_3D_buffed, reg_sum, 1:size(tc_avg,2), FrameRate, out_dir, saveData);
+                %mask_flat = plotMask(mask_3D_buffed, saveData, out_dir, 1);
+                data_corr = corrcoef(tc_avg);
                 sz = [npw, nph];
-                save([out_dir, 'Results.mat'], 'tc_avg', 'mask_raw', 'mask_flat', 'mask3D', 'mask_final', 'data_corr');
-                save([out_dir, 'ROI_TCs.mat'],'tc_avg', 'mask_final', 'sz');
+                mask_final = mask_3D_buffed;
+                mask_final_color = mask2D;
+                
+                save([out_dir, dates{sub}, '_', mouseID{sub}, '_nPCA_', num2str(nPCA), 'Results.mat'], 'tc_avg', 'mask_final', 'mask_final_color', 'data_corr', 'sz');
                 
                 %             out_dir2  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[dates{sub}, '_', runID{rID}, '_', mouseID{sub}], '\');
                 %             load([out_dir2, 'Results.mat']);

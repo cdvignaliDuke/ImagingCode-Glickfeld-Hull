@@ -255,7 +255,7 @@ for ic = find(allresp_cells)
     xlim([-1 2]);
 %     set(gca,'XTick',[)
 end
-suptitle([session_date ' ' mouse_ID ' Average all resp no lick: Normal- black (n = ' num2str(size(NR_movie_nolick,1)) ' trials); Omit- red (n = ' num2str(size(OR_movie_nolick,1)) ' trials); Unexpect- green (n = ' num2str(size(UR_movie_nolick,1)) ' trials). ', 'resp cells (n=', num2str(length(find(allresp_cells))),')']);
+suptitle([session_date ' ' mouse_ID ' Average all resp: Normal- black (n = ' num2str(size(NR_movie_nolick,1)) ' trials); Omit- red (n = ' num2str(size(OR_movie_nolick,1)) ' trials); Unexpect- green (n = ' num2str(size(UR_movie_nolick,1)) ' trials). ', 'resp cells (n=', num2str(length(find(allresp_cells))),')']);
 orient landscape
 print([dest '_allTCs_nolick_allresp.eps'], '-depsc');
 print([dest '_allTCs_nolick_allresp.pdf'], '-dpdf');
@@ -376,19 +376,19 @@ errorbar(tt,mean(avg_UR(find(allresp_cells_temp),:),1),std(avg_UR(find(allresp_c
 
 bar(tt,mean(lick_trace_NR)/8, 'k', 'ShowBaseLine', 'off');
 if ~isempty(OR_movie)
-    bar(tt,mean(lick_trace_OR)/8, 'FaceColor', [1,0,0], 'EdgeColor', [1,0,0], 'ShowBaseLine', 'off');
+bar(tt,mean(lick_trace_OR)/8, 'FaceColor', [1,0,0], 'EdgeColor', [1,0,0], 'ShowBaseLine', 'off');
 end
 
 if ~isempty(UR_movie)
     bar(tt,mean(lick_trace_UR/8), 'FaceColor', [0,1,0], 'EdgeColor', [0,1,0], 'ShowBaseLine', 'off');
 end
 
-title(['Avg all resp cells p<0.05; (inlcudes lick trials)n = ' num2str(sum(allresp_cells_temp,2))])
+title(['Avg all resp cells p<0.05; n = ' num2str(sum(allresp_cells_temp,2))])
 ylabel('dF/F')
 xlabel('Time (s)')
 xlim([-floor(pre_cue_frames/ifi) floor(post_cue_frames/ifi)]);
 
-suptitle([session_date ' ' mouse_ID ' Average: Normal- black; Omit- red; Unexpect- green bars- licking data'])
+suptitle([session_date ' ' mouse_ID ' Average cue resp: Normal- black; Omit- red; Unexpect- green bars- licking data'])
 print([dest '_avgTCs_pos.eps'], '-depsc');
 print([dest '_avgTCs_pos.pdf'], '-dpdf');
 savefig(h, [dest '_avgTCs_pos']); 

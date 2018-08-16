@@ -5,7 +5,7 @@ clear
 BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
 ANALYSIS_DIR ='Z:\Analysis\WF Lever Analysis\';
 CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
-WF_CRP_list_of_days;
+WF_CRP_list_of_days; 
 days = days_1([1,4,5,6,7]);  %'151212_img32',  
 save_data = 1;
 

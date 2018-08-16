@@ -1,17 +1,19 @@
 
 clear all; clear global; clear cd;
-subjNum = '59';
-session_date = '161103';
+subjNum = '085';
+session_date = '180517';
 file_num = '_000_000';
 frame_rate = '30Hz ';
-frames_plotted = '1:1500';
+frame_start = 0;
+num_frames = 800;
 cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
 %cd('Z:\Data\2P_imaging\171121_img050\img050');
 %cd('Z:\Data\2P_imaging\img040\170912_img039\img039');
 %cd('Z:\Data\2P_imaging\180507_img085\img085');
 %cd('Z:\Data\2P_imaging\WindowOutcomes\180509_img085\img085');
 fname = ['img', subjNum, file_num];
-data = squeeze(sbxread(fname,0,1500));
+data = squeeze(sbxread(fname,frame_start,num_frames, '.sbx'));
+%data = squeeze(sbxread('img036_000_000',0,15, '.sbx'));
 load([fname, '.mat']);
 if length(size(data)) ==4
     data = squeeze(data(1,:,:,:));
@@ -21,9 +23,9 @@ else
     data_avg = mean(data,3);
 end
 data_max= max(data,[],3);
-figure; imagesc(data_avg); colormap gray; %truesize;
-title([frame_rate, subjNum, ' ', session_date, ' recon avg frames ', frames_plotted, ' ', file_num]);
-writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_1500']);
+%figure; imagesc(data_avg); colormap gray; %truesize;
+%title([frame_rate, subjNum, ' ', session_date, ' recon avg frames ', num2str(frame_start), ':', num2str(num_frames), ' ', file_num]);
+writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
 
 %% write a tiff movie to analyze diff. in sessions
 % 

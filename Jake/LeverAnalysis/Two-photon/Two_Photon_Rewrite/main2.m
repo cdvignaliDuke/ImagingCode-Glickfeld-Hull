@@ -54,7 +54,7 @@ for sub = 1:30                         % [29 ,30]%[8, 11, 13, 15:20] %36
             edges = 200:75:600;
             n_sub(sub,:) = histc(RT_c,edges);
 % %             getTC_Spike
-%              spike_quantification
+              spike_quantification
 %             close all
         end
        

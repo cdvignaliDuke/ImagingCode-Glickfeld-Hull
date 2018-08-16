@@ -4,8 +4,8 @@
 % 3. compare PSTH for success/fail and press
 % 4. compare amplitudes of evoked and spontaneous events
 
-save_figures = 1;
-save_variables = 1;
+save_figures = 0;
+save_variables = 0;
 load([dest_sub '_spont_events.mat'])
 load([dest_sub '_evoked_events.mat'])
 load([dest 'parse_behavior.mat'])
@@ -918,76 +918,76 @@ save([output_dest '_event_hist.mat'], 'success_ind_RS', 'success_rate_RS', 'fail
 save([output_dest '_event_summary.mat'], 'data_start', 'data_end', 'press', 'release', 'success', 'fail', 'events', 'omitR', 'itiR');
 end
 
-% 
-% %% compare spontaneous and evoked event amplitudes and waveforms
-% %compare amplitude distributions of triggered events
-% fig=figure;
-% spontN = [];
-% releaseN = [];
-% pressN = [];
-% for ic = 1:nCells
-%     subplot(n,n2,ic)
-%     [Hsp] = cdfplot_LG(events(ic).good_event_dfoverf_peaks);
-%     hold on
-%     set(Hsp, 'Color', 'b')
-%     if size(release(ic).good_event_dfoverf_peaks,1)
-%         [Hsu] = cdfplot(release(ic).good_event_dfoverf_peaks);
-%         hold on
-%         set(Hsu, 'Color', 'k')
-%     end
-%     if size(press(ic).good_event_dfoverf_peaks,1)
-%         [Hsu] = cdfplot(press(ic).good_event_dfoverf_peaks);
-%         hold on
-%         set(Hsu, 'Color', 'c')
-%     end
-%     if resp_h(ic)
-%         sig_str = '\bf';
-%     else
-%         sig_str = '';
-%     end
-%     title([sig_str num2str(size(events(ic).good_event_dfoverf_peaks,1)) ' spont; ' num2str(size(release(ic).good_event_dfoverf_peaks,1)) ' release;' num2str(size(press(ic).good_event_dfoverf_peaks,1)) ' press'])
-%     spontN = [spontN; size(events(ic).good_event_dfoverf_peaks,1)];
-%     releaseN = [releaseN; size(release(ic).good_event_dfoverf_peaks,1)];
-%     pressN = [pressN; size(press(ic).good_event_dfoverf_peaks,1)];
-% end
-% supertitle('Amplitude distribution- all events')
-% if save_figures == 1
-%     saveas(fig, [output_dest '_good_event_spontVevoked_ampdist.fig']);
-% end
-% print([output_dest '_good_event_spontVevoked_ampdist.eps'], '-depsc');
-% print([output_dest '_good_event_spontVevoked_ampdist.pdf'], '-dpdf');
-% 
-% for ic = 1:nCells
-%     max_event = max([events(ic).good_event_dfoverf_peaks; release(ic).good_event_dfoverf_peaks; press(ic).good_event_dfoverf_peaks],[],1);
-%     release(ic).peak_norm = release(ic).good_event_dfoverf_peaks./max_event;
-%     events(ic).peak_norm = events(ic).good_event_dfoverf_peaks./max_event;
-%     press(ic).peak_norm = press(ic).good_event_dfoverf_peaks./max_event;
-% end
-% 
-% %collect events across cells- not keeping track of event number
-% release_peak_norm = [];
-% press_peak_norm = [];
-% spont_peak_norm = [];
-% for ic = 1:nCells
-%     release_peak_norm = [release_peak_norm; release(ic).peak_norm];
-%     press_peak_norm = [press_peak_norm; press(ic).peak_norm];
-%     spont_peak_norm = [spont_peak_norm; events(ic).peak_norm];
-% end
-% fig=figure;
-% subplot(1,2,1)
-% [h_rel] = cdfplot(release_peak_norm);
-% set(h_rel,'Color','k')
-% hold on;
-% [h_press] = cdfplot(press_peak_norm);
-% set(h_press,'Color','c')
-% hold on
-% [h_spont] = cdfplot(spont_peak_norm);
-% set(h_spont,'Color','b')
-% [kh_relVpr kp_relVpr] = kstest2(release_peak_norm,press_peak_norm);
-% [kh_relVspont kp_relVspont] = kstest2(release_peak_norm,spont_peak_norm);
-% [kh_prVspont kp_prVspont] = kstest2(spont_peak_norm,press_peak_norm);
-% title(['All cells- n = ' num2str(nCells) ' cells']) % rVp = ' num2str(chop(kp_relVpr,2)) '; rVs = ' num2str(chop(kp_relVspont,2)) '; pVs = ' num2str(chop(kp_prVspont,2))])
-% 
+
+%% compare spontaneous and evoked event amplitudes and waveforms
+%compare amplitude distributions of triggered events
+fig=figure;
+spontN = [];
+releaseN = [];
+pressN = [];
+for ic = 1:nCells
+    subplot(n,n2,ic)
+    [Hsp] = cdfplot_LG(events(ic).good_event_dfoverf_peaks);
+    hold on
+    set(Hsp, 'Color', 'b')
+    if size(release(ic).good_event_dfoverf_peaks,1)
+        [Hsu] = cdfplot(release(ic).good_event_dfoverf_peaks);
+        hold on
+        set(Hsu, 'Color', 'k')
+    end
+    if size(press(ic).good_event_dfoverf_peaks,1)
+        [Hsu] = cdfplot(press(ic).good_event_dfoverf_peaks);
+        hold on
+        set(Hsu, 'Color', 'c')
+    end
+    if resp_h(ic)
+        sig_str = '\bf';
+    else
+        sig_str = '';
+    end
+    title([sig_str num2str(size(events(ic).good_event_dfoverf_peaks,1)) ' spont; ' num2str(size(release(ic).good_event_dfoverf_peaks,1)) ' release;' num2str(size(press(ic).good_event_dfoverf_peaks,1)) ' press'])
+    spontN = [spontN; size(events(ic).good_event_dfoverf_peaks,1)];
+    releaseN = [releaseN; size(release(ic).good_event_dfoverf_peaks,1)];
+    pressN = [pressN; size(press(ic).good_event_dfoverf_peaks,1)];
+end
+supertitle('Amplitude distribution- all events')
+if save_figures == 1
+    saveas(fig, [output_dest '_good_event_spontVevoked_ampdist.fig']);
+end
+print([output_dest '_good_event_spontVevoked_ampdist.eps'], '-depsc');
+print([output_dest '_good_event_spontVevoked_ampdist.pdf'], '-dpdf');
+
+for ic = 1:nCells
+    max_event = max([events(ic).good_event_dfoverf_peaks; release(ic).good_event_dfoverf_peaks; press(ic).good_event_dfoverf_peaks],[],1);
+    release(ic).peak_norm = release(ic).good_event_dfoverf_peaks./max_event;
+    events(ic).peak_norm = events(ic).good_event_dfoverf_peaks./max_event;
+    press(ic).peak_norm = press(ic).good_event_dfoverf_peaks./max_event;
+end
+
+%collect events across cells- not keeping track of event number
+release_peak_norm = [];
+press_peak_norm = [];
+spont_peak_norm = [];
+for ic = 1:nCells
+    release_peak_norm = [release_peak_norm; release(ic).peak_norm];
+    press_peak_norm = [press_peak_norm; press(ic).peak_norm];
+    spont_peak_norm = [spont_peak_norm; events(ic).peak_norm];
+end
+fig=figure;
+subplot(1,2,1)
+[h_rel] = cdfplot(release_peak_norm);
+set(h_rel,'Color','k')
+hold on;
+[h_press] = cdfplot(press_peak_norm);
+set(h_press,'Color','c')
+hold on
+[h_spont] = cdfplot(spont_peak_norm);
+set(h_spont,'Color','b')
+[kh_relVpr kp_relVpr] = kstest2(release_peak_norm,press_peak_norm);
+[kh_relVspont kp_relVspont] = kstest2(release_peak_norm,spont_peak_norm);
+[kh_prVspont kp_prVspont] = kstest2(spont_peak_norm,press_peak_norm);
+title(['All cells- n = ' num2str(nCells) ' cells']) % rVp = ' num2str(chop(kp_relVpr,2)) '; rVs = ' num2str(chop(kp_relVspont,2)) '; pVs = ' num2str(chop(kp_prVspont,2))])
+
 % release_peak_norm = [];
 % press_peak_norm = [];
 % spont_peak_norm = [];
