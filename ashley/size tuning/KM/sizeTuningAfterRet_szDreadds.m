@@ -8,10 +8,17 @@
 %% get path names
 clear all;clc;
 
-ds = 'szTuning_dreadds_V1';
+ds = 'szTuning_dreadds_PM';
 iexp = 1;
 rc = behavConstsAV;
 eval(ds)
+
+
+%% conditionals for ashley analysis
+doRegFrame = true;
+doUsePreviousReg = false;
+analyzer = 'ashley';
+
 
 %%
 mouse = expt(iexp).mouse;

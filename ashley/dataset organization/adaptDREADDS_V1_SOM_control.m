@@ -1,6 +1,7 @@
 params.frameRate = 30;
 params.stimOnTime = 100;
 params.nBaselineMs = 1000;
+params.nPostStimMs = 2000;
 params.nFramesVisDelay_FS = 5;
 params.nFramesVisDelay_VSR = 4;
 params.motionCutoff = 0.2;
@@ -76,21 +77,21 @@ expt(4).sizeTuning = {'003';'1244'};
 expt(4).dirTuning = {'004';'1257'};
 expt(4).areaBorders = 0;
 expt(4).regImgStartFrame = 10597;
-
-%% 845 180523
-expt(5).mouse = '845';
-expt(5).date = '180523';
-expt(5).img_loc  = {'V1';'L2/3'};
-expt(5).z = -184;
-expt(5).img_strct  = {'cells'};
-expt(5).indicator = {'virus';'GCaMP6s'};
-expt(5).label = {'SOM';'tdTomato'};
-expt(5).labelFolder = '006';
-expt(5).drug = 'saline';
-expt(5).matchExptDate = '180525';
-expt(5).adapt = {'001';'1141'};
-expt(5).retinotopy = {'002';'1213'};
-expt(5).sizeTuning = {'004';'1302'};
-expt(5).dirTuning = {'005';'1317'};
-expt(5).areaBorders = 0;
-expt(5).regImgStartFrame = '';
+% 
+% %% 845 180523
+% expt(5).mouse = '845';
+% expt(5).date = '180523';
+% expt(5).img_loc  = {'V1';'L2/3'};
+% expt(5).z = -184;
+% expt(5).img_strct  = {'cells'};
+% expt(5).indicator = {'virus';'GCaMP6s'};
+% expt(5).label = {'SOM';'tdTomato'};
+% expt(5).labelFolder = '006';
+% expt(5).drug = 'saline';
+% expt(5).matchExptDate = '180525';
+% expt(5).adapt = {'001';'1141'};
+% expt(5).retinotopy = {'002';'1213'};
+% expt(5).sizeTuning = {'004';'1302'};
+% expt(5).dirTuning = {'005';'1317'};
+% expt(5).areaBorders = 0;
+% expt(5).regImgStartFrame = '';

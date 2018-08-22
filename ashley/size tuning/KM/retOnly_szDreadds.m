@@ -6,12 +6,17 @@
 % reads in Tuning Curves from single channel imaging data
 
 %% get path names
-clear all;clc;
+close all;clear all;clc;
 
-ds = 'szTuning_dreadds_V1';
-iexp = 1;
+ds = 'szTuning_dreadds_AL';
+iexp = 1; 
 rc = behavConstsAV;
 eval(ds)
+
+%% conditionals for ashley analysis
+doRegFrame = true;
+doUsePreviousReg = false;
+analyzer = 'ashley';
 
 %%
 mouse = expt(iexp).mouse;
@@ -86,18 +91,19 @@ clear temp
 %% Choose register interval
 regIntv = 3000;
 nep = floor(size(data,3)./regIntv);
-fprintf(['\nSplitting into ' num2str(nep) ' epochs of length ' num2str(regIntv) ' frames.\n'])
+if ~doRegFrame
+    fprintf(['\nSplitting into ' num2str(nep) ' epochs of length ' num2str(regIntv) ' frames.\n'])
 
-% plot 500 frame means at each register interval
-[n, n2] = subplotn(nep);
-figure(1);clf;
-colormap(gray)
-for i = 1:nep
-    subplot(n,n2,i);
-    imagesc(mean(data(:,:,(1:500)+(i-1)*regIntv),3));
-    title([num2str(i) ': ' num2str(1+((i-1)*regIntv)) '-' num2str(500+((i-1)*regIntv))]);
+    % plot 500 frame means at each register interval
+    [n, n2] = subplotn(nep);
+    figure(1);clf;
+    colormap(gray)
+    for i = 1:nep
+        subplot(n,n2,i);
+        imagesc(mean(data(:,:,(1:500)+(i-1)*regIntv),3));
+        title([num2str(i) ': ' num2str(1+((i-1)*regIntv)) '-' num2str(500+((i-1)*regIntv))]);
+    end
 end
-
 %% Register data
 
 chooseInt = 5; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
@@ -108,11 +114,22 @@ if exist(fullfile(fnout,dataFolder), 'dir')
     % load reg_shifts.mat (out, data_avg) and save the current input file
     fprintf('Found previous analysis! Loading...\n')
     
-    load(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
+    switch analyzer
+        case 'kevin'
+            load(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
+        case 'lindsey'
+            load(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
+        case 'ashley'
+            load(fullfile(fnout, dataFolder, 'registration'))
+    end
     
     % register
     fprintf('stackRegister_MA, using shifts from previous registration\n')
     % uses previous registration shifts (out) to re-register data quickly
+    switch analyzer
+        case 'ashley'
+            out = outs;
+    end
     [outs, data_reg]=stackRegister_MA(data,[],[],double(out));
     fprintf('Previous registration loaded...\n')
     
@@ -145,6 +162,7 @@ clear data % depending on memory
 % figure 2 shows the registered images to check the stability
 fprintf('\nExamine registered images for stability\n')
 figure(2);clf;
+[n,n2] = optimizeSubplotDim(nep);
 for i = 1:nep
     subplot(n,n2,i);
     imagesc(mean(data_reg(:,:,(1:500)+((i-1)*regIntv)),3));
@@ -162,7 +180,7 @@ end
 truesize;
 % print to file
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOV_avg.pdf']))
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOV_avg.pdf']),'-dpdf','-fillpage')
 
 %% find activated cells
 % calculate dF/F
