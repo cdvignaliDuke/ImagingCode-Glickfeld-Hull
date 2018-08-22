@@ -9,7 +9,7 @@
 clear all;clc;
 
 ds = 'szTuning_dreadds_V1';
-iexp = 3;
+iexp = 7;
 rc = behavConstsAV;
 eval(ds)
 doStableOnly = 1;
@@ -228,15 +228,24 @@ elseif input.doSizeStim
     % what is celleqel2mat_padded?
     sz_mat = celleqel2mat_padded(input.tGratingDiameterDeg);
     szs = unique(sz_mat);
+    nSize = length(szs);
+    con_mat = celleqel2mat_padded(input.tGratingContrast);
+    cons = unique(con_mat);
+    nCon = length(cons);
     
-    nStim = length(szs);
+    nStim = length(szs)*length(cons);
     fprintf([num2str(nStim) ' unique size stimuli\n'])
     
     fprintf('Averaging dF/F for each size...\n')
     data_dfof_avg = zeros(sz(1), sz(2), nStim);
-    for isz = 1:nStim
+    iStim = 1;
+    for isz = 1:nSize
         ind = find(sz_mat == szs(isz));
-        data_dfof_avg(:,:,isz) = mean(data_dfof(:,:,ind),3);
+        for icon = 1:nCon
+            ind2 = intersect(ind, find(con_mat == cons(icon)));
+            data_dfof_avg(:,:,iStim) = mean(data_dfof(:,:,ind2),3);
+            iStim = iStim +1;
+        end
     end
     
     % plot dF/F for all stimuli
@@ -279,7 +288,7 @@ end
 title('Maximum dF/F across all stimuli')
 
 % save stimActFOV.mat containing: data_dfof_max, data_dfof_avg, nStim
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg', 'nStim')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg', 'nStim', 'con_mat', 'cons', 'nCon', 'sz_mat','szs', 'nSize')
 
 
 %% cell segmentation
@@ -508,23 +517,25 @@ for i = 1:length(expt(iexp).stableSizeOnly)
 end
 suptitle(tit_str)
 print(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_Tuning' num2str(f) '.pdf']), '-dpdf')
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'szs', 'Ind_struct')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_sz_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'sizeTune', 'baseResp', 'szs', 'sz_mat', 'nSize', 'Ind_struct', 'respWindow', 'baseWindow', 'cellDists')
 
+h = zeros(nCells,nSize);
+p = zeros(nCells,nSize);
 for iCell = 1:nCells
     resp = [];
     base = [];
-    for i = 1
-        resp = [resp; sizeTune{i,1,iCell}];
-        base = [base; baseResp{i,1,iCell}];
+    for isz = 1:nSize
+        resp = [resp; sizeTune{isz,1,iCell}];
+        base = [base; baseResp{isz,1,iCell}];
+        [h(iCell,isz) p(iCell,isz)] = ttest(resp,base,'tail','right','alpha',0.05./(nSize-1));
     end
-    [h(iCell) p(iCell)] = ttest(resp,base,'tail','right');
 end
 
 temp = squeeze(permute(tuning_mat(:,:,1,:),[1,4,2,3]));
 tuning_norm = bsxfun(@rdivide, temp, max(temp(:,:,1),[],1));
 
 figure;
-ind = find(h);
+ind = find(h(:,1));
 for irun = 1:nrun
     ret_avg = mean(tuning_norm(:,ind,irun),2)';
     ret_sem= std(tuning_norm(:,ind,irun),[],2)./sqrt(length(ind))';
@@ -540,115 +551,330 @@ suptitle([mouse ' ' expDate])
 legend(expt(iexp).sizeTuningTimeFromDrugMin(expt(iexp).stableSizeOnly))
 
 print(fullfile(fnout, dataFolder, [mouse '_' expDate '_avgTuningByRun.pdf']), '-dpdf','-bestfit')
-%% present selected cells
-% 
-% % input stimulus location based on experimental choice
-% stimEl = double(input.gratingElevationDeg);
-% stimAz = double(input.gratingAzimuthDeg);
-% fprintf(['Stimulus at: El ' num2str(stimEl) ', Az ' num2str(stimAz) '\n'])
-% 
-% % load ret fits - loads 'lbub_fits', 'lbub_diff', 'goodfit_ind', 'resp_ind'
-% fprintf(['Loading fits from retinotopy runs: ' ret_str '\n'])
-% fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']);
-% load(fn_out);
-% cellAz = lbub_fits(:,4,4);
-% cellEl = lbub_fits(:,5,4);
-% fprintf('Retinotopy fits loaded, found cell receptive field coordinates\n')
-% 
-% fprintf('Calculating cell RF distances to stimulus...\n')
-% cellDists = sqrt((cellAz-stimAz).^2+(cellEl-stimEl).^2);
-% 
-% % compare distance to select cells
-% cutOffRadius = 10;
-% fprintf(['Isolating cells with RF centers within ' num2str(cutOffRadius) ' degrees\n'])
-% 
-% cutCells = find(cellDists < cutOffRadius)';
-% goodCutCells = intersect(cutCells,goodfit_ind);
-% nCutCells = length(goodCutCells);
-% fprintf([num2str(nCutCells) ' cells selected\n'])
-% 
-% nSize = length(szs);
-% conTrials = cell2mat(input.tGratingContrast);
-% cons = unique(conTrials);
-% nCon = length(cons);
-% conInds = cell(nCon,1);
-% for i = 1:nCon
-%     conInds{i} = find(conTrials == cons(i));
-% end
-% 
-% sizeTune = zeros(nSize,nCon,nCutCells);
-% sizeSEM = sizeTune;
-% [n, n2] = subplotn(min([36 nCutCells]));
-% 
-% figure;
-% start = 1;
-% f = 1;
-% suptitle(['Size Tuning Curves for cells within ' num2str(cutOffRadius) ' deg of stim'])
-% for i = 1:nCutCells
-%     iCell = goodCutCells(i);
-%     
-%     if start >36
-%         set(gcf, 'Position', [0 0 800 1000]);
-%         print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning_in' num2str(cutOffRadius) 'deg' num2str(f) '.pdf']), '-dpdf')
-%         start = 1;
-%         f= f+1;
-%         figure;
-%         suptitle(['Size Tuning Curves for cells within ' num2str(cutOffRadius) ' deg of stim'])
-%     end
-%     % this first section does all trials overlaid for each stim
-% %     figure;
-% %     for iCond = 1:nStim
-% %         subplot(4,2,iCond)
-% %         ind_all = Ind_struct(iCond).all_trials;
-% %         plot(squeeze(tc_dfof(:,iCell,ind_all)))
-% %         title(['Size: ' num2str(szs(iCond)) ' deg'])
-% %         ylim([-0.05 0.4])
-% %     end
-% %     suptitle(['Cell #: ' num2str(iCell)])
-%     % this second section shows all trials averaged
-% %     figure;
-% %     for iCond = 1:nStim
-% %         subplot(4,2,iCond)
-% %         ind_all = Ind_struct(iCond).all_trials;
-% %         plot(squeeze(mean(tc_dfof(:,iCell,ind_all),3)))
-% %         title(['Size: ' num2str(szs(iCond)) ' deg'])
-% %         ylim([-0.05 0.4])
-% %     end
-% %     suptitle(['Cell #: ' num2str(iCell)])
-% 
-%     % this third section shows size tuning curves
-%     
-%     subplot(n,n2,start)
-%     for iCon = 1:nCon
-%         for iSize = 1:nSize
-%             ind = intersect(Ind_struct(iSize).all_trials,conInds{iCon});
-%             %stimOff = mean(mean(tc_dfof((nOff/2):nOff,iCell,ind_all),3),1);
-%             stimOn = mean(mean(tc_dfof((nOff+1):(nOff+nOn),iCell,ind),3),1);
-%             sd = std(mean(tc_dfof((nOff+1):(nOff+nOn),iCell,ind),1));
-%             sizeTune(iSize,iCon,i) = stimOn;
-%             sizeSEM(iSize,iCon,i) = sd/sqrt(length(ind));
-%         end
-%         errorbar(szs,sizeTune(:,iCon,i),sizeSEM(:,iCon,i))
-%         hold on
-%     end
-%     ylim([-1.2*(max(max(sizeSEM(:,:,i)))) 1.2*(max(max(sizeTune(:,:,i)))+max(max(sizeSEM(:,:,i))))])
-%     title(['Cell #: ' num2str(iCell)])
-%     hold off
-%     
-%     start=start+1;
-% end
-% % Construct a Legend with the data from the sub-plots
-% hL = legend(num2str(cons'));
-% % Programatically move the Legend
-% newPosition = [0.5 0.07 0.2 0.2];
-% newUnits = 'normalized';
-% set(hL, 'Position', newPosition, 'Units', newUnits);
-% 
-% 
-% set(gcf, 'Position', [0 0 800 1000]);
-% print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning_in' num2str(cutOffRadius) 'deg' num2str(f) '.pdf']), '-dpdf')
-% 
-% fprintf('\ndone\n')
-% return
-% 
-% 
+%% Fit size tuning curves
+%integrated from sizeCurveFitting_SPbootstrap
+override = 1; %override_all; % over-ride for creating new data (1=override, 0=skip if exist)
+
+% runs through all cells at each contrast condition
+% calls Fit_SizeTuneSmooth_KM script which outputs fit structure
+
+% First model: single sigmoid (3 fit params)
+% use 90% cutoff as measure of preferred size, no suppression index
+% Second model: sum of + and - sigmoids (6 fit params)
+% use peak of fit as preferred size, and measure suppression index
+
+szRng = linspace(0,max(szs));
+
+% single sigmoid fits Ae, ke=k1, xe=x1
+logfit1 = @(coefs,xdata) coefs(1)./(1+exp(-coefs(2)*(xdata-coefs(3))))
+%logfit1 = @(coefs,xdata) 2*coefs(1)./(1+exp(-coefs(2)*(xdata-coefs(3)))) - coefs(1)
+% double sigmoid fits Ae, ke=k1+k2, xe=x1, Ai, ki=k2, xi=x1+x2
+% ke and xi defined so ex curve is steeper and in curve is centered higher
+logfit2 = @(coefs,xdata) coefs(1)./(1+exp(-(coefs(2)+coefs(5))*(xdata-coefs(3)))) - coefs(4)./(1+exp(-coefs(5)*(xdata-(coefs(3)+coefs(6)))))
+
+% store # trials at each size for this run (same for all cells)
+nTr = zeros(nSize,nrun);
+for iSz = 1:nSize
+    for irun = 1:nrun
+        nTr(iSz,irun) = length(sizeTune{iSz,irun,1});
+    end
+end
+
+%cd('K:\Code')
+opts = optimset('Display','off');
+    
+filename = fullfile(fnout, dataFolder, [mouse '_' expDate '_sizeFitResults.mat']);
+% if exist(filename, 'file') && ~override
+%     fprintf('Found sizeFitResults_SP.mat, loading previous results...\n')
+%     load(filename, 'sizeFits')
+%     fprintf('Loaded sizeFits struct\n')
+% else
+Fit_struct = [];
+Nshuf = 500;
+fprintf(['Nshuf = ' num2str(Nshuf) '\n'])
+sizeMean = squeeze(tuning_mat(:,:,1,:));
+sizeSEM = squeeze(tuning_mat(:,:,2,:));
+if ~exist('cellDists')
+    cellDists = nan(1,nCells);
+end
+% store # trials at each size and highest con (same for all cells)
+fprintf(['Sizes: ' num2str(szs) '\n# trials: ' num2str(nTr(:,nrun)')])
+shuf_ind = cell(nSize,1);
+
+fprintf('\nBegin shuffling...\n')
+figure;
+
+fprintf('Creating new size-tuning curve fit data...\n')
+fprintf('Begin fitting size-tuning curves at all cells, all runs...')
+for iCell = 1:nCells
+    fprintf(['\nCell# ' num2str(iCell) '/' num2str(nCells)]) %, (RF-stim dist: ' num2str(cellDists(iCell)) ' deg)'])
+    ifig = 1;
+    start = 1;
+    for irun = 1:nrun
+        fprintf('.')
+        for count_shuf = 0:Nshuf
+            fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
+            if count_shuf > 0 & irun > 1
+                break
+            end
+            for iSz = 1:nSize
+                if count_shuf > 0 & irun == 1
+                    shuf_ind{iSz} = randsample(nTr(iSz,irun),nTr(iSz,irun),1); % resample with replacement
+                elseif count_shuf == 0
+                    shuf_ind{iSz} = 1:nTr(iSz,irun); % shuf_count==0 use all trials
+                end
+            end
+                
+            nPts = floor(mean(nTr(:,irun)));
+            dumdum = zeros(1,nPts);%[0]; % define zero point for dF/F
+            szs0 = zeros(1,nPts);%[0.1]; % and size
+            for iSz = 1:nSize
+                nPts = nPts + nTr(iSz,irun);
+                dum = sizeTune{iSz,irun,iCell}';
+                dumdum = [dumdum dum(shuf_ind{iSz})];
+                szs0 = [szs0 szs(iSz)*ones(1,nTr(iSz,irun))];
+            end
+            
+            % max of each size mean for use in initial guesses
+            [maxMean maxVal] = max(tuning_mat(:,irun,1,iCell));
+            
+            if count_shuf == 0 
+                PLOTIT_FIT = 1;
+                SAVEALLDATA = 1;
+                Fit_SizeTuneSmooth_KM % call fit script, returns fit structure s, saves plots to kevin analysis folder
+                eval(['Fit_struct(iCell,irun).True.s_',' = s;']);
+            elseif irun == 1
+                SAVEALLDATA = 0;
+                PLOTIT_FIT = 0;
+                Fit_SizeTuneSmooth_KM
+                eval(['Fit_struct(iCell,irun).Shuf(count_shuf).s_',' = s;']);
+            end
+        end
+    end
+    if count_shuf == 0 & irun == 1
+        set(gcf, 'Position', [0 0 800 1000]);
+        fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeTuneFits' num2str(ifig) '.pdf']);
+        print(fn_out,'-dpdf')
+    end
+end
+fprintf('\nShuffling done, saving fit results\n')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct.mat']), 'Fit_struct')
+%% assess fits
+% extract values for prefSize (use for decision), Ftest
+% also prefSize(1/2), suppInd(1,2), fit1.c1/OF1, fit2.c2/OF2, Rsq12
+
+fprintf('Assessing goodness of fit\n')
+fprintf('Reading in variables of interest\n')
+fit_true_vec = NaN(nCells,10,nrun);
+    for irun = 1:nrun
+        for iCell = 1:nCells
+            if ~isempty(Fit_struct(iCell,irun).True)
+                eval('tmp = Fit_struct(iCell,irun).True.s_.prefSize;');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.prefSize1];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.prefSize2];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.suppInd];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.suppInd1];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.suppInd2];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.Fscore];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.Ftest];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.maxResp1];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).True.s_.maxResp2];');
+
+                % prefSize PS1 PS2 suppInd SI1 SI2 Fscore Ftest
+                fit_true_vec(iCell,:,irun) = tmp;
+            end
+        end
+    end
+    
+    fit_shuf_vec = NaN(nCells,10,Nshuf);
+    irun = 1;
+    for count_shuf = 1:Nshuf
+        for iCell = 1:nCells
+            if ~isempty(Fit_struct(iCell).Shuf)
+                eval('tmp = Fit_struct(iCell,irun).Shuf(count_shuf).s_.prefSize;');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.prefSize1];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.prefSize2];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.suppInd];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.suppInd1];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.suppInd2];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.Fscore];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.Ftest];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.maxResp1];');
+                eval('tmp = [tmp Fit_struct(iCell,irun).Shuf(count_shuf).s_.maxResp2];');
+                
+                % prefSize PS1 PS2 suppInd SI1 SI2 Fscore Ftest
+                fit_shuf_vec(iCell,:,count_shuf) = tmp;
+            end
+        end
+    end
+    
+    %% plot cells with size tuning curve and shuffle results
+    %chosen=[44 54]; %[31 41 45 46 52 64 67 71 72 73 75 77 79 83 89];
+    %chosen = goodfit_ind_size;
+    chosen = [36];
+    Npars = size(fit_shuf_vec,2);
+    lbub_fits = NaN(nCells,Npars,5);
+    alpha_bound = .025;
+    ind_shuf_lb = ceil(Nshuf*alpha_bound); % 0.025 percentile
+    ind_shuf_ub = ceil(Nshuf*(1-alpha_bound)); % 0.975 percentile
+    irun = 1;
+    for iCell = 1:nCells
+        if sum(iCell==chosen)
+            s = Fit_struct(iCell,1).True.s_;
+            figure(1);clf;
+            subplot(3,3,1)
+            errorbar([0 szs],[0 sizeMean(:,1,iCell)'],[0 sizeSEM(:,1,iCell)'])
+            hold on
+            plot(s.szs0,s.data,'.b')
+            plot(szRng,s.fitout1,'-r')
+            plot(szRng,s.fitout2,'-g')
+            hold off
+            ylim([min([-0.5*s.maxResp1 min(s.data)]) 1.2*max([s.maxResp2 max(s.data)])])
+            title(['Cell #' num2str(iCell) ' Size Tuning for 1st run (Ftest=' num2str(fit_true_vec(iCell,8)) ')']);
+            xlabel('Stimulus size (deg)')
+            ylabel('dF/F')
+        end
+        
+        for count2 = 1:Npars
+            tmp = squeeze(fit_shuf_vec(iCell,count2,:));
+            [i,j] = sort(tmp); % sort in order
+            lbub_fits(iCell,count2,1) = i(ind_shuf_lb); %lower 0.025
+            lbub_fits(iCell,count2,2) = i(ind_shuf_ub); %upper 0.975
+            lbub_fits(iCell,count2,3) = mean(i); %mean
+            lbub_fits(iCell,count2,5) = std(i); %stdev
+            
+            if sum(iCell==chosen)
+                switch count2
+                    case 1
+                        subplot(3,3,4)
+                        histogram(i,0:max(szs)+1)
+                        xlim([0 100]);
+                        line([0.5*mean(i) 0.5*mean(i)], ylim, 'color','red')
+                        line([2*mean(i) 2*mean(i)], ylim, 'color','red')
+                        line([i(ind_shuf_lb) i(ind_shuf_lb)], ylim)
+                        line([i(ind_shuf_ub) i(ind_shuf_ub)], ylim)
+                        title(['PrefSize shuffles cell #' num2str(iCell)])
+                        xlabel('Size (deg)')
+                        ylabel('count')
+                    case 2
+                        subplot(3,3,5)
+                        histogram(i,0:max(szs)+1)
+                        xlim([0 100]);
+                        line([0.5*mean(i) 0.5*mean(i)], ylim, 'color','red')
+                        line([2*mean(i) 2*mean(i)], ylim, 'color','red')
+                        line([i(ind_shuf_lb) i(ind_shuf_lb)], ylim)
+                        line([i(ind_shuf_ub) i(ind_shuf_ub)], ylim)
+                        title(['PrefSize1 shuffles cell #' num2str(iCell)])
+                        xlabel('Size (deg)')
+                    case 3
+                        subplot(3,3,6)
+                        histogram(i,0:max(szs)+1)
+                        xlim([0 100]);
+                        line([0.5*mean(i) 0.5*mean(i)], ylim, 'color','red')
+                        line([2*mean(i) 2*mean(i)], ylim, 'color','red')
+                        line([i(ind_shuf_lb) i(ind_shuf_lb)], ylim)
+                        line([i(ind_shuf_ub) i(ind_shuf_ub)], ylim)
+                        title(['PrefSize2 shuffles cell #' num2str(iCell)])
+                        xlabel('Size (deg)')
+                    case 4
+                        subplot(3,3,7)
+                        histogram(i,0:0.01:2)
+                        xlim([0 1])
+                        line([mean(i) mean(i)], ylim)
+                        line([i(ind_shuf_lb) i(ind_shuf_lb)], ylim)
+                        line([i(ind_shuf_ub) i(ind_shuf_ub)], ylim)
+                        title(['SuppInd shuffles cell #' num2str(iCell)])
+                        xlabel('SI')
+                        ylabel('count')
+                    case 5
+                        subplot(3,3,8)
+                        histogram(i,0:0.01:2)
+                        xlim([0 1])
+                        line([mean(i) mean(i)], ylim)
+                        line([i(ind_shuf_lb) i(ind_shuf_lb)], ylim)
+                        line([i(ind_shuf_ub) i(ind_shuf_ub)], ylim)
+                        title(['SuppInd1 shuffles cell #' num2str(iCell)])
+                        xlabel('SI1')
+                    case 6
+                        subplot(3,3,9)
+                        histogram(i,0:0.01:2)
+                        xlim([0 1])
+                        line([mean(i) mean(i)], ylim)
+                        line([i(ind_shuf_lb) i(ind_shuf_lb)], ylim)
+                        line([i(ind_shuf_ub) i(ind_shuf_ub)], ylim)
+                        title(['SuppInd2 shuffles cell #' num2str(iCell)])
+                        xlabel('SI2')
+                    case 7
+                        Fcrit = finv(0.95,nPts-6,nPts-3);
+                        subplot(3,3,2)
+                        histogram(i,50)
+                        xlim([0 max(i)]);
+                        line([mean(i) mean(i)], ylim)
+                        line([i(ind_shuf_lb) i(ind_shuf_lb)], ylim)
+                        line([i(ind_shuf_ub) i(ind_shuf_ub)], ylim)
+                        line([Fcrit Fcrit], ylim, 'LineWidth', 3, 'color', 'red')
+                        title(['Fscore shuffles cell #' num2str(iCell)])
+                        xlabel('Fscore')
+                        ylabel('count')
+                    case 8
+                        subplot(3,3,3)
+                        histogram(i,[-0.5 0.5 1.5])
+                        xlim([-0.5 1.5])
+                        ylim([0 Nshuf])
+                        title(['Ftest shuffles cell #' num2str(iCell)])
+                        xlabel('Ftest')
+                        pause
+                end
+            end
+        end
+        lbub_fits(iCell,:,4) = fit_true_vec(iCell,:,1); % true (no shuffle)
+    end
+
+%% determine good fits
+% first sort cells based on Ftest same as True fit in >50% of shuffles
+% then use that model's prefSize confidence interval (e.g. prefSize1 or 2)
+% check bounds of confidence interval are within 1 octave of "True" fit
+% e.g. lower(2.5th)>0.5*prefSizeTrue and upper(97.5th)<2*prefSizeTrue
+goodfit_ind_size = [];
+for iCell = 1:nCells
+    Ftest = lbub_fits(iCell,8,4); %8=Ftest, 4=True fit
+    Ftestshuf = lbub_fits(iCell,8,3); %8=Ftest, 3=mean of shuffles
+    lOct = 0.5*lbub_fits(iCell,1,4); %1=prefSize, 4=True fit, lower octave
+    hOct = 2*lbub_fits(iCell,1,4); %1=prefSize, 4=True fit, upper octave
+    switch Ftest
+        case 0 % model1
+            if Ftestshuf<0.5 %model1 >50% of shuffles
+                if (lbub_fits(iCell,2,1)>lOct) && (lbub_fits(iCell,2,2)<hOct) %2=prefSize1, 1=lb/2=ub
+                    goodfit_ind_size = [goodfit_ind_size iCell];
+                end
+            end
+        case 1 % model2
+            if Ftestshuf>0.5 % model2 >50% of shuffles
+                if (lbub_fits(iCell,3,1)>lOct) && (lbub_fits(iCell,3,2)<hOct) %3=prefSize2, 1=lb/2=ub
+                    goodfit_ind_size = [goodfit_ind_size iCell];
+                end
+            end
+    end
+end
+
+h = zeros(nCells,nSize);
+p = zeros(nCells,nSize);
+for iCell = 1:nCells
+    resp = [];
+    base = [];
+    for isz = 1:nSize
+        resp = [resp; sizeTune{isz,1,iCell}];
+        base = [base; baseResp{isz,1,iCell}];
+        [h(iCell,isz) p(iCell,isz)] = ttest(resp,base,'tail','right','alpha',0.05./(nSize-1));
+    end
+end
+
+goodfit_ind = intersect(find(sum(h(:,[1 2]),2)), goodfit_ind_size);
+
+% is model1 + is model2
+ism1 = intersect(goodfit_ind,find(~lbub_fits(:,8,4)));
+ism2 = intersect(goodfit_ind,find(lbub_fits(:,8,4)));
+
+fprintf(['#Good cells = ' num2str(length(goodfit_ind)) '/' num2str(nCells) '\nModel 1: ' num2str(length(ism1)) ', Model 2: ' num2str(length(ism2)) '\nSaving good fits\n'])
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_lbub_fits']), 'goodfit_ind_size', 'lbub_fits', 'ism1','ism2','h','p')
+
