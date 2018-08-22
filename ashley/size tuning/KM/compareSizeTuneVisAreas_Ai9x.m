@@ -26,6 +26,7 @@ expdata = cell2table(temp,'VariableNames',head);
 nExp = size(expdata,1);
 %isvalid = ones(1,nExp);
 %expdata = addvars(expdata,isvalid);
+con4 = [0.1 0.2 0.4 0.8];
 
 fprintf(['Size-tuning visual-area comparison analysis - by KM, Glickfeld Lab\nLoading ' num2str(nExp) ' experiments\n'])
 
@@ -39,6 +40,19 @@ sizeMean_all = [];
 sizeSEM_all = [];
 cellDists_all = [];
 nCellsExp = zeros(1,nExp);
+sizeFits_all = struct([]); % no cells, 4 cons
+lbub_fits_all = [];
+goodfit_ind_size_all = [];
+
+sizeTune_6con = cell(0);
+sizeMean_6con = [];
+sizeSEM_6con = [];
+cellDists_6con = [];
+nCellsExp_6con = zeros(1,nExp);
+sizeFits_6con = struct([]); % no cells, 4 cons
+lbub_fits_6con = [];
+goodfit_ind_size_6con = [];
+t = 0;
 for i=1:nExp
     fprintf(['Exp: ' num2str(i) '/' num2str(nExp) '...'])
     date = expdata.date{i};
@@ -49,93 +63,78 @@ for i=1:nExp
         fprintf([[date '_' mouse '_' run_str '_sizeTuneData.mat'] ' not found! Please remove from list\n'])
     end
     load(filename, 'sizeTune', 'sizeMean', 'sizeSEM', 'cellDists')
-    sizeTune_all = cat(3,sizeTune_all,sizeTune);
-    sizeMean_all = cat(3,sizeMean_all,sizeMean);
-    sizeSEM_all = cat(3,sizeSEM_all,sizeSEM);
-    cellDists_all = [cellDists_all;cellDists];
-    nCellsExp(i) = length(cellDists);
-    fprintf('done\n')
-end
-
-% sizeFitResults_SP
-fprintf('Loading sizeFitResults_SP (true fit at all cons)\n')
-sizeFits_all = struct([]); % no cells, 4 cons
-for i=1:nExp
-    fprintf(['Exp: ' num2str(i) '/' num2str(nExp) '...'])
-    date = expdata.date{i};
-    mouse = expdata.mouse{i};
-    run_str = expdata.run_str{i};
+    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']);
+    load(filename);
     filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeFitResults_SP.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_sizeFitResults_SP.mat'] ' not found! Please remove from list\n'])
     end
     load(filename, 'sizeFits')
-    sizeFits_all = cat(1,sizeFits_all,sizeFits);
-    fprintf('done\n')
-end
-
-% % Fit_struct - need this?
-% fprintf('Loading Fit_struct (highest con, with shuffling)\n')
-% Fit_struct_all = struct;
-% for i=1:nExp
-%     fprintf(['Exp: ' num2str(i) '/' num2str(nExp) '...'])
-%     date = expdata.date{i};
-%     mouse = expdata.mouse{i};
-%     run_str = expdata.run_str{i};
-%     filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Fit_struct.mat']);
-%     if ~exist(filename, 'file')
-%         fprintf([[date '_' mouse '_' run_str '_Fit_struct.mat'] ' not found! Please remove from list\n'])
-%     end
-%     load(filename, 'Fit_struct')
-%     Fit_struct_all = cat(1,Fit_struct_all,Fit_struct);
-%     fprintf('done\n')
-% end
-
-% lbub_fits
-fprintf('Loading lbub_fits\n')
-lbub_fits_all = [];
-goodfit_ind_size_all = [];
-for i=1:nExp
-    fprintf(['Exp: ' num2str(i) '/' num2str(nExp) '...'])
-    date = expdata.date{i};
-    mouse = expdata.mouse{i};
-    run_str = expdata.run_str{i};
     filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_lbub_fits.mat'] ' not found! Please remove from list\n'])
     end
     load(filename, 'lbub_fits', 'goodfit_ind_size')
+    
+    cons = unique(celleqel2mat_padded(input.tGratingContrast));
+    [a b c] = intersect(con4, cons);
+    sizeTune_all = cat(3,sizeTune_all,sizeTune(:,c,:));
+    sizeMean_all = cat(3,sizeMean_all,sizeMean(:,c,:));
+    sizeSEM_all = cat(3,sizeSEM_all,sizeSEM(:,c,:));
+    cellDists_all = [cellDists_all;cellDists];
+    nCellsExp(i) = length(cellDists);
+    sizeFits_all = cat(1,sizeFits_all,sizeFits(:,c));
     lbub_fits_all = cat(1,lbub_fits_all,lbub_fits);
     tempinds = sum(nCellsExp(1:i-1)) + goodfit_ind_size; % offset by # cells in previous exps
     goodfit_ind_size_all = [goodfit_ind_size_all tempinds];
+    
+    if length(cons) == 6
+        if t == 0
+            con6 = cons;
+        end
+        t=t+1;
+        sizeTune_6con = cat(3,sizeTune_6con,sizeTune);
+        sizeMean_6con = cat(3,sizeMean_6con,sizeMean);
+        sizeSEM_6con = cat(3,sizeSEM_6con,sizeSEM);
+        cellDists_6con = [cellDists_6con;cellDists];
+        nCellsExp_6con(t) = length(cellDists);
+        sizeFits_6con = cat(1,sizeFits_6con,sizeFits);
+        lbub_fits_6con = cat(1,lbub_fits_6con,lbub_fits);
+        tempinds = sum(nCellsExp_6con(1:t-1)) + goodfit_ind_size; % offset by # cells in previous exps
+        goodfit_ind_size_6con = [goodfit_ind_size_6con tempinds];
+    end
     fprintf('done\n')
 end
-fprintf(['\nFinished loading all ' num2str(nExp) ' experiments.\n'])
 
 nCellsTot = sum(nCellsExp);
 fprintf('%d cells loaded (%d goodfit_size)\n',nCellsTot,length(goodfit_ind_size_all))
-
 expInd = [];
 for i = 1:nExp
     expInd = [expInd repmat(i,1,nCellsExp(i))];
 end
 
-cons = [0.1 0.2 0.4 0.8]; nCon = length(cons);
-szs = 5*1.5.^[0:7]; nSize = length(szs);
+nCellsTot_6con = sum(nCellsExp_6con);
+expInd_6con = [];
+for i = 1:t
+    expInd_6con = [expInd_6con repmat(i,1,nCellsExp_6con(t))];
+end
+
+szs = unique(celleqel2mat_padded(input.tGratingDiameterDeg)); 
+nSize = length(szs);
 szRng = linspace(0,max(szs));
 
-%% con resp for all cells
+%% con resp for 4 con data
 fprintf('Extracting contrast response of each cell at prefSize\n')
-s4 = zeros(1,4);
+cons = con4;
+nCon = length(cons);
+s4 = zeros(1,nCon);
 s = zeros(1);
 conStruct_all = struct('resp',s4,'fit',s4,'C50r',s,'Rsq',s,'x0',s4);
 conStruct_all(nCellsTot) = conStruct_all;
 conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
-
-% conModelS = @(coefs,cdata) coefs(1) + coefs(2)./(1+exp(-coefs(4)*(cdata-coefs(3))));
-%opts = optimset('Display','off');
-conRng = 0.001:0.001:1;
+conRng = 0:0.001:1;
 opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
+
 for iCell=1:nCellsTot
     if ~sum(iCell==goodfit_ind_size_all)
         if sum(iCell==[1 nCellsTot]) % check first and last to reset zeros to blank
@@ -168,14 +167,6 @@ for iCell=1:nCellsTot
             cFbest = cF;
             x0best = x0;
         end
-        %figure(1);if i==1;clf;end
-        %subplot(2,2,i)
-        %plot(cons,cRi,'ko')
-        %hold on
-        %plot(conRng,conModelH(cF,conRng),'-r')
-        %plot(cF(3), cF(1)+cF(2)/2,'rx')
-        %title(['Cell' num2str(iCell) ', iC50=' num2str(x0(3)) ' R^2_H=' num2str(R2)])
-        %fprintf('\niC50=%f: BL=%+.3f Rmax=%.3f C50=%.3f n=%.2f : R2=%.5f',x0(3),cF(1),cF(2),cF(3),cF(4),R2)
     end
     cF = cFbest;
     R2 = R2best;
@@ -192,28 +183,82 @@ for iCell=1:nCellsTot
     conStruct_all(iCell).C50r = C50;
     
     fprintf('Cell %d/%d fit: BL=%.3f Rmax=%.3f C50=%.3f n=%.2f : Rsq=%.3f C50r=%.3f\n',iCell,nCellsTot,cF(1),cF(2),cF(3),cF(4),R2,C50)
-    
-    
-    %     if sum(iCell==goodfit_ind_size_all)
-    %         fitstr = ' good sizefit';
-    %     else
-    %         fitstr = ' bad sizefit';
-    %     end
-    %     figure(2);clf;
-    %     plot(cons,cRi,'ko')
-    %     hold on
-    %     plot(conRng,fitout,'-r')
-    %     plot(cF(3), cF(1)+cF(2)/2,'rx')
-    %     plot(C50,fitout(i50),'bo')
-    %     title(['Cell' num2str(iCell) ', R^2_H=' num2str(R2) fitstr])
-    %     legend('data','mH','C_{50}','C_{50}calc','location','best')
-    %     pause
+   
 end
 fprintf('Done, saving...\n')
 filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct23.mat');
 save(filename,'conStruct_all');
+
+%% con resp for 6 con data
+fprintf('Extracting contrast response of each cell at prefSize\n')
+cons = con6;
+nCon = length(cons);
+s4 = zeros(1,nCon);
+s = zeros(1);
+conStruct_6con = struct('resp',s4,'fit',s4,'C50r',s,'Rsq',s,'x0',s4);
+conStruct_6con(nCellsTot_6con) = conStruct_6con;
+conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
+conRng = 0:0.001:1;
+opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
+
+for iCell=1:nCellsTot_6con
+    if ~sum(iCell==goodfit_ind_size_6con)
+        if sum(iCell==[1 nCellsTot_6con]) % check first and last to reset zeros to blank
+            conStruct_6con(iCell).resp = [];conStruct_6con(iCell).fit = [];conStruct_6con(iCell).C50r = [];conStruct_6con(iCell).Rsq = [];conStruct_6con(iCell).x0 = [];
+        end
+        continue % do not fit unless goodfit_size
+    end
+    
+    pS = sizeFits_6con(iCell,nCon).prefSize;
+    pSind = find(szRng==pS);
+    for iCon = 1:nCon
+        if sizeFits_6con(iCell,iCon).Ftest
+            conStruct_6con(iCell).resp(iCon) = sizeFits_6con(iCell,iCon).fitout2(pSind);
+        else
+            conStruct_6con(iCell).resp(iCon) = sizeFits_6con(iCell,iCon).fitout1(pSind);
+        end
+    end
+    
+    cRi = conStruct_6con(iCell).resp;
+    lb = [0 0 0.1 1];
+    ub = [Inf Inf 0.8 Inf];
+    SStot = sum((cRi-mean(cRi)).^2);
+    R2best = -Inf;
+    for i=1%1:4
+        x0 = [cRi(1) max(cRi) 0.1+0.1*i 3]; %BL Rmax C50 n
+        [cF, res] = lsqcurvefit(conModelH,x0,cons,cRi,lb,ub,opts);
+        R2 = 1-res/SStot;
+        if R2>R2best
+            R2best = R2;
+            cFbest = cF;
+            x0best = x0;
+        end
+    end
+    cF = cFbest;
+    R2 = R2best;
+    
+    conStruct_6con(iCell).fit = cF;
+    conStruct_6con(iCell).Rsq = R2;
+    conStruct_6con(iCell).x0 = x0best;
+    
+    fitout = conModelH(cF,conRng);
+    R50 = fitout(1)+(fitout(end)-fitout(1))/2;
+    fitout50rect = abs(fitout - R50);
+    i50 = find(fitout50rect == min(fitout50rect),1);
+    C50 = conRng(i50);
+    conStruct_6con(iCell).C50r = C50;
+    
+    fprintf('Cell %d/%d fit: BL=%.3f Rmax=%.3f C50=%.3f n=%.2f : Rsq=%.3f C50r=%.3f\n',iCell,nCellsTot,cF(1),cF(2),cF(3),cF(4),R2,C50)
+    
+end
+fprintf('Done, saving...\n')
+filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct23_6con.mat');
+save(filename,'conStruct_6con');
+
 %% load contrast response instead of compute
 filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct23.mat');
+load(filename);
+filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct23_6con.mat');
 load(filename);
 conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
 
@@ -802,7 +847,7 @@ while 0 %collapse
 end
 
 %% plot example cell at highest con with models overlaid (fig. 5c)
-iCell = 2054; %randi(sum(nCellsExp),1);
+iCell = 12; %randi(sum(nCellsExp),1);
 cellFit = sizeFits_all(iCell,nCon);
 figure(8);clf;
 plot(cellFit.szs0,cellFit.data,'k.')
