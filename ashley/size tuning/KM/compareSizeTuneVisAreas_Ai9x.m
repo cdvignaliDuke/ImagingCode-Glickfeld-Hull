@@ -110,15 +110,19 @@ end
 nCellsTot = sum(nCellsExp);
 fprintf('4 con: %d cells loaded (%d goodfit_size)\n',nCellsTot,length(goodfit_ind_size_all))
 expInd = [];
+expArea = [];
 for i = 1:nExp
     expInd = [expInd repmat(i,1,nCellsExp(i))];
+    expArea = [expArea repmat(expdata(i,4).area, 1,nCellsExp(i))];
 end
 
 nCellsTot_6con = sum(nCellsExp_6con);
 fprintf('6 con: %d cells loaded (%d goodfit_size)\n',nCellsTot_6con,length(goodfit_ind_size_6con))
 expInd_6con = [];
+expArea_6con = [];
 for i = 1:nExp
     expInd_6con = [expInd_6con repmat(i,1,nCellsExp_6con(i))];
+    expArea_6con = [expArea_6con repmat(expdata(i,4).area, 1,nCellsExp_6con(i))];
 end
 
 szs = unique(celleqel2mat_padded(input.tGratingDiameterDeg)); 
@@ -136,6 +140,8 @@ conStruct_all(nCellsTot) = conStruct_all;
 conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
 conRng = 0:0.001:1;
 opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
+usePrefSize = 1;
+useRFSize = 0;
 
 for iCell=1:nCellsTot
     if ~sum(iCell==goodfit_ind_size_all)
@@ -145,8 +151,24 @@ for iCell=1:nCellsTot
         continue % do not fit unless goodfit_size
     end
     
-    pS = sizeFits_all(iCell,nCon).prefSize;
-    pSind = find(szRng==pS);
+    if usePrefSize
+        pS = sizeFits_all(iCell,nCon).prefSize;
+        pSind = find(szRng==pS);
+    elseif useRFSize
+        switch cell2mat(expArea(iCell))
+            case 'V1'
+                RFsize = 10; %v1 cutoff at 10
+            case 'LM'
+                RFsize = 15; %lm cutoff at 15
+            case 'AL'
+                RFsize = 15; %al cutoff at 15
+            case 'PM'
+                RFsize = 20; %pm cutoff at 20
+        end
+        pS = RFsize;
+        [val pSind] = min(abs(szRng-pS));
+    end
+    
     for iCon = 1:nCon
         if sizeFits_all(iCell,iCon).Ftest
             conStruct_all(iCell).resp(iCon) = sizeFits_all(iCell,iCon).fitout2(pSind);
@@ -203,6 +225,9 @@ conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(
 conRng = 0:0.001:1;
 opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
 
+usePrefSize = 1;
+useRFSize = 0;
+
 for iCell=1:nCellsTot_6con
     if ~sum(iCell==goodfit_ind_size_6con)
         if sum(iCell==[1 nCellsTot_6con]) % check first and last to reset zeros to blank
@@ -211,8 +236,23 @@ for iCell=1:nCellsTot_6con
         continue % do not fit unless goodfit_size
     end
     
-    pS = sizeFits_6con(iCell,nCon).prefSize;
-    pSind = find(szRng==pS);
+    if usePrefSize
+        pS = sizeFits_6con(iCell,nCon).prefSize;
+        pSind = find(szRng==pS);
+    elseif useRFSize
+        switch cell2mat(expArea_6con(iCell))
+            case 'V1'
+                RFsize = 10; %v1 cutoff at 10
+            case 'LM'
+                RFsize = 15; %lm cutoff at 15
+            case 'AL'
+                RFsize = 15; %al cutoff at 15
+            case 'PM'
+                RFsize = 20; %pm cutoff at 20
+        end
+        pS = RFsize;
+        [val pSind] = min(abs(szRng-pS));
+    end
     for iCon = 1:nCon
         if sizeFits_6con(iCell,iCon).Ftest
             conStruct_6con(iCell).resp(iCon) = sizeFits_6con(iCell,iCon).fitout2(pSind);
@@ -352,10 +392,11 @@ ylabel('Frac. [cells x cons]')
 legend('model1','model2','Location','ne')
 
 
-%% extract unique cells from full set to compare areas for 4 con data
+%% compare areas for 4 con data
 % making figs 1-7
 fprintf('Examine cells from each area:\n')
 areas = ["V1","LM","AL","PM"];
+nArea = length(areas);
 cons = con4;
 nCon = length(cons);
 
@@ -363,7 +404,7 @@ nExp_area = zeros(size(areas));
 nCells_area = nExp_area;
 
 close all
-choosefig = [1:7];
+choosefig = [1:5];
 % choose figs: 1=modelcounts; 2=averagecurves; 3=prefSize; 4=suppInd; 5=conresp; 6=ex.cells; 7=medianfits;
 legStrs = strings(1,length(areas)); legStrs2=legStrs;
 for i = 1:length(areas)
@@ -382,10 +423,10 @@ for i = 1:length(areas)
             % case {'LM','AL'}
             %     cutoff = 15; %alm cutoff at 15
         case 'LM'
-            cutoff = 15; %alm cutoff at 15
+            cutoff = 15; %lm cutoff at 15
             excells = [1861 1863];
         case 'AL'
-            cutoff = 15; %alm cutoff at 15
+            cutoff = 15; %al cutoff at 15
             excells = [2395 1777];
         case 'PM'
             cutoff = 20; %pm cutoff at 20
@@ -412,13 +453,13 @@ for i = 1:length(areas)
     
     if sum(choosefig==1)
         figure(1);if i==1;clf;end %figure 1 = proportions of model2 by con
-        subplot(1,4,i)
+        subplot(1,nArea,i)
         modelcounts = [sum(ism1); sum(ism2)]'/nCellsi;
         bar(cons_c,modelcounts,'stacked')
         title({sprintf('Area:%s',areas(i));['(n=' num2str(nCellsi) ', n_{exp}=' num2str(nExpi) ')']})
         xlabel('Contrast')
         ylabel('Frac. cells')
-        if i==4;legend('m1','m2','location','best');end
+        if i==nArea;legend('m1','m2','location','best');end
     end
     
     if sum(choosefig==2)
@@ -457,7 +498,7 @@ for i = 1:length(areas)
         % ylabel('dF/F (norm)')
         % ylim([0 1.2])
         % collapse models
-        subplot(1,4,i)
+        subplot(1,nArea,i)
         for iCon = 1:nCon
             errorbar(szs,sizeMean_normall(:,iCon),sizeSEM_normall(:,iCon))
             hold on
@@ -466,7 +507,7 @@ for i = 1:length(areas)
         xlabel('Size (deg)')
         ylabel('dF/F (norm)')
         ylim([0 1.25])
-        if i==4;legend(num2str(cons'),'location','best');end
+        if i==nArea;legend(num2str(cons'),'location','best');end
     end
     
     if sum(choosefig==3)
@@ -505,7 +546,7 @@ for i = 1:length(areas)
         ylabel('PrefSize')
         xlim([0 1])
         ylim([0 60])
-        if i==4;legend(legStrs,'location','eastoutside');end %'location','southoutside','Orientation','horizontal' for bottom
+        if i==nArea;legend(legStrs,'location','eastoutside');end %'location','southoutside','Orientation','horizontal' for bottom
     end
     
     if sum(choosefig==4)
@@ -544,7 +585,7 @@ for i = 1:length(areas)
         xlim([0 1])
         ylim([0 1])
         legStrs(i)=sprintf('%s (n=%d, n_{exp}=%d)',areas(i),nCellsi,nExpi);
-        if i==4;legend(legStrs,'location','eastoutside');end %'location','southoutside','Orientation','horizontal' for bottom
+        if i==nArea;legend(legStrs,'location','eastoutside');end %'location','southoutside','Orientation','horizontal' for bottom
     end
     
     if sum(choosefig==5) %figure 5: average contrast response in each area
@@ -573,7 +614,7 @@ for i = 1:length(areas)
         ylabel('norm. dF/F @ pref size')
         xlim([0 1])
         ylim([0 1.2])
-        if i==4;legend(legStrs2,'location','southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
+        if i==nArea;legend(legStrs2,'location','southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
     
         % fit
         conResp_norm = conResp_norm';
@@ -603,6 +644,7 @@ for i = 1:length(areas)
         ax.ColorOrderIndex = i;
         plot([C50 C50],[0 R50],'--','HandleVisibility','off')
     end
+    
     
     if sum(choosefig==6) %figure 6: example cells from each area, with fits
         figure(6);if i==1;clf;end
@@ -708,7 +750,7 @@ for i = 1:length(areas)
     
 end
 
-%% extract unique cells from full set to compare areas for 6 con data
+%% compare areas for 6 con data
 % making figs 1-7
 fprintf('Examine cells from each area:\n')
 areas = ["V1","PM"];
