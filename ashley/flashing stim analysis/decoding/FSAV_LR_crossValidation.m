@@ -1,8 +1,9 @@
 close all
 clear all
 
-load('Z:\Analysis\FSAV Choice\FSAV_decodeData_exampleExpts.mat')
-fnout = 'Z:\Analysis\FSAV Choice';
+load('Z:\Analysis\FSAV Choice\FSAV_decodeData.mat')
+dataLabel = 'allExpt_';
+fnout = 'Z:\Analysis\FSAV Choice\';
 nexp = length(dcExpt);
 
 doExptPlots = 0;
@@ -140,57 +141,58 @@ for iexp = 1:nexp
         pctCorrXValOri_target(iori) = mean(ysub_targetHoldouts == 0);
     end
     
-    setFigParams4Print('landscape')
-    figure
-    subplot 121
-    x = [orientations 100];
-    y = [pctCorrOri_detect.*100 pctCorr_detect.*100];
-    ylerr = cat(1,pctDetectOriErr(:,1),pctCorrErr_detect(1))'.*100;
-    yuerr = cat(1,pctDetectOriErr(:,2),pctCorrErr_detect(2))'.*100;
-    h = errorbar(x,y,ylerr,yuerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
-   
-    subplot 122
-    x = [orientations 100];
-    y = [pctCorrOri_target.*100 pctCorr_target.*100];
-    ylerr = cat(1,pctTargetOriErr(:,1),pctCorrErr_target(1))'.*100;
-    yuerr = cat(1,pctTargetOriErr(:,2),pctCorrErr_target(2))'.*100;
-    h = errorbar(x,y,ylerr,yuerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+    if doExptPlots
+        setFigParams4Print('landscape')
+        figure
+        subplot 121
+        x = [orientations 100];
+        y = [pctCorrOri_detect.*100 pctCorr_detect.*100];
+        ylerr = cat(1,pctDetectOriErr(:,1),pctCorrErr_detect(1))'.*100;
+        yuerr = cat(1,pctDetectOriErr(:,2),pctCorrErr_detect(2))'.*100;
+        h = errorbar(x,y,ylerr,yuerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
 
-    pctCorrOri_detect_all{iexp} = [pctCorrOri_detect.*100 pctCorr_detect.*100];
-    pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
-    
-    pctCorrOri_target_all{iexp} = [pctCorrOri_target.*100 pctCorr_target.*100];
-    pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
-    
-    exptOris{iexp} = x;
-    
-    print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation']),'-dpdf','-fillpage')
+        subplot 122
+        x = [orientations 100];
+        y = [pctCorrOri_target.*100 pctCorr_target.*100];
+        ylerr = cat(1,pctTargetOriErr(:,1),pctCorrErr_target(1))'.*100;
+        yuerr = cat(1,pctTargetOriErr(:,2),pctCorrErr_target(2))'.*100;
+        h = errorbar(x,y,ylerr,yuerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+
+        print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation']),'-dpdf','-fillpage')
+    end
+        pctCorrOri_detect_all{iexp} = [pctCorrOri_detect.*100 pctCorr_detect.*100];
+        pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
+
+        pctCorrOri_target_all{iexp} = [pctCorrOri_target.*100 pctCorr_target.*100];
+        pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
+
+        exptOris{iexp} = [orientations 100];
 end
 
 pctCorrOri_detect_sub = cellfun(@(x,y) x-y,pctCorrOri_detect_all,...
@@ -198,23 +200,59 @@ pctCorrOri_detect_sub = cellfun(@(x,y) x-y,pctCorrOri_detect_all,...
 pctCorrOri_target_sub = cellfun(@(x,y) x-y,pctCorrOri_target_all,...
     pctCorrOri_target_holdout,'unif',0);
 
-set(0,'defaultAxesFontSize',16)
+set(0,'defaultAxesFontSize',12)
 figure
 suptitle('Summary Across Experiments')
-subplot 221
+subplot 231
 allOris = [];
 for i = 1:nexp
-    plot(exptOris{i},pctCorrOri_detect_all{i},'o-')
-    hold on
-    allOris = unique([allOris,exptOris{i}]);
+    x = exptOris{i};
+    allOris = unique([allOris,x]);
 end
+allExpt = nan(length(allOris),nexp);
+for i = 1:nexp
+    x = exptOris{i};
+    y = pctCorrOri_detect_all{i};
+    h = plot(x,y,'-');
+    h.Color = [0.5 0.5 0.5];
+    hold on
+    for iori = 1:length(x)
+        ind = allOris == x(iori);
+        allExpt(ind,i) = y(iori);
+    end
+end
+h = errorbar(allOris,nanmean(allExpt,2),ste(allExpt,2),'ko-');
+h.MarkerFaceColor = 'k';
 xLabel = [cellfun(@(y)...
     num2str(round(y,2,'significant')),num2cell(allOris(1:end-1)),'unif',0),...
     {'All Trials'}];
 figXAxis([],'Orientation (deg)',[-10 110],allOris,xLabel)
 figYAxis([],'% Correct',[0 110])
 figAxForm
-title('Detect GLM')
+title('Detect GLM - All Trials')
+
+subplot 232
+allExpt = nan(length(allOris),nexp);
+for i = 1:nexp
+    x = exptOris{i};
+    y = pctCorrOri_detect_holdout{i};
+    h = plot(x,y,'-');
+    h.Color = [0.5 0.5 0.5];
+    hold on
+    for iori = 1:length(x)
+        ind = allOris == x(iori);
+        allExpt(ind,i) = y(iori);
+    end
+end
+h = errorbar(allOris,nanmean(allExpt,2),ste(allExpt,2),'ko-');
+h.MarkerFaceColor = 'k';
+xLabel = [cellfun(@(y)...
+    num2str(round(y,2,'significant')),num2cell(allOris(1:end-1)),'unif',0),...
+    {'All Trials'}];
+figXAxis([],'Orientation (deg)',[-10 110],allOris,xLabel)
+figYAxis([],'% Correct',[0 110])
+figAxForm
+title('Detect GLM - Holdout Trials')
 
 pctCorrOri_sub_catAllData = cell(1,length(allOris));
 for iexp = 1:nexp
@@ -224,9 +262,10 @@ for iexp = 1:nexp
             [pctCorrOri_sub_catAllData{i} pctCorrOri_detect_sub{iexp}(ind)];
     end
 end
-subplot 222
+subplot 233
 for i = 1:length(allOris)
     h = plot(allOris(i),pctCorrOri_sub_catAllData{i},'k.');
+%     h.Color = [0.5 0.5 0.5]
     hold on
 end
 x = allOris;
@@ -239,20 +278,51 @@ figYAxis([],'% Correct (All - Holdout)',[-100 100])
 figAxForm
 hline(0,'k--')
 
-subplot 223
-allOris = [];
+subplot 234
+allExpt = nan(length(allOris),nexp);
 for i = 1:nexp
-    plot(exptOris{i},pctCorrOri_target_all{i},'o-')
+    x = exptOris{i};
+    y = pctCorrOri_target_all{i};
+    h = plot(x,y,'-');
+    h.Color = [0.5 0.5 0.5];
     hold on
-    allOris = unique([allOris,exptOris{i}]);
+    for iori = 1:length(x)
+        ind = allOris == x(iori);
+        allExpt(ind,i) = y(iori);
+    end
 end
+h = errorbar(allOris,nanmean(allExpt,2),ste(allExpt,2),'ko-');
+h.MarkerFaceColor = 'k';
 xLabel = [cellfun(@(y)...
     num2str(round(y,2,'significant')),num2cell(allOris(1:end-1)),'unif',0),...
     {'All Trials'}];
 figXAxis([],'Orientation (deg)',[-10 110],allOris,xLabel)
 figYAxis([],'% Correct',[0 110])
 figAxForm
-title('Target GLM')
+title('Target GLM - All Trials')
+
+subplot 235
+allExpt = nan(length(allOris),nexp);
+for i = 1:nexp
+    x = exptOris{i};
+    y = pctCorrOri_target_holdout{i};
+    h = plot(x,y,'-');
+    h.Color = [0.5 0.5 0.5];
+    hold on
+    for iori = 1:length(x)
+        ind = allOris == x(iori);
+        allExpt(ind,i) = y(iori);
+    end
+end
+h = errorbar(allOris,nanmean(allExpt,2),ste(allExpt,2),'ko-');
+h.MarkerFaceColor = 'k';
+xLabel = [cellfun(@(y)...
+    num2str(round(y,2,'significant')),num2cell(allOris(1:end-1)),'unif',0),...
+    {'All Trials'}];
+figXAxis([],'Orientation (deg)',[-10 110],allOris,xLabel)
+figYAxis([],'% Correct',[0 110])
+figAxForm
+title('Target GLM - Holdout Trials')
 
 pctCorrOri_sub_catAllData = cell(1,length(allOris));
 for iexp = 1:nexp
@@ -262,7 +332,7 @@ for iexp = 1:nexp
             [pctCorrOri_sub_catAllData{i} pctCorrOri_target_sub{iexp}(ind)];
     end
 end
-subplot 224
+subplot 236
 for i = 1:length(allOris)
     h = plot(allOris(i),pctCorrOri_sub_catAllData{i},'k.');
     hold on
@@ -277,7 +347,7 @@ figYAxis([],'% Correct (All - Holdout)',[-100 100])
 figAxForm
 hline(0,'k--')
 
-print(fullfile(fnout,'pctCorr_all'),'-dpdf','-fillpage')
+print(fullfile(fnout,[dataLabel 'pctCorr_all']),'-dpdf','-fillpage')
 
 %% hard trials only
 pctCorrOri_detect_all = cell(1,nexp);
@@ -420,57 +490,59 @@ for iexp = 1:nexp
         pctCorrXValOri_target(iori) = mean(ysub_targetHoldouts == 0);
     end
     
-    setFigParams4Print('landscape')
-    figure
-    subplot 121
-    x = [orientations 100];
-    y = [pctCorrOri_detect.*100 pctCorr_detect.*100];
-    ylerr = cat(1,pctDetectOriErr(:,1),pctCorrErr_detect(1))'.*100;
-    yuerr = cat(1,pctDetectOriErr(:,2),pctCorrErr_detect(2))'.*100;
-    h = errorbar(x,y,ylerr,yuerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
-   
-    subplot 122
-    x = [orientations 100];
-    y = [pctCorrOri_target.*100 pctCorr_target.*100];
-    ylerr = cat(1,pctTargetOriErr(:,1),pctCorrErr_target(1))'.*100;
-    yuerr = cat(1,pctTargetOriErr(:,2),pctCorrErr_target(2))'.*100;
-    h = errorbar(x,y,ylerr,yuerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+    if doExptPlots
+        setFigParams4Print('landscape')
+        figure
+        subplot 121
+        x = [orientations 100];
+        y = [pctCorrOri_detect.*100 pctCorr_detect.*100];
+        ylerr = cat(1,pctDetectOriErr(:,1),pctCorrErr_detect(1))'.*100;
+        yuerr = cat(1,pctDetectOriErr(:,2),pctCorrErr_detect(2))'.*100;
+        h = errorbar(x,y,ylerr,yuerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
 
-    pctCorrOri_detect_all{iexp} = [pctCorrOri_detect.*100 pctCorr_detect.*100];
-    pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
-    
-    pctCorrOri_target_all{iexp} = [pctCorrOri_target.*100 pctCorr_target.*100];
-    pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
-    
-    exptOris{iexp} = x;
-    
-    print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation_hardTrials']),'-dpdf','-fillpage')
+        subplot 122
+        x = [orientations 100];
+        y = [pctCorrOri_target.*100 pctCorr_target.*100];
+        ylerr = cat(1,pctTargetOriErr(:,1),pctCorrErr_target(1))'.*100;
+        yuerr = cat(1,pctTargetOriErr(:,2),pctCorrErr_target(2))'.*100;
+        h = errorbar(x,y,ylerr,yuerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+
+        print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation_hardTrials']),'-dpdf','-fillpage')
+    end
+
+        pctCorrOri_detect_all{iexp} = [pctCorrOri_detect.*100 pctCorr_detect.*100];
+        pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
+
+        pctCorrOri_target_all{iexp} = [pctCorrOri_target.*100 pctCorr_target.*100];
+        pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
+
+        exptOris{iexp} = [orientations 100];
 end
 
 pctCorrOri_detect_sub = cellfun(@(x,y) x-y,pctCorrOri_detect_all,...
@@ -557,7 +629,7 @@ figYAxis([],'% Correct (All - Holdout)',[-100 100])
 figAxForm
 hline(0,'k--')
 
-print(fullfile(fnout,'pctCorr_hardTrials'),'-dpdf','-fillpage')
+print(fullfile(fnout,[dataLabel 'pctCorr_hardTrials']),'-dpdf','-fillpage')
 
 %% predictions and cross-validation, binned orientation
 
@@ -687,57 +759,59 @@ for iexp = 1:nexp
         pctCorrXValOri_target(iori) = mean(ysub_targetHoldouts == 0);
     end
     
-    setFigParams4Print('landscape')
-    figure
-    subplot 121
-    x = [orientations 100];
-    y = [pctCorrOri_detect.*100 pctCorr_detect.*100];
-    ylerr = cat(1,pctDetectOriErr(:,1),pctCorrErr_detect(1))'.*100;
-    yuerr = cat(1,pctDetectOriErr(:,2),pctCorrErr_detect(2))'.*100;
-    h = errorbar(x,y,ylerr,yuerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
-   
-    subplot 122
-    x = [orientations 100];
-    y = [pctCorrOri_target.*100 pctCorr_target.*100];
-    ylerr = cat(1,pctTargetOriErr(:,1),pctCorrErr_target(1))'.*100;
-    yuerr = cat(1,pctTargetOriErr(:,2),pctCorrErr_target(2))'.*100;
-    h = errorbar(x,y,ylerr,yuerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+    if doExptPlots
+        setFigParams4Print('landscape')
+        figure
+        subplot 121
+        x = [orientations 100];
+        y = [pctCorrOri_detect.*100 pctCorr_detect.*100];
+        ylerr = cat(1,pctDetectOriErr(:,1),pctCorrErr_detect(1))'.*100;
+        yuerr = cat(1,pctDetectOriErr(:,2),pctCorrErr_detect(2))'.*100;
+        h = errorbar(x,y,ylerr,yuerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
 
-    pctCorrOri_detect_all{iexp} = [pctCorrOri_detect.*100 pctCorr_detect.*100];
-    pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
-    
-    pctCorrOri_target_all{iexp} = [pctCorrOri_target.*100 pctCorr_target.*100];
-    pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
-    
-    exptOris{iexp} = x;
-    
-    print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation_binnedOri']),'-dpdf','-fillpage')
+        subplot 122
+        x = [orientations 100];
+        y = [pctCorrOri_target.*100 pctCorr_target.*100];
+        ylerr = cat(1,pctTargetOriErr(:,1),pctCorrErr_target(1))'.*100;
+        yuerr = cat(1,pctTargetOriErr(:,2),pctCorrErr_target(2))'.*100;
+        h = errorbar(x,y,ylerr,yuerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'All Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+
+
+        print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation_binnedOri']),'-dpdf','-fillpage')
+    end
+        pctCorrOri_detect_all{iexp} = [pctCorrOri_detect.*100 pctCorr_detect.*100];
+        pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
+
+        pctCorrOri_target_all{iexp} = [pctCorrOri_target.*100 pctCorr_target.*100];
+        pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
+
+        exptOris{iexp} = [orientations 100];
 end
 
 
@@ -825,7 +899,7 @@ figYAxis([],'% Correct (All - Holdout)',[-100 100])
 figAxForm
 hline(0,'k--')
 
-print(fullfile(fnout,'pctCorr_byOriBinned'),'-dpdf','-fillpage')
+print(fullfile(fnout,[dataLabel 'pctCorr_byOriBinned']),'-dpdf','-fillpage')
 
 %%
 pctCorrOri_detect_all = cell(1,nexp);
@@ -978,63 +1052,65 @@ for iexp = 1:nexp
         pctCorrXValOri_target(iori) = mean(ysub_targetHoldouts == 0);
     end
     
-    setFigParams4Print('landscape')
-    figure
-    subplot 121
-    x = [orientations 100];
-    y = [cellfun(@mean,pctCorrOri_targetOthers).*100 ...
-        mean(pctCorr_targetOthers).*100];
-    yerr = [cellfun(@(a) ste(a,2),pctCorrOri_targetOthers).*100 ...
-        ste(pctCorr_targetOthers,2).*100];
-    h = errorbar(x,y,yerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'Other Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
-   
-    subplot 122
-    x = [orientations 100];
-    y = [cellfun(@mean,pctCorrOri_detectOthers).*100 ...
-        mean(pctCorr_detectOthers).*100];
-    yerr = [cellfun(@(a) ste(a,2),pctCorrOri_detectOthers).*100 ...
-        ste(pctCorr_detectOthers,2).*100];
-    h = errorbar(x,y,yerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'Other Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+    if doExptPlots
+        setFigParams4Print('landscape')
+        figure
+        subplot 121
+        x = [orientations 100];
+        y = [cellfun(@mean,pctCorrOri_targetOthers).*100 ...
+            mean(pctCorr_targetOthers).*100];
+        yerr = [cellfun(@(a) ste(a,2),pctCorrOri_targetOthers).*100 ...
+            ste(pctCorr_targetOthers,2).*100];
+        h = errorbar(x,y,yerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'Other Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
 
-    pctCorrOri_detect_all{iexp} = [cellfun(@mean,pctCorrOri_detectOthers).*100 ...
-        mean(pctCorr_detectOthers).*100];
-    pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 ...
-        pctCorr_detectXVal.*100];
-    
-    pctCorrOri_target_all{iexp} = [cellfun(@mean,pctCorrOri_targetOthers).*100 ...
-        mean(pctCorr_targetOthers).*100];
-    pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 ...
-        pctCorr_targetXVal.*100];
-    
-    exptOris{iexp} = x;
-    
-    print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation_binnedOri_matched']),'-dpdf','-fillpage')
+        subplot 122
+        x = [orientations 100];
+        y = [cellfun(@mean,pctCorrOri_detectOthers).*100 ...
+            mean(pctCorr_detectOthers).*100];
+        yerr = [cellfun(@(a) ste(a,2),pctCorrOri_detectOthers).*100 ...
+            ste(pctCorr_detectOthers,2).*100];
+        h = errorbar(x,y,yerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'Other Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+
+
+        print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation_binnedOri_matched']),'-dpdf','-fillpage')
+    end
+        pctCorrOri_detect_all{iexp} = [cellfun(@mean,pctCorrOri_detectOthers).*100 ...
+            mean(pctCorr_detectOthers).*100];
+        pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 ...
+            pctCorr_detectXVal.*100];
+
+        pctCorrOri_target_all{iexp} = [cellfun(@mean,pctCorrOri_targetOthers).*100 ...
+            mean(pctCorr_targetOthers).*100];
+        pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 ...
+            pctCorr_targetXVal.*100];
+
+        exptOris{iexp} = [orientations 100];
 end
 
 
@@ -1122,7 +1198,7 @@ figYAxis([],'% Correct (All - Holdout)',[-100 100])
 figAxForm
 hline(0,'k--')
 
-print(fullfile(fnout,'pctCorr_byOriBinned_matched'),'-dpdf','-fillpage')
+print(fullfile(fnout,[dataLabel 'pctCorr_byOriBinned_matched']),'-dpdf','-fillpage')
 
 %%
 
@@ -1276,63 +1352,65 @@ for iexp = 1:nexp
         pctCorrXValOri_target(iori) = mean(ysub_targetHoldouts == 0);
     end
     
-    setFigParams4Print('landscape')
-    figure
-    subplot 121
-    x = [orientations 100];
-    y = [cellfun(@mean,pctCorrOri_targetOthers).*100 ...
-        mean(pctCorr_targetOthers).*100];
-    yerr = [cellfun(@(a) ste(a,2),pctCorrOri_targetOthers).*100 ...
-        ste(pctCorr_targetOthers,2).*100];
-    h = errorbar(x,y,yerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'Other Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
-   
-    subplot 122
-    x = [orientations 100];
-    y = [cellfun(@mean,pctCorrOri_detectOthers).*100 ...
-        mean(pctCorr_detectOthers).*100];
-    yerr = [cellfun(@(a) ste(a,2),pctCorrOri_detectOthers).*100 ...
-        ste(pctCorr_detectOthers,2).*100];
-    h = errorbar(x,y,yerr,'ko-');
-    h.MarkerFaceColor = [0 0 0];
-    hold on
-    y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
-    h = plot(x,y,'ko-');
-    h.MarkerFaceColor = [1 1 1];
-    xLabel = [cellfun(@(y)...
-        num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
-        {'All Trials'}];
-    figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
-    figYAxis([],'% Correct',[0 110])
-    figAxForm
-    legend({'Other Trials';'Holdout X Val'},'location','northeastoutside')
-    title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+    if doExptPlots
+        setFigParams4Print('landscape')
+        figure
+        subplot 121
+        x = [orientations 100];
+        y = [cellfun(@mean,pctCorrOri_targetOthers).*100 ...
+            mean(pctCorr_targetOthers).*100];
+        yerr = [cellfun(@(a) ste(a,2),pctCorrOri_targetOthers).*100 ...
+            ste(pctCorr_targetOthers,2).*100];
+        h = errorbar(x,y,yerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_target.*100 pctCorr_targetXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'Other Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Target GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
 
-    pctCorrOri_detect_all{iexp} = [cellfun(@mean,pctCorrOri_detectOthers).*100 ...
-        mean(pctCorr_detectOthers).*100];
-    pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 ...
-        pctCorr_detectXVal.*100];
-    
-    pctCorrOri_target_all{iexp} = [cellfun(@mean,pctCorrOri_targetOthers).*100 ...
-        mean(pctCorr_targetOthers).*100];
-    pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 ...
-        pctCorr_targetXVal.*100];
-    
-    exptOris{iexp} = x;
-    
-    print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation_matched']),'-dpdf','-fillpage')
+        subplot 122
+        x = [orientations 100];
+        y = [cellfun(@mean,pctCorrOri_detectOthers).*100 ...
+            mean(pctCorr_detectOthers).*100];
+        yerr = [cellfun(@(a) ste(a,2),pctCorrOri_detectOthers).*100 ...
+            ste(pctCorr_detectOthers,2).*100];
+        h = errorbar(x,y,yerr,'ko-');
+        h.MarkerFaceColor = [0 0 0];
+        hold on
+        y = [pctCorrXValOri_detect.*100 pctCorr_detectXVal.*100];
+        h = plot(x,y,'ko-');
+        h.MarkerFaceColor = [1 1 1];
+        xLabel = [cellfun(@(y)...
+            num2str(round(y,2,'significant')),num2cell(x(1:end-1)),'unif',0),...
+            {'All Trials'}];
+        figXAxis([],'Orientation (deg)',[-10 110],x,xLabel)
+        figYAxis([],'% Correct',[0 110])
+        figAxForm
+        legend({'Other Trials';'Holdout X Val'},'location','northeastoutside')
+        title({'Detect GLM';[dcExpt(iexp).mouse '-' dcExpt(iexp).date]})
+
+        print(fullfile(fnout,[dcExpt(iexp).mouse '-' dcExpt(iexp).date '_xValidation_matched']),'-dpdf','-fillpage')
+    end
+
+        pctCorrOri_detect_all{iexp} = [cellfun(@mean,pctCorrOri_detectOthers).*100 ...
+            mean(pctCorr_detectOthers).*100];
+        pctCorrOri_detect_holdout{iexp} = [pctCorrXValOri_detect.*100 ...
+            pctCorr_detectXVal.*100];
+
+        pctCorrOri_target_all{iexp} = [cellfun(@mean,pctCorrOri_targetOthers).*100 ...
+            mean(pctCorr_targetOthers).*100];
+        pctCorrOri_target_holdout{iexp} = [pctCorrXValOri_target.*100 ...
+            pctCorr_targetXVal.*100];
+        exptOris{iexp} = [orientations 100];
+
 end
 
 
@@ -1347,12 +1425,25 @@ suptitle('Summary Across Experiments')
 subplot 221
 allOris = [];
 for i = 1:nexp
-    plot(exptOris{i},pctCorrOri_detect_all{i},'o-')
-    hold on
-    allOris = unique([allOris,exptOris{i}]);
+    x = exptOris{i};
+    allOris = unique([allOris,x]);
 end
-xLabel = [cellfun(@(y)...
-    num2str(round(y,2,'significant')),num2cell(allOris(1:end-1)),'unif',0),...
+allExpt = nan(length(allOris),nexp);
+for i = 1:nexp
+    x = exptOris{i};
+    y = pctCorrOri_detect_all{i};
+    h = plot(x,y,'-');
+    h.Color = [0.5 0.5 0.5];
+    hold on
+    for iori = 1:length(x)
+        ind = allOris == x(iori);
+        allExpt(ind,i) = y(iori);
+    end
+end
+h = errorbar(allOris,nanmean(allExpt,2),ste(allExpt,2),'ko-');
+h.MarkerFaceColor = 'k';
+xLabel = [cellfun(@(a)...
+    num2str(round(a,2,'significant')),num2cell(allOris(1:end-1)),'unif',0),...
     {'All Trials'}];
 figXAxis([],'Orientation (deg)',[-10 110],allOris,xLabel)
 figYAxis([],'% Correct',[0 110])
@@ -1383,12 +1474,20 @@ figAxForm
 hline(0,'k--')
 
 subplot 223
-allOris = [];
+allExpt = nan(length(allOris),nexp);
 for i = 1:nexp
-    plot(exptOris{i},pctCorrOri_target_all{i},'o-')
+    x = exptOris{i};
+    y = pctCorrOri_target_all{i};
+    h = plot(x,y,'-');
+    h.Color = [0.5 0.5 0.5];
     hold on
-    allOris = unique([allOris,exptOris{i}]);
+    for iori = 1:length(x)
+        ind = allOris == x(iori);
+        allExpt(ind,i) = y(iori);
+    end
 end
+h = errorbar(allOris,nanmean(allExpt,2),ste(allExpt,2),'ko-');
+h.MarkerFaceColor = 'k';
 xLabel = [cellfun(@(y)...
     num2str(round(y,2,'significant')),num2cell(allOris(1:end-1)),'unif',0),...
     {'All Trials'}];
@@ -1420,4 +1519,4 @@ figYAxis([],'% Correct (All - Holdout)',[-100 100])
 figAxForm
 hline(0,'k--')
 
-print(fullfile(fnout,'pctCorr_byOri_matched'),'-dpdf','-fillpage')
+print(fullfile(fnout,[dataLabel 'pctCorr_byOri_matched']),'-dpdf','-fillpage')

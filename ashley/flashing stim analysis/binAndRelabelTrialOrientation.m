@@ -1,5 +1,6 @@
 function [relabeledTrialOri, meanOriEaBin] = binAndRelabelTrialOrientation(...
     trialOrientation,oriBins)
+trialOrientation = round(trialOrientation,2,'significant');
 nt = length(trialOrientation);
 nTargetBins = length(oriBins)-2;
 oriBinID = discretize(trialOrientation,oriBins,'IncludedEdge','right');

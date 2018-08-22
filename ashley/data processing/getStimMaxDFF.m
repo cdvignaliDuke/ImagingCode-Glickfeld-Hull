@@ -25,7 +25,7 @@ for i = 1:nTypes
     d = nan(ypix,xpix,length(ind),lastFrame);
     for itrial = 1:length(ind)
         trialInd = trialStart(ind(itrial));
-        d(:,:,itrial,:) = data(:,:,(trialInd-nBaseFrame):(trialInd+nStimFrame-1));
+        d(:,:,itrial,:) = data(:,:,(trialInd-nBaseFrame+1):(trialInd+nStimFrame));
     end
     F{i} = d;
 end

@@ -30,8 +30,9 @@ pressAlign = 1;
 faAlign = 2;
 crAlign = 3;
 targetAlign = 4;
+catchAlign = 5;
 
-visRT = [150 570];
+visRT = [200 570];
 audRT = [150 450];
 
 nFrMonitorDelay = 3; %using cLeverDown
@@ -61,7 +62,7 @@ dcExpt = struct;
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
         if imouse == 1 & iexp == 1
-            t = 1
+            t = 1;
         else 
             t = t + 1;
         end
@@ -77,6 +78,7 @@ for imouse = 1:size(mouse,2)
 
         d = mouse(imouse).expt(iexp).av(visualTrials);
 
+        % first responders
         tc = d.align(pressAlign).respTC;
         firstStimTrialInd = d.align(pressAlign).nCycles >= 2;
         firstStimResp = squeeze(mean(tc(respwin,:,firstStimTrialInd),1));
@@ -84,7 +86,8 @@ for imouse = 1:size(mouse,2)
         minRespCells = (mean(firstStimResp,2) - mean(firstStimBL,2)) > respCutoffDff;
         firstBaseResponsiveCells = ttest(firstStimResp,firstStimBL,'dim',2,...
             'tail','right','alpha',respAlpha) & minRespCells;
-
+        
+        % false alarms
         tc = d.align(faAlign).respTC;
         rt = d.align(faAlign).reactTime;
         faTrialInd = rt > visRT(1) & rt < visRT(2);
@@ -93,14 +96,16 @@ for imouse = 1:size(mouse,2)
         faCycN = d.align(faAlign).nCycles(faTrialInd);
         faOut = repmat({'fa'},[1,sum(faTrialInd)]);
         faOri = zeros(1,sum(faTrialInd));
-
+        
+        % correct rejects
         tc = d.align(crAlign).respTC;
         crResp = squeeze(mean(tc(respwin,:,:),1));
         crBL = squeeze(mean(tc(basewin,:,:),1));
         crCycN = d.align(crAlign).nCycles;
         crOut = repmat({'cr'},[1,length(crCycN)]);
         crOri = zeros(1,length(crCycN));
-
+        
+        % hits and misses
         tc = d.align(targetAlign).respTC;
         rt = d.align(targetAlign).reactTime;
         targetTrialInd = rt > visRT(1);
@@ -126,21 +131,57 @@ for imouse = 1:size(mouse,2)
         targetOut = d.align(targetAlign).outcome(targetTrialInd);
         targetOut(strcmp(targetOut,'success')) = {'h'};
         targetOut(strcmp(targetOut,'ignore')) = {'m'};
+        
+        if size(d.align,2) == catchAlign
+            % catch trials - hits & misses
+            tc = d.align(catchAlign).respTC;
+            rt = d.align(catchAlign).reactTime;
+            catchOut = d.align(catchAlign).outcome;
+            catchTrialInd = rt > audRT(1) & cellfun(@(x) ~isempty(x),catchOut);
+            if sum(catchTrialInd) > 2
+                catchResp = squeeze(mean(tc(respwin_target,:,catchTrialInd),1));
+                catchBL = squeeze(mean(tc(basewin_target,:,catchTrialInd),1));
+                catchOri = d.align(catchAlign).ori(catchTrialInd);
+                catchOut = d.align(catchAlign).outcome(catchTrialInd);
+                catchOut(strcmp(catchOut,'FA')) = {'h'};
+                catchOut(strcmp(catchOut,'CR')) = {'m'};
+                % catch trials - correct reject
+                tc = d.align(catchAlign).crRespTC;
+                crCatchResp = squeeze(mean(tc(respwin,:,:),1));
+                crCatchBL = squeeze(mean(tc(basewin,:,:),1));
+                crCatchCycN = d.align(catchAlign).crNCycles;
+                crCatchOut = repmat({'cr'},[1,length(crCatchCycN)]);
+                crCatchOri = zeros(1,length(crCatchCycN));
+            else
+                catchResp = [];
+                catchBL = [];
+                catchOri = [];
+                catchOut = [];
+                crCatchResp = [];
+                crCatchBL = [];
+                crCatchOut = [];
+                crCatchOri = [];
+            end
+        end
 
         dcExpt(t).mouse = ms;
         dcExpt(t).date = dt;
         dcExpt(t).info = 'cells x trials';
         dcExpt(t).attention.task = mouse(imouse).expt(iexp).attnTask;
         dcExpt(t).attention.effect = mouse(imouse).expt(iexp).hasAttn;
+        dcExpt(t).attention.rewarded = mouse(imouse).expt(iexp).catchRew;
         dcExpt(t).oriPref = tuning;
         dcExpt(t).oriFitTheta90 = tuningReliability;
         dcExpt(t).stimResp = cat(2,(faResp-faBL),(crResp-crBL),(targetResp - targetBL));
         dcExpt(t).trialOutcome = cat(2,faOut,crOut,targetOut);
         dcExpt(t).trialOrientation = cat(2,faOri,crOri,tOri);
         dcExpt(t).signifResponsiveCells = firstBaseResponsiveCells | targetResponsiveCells;
+        dcExpt(t).firstBaseResponsiveCells = firstBaseResponsiveCells;
+        dcExpt(t).targetResponsiveCells = targetResponsiveCells;
+        
 
         d = mouse(imouse).expt(iexp).av(auditoryTrials);
-
+        % auditory false alarms
         tc = d.align(faAlign).respTC;
         rt = d.align(faAlign).reactTime;
         faTrialInd = rt > audRT(1) & rt < audRT(2);
@@ -149,14 +190,14 @@ for imouse = 1:size(mouse,2)
         faCycN = d.align(faAlign).nCycles(faTrialInd);
         faOut = repmat({'fa'},[1,sum(faTrialInd)]);
         faAmp = zeros(1,sum(faTrialInd));
-
+        % auditory correct rejects
         tc = d.align(crAlign).respTC;
         crResp = squeeze(mean(tc(respwin,:,:),1));
         crBL = squeeze(mean(tc(basewin,:,:),1));
         crCycN = d.align(crAlign).nCycles;
         crOut = repmat({'cr'},[1,length(crCycN)]);
         crAmp = zeros(1,length(crCycN));
-
+        % auditory hits and misses
         tc = d.align(targetAlign).respTC;
         rt = d.align(targetAlign).reactTime;
         targetTrialInd = rt > audRT(1);
@@ -190,6 +231,14 @@ for imouse = 1:size(mouse,2)
         dcExpt(t).audStimResp = cat(2,(faResp-faBL),(crResp-crBL),(targetResp - targetBL));
         dcExpt(t).audTrialOutcome = cat(2,faOut,crOut,targetOut);
         dcExpt(t).audTrialAmp = cat(2,faAmp,crAmp,tAmp);
+        
+        
+        if size(mouse(imouse).expt(iexp).av(visualTrials).align,2) == catchAlign
+            dcExpt(t).catchResp = cat(2,(faResp-faBL),(crCatchResp-crCatchBL),(catchResp-catchBL));
+            dcExpt(t).catchOutcome = cat(2,faOut,crCatchOut,catchOut);
+            dcExpt(t).catchOrientation = cat(2,zeros(1,length(faAmp)),crCatchOri,catchOri);
+        end
+        
     end
 end
 save(fullfile(fnout,'FSAV_decodeData'),'dcExpt')

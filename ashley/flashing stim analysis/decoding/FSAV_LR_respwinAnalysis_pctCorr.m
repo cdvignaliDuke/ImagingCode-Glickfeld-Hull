@@ -70,11 +70,14 @@ title('Target Present')
 
 print(fullfile(fnout,'decisionVariables'),'-dpdf')
 %% visual trials
-pctCorr_target_vis = nan(nexp,nRespwin);
-pctCorr_detect_vis = nan(nexp,nRespwin);
+pctCorr_cells_target_vis = nan(nexp,nRespwin);
+pctCorr_cells_detect_vis = nan(nexp,nRespwin);
 
-pctCorr_target_audTest = nan(nexp,nRespwin);
-pctCorr_detect_audTest = nan(nexp,nRespwin);
+pctCorr_cells_target_audTest = nan(nexp,nRespwin);
+pctCorr_cells_detect_audTest = nan(nexp,nRespwin);
+
+pctCorr_pca_target_vis = nan(nexp,nRespwin);
+pctCorr_pca_detect_vis = nan(nexp,nRespwin);
 
 for iexp = 1:nexp
    for rw = 1:nRespwin
@@ -87,6 +90,14 @@ for iexp = 1:nexp
            dcExpt(iexp).oriFitTheta90 < theta90Threshold;
 
        X_targets=X_targets(:,cellIdx);
+       
+       %PCA
+       [c,score,latent] = pca(X_targets);
+
+       pve_expt = cumsum(latent)./sum(latent);
+       dim75 = find(pve_expt > 0.75,1);
+       X_prime = score(:,1:dim75);
+       X_prime = zscore(X_prime);
 
        idx=find(~isnan(sum(X_targets,2)));
        Y_yeses=Y_yeses(idx,1);   
@@ -97,31 +108,53 @@ for iexp = 1:nexp
         [Y_yeses_aud, Y_targets_aud] = getStimAndBehaviorYs(trOut);
        X_targets_aud = dcExpt(iexp).respwin(rw).audStimResp';
        X_targets_aud = X_targets_aud(:,cellIdx);
-
+       
+       %zscore
+       X_targets=bsxfun(@plus,X_targets,-mean(X_targets));
+       X_targets=bsxfun(@times,X_targets,1./std(X_targets));
+       
+       X_targets_aud=bsxfun(@plus,X_targets_aud,-mean(X_targets_aud));
+       X_targets_aud=bsxfun(@times,X_targets_aud,1./std(X_targets_aud));
+        
+       %cells
         decisionVariable = dv_target_vis(iexp);
         [~,~,targetGLM] = glmfit(X_targets,Y_targets,'binomial');
         yhat_target = glmval(targetGLM.beta,X_targets,'logit') > decisionVariable;
-        pctCorr_target_vis(iexp,rw) = mean((Y_targets-yhat_target) == 0);
+        pctCorr_cells_target_vis(iexp,rw) = mean((Y_targets-yhat_target) == 0);
         
         yhat_target = glmval(targetGLM.beta,X_targets_aud,'logit') > decisionVariable;
-        pctCorr_target_audTest(iexp,rw) = mean((Y_targets_aud-yhat_target) == 0);
-    
+        pctCorr_cells_target_audTest(iexp,rw) = mean((Y_targets_aud-yhat_target) == 0);
+        
+        %pc
+        [~,~,targetGLM] = glmfit(X_prime,Y_targets,'binomial');
+        yhat_target = glmval(targetGLM.beta,X_prime,'logit') > decisionVariable;
+        pctCorr_pca_target_vis(iexp,rw) = mean((Y_targets-yhat_target) == 0);
+        
+        %cells
         decisionVariable = dv_detect_vis(iexp);
         [~,~,detectGLM] = glmfit(X_targets,Y_yeses,'binomial');
         yhat_detect = glmval(detectGLM.beta,X_targets,'logit') > decisionVariable;
-        pctCorr_detect_vis(iexp,rw) = mean((Y_yeses-yhat_detect) == 0);
+        pctCorr_cells_detect_vis(iexp,rw) = mean((Y_yeses-yhat_detect) == 0);
         
         yhat_detect = glmval(detectGLM.beta,X_targets_aud,'logit') > decisionVariable;
-        pctCorr_detect_audTest(iexp,rw) = mean((Y_yeses_aud-yhat_detect) == 0);
+        pctCorr_cells_detect_audTest(iexp,rw) = mean((Y_yeses_aud-yhat_detect) == 0);
+        
+        %pcs
+        [~,~,detectGLM] = glmfit(X_prime,Y_yeses,'binomial');
+        yhat_detect = glmval(detectGLM.beta,X_prime,'logit') > decisionVariable;
+        pctCorr_pca_detect_vis(iexp,rw) = mean((Y_yeses-yhat_detect) == 0);
    end   
 end
 
 %% auditory trials
-pctCorr_target_aud = nan(nexp,nRespwin);
-pctCorr_detect_aud = nan(nexp,nRespwin);
+pctCorr_cells_target_aud = nan(nexp,nRespwin);
+pctCorr_cells_detect_aud = nan(nexp,nRespwin);
 
-pctCorr_target_visTest = nan(nexp,nRespwin);
-pctCorr_detect_visTest = nan(nexp,nRespwin);
+pctCorr_cells_target_visTest = nan(nexp,nRespwin);
+pctCorr_cells_detect_visTest = nan(nexp,nRespwin);
+
+pctCorr_pca_target_aud = nan(nexp,nRespwin);
+pctCorr_pca_detect_aud = nan(nexp,nRespwin);
 
 for iexp = 1:nexp
    for rw = 1:nRespwin
@@ -135,6 +168,14 @@ for iexp = 1:nexp
 
        X_targets=X_targets(:,cellIdx);
 
+       %PCA
+       [c,score,latent] = pca(X_targets);
+
+       pve_expt = cumsum(latent)./sum(latent);
+       dim75 = find(pve_expt > 0.75,1);
+       X_prime = score(:,1:dim75);
+       X_prime = zscore(X_prime);
+
        idx=find(~isnan(sum(X_targets,2)));
        Y_yeses=Y_yeses(idx,1);   
        Y_targets=Y_targets(idx,1);   
@@ -145,21 +186,41 @@ for iexp = 1:nexp
        X_targets_vis = dcExpt(iexp).respwin(rw).stimResp';
        X_targets_vis = X_targets_vis(:,cellIdx);
        
+       
+       %zscore
+       X_targets=bsxfun(@plus,X_targets,-mean(X_targets));
+       X_targets=bsxfun(@times,X_targets,1./std(X_targets));
+       
+       X_targets_vis=bsxfun(@plus,X_targets_vis,-mean(X_targets_vis));
+       X_targets_vis=bsxfun(@times,X_targets_vis,1./std(X_targets_vis));
+       
+       %cells
         decisionVariable = dv_target_aud(iexp);
         [~,~,targetGLM] = glmfit(X_targets,Y_targets,'binomial');
         yhat_target = glmval(targetGLM.beta,X_targets,'logit') > decisionVariable;
-        pctCorr_target_aud(iexp,rw) = mean((Y_targets-yhat_target) == 0);
+        pctCorr_cells_target_aud(iexp,rw) = mean((Y_targets-yhat_target) == 0);
         
         yhat_target = glmval(targetGLM.beta,X_targets_vis,'logit') > decisionVariable;
-        pctCorr_target_visTest(iexp,rw) = mean((Y_targets_vis-yhat_target) == 0);
+        pctCorr_cells_target_visTest(iexp,rw) = mean((Y_targets_vis-yhat_target) == 0);
         
+        %pcs
+        [~,~,targetGLM] = glmfit(X_prime,Y_targets,'binomial');
+        yhat_target = glmval(targetGLM.beta,X_prime,'logit') > decisionVariable;
+        pctCorr_cells_target_aud(iexp,rw) = mean((Y_targets-yhat_target) == 0);
+        
+       %cells
         decisionVariable = dv_detect_aud(iexp);
         [~,~,detectGLM] = glmfit(X_targets,Y_yeses,'binomial');
         yhat_detect = glmval(detectGLM.beta,X_targets,'logit') > decisionVariable;
-        pctCorr_detect_aud(iexp,rw) = mean((Y_yeses-yhat_detect) == 0);
+        pctCorr_cells_detect_aud(iexp,rw) = mean((Y_yeses-yhat_detect) == 0);
         
         yhat_detect = glmval(detectGLM.beta,X_targets_vis,'logit') > decisionVariable;
-        pctCorr_detect_visTest(iexp,rw) = mean((Y_yeses_vis-yhat_detect) == 0);
+        pctCorr_cells_detect_visTest(iexp,rw) = mean((Y_yeses_vis-yhat_detect) == 0);
+        
+        %pcs
+        [~,~,detectGLM] = glmfit(X_prime,Y_yeses,'binomial');
+        yhat_detect = glmval(detectGLM.beta,X_prime,'logit') > decisionVariable;
+        pctCorr_cells_detect_aud(iexp,rw) = mean((Y_yeses-yhat_detect) == 0);
    end   
 end
 
@@ -176,12 +237,12 @@ figure
 suptitle('Visual Trials')
 subplot 121
 for i = 1:nexp
-    h = plot(tt, pctCorr_target_vis(i,:).*100,'-');
+    h = plot(tt, pctCorr_cells_target_vis(i,:).*100,'-');
     h.Color = [0.5 0.5 0.5];
     hold on
 end
-y = mean(pctCorr_target_vis,1).*100;
-yerr = ste(pctCorr_target_vis,1).*100;
+y = mean(pctCorr_cells_target_vis,1).*100;
+yerr = ste(pctCorr_cells_target_vis,1).*100;
 h = errorbar(tt,y,yerr,'k-');
 h.LineWidth = 1;
 figXAxis([],'Resp Win Start',[tt(1) - winMs tt(end)+winMs],...
@@ -195,12 +256,12 @@ vline(optimalWin,'r--')
 
 subplot 122
 for i = 1:nexp
-    h = plot(tt, pctCorr_detect_vis(i,:).*100,'-');
+    h = plot(tt, pctCorr_cells_detect_vis(i,:).*100,'-');
     h.Color = [0.5 0.5 0.5];
     hold on
 end
-y = mean(pctCorr_detect_vis,1).*100;
-yerr = ste(pctCorr_detect_vis,1).*100;
+y = mean(pctCorr_cells_detect_vis,1).*100;
+yerr = ste(pctCorr_cells_detect_vis,1).*100;
 h = errorbar(tt,y,yerr,'k-');
 h.LineWidth = 1;
 figXAxis([],'Resp Win Start',[tt(1) - winMs tt(end)+winMs],...
@@ -217,12 +278,12 @@ figure
 suptitle('Auditory Trials')
 subplot 121
 for i = 1:nexp
-    h = plot(tt, pctCorr_target_aud(i,:).*100,'-');
+    h = plot(tt, pctCorr_cells_target_aud(i,:).*100,'-');
     h.Color = [0.5 0.5 0.5];
     hold on
 end
-y = mean(pctCorr_target_aud,1).*100;
-yerr = ste(pctCorr_target_aud,1).*100;
+y = mean(pctCorr_cells_target_aud,1).*100;
+yerr = ste(pctCorr_cells_target_aud,1).*100;
 h = errorbar(tt,y,yerr,'k-');
 h.LineWidth = 1;
 figXAxis([],'Resp Win Start',[tt(1) - winMs tt(end)+winMs],...
@@ -236,12 +297,12 @@ vline(optimalWin,'r--')
 
 subplot 122
 for i = 1:nexp
-    h = plot(tt, pctCorr_detect_aud(i,:).*100,'-');
+    h = plot(tt, pctCorr_cells_detect_aud(i,:).*100,'-');
     h.Color = [0.5 0.5 0.5];
     hold on
 end
-y = mean(pctCorr_detect_aud,1).*100;
-yerr = ste(pctCorr_detect_aud,1).*100;
+y = mean(pctCorr_cells_detect_aud,1).*100;
+yerr = ste(pctCorr_cells_detect_aud,1).*100;
 h = errorbar(tt,y,yerr,'k-');
 h.LineWidth = 1;
 figXAxis([],'Resp Win Start',[tt(1) - winMs tt(end)+winMs],...
@@ -261,12 +322,12 @@ figure
 suptitle('Visual GLM,Test Auditory')
 subplot 121
 for i = 1:nexp
-    h = plot(tt, pctCorr_target_audTest(i,:).*100,'-');
+    h = plot(tt, pctCorr_cells_target_audTest(i,:).*100,'-');
     h.Color = [0.5 0.5 0.5];
     hold on
 end
-y = mean(pctCorr_target_audTest,1).*100;
-yerr = ste(pctCorr_target_audTest,1).*100;
+y = mean(pctCorr_cells_target_audTest,1).*100;
+yerr = ste(pctCorr_cells_target_audTest,1).*100;
 h = errorbar(tt,y,yerr,'k-');
 h.LineWidth = 1;
 figXAxis([],'Resp Win Start',[tt(1) - winMs tt(end)+winMs],...
@@ -280,12 +341,12 @@ vline(optimalWin,'r--')
 
 subplot 122
 for i = 1:nexp
-    h = plot(tt, pctCorr_detect_audTest(i,:).*100,'-');
+    h = plot(tt, pctCorr_cells_detect_audTest(i,:).*100,'-');
     h.Color = [0.5 0.5 0.5];
     hold on
 end
-y = mean(pctCorr_detect_audTest,1).*100;
-yerr = ste(pctCorr_detect_audTest,1).*100;
+y = mean(pctCorr_cells_detect_audTest,1).*100;
+yerr = ste(pctCorr_cells_detect_audTest,1).*100;
 h = errorbar(tt,y,yerr,'k-');
 h.LineWidth = 1;
 figXAxis([],'Resp Win Start',[tt(1) - winMs tt(end)+winMs],...
@@ -302,12 +363,12 @@ figure
 suptitle('Auditory GLM, Test Visual')
 subplot 121
 for i = 1:nexp
-    h = plot(tt, pctCorr_target_visTest(i,:).*100,'-');
+    h = plot(tt, pctCorr_cells_target_visTest(i,:).*100,'-');
     h.Color = [0.5 0.5 0.5];
     hold on
 end
-y = mean(pctCorr_target_visTest,1).*100;
-yerr = ste(pctCorr_target_visTest,1).*100;
+y = mean(pctCorr_cells_target_visTest,1).*100;
+yerr = ste(pctCorr_cells_target_visTest,1).*100;
 h = errorbar(tt,y,yerr,'k-');
 h.LineWidth = 1;
 figXAxis([],'Resp Win Start',[tt(1) - winMs tt(end)+winMs],...
@@ -321,12 +382,12 @@ vline(optimalWin,'r--')
 
 subplot 122
 for i = 1:nexp
-    h = plot(tt, pctCorr_detect_visTest(i,:).*100,'-');
+    h = plot(tt, pctCorr_cells_detect_visTest(i,:).*100,'-');
     h.Color = [0.5 0.5 0.5];
     hold on
 end
-y = mean(pctCorr_detect_visTest,1).*100;
-yerr = ste(pctCorr_detect_visTest,1).*100;
+y = mean(pctCorr_cells_detect_visTest,1).*100;
+yerr = ste(pctCorr_cells_detect_visTest,1).*100;
 h = errorbar(tt,y,yerr,'k-');
 h.LineWidth = 1;
 figXAxis([],'Resp Win Start',[tt(1) - winMs tt(end)+winMs],...

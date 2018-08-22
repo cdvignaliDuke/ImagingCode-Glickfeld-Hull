@@ -26,6 +26,11 @@ for irun = 1:nrun
     nframes = info.config.frames;
     data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
     fprintf(['Loaded ' num2str(nframes) ' frames \r\n'])
+
+    if size(data_temp,1) > 1
+        data_temp = data_temp(1,:,:,:);
+    end
+    
     
     if strcmp(rc.name,'ashle')        
     fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' subnum '-' date '-' time(irun,:) '.mat'];
@@ -33,7 +38,8 @@ for irun = 1:nrun
     fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
     end
     load(fName);
-    temp(irun) = input;
+    expt_input = input;
+    temp(irun) = expt_input;
     
     nOn = temp(irun).nScansOn;
     nOff = temp(irun).nScansOff;
@@ -52,11 +58,16 @@ for irun = 1:nrun
     data = cat(3,data,data_temp);
 end
 clear data_temp
-input = concatenateDataBlocks(temp);
+expt_input = concatenateDataBlocks(temp);
 
     nOn = input.nScansOn;
     nOff = input.nScansOff;
     ntrials = size(input.tGratingDirectionDeg,2);
+
+    nOn = expt_input.nScansOn;
+    nOff = expt_input.nScansOff;
+    ntrials = size(expt_input.tGratingDirectionDeg,2);
+
     
    %use if pmt 2 was saved
 %     data = squeeze(data(1,:,:,:));
@@ -69,14 +80,15 @@ input = concatenateDataBlocks(temp);
     end
     
     sz = size(data);
+    data = data(:,:,1:(nOn+nOff)*ntrials);
     data_tr = reshape(data,[sz(1), sz(2), nOn+nOff, ntrials]);
     data_f = mean(data_tr(:,:,nOff/2:nOff,:),3);
     data_df = bsxfun(@minus, double(permute(data_tr,[1 2 4 3])), squeeze(data_f)); 
     data_dfof = permute(bsxfun(@rdivide,data_df, squeeze(data_f)),[1 2 4 3]); 
     clear data_f data_df data_tr
 
-    Az = celleqel2mat_padded(input.tGratingAzimuthDeg);
-    El = celleqel2mat_padded(input.tGratingElevationDeg);
+    Az = celleqel2mat_padded(expt_input.tGratingAzimuthDeg);
+    El = celleqel2mat_padded(expt_input.tGratingElevationDeg);
     Azs = unique(Az);
     Els = unique(El);
     if min(Els,[],2)<0
@@ -102,7 +114,7 @@ input = concatenateDataBlocks(temp);
 
     img_avg_resp = zeros(1,nStim);
     figure; 
-    for i = 1:nStim; 
+    for i = 1:nStim
         subplot(length(Els),length(Azs),i); 
         imagesc(data_dfof_avg_all(:,:,i)); 
         colormap(gray)
@@ -118,6 +130,12 @@ input = concatenateDataBlocks(temp);
         print(['R:\home\robin\Imaging\Analysis\' date '_' mouse '\' date '_' mouse '_' ImgFolder(irun,:) '\' date '_' mouse '_' ImgFolder(irun,:) '_retinotopy.pdf'], '-dpdf','-bestfit')    
     end
     
+    if strcmp(rc.name,'ashle')
+        if ~exist(fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',date,ImgFolder))
+            mkdir(fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',date,ImgFolder))
+        end
+        print(fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',date,ImgFolder,'quickRet.pdf'),'-dpdf','-fillpage')
+    end
     figure
     heatmap = imagesc(reshape(img_avg_resp,length(Els),length(Azs)));
     heatmap.Parent.YTick = 1:length(Els);

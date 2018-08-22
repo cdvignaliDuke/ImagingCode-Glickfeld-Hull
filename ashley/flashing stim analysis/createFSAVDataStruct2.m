@@ -62,6 +62,25 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
         end
 %         fnout = fullfile(rc.caOutputDir, expt(iexp).mouse, expt(iexp).folder, expt(iexp).date, [expt(iexp).date '_' expt(iexp).mouse '_' runstr '_']);
         
+
+      
+        %account for accumulation of frames across multiple runs 
+        dataTC = [];
+        fnTC = fullfile(rc.ashleyAnalysis,...
+            expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
+        
+        if cellsOrDendrites == 1
+            load(fullfile(fnTC,'timecourses_bx_cells.mat'))
+            try
+                dataTC = data_bx_tc_subnp;
+            catch
+                dataTC = dataTC_npSub;
+            end
+        elseif cellsOrDendrites == 2
+            load(fullfile(fnTC,'timecourses_bx_dendrites.mat'))
+            dataTC = data_bx_den_tc_subnp;
+        end
+
         % load and combine mworks data and timecourses
         input = [];
         for irun = 1:nrun
@@ -96,7 +115,12 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
                 end
             end
         end
-        input = concatenateDataBlocks(input);        
+        input = concatenateDataBlocks(input);  
+        if isnan(expt(iexp).trial_range)
+            tr = 1:length(input.trialOutcomeCell);
+        else
+            tr = expt(iexp).trial_range;
+        end
         
         %convert important fields to matrices
         run_trials = input.trialsSinceReset;
@@ -105,24 +129,62 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
         cLeverUp = celleqel2mat_padded(input.cLeverUp);
         cTargetOn = celleqel2mat_padded(input.cTargetOn);
         cStimOn = celleqel2mat_padded(input.cStimOn);
-        cItiStart = celleqel2mat_padded(input.cItiStart);   
+        cItiStart = celleqel2mat_padded(input.cItiStart); 
         
-        %account for accumulation of frames across multiple runs 
-        dataTC = [];
-        fnTC = fullfile(rc.ashleyAnalysis,...
-            expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
         
-        if cellsOrDendrites == 1
-            load(fullfile(fnTC,'timecourses_bx_cells.mat'))
-            try
-                dataTC = data_bx_tc_subnp;
-            catch
-                dataTC = dataTC_npSub;
-            end
-        elseif cellsOrDendrites == 2
-            load(fullfile(fnTC,'timecourses_bx_dendrites.mat'))
-            dataTC = data_bx_den_tc_subnp;
+        %stim timing
+        if iscell(input.nFramesOn)
+            cycTime = unique(cell2mat(input.nFramesOn))+unique(cell2mat(input.nFramesOff));
+        else
+            cycTime = input.nFramesOn+input.nFramesOff;
         end
+        
+        mouse(imouse).expt(exptN(:,imouse)).info.cycTimeFrames = cycTime;
+        
+%         reactTimes = celleqel2mat_padded(input.reactTimesMs);
+        holdTimesMs = celleqel2mat_padded(input.holdTimesMs);
+        tCyclesOn = double(cell2mat(input.tCyclesOn));
+        nCyclesOn = double(cell2mat(input.nCyclesOn));
+        holdTimesMs = holdTimesMs(tr);
+        tCyclesOn = tCyclesOn(tr);
+        nCyclesOn = nCyclesOn(tr);        
+        
+        frameRate = input.frameRateHz;
+        cycTimeMs = cycTime./frameRate*1000;
+        requiredStimTimeMs = nCyclesOn.*cycTimeMs;
+        reactTimeCalc = holdTimesMs - requiredStimTimeMs;
+        reactTimeFromLastBaseMs = holdTimesMs - ((tCyclesOn-1).*cycTimeMs);
+        ntrials = length(tr);
+        
+        
+        %catch trial Info
+        if expt(iexp).catch
+            cCatchOn = celleqel2mat_padded(input.cCatchOn);
+            nt = length(cCatchOn);
+            tCatchDirection = celleqel2mat_padded(input.tCatchGratingDirectionDeg);
+            
+%             trialStartFr = celleqel2mat_padded(input.cFirstStim);
+            trialEndFr = celleqel2mat_padded(input.cLeverUp);
+            cCyc = celleqel2mat_padded(input.catchCyclesOn);
+            cCyc = cCyc(tr);
+            catchReactFr = trialEndFr - cCatchOn;
+            catchCycOnMs = (cCyc-1).*cycTimeMs;
+            catchReactMs = holdTimesMs - catchCycOnMs;
+            tooFastFr = round(frameRate*((input.tooFastTimeMs)/1000));
+            reactTimeFr = round(frameRate*((input.reactTimeMs)/1000));
+        
+            catchOutcome = cell(1,nt);
+            outInd = catchReactFr > tooFastFr & catchReactFr < reactTimeFr;
+            catchOutcome(outInd) = {'FA'};
+            outInd = catchReactFr > reactTimeFr;
+            catchOutcome(outInd) = {'CR'};
+            outInd = catchReactFr < 0;
+            catchOutcome(outInd) = {'failure'};
+            
+            tCatchDirection = tCatchDirection(tr);
+            catchReactMs = catchReactMs(tr);
+            catchOutcome = catchOutcome(tr);
+        end  
                 
         offset = 0;
         for irun = 1:nrun
@@ -138,11 +200,27 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
                 cTargetOn(1,startTrial:endTrial) = cTargetOn(1,startTrial:endTrial)+offset;
                 cStimOn(1,startTrial:endTrial) = cStimOn(1,startTrial:endTrial)+offset;
                 cItiStart(1,startTrial:endTrial) = cItiStart(1,startTrial:endTrial)+offset;
+                if expt(iexp).catch
+                    cCatchOn(1,startTrial:endTrial) = cCatchOn(1,startTrial:endTrial)+offset;
+                end
             end
         end
+        
+        cLeverDown = cLeverDown(tr);
+        cFirstStim = cFirstStim(tr);
+        cLeverUp = cLeverUp(tr);
+        cTargetOn = cTargetOn(tr);
+        cStimOn = cStimOn(tr);
+        cItiStart = cItiStart(tr);
+        if expt(iexp).catch
+            cCatchOn = cCatchOn(tr);
+        end
+        
+        
 
         %previous trial info
         trType = double(cell2mat(input.tBlock2TrialNumber));
+        trType = trType(tr);
         trType_shift = [NaN trType];
         prevTrType = num2cell(trType_shift(1:length(trType)));
         trType_shift = [NaN NaN trType];
@@ -161,39 +239,22 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
         end
             
         trOut = input.trialOutcomeCell;
+        trOut = trOut(tr);
         trOut_shift = [{NaN} trOut];
         prevTrOut = trOut_shift(1:length(trOut));
         trOut_shift = [{NaN} {NaN} trOut];
         prev2TrOut = trOut_shift(1:length(trOut));
         
         
-        %stim timing
-        if iscell(input.nFramesOn)
-            cycTime = unique(cell2mat(input.nFramesOn))+unique(cell2mat(input.nFramesOff));
-        else
-            cycTime = input.nFramesOn+input.nFramesOff;
-        end
-        
-%         reactTimes = celleqel2mat_padded(input.reactTimesMs);
-        holdTimesMs = celleqel2mat_padded(input.holdTimesMs);
-        ntrials = length(input.trialOutcomeCell);
-        tCyclesOn = double(cell2mat(input.tCyclesOn));
-        nCyclesOn = double(cell2mat(input.nCyclesOn));
-        frameRate = input.frameRateHz;
-        cycTimeMs = cycTime./frameRate*1000;
-        requiredStimTimeMs = nCyclesOn.*cycTimeMs;
-        reactTimeCalc = holdTimesMs - requiredStimTimeMs;
-        reactTimeFromLastBaseMs = holdTimesMs - ((tCyclesOn-1).*cycTimeMs);
-        
-        mouse(imouse).expt(exptN(:,imouse)).info.cycTimeFrames = cycTime;
-
         if expt(iexp).catch
             isCatchTrial = logical(cell2mat(input.tShortCatchTrial));
         else
             isCatchTrial = false(1,ntrials);
         end
+        isCatchTrial = isCatchTrial(tr);
 
         tGratingDirectionDeg = chop(celleqel2mat_padded(input.tGratingDirectionDeg),4);
+        tGratingDirectionDeg = tGratingDirectionDeg(tr);
         Dirs = unique(tGratingDirectionDeg);
         
         if isfield(input,'tSoundTargetAmplitude')
@@ -201,6 +262,7 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
         else
             tSoundTargetAmp = ones(1,ntrials).*input.soundTargetAmplitude;
         end
+        tSoundTargetAmp = tSoundTargetAmp(tr);
         Amps = unique(tSoundTargetAmp);
         
         mouse(imouse).expt(exptN(:,imouse)).info.visTargets = Dirs;
@@ -422,7 +484,66 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).nCycles = tCyclesOn(ind);
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).ori = tGratingDirectionDeg(ind);
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).amp = tSoundTargetAmp(ind);
-        end    
+        end 
+        
+        %% align to catch trials
+        ialign = 5;
+        disp(expt(iexp).catch)
+        if expt(iexp).catch
+            cInd = ~isnan(cCatchOn);
+            cCatchOn = cCatchOn(cInd);
+            catchOutcome = catchOutcome(cInd);
+            cCyc = cCyc(cInd);
+            tCatchDirection = tCatchDirection(cInd);
+            catchReactMs = catchReactMs(cInd);
+            nt = length(cCatchOn);
+            
+            % catch target aligned
+            Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
+            DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
+            DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
+            for itrial = 1:nt
+                Data(:,:,itrial) = dataTC((cCatchOn(itrial)-pre_event_frames+1):cCatchOn(itrial)+post_event_frames,:);
+                DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
+                DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
+                DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), DataF(:,:,itrial));
+            end
+            DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
+
+            ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
+
+            removeTrials = ind_motion;
+            ind = ~removeTrials & ~strcmp(catchOutcome,'failure') & trType(cInd) == 1;
+            mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).respTC = DataDFoverF_bl(:,:,ind);
+            mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).outcome = catchOutcome(ind);
+            mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).reactTime = catchReactMs(ind);
+            mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).nCycles = cCyc(ind)-1;
+            mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).ori = tCatchDirection(ind);
+            mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).amp = [];
+            
+            % 1 stim back from catch target aligned
+            Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
+            DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
+            DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
+            for itrial = 1:nt
+                n = cCyc(itrial)-1;
+                tc_ind = (cLeverDown(itrial)-pre_event_frames:...
+                    cLeverDown(itrial)+post_event_frames-1) + double((n-1)*cycTime); %one stim before delivered target
+            
+                Data(:,:,itrial) = dataTC(tc_ind,:);
+            DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
+            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
+            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
+            end
+            DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
+
+            ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
+            removeTrials = ind_motion;
+            ind = ~removeTrials & ~strcmp(catchOutcome,'failure') & trType(cInd) == 1;
+            mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).crRespTC = DataDFoverF_bl(:,:,ind);
+            mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).crNCycles = cCyc(ind)-2;
+        end
+        
     end
     %%
     if cellsOrDendrites == 1

@@ -1,5 +1,5 @@
 function mouse = createFSAVDataStruct(datasetStr,cellsOrDendrites,varargin)
-%cellsOrDendrites: 1 == cells; 2 == dendrites
+%cellsOrDendrites: 1 == cells; 2 == dendrites; 3 == axons
 if nargin > 2
     doRawData = varargin{1};
 else
@@ -104,7 +104,12 @@ end
                 end
             end
         end
-        input = concatenateDataBlocks(input);        
+        input = concatenateDataBlocks(input);  
+        if isnan(expt(iexp).trial_range)
+            tr = 1:length(input.trialOutcomeCell);
+        else
+            tr = expt(iexp).trial_range;
+        end     
         
         %convert important fields to matrices
         run_trials = input.trialsSinceReset;
@@ -115,11 +120,16 @@ end
         cStimOn = celleqel2mat_padded(input.cStimOn);
         cItiStart = celleqel2mat_padded(input.cItiStart);
         reactTimes = celleqel2mat_padded(input.reactTimesMs);
+        reactTimes = reactTimes(tr);
         if expt(iexp).catch
         cCatchOn = celleqel2mat_padded(input.cCatchOn);
         isFA = celleqel2mat_padded(input.tFalseAlarm);
         tCatchGratingDirectionDeg = chop(celleqel2mat_padded(input.tCatchGratingDirectionDeg),4);
-        cDirs = unique(tCatchGratingDirectionDeg(~isnan(tCatchGratingDirectionDeg)));
+        
+        isFA = isFA(tr);
+        tCatchGratingDirectionDeg(tr);
+        
+        cDirs = unique(tCatchGratingDirectionDeg(~isnan(tCatchGratingDirectionDeg)));        
         end
         tooFastTime = input.nFramesTooFast;
         maxReactTime = input.nFramesReact;
@@ -129,9 +139,14 @@ end
         
         %account for accumulation of frames across multiple runs 
         dataTC = [];
-        fnTC = fullfile(rc.ashleyAnalysis,...
-            expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
-        
+        if strcmp(datasetStr,'awFSAVdatasets_V1axonsAL') | strcmp(datasetStr,'awFSAVdatasets_V1axonsPM')
+            fnTC = fullfile(rc.ashleyAnalysis,...
+                expt(iexp).mouse,expt(iexp).folder, expt(iexp).date);
+        else
+            fnTC = fullfile(rc.ashleyAnalysis,...
+                expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
+        end
+
         if cellsOrDendrites == 1
                 load(fullfile(fnTC,'timecourses_bx_cells.mat'))
             if doRawData == 1
@@ -150,6 +165,9 @@ end
             else
                 dataTC = data_bx_den_tc_subnp;
             end
+        elseif cellsOrDendrites == 3
+            load(fullfile(fnTC,'timecourses.mat'))
+            dataTC = data_tc_subnp;
         end
                 
         offset = 0;
@@ -171,20 +189,40 @@ end
                 end
             end
         end
+        
+        cLeverDown = cLeverDown(tr);
+        cFirstStim = cFirstStim(tr);
+        cLeverUp = cLeverUp(tr);
+        cTargetOn = cTargetOn(tr);
+        cStimOn = cStimOn(tr);
+        cItiStart = cItiStart(tr);
+        if expt(iexp).catch
+            cCatchOn = cCatchOn(tr);
+        end
 
-        ntrials = length(input.trialOutcomeCell);
+        ntrials = length(tr);%length(input.trialOutcomeCell);
+        
         tCyclesOn = cell2mat(input.tCyclesOn);
         minCyclesOn = input.minCyclesOn;
-        V_ind = find(cell2mat(input.tBlock2TrialNumber) == 0);
-        AV_ind = find(cell2mat(input.tBlock2TrialNumber) == 1);
+        V_ind = find(cell2mat(input.tBlock2TrialNumber(tr)) == 0);
+        AV_ind = find(cell2mat(input.tBlock2TrialNumber(tr)) == 1);
+        
+        tCyclesOn = tCyclesOn(tr);
         
         %previous trial info
         trType = double(cell2mat(input.tBlock2TrialNumber));
+        
+        trType = trType(tr);
+        
         trType_shift = [NaN trType];
         prevTrType = trType_shift(1:length(trType));
         trType_shift = [NaN NaN trType];
         prev2TrType = trType_shift(1:length(trType));
+        
+        
         trOut = input.trialOutcomeCell;
+        trOut = trOut(tr);
+        
         trOut_shift = [{NaN} trOut];
         prevTrOut = trOut_shift(1:length(trOut));
         trOut_shift = [{NaN} {NaN} trOut];
@@ -204,15 +242,17 @@ end
         % for older datasets that do not have catch trial outcome in input
         %disp(sum(cell2mat(input.tShortCatchTrial)))
         if expt(iexp).catch
-            catchIndex = find(cell2mat(input.tShortCatchTrial));
+            catchIndex = cell2mat(input.tShortCatchTrial);
+            catchIndex = find(catchIndex(tr));
             catchReactFrames = cLeverUp-cCatchOn;
             catchTrialReactTimeMs = NaN(1,ntrials);
             catchTrialReactTimeMs(catchIndex) = catchReactFrames(catchIndex)/frameratems;
             catchCyclesOn = cell2mat_padded(input.catchCyclesOn);
+            catchCyclesOn = catchCyclesOn(tr);
             
             if ~any(strcmp(fieldnames(input),'catchTrialOutcomeCell'))
                 catchTrialOutcome = cell(1,ntrials);
-                for i = 1:sum(cell2mat(input.tShortCatchTrial))
+                for i = 1:sum(cell2mat(input.tShortCatchTrial(tr)))
                     if isFA(catchIndex(i)) == 1
                         catchTrialOutcome{catchIndex(i)} = 'FA';
                     elseif cCatchOn(catchIndex(i)) == 0
@@ -226,7 +266,7 @@ end
             else
                 if length(input.catchTrialOutcomeCell) < ntrials
                     catchTrialOutcome = cell(1,ntrials);
-                    for i = 1:sum(cell2mat(input.tShortCatchTrial))
+                    for i = 1:sum(cell2mat(input.tShortCatchTrial(tr)))
                         if isFA(catchIndex(i)) == 1
                             catchTrialOutcome{catchIndex(i)} = 'FA';
                         elseif isnan(cCatchOn(catchIndex(i)))
@@ -238,12 +278,13 @@ end
                         end
                     end
                 else
-                    catchTrialOutcome = input.catchTrialOutcomeCell;
+                    catchTrialOutcome = input.catchTrialOutcomeCell(tr);
                 end
             end
         end
 
         tGratingDirectionDeg = chop(celleqel2mat_padded(input.tGratingDirectionDeg),4);
+        tGratingDirectionDeg = tGratingDirectionDeg(tr);
         Dirs = unique(tGratingDirectionDeg);
         Dirs_all = unique([Dirs_all Dirs]);
         
@@ -255,6 +296,8 @@ end
             load(fullfile(fnTun, 'oriTuningAndFits.mat'));
         elseif cellsOrDendrites == 2
             load(fullfile(fnTun, 'oriTuningAndFits_den.mat'));
+        elseif cellsOrDendrites == 3
+            load(fullfile(fnTun, 'oriTuningAndFits_boutons.mat'));
         end
         
         mouse(imouse).expt(s(:,imouse)).cells.oriTuning.oriResp = avgResponseEaOri;
@@ -265,20 +308,20 @@ end
         
         %sort by trial type
         if expt(iexp).catch
-            Ix = find(cell2mat(input.tShortCatchTrial)==0);
-            CIx = find(cell2mat(input.tShortCatchTrial)==1);
+            Ix = find(cell2mat(input.tShortCatchTrial(tr))==0);
+            CIx = find(cell2mat(input.tShortCatchTrial(tr))==1);
         else
-            Ix = 1:length(input.trialOutcomeCell);
+            Ix = 1:length(input.trialOutcomeCell(tr));
         end
         
         F1Ix = find(tCyclesOn == 1);
         F1oneStim = intersect(V_ind,F1Ix);
         F2oneStim = intersect(AV_ind,F1Ix);
         
-        FIx = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'failure')));
-        SIx = intersect(intersect(Ix, find(reactTimes>200)), find(strcmp(input.trialOutcomeCell, 'success')));
-        SIxAllReact = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'success')));
-        MIx = intersect(Ix, find(strcmp(input.trialOutcomeCell, 'ignore')));
+        FIx = intersect(Ix, find(strcmp(input.trialOutcomeCell(tr), 'failure')));
+        SIx = intersect(intersect(Ix, find(reactTimes>200)), find(strcmp(input.trialOutcomeCell(tr), 'success')));
+        SIxAllReact = intersect(Ix, find(strcmp(input.trialOutcomeCell(tr), 'success')));
+        MIx = intersect(Ix, find(strcmp(input.trialOutcomeCell(tr), 'ignore')));
         FIxlong = intersect(find(tCyclesOn>3), FIx);
         SIxlong = intersect(find(tCyclesOn>3), SIx);
         MIxlong = intersect(find(tCyclesOn>3), MIx);
@@ -435,7 +478,7 @@ end
             end
         end
         if isfield(input, 'tSoundTargetAmplitude')
-            tSoundTargetAmplitude = celleqel2mat_padded(input.tSoundTargetAmplitude)';
+            tSoundTargetAmplitude = celleqel2mat_padded(input.tSoundTargetAmplitude(tr))';
             Amps = unique(chop(tSoundTargetAmplitude,2));
             nS = zeros(1,length(Amps));
             nM = zeros(1,length(Amps));
@@ -728,6 +771,8 @@ end
             motionThreshold = 0.1;
         elseif cellsOrDendrites == 2
             motionThreshold = 0.15;
+        elseif cellsOrDendrites == 3
+            motionThreshold = 0.15;
         end
         sz = size(DataDFoverF);
         ind_motion = find(max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold);
@@ -874,7 +919,7 @@ end
         DataDF_CR = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataDFoverF_CR = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         for itrial = 1:max(find(cTargetOn+post_event_frames-1 <  size(dataTC,1)),[],2)
-            if strcmp(input.trialOutcomeCell(itrial), 'failure')
+            if strcmp(trOut(itrial), 'failure')
                 Data(:,:,itrial) = dataTC(cStimOn(itrial)-pre_event_frames:cStimOn(itrial)+post_event_frames-1,:);
                 Data_CR(:,:,itrial) = dataTC(cStimOn(itrial)-pre_event_frames-cycTime:cStimOn(itrial)+post_event_frames-cycTime-1,:);
             else
@@ -987,7 +1032,7 @@ end
             if isfield(input, 'tSoundTargetAmplitude')
                 aInd = setdiff(find(tSoundTargetAmplitude==Amps(iAmp)), ind_motion)';
             else
-                aInd = setdiff(find(celleqel2mat_padded(input.tDoAuditoryDetect)), ind_motion);
+                aInd = setdiff(find(celleqel2mat_padded(input.tDoAuditoryDetect(tr))), ind_motion);
             end
             %if iDir == 1, then the amplitude is 0 and it's a visual trial
             indS = NaN; indM = NaN; indSM = NaN; indMM = NaN;

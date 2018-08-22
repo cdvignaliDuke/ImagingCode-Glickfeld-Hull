@@ -1,4 +1,5 @@
 function getOriTuningFSAV(ds,cellsOrDendrites,varargin)
+%cellsOrDendrites: 1 == cells; 2 == dendrites; 3 == axons
 rc = behavConstsAV;
 if isempty(ds) & strcmp(rc.name,'ashle')
     dataGroup = ['awFSAVdatasets' ds];
@@ -8,7 +9,7 @@ elseif strcmp(ds(1:3),'FSA') & strcmp(rc.name,'ashle')
     isFSAV = 1;
 elseif strcmp(rc.name,'ashle')
     dataGroup = ['awFSAVdatasets' ds];
-    isFSAV = 0;
+    isFSAV = 1;
 else
     dataGroup = [];
     isFSAV = 0;
@@ -27,20 +28,7 @@ for iexp = 1:nexp
     dataPath = fullfile(rc.ashleyAnalysis,expt(iexp).mouse,...
         'two-photon imaging', expt(iexp).date, expt(iexp).dirtuning);
     if isFSAV
-        if strcmp(dataGroup,'FSAV_V1_decode')
-            if ~isnan(expt(iexp).label)
-                try 
-                    load(fullfile(dataPath,'timecourses.mat'));
-                catch
-                    load(fullfile(dataPath,'timecourses_tun_cells.mat'));
-                    try
-                        data_tc_subnp = data_tun_tc_subnp;
-                    catch
-                        data_tc_subnp = dataTC_npSub;
-                    end
-                end
-            end
-        elseif cellsOrDendrites == 1
+        if cellsOrDendrites == 1
             load(fullfile(dataPath,'timecourses_tun_cells.mat'))
             try
                 data_tc_subnp = data_tun_tc_subnp;
@@ -50,6 +38,8 @@ for iexp = 1:nexp
         elseif cellsOrDendrites == 2
             load(fullfile(dataPath,'timecourses_tun_dendrites.mat'))
             data_tc_subnp = data_tun_den_tc_subnp;
+        elseif cellsOrDendrites == 3
+            load(fullfile(dataPath,'timecoures.mat'))
         end
     else
         load(fullfile(dataPath,'timecourses.mat'))
@@ -70,5 +60,10 @@ for iexp = 1:nexp
             'avgResponseEaOri','semResponseEaOri',...
             'vonMisesFitAllCells','fitReliability','R_square')
         save(fullfile(dataPath,'oriTuningTCs_den'),'tuningTC')
+    elseif cellsOrDendrites == 3
+        save(fullfile(dataPath,'oriTuningAndFits_boutons'),...
+            'avgResponseEaOri','semResponseEaOri',...
+            'vonMisesFitAllCells','fitReliability','R_square')
+        save(fullfile(dataPath,'oriTuningTCs_boutons'),'tuningTC')
     end
 end

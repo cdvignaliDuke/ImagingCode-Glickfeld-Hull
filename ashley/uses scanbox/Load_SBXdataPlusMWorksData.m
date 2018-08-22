@@ -4,7 +4,7 @@ mworks = ['data-' 'i' SubNum '-' date '-' time];
 load (fullfile(CD,mworks));
 
 % Set current directory to imaging data location
-CD = ['Z:\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
+CD = ['X:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
 cd(CD);
 % CD = ['D:\Ashley_temp\' date '\' ImgFolder];
 % cd(CD);

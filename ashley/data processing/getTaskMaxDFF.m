@@ -61,48 +61,87 @@ nRuns = expt(iexp).nrun;
 %     else        
         tr_tar_on = ismember(input_bx.trialOutcomeCell,{'success';'ignore'});
 %     end
-    
-    tr_bl_ind = linspaceNDim(tr_start_all-nframes_1s+1,tr_start_all,nframes_1s);
 
-    tr_start = double(tr_start_all(tr_L >= 3));
-    tr_start_ind = linspaceNDim(tr_start+1,tr_start+nframes_2stim,nframes_2stim);
+tr_start = tr_L >= 3;
+tr_long = tr_L >= 6;
 
-    tr_long = double(tr_start_all(tr_L >= 6));
-    tr_long_ind = linspaceNDim(tr_long+(2*nframes_2stim)+1,tr_long+(3*nframes_2stim),nframes_2stim);
-
-    tr_tar = double(tr_tar_all(tr_tar_on));
-    tr_tar_ind = linspaceNDim(tr_tar+1,tr_tar+nframes_1s,nframes_1s);
-    
-    if tr_tar_ind(end) > size(data_bx_reg,3)
-        ind = find(tr_tar+nframes_1s > size(data_bx_reg,3),1,'first');
-        nt = ind-1;
-        tr_bl_ind = tr_bl_ind(1:nt,:);
-        tr_start_ind = tr_start_ind(1:nt,:);
-        tr_tar_ind = tr_tar_ind(1:nt,:);
-        tr_tar_on = tr_tar_on(1:nt);
-        tr_L = tr_L(1:nt);
+nt = length(tr_tar_on);
+tr_bl_frames = nan(ypix,xpix,nframes_1s,nt);
+tr_start_frames = nan(ypix,xpix,nframes_2stim,sum(tr_start));
+ind1 = 0;
+tr_long_frames = nan(ypix,xpix,nframes_2stim,sum(tr_long));
+ind2 = 0;
+tr_tar_frames = nan(ypix,xpix,nframes_1s,sum(tr_tar_on));
+ind3 = 0;
+ind4 = 0;
+for i = 1:nt
+    tr_bl_frames(:,:,:,i) = data_bx_reg(:,:,...
+        (tr_start_all(i)-nframes_1s+1):tr_start_all(i));
+    if tr_start(i)
+        ind1 = ind1+1;
+        tr_start_frames(:,:,:,ind1) = data_bx_reg(:,:,...
+        double((tr_start_all(i)+1):(tr_start_all(i)+nframes_2stim)));
     end
-    
-    if tr_long_ind(end) > size(data_bx_reg,3)
-        ind = find(tr_long+nframes_1s > size(data_bx_reg,3),1,'first');
-        nt = ind-1;
-        tr_long_ind = tr_long_ind(1:nt,:);
+    if tr_long(i)
+        ind2 = ind2+1;
+        tr_long_frames(:,:,:,ind2) = data_bx_reg(:,:,...
+        (tr_start_all(i)+(2*nframes_2stim)+1):(tr_start_all(i)+(3*nframes_2stim)));
     end
-        
-    tr_bl_frames = data_bx_reg(:,:,tr_bl_ind(:));
-    tr_start_frames = data_bx_reg(:,:,tr_start_ind(:));
-    tr_long_frames = data_bx_reg(:,:,tr_long_ind(:));
-    tr_tar_frames = data_bx_reg(:,:,tr_tar_ind(:));
+    if tr_tar_on(i) && (tr_tar_all(i)+nframes_1s) < nfr_bx
+        ind3 = ind3+1;
+        tr_tar_frames(:,:,:,ind3) = data_bx_reg(:,:,...
+        (tr_tar_all(i)+1):(tr_tar_all(i)+nframes_1s));
+    elseif (tr_tar_all(i)+nframes_1s) < nfr_bx
+        tr_tar_frames = tr_tar_frames(:,:,:,1:ind3);
+        if ind4 == 0
+            tr_tar_on = tr_tar_on(1:nt);
+            ind4 = 1;
+        end
+    end
+end
 
-    % get dF/F for each
-    tr_bl_frames = double(reshape(tr_bl_frames,ypix,xpix,nframes_1s,...
-        size(tr_bl_ind,1)));
-    tr_start_frames = double(reshape(tr_start_frames,ypix,xpix,nframes_2stim,...
-        size(tr_start_ind,1)));
-    tr_long_frames = double(reshape(tr_long_frames,ypix,xpix,nframes_2stim,...
-        size(tr_long_ind,1)));
-    tr_tar_frames = double(reshape(tr_tar_frames,ypix,xpix,nframes_1s,...
-        size(tr_tar_ind,1)));
+
+%     tr_bl_ind = linspaceNDim(tr_start_all-nframes_1s+1,tr_start_all,nframes_1s);
+% 
+%     tr_start = double(tr_start_all(tr_L >= 3));
+%     tr_start_ind = linspaceNDim(tr_start+1,tr_start+nframes_2stim,nframes_2stim);
+% 
+%     tr_long = double(tr_start_all(tr_L >= 6));
+%     tr_long_ind = linspaceNDim(tr_long+(2*nframes_2stim)+1,tr_long+(3*nframes_2stim),nframes_2stim);
+% 
+%     tr_tar = double(tr_tar_all(tr_tar_on));
+%     tr_tar_ind = linspaceNDim(tr_tar+1,tr_tar+nframes_1s,nframes_1s);
+%     
+%     if tr_tar_ind(end) > size(data_bx_reg,3)
+%         ind = find(tr_tar+nframes_1s > size(data_bx_reg,3),1,'first');
+%         nt = ind-1;
+%         tr_bl_ind = tr_bl_ind(1:nt,:);
+%         tr_start_ind = tr_start_ind(1:nt,:);
+%         tr_tar_ind = tr_tar_ind(1:nt,:);
+%         tr_tar_on = tr_tar_on(1:nt);
+%         tr_L = tr_L(1:nt);
+%     end
+%     
+%     if tr_long_ind(end) > size(data_bx_reg,3)
+%         ind = find(tr_long+nframes_1s > size(data_bx_reg,3),1,'first');
+%         nt = ind-1;
+%         tr_long_ind = tr_long_ind(1:nt,:);
+%     end
+%         
+%     tr_bl_frames = data_bx_reg(:,:,tr_bl_ind(:));
+%     tr_start_frames = data_bx_reg(:,:,tr_start_ind(:));
+%     tr_long_frames = data_bx_reg(:,:,tr_long_ind(:));
+%     tr_tar_frames = data_bx_reg(:,:,tr_tar_ind(:));
+
+%     % get dF/F for each
+%     tr_bl_frames = double(reshape(tr_bl_frames,ypix,xpix,nframes_1s,...
+%         size(tr_bl_ind,1)));
+%     tr_start_frames = double(reshape(tr_start_frames,ypix,xpix,nframes_2stim,...
+%         size(tr_start_ind,1)));
+%     tr_long_frames = double(reshape(tr_long_frames,ypix,xpix,nframes_2stim,...
+%         size(tr_long_ind,1)));
+%     tr_tar_frames = double(reshape(tr_tar_frames,ypix,xpix,nframes_1s,...
+%         size(tr_tar_ind,1)));
 
     F = mean(tr_bl_frames,3);
 
@@ -118,7 +157,7 @@ nRuns = expt(iexp).nrun;
     dFF_tar = bsxfun(@rdivide,dF,F(:,:,:,tr_tar_on));  
     clear tr_tar_frames
     
-    clear dF 
+    clear dF F
 
 
 dFF_start_meanAllTrials = squeeze(mean(dFF_start,3));
@@ -137,13 +176,13 @@ mask = bwlabel(bwout);
 nROI = length(unique(mask))-1;
 
 start_tc = reshape(stackGetTimeCourses(reshape(dFF_start,ypix,xpix,[]),mask),...
-    nframes_2stim,size(tr_start_ind,1),nROI);
+    nframes_2stim,sum(tr_start),nROI);
 start_motion_ind = max(diff(mean(start_tc,3),1)) < motionCutoff;
 long_tc = reshape(stackGetTimeCourses(reshape(dFF_long,ypix,xpix,[]),mask),...
-    nframes_2stim,size(tr_long_ind,1),nROI);
+    nframes_2stim,sum(tr_long),nROI);
 long_motion_ind = max(diff(mean(long_tc,3),1)) < motionCutoff;
 tar_tc = reshape(stackGetTimeCourses(reshape(dFF_tar,ypix,xpix,[]),mask),...
-    nframes_1s,size(tr_tar_ind,1),nROI);
+    nframes_1s,sum(tr_tar_on),nROI);
 tar_motion_ind = max(diff(mean(tar_tc,3),1)) < motionCutoff;
 
 start_max = max(dFF_start_meanAllTrials(:,:,start_motion_ind),[],3);

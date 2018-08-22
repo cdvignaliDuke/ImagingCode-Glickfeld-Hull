@@ -1,9 +1,10 @@
 clear all
 close all
-ds = 'FSAV_V1_SOM';
+ds = 'awFSAVdatasets_longStimON_V1';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 6;
+slct_expt = 5;
+doPreviousReg = true;
 %%
 iexp = slct_expt
 
@@ -97,8 +98,10 @@ data_tun = data_sub;
 clear data_sub
 
 % register 
-if isnan(expt(iexp).regImgStartFrame)
-    load(fullfile(fn,'regOuts&Img.mat'))
+if doPreviousReg
+    load(fullfile(fnout,'regOuts&Img.mat'))
+    out_bx = double(out_bx);
+    out_tun = double(out_tun);
     [~,data_bx_reg] = stackRegister_MA(data_bx,[],[],out_bx);
     [~,data_tun_reg] = stackRegister_MA(data_tun,[],[],out_tun);
     clear data_bx data_tun
@@ -137,8 +140,8 @@ bx_img = max(dFF_bxMax,[],3);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:5 788:xpix];
-ycrop = [1:10 259:ypix];
+xcrop = [1:35 725:xpix];
+ycrop = [1:20 250:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;

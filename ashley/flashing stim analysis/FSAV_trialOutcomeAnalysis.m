@@ -1,6 +1,6 @@
 clear all
 close all
-ds = 'FSAV_V1_SOM';
+ds = 'FSAV_V1_decode';
 cellsOrDendrites = 1;
 %%
 rc = behavConstsAV;
@@ -86,9 +86,9 @@ for imouse = 1:nmice
                         > respCutoffDff;
                     
         for ialign = 1:2
+            ntr_v = size(d.av(visualTrials).align(ialign+1).respTC,3);
+            ntr_a = size(d.av(auditoryTrials).align(ialign+1).respTC,3);
             if ialign == 1
-                ntr_v = size(d.av(visualTrials).align(ialign+1).respTC,3);
-                ntr_a = size(d.av(auditoryTrials).align(ialign+1).respTC,3);
                 trInd_v = d.av(visualTrials).align(ialign+1).reactTime > visRT(1) & ...
                     d.av(visualTrials).align(ialign+1).reactTime < visRT(2);
                 trInd_a = d.av(auditoryTrials).align(ialign+1).reactTime > audRT(1) & ...

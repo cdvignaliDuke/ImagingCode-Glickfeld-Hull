@@ -6,7 +6,7 @@ xlabel(x_name);
 if ~isempty(x_limit)
     xlim(x_limit);
 end
-if length(varargin) > 0
+if ~isempty(varargin)
     x_tick = varargin{1};
     fig.XTick = x_tick;
     if length(varargin) > 1
@@ -14,6 +14,12 @@ if length(varargin) > 0
         fig.XTickLabel = x_tick_label;
     else
         fig.XTickLabel = x_tick;
+    end
+    if length(varargin) > 2
+        if strcmp(varargin{3},'log')
+            ax = gca;
+            set(ax,'xscale','log')
+        end
     end
 end
 end
