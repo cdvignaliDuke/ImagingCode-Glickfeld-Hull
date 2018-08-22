@@ -1,9 +1,10 @@
 clear all
 close all
-ds = 'FSAV_V1_SOM';
+ds = 'awFSAVdatasets_longStimON_V1';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 6;
+slct_expt = 9;
+doCorrImg = false;
 %%
 for iexp = slct_expt
 
@@ -91,15 +92,21 @@ for iimg = 1:nMeanImages
     imagesc(mean(data_bx(:,:,randStarterFrames(iimg):randStarterFrames(iimg)+100),3))
     title(sprintf('%s:%s',num2str(randStarterFrames(iimg)),num2str(randStarterFrames(iimg)+100)))
 end
-try
-    load(fullfile(fnout,'regOuts&Img.mat'));
-    subplot(nRows,nCols,nMeanImages+1)
-    imagesc(data_corr_img)
-    title('corr image')
-catch
-    disp('no corr image')
+if doCorrImg
+    try
+        load(fullfile(fnout,'regOuts&Img.mat'));
+        subplot(nRows,nCols,nMeanImages+1)
+        imagesc(data_corr_img)
+        title('corr image')
+    catch
+        disp('no corr image')
+    end
+end
+if ~exist(['Z:\Analysis\FSAV Summaries\' ds],'dir')
+    mkdir(['Z:\Analysis\FSAV Summaries\' ds])
 end
 print(['Z:\Analysis\FSAV Summaries\' ds '\rand image samples_' SubNum '-' expDate],'-dpdf','-fillpage')
 savefig(['Z:\Analysis\FSAV Summaries\' ds '\rand image samples_' SubNum '-' expDate])
+clear data_bx
 end
 clear all

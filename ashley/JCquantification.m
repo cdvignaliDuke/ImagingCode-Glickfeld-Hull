@@ -23,4 +23,4 @@ figXAxis([],'Article Number',[])
 figYAxis([],'Score',[])
 figAxForm
 title({date;'score = sum of weighted votes'})
-print(['Z:\Analysis\_temp figs\JC voting\' date],'-dpdf','-fillpage')
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\ashley_temp\Analysis\_temp figs\JC voting\' date],'-dpdf','-fillpage')

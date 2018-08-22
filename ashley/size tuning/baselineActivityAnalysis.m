@@ -3,9 +3,13 @@ close all
 ds = 'szTuning_dreadds_PM';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 1;
+slct_expt = 2;
 %%
 iexp = slct_expt;
+
+tcLengthMin = 5;
+maxTcTimeMin = 60;
+tcLengthFr = (tcLengthMin)*60*params.frameRate;
 
 mouse = expt(iexp).mouse;
 subnum = mouse;
@@ -28,9 +32,24 @@ for irun = 1:nrun
     mw{irun} = loadMworksFile(subnum,expDate,dataTime);
 end
 
-%% extract iti activity
-itiEventsSum = cell(1,nrun);
-itiTC = cell(1,nrun);
+%%
+drugTimes = cellfun(@num2str,expt(iexp).sizeTuningTimeFromDrugMin,'unif',0);
+drugTimesS = cellfun(@(x) (str2double(x)).*60,drugTimes,'unif',0);
+timeFromDrugS = cellfun(@(x,y) (((0:length(x)-1)./params.frameRate)+y),...
+    tc,drugTimesS','unif',0);
+timeFromDrugS{1} = (-length(timeFromDrugS{1}):-1)./params.frameRate;
+timeFromDrugMin = cellfun(@(x) x./60,timeFromDrugS,'unif',0);
+
+
+anaylsisStartTimesMin = 0:tcLengthMin:maxTcTimeMin;
+nTimes = length(anaylsisStartTimesMin)+1;
+
+%%
+%% extract spontaneous activity
+
+spontTC = [];
+spontTimePointsMin = [];
+
 for irun = 1:nrun
     mwRun = mw{irun};
     tcRun = tc{irun};
@@ -39,15 +58,97 @@ for irun = 1:nrun
     [nFr,nCells] = size(tcRun);
     nTrials = nFr./(nOn+nOff);
     tcTrials = reshape(tcRun,[nOn+nOff, nTrials, nCells]);
-    itiFrameInd = (nOff-nItiFr+1):nOff;
-    itiTC{irun} = reshape(tcTrials(itiFrameInd,:,:),[nTrials*nItiFr, nCells]);
+    drugTimeTrials = reshape(timeFromDrugMin{irun},[nOn+nOff, nTrials]);
+            
+    trialInd = 1:nTrials;
+    tSize = mwRun.tGratingDiameterDeg;
+    if length(tSize) < nTrials
+        trialInd = 1:length(tSize);
+    end
     
-    meanCell = mean(itiTC{irun},1);
-    stdCell = std(itiTC{irun},1);
-    twoStdThreshold = (2.*stdCell)+meanCell;
-    itiEvents = itiTC{irun} > twoStdThreshold;
-    itiEventsSum{irun} = sum(itiEvents,1);
+    spontInd = setdiff(1:(nOff+nOn),[1:nBaselineFr nOff+1:(nOff+nOn)]);
+    
+    spontTCRun = tcTrials(spontInd,trialInd,:);
+    spontTCRun = reshape(spontTCRun, [length(spontInd)*length(trialInd) nCells]);
+    
+    timepointsRun = drugTimeTrials(spontInd,trialInd);
+    timepointsRun = timepointsRun(:);
+    
+    if length(tSize) < nTrials
+        extraFrames = tcTrials(:,(trialInd(end)+1):end,:);
+        spontTC = cat(1,spontTC,spontTCRun,...
+            reshape(extraFrames,[(nOn+nOff)*(nTrials - length(tSize)),nCells]));
+        extraTimepoints = drugTimeTrials(:,trialInd(end)+1);
+        spontTimePointsMin = cat(1,spontTimePointsMin,timepointsRun,...
+            extraTimepoints(:));
+    else
+        spontTC = cat(1,spontTC,spontTCRun);
+        spontTimePointsMin = cat(1,spontTimePointsMin,timepointsRun);
+    end
+    
 end
+
+
+meanCell = mean(spontTC,1);
+stdCell = std(spontTC,1);
+twoStdThreshold = (2.*stdCell)+meanCell;
+spontEvents = spontTC > twoStdThreshold;
+
+timeBinEdges = [-10:10:70];
+[nTimepointsInBin,~,timeBinID] = histcounts(spontTimePointsMin,timeBinEdges);
+nBins = max(timeBinID);
+nTimepointsInBin = nTimepointsInBin(1:nBins);
+minTrN = 10;
+minTimepoints = min(nTimepointsInBin);
+
+matchedBinnedSpontEvents = cell(1,nBins);
+for ibin = 1:nBins
+    ind = sort(randsample(find(timeBinID == ibin),minTimepoints));
+    matchedBinnedSpontEvents{ibin} = spontEvents(ind,:);    
+end
+spontEventsSum = cell2mat(cellfun(@sum,matchedBinnedSpontEvents,'unif',0)');
+
+spontEventsSumNorm = spontEventsSum./spontEventsSum(1,:);
+%%
+drugTimes = cellfun(@num2str,num2cell(timeBinEdges(1:nBins)),'unif',0);
+figure
+subplot 131
+eventLim = [-20 900];
+colors = brewermap(nBins+1,'Blues');
+colors = colors(3:end,:);
+x = spontEventsSum(1,:);
+for i = 1:nBins-1
+    hold on
+    y = spontEventsSum(i+1,:);
+    h = plot(x,y,'.');
+    h.MarkerSize = 15;
+    h.Color = colors(i,:);
+end
+plot(eventLim, eventLim,'k--')
+figXAxis([],'Pre-CNO Events',eventLim)
+figYAxis([],'Post-CNO Events',eventLim)
+figAxForm
+legend(cat(1,drugTimes(2:end)',{'Unity'}),'location','northeastoutside')
+
+subplot 132
+x = timeBinEdges(1:nBins);
+y = mean(spontEventsSum,2);
+yerr = ste(spontEventsSum,2);
+h = errorbar(x,y,yerr,'o-');
+h.MarkerFaceColor = 'none';
+figXAxis([],'Time From Drug Delivery',[x(1)-10 x(end)+10])
+figYAxis([],'Average N Events',[])
+figAxForm
+
+subplot 133
+x = timeBinEdges(1:nBins);
+y = mean(spontEventsSumNorm,2);
+yerr = ste(spontEventsSumNorm,2);
+h = errorbar(x,y,yerr,'o-');
+h.MarkerFaceColor = 'none';
+figXAxis([],'Time From Drug Delivery',[x(1)-10 x(end)+10])
+figYAxis([],'Normalized N Events',[])
+figAxForm
 %% entire tc events
 filterWindowFr = 50;
 movAvgFilt = ones(filterWindowFr+1,1)/(filterWindowFr+1);
@@ -68,31 +169,191 @@ for irun = 1:nrun
     eventsSum{irun} = sum(events,1);
 end
 
-%% stimulus-driven activity
-sizeTC = cell(1,nrun);
+%% extract iti activity
+itiEventsSum = cell(1,nrun);
+itiTC = cell(1,nrun);
+itiTimeFromDrugMin = cell(1,nrun);
+
 for irun = 1:nrun
     mwRun = mw{irun};
     tcRun = tc{irun};
     nOn = mwRun.nScansOn;
     nOff = mwRun.nScansOff;
     [nFr,nCells] = size(tcRun);
+    nTrials = nFr./(nOn+nOff);
+    tcTrials = reshape(tcRun,[nOn+nOff, nTrials, nCells]);
+    itiFrameInd = (nOff-nItiFr+1):nOff;
+%     itiTC{irun} = tcTrials(itiFrameInd,:,:);
+    itiTC{irun} = reshape(tcTrials(itiFrameInd,:,:),[nTrials*nItiFr, nCells]);
+    
+    meanCell = mean(itiTC{irun},1);
+    stdCell = std(itiTC{irun},1);
+    twoStdThreshold = (2.*stdCell)+meanCell;
+    itiEvents = itiTC{irun} > twoStdThreshold;
+    itiEventsSum{irun} = sum(itiEvents,1);
+    
+    drugTimeTrials = reshape(timeFromDrugMin{irun},[nOn+nOff, nTrials]);
+    itiTimeFromDrugMin{irun} = reshape(drugTimeTrials(itiFrameInd,:),[nItiFr*nTrials,1]);
+%     itiTimeFromDrugMin{irun} = drugTimeTrials(itiFrameInd,:);
+end
+
+%%
+
+%% stimulus-driven activity
+sizeTC = cell(1,nrun);
+tcTimePoints = [];
+respTimePoints = [];
+drugTimePoints = [];
+respStimType = [];
+for irun = 1:nrun
+    mwRun = mw{irun};
+    tcRun = tc{irun};
+    timesRun = timeFromDrugMin{irun};
+    nOn = mwRun.nScansOn;
+    nOff = mwRun.nScansOff;
+    [nFr,nCells] = size(tcRun);
     nTrials = nFr./(nOn+nOff);    
     tcTrials = reshape(tcRun,[nOn+nOff, nTrials, nCells]);
+    trialTimes = reshape(timesRun,[nOn+nOff,nTrials]);
+    trialTimes = trialTimes(nOff+1,:);
     f = mean(tcTrials((nOff-nBaselineFr+1):nOff,:,:),1);
     dff = (tcTrials-f)./f;
     tSize = round(celleqel2mat_padded(mwRun.tGratingDiameterDeg),2,'significant');
     sizes = unique(tSize);
     nSize = length(sizes);
+    
+    if nTrials ~= length(tSize)
+        n = length(tSize);
+        dff = dff(:,1:n,:);
+        trialTimes = trialTimes(1:n);
+    end
+    tcTimePoints = cat(2,tcTimePoints,dff);
+    respwin = (nBaselineFr+1):(nOn+nBaselineFr);
+    respTrials = squeeze(mean(dff(respwin,:,:),1));
+    respTimePoints = cat(1,respTimePoints,respTrials);
+    drugTimePoints = cat(2,drugTimePoints,trialTimes);
+    respStimType = cat(2,respStimType,tSize);
+    
     stimFrInd = (nOff-nBaselineFr+1):(nOff+nOn);
     sizeTCRun = nan(nSize,nOn+nBaselineFr,nCells);
+    if irun == 1
+        responsiveCellsSizes = nan(nSize,nCells);
+        alpha = 0.05./nSize;
+    end
     for i = 1:nSize
         ind = tSize == sizes(i);
         sizeTCRun(i,:,:) = squeeze(mean(dff(stimFrInd,ind,:),2));
+        if irun == 1
+            basewin = 1:nBaselineFr;
+            baseResp = squeeze(mean(dff(basewin,ind,:),1));
+            respResp = squeeze(mean(dff(respwin,ind,:),1));
+            responsiveCellsSizes(i,:) = logical(ttest(...
+                baseResp,respResp,'tail','left','alpha',alpha));
+        end
     end
     sizeTC{irun} = sizeTCRun;
+    
+    
+    
 end
+
+responsiveCells = find(any(responsiveCellsSizes,1));
+
+%%
+
+exptTimeLim = [-10 70];
+nExampleCells = 5;
+if length(responsiveCells) < nExampleCells
+    nRandCells = nExampleCells - length(responsiveCells);
+    exampleCells = cat(2,responsiveCells,randsample(setdiff(1:nCells,responsiveCells),nRandCells));
+else
+    exampleCells = randsample(responsiveCells,nExampleCells);
+end
+
+timeBinEdges = [-10:10:70];
+[~,~,timeBinID] = histcounts(drugTimePoints,timeBinEdges);
+minTrN = 10;
+sizes = unique(respStimType);
+nSize = length(sizes);
+tcSizeTimePoints = cell(max(timeBinID),nSize);
+respCells = cell(1,nSize);
+
+for i = 1:nSize
+    ind = respStimType == sizes(i);
+    tcSize = tcTimePoints(:,ind,:);
+    respSize = squeeze(mean(tcSize(respwin,:,:),1));
+    baseSize = squeeze(mean(tcSize(basewin,:,:),1));
+    respCells{i} = logical(ttest(baseSize',respSize','tail','left'));
+    for ibin = 1:max(timeBinID)
+        ind = respStimType == sizes(i) & timeBinID == ibin;
+        if sum(ind) > minTrN
+            tcSizeTimePoints{ibin,i} = squeeze(mean(tcTimePoints(:,ind,:),2));
+        end            
+    end
+end
+
+%%
+tt = double(-nBaselineFr+1:nOn)./params.frameRate.*1000;
+ttLabel = -500:250:max(tt);
+colors = brewermap(max(timeBinID)+1,'Blues');
+colors = colors(2:end,:);
+figure
+for icell = 1:5
+    subplot(2,3,icell)
+    xc = exampleCells(icell);
+    for ibin = 1:max(timeBinID)
+        if ~isempty(tcSizeTimePoints{ibin,2})
+            y = tcSizeTimePoints{ibin,2}(:,xc);
+            x = double((-nBaselineFr+1):(length(y)-nBaselineFr))./params.frameRate.*1000;
+            hold on
+            h = plot(x,y,'-');
+            if ibin == 1
+                h.Color = 'k';
+            else
+                h.Color = colors(ibin-1,:);
+            end        
+        end
+    end
+    figXAxis([],'Time From Vis Stim (ms)',[min(x) max(x)],ttLabel,ttLabel)
+    figYAxis([],'dF/F',[])
+    figAxForm
+    title(sprintf('Cell %s',num2str(xc)))
+end
+
+%%
+exptTimeLim = [-10 70];
+nExampleCells = 5;
+if length(responsiveCells) < nExampleCells
+    nRandCells = nExampleCells - length(responsiveCells);
+    exampleCells = cat(2,responsiveCells,randsample(setdiff(1:nCells,responsiveCells),nRandCells));
+else
+    exampleCells = randsample(responsiveCells,nExampleCells);
+end
+
+colors = brewermap(nSize+1,'Reds');
+colors = colors(2:end,:);
+figure
+for icell = 1:nExampleCells
+    subplot(nExampleCells,1,icell)
+    xc = exampleCells(icell);
+    for i = nSize
+        ind = respStimType == sizes(i);
+        x = drugTimePoints(ind);
+        y = respTimePoints(ind,xc);
+        hold on
+        h = plot(x,y,'o');
+        h.Color = colors(i,:);
+        h.MarkerFaceColor = colors(i,:);
+    end    
+    title(sprintf('Cell %s',num2str(xc)))
+    xLabel = sprintf('Time From %s Delivery (min)',expt(slct_expt).drug);
+    figXAxis([],xLabel,exptTimeLim)
+    figYAxis([],'dF/F',[])
+    figAxForm([],0)
+    hline(0,'k:')
+end
+
 %% plot iti activity
-drugTimes = cellfun(@num2str,expt(iexp).sizeTuningTimeFromDrugMin,'unif',0);
 
 
 setFigParams4Print('landscape')
@@ -129,33 +390,37 @@ figYAxis([],'N Events',[])
 figAxForm
 print(fullfile(fnout,'itiEventsOverSessions'),'-dpdf','-fillpage')
 
+% figure
+% fLim = [0 10000];
+[~,sortedCellsInd] = sort(itiEventsSum{1});
+exampleCells = sortedCellsInd(end-4:end);
+
+nExampleCells = 5;
+
+% exampleCells = randsample(1:nCells,nExampleCells);
+
 setFigParams4Print('landscape')
 figure
-fLim = [0 10000];
-[~,sortedCellsInd] = sort(itiEventsSum{1});
-top5Cells = sortedCellsInd(end-4:end);
-for i = 1:5
-    subplot(nrun,1,i)
-    c = top5Cells(i);
-    y = itiTC{1}(:,c);
-    fLim = [0 max(y)+300];
-    x = 1:size(y,1);
-    h = plot(x,y,'k-');
-    hold on
-    y = itiTC{2}(:,c);
-    h = plot(x,y,'-');
-    h.Color = colors(2,:);
-    y = itiTC{end}(:,c);
-    h = plot(x,y,'-');
-    h.Color = colors(end,:);
-    figXAxis([],'ITI Frame Number',[1 x(end)])
-    figYAxis([],'F',fLim)
-    figAxForm([],0)
-    title(sprintf('Cell %s',num2str(c)))
-    if i == 1
-        legend(drugTimes([1 2 end]))
+for icell = 1:nExampleCells
+    xc = exampleCells(icell);
+    subplot(nExampleCells,1,icell)
+    for irun = 1:nrun
+        tcRun = itiTC{irun}(:,xc);
+        
+        drugTime = itiTimeFromDrugMin{irun};
+%         nTrials = size(tcRun,2);
+%         for itrial = 1:nTrials
+            hold on
+            plot(drugTime,tcRun,'k-')
+%         end
     end
+    title(sprintf('Cell %s',num2str(xc)))
+    xLabel = sprintf('Time From %s Delivery (min)',expt(slct_expt).drug);
+    figXAxis([],xLabel,exptTimeLim)
+    figYAxis([],'F',[])
+    figAxForm([],0)
 end
+
 print(fullfile(fnout,'itiTCExampleCells'),'-dpdf','-fillpage')
 
 %% plot all tc
