@@ -1,3 +1,78 @@
+%% SECTION - assign pathnames and datasets to be analyzed/written. 
+clear;
+%NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
+sessions = {'180414_img1008_1'}; 
+days = '1008-180414_1';
+sessionID = '1008-180414';% this  variable name is confusing, this session ID is just tha date and the subject#, 
+%there might be more than 1 sessions on a single subject on the same day
+%bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
+%image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
+image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the movingDots analysis folder
+% behavior analysis results 
+behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days];
+color_code = {'c','r','y','g'};
+
+
+
+
+%% SECTION I: generate matrix of frames needed for plotting
+for ii = 1: length(sessions)
+    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
+    dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
+    dfOvF = dfOvF_strct.dfOvF_staybase;
+    behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
+    frames_run_cell = behav_struct.frames_run_cell;
+    speed = behav_struct.speed;
+    [frames_befo_run,frames_aft_run,frames_runTrigger,frames_run_mat] = findFrames_runWindows (speed,frames_run_cell);
+    
+     save([behav_dest '\' sessionID '_' num2str(ii) '_behavAnalysis.mat' ],...
+        'frames_befo_run','frames_aft_run','frames_runTrigger','frames_run_mat', '-append');
+end
+
+%% SECTION II:draw scatter plot for df/f of right before and right after every running window
+for ii = 1:length(sessions)
+    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
+    dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
+    dfOvF = dfOvF_strct.dfOvF_staybase;
+    behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
+    frames_befo_run = behav_struct.frames_befo_run;
+    frames_aft_run = behav_struct.frames_aft_run;
+    frames_run_cell = behav_struct.frames_run_cell;
+    dfOvF_befoRun = dfOvF(:,frames_befo_run);
+    % this give you dfOvF of first, second, and third column in frames_befor_run.
+    %ROI1 are now placed in a row
+    %(1-78:first column of frames_befo_run; 79-157: second column; 158-234: third column)
+    dfOvF_aftRun = dfOvF(:,frames_aft_run);
+    dfOvF_run = dfOvF(:,cell2mat(frames_run_cell));
+    ave_dfOvF_befoRun = []; ave_dfOvF_run = []; ave_dfOvF_aftRun = [];
+    ste_dfOvF_befoRun = []; ste_dfOvF_run = []; ste_dfOvF_aftRun = []; 
+    
+    ave_dfOvF_befoRun = mean(dfOvF_befoRun');
+    %tranpose it to each column is an ROI later
+    ste_dfOvF_befoRun = std(dfOvF_befoRun')/sqrt(length(dfOvF_befoRun'));
+    ave_dfOvF_run = mean(dfOvF_run');
+    ste_dfOvF_run = std(dfOvF_run')/sqrt(length(dfOvF_run'));
+    ave_dfOvF_aftRun = mean(dfOvF_aftRun');
+    ste_dfOvF_aftRun = std(dfOvF_aftRun')/sqrt(length(dfOvF_aftRun'));
+    ave_befoRunaft = [ave_dfOvF_befoRun',ave_dfOvF_run',ave_dfOvF_aftRun'];
+    ste_befoRunaft = [ste_dfOvF_befoRun',ste_dfOvF_run',ste_dfOvF_aftRun'];
+    
+    dfOvF_run_buffer = figure;
+    plot(ave_befoRunaft','-o');
+    hold on;
+    errorbar(ave_befoRunaft',ste_befoRunaft','k');hold on;
+    
+    %xlabel ('');
+    set(gca,'XTick',x,'XTicklabel',{'right before','run','right after'});
+    ylabel('df/f');
+    title(['df/f right before and after running',sessions{ii}]);
+    saveas(dfOvF_run_buffer, [image_dest '_dfOvF_runVsSurround']);
+    save([behav_dest '\' sessionID '_' num2str(ii) '_behavAnalysis.mat' ],...
+        'ave_dfOvF_befoRun','ave_dfOvF_aftRun','ste_dfOvF_befoRun','ste_dfOvF_aftRun','-append');
+end
+
+
+
 %% SECTION V: df/f before, after and during running, every 300ms.
 for ii = 1: length(sessions)
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
@@ -6,10 +81,8 @@ for ii = 1: length(sessions)
     behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
     %frames_run_buffer_mat = behav_output.frames_run_buffer_mat;
     speed = behav_struct.speed;
-    frames_run_mat = behav_struct.frames_run_mat;
-    % frames run mat is a matrix for 'run buffer', which includes right
-    % before run, run, and right after run.
-    
+    frames_run_cell = behav_struct.frames_run_cell;
+     
     %% calculate average speed of every 300ms
     speed_run_mat = nan(size(frames_run_mat,1), size(frames_run_mat,2));
     for v = 1:size(speed_run_mat,1)
@@ -105,3 +178,4 @@ for ii = 1: length(sessions)
     % legend(handle,'ROI1', 'ROI2');
 
 end
+

@@ -3,6 +3,8 @@ clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
 sessions = {'180414_img1008_1'}; 
 days = '1008-180414_1';
+sessionID = '1008-180414';% this  variable name is confusing, this session ID is just tha date and the subject#, 
+%there might be more than 1 sessions on a single subject on the same day
 %bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
 %image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
 image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the movingDots analysis folder
@@ -10,133 +12,65 @@ image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'
 behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days];
 color_code = {'c','r','y','g'};
 
-%% SECTION I: draw df/f &. speed
-for i = 1:length(sessions)
-    image_dest = [image_dest_base sessions{i} '\' sessions{i}];
-    speed_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
-    speed = speed_struct.speed;
-    cReverse_vec = speed_struct.cReverse_vec;
-    dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_struct.dfOvF_staybase;
-    dfOvF_speed_fig = figure;
-    for n = 1:size(dfOvF,1);
-        dfOvF_plot = dfOvF(n,1:length(speed));
-        time = (0:(length(speed)-1));
-        hold on;
-        [hAx,hline1,hline2(n)] = plotyy(time,speed,time,dfOvF_plot);
-        set(hline1,'color', 'b');
-        set(hline2(n),'color',color_code{n});
-        ylim(hAx(2),[-1.5 0.5]);
-    end 
-    if isempty(cReverse_vec) == 0;
-    vline(cReverse_vec, 'r');
-    end
-    xlabel ('frames');
-    ylabel(hAx(1),'speed');
-    ylabel(hAx(2),'df/f');
-    ylim(hAx(1),[0,max(speed)]);
-    title(['df/f and speed',sessions{i}])
-    saveas(dfOvF_speed_fig, [image_dest, '_dfOvF_and_speed']);
-end
 
 
-%% SECTION II : draw mean df/f vs. every speed value
-for i = length(sessions)
-    image_dest = [image_dest_base sessions{i} '\' sessions{i}];
-    speed_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
-    speed = speed_struct.speed;
-    dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_struct.dfOvF_staybase;
-    isp = unique(speed);
-    for k = 1:length(isp)
-        dfOvF_spd = dfOvF(:,speed==isp(k));
-        dfOvF_spdmean(:,k)  = mean(dfOvF_spd,2);
-        dfOvF_spdste(:,k) = std(dfOvF_spd,[],2)/sqrt(length(dfOvF_spd));
-    end
-    dfOvF_ave_vs_spd = figure;
-    for n = 1:size(dfOvF,1);
-        scatter(isp,dfOvF_spdmean(n,:), 'MarkerFaceColor', color_code{n});
-        hold on;
-        errorbar(isp,dfOvF_spdmean(n,:),dfOvF_spdste(n,:), 'Color', color_code{n});
-        
-    end
-    xlabel ('speed');
-    ylabel('ave df/f');
-    title(['df/f vs. speed',sessions{i}]);
-    saveas(dfOvF_ave_vs_spd, [image_dest, '_dfOvf_vs_speed']);
-end
 
-%% SECTION III: draw ave df/f for stay, bf, and run 
+%% SECTION I: generate matrix of frames needed for plotting
 for ii = 1: length(sessions)
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
     dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
     dfOvF = dfOvF_strct.dfOvF_staybase;
-    %data_tc is the fluorescence data for this session, and it will be a
-    %n*num of frames double, n=number of ROIs.
-    frames_states = load([behav_dest '\' days '_behavAnalysis.mat']);
-    stay = frames_states.frames_stay_cell;
-    bf  = frames_states.frames_bf_cell;
-    run = frames_states.frames_run_cell;
-    dfOvF_behavStates = figure;
-    for n = 1:size(dfOvF,1);
-        dfOvF_stay = dfOvF(n,cell2mat(stay));
-        dfOvF_bf = dfOvF(n,cell2mat(bf));
-        dfOvF_run = dfOvF(n,cell2mat(run));
-        ave_dfOvF_stay = mean(dfOvF_stay);
-        ste_dfOvF_stay = std(dfOvF_stay)/sqrt(length(dfOvF_stay));
-        ave_dfOvF_bf = mean(dfOvF_bf);
-        ste_dfOvF_bf = std(dfOvF_bf)/sqrt(length(dfOvF_bf));
-        ave_dfOvF_run = mean(dfOvF_run);
-        ste_dfOvF_run = std(dfOvF_run)/sqrt(length(dfOvF_run)); 
-        x = [1,2,3];
-        scatter(x,[ave_dfOvF_stay, ave_dfOvF_bf, ave_dfOvF_run]);
-        hold on;
-        errorbar(x,[ave_dfOvF_stay, ave_dfOvF_bf, ave_dfOvF_run],...
-            [ste_dfOvF_stay,ste_dfOvF_bf,ste_dfOvF_run]);
-    end
-    xlabel ('behavioral state');
-    set(gca,'XTick',x,'XTicklabel',{'stationary','rigidity','run'});
-    ylabel('df/f');
-    title(['df/f for each beahvioral state',sessions{ii}]);
-    saveas(dfOvF_behavStates, [image_dest '_dfOvF_behavStates']);
+    behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
+    frames_run_cell = behav_struct.frames_run_cell;
+    speed = behav_struct.speed;
+    [frames_befo_run,frames_aft_run,frames_runTrigger,frames_run_mat] = findFrames_runWindows (speed,frames_run_cell);
+    
+     save([behav_dest '\' sessionID '_' num2str(ii) '_behavAnalysis.mat' ],...
+        'frames_befo_run','frames_aft_run','frames_runTrigger','frames_run_mat', '-append');
 end
 
-
-%% SECTION IV: draw scatter plot for df/f of right before and right after every running window
-for ii = 1: length(sessions)
+%% SECTION II:draw scatter plot for df/f of right before and right after every running window
+for ii = 1:length(sessions)
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
     dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
     dfOvF = dfOvF_strct.dfOvF_staybase;
-    frames_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
-    frames_run_cell = frames_struct.frames_run_cell;
-    speed_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
-    speed = speed_struct.speed;
-    [frames_befo_run,frames_aft_run,frames_runTrigger,frames_run_buffer_mat] = findFrames_runWindows (speed,frames_run_cell);
+    behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
+    frames_befo_run = behav_struct.frames_befo_run;
+    frames_aft_run = behav_struct.frames_aft_run;
+    frames_run_cell = behav_struct.frames_run_cell;
+    dfOvF_befoRun = dfOvF(:,frames_befo_run);
+    % this give you dfOvF of first, second, and third column in frames_befor_run.
+    %ROI1 are now placed in a row
+    %(1-78:first column of frames_befo_run; 79-157: second column; 158-234: third column)
+    dfOvF_aftRun = dfOvF(:,frames_aft_run);
+    dfOvF_run = dfOvF(:,cell2mat(frames_run_cell));
+    ave_dfOvF_befoRun = []; ave_dfOvF_run = []; ave_dfOvF_aftRun = [];
+    ste_dfOvF_befoRun = []; ste_dfOvF_run = []; ste_dfOvF_aftRun = []; 
+    
+    ave_dfOvF_befoRun = mean(dfOvF_befoRun');
+    %tranpose it to each column is an ROI later
+    ste_dfOvF_befoRun = std(dfOvF_befoRun')/sqrt(length(dfOvF_befoRun'));
+    ave_dfOvF_run = mean(dfOvF_run');
+    ste_dfOvF_run = std(dfOvF_run')/sqrt(length(dfOvF_run'));
+    ave_dfOvF_aftRun = mean(dfOvF_aftRun');
+    ste_dfOvF_aftRun = std(dfOvF_aftRun')/sqrt(length(dfOvF_aftRun'));
+    ave_befoRunaft = [ave_dfOvF_befoRun',ave_dfOvF_run',ave_dfOvF_aftRun'];
+    ste_befoRunaft = [ste_dfOvF_befoRun',ste_dfOvF_run',ste_dfOvF_aftRun'];
     
     dfOvF_run_buffer = figure;
-    for k = 1: size(dfOvF,1)
-        dfOvF_befoRun = dfOvF(k,cell2mat(frames_befo_run));
-        dfOvF_aftRun = dfOvF(k,cell2mat(frames_aft_run));
-        dfOvF_run = dfOvF(k,cell2mat(frames_run_cell));
-        ave_dfOvF_befoRun = mean(dfOvF_befoRun);
-        ste_dfOvF_befoRun = std(dfOvF_befoRun)/sqrt(length(dfOvF_befoRun));
-        ave_dfOvF_run = mean(dfOvF_run);
-        ste_dfOvF_run = std(dfOvF_run)/sqrt(length(dfOvF_run));
-        ave_dfOvF_aftRun = mean(dfOvF_aftRun);
-        ste_dfOvF_aftRun = std(dfOvF_aftRun)/sqrt(length(dfOvF_aftRun));
-        x = [1,2,3];
-        scatter(x,[ave_dfOvF_befoRun, ave_dfOvF_run, ave_dfOvF_aftRun]);
-        hold on;
-        errorbar(x,[ave_dfOvF_befoRun, ave_dfOvF_run, ave_dfOvF_aftRun],...
-            [ste_dfOvF_befoRun,ste_dfOvF_run,ste_dfOvF_aftRun]);hold on;
-    end
+    plot(ave_befoRunaft','-o');
+    hold on;
+    errorbar(ave_befoRunaft',ste_befoRunaft','k');hold on;
+    
     %xlabel ('');
     set(gca,'XTick',x,'XTicklabel',{'right before','run','right after'});
     ylabel('df/f');
     title(['df/f right before and after running',sessions{ii}]);
     saveas(dfOvF_run_buffer, [image_dest '_dfOvF_runVsSurround']);
+    save([behav_dest '\' sessionID '_' num2str(ii) '_behavAnalysis.mat' ],...
+        'ave_dfOvF_befoRun','ave_dfOvF_aftRun','ste_dfOvF_befoRun','ste_dfOvF_aftRun','-append');
 end
- 
+
 
 
 %% SECTION V: df/f before, after and during running, every 300ms.
@@ -144,16 +78,15 @@ for ii = 1: length(sessions)
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
     dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
     dfOvF = dfOvF_strct.dfOvF_staybase;
-    behav_output = load([behav_dest '\' days '_behavAnalysis.mat']);
+    behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
     %frames_run_buffer_mat = behav_output.frames_run_buffer_mat;
-    speed = behav_output.speed;
-    % frames run mat is a matrix for 'run buffer', which includes right
-    % before run, run, and right after run.
-    
+    speed = behav_struct.speed;
+    frames_run_mat = behav_struct.frames_run_mat;
+     
     %% calculate average speed of every 300ms
-    speed_run_mat = nan(size(frames_run_buffer_mat,1), size(frames_run_buffer_mat,2));
+    speed_run_mat = nan(size(frames_run_mat,1), size(frames_run_mat,2));
     for v = 1:size(speed_run_mat,1)
-        temp = frames_run_buffer_mat(v,~isnan(frames_run_buffer_mat(v,:)));
+        temp = frames_run_mat(v,~isnan(frames_run_mat(v,:)));
         speed_run_mat(v,1:size(temp,2)) = speed(temp);
     end
     speed_run_mat(speed_run_mat(v)==0)=nan;
@@ -169,13 +102,13 @@ for ii = 1: length(sessions)
     mean_run_every300ms(bin) = mean(mean_columns(length(mean_columns)-2:length(mean_columns)));
     ste_run_every300ms(bin) = std(mean_columns(length(mean_columns)-2:length(mean_columns)))/sqrt(3);
     %% calculate average fluorescence of every 300ms
-    dfOvF_staybase_mat = nan(size(frames_run_buffer_mat,1), size(frames_run_buffer_mat,2));
+    dfOvF_staybase_mat = nan(size(frames_run_mat,1), size(frames_run_mat,2));
     dfOvF_run_cell = {};
     
     dfOvF_run_300ms = figure; p = panel(); p.pack(2,1);
     for q = 1:size(dfOvF,1)
         for n = 1: size(dfOvF_staybase_mat,1)
-            temp = frames_run_buffer_mat(n,~isnan(frames_run_buffer_mat(n,:)));
+            temp = frames_run_mat(n,~isnan(frames_run_mat(n,:)));
             dfOvF_run_cell{q}(n,1:size(temp,2)) = dfOvF(q,temp);
         end
         dfOvF_run_cell{q}(dfOvF_run_cell{q}==0)=nan;
