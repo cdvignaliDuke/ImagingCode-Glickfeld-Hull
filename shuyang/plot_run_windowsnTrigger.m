@@ -13,7 +13,7 @@ behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days];
 color_code = {'c','r','y','g'};
 
 
-%% SECTION I: generate matrix of frames needed for plotting
+%% SECTION I: generate matrix of frames needed for plotting and load data needed for plotting
 for ii = 1: length(sessions)
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
     dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
@@ -30,20 +30,10 @@ end
 
 %% SECTION II:draw scatter plot for df/f of right before and right after every running window
 for ii = 1:length(sessions)
-    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
-    dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_strct.dfOvF_staybase;
-    behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
-    speed = behav_struct.speed;
-    frames_befo_run = behav_struct.frames_befo_run;
-    frames_aft_run = behav_struct.frames_aft_run;
-    frames_run_cell = behav_struct.frames_run_cell;
-    
     % calculate ave of dfOvF and put before, during run, after run together-----------------------------------------------
     dfOvF_befoRun = dfOvF(:,frames_befo_run);
     % this give you dfOvF of first, second, and third column in frames_befor_run.
-    %ROI1 are now placed in a row
-    %(1-78:first column of frames_befo_run; 79-157: second column; 158-234: third column)
+    %ROI1 are now placed in a row(1-78:first column of frames_befo_run; 79-157: second column; 158-234: third column)
     dfOvF_aftRun = dfOvF(:,frames_aft_run);
     dfOvF_run = dfOvF(:,cell2mat(frames_run_cell));
     
@@ -84,15 +74,9 @@ for ii = 1:length(sessions)
 end
 
 
-%% SECTION V: df/f before, after and during running, every 300ms.
+%% SECTION III: df/f before, after and during running, every 300ms.
 for ii = 1: length(sessions)
-    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
-    dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_strct.dfOvF_staybase;
-    behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
     %frames_run_buffer_mat = behav_output.frames_run_buffer_mat;
-    speed = behav_struct.speed;
-    frames_run_mat = behav_struct.frames_run_mat;
     ave_dfOvF_befoRun = behav_struct.ave_dfOvF_befoRun;
     ave_dfOvF_aftRun = behav_struct.ave_dfOvF_aftRun;
     ste_dfOvF_befoRun = behav_struct.ste_dfOvF_befoRun;
@@ -118,8 +102,7 @@ for ii = 1: length(sessions)
         mean_run_every300ms(x) = mean(mean_columns(y:y+2));
         ste_run_every300ms(x) = std(mean_columns(y:y+2))/sqrt(3);
     end
-   % if length(mean_columns) can't be divided by 3 in total, you're
-   % throwing away the remainers.
+   % if length(mean_columns) can't be divided by 3 in total, you're throwing away the remainers.
    
     % calculate average fluorescence of every 300ms------------------------
     dfOvF_staybase_mat = nan(size(frames_run_mat,1), size(frames_run_mat,2));
@@ -165,10 +148,7 @@ for ii = 1: length(sessions)
     %xticklabels({'','','','','',''});
     supertitle(['df/f before, during, and after running',sessions{ii}]);
     saveas(dfOvF_run_300ms, [image_dest, '_dfOvF_runWindows']);
-    
-    
-    
-   
+     
     %set(gca,'XTick',x,'XTicklabel',{'before run','1','','','','5','','','','',...
         %'10','','','','','15','','','','','20','','after run'});
     %'','','','25','','','', '','30',...
@@ -176,19 +156,60 @@ for ii = 1: length(sessions)
     %   '','','55','','','','','60','','','','','65','','','','','70','','','','',...
     %  '75','','','','','80','','','','','85','','','','','90','','','','','','',...
     %  '','','','','','','','','','','','','','','','','',
-    
-    
-    %set(gca,'XTick',x,'XTicklabel',{'-3~0','0~3','3~6','6~9','9~12','12~15',...
-    % '15~18','18~21','21~24','24~27','27~30','30~33','33~36','36~39',...
-    % '39~42','42~45','45~48','48~51','51~54','54~57','57~60','60~63',...
-    % '63~66','66~69','69~72','72~75','75~78','78~81','81~84','84~87',...
-    % '87~90','90~93','93~96','96~99','99~102','102~105','105~108',...
-    % '108~111','111~114','114~117','117~120','120~123','123~126',...
-    % '126~129','129~132','after run'});
-   
-   
-    
+ 
     % legend(handle,'ROI1', 'ROI2');
     
 end
 
+
+%%  SECTION IV: run trigger ave
+runTriggerDura = 15;
+for ii = 1: length(sessions)
+    runTrigSpeed = (speed(frames_runTrigger))';
+    ave_speed_runTrigger = mean(runTrigSpeed);
+    ste_speed_runTrigger = std(runTrigSpeed,0,1)/sqrt(size(runTrigSpeed,1));
+    
+    % generate matrixes for df/f and plot----------------------------------
+    dfOvF_runTrigger = zeros(size(frames_runTrigger,2),size(frames_runTrigger,1),size(dfOvF,1));
+    x = -5:runTriggerDura-6;
+    for n = 1:size(dfOvF,1)
+        temp = dfOvF(n,:);
+        dfOvF_runTrigger(:,:,n) = (temp(frames_runTrigger))';
+        windows_fig(n) = figure;
+        %make every line start at the same height
+        startMean = mean(dfOvF_runTrigger(:,1,n));
+        diff = dfOvF_runTrigger(:,1,n)-startMean;
+        diff_array = repmat(diff,1, size(dfOvF_runTrigger,2));
+        dfOvF_runTrigger_plot = dfOvF_runTrigger(:,:,n) - diff_array;
+        dfOvF_runTrigger_plot = dfOvF_runTrigger_plot';
+        plot(x,dfOvF_runTrigger_plot);
+        xlabel('frames');
+        ylabel('df/f');
+        set(gca,'XTick',x);
+        vline(-1, 'k','running start');
+        title(['df/f for each running window ROI' num2str(n)]);
+        saveas(windows_fig(n), [image_dest '_runTrigSessions_ROI' num2str(n)]);
+    end
+    
+    ave_dfOvF_runTrigger = squeeze(mean(dfOvF_runTrigger,1));
+    ste_dfOvF_runTrigger = squeeze(std(dfOvF_runTrigger,0,1)/sqrt(size(dfOvF_runTrigger,1)));
+    
+    mean_fig = figure;
+    subplot(2,1,1);hold on;
+    errorbar(ave_dfOvF_runTrigger,ste_dfOvF_runTrigger); hold on;
+    %xlim([-5 10]);
+    %ylim([-0.05 0.05]);
+    vline(4, 'r','running start');
+    ylabel('df/f');
+    
+    subplot(2,1,2);hold on;
+    errorbar(ave_speed_runTrigger,ste_speed_runTrigger); hold on;
+    xlabel('frames');
+    ylabel('speed');
+    vline(4, 'r','running start');
+    %xlim([-5 10]);
+    
+    supertitle('run triggered average' );
+    saveas(mean_fig, [image_dest '_runTrigAve']);
+    
+end
