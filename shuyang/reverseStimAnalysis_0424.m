@@ -9,7 +9,7 @@ image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'
 % behavior analysis results 
 color_code = {'b','r','k','m'};
 
-%% determine if reverse stimuli does anything to df/f. 
+%% load
 for i = 1:length(sessions)
     image_dest = [image_dest_base sessions{i} '\' sessions{i}];
     behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{i}];
@@ -18,6 +18,10 @@ for i = 1:length(sessions)
     cReverse = behav_output.cReverse_vec;
     dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
     dfOvF = dfOvF_struct.dfOvF_staybase;
+end
+
+%% determine if reverse stimuli does anything to df/f.
+for i = 1:length(sessions)
     befo = 5;
     aft = 15;
     dfOvF_rev = [];
@@ -44,9 +48,7 @@ for i = 1:length(sessions)
     end
     
     ave_rev_fig = figure;
-    for n = 1: size(ave_dfOvF_rev,2)
-        errorbar(ave_dfOvF_rev(:,n),ste_dfOvF_rev(:,n),'color',color_code{n}); hold on;
-    end
+    errorbar(ave_dfOvF_rev,ste_dfOvF_rev); hold on;
     xlim([1 21]);
     ylim([-0.3 0.1]);
     xlabel('frames');
@@ -70,13 +72,6 @@ end
 
 %% determine if reverse stim does anything differently during running vs. stay
 for i = 1:length(sessions)
-    image_dest = [image_dest_base sessions{i} '\' sessions{i}];
-    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{i}];
-    behav_output = load([behav_dest '\' days{i} '_behavAnalysis.mat']);
-    speed = behav_output.speed;
-    cReverse = behav_output.cReverse_vec;
-    dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_struct.dfOvF_staybase;
     speed_rev_stay = [];
     speed_rev_run = [];
     ealier = 5;
@@ -103,10 +98,12 @@ for i = 1:length(sessions)
     dfOvF_rev_stay = [];
     dfOvF_rev_run  = [];
     for f = 1:length(cReverse)
-        if sum(speed(cReverse(f)-ealier:cReverse(f)) == 0) == 1+ealier;
+        if sum(speed(cReverse(f)-ealier:cReverse(f)) == 0) == 1+ealier && cReverse(f)+later <= length(speed)
             dfOvF_rev_stay(end+1,:,:) = dfOvF(cReverse(f)-ealier:cReverse(f)+later,:);
-        else
+        elseif cReverse(f)+later <= length(speed)
             dfOvF_rev_run(end+1,:,:) = dfOvF(cReverse(f)-ealier:cReverse(f)+later,:);
+        else
+            continue
         end
     end
     
@@ -134,17 +131,13 @@ for i = 1:length(sessions)
     behav_ave_fig = figure;clf
     %t = -5:1:15;
     subplot(2,2,1);
-    for n = 1: size(ave_dfOvF_revStay,2)
-        errorbar(ave_dfOvF_revStay(:,n),ste_dfOvF_revStay(:,n),'color',color_code{n}); hold on;
-    end
+    errorbar(ave_dfOvF_revStay,ste_dfOvF_revStay); hold on;
     xlim([1 21]); ylim([-0.3 0.1]);
     vline(6, 'k');vline(16, 'k');
     ylabel('df/f'); title('stay');
     
     subplot(2,2,2);
-    for n = 1: size(ave_dfOvF_revRun,2)
-        errorbar(ave_dfOvF_revRun(:,n),ste_dfOvF_revRun(:,n),'color',color_code{n}); hold on;
-    end
+    errorbar(ave_dfOvF_revRun,ste_dfOvF_revRun); hold on;
     xlim([1 21]); ylim([-0.3 0.1]);
     vline(6, 'k');vline(16, 'k');
     title('run'); 

@@ -1,4 +1,4 @@
-for i = 1%:length(sessions)
+for i = 1:length(sessions)
     speed_rev_stay = [];
     speed_rev_run = [];
     ealier = 5;
@@ -58,8 +58,9 @@ for i = 1%:length(sessions)
     behav_ave_fig = figure;clf
     %t = -5:1:15;
     subplot(2,2,1);
-    errorbar(ave_dfOvF_revStay, ste_dfOvF_revStay); hold on;
-   
+    for n = 1: size(ave_dfOvF_revStay,2)
+        errorbar(ave_dfOvF_revStay(:,n),ste_dfOvF_revStay(:,n),'color',color_code{n}); hold on;
+    end
     xlim([1 21]); ylim([-0.3 0.1]);
     vline(6, 'k');vline(16, 'k');
     ylabel('df/f'); title('stay');

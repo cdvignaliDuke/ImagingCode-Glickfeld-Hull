@@ -32,7 +32,7 @@ for i = 1:size(filename,1)
     % plot speed and save figure
     fig_speedtc = figure;
     plot(frames, speed); hold on;
-    if isempty(cReverse_vec) == 0;
+    if isempty(cReverse_vec) == 0
     vline(cReverse_vec, 'r');
     end
     title (['average speed every frame(100ms)', '  ', sessionID '-' num2str(i)]);

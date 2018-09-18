@@ -1,4 +1,77 @@
-for i = 1%:length(sessions)
+%% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
+clear;
+sessions = {'180505_img1010_1'};
+days = {'1010-180505_1'};
+%sessions = {'180413_img1002_1','180417_img1001_1','180419_img1002_1','180423_img1001_1',...
+%    '180425_img1001_1'};
+%days = {'1002-180413_1','1001-180417_1','1002-180419_1','1001-180423_1','1001-180425_1'};
+image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the movingDots analysis folder
+% behavior analysis results 
+color_code = {'b','r','k','m'};
+
+%% load
+for i = 1:length(sessions)
+    image_dest = [image_dest_base sessions{i} '\' sessions{i}];
+    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{i}];
+    behav_output = load([behav_dest '\' days{i} '_behavAnalysis.mat']);
+    speed = behav_output.speed;
+    cReverse = behav_output.cReverse_vec;
+    dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
+    dfOvF = dfOvF_struct.dfOvF_staybase;
+end
+
+%% determine if reverse stimuli does anything to df/f.
+for i = 1:length(sessions)
+    befo = 5;
+    aft = 15;
+    dfOvF_rev = [];
+    plot_x = -befo : aft;
+    t = -5:1:15;    
+    dfOvF = dfOvF';
+    %If there's no reverse stimuli during the experiment, it will just not run through this for loop b/c length cReverse is empty.
+    for f = 1:length(cReverse)
+        dfOvF_rev(end+1,:,:) = dfOvF(cReverse(f)-befo:cReverse(f)+aft,:);
+    end
+   
+    % save dfOvF_revfor later analysis
+    save([image_dest '_dfOvF_rev.mat' ],'dfOvF_rev');
+
+    %plot average
+    ave_dfOvF_rev = mean(dfOvF_rev,1);
+    ste_dfOvF_rev = std(dfOvF_rev,0,1)/sqrt(size(dfOvF_rev,1));
+    if size(ave_dfOvF_rev,3) > 1
+        ave_dfOvF_rev = squeeze(ave_dfOvF_rev);
+        ste_dfOvF_rev = squeeze(ste_dfOvF_rev);
+    else
+        ave_dfOvF_rev = ave_dfOvF_rev';
+        ste_dfOvF_rev = ste_dfOvF_rev';
+    end
+    
+    ave_rev_fig = figure;
+    errorbar(ave_dfOvF_rev,ste_dfOvF_rev); hold on;
+    xlim([1 21]);
+    ylim([-0.3 0.1]);
+    xlabel('frames');
+    vline(6, 'k');
+    vline(16, 'k');
+    ylabel('df/f');
+    title(['df/f before and after reverse stimuli', days{i}]);
+    saveas(ave_rev_fig, [image_dest '_reverseTrigAve']);
+    
+    % Plot individual reverse windows for each ROI  
+   % for n = 1: size(dfOvF_rev,3)
+    %    indi_rev_fig = figure;
+     %   plot(t,dfOvF_rev(:,:,n)');
+      %  xlabel('frames'); ylabel('df/f');
+       % title(['df/f before and after reverse stimuli ROI', num2str(n)]);
+       % saveas(indi_rev_fig,[image_dest '_reverseTrigROI' num2str(n)]);
+   % end
+
+end
+
+
+%% determine if reverse stim does anything differently during running vs. stay
+for i = 1:length(sessions)
     speed_rev_stay = [];
     speed_rev_run = [];
     ealier = 5;
@@ -58,8 +131,9 @@ for i = 1%:length(sessions)
     behav_ave_fig = figure;clf
     %t = -5:1:15;
     subplot(2,2,1);
-    errorbar(ave_dfOvF_revStay, ste_dfOvF_revStay); hold on;
-   
+    for n = 1: size(ave_dfOvF_revStay,2)
+        errorbar(ave_dfOvF_revStay(:,n),ste_dfOvF_revStay(:,n),'color',color_code{n}); hold on;
+    end
     xlim([1 21]); ylim([-0.3 0.1]);
     vline(6, 'k');vline(16, 'k');
     ylabel('df/f'); title('stay');
