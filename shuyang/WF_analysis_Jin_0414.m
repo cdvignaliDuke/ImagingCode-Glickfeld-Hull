@@ -12,7 +12,7 @@ behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days];% 
 for ii = 1:length(sessions)
     image_source = [image_source_base, sessions{ii}];
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
-    if exist([image_dest_base sessions{ii}], 'file') ~= 7;
+    if exist([image_dest_base sessions{ii}], 'file') ~= 7
         mkdir(image_dest_base, sessions{ii});
     end
     WF_draw_ROIs_for_movingDots(sessions{ii}, image_source, image_dest); %automatically saves the ROIs
@@ -24,7 +24,7 @@ for ii = 1:length(sessions)
     [all_files, meta_data, meta_data2] = obtain_tif_meta_data(image_source);
     frame_times = get_frame_time_by_movie_info(meta_data);
     dest =  [image_dest_base sessions{ii} '\' sessions{ii}];
-    if exist([image_dest_base sessions{ii}], 'file') ~= 7;
+    if exist([image_dest_base sessions{ii}], 'file') ~= 7
         mkdir(image_dest_base, sessions{ii});
     end
     save([dest '_frame_times'],  'frame_times');
@@ -51,7 +51,7 @@ for ii = 1: length(sessions)
     %n*num of frames double, n=number of ROIs.
     behav_output = load([behav_dest '\' days '_behavAnalysis.mat']);
     stay = behav_output.frames_stay_cell;
-    for n = 1:size(data_tc,1);
+    for n = 1:size(data_tc,1)
         data_tc_stay = data_tc(n,cell2mat(stay));
         F_staybase = mean(data_tc_stay);
         dfOvF_staybase(n,:) = (data_tc(n,:) - F_staybase)/F_staybase;

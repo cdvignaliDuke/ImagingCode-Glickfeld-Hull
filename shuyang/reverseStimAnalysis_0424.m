@@ -20,7 +20,7 @@ for i = 1:length(sessions)
     dfOvF = dfOvF_struct.dfOvF_staybase;
 end
 
-%% determine if reverse stimuli does anything to df/f.
+%% determine if reverse stimuli does anything to df/f. ave df/f before, during, and after reverse
 for i = 1:length(sessions)
     befo = 5;
     aft = 15;
