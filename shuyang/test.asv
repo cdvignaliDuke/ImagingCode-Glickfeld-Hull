@@ -1,0 +1,21 @@
+ave_dfOvF_behav_all = [];
+ACS_dest = [image_dest_base '\' 'acrossSessions'];
+for i = 1: length(sessions)
+    image_dest = [image_dest_base sessions{i} '\' sessions{i}];
+    img_anal = load([image_dest '_imgAnalysis.mat' ]);
+    ave_dfOvF_behav = img_anal.ave_dfOvF_behav; 
+    ave_dfOvF_behav_all = cat(1,ave_dfOvF_behav_all,ave_dfOvF_behav ); %problem: don't know how to put all dfOvF_spd together. this cell can't be cell2matted later.
+end
+%acs: across sessions
+ave_dfOvF_behav_ACS = mean(ave_dfOvF_behav_all);
+ste_dfOvF_behav_ACS = std(ave_dfOvF_behav_all)/sqrt(length(ave_dfOvF_behav_all));
+
+x = [1,2]; 
+    dfOvF_behavStates_ACS = figure;
+    errorbar(x,ave_dfOvF_behav_ACS,ste_dfOvF_behav_ACS,'linewidth', 2);
+    xlabel ('behavioral state');xlim([0.5 2.5]);
+    set(gca,'XTick',x,'XTicklabel',{'stationary','run'});
+    ylabel('df/f');
+    title(['df/f for each beahvioral state across sessions']); legend;
+    saveas(dfOvF_behavStates_ACS, [ ACS_dest '_dfOvF_behavStates_']);
+    save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_behav', '-append');

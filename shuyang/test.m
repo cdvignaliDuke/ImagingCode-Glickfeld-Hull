@@ -1,28 +1,36 @@
-sessions = {'180430_img1008_1'}; days = {'1008-180430_1'};
-
+%% SECTION II - reverse trig ave during run across sessions
+ave_dfOvF_revRun_all = []; ave_speed_revRun_all = []; 
+ACS_dest = [image_dest_base 'acrossSessions\'];
 for i = 1: length(sessions)
     image_dest = [image_dest_base sessions{i} '\' sessions{i}];
-    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{i}];
-    behav_struct = load([behav_dest '\' days{i} '_behavAnalysis.mat']);
-    speed = behav_struct.speed;
-    cReverse_vec = behav_struct.cReverse_vec;
-    dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_struct.dfOvF_staybase;
-    
-    isp = unique(speed);
-    dfOvF_spd = []; dfOvF_spdmean = []; dfOvF_spdste = [];
-    for k = 1:length(isp)
-        dfOvF_spd = dfOvF(:,speed==isp(k));
-        dfOvF_spdmean(:,k)  = mean(dfOvF_spd,2);
-        dfOvF_spdste(:,k) = std(dfOvF_spd,[],2)/sqrt(length(dfOvF_spd));
-    end
-    isp_plot =  repmat(isp,size(dfOvF_spdmean,1),1);
-    dfOvF_ave_vs_spd = figure;
-    errorbar(isp_plot',dfOvF_spdmean',dfOvF_spdste');
-    %if do errorbar(y,ste y), it can do multiple lines at once. But if do
-    %errorbar(x,y,ste y), size of x and y must match(if your y contains n lines, even though the x for all lines are the same, x must have n lines too. 
-    xlabel ('speed');
-    ylabel('ave df/f');
-    title(['df/f vs. speed',sessions{i}]);
-    saveas(dfOvF_ave_vs_spd, [image_dest, '_dfOvf_vs_speed']);
+    img_anal = load([image_dest '_imgAnalysis.mat' ]);
+    ave_dfOvF_revRun = img_anal.ave_dfOvF_revRun;
+    ave_dfOvF_revRun_all = cat(1,ave_dfOvF_revRun_all,ave_dfOvF_revRun);
+    ave_speed_revRun = img_anal.ave_speed_revRun;
+    ave_speed_revRun_all = cat(1,ave_speed_revRun_all,ave_speed_revRun );
 end
+%acs: across sessions
+ave_dfOvF_revRun_ACS = mean(ave_dfOvF_revRun_all);
+ste_dfOvF_revRun_ACS = std(ave_dfOvF_revRun_all)/sqrt(length(ave_dfOvF_revRun_all));
+ave_speed_revRun_ACS = mean(ave_speed_revRun_all);
+ste_speed_revRun_ACS = std(ave_speed_revRun_all)/sqrt(length(ave_speed_revRun_all));
+
+dfOvF_revRun_ACS = figure;
+subplot(2,1,1);hold on;
+errorbar(ave_dfOvF_revRun_ACS,ste_dfOvF_revRun_ACS,'linewidth', 1.5); hold on;
+%xlim([-5 10]);
+%ylim([-0.05 0.05]);
+vline(4, 'r','running start');
+ylabel('df/f'); 
+
+subplot(2,1,2);hold on;
+errorbar(ave_speed_revRun_ACS,ste_speed_revRun_ACS,'linewidth', 1.5); hold on;
+xlabel('frames');
+ylabel('speed');
+vline(4, 'r','running start');
+%xlim([-5 10]);
+
+supertitle(['run triggered average across sessions']); 
+saveas(dfOvF_revRun_ACS, [ ACS_dest 'dfOvF_revRun_ACS']);
+save([ ACS_dest 'ACSanalysis.mat' ],'ave_dfOvF_revRun_ACS','ste_dfOvF_revRun_ACS',...
+   'ave_speed_revRun_ACS','ste_speed_revRun_ACS', '-append' );
