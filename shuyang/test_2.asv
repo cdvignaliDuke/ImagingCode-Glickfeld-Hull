@@ -42,8 +42,6 @@ for ii = 1:length(sessions)
     
     %----------------------------------------------------------------------
     dfOvF_run_buffer = figure;
-    %plot(ave_befoRunaft','.-');
-    %hold on;
     errorbar(ave_befoRunaft',ste_befoRunaft','linewidth', 1.5);hold on;
     x = [1,2,3];
     %xlabel ('');

@@ -31,9 +31,9 @@ end
 %generate matrix for df/f_speedmean
 dfOvF_spd_temp = cell2mat(cellfun(@size,dfOvF_spd_all, 'UniformOutput',0));
 dfOvF_spd_length = max(dfOvF_spd_temp);
-dfOvF_spd_mat = nan(size(dfOvF_spd_all,2), dfOvF_spd_length);
+dfOvF_spd_mat = nan(size(isp_all,2), dfOvF_spd_length);
 for n = 1: size(dfOvF_spd_mat,1)
-    temp = dfOvF_spd_all{n};
+    temp = isp_all{n};
     dfOvF_spd_mat(n,1:size(temp,2)) = temp;
 end
 
