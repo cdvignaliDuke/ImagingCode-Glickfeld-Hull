@@ -64,6 +64,7 @@ for i =  1:size(filename,1)
     title (['distribution of running duration', '  ',filename(i).name]);
     xlabel ('time length (number of frames)');
     ylabel ('frequency');
+    vline(medianDura_runFrames, 'r');
     saveas(fig_runDuradist,[behav_dest '\' sessionID '_' num2str(i) '_runDuraDist']);
 end
 
@@ -85,8 +86,9 @@ for i = 1:size(filename,1)
     histogram(num_frames_stay,edges);
     title (['distribution of stationary duration', '  ',filename(i).name]);
     xlabel ('time length (number of frames)');
-    xlim([1 500])
+    xlim([1 500]);
     ylabel ('frequency');
+    vline(medianDura_stayFrames, 'r');
     saveas(fig_staydist,[behav_dest '\' sessionID '_' num2str(i) '_stayDistribution' ]);
 end
 
@@ -117,6 +119,7 @@ for i = 1:size(filename,1)
     title (['distribution of abvThreRun duration', '  ',filename(i).name]);
     xlabel ('time length (number of frames)');
     ylabel ('frequency');
+    vline(runThreshold, 'r');
     saveas(fig_ABTspeeddist,[behav_dest '\' sessionID '_' num2str(i) '_ATR Distribution' ]);
 end
 

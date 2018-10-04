@@ -50,7 +50,7 @@ for j = 1: length(spd_all_plotx)
     dfOvF_errbar(j) = std(dfOvF_spd_all_mat(c))/sqrt(length(c));
 end
 dfOvF_vs_spd_ACS = figure; 
-errorbar(spd_all_plotx,dfOvF_all_ploty,dfOvF_errbar,'linewidth', 1.5);
+errorbar(spd_all_plotx,dfOvF_all_ploty,dfOvF_errbar,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 xlabel ('speed');
 ylabel('ave df/f');
 title(['df/f vs. speed across sessions']); 
@@ -74,10 +74,11 @@ ste_dfOvF_behav_ACS = std(ave_dfOvF_behav_all)/sqrt(length(ave_dfOvF_behav_all))
 
 x = [1,2];
 dfOvF_behavStates_ACS = figure;
-errorbar(ave_dfOvF_behav_ACS,ste_dfOvF_behav_ACS,'linewidth', 2);
+errorbar(x,ave_dfOvF_behav_ACS,ste_dfOvF_behav_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 xlabel ('behavioral state');xlim([0.5 2.5]);
 set(gca,'XTick',x,'XTicklabel',{'stationary','run'});
 ylabel('df/f');
+ylim([-0.12 0.02]);
 title(['df/f for each beahvioral state across sessions']); 
 saveas(dfOvF_behavStates_ACS, [ ACS_dest 'dfOvF_behavStates_ACS']);
 save([ ACS_dest 'ACSanalysis.mat' ],'ave_dfOvF_behav_ACS','ste_dfOvF_behav_ACS' );
@@ -98,7 +99,9 @@ ste_dfOvF_befoRunAft_ACS = std(ave_dfOvF_befoRunAft_all)/sqrt(length(ave_dfOvF_b
 
 x = [1,2,3];
 dfOvF_befoRunAft_ACS = figure;
-errorbar(ave_dfOvF_befoRunAft_ACS,ste_dfOvF_befoRunAft_ACS,'linewidth', 2);
+errorbar(x,ave_dfOvF_befoRunAft_ACS,ste_dfOvF_befoRunAft_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+plot(x,ave_dfOvF_befoRunAft_ACS,'.','Color','b','MarkerSize',20,'LineStyle','none');
+
 xlabel ('behavioral state');xlim([0.5 3.5]);
 set(gca,'XTick',x,'XTicklabel',{'before','run','after'});
 ylabel('df/f');
@@ -121,7 +124,7 @@ for i = 1: length(sessions)
     dfOvF_blPart300ms = [dfOvF_bgPart300ms,dfOvF_lstPart300ms];%bl: begin and last
     speed_bgPart300ms = speed_plot300ms(:,(1: 1+period));
     speed_lstPart300ms = speed_plot300ms(:,(end-period:end));
-    speed_blPart300ms = [speed_bgPart300ms,speed_lstPart300ms];%be: begin and last
+    speed_blPart300ms = [speed_bgPart300ms,speed_lstPart300ms];%bl: begin and last
     
     dfOvF_bl300ms_all = cat(1,dfOvF_bl300ms_all,dfOvF_blPart300ms );
     speed_bl300ms_all = cat(1,speed_bl300ms_all,speed_blPart300ms );
@@ -133,15 +136,16 @@ ave_speed_bl300ms = mean(speed_bl300ms_all);
 ste_dfOvF_bl300ms = std(dfOvF_bl300ms_all)/sqrt(length(dfOvF_bl300ms_all));
 ste_speed_bl300ms = std(speed_bl300ms_all)/sqrt(length(speed_bl300ms_all));
 
+x = (1: 1: 20);
 dfOvF_run300ms_ACS = figure;
 subplot(2,1,1);hold on;
-errorbar(ave_dfOvF_bl300ms,ste_dfOvF_bl300ms,'linewidth', 1.5); hold on;
+errorbar(x,ave_dfOvF_bl300ms,ste_dfOvF_bl300ms,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 %xlim([-5 10]);
-%ylim([-0.05 0.05]);
+ylim([-0.1 0]);
 ylabel('df/f'); 
 
 subplot(2,1,2);hold on;
-errorbar(ave_speed_bl300ms,ste_speed_bl300ms,'linewidth', 1.5); hold on;
+errorbar(x,ave_speed_bl300ms,ste_speed_bl300ms,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 xlabel('frames');
 ylabel('speed');
 %xlim([-5 10]);
@@ -172,19 +176,20 @@ ste_dfOvF_runTrigger_ACS = std(ave_dfOvF_runTrigger_all)/sqrt(length(ave_dfOvF_r
 ave_speed_runTrigger_ACS = mean(ave_speed_runTrigger_all);
 ste_speed_runTrigger_ACS = std(ave_speed_runTrigger_all)/sqrt(length(ave_speed_runTrigger_all));
 
+x = (1:15);
 dfOvF_runTrigger_ACS = figure;
 subplot(2,1,1);hold on;
-errorbar(ave_dfOvF_runTrigger_ACS,ste_dfOvF_runTrigger_ACS,'linewidth', 1.5); hold on;
+errorbar(x,ave_dfOvF_runTrigger_ACS,ste_dfOvF_runTrigger_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 %xlim([-5 10]);
 %ylim([-0.05 0.05]);
-vline(4, 'r','running start');
+vline(6, 'r','running start');
 ylabel('df/f'); 
 
 subplot(2,1,2);hold on;
-errorbar(ave_speed_runTrigger_ACS,ste_speed_runTrigger_ACS,'linewidth', 1.5); hold on;
+errorbar(x,ave_speed_runTrigger_ACS,ste_speed_runTrigger_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 xlabel('frames');
 ylabel('speed');
-vline(4, 'r','running start');
+vline(6, 'r','running start');
 %xlim([-5 10]);
 
 supertitle(['run triggered average across sessions']); 
