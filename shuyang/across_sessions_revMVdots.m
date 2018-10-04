@@ -27,7 +27,7 @@ ave_dfOvF_rev_ACS = mean(ave_dfOvF_rev_all);
 ste_dfOvF_rev_ACS = std(ave_dfOvF_rev_all)/sqrt(length(ave_dfOvF_rev_all));
 
 dfOvF_reverseTrigger_ACS = figure;
-errorbar(ave_dfOvF_rev_ACS,ste_dfOvF_rev_ACS,'linewidth', 1.5); hold on;
+errorbar(ave_dfOvF_rev_ACS,ste_dfOvF_rev_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 xlim([0 21]);
 %ylim([-0.05 0.05]);
 vline(6, 'r');vline(16, 'r');
@@ -58,14 +58,14 @@ ste_speed_revRun_ACS = std(ave_speed_revRun_all)/sqrt(length(ave_speed_revRun_al
 
 dfOvF_revRun_ACS = figure;
 subplot(2,1,1);hold on;
-errorbar(ave_dfOvF_revRun_ACS,ste_dfOvF_revRun_ACS,'linewidth', 1.5); hold on;
+errorbar(ave_dfOvF_revRun_ACS,ste_dfOvF_revRun_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 xlim([0 21]);
 %ylim([-0.05 0.05]);
 vline(6, 'r');vline(16, 'r');
 ylabel('df/f'); 
 
 subplot(2,1,2);hold on;
-errorbar(ave_speed_revRun_ACS,ste_speed_revRun_ACS,'linewidth', 1.5); hold on;
+errorbar(ave_speed_revRun_ACS,ste_speed_revRun_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 xlabel('frames');
 ylabel('speed');
 vline(6, 'r');vline(16, 'r');
@@ -96,13 +96,13 @@ ste_speed_revStay_ACS = std(ave_speed_revStay_all)/sqrt(length(ave_speed_revStay
 
 dfOvF_revStay_ACS = figure;
 subplot(2,1,1);hold on;
-errorbar(ave_dfOvF_revStay_ACS,ste_dfOvF_revStay_ACS,'linewidth', 1.5); hold on;
+errorbar(ave_dfOvF_revStay_ACS,ste_dfOvF_revStay_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 %ylim([-0.05 0.05]);
 vline(6, 'r');vline(16, 'r');
 xlim([0 21]);ylabel('df/f'); 
 
 subplot(2,1,2);hold on;
-errorbar(ave_speed_revStay_ACS,ste_speed_revStay_ACS,'linewidth', 1.5); hold on;
+errorbar(ave_speed_revStay_ACS,ste_speed_revStay_ACS,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
 xlabel('frames');
 ylabel('speed');
 vline(6, 'r');vline(16, 'r');

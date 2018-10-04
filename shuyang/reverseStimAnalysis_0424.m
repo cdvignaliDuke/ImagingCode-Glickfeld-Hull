@@ -58,7 +58,7 @@ for i = 1:length(sessions)
     end
     
     ave_rev_fig = figure;
-    errorbar(ave_dfOvF_rev,ste_dfOvF_rev,'linewidth', 1.5); hold on;
+    errorbar(ave_dfOvF_rev,ste_dfOvF_rev,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
     xlim([1 21]);
     %ylim([-0.3 0.1]);
     xlabel('frames');
@@ -150,25 +150,25 @@ for i = 1:length(sessions)
     behav_ave_fig = figure;clf
     %t = -5:1:15;
     subplot(2,2,1);
-    errorbar(ave_dfOvF_revStay,ste_dfOvF_revStay,'linewidth', 1.5); hold on;
+    errorbar(ave_dfOvF_revStay,ste_dfOvF_revStay,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
     xlim([1 21]); %ylim([-0.3 0.1]);
     vline(6, 'k');vline(16, 'k');
     ylabel('df/f'); title('stay'); legend;
     
     subplot(2,2,2);
-    errorbar(ave_dfOvF_revRun,ste_dfOvF_revRun,'linewidth', 1.5); hold on;
+    errorbar(ave_dfOvF_revRun,ste_dfOvF_revRun,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
     xlim([1 21]); %ylim([-0.3 0.1]);
     vline(6, 'k');vline(16, 'k');
     title('run'); legend;
 
     subplot(2,2,3);
-    errorbar(ave_speed_revStay,ste_speed_revStay,'linewidth', 1.5); hold on;
+    errorbar(ave_speed_revStay,ste_speed_revStay,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
     xlim([1 21]); %ylim([0 60]);
     vline(6, 'k');vline(16, 'k');
     ylabel('speed'); xlabel('frames');
     
     subplot(2,2,4);
-    errorbar(ave_speed_revRun,ste_speed_revRun,'linewidth', 1.5); hold on;
+    errorbar(ave_speed_revRun,ste_speed_revRun,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
     xlim([1 21]); %ylim([0 60]);
     vline(6, 'k');vline(16, 'k');
     xlabel('frames');
