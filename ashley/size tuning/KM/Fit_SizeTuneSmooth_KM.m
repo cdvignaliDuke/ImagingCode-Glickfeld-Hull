@@ -49,7 +49,7 @@ names = {'c1','OF1','x0'};
 for ike = 1:length(ke_vec)
     for ixe = 1:length(xe_vec)
         % fprintf('.');
-        guess1 = [0.5*maxMean 0.35 10];
+        guess1 = [0.5*maxMean 0.35 maxVal/2];
         %guess1 = [0.5*maxMean ke_vec(ike) xe_vec(ixe)];
         %guess1 = [0.5*maxMean 0.35 xe_vec(ixe)];
         
@@ -71,7 +71,7 @@ for ik1 = 1:length(k1_vec)
             for ix2 = 1:length(x2_vec)
                 % fprintf('.');
                 %guess2 = [maxMean k1_vec(ik1) x1_vec(ix1) maxMean-mean(s.data) k2_vec(ik2) x2_vec(ix2)];
-                guess2 = [maxMean 0.4 10 maxMean-mean(dumdum) 0.3 20];
+                guess2 = [maxMean 0.4 maxVal/2 maxMean-mean(dumdum) 0.3 maxVal*1.5];
                 %guess2 = [maxMean 0.4 x1_vec(ix1) maxMean-mean(dumdum) 0.3 x2_vec(ix2)];
                 
                 [c2,OF2] = fminsearchbnd(@(c)sigevalpen2(c,s.szs0,s.data),guess2,s.lb2,s.ub2,opts);
@@ -143,7 +143,11 @@ if PLOTIT_FIT == 1
         start = 1;
     end
     h = subplot(6,6,start);
-    errorbar([0 szs],[0 sizeMean(:,nCon,iCell)'],[0 sizeSEM(:,nCon,iCell)'])
+    if nCon>1
+        errorbar([0 szs],[0 sizeMean(:,nCon,iCell)'],[0 sizeSEM(:,nCon,iCell)'])
+    elseif nrun>1
+        errorbar([0 szs],[0 sizeMean(:,1,iCell)'],[0 sizeSEM(:,1,iCell)'])
+    end
     hold on
     plot(s.szs0,s.data,'.b')
     if s.Ftest

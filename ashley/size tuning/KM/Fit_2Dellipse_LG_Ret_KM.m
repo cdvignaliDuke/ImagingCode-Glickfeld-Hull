@@ -114,6 +114,9 @@ for countres = 1:length(temp)
     tmp = [tmp; temp(countres).resnorm temp(countres).x2];
 end
 
+s.SStot = sum(sum((s.data-mean(s.data)).^2));
+s.Rsq = 1 - Resnorm/s.SStot;
+
 s.fit = temp(ind);
 s.x = s.fit.x2;
 s.k2 = zeros(m2*n2,1);
@@ -130,6 +133,7 @@ s.res = s.data-s.k2b;
 s.Maxfit = max(max(s.k2b));
 s.Maxdata = max(max(s.data));
 
+s.fval = FVAL;
 
 %find highcut for SF and TF
 %x(:,1) = log2(grid2.sfsf(:));

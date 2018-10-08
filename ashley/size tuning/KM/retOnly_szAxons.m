@@ -8,8 +8,8 @@
 %% get path names
 close all;clear all;clc;
 
-ds = 'szTuning_axons_PM';
-iexp = 1; 
+ds = 'szTuning_axons_AL';
+iexp = 2; 
 rc = behavConstsAV;
 eval(ds)
 
@@ -102,6 +102,7 @@ if doRegFrame
         subplot(n,n2,i);
         imagesc(mean(data(:,:,(1:500)+(i-1)*regIntv),3));
         title([num2str(i) ': ' num2str(1+((i-1)*regIntv)) '-' num2str(500+((i-1)*regIntv))]);
+        clim([600 1500])
     end
 end
 %% Register data
@@ -109,34 +110,36 @@ end
 chooseInt = 5; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
 
 fprintf('\nBegin registering...\n')
-if exist(fullfile(fnout,dataFolder), 'dir')
-    % checks if analysis already present
-    % load reg_shifts.mat (out, data_avg) and save the current input file
-    fprintf('Found previous analysis! Loading...\n')
-    
-    switch analyzer
-        case 'kevin'
-            load(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
-        case 'lindsey'
-            load(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
-        case 'ashley'
-            load(fullfile(fnout, dataFolder, 'registration'))
-    end
-    
-    % register
-    fprintf('stackRegister_MA, using shifts from previous registration\n')
-    % uses previous registration shifts (out) to re-register data quickly
-    switch analyzer
-        case 'ashley'
-            out = outs;
-    end
-    [outs, data_reg]=stackRegister_MA(data,[],[],double(out));
-    fprintf('Previous registration loaded...\n')
-    
-    % save new input
-    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_input.mat']), 'input')
-    
-else
+% if exist(fullfile(fnout,dataFolder), 'dir')
+%     if exist(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
+%     % checks if analysis already present
+%     % load reg_shifts.mat (out, data_avg) and save the current input file
+%     fprintf('Found previous analysis! Loading...\n')
+%     
+%     switch analyzer
+%         case 'kevin'
+%             load(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
+%         case 'lindsey'
+%             load(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
+%         case 'ashley'
+%             load(fullfile(fnout, dataFolder, 'registration'))
+%     end
+%     
+%     % register
+%     fprintf('stackRegister_MA, using shifts from previous registration\n')
+%     % uses previous registration shifts (out) to re-register data quickly
+%     switch analyzer
+%         case 'ashley'
+%             out = outs;
+%     end
+%     [outs, data_reg]=stackRegister_MA(data,[],[],double(out));
+%     fprintf('Previous registration loaded...\n')
+%     
+%     % save new input
+%     save(fullfile(fnout, dataFolder, [mouse '_' expDate '_input.mat']), 'input')
+%     end
+%     
+% elseif ~exist(fullfile(fnout,dataFolder), 'dir') || ~exist(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']))
     % else means no previous analysis present
     % use data_avg selected above (could move here?)
     % then create new directory and save analysis
@@ -155,7 +158,7 @@ else
     mkdir(fullfile(fnout,dataFolder))
     save(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']), 'out', 'data_avg','meanrng')
     save(fullfile(fnout, dataFolder, [mouse '_' expDate '_input.mat']), 'input')
-end
+%end
 clear data % depending on memory
 
 %% test stability
@@ -407,6 +410,7 @@ ax.YTickLabel = Els;
 title('Total image average dF/F response map')
 xlabel('Azimuth (deg)')
 ylabel('Elevation (deg)')
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_totalImageRF.pdf']), '-dpdf')
 
 
 % scroll through stims
@@ -526,9 +530,10 @@ print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOVresp.pdf']), '-dpdf')
 % clear data_dfof data_dfof_avg max_dfof mask_data mask_all mask_2 data_base data_base_dfof data_targ data_targ_dfof data_f data_base2 data_base2_dfof data_dfof_dir_all data_dfof_max data_dfof_targ data_avg data_dfof2_dir data_dfof_dir
 
 %% Get time courses
+nCells = sum(mask_cell(:));
+fprintf(['Found ' num2str(nCells) ' boutons\n'])
 
 fprintf('Extracting cell signal...\n')
-nCells = sum(mask_cell(:));
 data_tc = zeros(sz(3),nCells);
 iC = 1;
 for i = 1:sz(1)
@@ -592,7 +597,8 @@ colorbar
 
 %% calculate tuning mat and plot
 
-fprintf('\nPlotting timecourses and measuring stimOn response\n')
+%fprintf('\nPlotting timecourses and measuring stimOn response\n')
+fprintf('\nMeasuring stimOn response\n')
 tuning_mat = zeros(nStim, 2, nCells);
 fulltuning_mat = zeros(nStim, 2, 2);
 Ind_struct = [];
@@ -602,30 +608,32 @@ else
     [n, n2] = subplotn(36);
 end
 tt= (1-nOff:nOn)*(1000./frame_rate);
-figure;
-start = 1;
-f = 1;
+% figure;
+% start = 1;
+% f = 1;
 for iCell = 1:nCells
-    if start >36
-        set(gcf, 'Position', [0 0 800 1000]);
-        print(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs' num2str(f) '.pdf']), '-dpdf')
-        start = 1;
-        f= f+1;
-        figure;
-    end
-    subplot(n, n2, start)
+%     if start >36 & start < 217
+%         set(gcf, 'Position', [0 0 800 1000]);
+%         print(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs' num2str(f) '.pdf']), '-dpdf')
+%         start = 1;
+%         f= f+1;
+%         figure;
+%     end
+%     subplot(n, n2, start)
     for iStim = 1:nStim
         indA = find(Az == Stims(iStim,2));
         indE = find(El == Stims(iStim,1));
         ind = intersect(indE,indA);
-        plot(tt', squeeze(mean(tc_dfof(:,iCell,ind),3)))
-        hold on
+%         if start <217
+%             plot(tt', squeeze(mean(tc_dfof(:,iCell,ind),3)))
+%             hold on
+%         end
         tuning_mat(iStim,1,iCell) = mean(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),1),3);
         tuning_mat(iStim,2,iCell) = std(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),1),[],3)./sqrt(length(ind));
         Ind_struct(iStim).all_trials = ind;
     end
-    ylim([-0.05 0.25])
-    vline(nOff)
+%     ylim([-0.05 0.25])
+%     vline(nOff)
     start = start + 1;
 end
 for iCell = 1:2
@@ -637,33 +645,33 @@ for iCell = 1:2
         fulltuning_mat(iStim,2,iCell) = std(mean(fulltc_dfof(nOff+1:nOn+nOff,iCell,ind),1),[],3)./sqrt(length(ind));
     end
 end
-set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs' num2str(f) '.pdf']), '-dpdf')
+% set(gcf, 'Position', [0 0 800 1000]);
+% print(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs' num2str(f) '.pdf']), '-dpdf')
 
-fprintf('Plotting tuning maps\n')
-figure;
-start = 1;
-f = 1;
-for iCell = 1:nCells
-    if start >36
-        set(gcf, 'Position', [0 0 800 1000]);
-        print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning' num2str(f) '.pdf']), '-dpdf')
-        start = 1;
-        f= f+1;
-        figure;
-    end
-    subplot(n, n2, start)
-    ret_mat = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
-    ret_mat = ret_mat';
-    imagesc(ret_mat)
-    colormap gray
-    %clim([0 max(max(tuning_mat(:,1,:),[],1),[],3)])
-    %clim([0 chop(max(tuning_mat(:,1,iCell),[],1),2)])
-    title(num2str(chop(max(tuning_mat(:,1,iCell),[],1),2)))
-    start = start +1;
-end
-set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning' num2str(f) '.pdf']), '-dpdf')
+% fprintf('Plotting tuning maps\n')
+% figure;
+% start = 1;
+% f = 1;
+% for iCell = 1:nCells
+%     if start >36
+%         set(gcf, 'Position', [0 0 800 1000]);
+%         print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning' num2str(f) '.pdf']), '-dpdf')
+%         start = 1;
+%         f= f+1;
+%         figure;
+%     end
+%     subplot(n, n2, start)
+%     ret_mat = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
+%     ret_mat = ret_mat';
+%     imagesc(ret_mat)
+%     colormap gray
+%     %clim([0 max(max(tuning_mat(:,1,:),[],1),[],3)])
+%     %clim([0 chop(max(tuning_mat(:,1,iCell),[],1),2)])
+%     title(num2str(chop(max(tuning_mat(:,1,iCell),[],1),2)))
+%     start = start +1;
+% end
+% % set(gcf, 'Position', [0 0 800 1000]);
+% % print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning' num2str(f) '.pdf']), '-dpdf')
 save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'Stims', 'Ind_struct')
 
 % plot tc and ret_mat for full and cell avg
@@ -692,16 +700,16 @@ close all
 
 fprintf('\nBegin fitting retinotopy data...\n')
 
-fprintf('Plot tc_dfof for all stims of cell 10\n')
-figure;
-for iCell = 19
-    for iCond = 1:nStim
-        subplot(7,7,iCond)
-        ind_all = Ind_struct(iCond).all_trials;
-        plot(squeeze(tc_dfof(:,iCell,ind_all)))
-        ylim([-0.1 0.4])
-    end
-end
+% fprintf('Plot tc_dfof for all stims of cell 10\n')
+% figure;
+% for iCell = 19
+%     for iCond = 1:nStim
+%         subplot(7,7,iCond)
+%         ind_all = Ind_struct(iCond).all_trials;
+%         plot(squeeze(tc_dfof(:,iCell,ind_all)))
+%         ylim([-0.1 0.4])
+%     end
+% end
 
 Fit_struct = [];
 [AzAz, ElEl] = meshgrid(Azs,Els);
@@ -763,8 +771,19 @@ for count_shuf = 0:Nshuf
                 h_all(1,iCell) = 1;
             end
         end
+        if count_shuf == 1 & iCell == 1
+            x = zeros(1,nCells);
+            for i = 1:nCells
+                x(1,i) = Fit_struct(iCell).True.s_.Rsq;
+            end
+            n = length(find(x>=0.5));
+            fprintf([num2str(n) '/' num2str(nCells) ' r-squared > 0.5\n'])
+        end
         if count_shuf>0
             if h_all(1,iCell) == 0
+                continue
+            end
+            if nCells > 2000 & Fit_struct(iCell).True.s_.Rsq < 0.5
                 continue
             end
         end
@@ -773,7 +792,7 @@ for count_shuf = 0:Nshuf
             b = reshape(a',length(Azs),length(Els));
             data = b';
             if count_shuf == 0
-                PLOTIT_FIT = 1;
+                PLOTIT_FIT = 0;
                 SAVEALLDATA = 1;
                 Fit_2Dellipse_LG_Ret_KM % modified due to error from file saving in script, saves to kevin analysis folder
                 eval(['Fit_struct(iCell).True.s_',' = s;']);
@@ -791,11 +810,17 @@ for count_shuf = 0:Nshuf
         print(fn_out,'-dpdf')
     end
 end
-fprintf('Shuffling done, saving fit results\n')
-
-fn_out = fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct.mat']);
-save(fn_out, 'Fit_struct')
-
+fprintf('\nShuffling done, saving fit results\n')
+s = whos('Fit_struct');
+if s.bytes < 2300000000
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct.mat']), 'Fit_struct')
+    fprintf('\nSaved all shuffles\n')
+else 
+    Fit_struct_sub = rmfield(Fit_struct,'Shuf');
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct_sub.mat']), 'Fit_struct_sub')
+    fprintf('\nSaved only true fits\n')
+end
+%% assess fits
 resp_ind = find(h_all); % h_all indicates responsive cell (by t-test against baseline)
 
 fprintf('Assessing goodness of fit\n')
@@ -927,11 +952,11 @@ print(fn_out,'-dpdf')
 
 %% visualize retinotopic organization
 % takes each of the goodfit_inds and colors masks by El+Az of RF center
-
+mask_label = bwlabel(mask_all);
 retMap_El = NaN(size(mask_cell));
 retMap_Az = retMap_El;
 for i=1:length(goodfit_ind)
-    ind = find(mask_cell == goodfit_ind(i));
+    ind = find(mask_label == goodfit_ind(i));
     retMap_El(ind) = lbub_fits(goodfit_ind(i),5,4);
     retMap_Az(ind) = lbub_fits(goodfit_ind(i),4,4);
 end

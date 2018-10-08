@@ -6,10 +6,10 @@
 % here we extract size tuning, using the neuron mask from retOnly run
 
 %% get path names
-clear all;clc;
+clear all;close all; clc;
 
-ds = 'szTuning_axons_PM';
-iexp = 1;
+ds = 'szTuning_axons_LM';
+iexp = 3;
 rc = behavConstsAV;
 eval(ds)
 
@@ -74,9 +74,10 @@ for irun = 1:nrun
     data_temp = squeeze(data_temp);
     
     % if nframes =/= ntrials*(frames in trial), then resize
-    if isfield(input,'sizeTuningMaxTrials')
-        if ~isempty(input.sizeTuningMaxTrials{irun})
-            ntrials = input.sizeTuningMaxTrials{irun};
+    if isfield(expt(iexp),'sizeTuningMaxTrials')
+        if ~isempty(expt(iexp).sizeTuningMaxTrials{irun})
+            ntrials = expt(iexp).sizeTuningMaxTrials{irun};
+            temp(irun).trialSinceReset = ntrials;
         end
     end
     if nframes>ntrials*(nOn+nOff)
@@ -115,6 +116,7 @@ colormap(gray)
 for i = 1:nep
     subplot(n,n2,i);
     imagesc(mean(data(:,:,(1:500)+(i-1)*regIntv),3));
+    clim([500 1500])
     title([num2str(i) ': ' num2str(1+((i-1)*regIntv)) '-' num2str(500+((i-1)*regIntv))]);
 end
 
@@ -125,6 +127,7 @@ load(fullfile(fnout,retFolder,[mouse '_' expDate 'ret_reg_shifts.mat']))
 load(fullfile(fnout,retFolder,[mouse '_' expDate '_mask_cell.mat']))
 subplot(n,n2,i+1);
 imagesc(data_avg)
+clim([500 1500])
 title('Ret Avg')
 %% Register data
 
@@ -365,7 +368,7 @@ save(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs.mat']), 'data_tc')
 
 fprintf('Calculating dF/F...\n')
 %get dF/F
-nCells = size(npSub_tc,2);
+nCells = size(data_tc,2);
 tc_mat = zeros(nOn+nOff, nCells, ntrials);
 % reshape into trials, could do this in one line with reshape?
 for itrial = 1:ntrials
@@ -383,7 +386,7 @@ fprintf(['Loading fits from retinotopy runs: ' retFolder '\n'])
 load(fullfile(fnout, retFolder, [mouse '_' expDate '_lbub_fits.mat']))
 
 fprintf('\nExamine average cell dF/F timecourse to select response window\n')
-respWindow = int64(6:14); % this will be the window to define dF/F response (offset by nITI + nDelay)
+respWindow = int64(5:13); % this will be the window to define dF/F response (offset by nITI + nDelay)
 baseWindow = int64(-5:0);
 
 tt = (1-nOff:nOn)*(1000./frame_rate);
@@ -432,12 +435,18 @@ else
     [n, n2] = subplotn(36);
 end
 tt = (1-nOff:nOn)*(1000./frame_rate);
+
+dir_mat = celleqel2mat_padded(input.tGratingDirectionDeg);
+dirs = unique(dir_mat);
+nDir = length(dirs);
+ind_dir = find(dir_mat == 0); %this finds trials with the same ori as ret
+
 sizeTune = cell(nSize,nCells);
 baseResp = cell(nSize,nCells);
 for iCell = 1:nCells
     iC = goodfit_ind(iCell);
     for iSize = 1:nSize
-        ind = find(sz_mat == szs(iSize));
+        ind = intersect(ind_dir, find(sz_mat == szs(iSize)));
         stimOn = mean(tc_dfof(nOff+(respWindow),iC,ind),1);
         stimOff = mean(tc_dfof(nOff+(baseWindow),iC,ind),1);
         % this cell matrix stores all stimOn for all trials in ind_all
@@ -539,6 +548,7 @@ logfit1 = @(coefs,xdata) coefs(1)./(1+exp(-coefs(2)*(xdata-coefs(3))))
 logfit2 = @(coefs,xdata) coefs(1)./(1+exp(-(coefs(2)+coefs(5))*(xdata-coefs(3)))) - coefs(4)./(1+exp(-coefs(5)*(xdata-(coefs(3)+coefs(6)))))
 
 % store # trials at each size for this run (same for all cells)
+
 nTr = zeros(nSize,1);
 for iSz = 1:nSize
     nTr(iSz,1) = length(sizeTune{iSz,1});
@@ -570,20 +580,16 @@ figure;
 
 fprintf('Creating new size-tuning curve fit data...\n')
 fprintf('Begin fitting size-tuning curves at all cells, all runs...')
-for iCell = 1:nCells
-    fprintf(['\nCell# ' num2str(iCell) '/' num2str(nCells)]) %, (RF-stim dist: ' num2str(cellDists(iCell)) ' deg)'])
-    ifig = 1;
-    start = 1;
-    fprintf('.')
-    for count_shuf = 0:Nshuf
-        fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
-        for iSz = 1:nSize
-            if count_shuf > 0
-                shuf_ind{iSz} = randsample(nTr(iSz,1),nTr(iSz,1),1); % resample with replacement
-            elseif count_shuf == 0
-                shuf_ind{iSz} = 1:nTr(iSz,1); % shuf_count==0 use all trials
-            end
+for count_shuf = 0:Nshuf
+    fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
+    for iSz = 1:nSize
+        if count_shuf > 0
+            shuf_ind{iSz} = randsample(nTr(iSz,1),nTr(iSz,1),1); % resample with replacement
+        elseif count_shuf == 0
+            shuf_ind{iSz} = 1:nTr(iSz,1); % shuf_count==0 use all trials
         end
+    end
+    for iCell = 1:nCells
         nPts = floor(mean(nTr(:,1)));
         dumdum = zeros(1,nPts);%[0]; % define zero point for dF/F
         szs0 = zeros(1,nPts);%[0.1]; % and size
@@ -598,7 +604,7 @@ for iCell = 1:nCells
         [maxMean maxVal] = max(tuning_mat(:,1,iCell));
             
         if count_shuf == 0 
-            PLOTIT_FIT = 1;
+            PLOTIT_FIT = 0;
             SAVEALLDATA = 1;
             Fit_SizeTuneSmooth_KM % call fit script, returns fit structure s, saves plots to kevin analysis folder
             eval(['Fit_struct(iCell).True.s_',' = s;']);
@@ -609,14 +615,22 @@ for iCell = 1:nCells
             eval(['Fit_struct(iCell).Shuf(count_shuf).s_',' = s;']);
         end
     end
-    if count_shuf == 0 & irun == 1
-        set(gcf, 'Position', [0 0 800 1000]);
-        fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeTuneFits' num2str(ifig) '.pdf']);
-        print(fn_out,'-dpdf')
-    end
+%     if count_shuf == 0 & irun == 1
+%         set(gcf, 'Position', [0 0 800 1000]);
+%         fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeTuneFits' num2str(ifig) '.pdf']);
+%         print(fn_out,'-dpdf')
+%     end
 end
 fprintf('\nShuffling done, saving fit results\n')
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct.mat']), 'Fit_struct')
+s = whos('Fit_struct');
+if s.bytes < 2300000000
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct.mat']), 'Fit_struct')
+    fprintf('\nSaved all shuffles\n')
+else 
+    Fit_struct_sub = rmfield(Fit_struct,'Shuf');
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct_sub.mat']), 'Fit_struct_sub')
+    fprintf('\nSaved only true fits\n')
+end
 %% assess fits
 % extract values for prefSize (use for decision), Ftest
 % also prefSize(1/2), suppInd(1,2), fit1.c1/OF1, fit2.c2/OF2, Rsq12
@@ -665,8 +679,9 @@ end
     
     %% plot cells with size tuning curve and shuffle results
     %chosen=[44 54]; %[31 41 45 46 52 64 67 71 72 73 75 77 79 83 89];
-    %chosen = goodfit_ind_size;
-    chosen = 1:20;
+    %chosen = goodfit_ind_size(ind(1:10));
+    chosen = 1:10;
+    %chosen = find(cellDists<=10);
     Npars = size(fit_shuf_vec,2);
     lbub_fits = NaN(nCells,Npars,5);
     alpha_bound = .025;
@@ -812,9 +827,53 @@ for iCell = 1:nCells
 end
 
 % is model1 + is model2
-ism1 = find(~lbub_fits(goodfit_ind_size,8,4));
-ism2 = find(lbub_fits(goodfit_ind_size,8,4));
+ism1 = intersect(goodfit_ind_size, find(~lbub_fits(:,8,4)));
+ism2 = intersect(goodfit_ind_size, find(lbub_fits(:,8,4)));
 
 fprintf(['#Good cells = ' num2str(length(goodfit_ind_size)) '\nModel 1: ' num2str(length(ism1)) ', Model 2: ' num2str(length(ism2)) '\nSaving good fits\n'])
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_lbub_fits']), 'goodfit_ind_size', 'lbub_fits')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_lbub_fits.mat']), 'goodfit_ind_size', 'lbub_fits')
+
+%% plot summary
+figure;
+subplot(2,2,1)
+ind = intersect(ism1, find(cellDists<=10));
+ret_avg = mean(tuning_norm(:,ind),2)';
+ret_sem= std(tuning_norm(:,ind),[],2)./sqrt(length(ind))';
+errorbar(szs,ret_avg,ret_sem)
+ylabel('dF/F normalized')
+xlabel('Size (deg)')
+ylim([-0.3 1.2])
+axis square
+title(['M1 cells within 10 deg of stim- n = ' num2str(length(ind))])
+subplot(2,2,2)
+ind = intersect(ism2, find(cellDists<=10));
+ret_avg = mean(tuning_norm(:,ind),2)';
+ret_sem= std(tuning_norm(:,ind),[],2)./sqrt(length(ind))';
+errorbar(szs,ret_avg,ret_sem)
+ylabel('dF/F normalized')
+xlabel('Size (deg)')
+ylim([-0.3 1.2])
+axis square
+title(['M2 cells resp to stim <=10 deg- n = ' num2str(length(ind))])
+subplot(2,2,3)
+ind = intersect(goodfit_ind_size, find(cellDists<=10));
+ret_avg = mean(tuning_norm(:,ind),2)';
+ret_sem= std(tuning_norm(:,ind),[],2)./sqrt(length(ind))';
+errorbar(szs,ret_avg,ret_sem)
+ylabel('dF/F normalized')
+xlabel('Size (deg)')
+ylim([-0.3 1.2])
+axis square
+title(['All well-fit cells resp to stim <=10 deg- n = ' num2str(length(ind))])
+subplot(2,2,4)
+hist(lbub_fits(ind,1,4))
+xlim([0 80])
+axis square
+xlabel('Pref size (deg)')
+ylabel('# neurons')
+expLoc = expt(1).img_loc{1};
+expStrct = cell2mat(expt(1).img_strct);
+suptitle([mouse ' ' expDate ' ' expLoc ' ' expStrct])
+
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_avgTuning_goodfits.pdf']), '-dpdf','-bestfit')
 
