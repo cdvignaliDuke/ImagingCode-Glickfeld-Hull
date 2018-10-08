@@ -42,8 +42,7 @@ for ii = 1: length(sessions)
     mean_fig = figure; 
     subplot(2,1,1);hold on;
     errorbar(ave_dfOvF_runTrigger,ste_dfOvF_runTrigger,'linewidth', 1.5); hold on;
-    %xlim([-5 10]);
-    %ylim([-0.05 0.05]);
+   
     vline(4, 'r','running start');
     ylabel('df/f'); legend;
     
@@ -52,7 +51,7 @@ for ii = 1: length(sessions)
     xlabel('frames');
     ylabel('speed');
     vline(4, 'r','running start');
-    %xlim([-5 10]);
+   
     
     supertitle(['run triggered average',sessions{ii}] );
     saveas(mean_fig, [image_dest '_runTrigAve']);
