@@ -20,7 +20,11 @@ if sum(cellfun(@isempty, input.quadratureTimesUs))== 0
             this_frame_quad_inx = find(quadTime > countTime(n-1) & quadTime <= countTime(n));
         end
         this_frame_loc = quadValue(this_frame_quad_inx);
-        this_frame_speed = (this_frame_loc(end)-this_frame_loc(1))*1000/(length(this_frame_quad_inx)-1);
+        this_frame_distance = this_frame_loc(end)-this_frame_loc(1);
+        this_frame_time = quadTime(this_frame_quad_inx);
+        this_frame_timelength = this_frame_time(end)-this_frame_time(1);
+        this_frame_speed = (this_frame_distance)*1000000/(this_frame_timelength);
+        % 1000000: us to s 
         speed = [speed this_frame_speed];
         
     end

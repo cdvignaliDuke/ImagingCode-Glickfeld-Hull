@@ -6,7 +6,7 @@
 %define the directory and files
 clear;
 folder = 'Z:\Data\Behv_MovingDots\behavior_raw\';
-sessionID = '1008-180419';% this  variable name is confusing, this session ID is just tha date and the subject#, 
+sessionID = '1011-181008';% this  variable name is confusing, this session ID is just tha date and the subject#, 
 %there might be more than 1 sessions on a single subject on the same day
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)
