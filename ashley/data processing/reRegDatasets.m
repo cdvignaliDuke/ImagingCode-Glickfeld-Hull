@@ -3,7 +3,7 @@ close all
 ds = 'FSAV_V1_SOM';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 6;
+slct_expt = 7;
 doPreviousReg = false;
 %%
 iexp = slct_expt
@@ -13,10 +13,18 @@ mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;
 dirFolder = expt(iexp).dirtuning;
 dirTime = expt(iexp).dirtuning_time;
-
-fn = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
-if ~exist(fullfile(fn,'data processing'),'dir')
-    mkdir(fn,'data processing')
+if strcmp(rc.name, 'ashle')
+    fn = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
+    if ~exist(fullfile(fn,'data processing'),'dir')
+        mkdir(fn,'data processing')
+    end
+elseif strcmp(rc.name, 'carolyn')
+    fn = fullfile(rc.carolynAnalysis,mouse,'Two-Photon Imaging',expDate);
+    if ~exist(fullfile(fn,'data processing'),'dir')
+        mkdir(fn,'data processing')
+    end  
+else
+    error('you do not belong here')
 end
 fnout = fullfile(fn,'data processing');
 %% load and register all behavior and tuning data
@@ -83,7 +91,12 @@ clear data_sub
 
 % load tuning data
 down = 10;
-fntun = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,dirFolder);
+if strcmp(rc.name, 'ashle')
+    fntun = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,dirFolder);
+elseif strcmp(rc.name, 'ashle')
+    fntun = fullfile(rc.carolynAnalysis,mouse,'two-photon imaging',expDate,dirFolder);
+end
+
 fName = [dirFolder '_000_000'];
 
 if any(strcmp(fieldnames(expt),'nTunFrames'))
