@@ -7,7 +7,7 @@ nexp = length(dcExpt);
 
 doExptPlots = 0;
 %%
-minTrN = 20;
+minTrN = 17;
 theta90Threshold = 11.25;
 decisionVariable = 0.5;
 detectThresholdHR = 0.8;

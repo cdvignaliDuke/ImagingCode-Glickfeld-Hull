@@ -1,0 +1,46 @@
+%% AW16 151124 
+expt(1).SubNum = '616';
+expt(1).mouse = 'AW16';
+expt(1).date = '151124';
+expt(1).img_loc  = {'V1';'L2/3'};
+expt(1).img_strct  = {'cells'};
+expt(1).time_mat = ['1047'; '1103'; '1119'];
+expt(1).runs = ['001'; '002'; '003'];
+expt(1).nrun = size(expt(1).runs,1);
+expt(1).frame_rate = 30;
+expt(1).folder = 'two-photon imaging';
+expt(1).catch = 1;
+expt(1).catchRew = 1;
+expt(1).dirtuning = '005';
+expt(1).dirtuning_time = '1145';
+expt(1).rettuning = {'004';'1140'};
+expt(2).z = [];
+expt(1).motionTestBimodal = 0;
+expt(1).regImgStartFrame = 41184;
+expt(1).trial_range = nan;
+expt(1).attentionTask = true;
+expt(1).hasAttention = true;
+expt(1).label = nan;
+
+%% AW13 150508
+expt(2).SubNum = '613';
+expt(2).mouse = 'AW13';
+expt(2).date = '150508';
+expt(2).img_loc  = {'V1';'L2/3'};
+expt(2).img_strct  = {'cells'};
+expt(2).time_mat = ['1413'; '1430'; '1446'];
+expt(2).runs = ['001'; '002'; '003'];
+expt(2).nrun = size(expt(2).runs,1);
+expt(2).frame_rate = 30;
+expt(2).folder = 'two-photon imaging';
+expt(2).catch = 1;
+expt(2).catchRew = 0;
+expt(2).dirtuning = '006';
+expt(2).dirtuning_time = '1510';
+expt(2).rettuning = {'005';'1506'};
+expt(2).z = 294;
+expt(2).regImgStartFrame = 41998;
+expt(2).trial_range = nan;
+expt(2).attentionTask = true;
+expt(2).hasAttention = true;
+expt(2).label = nan;

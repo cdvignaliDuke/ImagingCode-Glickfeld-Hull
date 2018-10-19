@@ -1,8 +1,8 @@
 close all
 clear all
 
-load('Z:\Analysis\FSAV Choice\FSAV_decodeData.mat')
-fnout = 'Z:\Analysis\FSAV Choice';
+load('X:\home\ashley\Analysis\FSAV Choice\FSAV_decodeData.mat')
+fnout = 'X:\home\ashley\Analysis\FSAV Choice';
 nexp = length(dcExpt);
 
 doExptPlots = 0;

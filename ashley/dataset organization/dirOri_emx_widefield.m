@@ -1,0 +1,30 @@
+params.frameRate = 2;
+params.nBaselineMs = 2000;
+params.nPostStimMs = 2000;
+params.nFramesVisDelay_VSR = 4;
+
+%% 880 180906
+expt(1).mouse = '880';
+expt(1).date = '180906';
+expt(1).img_strct  = {'wf'};
+expt(1).indicator = {'tg';'GCaMP6f'};
+expt(1).label = {'EMX';'gcamp'};
+expt(1).labelFolder = nan;
+expt(1).retinotopyFolder = {''};
+expt(1).retinotopyTime = {''};
+expt(1).visStimFolder = 'dirOri2_1';
+expt(1).visStimTime = '1427';
+expt(1).saveLoc = 'ashley';
+
+%% 881 180907
+expt(2).mouse = '881';
+expt(2).date = '180907';
+expt(2).img_strct  = {'wf'};
+expt(2).indicator = {'tg';'GCaMP6f'};
+expt(2).label = {'EMX';'gcamp'};
+expt(2).labelFolder = nan;
+expt(2).retinotopyFolder = {''};
+expt(2).retinotopyTime = {''};
+expt(2).visStimFolder = 'dirOri1_1';
+expt(2).visStimTime = '1609';
+expt(2).saveLoc = 'ashley'

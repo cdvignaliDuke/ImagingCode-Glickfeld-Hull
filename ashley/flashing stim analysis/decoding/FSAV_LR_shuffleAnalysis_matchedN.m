@@ -1,13 +1,13 @@
 close all
 clear all
 
-load('Z:\Analysis\FSAV Choice\FSAV_decodeData.mat')
-fnout = 'Z:\Analysis\FSAV Choice';
+load('X:\home\ashley\Analysis\FSAV Choice\FSAV_decodeData.mat')
+fnout = 'X:\home\ashley\Analysis\FSAV Choice';
 nexp = length(dcExpt);
 
 doExptPlots = 0;
 %%
-minTrN = 20;
+minTrN = 15;
 theta90Threshold = 11.25;
 decisionVariable = 0.5;
 detectThresholdHR = 0.8;
@@ -54,8 +54,10 @@ for iexp=1:nexp
     tOri = dcExpt(iexp).trialOrientation;
     tOri = binAndRelabelTrialOrientation(tOri,oriBins);
     nOriBin = histcounts(discretize(tOri,oriBins,'IncludedEdge','right'));
-    nOriBin = nOriBin(nOriBin > 0);
+    ind = nOriBin > 0;
+    nOriBin = nOriBin(ind);
     orientations = unique(tOri);
+    orientations = orientations(ind);
     nOri = length(orientations);
     minBinN = min(nOriBin);
     if minBinN < minTrN
@@ -273,7 +275,8 @@ corrLim = [-1 1];
 figure
 suptitle('Visual Trials')
 subplot 321
-scatter(detectWeightsAll_vis,detectCorrsAll_vis,'bo')
+h=plot(detectWeightsAll_vis,detectCorrsAll_vis,'ko');
+h.MarkerFaceColor = 'k';
 hold on
 hline(0,'k:')
 vline(0,'k:')
@@ -282,7 +285,8 @@ figYAxis([],'Detect Correlation',corrLim)
 figAxForm
 title('All Trials')
 subplot 323
-scatter(targetWeightsAll_vis,targetCorrsAll_vis,'bo')
+h=plot(targetWeightsAll_vis,targetCorrsAll_vis,'ko');
+h.MarkerFaceColor = 'k';
 hold on
 figXAxis([],'Target LR Weight',weightLim)
 figYAxis([],'Target Correlation',corrLim)
@@ -290,8 +294,8 @@ hline(0,'k:')
 vline(0,'k:')
 figAxForm
 subplot 325   
-s = scatter(targetWeightsAll_vis,detectWeightsAll_vis,'bo');
-s.MarkerFaceColor = [1 1 1];
+h=plot(targetWeightsAll_vis,detectWeightsAll_vis,'ko');
+h.MarkerFaceColor = 'k';
 hold on
 figXAxis([],'Target LR Weight',weightLim)
 figYAxis([],'Detect LR Weight',weightLim)
@@ -299,8 +303,8 @@ hline(0,'k:')
 vline(0,'k:')
 figAxForm
 subplot 326   
-s = scatter(targetWeightsAll_shuf_vis,detectWeightsAll_shuf_vis,'bo');
-s.MarkerFaceColor = [1 1 1];
+h=plot(targetWeightsAll_shuf_vis,detectWeightsAll_shuf_vis,'ko');
+h.MarkerFaceColor = 'k';
 hold on
 figXAxis([],'Target LR Weight',weightLim)
 figYAxis([],'Detect LR Weight',weightLim)

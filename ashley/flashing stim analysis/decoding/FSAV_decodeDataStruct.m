@@ -1,7 +1,8 @@
 clear all
 close all
-ds = 'FSAV_V1_decode';
+ds = 'FSAV_attentionV1';
 cellsOrDendrites = 1;
+bxMice = true;
 %%
 rc = behavConstsAV;
 dataGroup = ds;
@@ -16,13 +17,8 @@ if cellsOrDendrites == 1
 elseif cellsOrDendrites == 2
     load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_trOutcomeStruct_dendrites' ds(5:end) '.mat']));    
 end        
-if cellsOrDendrites == 1
-    fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr '_trOut_']); 
-elseif cellsOrDendrites == 2
-    fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr 'trOut_den_']); 
-end
 
-fnout = fullfile(rc.ashleyAnalysis,'FSAV Choice');
+fnout = fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds,'FSAV Choice');
 %%
 visualTrials = 1;
 auditoryTrials = 2;
@@ -32,14 +28,18 @@ crAlign = 3;
 targetAlign = 4;
 catchAlign = 5;
 
-visRT = [200 570];
-audRT = [150 450];
-
+if bxMice
+    visRT = [250 570];
+    audRT = [150 450];
+else
+    visRT = [0 570];
+    audRT = [0 570];
+end
 nFrMonitorDelay = 3; %using cLeverDown
 nFrMonitorDelay_target = 2; %using cTargetOn
 nFrVisDelay = 3; 
 nFrRespwin = 3;
-respCutoffDff = 0.01;
+respCutoffDff = 0.002;
 respAlpha = 0.01;
 % frameRateHz = 30;
 
@@ -61,7 +61,7 @@ dcExpt = struct;
 
 for imouse = 1:size(mouse,2)
     for iexp = 1:size(mouse(imouse).expt,2)
-        if imouse == 1 & iexp == 1
+        if imouse == 1 && iexp == 1
             t = 1;
         else 
             t = t + 1;
@@ -73,30 +73,49 @@ for imouse = 1:size(mouse,2)
         [~,fitPeak] = max(mouse(imouse).expt(iexp).oriTuning.oriFit,[],1);
         tuning = fitPeak-1;
         tuningReliability = mouse(imouse).expt(iexp).oriTuning.oriFitReliability;
+        
+        oriFit = mouse(imouse).expt(iexp).oriTuning.oriFit;
+        oriFit = oriFit(1:end-1,:);
+        osi_fit = getOSIeaCell(oriFit,1:180);
 
         disp([ms '-' dt])
 
         d = mouse(imouse).expt(iexp).av(visualTrials);
-
+        da = mouse(imouse).expt(iexp).av(auditoryTrials);
         % first responders
         tc = d.align(pressAlign).respTC;
         firstStimTrialInd = d.align(pressAlign).nCycles >= 2;
         firstStimResp = squeeze(mean(tc(respwin,:,firstStimTrialInd),1));
         firstStimBL = squeeze(mean(tc(basewin,:,firstStimTrialInd),1));
         minRespCells = (mean(firstStimResp,2) - mean(firstStimBL,2)) > respCutoffDff;
-        firstBaseResponsiveCells = ttest(firstStimResp,firstStimBL,'dim',2,...
+        firstStimResp_av = cat(2,firstStimResp,...
+            squeeze(mean(da.align(pressAlign).respTC(...
+            respwin,:,da.align(pressAlign).nCycles >= 2),1)));
+        firstStimBL_av = cat(2,firstStimBL,...
+            squeeze(mean(da.align(pressAlign).respTC(basewin,:,...
+            da.align(pressAlign).nCycles >= 2),1)));
+%         firstBaseResponsiveCells = ttest(firstStimResp,firstStimBL,'dim',2,...
+%             'tail','right','alpha',respAlpha) & minRespCells;
+        firstBaseResponsiveCells = ttest(firstStimResp_av,firstStimBL_av,'dim',2,...
             'tail','right','alpha',respAlpha) & minRespCells;
-        
-        % false alarms
-        tc = d.align(faAlign).respTC;
-        rt = d.align(faAlign).reactTime;
-        faTrialInd = rt > visRT(1) & rt < visRT(2);
-        faResp = squeeze(mean(tc(respwin,:,faTrialInd),1));
-        faBL = squeeze(mean(tc(basewin,:,faTrialInd),1));
-        faCycN = d.align(faAlign).nCycles(faTrialInd);
-        faOut = repmat({'fa'},[1,sum(faTrialInd)]);
-        faOri = zeros(1,sum(faTrialInd));
-        
+        if bxMice
+            % false alarms
+            tc = d.align(faAlign).respTC;
+            rt = d.align(faAlign).reactTime;
+            faTrialInd = rt > visRT(1) & rt < visRT(2);
+            faResp = squeeze(mean(tc(respwin,:,faTrialInd),1));
+            faBL = squeeze(mean(tc(basewin,:,faTrialInd),1));
+            faCycN = d.align(faAlign).nCycles(faTrialInd);
+            faOut = repmat({'fa'},[1,sum(faTrialInd)]);
+            faOri = zeros(1,sum(faTrialInd));
+        else
+            faResp = [];
+            faBL = [];
+            faCycN = [];
+            faOut = [];
+            faOri = [];
+        end
+
         % correct rejects
         tc = d.align(crAlign).respTC;
         crResp = squeeze(mean(tc(respwin,:,:),1));
@@ -169,27 +188,37 @@ for imouse = 1:size(mouse,2)
         dcExpt(t).info = 'cells x trials';
         dcExpt(t).attention.task = mouse(imouse).expt(iexp).attnTask;
         dcExpt(t).attention.effect = mouse(imouse).expt(iexp).hasAttn;
-        dcExpt(t).attention.rewarded = mouse(imouse).expt(iexp).catchRew;
+%         dcExpt(t).attention.rewarded = mouse(imouse).expt(iexp).catchRew;
         dcExpt(t).oriPref = tuning;
         dcExpt(t).oriFitTheta90 = tuningReliability;
+        dcExpt(t).osi_fit = osi_fit;
         dcExpt(t).stimResp = cat(2,(faResp-faBL),(crResp-crBL),(targetResp - targetBL));
         dcExpt(t).trialOutcome = cat(2,faOut,crOut,targetOut);
         dcExpt(t).trialOrientation = cat(2,faOri,crOri,tOri);
         dcExpt(t).signifResponsiveCells = firstBaseResponsiveCells | targetResponsiveCells;
         dcExpt(t).firstBaseResponsiveCells = firstBaseResponsiveCells;
         dcExpt(t).targetResponsiveCells = targetResponsiveCells;
+        dcExpt(t).firstStimResp = mean(firstStimResp,2);
         
 
         d = mouse(imouse).expt(iexp).av(auditoryTrials);
         % auditory false alarms
-        tc = d.align(faAlign).respTC;
-        rt = d.align(faAlign).reactTime;
-        faTrialInd = rt > audRT(1) & rt < audRT(2);
-        faResp = squeeze(mean(tc(respwin,:,faTrialInd),1));
-        faBL = squeeze(mean(tc(basewin,:,faTrialInd),1));
-        faCycN = d.align(faAlign).nCycles(faTrialInd);
-        faOut = repmat({'fa'},[1,sum(faTrialInd)]);
-        faAmp = zeros(1,sum(faTrialInd));
+        if bxMice
+            tc = d.align(faAlign).respTC;
+            rt = d.align(faAlign).reactTime;
+            faTrialInd = rt > audRT(1) & rt < audRT(2);
+            faResp = squeeze(mean(tc(respwin,:,faTrialInd),1));
+            faBL = squeeze(mean(tc(basewin,:,faTrialInd),1));
+            faCycN = d.align(faAlign).nCycles(faTrialInd);
+            faOut = repmat({'fa'},[1,sum(faTrialInd)]);
+            faAmp = zeros(1,sum(faTrialInd));
+        else
+            faResp = [];
+            faBL = [];
+            faCycN = [];
+            faOut = [];
+            faAmp = [];
+        end
         % auditory correct rejects
         tc = d.align(crAlign).respTC;
         crResp = squeeze(mean(tc(respwin,:,:),1));
@@ -241,4 +270,9 @@ for imouse = 1:size(mouse,2)
         
     end
 end
-save(fullfile(fnout,'FSAV_decodeData'),'dcExpt')
+if exist(fnout,'dir') == 1
+    save(fullfile(fnout,'FSAV_decodeData'),'dcExpt')
+else
+    mkdir(fnout)
+    save(fullfile(fnout,'FSAV_decodeData'),'dcExpt')
+end

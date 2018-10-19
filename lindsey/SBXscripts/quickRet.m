@@ -15,7 +15,7 @@ data = [];
 clear temp
 for irun = 1:nrun
     if strcmp(rc.name,'ashle')
-    CD = ['Y:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder(irun,:)];
+    CD = ['X:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder(irun,:)];
     else
     CD = ['Z:\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
     end

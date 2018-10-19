@@ -277,6 +277,12 @@ end
                             catchTrialOutcome{catchIndex(i)} = 'CR';
                         end
                     end
+                elseif length(input.catchTrialOutcomeCell) < tr(end)
+                    trInd = tr(1:find(tr == length(input.catchTrialOutcomeCell)));
+                    nPaddedTr = sum(tr > length(input.catchTrialOutcomeCell));
+                    catchTrialOutcome = cat(2,...
+                        input.catchTrialOutcomeCell(trInd),cell(1,nPaddedTr));
+                    
                 else
                     catchTrialOutcome = input.catchTrialOutcomeCell(tr);
                 end

@@ -50,8 +50,6 @@ expt(1).rettuning = {'004';'1140'};
 expt(1).motionTestBimodal = 0;
 expt(1).trial_range = nan;
 expt(1).regImgStartFrame = 41184;
-expt(1).attentionTask = true;
-expt(1).hasAttention = true;
 
 % %% AW16 151116 - ok rsp, few trials, high FA rate
 % expt(4).SubNum = '616';
@@ -106,8 +104,6 @@ expt(2).rettuning = {'005'; '1558'};
 expt(2).motionTestBimodal = 0;
 expt(2).trial_range = 50:390;
 expt(2).regImgStartFrame = 67956;
-expt(2).attentionTask = true;
-expt(2).hasAttention = true;
 %% AW26 160118 - suppressed avg response, very few cells, good behav
 expt(3).SubNum = '626';
 expt(3).mouse = 'AW26';
@@ -126,8 +122,6 @@ expt(3).rettuning = {'006'; '1724'};
 expt(3).motionTestBimodal = 0;
 expt(3).trial_range = 1:250;
 expt(3).regImgStartFrame = 58624;
-expt(3).attentionTask = true;
-expt(3).hasAttention = true;
 % 
 % %% AW26 160125 - suppressed avg response, very few cells, good behavior
 % expt(8).SubNum = '626';
@@ -181,8 +175,6 @@ expt(4).rettuning = {'007';'1424'};
 expt(4).motionTestBimodal = 0;
 expt(4).trial_range = 74:290;
 expt(4).regImgStartFrame = 69612;
-expt(4).attentionTask = true;
-expt(4).hasAttention = true;
 
 % %% AW26 160121 - suppressed avg response, no cells, good behavior
 % expt(5).SubNum = '626';
@@ -222,8 +214,6 @@ expt(5).motionTestBimodal = 0;
 expt(5).z = 281;
 expt(5).trial_range = nan;
 expt(5).regImgStartFrame = 29136;
-expt(5).attentionTask = true;
-expt(5).hasAttention = true;
 %% AW25 160309
 expt(6).SubNum = '625';
 expt(6).mouse = 'AW25';
@@ -243,8 +233,6 @@ expt(6).motionTestBimodal = 0;
 expt(6).z = 244;
 expt(6).trial_range = nan;
 expt(6).regImgStartFrame = 94528;
-expt(6).attentionTask = true;
-expt(6).hasAttention = true;
 
 % %% AW25 150311 - FA rate somewhat high
 % expt(14).SubNum = '625';
@@ -285,8 +273,6 @@ expt(7).motionTestBimodal = 0;
 expt(7).z = 245;
 expt(7).trial_range = nan;
 expt(7).regImgStartFrame = 50742;
-expt(7).attentionTask = true;
-expt(7).hasAttention = true;
 
 %% AW25 160316
 expt(8).SubNum = '625';
@@ -308,8 +294,6 @@ expt(8).z = 267;
 expt(8).regImgStartFrame = 3253;
 expt(8).trial_range = 1:250;
 expt(8).regImgStartFrame = 26280;
-expt(8).attentionTask = true;
-expt(8).hasAttention = true;
 
 % %% AW16 151019 - miss rate high
 % expt(17).SubNum = '616';
@@ -379,5 +363,3 @@ expt(9).rettuning = {'008';'1347'};
 expt(9).motionTestBimodal = 0;
 expt(9).trial_range = [30:140,171:270];
 expt(9).regImgStartFrame = 54988;
-expt(9).attentionTask = true;
-expt(9).hasAttention = true;

@@ -1,9 +1,9 @@
 clear all
 close all
-ds = 'awFSAVdatasets_longStimON_V1';
+ds = 'FSAV_V1_SOM';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 9;
+slct_expt = 7;
 doCorrImg = false;
 %%
 for iexp = slct_expt
@@ -11,17 +11,15 @@ for iexp = slct_expt
 SubNum = expt(iexp).SubNum;
 mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;
-dirFolder = expt(iexp).dirtuning;
-dirTime = expt(iexp).dirtuning_time;
 
 %% load all behavior data
 % concatenate data files
 for irun = 1:expt(iexp).nrun
 
-    if (strcmp(ds, '_V1') | strcmp(ds,'')) & irun == 3 & strcmp(expDate,'150508')
-        continue
-%     elseif (strcmp(ds, '_V1') | strcmp(ds,'')) & irun == 2 & strcmp(expDate, '150508')
-%         continue
+    if ~isempty(expt(iexp).nframesPerRun)
+        nFr = expt(iexp).nframesPerRun(irun);
+    else
+        nFr = [];
     end
     
     runFolder = expt(iexp).runs(irun,:);
@@ -32,12 +30,27 @@ for irun = 1:expt(iexp).nrun
             input = loadMworksFile(SubNum,expDate,expTime);
             data_temp = loadsbx_choosepmt(1,mouse,expDate,runFolder,fName);
         else
-            [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);
-            disp(t)
+            if ~isempty(nFr)
+                [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
+                    SubNum,expDate,expTime,mouse,runFolder,fName,nFr);
+                disp(t)
+            else
+                [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
+                    SubNum,expDate,expTime,mouse,runFolder,fName);
+                disp(t)
+            end
         end
     else
-        [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);
-        disp(t)
+        if ~isempty(nFr)
+            [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
+                SubNum,expDate,expTime,mouse,runFolder,fName);
+            disp(t)
+        else
+            [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
+                SubNum,expDate,expTime,mouse,runFolder,fName,nFr);
+            disp(t)
+        end
+        
     end
     
     if irun == 1
@@ -102,11 +115,13 @@ if doCorrImg
         disp('no corr image')
     end
 end
-if ~exist(['Z:\Analysis\FSAV Summaries\' ds],'dir')
-    mkdir(['Z:\Analysis\FSAV Summaries\' ds])
+if ~exist(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds),'dir')
+    mkdir(fullfilt(rc.ashleyAnalysis,'FSAV Summaries',ds))
 end
-print(['Z:\Analysis\FSAV Summaries\' ds '\rand image samples_' SubNum '-' expDate],'-dpdf','-fillpage')
-savefig(['Z:\Analysis\FSAV Summaries\' ds '\rand image samples_' SubNum '-' expDate])
+print(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds,...
+    ['rand image samples_' SubNum '-' expDate]),'-dpdf','-fillpage')
+savefig(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds,...
+    ['rand image samples_' SubNum '-' expDate]))
 clear data_bx
 end
 clear all

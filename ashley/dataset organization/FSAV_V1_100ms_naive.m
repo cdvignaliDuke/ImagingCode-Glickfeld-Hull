@@ -17,6 +17,9 @@ expt(1).rettuning = {'005';'2139'};
 expt(1).z = 279;
 expt(1).virus = false;
 expt(1).regImgStartFrame = 45255;
+expt(1).trial_range = nan;
+expt(1).attentionTask = false;
+expt(1).hasAttention = false;
 
 %% AW54 160614
 expt(2).SubNum = '654';
@@ -37,6 +40,9 @@ expt(2).rettuning = {'004';'1355'};
 expt(2).z = nan;
 expt(2).virus = false;
 expt(2).regImgStartFrame = 25237;
+expt(2).trial_range = nan;
+expt(2).attentionTask = false;
+expt(2).hasAttention = false;
 %% AW60 160616 
 expt(3).SubNum = '660';
 expt(3).mouse = 'AW60';
@@ -56,6 +62,9 @@ expt(3).rettuning = {'003';'1454'};
 expt(3).z = 263;
 expt(3).virus = false;
 expt(3).regImgStartFrame = 8333;
+expt(3).trial_range = nan;
+expt(3).attentionTask = false;
+expt(3).hasAttention = false;
 
 %% AW66 160812 V1 injection
 expt(4).SubNum = '666';
@@ -76,6 +85,9 @@ expt(4).rettuning = {'004';'1447'};
 expt(4).z = 291;
 expt(4).virus = true;
 expt(4).regImgStartFrame = 2050;
+expt(4).trial_range = nan;
+expt(4).attentionTask = false;
+expt(4).hasAttention = false;
 
 %% 745 171117 V1 injection
 expt(5).SubNum = '745';
@@ -96,6 +108,9 @@ expt(5).rettuning = {'001';'1019'};
 expt(5).z = 228;
 expt(5).virus = false;
 expt(5).regImgStartFrame = 80788;
+expt(5).trial_range = nan;
+expt(5).attentionTask = false;
+expt(5).hasAttention = false;
 
 %% 746 171122 V1 injection
 expt(6).SubNum = '746';
@@ -116,6 +131,9 @@ expt(6).rettuning = {'002';'1005'};
 expt(6).z = 230;
 expt(6).virus = false;
 expt(6).regImgStartFrame = 27264;
+expt(6).trial_range = nan;
+expt(6).attentionTask = false;
+expt(6).hasAttention = false;
 %% AW67 160919 V1 injection
 expt(7).SubNum = '667';
 expt(7).mouse = 'AW67';
@@ -135,6 +153,9 @@ expt(7).rettuning = {'001';'1336'};
 expt(7).z = 220;
 expt(7).virus = true;
 expt(7).regImgStartFrame = 53174;
+expt(7).trial_range = nan;
+expt(7).attentionTask = false;
+expt(7).hasAttention = false;
 
 %% 908 171127 V1 injection
 expt(8).SubNum = '908';
@@ -155,6 +176,9 @@ expt(8).rettuning = {'002';'1019'};
 expt(8).z = 201;
 expt(8).virus = true;
 expt(8).regImgStartFrame = 48076;
+expt(8).trial_range = nan;
+expt(8).attentionTask = false;
+expt(8).hasAttention = false;
 
 %% 901 171127 V1 injection
 expt(9).SubNum = '901';
@@ -175,6 +199,9 @@ expt(9).rettuning = {'001';'1553'};
 expt(9).z = 198;
 expt(9).virus = true;
 expt(9).regImgStartFrame = 93002;
+expt(9).trial_range = nan;
+expt(9).attentionTask = false;
+expt(9).hasAttention = false;
 
 %% 745 171130 V1 injection
 expt(10).SubNum = '745';
@@ -195,6 +222,9 @@ expt(10).rettuning = {'001';'1037'};
 expt(10).z = 201;
 expt(10).virus = false;
 expt(10).regImgStartFrame = 47903;
+expt(10).trial_range = nan;
+expt(10).attentionTask = false;
+expt(10).hasAttention = false;
 
 %% 745 171201 V1 injection
 expt(11).SubNum = '745';
@@ -215,6 +245,9 @@ expt(11).rettuning = {'002';'1005'};
 expt(11).z = 200;
 expt(11).virus = false;
 expt(11).regImgStartFrame = 68232;
+expt(11).trial_range = nan;
+expt(11).attentionTask = false;
+expt(11).hasAttention = false;
 
 %% 746 171202 V1 injection
 expt(12).SubNum = '746';
@@ -235,6 +268,9 @@ expt(12).rettuning = {'001';'1638'};
 expt(12).z = 250;
 expt(12).virus = false;
 expt(12).regImgStartFrame = 70202;
+expt(12).trial_range = nan;
+expt(12).attentionTask = false;
+expt(12).hasAttention = false;
 
 %% 908 171208 V1 injection
 expt(13).SubNum = '908';
@@ -255,6 +291,9 @@ expt(13).rettuning = {'002';'1021'};
 expt(13).z = 303;
 expt(13).virus = true;
 expt(13).regImgStartFrame = 25507;
+expt(13).trial_range = nan;
+expt(13).attentionTask = false;
+expt(13).hasAttention = false;
 
 %% 901 171210 V1 injection
 expt(14).SubNum = '901';
@@ -275,6 +314,9 @@ expt(14).rettuning = {'001';'1058'};
 expt(14).z = 275;
 expt(14).virus = true;
 expt(14).regImgStartFrame = 61099;
+expt(14).trial_range = nan;
+expt(14).attentionTask = false;
+expt(14).hasAttention = false;
 
 % %% 901 180114 V1 injection
 % expt(15).SubNum = '907';
