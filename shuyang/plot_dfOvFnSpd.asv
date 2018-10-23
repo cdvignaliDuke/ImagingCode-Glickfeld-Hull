@@ -1,18 +1,9 @@
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'180419_img1008_1'};%,'180414_img1005_1','180414_img1007_1','180414_img1008_1','180417_img1008_1',...
-    %'180423_img1010_1','180417_img1005_1','180419_img1005_1','180419_img1007_1','180423_img1005_1',...
-   % '180424_img1008_1','180425_img1008_1','180428_img1008_1','180429_img1008_1','180430_img1005_1',...
-    %'180430_img1007_1','180430_img1008_1','180430_img1010_1','180505_img1007_1','180505_img1008_1','180505_img1010_1'}; 
-
-days = {'1008-180419_1'};%,'1005-180414_1','1007-180414_1','1008-180414_1','1008-180417_1','1010-180423_1',...
-   % '1005-180417_1','1005-180419_1','1007-180419_1','1005-180423_1','1008-180424_1','1008-180425_1','1008-180428_1',...
-   % '1008-180429_1','1005-180430_1','1007-180430_1','1008-180430_1','1010-180430_1','1007-180505_1','1008-180505_1',...
-   % '1010-180505_1'};
-sessionID = {'1008-180419'};%,'1005-180414','1007-180414','1008-180414','1008-180417','1010-180423',...
-   % '1005-180417','1005-180419','1007-180419','1005-180423','1008-180424','1008-180425','1008-180428',...
-   % '1008-180429','1005-180430','1007-180430','1008-180430','1010-180430','1007-180505','1008-180505','1010-180505'};
+sessions = {'181008_img1011_1'};
+days = {'1011-181008_1'};
+sessionID = {'1011-181005'};
 % this  variable name is confusing, this session ID is just tha date and the subject#, 
 %there might be more than 1 sessions on a single subject on the same day
 %bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
@@ -47,11 +38,12 @@ for i = 1:length(sessions)
         time = (0:(length(speed)-1));
         hold on;
         %plot only part of the session so that the plot is not too crowded
-        %[hAx,hline1,hline2(n)] = plotyy(time(1:1000),speed(1:1000),time(1:1000),dfOvF_plot(1:1000));
-        [hAx,hline1,hline2(n)] = plotyy(time,speed,time,dfOvF_plot);
-        set(hline1,'color', 'b'); legend('speed','ROI1','ROI2','ROI3','Location','southeast');
+        [hAx,hline1,hline2(n)] = plotyy(time(1000:2000),speed(1000:2000),time(1000:2000),dfOvF_plot(1000:2000));
+        %[hAx,hline1,hline2(n)] = plotyy(time,speed,time,dfOvF_plot);
+        set(hline1,'color', 'b'); 
         set(hline2(n),'color',color_code{n});
-        ylim(hAx(2),[-1.5 0.5]);
+        %legend;%('speed','ROI1','ROI2','Location','northeast');
+        %ylim(hAx(2),[-1.5 0.5]);
     end 
     if isempty(cReverse_vec) == 0
     vline(cReverse_vec, 'r');
@@ -86,7 +78,7 @@ for i = 1: length(sessions)
     isp_plot =  repmat(isp,size(dfOvF_spdmean,1),1);
     dfOvF_ave_vs_spd = figure;
     errorbar(isp_plot',dfOvF_spdmean',dfOvF_spdste','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);
-    legend('ROI1','ROI2','ROI3'); hold on;
+    legend('ROI1','ROI2'); hold on;
     %if do errorbar(y,ste y), it can do multiple lines at once. But if do
     %errorbar(x,y,ste y), size of x and y must match(if your y contains n lines, even though the x for all lines are the same, x must have n lines too. 
     xlabel ('speed');
@@ -136,7 +128,7 @@ for ii = 1: length(sessions)
     xlabel ('behavioral state');xlim([0.5 2.5]);
     set(gca,'XTick',x,'XTicklabel',{'stationary','run'});
     ylabel('df/f');
-    title(['df/f for each beahvioral state',sessions{ii}]); legend;
+    title(['df/f for each beahvioral state',sessions{ii}]); legend('ROI1','ROI2');
     saveas(dfOvF_behavStates, [image_dest '_dfOvF_behavStates_2']);
     save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_behav', '-append');
 end

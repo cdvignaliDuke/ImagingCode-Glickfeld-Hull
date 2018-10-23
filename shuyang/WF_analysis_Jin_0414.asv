@@ -1,14 +1,8 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'180414_img1005_1','180414_img1007_1','180414_img1008_1','180417_img1008_1','180419_img1008_1',...
-   '180423_img1010_1','180417_img1005_1','180419_img1005_1','180419_img1007_1','180423_img1005_1',...
-    '180424_img1008_1','180425_img1008_1','180428_img1008_1','180429_img1008_1','180430_img1005_1',...
-    '180430_img1007_1','180430_img1008_1','180430_img1010_1','180505_img1007_1','180505_img1008_1','180505_img1010_1'}; 
-%days = '1008-180414_1';
-days = {'1005-180414_1','1007-180414_1','1008-180414_1','1008-180417_1','1008-180419_1','1010-180423_1',...
-    '1005-180417_1','1005-180419_1','1007-180419_1','1005-180423_1','1008-180424_1','1008-180425_1','1008-180428_1',...
-    '1008-180429_1','1005-180430_1','1007-180430_1','1008-180430_1','1010-180430_1','1007-180505_1','1008-180505_1','1010-180505_1'};
+sessions = {'181008_img1012_1'}; 
+days = {'1012-181008_1'};
 bx_source = 'Z:\Data\Behv_MovingDots\behavior_raw';
 image_source_base  = 'Z:\Data\WF imaging\'; %location of permanently stored image files for retreiving meta data
 image_dest_base    = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
@@ -57,13 +51,15 @@ for ii = 1: length(sessions)
     %n*num of frames double, n=number of ROIs.
     behav_output = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
     stay = behav_output.frames_stay_cell;
-    data_tc_stay = []; F_staybase = []; dfOvF_staybase = []; 
+    data_tc_stay = []; F_staybase = []; dfOvF_staybase = []; ave_stay_F = [];
     for n = 1:size(data_tc,1)
         data_tc_stay = data_tc(n,cell2mat(stay));
         F_staybase = mean(data_tc_stay);
         dfOvF_staybase(n,:) = (data_tc(n,:) - F_staybase)/F_staybase;
         %mean df/f of stationary should be 0
-        stay_F = dfOvF_staybase
+        stay_F = dfOvF_staybase(n,cell2mat(stay));
+        ave_stay_F = [ave_stay_F mean(stay_F)];
+        
     end
    save([image_dest,'_dfOvF_staybase'],'dfOvF_staybase');
 end
@@ -89,14 +85,15 @@ for ii = 1: length(sessions)
     cluster = cluster.cluster;
     raw_F = load([image_dest, '_raw_F.mat']);
     avg_img = raw_F.avg_img;
-    ROI_fig = imagesc(avg_img);
+    ROI_fig = figure;
+    imagesc(avg_img);
     shading flat; hold on;
     for i=1:cluster.num_cluster
         line(cluster.roi_position{i}(:,1),   cluster.roi_position{i}(:,2) ,'color', 'k', 'linewidth', 1)
         text(mean(cluster.roi_position{i}(:,1)),mean(cluster.roi_position{i}(:,2)), ...
             num2str(i), 'color', 'k', 'FontSize', 8);
     end
-    title(['selected ROIs ',sessions{ii}]); colormap jet;%colomap jet makes the image brighter
+    title(['selected ROIs ',sessions{ii}]); colormap jet; %colomap jet makes the image brighter
     saveas(ROI_fig, [image_dest, '_ROIplot'])
 end
 

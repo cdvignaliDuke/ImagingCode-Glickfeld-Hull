@@ -1,18 +1,9 @@
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'180419_img1008_1'};%,'180414_img1005_1','180414_img1007_1','180414_img1008_1','180417_img1008_1',...
-    %'180423_img1010_1','180417_img1005_1','180419_img1005_1','180419_img1007_1','180423_img1005_1',...
-   % '180424_img1008_1','180425_img1008_1','180428_img1008_1','180429_img1008_1','180430_img1005_1',...
-    %'180430_img1007_1','180430_img1008_1','180430_img1010_1','180505_img1007_1','180505_img1008_1','180505_img1010_1'}; 
-
-days = {'1008-180419_1'};%,'1005-180414_1','1007-180414_1','1008-180414_1','1008-180417_1','1010-180423_1',...
-   % '1005-180417_1','1005-180419_1','1007-180419_1','1005-180423_1','1008-180424_1','1008-180425_1','1008-180428_1',...
-   % '1008-180429_1','1005-180430_1','1007-180430_1','1008-180430_1','1010-180430_1','1007-180505_1','1008-180505_1',...
-   % '1010-180505_1'};
-sessionID = {'1008-180419'};%,'1005-180414','1007-180414','1008-180414','1008-180417','1010-180423',...
-   % '1005-180417','1005-180419','1007-180419','1005-180423','1008-180424','1008-180425','1008-180428',...
-   % '1008-180429','1005-180430','1007-180430','1008-180430','1010-180430','1007-180505','1008-180505','1010-180505'};
+sessions = {'181012_img1011_1'};
+days = {'1011-181012_1'};
+sessionID = {'1011-181012'};
 %there might be more than 1 sessions on a single subject on the same day
 %bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
 %image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
@@ -82,14 +73,14 @@ for ii = 1:length(sessions)
     
     %----------------------------------------------------------------------
     dfOvF_run_buffer = figure;
-    x = [1,2,3;1,2,3;1,2,3];
-    errorbar(x',ave_befoRunaft',ste_befoRunaft','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); legend('ROI1','ROI2','ROI3');
+    x = [1,2,3]; x_plot = repmat(x,size(dfOvF,1),1);
+    errorbar(x_plot',ave_befoRunaft',ste_befoRunaft','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); legend('ROI1','ROI2');
     xlim([0.5 3.5]);
     %xlabel ('');
     x1= [1,2,3];
     set(gca,'XTick',x1,'XTicklabel',{'right before','run','right after'});
     ylabel('df/f');
-    title(['df/f right before and after running',sessions{ii}]); legend;
+    title(['df/f right before and after running',sessions{ii}]);
     saveas(dfOvF_run_buffer, [image_dest '_dfOvF_runVsSurround']);
     save([behav_dest '\' sessionID{ii} '_1_behavAnalysis.mat' ],...
         'ave_dfOvF_befoRun','ave_dfOvF_aftRun','ste_dfOvF_befoRun','ste_dfOvF_aftRun',...
