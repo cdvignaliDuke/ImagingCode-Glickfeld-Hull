@@ -3,7 +3,7 @@ close all
 ds = 'FSAV_V1_SOM';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 7;
+slct_expt = 8;
 doCorrImg = false;
 %%
 for iexp = slct_expt
@@ -116,7 +116,7 @@ if doCorrImg
     end
 end
 if ~exist(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds),'dir')
-    mkdir(fullfilt(rc.ashleyAnalysis,'FSAV Summaries',ds))
+    mkdir(fullfilet(rc.ashleyAnalysis,'FSAV Summaries',ds))
 end
 print(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds,...
     ['rand image samples_' SubNum '-' expDate]),'-dpdf','-fillpage')
