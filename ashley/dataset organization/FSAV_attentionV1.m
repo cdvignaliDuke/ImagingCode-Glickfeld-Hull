@@ -62,7 +62,7 @@ expt(3).dirtuning = '005';
 expt(3).dirtuning_time = '1513';
 expt(3).rettuning = {'004';'1509'};
 expt(3).z = 301;
-expt(3).regImgStartFrame = nan;
+expt(3).regImgStartFrame = 7892;
 expt(3).trial_range = nan;
 expt(3).attentionTask = true;
 expt(3).hasAttention = true;
@@ -308,7 +308,7 @@ expt(13).attentionTask = true;
 expt(13).hasAttention = true;
 expt(13).eyeradrange = [5 30];
 
-%% AW25 150314
+%% AW25 160314
 expt(14).SubNum = '625';
 expt(14).mouse = 'AW25';
 expt(14).date = '160314';

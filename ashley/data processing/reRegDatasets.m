@@ -1,9 +1,9 @@
 clear all
 close all
-ds = 'FSAV_V1_SOM';
+ds = 'FSAV_attentionV1';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 7;
+slct_expt = 14;%[13,14];
 doPreviousReg = false;
 %%
 iexp = slct_expt
@@ -41,10 +41,15 @@ for irun = 1:expt(iexp).nrun
         [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName,nframes);
 %     elseif (strcmp(ds, '_V1') | strcmp(ds,'')) & irun == 2 & strcmp(expDate, '150508')
 %         continue
-    elseif ~isempty(expt(iexp).nframesPerRun)
-        nframes = expt(iexp).nframesPerRun(irun);
-        [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
-            SubNum,expDate,expTime,mouse,runFolder,fName,nframes);
+    elseif isfield(expt,'nframesPerRun')
+        if ~isempty(expt(iexp).nframesPerRun)
+            nframes = expt(iexp).nframesPerRun(irun);
+            [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
+                SubNum,expDate,expTime,mouse,runFolder,fName,nframes);
+        else
+            [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
+                SubNum,expDate,expTime,mouse,runFolder,fName);
+        end
     else
         [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
             SubNum,expDate,expTime,mouse,runFolder,fName);
@@ -158,8 +163,8 @@ bx_img = max(dFF_bxMax,[],3);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:5 780:xpix];
-ycrop = [1:5 260:ypix];
+xcrop = [1:36 738:xpix];
+ycrop = [1:30 245:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;
@@ -204,6 +209,10 @@ dFF_2D(mask_cell(:) > 0,:) = 0;
 
 dFF_stack_den = reshape(dFF_2D,ypix,xpix,[]);
 mask_den = maskFromMultiMaxDFFStack(dFF_stack_den);
+figure; setFigParams4Print('portrait')
+imagesc(mask_den);
+title({[num2str(length(unique(mask_den(:)))-1) ' dendrites with behavior'];[mouse '-' expDate]})
+print(fullfile(fnout,'final_mask_dendrites'),'-dpdf')
 
 save(fullfile(fnout,'final_mask_dendrites.mat'),'mask_den');
 close all

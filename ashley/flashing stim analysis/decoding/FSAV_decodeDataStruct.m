@@ -1,6 +1,6 @@
 clear all
 close all
-ds = 'FSAV_attentionV1';
+ds = 'FSAV_V1_SOM';
 cellsOrDendrites = 1;
 bxMice = true;
 %%

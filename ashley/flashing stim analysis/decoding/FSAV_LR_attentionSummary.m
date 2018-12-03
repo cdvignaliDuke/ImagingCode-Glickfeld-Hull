@@ -6,9 +6,9 @@ clear all
 
 ds = 'FSAV_attentionV1';
 
-load('X:\home\ashley\Analysis\FSAV Choice\FSAV_decodeData.mat')
-load(['X:\home\ashley\Analysis\FSAV Summaries\' ds '\attentionV1_startAlign_FSAV_attnData'])
-fnout = ['X:\home\ashley\Analysis\FSAV Summaries\FSAV Choice'];
+load('Z:\home\ashley\Analysis\FSAV Choice\FSAV_decodeData.mat')
+load(['Z:\home\ashley\Analysis\FSAV Summaries\' ds '\attentionV1_startAlign_FSAV_attnData'])
+fnout = ['Z:\home\ashley\Analysis\FSAV Summaries\FSAV Choice'];
 nexp = length(dcExpt);
 
 doExptPlots = 0;
@@ -76,9 +76,13 @@ respCells_baseOnly = [];
 respCells_targetAndBase = [];
 respCells_lateBase = [];
 suppCells = [];
+respCells_dist = [];
+respCells_targetAndDist = [];
+respCells_target = [];
 
 osi = [];
-si = [];
+si_resp = [];
+si_win = [];
 avMod = [];
 lateVisResp = [];
 lateAudResp = [];
@@ -150,7 +154,8 @@ for iexp=1:nexp
     taskOriRespAll_firstStim0 = cat(2,taskOriRespAll_firstStim0,taskOriResp_firstStim0);
     
    
-   si = cat(2,si,attnInfoExpt(iexp).si(cellIdx));
+   si_resp = cat(2,si_resp,attnInfoExpt(iexp).si_resp(cellIdx));
+   si_win = cat(2,si_win,attnInfoExpt(iexp).si_win(cellIdx));
    avMod = cat(2,avMod,attnInfoExpt(iexp).avModTest(cellIdx));
     lateVisResp = cat(2,lateVisResp,attnInfoExpt(iexp).vLateResp(cellIdx));
     lateAudResp = cat(2,lateAudResp,attnInfoExpt(iexp).aLateResp(cellIdx));
@@ -167,6 +172,10 @@ for iexp=1:nexp
    respCells_lateBase = cat(1,respCells_lateBase,...
        attnInfoExpt(iexp).lateBaseRespCells(cellIdx)');   
    suppCells = cat(1,suppCells,attnInfoExpt(iexp).lateBaseSuppCells(cellIdx)');
+   
+   respCells_dist = cat(1,respCells_dist,fbrc);
+   respCells_targetAndDist = cat(1,respCells_targetAndDist,fbrc & tc);
+   respCells_target = cat(1,respCells_target,tc);
    
    X_targets_vis=X_targets_vis(matchTrialsInd,cellIdx);
    
@@ -432,6 +441,10 @@ respCells_lateBaseOnly = logical(respCells_lateBase &...
     ~respCells_baseOnly & ~respCells_targetAndBase);
 suppCells = logical(suppCells);
 
+respCells_dist = logical(respCells_dist);
+respCells_targetAndDist = logical(respCells_targetAndDist);
+respCells_target = logical(respCells_target);
+
 [~,taskOriPrefID] = max(taskOriRespAll);
 taskOriPref = orientationEdges(taskOriPrefID);
 isTaskTuned = taskTuningFit > taskTuningFitCutoff;
@@ -470,9 +483,13 @@ end
 [p_anova_target_aud,~,stats_target_aud] = anova1(targetWeightsAll_aud,oriPrefBinID);
 
 %% bin weights by ori pref and cell responsivity type
-respCellType = {respCells_targetOnly;respCells_firstBase;respCells_targetAndBase};
+respCellType = {respCells_target & ~respCells_dist;respCells_dist & ~respCells_target;respCells_targetAndDist};
 respCellColor = {'r';'b';'m'};
 respCellName = {'Target Only'; 'Base Only'; 'Both'};
+
+ind1 = respCells_target & ~respCells_dist;
+ind2 = respCells_targetAndDist;
+ind3 = respCells_dist & ~respCells_target;
 
 detectWeightOriBin_vis_respCells = cell(1,3);
 targetWeightOriBin_vis_respCells = cell(1,3);
@@ -613,44 +630,44 @@ figure
 suptitle('Visual Trials Model')
 ind1 = logical(avMod');
 subplot 221
-h=plot(si,targetCorrsAll_vis,'o');
+h=plot(si_resp,targetCorrsAll_vis,'o');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),targetCorrsAll_vis(ind1),'ko');
+h=plot(si_resp(ind1),targetCorrsAll_vis(ind1),'ko');
 h.MarkerFaceColor = 'k';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Correlation',corrLim)
 figAxForm
 title('Target')
 subplot 222
-h=plot(si,detectCorrsAll_vis,'o');
+h=plot(si_resp,detectCorrsAll_vis,'o');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),detectCorrsAll_vis(ind1),'ko');
+h=plot(si_resp(ind1),detectCorrsAll_vis(ind1),'ko');
 h.MarkerFaceColor = 'k';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Correlation',corrLim)
 figAxForm
 title('Detect')
 subplot 223
-h=plot(si,targetWeightsAll_vis,'o');
+h=plot(si_resp,targetWeightsAll_vis,'o');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),targetWeightsAll_vis(ind1),'ko');
+h=plot(si_resp(ind1),targetWeightsAll_vis(ind1),'ko');
 h.MarkerFaceColor = 'k';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Weight',weightLim)
 figAxForm
 title('Target')
 subplot 224
-h=plot(si,detectWeightsAll_vis,'ko');
+h=plot(si_resp,detectWeightsAll_vis,'ko');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),detectWeightsAll_vis(ind1),'ko');
+h=plot(si_resp(ind1),detectWeightsAll_vis(ind1),'ko');
 h.MarkerFaceColor = 'k';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Weight',weightLim)
@@ -661,6 +678,173 @@ legend({'All';'Selective Only'},...
 
 print(fullfile(fnout,'LRmodelXattn'),'-dpdf','-fillpage')
 
+figure
+ind1 = respCells_target & ~respCells_dist;
+ind2 = respCells_targetAndDist;
+ind3 = respCells_dist & ~respCells_target;
+subplot 221
+h=plot(si_resp(ind1),targetWeightsAll_vis(ind1),'ro');
+h.MarkerFaceColor = h.Color;
+hold on
+h=plot(si_resp(ind2),targetWeightsAll_vis(ind2),'mo');
+h.MarkerFaceColor = h.Color;
+h=plot(si_resp(ind3),targetWeightsAll_vis(ind3),'bo');
+h.MarkerFaceColor = h.Color;
+% h=plot(si_resp(ind1),targetWeightsAll_vis(ind1),'ko');
+% h.MarkerFaceColor = 'k';
+figXAxis([],'V-A Resp SI',siLim)
+figYAxis([],'Weight',weightLim)
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Target')
+subplot 222
+h=plot(si_resp(ind1),detectWeightsAll_vis(ind1),'ro');
+h.MarkerFaceColor = h.Color;
+hold on
+h=plot(si_resp(ind2),detectWeightsAll_vis(ind2),'mo');
+h.MarkerFaceColor = h.Color;
+h=plot(si_resp(ind3),detectWeightsAll_vis(ind3),'bo');
+h.MarkerFaceColor = h.Color;
+% h=plot(si_resp(ind1),detectWeightsAll_vis(ind1),'ko');
+% h.MarkerFaceColor = 'k';
+figXAxis([],'V-A Resp SI',siLim)
+figYAxis([],'Weight',weightLim)
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Detect')
+subplot 223
+h=plot(si_win(ind1),targetWeightsAll_vis(ind1),'ro');
+h.MarkerFaceColor = h.Color;
+hold on
+h=plot(si_win(ind2),targetWeightsAll_vis(ind2),'mo');
+h.MarkerFaceColor = h.Color;
+h=plot(si_win(ind3),targetWeightsAll_vis(ind3),'bo');
+h.MarkerFaceColor = h.Color;
+% h=plot(si_resp(ind1),targetWeightsAll_vis(ind1),'ko');
+% h.MarkerFaceColor = 'k';
+figXAxis([],'V-A Win SI',siLim)
+figYAxis([],'Weight',weightLim)
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Target')
+subplot 224
+h=plot(si_win(ind1),detectWeightsAll_vis(ind1),'ro');
+h.MarkerFaceColor = h.Color;
+hold on
+h=plot(si_win(ind2),detectWeightsAll_vis(ind2),'mo');
+h.MarkerFaceColor = h.Color;
+h=plot(si_win(ind3),detectWeightsAll_vis(ind3),'bo');
+h.MarkerFaceColor = h.Color;
+% h=plot(si_resp(ind1),detectWeightsAll_vis(ind1),'ko');
+% h.MarkerFaceColor = 'k';
+figXAxis([],'V-A Win SI',siLim)
+figYAxis([],'Weight',weightLim)
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Detect')
+
+print(fullfile(fnout,'LRmodelXattn_resp&win'),'-dpdf','-fillpage')
+
+figure
+ind1 = respCells_target & ~respCells_dist;
+ind2 = respCells_targetAndDist;
+ind3 = respCells_dist & ~respCells_target;
+subplot 221
+h=errorbar(mean(si_resp(ind1)),mean(targetWeightsAll_vis(ind1)),...
+    ste(targetWeightsAll_vis(ind1),1),ste(targetWeightsAll_vis(ind1),1),...
+    ste(si_resp(ind1),2),ste(si_resp(ind1),2),'ro');
+hold on
+h=errorbar(mean(si_resp(ind2)),mean(targetWeightsAll_vis(ind2)),...
+    ste(targetWeightsAll_vis(ind2),1),ste(targetWeightsAll_vis(ind2),1),...
+    ste(si_resp(ind2),2),ste(si_resp(ind2),2),'mo');
+h=errorbar(mean(si_resp(ind3)),mean(targetWeightsAll_vis(ind3)),...
+    ste(targetWeightsAll_vis(ind3),1),ste(targetWeightsAll_vis(ind3),1),...
+    ste(si_resp(ind3),2),ste(si_resp(ind3),2),'bo');
+% h=plot(si_resp(ind2),targetWeightsAll_vis(ind1),'ko');
+% h.MarkerFaceColor = 'k';
+figXAxis([],'V-A Resp SI',[-4 4])
+figYAxis([],'Weight',[-1 1])
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Target')
+subplot 222
+h=errorbar(mean(si_resp(ind1)),mean(detectWeightsAll_vis(ind1)),...
+    ste(detectWeightsAll_vis(ind1),1),ste(detectWeightsAll_vis(ind1),1),...
+    ste(si_resp(ind1),2),ste(si_resp(ind1),2),'ro');
+hold on
+h=errorbar(mean(si_resp(ind2)),mean(detectWeightsAll_vis(ind2)),...
+    ste(detectWeightsAll_vis(ind2),1),ste(detectWeightsAll_vis(ind2),1),...
+    ste(si_resp(ind2),2),ste(si_resp(ind2),2),'mo');
+h=errorbar(mean(si_resp(ind3)),mean(detectWeightsAll_vis(ind3)),...
+    ste(detectWeightsAll_vis(ind3),1),ste(detectWeightsAll_vis(ind3),1),...
+    ste(si_resp(ind3),2),ste(si_resp(ind3),2),'bo');
+% h=plot(si_resp(ind1),detectWeightsAll_vis(ind1),'ko');
+% h.MarkerFaceColor = 'k';
+figXAxis([],'V-A Resp SI',[-4 4])
+figYAxis([],'Weight',[-1 1])
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Detect')
+subplot 223
+h=errorbar(mean(si_win(ind1)),mean(targetWeightsAll_vis(ind1)),...
+    ste(targetWeightsAll_vis(ind1),1),ste(targetWeightsAll_vis(ind1),1),...
+    ste(si_win(ind1),2),ste(si_win(ind1),2),'ro');
+hold on
+h=errorbar(mean(si_win(ind2)),mean(targetWeightsAll_vis(ind2)),...
+    ste(targetWeightsAll_vis(ind2),1),ste(targetWeightsAll_vis(ind2),1),...
+    ste(si_win(ind2),2),ste(si_win(ind2),2),'mo');
+h=errorbar(mean(si_win(ind3)),mean(targetWeightsAll_vis(ind3)),...
+    ste(targetWeightsAll_vis(ind3),1),ste(targetWeightsAll_vis(ind3),1),...
+    ste(si_win(ind3),2),ste(si_win(ind3),2),'bo');
+% h=plot(si_resp(ind1),targetWeightsAll_vis(ind1),'ko');
+% h.MarkerFaceColor = 'k';
+figXAxis([],'V-A Win SI',[-2 2])
+figYAxis([],'Weight',[-.75 .75])
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Target')
+subplot 224
+h=errorbar(mean(si_win(ind1)),mean(detectWeightsAll_vis(ind1)),...
+    ste(detectWeightsAll_vis(ind1),1),ste(detectWeightsAll_vis(ind1),1),...
+    ste(si_win(ind1),2),ste(si_win(ind1),2),'ro');
+hold on
+h=errorbar(mean(si_win(ind2)),mean(detectWeightsAll_vis(ind2)),...
+    ste(detectWeightsAll_vis(ind2),1),ste(detectWeightsAll_vis(ind2),1),...
+    ste(si_win(ind2),2),ste(si_win(ind2),2),'mo');
+h=errorbar(mean(si_win(ind3)),mean(detectWeightsAll_vis(ind3)),...
+    ste(detectWeightsAll_vis(ind3),1),ste(detectWeightsAll_vis(ind3),1),...
+    ste(si_win(ind3),2),ste(si_win(ind3),2),'bo');
+% h=plot(si_resp(ind1),detectWeightsAll_vis(ind1),'ko');
+% h.MarkerFaceColor = 'k';
+figXAxis([],'V-A Win SI',[-2 2])
+figYAxis([],'Weight',[-.75 .75])
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Detect')
+
+print(fullfile(fnout,'LRmodelXattn_resp&win_sum'),'-dpdf','-fillpage')
+
+figure
+plot(si_resp,si_win,'ko')
+hold on
+plot([-10 10],[-10 10],'k--')
+figXAxis([],'V-A Resp SI',[-10 10])
+figYAxis([],'V-A Win SI',[-10 10])
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('Selectivity Correlation of Model Neurons')
+
+print(fullfile(fnout,'siRespXsiWin_modelCells'),'-dpdf','-fillpage')
+
 setFigParams4Print('portrait')
 set(0,'defaultAxesFontSize',12)
 figure
@@ -669,60 +853,60 @@ ind1 = respCells_targetOnly;
 ind2 = respCells_targetAndBase;
 ind3 = respCells_firstBase;
 subplot 221
-h=plot(si,targetCorrsAll_vis,'o');
+h=plot(si_resp,targetCorrsAll_vis,'o');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),targetCorrsAll_vis(ind1),'ro');
+h=plot(si_resp(ind1),targetCorrsAll_vis(ind1),'ro');
 h.MarkerFaceColor = 'r';
-h=plot(si(ind2),targetCorrsAll_vis(ind2),'mo');
+h=plot(si_resp(ind2),targetCorrsAll_vis(ind2),'mo');
 h.MarkerFaceColor = 'm';
-h=plot(si(ind3),targetCorrsAll_vis(ind3),'bo');
+h=plot(si_resp(ind3),targetCorrsAll_vis(ind3),'bo');
 h.MarkerFaceColor = 'b';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Correlation',corrLim)
 figAxForm
 title('Target')
 subplot 222
-h=plot(si,detectCorrsAll_vis,'o');
+h=plot(si_resp,detectCorrsAll_vis,'o');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),detectCorrsAll_vis(ind1),'ro');
+h=plot(si_resp(ind1),detectCorrsAll_vis(ind1),'ro');
 h.MarkerFaceColor = 'r';
-h=plot(si(ind2),detectCorrsAll_vis(ind2),'mo');
+h=plot(si_resp(ind2),detectCorrsAll_vis(ind2),'mo');
 h.MarkerFaceColor = 'm';
-h=plot(si(ind3),detectCorrsAll_vis(ind3),'bo');
+h=plot(si_resp(ind3),detectCorrsAll_vis(ind3),'bo');
 h.MarkerFaceColor = 'b';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Correlation',corrLim)
 figAxForm
 title('Detect')
 subplot 223
-h=plot(si,targetWeightsAll_vis,'o');
+h=plot(si_resp,targetWeightsAll_vis,'o');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),targetWeightsAll_vis(ind1),'ro');
+h=plot(si_resp(ind1),targetWeightsAll_vis(ind1),'ro');
 h.MarkerFaceColor = 'r';
-h=plot(si(ind2),targetWeightsAll_vis(ind2),'mo');
+h=plot(si_resp(ind2),targetWeightsAll_vis(ind2),'mo');
 h.MarkerFaceColor = 'm';
-h=plot(si(ind3),targetWeightsAll_vis(ind3),'bo');
+h=plot(si_resp(ind3),targetWeightsAll_vis(ind3),'bo');
 h.MarkerFaceColor = 'b';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Weight',weightLim)
 figAxForm
 title('Target')
 subplot 224
-h=plot(si,detectWeightsAll_vis,'ko');
+h=plot(si_resp,detectWeightsAll_vis,'ko');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),detectWeightsAll_vis(ind1),'ro');
+h=plot(si_resp(ind1),detectWeightsAll_vis(ind1),'ro');
 h.MarkerFaceColor = 'r';
-h=plot(si(ind2),detectWeightsAll_vis(ind2),'mo');
+h=plot(si_resp(ind2),detectWeightsAll_vis(ind2),'mo');
 h.MarkerFaceColor = 'm';
-h=plot(si(ind3),detectWeightsAll_vis(ind3),'bo');
+h=plot(si_resp(ind3),detectWeightsAll_vis(ind3),'bo');
 h.MarkerFaceColor = 'b';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Weight',weightLim)
@@ -735,7 +919,7 @@ print(fullfile(fnout,'LRmodelXattn2'),'-dpdf','-fillpage')
 
 %% bin selectivity by SI and task responsiveness
 siBins = [-12 -6.25:2.5:6.25 12];
-[nSiPerBin,~,siBinID] = histcounts(discretize(si,siBins,'IncludedEdge','right'));
+[nSiPerBin,~,siBinID] = histcounts(discretize(si_resp,siBins,'IncludedEdge','right'));
 nSiBins = length(nSiPerBin);
 siBinLabel = [8 siBins(2:end-2)+1.25 8];
 
@@ -816,30 +1000,30 @@ figAxForm
 title('Detect')
 
 subplot 223
-h=plot(si,targetWeightsAll_vis,'o');
+h=plot(si_resp,targetWeightsAll_vis,'o');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),targetWeightsAll_vis(ind1),'ro');
+h=plot(si_resp(ind1),targetWeightsAll_vis(ind1),'ro');
 h.MarkerFaceColor = 'r';
-h=plot(si(ind2),targetWeightsAll_vis(ind2),'mo');
+h=plot(si_resp(ind2),targetWeightsAll_vis(ind2),'mo');
 h.MarkerFaceColor = 'm';
-h=plot(si(ind3),targetWeightsAll_vis(ind3),'bo');
+h=plot(si_resp(ind3),targetWeightsAll_vis(ind3),'bo');
 h.MarkerFaceColor = 'b';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Weight',weightLim)
 figAxForm
 title('Target')
 subplot 224
-h=plot(si,detectWeightsAll_vis,'ko');
+h=plot(si_resp,detectWeightsAll_vis,'ko');
 h.Color = [0.5 0.5 0.5];
 h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-h=plot(si(ind1),detectWeightsAll_vis(ind1),'ro');
+h=plot(si_resp(ind1),detectWeightsAll_vis(ind1),'ro');
 h.MarkerFaceColor = 'r';
-h=plot(si(ind2),detectWeightsAll_vis(ind2),'mo');
+h=plot(si_resp(ind2),detectWeightsAll_vis(ind2),'mo');
 h.MarkerFaceColor = 'm';
-h=plot(si(ind3),detectWeightsAll_vis(ind3),'bo');
+h=plot(si_resp(ind3),detectWeightsAll_vis(ind3),'bo');
 h.MarkerFaceColor = 'b';
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Weight',weightLim)
@@ -851,7 +1035,7 @@ legend({'All';'Target Only';'Target & Distractor';'Distractor Only'},...
 print(fullfile(fnout,'LRmodelXattnSummary'),'-dpdf','-fillpage')
 
 %% plot weights by orientation
-weightLim_ori = [-1 1.3];
+weightLim_ori = [-1.3 1.3];
 
 setFigParams4Print('portrait')
 set(0,'defaultAxesFontSize',12)
@@ -1148,7 +1332,7 @@ hline(0,'k--')
 figXAxis([],'Orientation Pref (deg)',[0 maxBin+1],1:maxBin,0:45:180)
 figYAxis([],'Weight',weightLim_ori)
 figAxForm
-title('Target')
+title('Detect')
 legend(respCellName)
 
 print(fullfile(fnout,'tuningXweight_respCellTypes_vis'),'-dpdf','-fillpage')
@@ -1395,24 +1579,24 @@ figAxForm
 
 subplot(3,nBinnedOris,6)
 h = plot(oriPrefAll(respCells_firstBase),...
-    si(respCells_firstBase),'bo');
+    si_resp(respCells_firstBase),'bo');
 hold on
 h = plot(oriPrefAll(respCells_targetAndBase),...
-    si(respCells_targetAndBase),'mo');
+    si_resp(respCells_targetAndBase),'mo');
 h = plot(oriPrefAll(respCells_targetOnly),...
-    si(respCells_targetOnly),'ro');
+    si_resp(respCells_targetOnly),'ro');
 title('Anticipation Selectivity')
 figXAxis([],'Passive Ori Pref',[0 181])
 figYAxis([], 'V-A Selectivity',[-12 12])
 figAxForm
 subplot(3,nBinnedOris,9)
 h = plot(taskOriPref(respCells_firstBase),...
-    si(respCells_firstBase),'bo');
+    si_resp(respCells_firstBase),'bo');
 hold on
 h = plot(taskOriPref(respCells_targetAndBase)+3,...
-    si(respCells_targetAndBase),'mo');
+    si_resp(respCells_targetAndBase),'mo');
 h = plot(taskOriPref(respCells_targetOnly)+6,...
-    si(respCells_targetOnly),'ro');
+    si_resp(respCells_targetOnly),'ro');
 title('Anticipation Selectivity')
 figXAxis([],'Task Ori Pref',[0 181])
 figYAxis([], 'V-A Selectivity',[-12 12])
@@ -1602,6 +1786,7 @@ hold on
 x = targetCorrsAll_vis;
 y = targetCorrsAll_aud;
 h = scatter(x,y,'ko');
+h.MarkerFaceColor = 'k';
 linFitCoeffs = polyfit(x,y,1);
 yfit = polyval(linFitCoeffs,x);
 R_squared = 1 - (sum((y-yfit).^2)/sum((y - mean(y)).^2));
@@ -1617,6 +1802,7 @@ hold on
 x = detectCorrsAll_vis;
 y = detectCorrsAll_aud;
 h = scatter(x,y,'ko');
+h.MarkerFaceColor = 'k';
 linFitCoeffs = polyfit(x,y,1);
 yfit = polyval(linFitCoeffs,x);
 R_squared = 1 - (sum((y-yfit).^2)/sum((y - mean(y)).^2));
@@ -1632,33 +1818,82 @@ hold on
 x = targetWeightsAll_vis;
 y = targetWeightsAll_aud;
 h = scatter(x,y,'ko');
+h.MarkerFaceColor = 'k';
 linFitCoeffs = polyfit(x,y,1);
 yfit = polyval(linFitCoeffs,x);
 R_squared = 1 - (sum((y-yfit).^2)/sum((y - mean(y)).^2));
+[R,p]= corrcoef(x,y);
+R = round(R(1,2),2,'significant');
+p = round(p(1,2),2,'significant');
 h = plot(x,yfit,'r-');
 plot(weightLim,weightLim,'k--')
 figXAxis([],'Visual',weightLim);
 figYAxis([],'Auditory',weightLim);
 figAxForm
-title(sprintf('Target Weight, R^2 = %s',num2str(R_squared)))
+title(sprintf('Target Weight, R^2 = %s, R=%s,p=%s',num2str(R_squared),num2str(R),num2str(p)))
 
 subplot 224
 hold on
 x = detectWeightsAll_vis;
-y = detectCorrsAll_aud;
+y = detectWeightsAll_aud;
 h = scatter(x,y,'ko');
+h.MarkerFaceColor = 'k';
 linFitCoeffs = polyfit(x,y,1);
 yfit = polyval(linFitCoeffs,x);
 R_squared = 1 - (sum((y-yfit).^2)/sum((y - mean(y)).^2));
+[R,p]= corrcoef(x,y);
+R = round(R(1,2),2,'significant');
+p = round(p(1,2),2,'significant');
 h = plot(x,yfit,'r-');
 plot(weightLim,weightLim,'k--')
 figXAxis([],'Visual',weightLim);
 figYAxis([],'Auditory',weightLim);
 figAxForm
-title(sprintf('Detect Weight, R^2 = %s',num2str(R_squared)))
+title(sprintf('Detect Weight, R^2 = %s, R=%s,p=%s',num2str(R_squared),num2str(R),num2str(p)))
 
 print(fullfile(fnout,'crossModalCorrelations'),'-dpdf','-fillpage')
 
+figure
+weightLim_shuf = [-1 1];
+subplot 223
+hold on
+x = targetWeightsAll_shuf_vis;
+y = targetWeightsAll_shuf_aud;
+h = scatter(x,y,'ko');
+h.MarkerFaceColor = 'k';
+linFitCoeffs = polyfit(x,y,1);
+yfit = polyval(linFitCoeffs,x);
+R_squared = 1 - (sum((y-yfit).^2)/sum((y - mean(y)).^2));
+[R,p]= corrcoef(x,y);
+R = round(R(1,2),2,'significant');
+p = round(p(1,2),2,'significant');
+h = plot(x,yfit,'r-');
+plot(weightLim_shuf,weightLim_shuf,'k--')
+figXAxis([],'Visual',weightLim_shuf);
+figYAxis([],'Auditory',weightLim_shuf);
+figAxForm
+title(sprintf('Target Weight, R^2 = %s, R=%s,p=%s',num2str(R_squared),num2str(R),num2str(p)))
+
+subplot 224
+hold on
+x = detectWeightsAll_shuf_vis;
+y = detectWeightsAll_shuf_aud;
+h = scatter(x,y,'ko');
+h.MarkerFaceColor = 'k';
+linFitCoeffs = polyfit(x,y,1);
+yfit = polyval(linFitCoeffs,x);
+R_squared = 1 - (sum((y-yfit).^2)/sum((y - mean(y)).^2));
+[R,p]= corrcoef(x,y);
+R = round(R(1,2),2,'significant');
+p = round(p(1,2),2,'significant');
+h = plot(x,yfit,'r-');
+plot(weightLim_shuf,weightLim_shuf,'k--')
+figXAxis([],'Visual',weightLim_shuf);
+figYAxis([],'Auditory',weightLim_shuf);
+figAxForm
+title(sprintf('Dectect Weight, R^2 = %s, R=%s,p=%s',num2str(R_squared),num2str(R),num2str(p)))
+
+print(fullfile(fnout,'crossModalCorrelations_shuffle'),'-dpdf','-fillpage')
 %% percent correct and cross valiation by orienation or amplitude
 
 pctCorrOri_detect_sub = pctCorrDetect_visXori - ...

@@ -1,10 +1,9 @@
 clear all
 close all
-ds = 'FSAV_V1_SOM';
+ds = 'FSAV_attentionV1';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 8;
-doCorrImg = false;
+slct_expt = 3;
 %%
 for iexp = slct_expt
 
@@ -16,8 +15,12 @@ expDate = expt(iexp).date;
 % concatenate data files
 for irun = 1:expt(iexp).nrun
 
-    if ~isempty(expt(iexp).nframesPerRun)
-        nFr = expt(iexp).nframesPerRun(irun);
+    if isfield(expt,'nframesPerRun')
+        if ~isempty(expt(iexp).nframesPerRun)
+            nFr = expt(iexp).nframesPerRun(irun);
+        else
+            nFr = [];
+        end
     else
         nFr = [];
     end
@@ -105,16 +108,16 @@ for iimg = 1:nMeanImages
     imagesc(mean(data_bx(:,:,randStarterFrames(iimg):randStarterFrames(iimg)+100),3))
     title(sprintf('%s:%s',num2str(randStarterFrames(iimg)),num2str(randStarterFrames(iimg)+100)))
 end
-if doCorrImg
-    try
-        load(fullfile(fnout,'regOuts&Img.mat'));
-        subplot(nRows,nCols,nMeanImages+1)
-        imagesc(data_corr_img)
-        title('corr image')
-    catch
-        disp('no corr image')
-    end
-end
+% if doCorrImg
+%     try
+%         load(fullfile(fnout,'regOuts&Img.mat'));
+%         subplot(nRows,nCols,nMeanImages+1)
+%         imagesc(data_corr_img)
+%         title('corr image')
+%     catch
+%         disp('no corr image')
+%     end
+% end
 if ~exist(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds),'dir')
     mkdir(fullfilet(rc.ashleyAnalysis,'FSAV Summaries',ds))
 end
