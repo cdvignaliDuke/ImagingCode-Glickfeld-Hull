@@ -8,11 +8,11 @@ WF_CRP_list_of_days;
 F_TC_dir    = 'Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\';
 lick_TC_dir = 'Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\'; 
 out_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\WF\onset_latencies\';
-days = days_UR;
-ROI_cell = days_UR_ROI;
+days = days_1;
+ROI_cell = days_1_ROI;
 cue_time_interp = 501;
 reward_time_interp = 1101;
-no_lick_window = [9:11];
+no_lick_window = [9:11];  %cueonset=6  reward=12
 
 rew_onset_times_all =  [];
 rew_onset_times_all_sem = [];

@@ -1,20 +1,46 @@
 clear
-file_info_CRP
-out_base = fullfile('Z:\home\jake\Analysis\Cue_reward_pairing_analysis\2P\');
-% outD1 = []; day = 1;
-% for id = 1:size(days_s1,2)
-%     days = days_s1{id}
-%     for rID  = 1:2
-%         dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[days(1:6), '_', runID{rID}, '_', mouse_s1{id}],'\');
-%         
-%         outD1 = getData2Cell(dest_sub, outD1, id, day);
-%         
-% %         if ~isempty(outD1)  && length(outD1.NR_F_onset) == id
-% %             outD1.NR_F_onset_RS{id} = outD1.NR_F_onset{id}(outD1.RS_cells{id});
-% %             outD1.OR_F_onset_RS{id} = outD1.OR_F_onset{id}(outD1.RS_cells{id});
-% %         end
-%     end
-% end
+file_info_CRP_all
+out_base = fullfile('Z:\Analysis\Cue_reward_pairing_analysis\2P\PCA_ICA_recalibration\Summary_folder\TC and cell categories summary\');
+data_base = 'Z:\Analysis\Cue_reward_pairing_analysis\2P\PCA_ICA_recalibration\';
+
+outD1 = []; day = 1;
+days_subset = days_1; 
+for sub = 1:size(days_1,2)
+    
+    %collect session/mouse information
+    session = days_subset{sub};
+    session_date = days_subset{sub}(1:6);
+    if session(end-2) == 'g'
+        mouse_num = ['9', session(end-1:end)];
+        mouse_ID = ['img', session(end-1:end)];
+    elseif session(end-2) =='0'
+        mouse_num = session(end-2:end);
+        mouse_ID = ['img', session(end-2:end)];
+    end
+    session
+    
+    %set pathnames
+    data_dir = fullfile('Z:\Data\2P_imaging',session, mouse_ID, '\');
+    for rID = 1:2
+        if exist([data_dir, mouse_ID, '_000_', runID{rID}, '.sbx'], 'file') == 2
+            break
+        end
+    end
+    if strcmp(session, '170426_img91') | strcmp(session, '170522_img89')
+        rID=2;
+    end
+    
+    %collect data and store it in a cell
+    dest_sub  = fullfile(data_base, [session(1:6), '_', runID{rID}, '_', mouse_ID],'\');
+    outD1 = getData2Cell2(dest_sub, outD1, sub, day);
+    
+    %         if ~isempty(outD1)  && length(outD1.NR_F_onset) == id
+    %             outD1.NR_F_onset_RS{id} = outD1.NR_F_onset{id}(outD1.RS_cells{id});
+    %             outD1.OR_F_onset_RS{id} = outD1.OR_F_onset{id}(outD1.RS_cells{id});
+    %         end
+end
+
+
 % outPast1 = []; day = 5; doCombMask = 0;
 % for id = 1:size(days_s2,2)
 %     id
@@ -60,15 +86,37 @@ out_base = fullfile('Z:\home\jake\Analysis\Cue_reward_pairing_analysis\2P\');
 % end
 
 out_daysPost = [];
-for id = 1:size(days_post,2)
-    days = days_post{id}
-    for rID  = 1:2
-        dest_sub  = fullfile('Z:','home','jake','Analysis','Cue_reward_pairing_analysis','2P',[days(1:6), '_', runID{rID}, '_img', days(regexp(days, 'g')+1:end)],'\');
-        
-        out_daysPost = getData2Cell(dest_sub, out_daysPost, id, 6);
-        
+days_subset = days_1; 
+for sub = 1:size(days_post,2)
+    
+    %collect session/mouse information
+    session = days_subset{sub};
+    session_date = days_subset{sub}(1:6);
+    if session(end-2) == 'g'
+        mouse_num = ['9', session(end-1:end)];
+        mouse_ID = ['img', session(end-1:end)];
+    elseif session(end-2) =='0'
+        mouse_num = session(end-2:end);
+        mouse_ID = ['img', session(end-2:end)];
     end
+    session
+    
+    %set pathnames
+    data_dir = fullfile('Z:\Data\2P_imaging',session, mouse_ID, '\');
+    for rID = 1:2
+        if exist([data_dir, mouse_ID, '_000_', runID{rID}, '.sbx'], 'file') == 2
+            break
+        end
+    end
+    if strcmp(session, '170426_img91') | strcmp(session, '170522_img89')
+        rID=2;
+    end
+    
+    %load and store data in cell
+    dest_sub  = fullfile(data_base, [session_date, '_', runID{rID}, '_', mouse_ID],'\');
+    out_daysPost = getData2Cell2(dest_sub, out_daysPost, sub, 6);
 end
+1
 % outPN2 = []; day = 7; doCombMask = 0;
 % for id = 1:size(days_1000,2)
 %     mouse = days_1000{id};

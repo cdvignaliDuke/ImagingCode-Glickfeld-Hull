@@ -79,7 +79,7 @@ for ii = 5 % 1:length(days)
         errorbar(x_axis, rew_om_roi(iii, :)', rew_om_roi_error);
     end
     title([days{ii}, ' day 1 omission trials, no lick window, n=', num2str(temp_n)]); xlabel('ms relative to cue onset');
-    continue
+    %continue
     %=================================================================
     
     %avg together the ROIs (dim2) and trials (dim1)

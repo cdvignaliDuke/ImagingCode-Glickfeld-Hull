@@ -18,6 +18,8 @@ if size(img_fn,1) ~= 0
         nframes = 73000;
     elseif ~isempty(strfind(data_dir, '180104_img067'));
         nframes = 87000;
+    elseif ~isempty(strfind(data_dir, '170506_img90'));
+        nframes = 115857;
     elseif isempty(nframes)
         nframes = info.config.frames;
     end
