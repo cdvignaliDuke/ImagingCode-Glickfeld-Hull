@@ -1,5 +1,7 @@
 function figYAxis(fig,y_name,y_limit,varargin)
-
+if isempty(fig)
+    fig = gca;
+end
 ylabel(y_name);
 if ~isempty(y_limit)
     ylim(y_limit);

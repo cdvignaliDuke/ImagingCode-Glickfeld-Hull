@@ -1,15 +1,28 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
-sessions = {'180505_img1010_1'};
-days = {'1010-180505_1'};
-%sessions = {'180413_img1002_1','180417_img1001_1','180419_img1002_1','180423_img1001_1',...
-%    '180425_img1001_1'};
-%days = {'1002-180413_1','1001-180417_1','1002-180419_1','1001-180423_1','1001-180425_1'};
+sessions = {'180417_img1005_1','180419_img1005_1','180419_img1007_1','180423_img1005_1','180424_img1008_1',...
+    '180425_img1008_1','180428_img1008_1','180429_img1008_1','180430_img1005_1','180430_img1007_1',...
+    '180430_img1008_1','180430_img1010_1','180505_img1007_1','180505_img1008_1','180505_img1010_1'}; 
+
+days = {'1005-180417_1','1005-180419_1','1007-180419_1','1005-180423_1','1008-180424_1','1008-180425_1','1008-180428_1',...
+    '1008-180429_1','1005-180430_1','1007-180430_1','1008-180430_1','1010-180430_1','1007-180505_1','1008-180505_1',...
+    '1010-180505_1'};
 image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
 color_code = {'b','r','k','m'};
 
-%% determine if reverse stimuli does anything to df/f. 
+%% load
+%for i = 1:length(sessions)
+   % image_dest = [image_dest_base sessions{i} '\' sessions{i}];
+   % behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{i}];
+   % behav_output = load([behav_dest '\' days{i} '_behavAnalysis.mat']);
+   % speed = behav_output.speed;
+   % cReverse = behav_output.cReverse_vec;
+   % dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
+   % dfOvF = dfOvF_struct.dfOvF_staybase;
+%end
+
+%% determine if reverse stimuli does anything to df/f. ave df/f before, during, and after reverse
 for i = 1:length(sessions)
     image_dest = [image_dest_base sessions{i} '\' sessions{i}];
     behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{i}];
@@ -18,6 +31,7 @@ for i = 1:length(sessions)
     cReverse = behav_output.cReverse_vec;
     dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
     dfOvF = dfOvF_struct.dfOvF_staybase;
+    
     befo = 5;
     aft = 15;
     dfOvF_rev = [];
@@ -29,7 +43,7 @@ for i = 1:length(sessions)
         dfOvF_rev(end+1,:,:) = dfOvF(cReverse(f)-befo:cReverse(f)+aft,:);
     end
    
-    % save dfOvF_revfor later analysis
+    % save dfOvF_rev for later analysis
     save([image_dest '_dfOvF_rev.mat' ],'dfOvF_rev');
 
     %plot average
@@ -44,17 +58,16 @@ for i = 1:length(sessions)
     end
     
     ave_rev_fig = figure;
-    for n = 1: size(ave_dfOvF_rev,2)
-        errorbar(ave_dfOvF_rev(:,n),ste_dfOvF_rev(:,n),'color',color_code{n}); hold on;
-    end
+    errorbar(ave_dfOvF_rev,ste_dfOvF_rev,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
     xlim([1 21]);
-    ylim([-0.3 0.1]);
+    %ylim([-0.3 0.1]);
     xlabel('frames');
     vline(6, 'k');
     vline(16, 'k');
     ylabel('df/f');
-    title(['df/f before and after reverse stimuli', days{i}]);
+    title(['df/f before and after reverse stimuli', days{i}]); legend;
     saveas(ave_rev_fig, [image_dest '_reverseTrigAve']);
+    save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_rev','-append');
     
     % Plot individual reverse windows for each ROI  
    % for n = 1: size(dfOvF_rev,3)
@@ -77,6 +90,7 @@ for i = 1:length(sessions)
     cReverse = behav_output.cReverse_vec;
     dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
     dfOvF = dfOvF_struct.dfOvF_staybase;
+    
     speed_rev_stay = [];
     speed_rev_run = [];
     ealier = 5;
@@ -103,10 +117,12 @@ for i = 1:length(sessions)
     dfOvF_rev_stay = [];
     dfOvF_rev_run  = [];
     for f = 1:length(cReverse)
-        if sum(speed(cReverse(f)-ealier:cReverse(f)) == 0) == 1+ealier;
+        if sum(speed(cReverse(f)-ealier:cReverse(f)) == 0) == 1+ealier && cReverse(f)+later <= length(speed)
             dfOvF_rev_stay(end+1,:,:) = dfOvF(cReverse(f)-ealier:cReverse(f)+later,:);
-        else
+        elseif cReverse(f)+later <= length(speed)
             dfOvF_rev_run(end+1,:,:) = dfOvF(cReverse(f)-ealier:cReverse(f)+later,:);
+        else
+            continue
         end
     end
     
@@ -134,36 +150,33 @@ for i = 1:length(sessions)
     behav_ave_fig = figure;clf
     %t = -5:1:15;
     subplot(2,2,1);
-    for n = 1: size(ave_dfOvF_revStay,2)
-        errorbar(ave_dfOvF_revStay(:,n),ste_dfOvF_revStay(:,n),'color',color_code{n}); hold on;
-    end
-    xlim([1 21]); ylim([-0.3 0.1]);
+    errorbar(ave_dfOvF_revStay,ste_dfOvF_revStay,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+    xlim([1 21]); %ylim([-0.3 0.1]);
     vline(6, 'k');vline(16, 'k');
-    ylabel('df/f'); title('stay');
+    ylabel('df/f'); title('stay'); legend;
     
     subplot(2,2,2);
-    for n = 1: size(ave_dfOvF_revRun,2)
-        errorbar(ave_dfOvF_revRun(:,n),ste_dfOvF_revRun(:,n),'color',color_code{n}); hold on;
-    end
-    xlim([1 21]); ylim([-0.3 0.1]);
+    errorbar(ave_dfOvF_revRun,ste_dfOvF_revRun,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+    xlim([1 21]); %ylim([-0.3 0.1]);
     vline(6, 'k');vline(16, 'k');
-    title('run'); 
+    title('run'); legend;
 
     subplot(2,2,3);
-    errorbar(ave_speed_revStay,ste_speed_revStay); hold on;
-    xlim([1 21]); ylim([0 60]);
+    errorbar(ave_speed_revStay,ste_speed_revStay,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+    xlim([1 21]); %ylim([0 60]);
     vline(6, 'k');vline(16, 'k');
     ylabel('speed'); xlabel('frames');
     
     subplot(2,2,4);
-    errorbar(ave_speed_revRun,ste_speed_revRun); hold on;
-    xlim([1 21]); ylim([0 60]);
+    errorbar(ave_speed_revRun,ste_speed_revRun,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+    xlim([1 21]); %ylim([0 60]);
     vline(6, 'k');vline(16, 'k');
     xlabel('frames');
     
     supertitle(['df/f before and after reverse stimuli', days{i}]);
 
     saveas(behav_ave_fig,[image_dest '_reverseTrigAve_behav']);
+    save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_revStay','ave_dfOvF_revRun','ave_speed_revStay','ave_speed_revRun','-append');
         
     % STAY / RUN Individual reverses, make all of the lines start at the same point
     %for n = 1: size(dfOvF_rev_stay,3)

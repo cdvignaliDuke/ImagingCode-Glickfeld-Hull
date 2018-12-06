@@ -1,4 +1,4 @@
-function plotEachCellTC(exptName,tc_mean,tc_err,nBaselineFr,cycLengthFr,frRateHz)
+function plotEachCellTC(exptName,tc_mean,tc_err,nBaselineFr,cycLengthFr,frRateHz,respCellInd,fn)
     [trLength,nc] = size(tc_mean);
     
     if nc > 64
@@ -14,6 +14,7 @@ function plotEachCellTC(exptName,tc_mean,tc_err,nBaselineFr,cycLengthFr,frRateHz
     stimOffTimeMs = (((1:2).*cycLengthFr)./frRateHz).*1000-250;
 
     set(0,'defaultAxesFontSize',6)
+    setFigParams4Print('landscape')
     for ifig = 1:nFig
         if ifig == 1
             start = 1;
@@ -45,10 +46,15 @@ function plotEachCellTC(exptName,tc_mean,tc_err,nBaselineFr,cycLengthFr,frRateHz
             vline(0,'k:')
             vline(stimOnTimeMs,'g-')
             vline(stimOffTimeMs, 'b-')
-            figXAxis([],'Time (ms)',[])
+            figXAxis([],'Time (ms)',[ttMs(1) ttMs(end)])
             figYAxis([],'dF/F',[])
             figAxForm([],0)
-            title(cellInd(i))
+            if respCellInd(cellInd(i)) == 1
+                title([num2str(cellInd(i)) '**'])
+            else
+                title(cellInd(i))
+            end
         end
+        print(fullfile(fn,['ExCells_' num2str(ifig)]),'-dpdf','-fillpage')
     end
 end

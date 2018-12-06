@@ -182,8 +182,8 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
             catchOutcome(outInd) = {'failure'};
             
             tCatchDirection = tCatchDirection(tr);
-            catchReactMs = catchReactMs(tr);
-            catchOutcome = catchOutcome(tr);
+%             catchReactMs = catchReactMs(tr);
+%             catchOutcome = catchOutcome(tr);
         end  
                 
         offset = 0;

@@ -220,13 +220,16 @@ nCon = length(cons);
 s4 = zeros(1,nCon);
 s = zeros(1);
 conStruct_6con = struct('resp',s4,'fit',s4,'C50r',s,'Rsq',s,'x0',s4);
+conStruct_allsize_6con = struct('resp',s4,'fit',s4,'C50r',s,'Rsq',s,'x0',s4);
 conStruct_6con(nCellsTot_6con) = conStruct_6con;
+conStruct_allsize_6con(nCellsTot_6con,nSize) = conStruct_allsize_6con;
 conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
 conRng = 0:0.001:1;
 opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
-
-usePrefSize = 1;
-useRFSize = 0;
+goodSize_6con = zeros(nCellsTot_6con,nSize);
+usePrefSize = 0;
+useRFSize = 1;
+doAllSize = 0;
 
 for iCell=1:nCellsTot_6con
     if ~sum(iCell==goodfit_ind_size_6con)
@@ -258,7 +261,7 @@ for iCell=1:nCellsTot_6con
             conStruct_6con(iCell).resp(iCon) = sizeFits_6con(iCell,iCon).fitout2(pSind);
         else
             conStruct_6con(iCell).resp(iCon) = sizeFits_6con(iCell,iCon).fitout1(pSind);
-        end
+        end 
     end
     
     cRi = conStruct_6con(iCell).resp;
@@ -290,12 +293,69 @@ for iCell=1:nCellsTot_6con
     C50 = conRng(i50);
     conStruct_6con(iCell).C50r = C50;
     
+    if doAllSize   
+        for isz = 1:length(szs)
+            szData(iCell,isz).data = [];
+            szData(iCell,isz).cons0 = [];
+            for iCon = 1:nCon
+                ind = find(sizeFits_6con(iCell,iCon).szs0 == szs(isz));
+                szData(iCell,isz).data = [szData(iCell,isz).data sizeFits_6con(iCell,iCon).data(ind)];
+                szData(iCell,isz).cons0 = [szData(iCell,isz).cons0 cons(iCon).*ones(1,length(ind))];
+            end
+            p(isz) = anova1(szData(iCell,isz).data, szData(iCell,isz).cons0,'off');
+        end
+        h = find(p<(0.05));
+        goodSize_6con(iCell,h) = 1;
+        for isz = 1:nSize
+            if find(h == isz)
+                for iCon = 1:nCon
+                    ind = find(szData(iCell,isz).cons0 == cons(iCon));
+                    conStruct_allsize_6con(iCell,isz).resp(iCon) = mean(szData(iCell,isz).data(ind),2);
+                end
+                cRi = conStruct_allsize_6con(iCell,isz).resp;
+                lb = [0 0 0.1 1];
+                ub = [Inf Inf 0.8 Inf];
+                SStot = sum((cRi-mean(cRi)).^2);
+                R2best = -Inf;
+                for i=1%1:4
+                    x0 = [cRi(1) max(cRi) 0.1+0.1*i 3]; %BL Rmax C50 n
+                    [cF, res] = lsqcurvefit(conModelH,x0,cons,cRi,lb,ub,opts);
+                    R2 = 1-res/SStot;
+                    if R2>R2best
+                        R2best = R2;
+                        cFbest = cF;
+                        x0best = x0;
+                    end
+                end
+                cF = cFbest;
+                R2 = R2best;
+
+                conStruct_allsize_6con(iCell,isz).fit = cF;
+                conStruct_allsize_6con(iCell,isz).Rsq = R2;
+                conStruct_allsize_6con(iCell,isz).x0 = x0best;
+
+                fitout = conModelH(cF,conRng);
+                R50 = fitout(1)+(fitout(end)-fitout(1))/2;
+                fitout50rect = abs(fitout - R50);
+                i50 = find(fitout50rect == min(fitout50rect),1);
+                C50 = conRng(i50);
+                conStruct_allsize_6con(iCell,isz).C50r = C50;
+            else
+                conStruct_allsize_6con(iCell,isz).resp = NaN;
+                conStruct_allsize_6con(iCell,isz).fit = NaN;
+                conStruct_allsize_6con(iCell,isz).Rsq = NaN;
+                conStruct_allsize_6con(iCell,isz).x0 = NaN;
+                conStruct_allsize_6con(iCell,isz).C50r = NaN;
+            end
+        end
+    end
+    
     fprintf('Cell %d/%d fit: BL=%.3f Rmax=%.3f C50=%.3f n=%.2f : Rsq=%.3f C50r=%.3f\n',iCell,nCellsTot_6con,cF(1),cF(2),cF(3),cF(4),R2,C50)
     
 end
 fprintf('Done, saving...\n')
 filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct23_6con.mat');
-save(filename,'conStruct_6con');
+save(filename,'conStruct_6con', 'conStruct_allsize_6con');
 
 %% load contrast response instead of compute
 filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct23.mat');
@@ -360,38 +420,6 @@ for iExp = 1:nExp
     print(fn_out,'-dpdf')
 end
 
-%% now look at each area
-areas_c = categorical({'V1','LM','AL','PM'},{'V1','LM','AL','PM'});
-
-% first examine cell counts, proportion of each model
-figure(5);clf;
-modelcounts = [sum(~[sizeFits_V1.Ftest]) sum([sizeFits_V1.Ftest]); ...
-    sum(~[sizeFits_LM.Ftest]) sum([sizeFits_LM.Ftest]); ...
-    sum(~[sizeFits_AL.Ftest]) sum([sizeFits_AL.Ftest]); ...
-    sum(~[sizeFits_PM.Ftest]) sum([sizeFits_PM.Ftest])];
-modelcounts_norm = modelcounts./sum(modelcounts,2);
-bar(areas_c,modelcounts_norm,'stacked')
-suptitle('Relative proportion of each suppression model across areas')
-text(1,0.65,['m1:' num2str(modelcounts_norm(1,1)*100,3) '%'],'HorizontalAlignment','center')
-text(1,0.6,['m2:' num2str(modelcounts_norm(1,2)*100,3) '%'],'HorizontalAlignment','center')
-text(1,0.5,['n_{cell}=' num2str(nCells_area(1))],'HorizontalAlignment','center')
-text(1,0.45,['n_{exp}=' num2str(nExp_area(1))],'HorizontalAlignment','center')
-text(2,0.65,['m1:' num2str(modelcounts_norm(2,1)*100,3) '%'],'HorizontalAlignment','center')
-text(2,0.6,['m2:' num2str(modelcounts_norm(2,2)*100,3) '%'],'HorizontalAlignment','center')
-text(2,0.5,['n_{cell}=' num2str(nCells_area(2))],'HorizontalAlignment','center')
-text(2,0.45,['n_{exp}=' num2str(nExp_area(2))],'HorizontalAlignment','center')
-text(3,0.65,['m1:' num2str(modelcounts_norm(3,1)*100,3) '%'],'HorizontalAlignment','center')
-text(3,0.6,['m2:' num2str(modelcounts_norm(3,2)*100,3) '%'],'HorizontalAlignment','center')
-text(3,0.5,['n_{cell}=' num2str(nCells_area(3))],'HorizontalAlignment','center')
-text(3,0.45,['n_{exp}=' num2str(nExp_area(3))],'HorizontalAlignment','center')
-text(4,0.65,['m1:' num2str(modelcounts_norm(4,1)*100,3) '%'],'HorizontalAlignment','center')
-text(4,0.6,['m2:' num2str(modelcounts_norm(4,2)*100,3) '%'],'HorizontalAlignment','center')
-text(4,0.5,['n_{cell}=' num2str(nCells_area(4))],'HorizontalAlignment','center')
-text(4,0.45,['n_{exp}=' num2str(nExp_area(4))],'HorizontalAlignment','center')
-ylabel('Frac. [cells x cons]')
-legend('model1','model2','Location','ne')
-
-
 %% compare areas for 4 con data
 % making figs 1-7
 fprintf('Examine cells from each area:\n')
@@ -447,6 +475,7 @@ for i = 1:length(areas)
     ism2 = reshape([sizeFits.Ftest],size(sizeFits));
     
     cons_c = categorical(cellstr(num2str(cons'))');
+    szs_c = cellstr(num2str(chop(szs,2)'))';
     conStruct = conStruct_all(ind);
     
     legStrs(i)=sprintf('%s (n=%d, n_{exp}=%d)',areas(i),nCellsi,nExpi);
@@ -762,7 +791,7 @@ nExp_area = zeros(size(areas));
 nCells_area = nExp_area;
 
 close all
-choosefig = [1:5];
+choosefig = [5];
 % choose figs: 1=modelcounts; 2=averagecurves; 3=prefSize; 4=suppInd; 5=conresp; 6=ex.cells; 7=medianfits;
 legStrs = strings(1,length(areas)); legStrs2=legStrs;
 for i = 1:nArea
@@ -806,7 +835,9 @@ for i = 1:nArea
         ism2 = reshape([sizeFits.Ftest],size(sizeFits));
 
         cons_c = categorical(cellstr(num2str(cons'))');
+        szs_c = cellstr(num2str(chop(szs,2)'))';
         conStruct = conStruct_6con(ind);
+        conStruct_allsize = conStruct_allsize_6con(ind,:);
 
         legStrs(i)=sprintf('%s (n=%d, n_{exp}=%d)',areas(i),nCellsi,nExpi);
 
@@ -970,10 +1001,14 @@ for i = 1:nArea
             %title({sprintf('Contrast response - Area:%s',areas(i));['(n=' num2str(nCellsi) ', n_{exp}=' num2str(nExpi) ')']})
             title('Mean contrast response by area')
             xlabel('Contrast')
-            ylabel('norm. dF/F @ pref size')
+            if usePrefSize
+                ylabel('norm. dF/F @ pref size')
+            elseif useRFSize
+                ylabel('norm. dF/F @ RF size')
+            end
             xlim([0 1])
             ylim([0 1.2])
-            if i==nArea;legend(legStrs2,'location','southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
+            if i==nArea;legend(legStrs2,'location','southoutside','Orientation','horizontal');end
 
             % fit
             conResp_norm = conResp_norm';
@@ -1003,10 +1038,46 @@ for i = 1:nArea
             ax.ColorOrderIndex = i;
             plot([C50 C50],[0 R50],'--','HandleVisibility','off')
         end
-
+        if sum(choosefig==6) %figure 6: fraction of contrast modulated cells by size by area
+            figure(6); if i==1;clf;end
+            subplot(1,nArea,i)
+            n = length(ind);
+            fractResp = sum(goodSize_6con(ind,:),1)./n;
+            bar(fractResp);
+            xticklabels(szs_c); xticks(1:1:nSize);
+            title({sprintf('Area:%s',areas(i));['(n=' num2str(nCellsi) ', n_{exp}=' num2str(nExpi) ')']})
+            xlabel('Size (Deg)')
+            ylabel('Frac. cells')
+        end
+        if sum(choosefig==7) %figure 7: average c50 by size by area
+            figure(7); if i==1;clf;end
+            c50_allsize = nan(n,nSize);
+            for iC = 1:n
+                for isz = 1:nSize
+                    if find(isz == find(goodSize_6con(ind(iC),:)))
+                        if conStruct_allsize(iC,isz).Rsq>0.9
+                        	c50_allsize(iC,isz) = conStruct_allsize(iC,isz).C50r;
+                        end
+                    end
+                end
+            end
+            errorbar(szs, nanmean(c50_allsize,1), nanstd(c50_allsize,[],1)./sqrt(sum(~isnan(c50_allsize),1)),'-o');
+            hold on
+            title('Mean C50 by area')
+            xlabel('Size (Deg)')
+            ylabel('c50')
+            xlim([0 100])
+            ylim([0 1])
+            legStrs(i)=sprintf('%s (n=%s, n_{exp}=%d)',areas(i),num2str(sum(~isnan(c50_allsize),1)),nExpi);
+            if i==nArea;legend(legStrs,'location','northeast');end %'location','southoutside','Orientation','horizontal' for bottom
+        end
+    end
+end
+            %%
+           
         if sum(choosefig==6) %figure 6: example cells from each area, with fits
             figure(6);if i==1;clf;end
-            subplot(2,nArea,2*(i-1)+1)
+            subplot(1,nArea,2*(i-1)+1)
             dum = sizeMean_6con(:,:,excells(1)); % take all sizeMean values for cell
             %dum = sizeMean(:,nCon,iCell); % only at highest con
             norm = max(dum(:)); % take max of all dF/F's including all cons
@@ -1105,9 +1176,7 @@ for i = 1:nArea
             title({sprintf('Area:%s',areas(i));['(n=' num2str(length(cut)) ', n_{exp}=' num2str(nExpi) ')']})
 
         end
-    end
-    
-end
+
 
 
 %% fig x - contrast response on 8 random example cells

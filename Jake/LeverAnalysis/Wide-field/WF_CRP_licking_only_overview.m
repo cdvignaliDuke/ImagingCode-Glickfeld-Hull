@@ -30,30 +30,30 @@ time_after_ms = 3000;
 %days = {'170612_img96', '170613_img96', '170614_img96', '170615_img96', '170620_img96', '170621_img96', '170622_img96', '170623_img96', '170624_img96'};
 %days = {'170628_img98', '170629_img98', '170701_img98', '170703_img98', '170704_img98', '170705_img98', '170706_img98'};
 %days = {'170705_img99', '170706_img99', '170707_img99', '170708_img99', '170710_img99', '170711_img99', '170712_img99'};
-days = {'170820_img030', '170821_img030', '170822_img030'};
-days = {'170825_img032', '170826_img032', '170827_img032', '170829_img032', '170830_img032', '170831_img032', '170901_img032', '170902_img032', '170903_img032', '170904_img032', '170905_img032', '170906_img032'};
-days = {'170901_img033', '170902_img033', '170903_img033', '170904_img033', '170905_img033', '170906_img033', '170907_img033', '170908_img033', '170909_img033', '170911_img033'};
+%days = {'170820_img030', '170821_img030', '170822_img030'};
+%days = {'170825_img032', '170826_img032', '170827_img032', '170829_img032', '170830_img032', '170831_img032', '170901_img032', '170902_img032', '170903_img032', '170904_img032', '170905_img032', '170906_img032'};
+%days = {'170901_img033', '170902_img033', '170903_img033', '170904_img033', '170905_img033', '170906_img033', '170907_img033', '170908_img033', '170909_img033', '170911_img033'};
 %days = {'170901_img034', '170902_img034', '170903_img034', '170904_img034', '170905_img034', '170906_img034', '170907_img034'};
-days = {'170911_img036', '170912_img036', '170913_img036', '170914_img036', '170915_img036', '170916_img036', '170918_img036', '170919_img036', '170920_img036', '170921_img036', '170922_img036', '170923_img036', '170924_img036', '170925_img036'};
+%days = {'170911_img036', '170912_img036', '170913_img036', '170914_img036', '170915_img036', '170916_img036', '170918_img036', '170919_img036', '170920_img036', '170921_img036', '170922_img036', '170923_img036', '170924_img036', '170925_img036', '170926_img036'};
 %days = {'170912_img039', '170913_img039', '170914_img039', '170915_img039', '170916_img039', '170917_img039', '170918_img039'};
 %days = {'170913_img040', '170914_img040', '170915_img040', '170916_img040', '170917_img040', '170918_img040', '170919_img040', '170920_img040', '170921_img040', '170922_img040', '170923_img040', '170924_img040'};
 %days = {'170921_img041', '170922_img041', '170923_img041', '170924_img041', '170925_img041'};
-%days = {'170921_img044', '170922_img044', '170923_img044', '170924_img044', '170925_img044'};
+%days = {'170921_img044', '170922_img044', '170923_img044', '170924_img044', '170925_img044', '170926_img044'};
 
-%days = {'171113_img050', '171115_img050', '171116_img050', '171119_img050', '171120_img050'};
-days = {'171201_img048', '171202_img048', '171203_img048', '171204_img048', '171205_img048', '171206_img048', '171207_img048', '171208_img048', '171209_img048', '1712011_img048'};
-days = {'171203_img053', '171204_img053', '171205_img053', '171206_img053', '171207_img053', '171209_img053', '171210_img053', '171212_img053'};
-days = {'171227_img067', '171228_img067', '171229_img067', '171230_img067', '180101_img067', '180102_img067'};
+%days = {'171113_img050', '171115_img050', '171116_img050', '171119_img050', '171120_img050', '171121_img050', '171122_img050'};
+%days = {'171201_img048', '171202_img048', '171203_img048', '171204_img048', '171205_img048', '171206_img048', '171207_img048', '171208_img048', '171209_img048', '1712011_img048'};
+%days = {'171203_img053', '171204_img053', '171205_img053', '171206_img053', '171207_img053', '171209_img053', '171210_img053', '171212_img053'};
+%days = {'171227_img067', '171228_img067', '171229_img067', '171230_img067', '180101_img067', '180102_img067', '180103_img067', '180104_img067'};
 %days = {'171229_img069', '171230_img069', '171231_img069', '180101_img069'};
-days = {'180104_img070', '180105_img070', '180106_img070', '180107_img070'};
-days = {'180224_img075', '180225_img075', '180226_img075', '180227_img075', '180228_img075', '180301_img075'};
-days = {'180322_img077', '180323_img077', '180324_img077', '180325_img077', '180326_img077', '180327_img077', '180328_img077', '180329_img077', '180330_img077', '180331_img077', '180401_img077', '180402_img077', '180403_img077', '180404_img077'};
+%days = {'180104_img070', '180105_img070', '180106_img070', '180107_img070', '180108_img070'};
+%days = {'180224_img075', '180225_img075', '180226_img075', '180227_img075', '180228_img075', '180301_img075'};
+%days = {'180322_img077', '180323_img077', '180324_img077', '180325_img077', '180326_img077', '180327_img077', '180328_img077', '180329_img077', '180330_img077', '180331_img077', '180401_img077', '180402_img077', '180403_img077', '180404_img077'};
 %days = { '180323_img076', '180324_img076', '180325_img076', '180326_img076'};
 %days = {'180104_img666'};
-days = {'180411_img080', '180412_img080', '180413_img080', '180414_img080'};
-days= {'180424_img083', '180425_img083', '180426_img083', '180427_img083', '180428_img083', '180429_img083', '180430_img083', '180501_img083', '180502_img083', '180503_img083', '180504_img083'};
+%days = {'180411_img080', '180412_img080', '180413_img080', '180414_img080'};
+%days= {'180424_img083', '180425_img083', '180426_img083', '180427_img083', '180428_img083', '180429_img083', '180430_img083', '180501_img083', '180502_img083', '180503_img083', '180504_img083'};
 %days= {'180425_img084', '180426_img084', '180427_img084', '180428_img084', '180429_img084', '180430_img084', '180501_img084', '180502_img084'};
-days = {'180507_img081', '180508_img081', '180509_img081', '180510_img081', '180511_img081', '180512_img081', '180513_img081', '180514_img081', '180515_img081', '180516_img081', '180517_img081', '180518_img081', '180521_img081'};
+%days = {'180507_img081', '180508_img081', '180509_img081', '180510_img081', '180511_img081', '180512_img081', '180513_img081', '180514_img081', '180515_img081', '180516_img081', '180517_img081', '180518_img081', '180521_img081'};
 %days = {'180509_img085', '180510_img085', '180511_img085', '180512_img085', '180513_img085', '180514_img085', '180515_img085', '180516_img085', '180517_img085', '180518_img085'};
 %days = {'180509_img086', '180510_img086', '180511_img086', '180512_img086', '180513_img086', '180514_img086', '180515_img086', '180516_img086', '180517_img086', '180518_img086'};
 
@@ -259,11 +259,22 @@ for ii = 1:length(days)
     %Determin the RTs for each trial this session
     RT_this_session=[];
     for kk = 1:num_trials-1 %look at each trial
-        this_trial_RT = find(licks_by_trial(kk,[time_before_ms+1:end]), 1, 'first'); %look at all time points starting from cue onset for each trial, find the first lick
-        RT_this_session = [RT_this_session, this_trial_RT]; %store the RTs
+         this_trial_RT = find(licks_by_trial(kk,[time_before_ms+1:end]), 1, 'first'); %look at all time points starting from cue onset for each trial, find the first lick
+          RT_this_session = [RT_this_session, this_trial_RT]; %store the RTs
+%         this_trial_RT = find(licks_by_trial(kk,[time_before_ms+1:end]), 3, 'first'); %look at all time points starting from cue onset for each trial, find the first lick
+%         if this_trial_RT(1) > 175
+%             RT_this_session = [RT_this_session, this_trial_RT(1)]; %store the RTs
+%         elseif  this_trial_RT(2) > 175
+%             RT_this_session = [RT_this_session, this_trial_RT(2)]; %store the RTs
+%         else
+%             RT_this_session = [RT_this_session, this_trial_RT(3)]; %store the RTs
+%         end
     end
-    
-    %trim RT data to exclude misses and FAs 
+    RT_this_session_raw = RT_this_session;
+    save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\RT_data\', days{ii}], 'RT_this_session_raw', 'time_before_ms');
+%     
+
+    %trim RT data to exclude misses and FAs  ==================================================================
     TFT_rate_this_session = length(find(RT_this_session<200))/(num_trials-1);
     TFT_rates = [TFT_rates, TFT_rate_this_session];
     if b_data.RewardDelayDurationMs ==500 & b_data.rewardDelayPercent ==100;
@@ -407,128 +418,129 @@ for ii = 1:length(days)
             savefig([session_fig_dir, days{ii}, '_unexp_lick_hist']);
         end
     end
-    
-    %store avg lick values in 500ms window just before cue on rewarded trials and during the ITI. 
-    pre_cue_lick_window = full_trial_licks_rewarded(:,[pre_cue_window_lick-500:pre_cue_window_lick]);
-    pre_cue_lick_window_sum = sum(pre_cue_lick_window,2);
-    pre_cue_lick_window_avg_this_session = mean(pre_cue_lick_window_sum);
-    pre_cue_lick_rate_sem_this_session = std(pre_cue_lick_window_sum)/sqrt(size(pre_cue_lick_window,1));
-    pre_cue_lick_window_avg = [pre_cue_lick_window_avg ,pre_cue_lick_window_avg_this_session];
-    pre_cue_lick_rate_sem = [pre_cue_lick_rate_sem ,pre_cue_lick_rate_sem_this_session];
-    %now do it for mid iti lick window
-    mid_iti = round(pre_cue_window_lick/2);
-    iti_lick_window = full_trial_licks_rewarded(:,[mid_iti-500:mid_iti]);
-    iti_lick_window_sum = sum(iti_lick_window,2);
-    iti_lick_window_avg_this_session = mean(iti_lick_window_sum);
-    iti_lick_rate_sem_this_session = std(iti_lick_window_sum)/sqrt(size(iti_lick_window,1));
-    iti_lick_window_avg = [iti_lick_window_avg , iti_lick_window_avg_this_session];
-    iti_lick_rate_sem = [iti_lick_rate_sem , iti_lick_rate_sem_this_session];
+%     
+%     %store avg lick values in 500ms window just before cue on rewarded trials and during the ITI. 
+%     pre_cue_lick_window = full_trial_licks_rewarded(:,[pre_cue_window_lick-500:pre_cue_window_lick]);
+%     pre_cue_lick_window_sum = sum(pre_cue_lick_window,2);
+%     pre_cue_lick_window_avg_this_session = mean(pre_cue_lick_window_sum);
+%     pre_cue_lick_rate_sem_this_session = std(pre_cue_lick_window_sum)/sqrt(size(pre_cue_lick_window,1));
+%     pre_cue_lick_window_avg = [pre_cue_lick_window_avg ,pre_cue_lick_window_avg_this_session];
+%     pre_cue_lick_rate_sem = [pre_cue_lick_rate_sem ,pre_cue_lick_rate_sem_this_session];
+%     %now do it for mid iti lick window
+%     mid_iti = round(pre_cue_window_lick/2);
+%     iti_lick_window = full_trial_licks_rewarded(:,[mid_iti-500:mid_iti]);
+%     iti_lick_window_sum = sum(iti_lick_window,2);
+%     iti_lick_window_avg_this_session = mean(iti_lick_window_sum);
+%     iti_lick_rate_sem_this_session = std(iti_lick_window_sum)/sqrt(size(iti_lick_window,1));
+%     iti_lick_window_avg = [iti_lick_window_avg , iti_lick_window_avg_this_session];
+%     iti_lick_rate_sem = [iti_lick_rate_sem , iti_lick_rate_sem_this_session];
+
 end 
-
-%save the pre/post cue data to be use in across animals summary
-save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_post_cue_lick\', days{ii}(end-4:end), 'rew_om_post_cue_lick'], 'avg_licks_post_cue', 'avg_licks_pre_cue', 'avg_licks_post_cue_sem', 'avg_licks_pre_cue_sem'); 
-avg_licks_post_cue = avg_licks_post_cue(~isnan(avg_licks_post_cue)); %this allows the training day # to be aligned to the pre/post cue lick rate for that day across animals
-avg_licks_pre_cue = avg_licks_pre_cue(~isnan(avg_licks_pre_cue));
-avg_licks_post_cue_sem = avg_licks_post_cue_sem(~isnan(avg_licks_post_cue_sem));
-avg_licks_pre_cue_sem  = avg_licks_pre_cue_sem(~isnan(avg_licks_pre_cue_sem));
-
-%save RT std, FA rate and miss rate
-save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT_stats\', days{ii}(end-4:end), 'RTstd_FA_misses'], 'std_of_RT_across_days', 'TFT_rates', 'miss_rates');
-
-% Plot summary statistics 
-if b_data.rewardOmissionPercent > 1
-    figure; subplot(1,2,2); 
-    bar(avg_licks_post_cue);
-    hold on; errorbar(avg_licks_post_cue, avg_licks_post_cue_sem);
-    title('Omission trials: avg # of licks in 500ms window post cue across days');
-    xlabel('day');
-    ylabel('# of licks');
-    
-    subplot(1,2,1); bar(avg_licks_pre_cue);
-    hold on; errorbar(avg_licks_pre_cue, avg_licks_pre_cue_sem);
-    title('Omission trials: avg # of licks in 500ms window before cue across days');
-    xlabel('day');
-    ylabel('# of licks');
-    max_y_val = max([avg_licks_post_cue, avg_licks_pre_cue]);
-    if max_y_val > 0
-        subplot(1,2,1); ylim([0 ceil(max_y_val)]);
-        subplot(1,2,2); ylim([0 ceil(max_y_val)]);
-    end
-    savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_licks_pre_vs_post_cue']);
-end
-
-figure; subplot(2,2,1);
-suptitle(days{ii}(end-4:end));
-errorbar(RT_across_days, RT_across_days_sem);
-title(['RT across days']);
-xlabel('day');
-ylabel('RT (ms)');
-
-subplot(2,2,2); plot(std_of_RT_across_days);
-title('std of RT across days');
-xlabel('day');
-ylabel('standard deviation');
-
-subplot(2,2,3); plot(TFT_rates);
-title('too fast lick rates as a % of all trials by day: FA = RT<200ms');
-xlabel('day');
-ylabel('% false alarms');
-ylim([0 1]);
-
-subplot(2,2,4); plot(miss_rates);
-title('Miss rates as a % of all trials by day: misses = RT>1000ms or 1500ms');
-xlabel('day');
-ylabel('% misses');
-ylim([0 1]);
-savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_RTstd_misses_TFT']);
-
-if length(days_divider_inx) > 0
-    figure; plot(RT_across_sessions);
-    title(['RTs across days. No delay. ' days{ii}(end-4:end)]);
-    xlabel('trial num');
-    ylabel('RT(ms)');
-    vline(days_divider_inx, 'k');
-    if ~isempty(non_consecutive_inx)
-        vline(non_consecutive_inx, 'r');
-    end
-    savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_0ms_summary']);
-end
-
-if length(RT_across_sessions_delay) > 0
-    figure; plot(RT_across_sessions_delay);
-    title(['RTs across days. 500ms delay. ' days{ii}(end-4:end)]);
-    xlabel('trial num');
-    ylabel('RT(ms)');
-    vline(days_divider_inx_delay, 'k');
-    if ~isempty(non_consecutive_inx_delay)
-        vline(non_consecutive_inx_delay, 'r');
-    end
-    savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_500ms_summary']);
-end
-
-if length(RT_across_sessions_1000ms_delay) > 0
-    figure; plot(RT_across_sessions_1000ms_delay);
-    title(['RTs across days. 1000ms delay. ' days{ii}(end-4:end)]);
-    xlabel('trial num');
-    ylabel('RT(ms)');
-    vline(days_divider_inx_1000ms_delay, 'k');
-    if ~isempty(non_consecutive_inx_1000ms_delay)
-        vline(non_consecutive_inx_1000ms_delay, 'r');
-    end
-    savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_1000ms_summary']);
-end
-
-%plot # of licks in iti window vs pre-cue window
-figure; errorbar(iti_lick_window_avg, iti_lick_rate_sem, 'k');
-hold on; 
-errorbar(pre_cue_lick_window_avg, pre_cue_lick_rate_sem, 'b');
-title('licking in iti (black) vs pre-cue (blue)');
-ylabel('avg # of licks in 500ms window');
-xlabel('day #')
-savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_iti_vs_pre-cue_licking']);
-
-%save variables for across animals RT plot
-
-out_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT\';
-save([out_dir, days{ii}(end-4:end), 'RT_sem_across_days'], 'RT_across_days', 'RT_across_days_sem');
+% 
+% %save the pre/post cue data to be use in across animals summary
+% save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_post_cue_lick\', days{ii}(end-4:end), 'rew_om_post_cue_lick'], 'avg_licks_post_cue', 'avg_licks_pre_cue', 'avg_licks_post_cue_sem', 'avg_licks_pre_cue_sem'); 
+% avg_licks_post_cue = avg_licks_post_cue(~isnan(avg_licks_post_cue)); %this allows the training day # to be aligned to the pre/post cue lick rate for that day across animals
+% avg_licks_pre_cue = avg_licks_pre_cue(~isnan(avg_licks_pre_cue));
+% avg_licks_post_cue_sem = avg_licks_post_cue_sem(~isnan(avg_licks_post_cue_sem));
+% avg_licks_pre_cue_sem  = avg_licks_pre_cue_sem(~isnan(avg_licks_pre_cue_sem));
+% 
+% %save RT std, FA rate and miss rate
+% save(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT_stats\', days{ii}(end-4:end), 'RTstd_FA_misses'], 'std_of_RT_across_days', 'TFT_rates', 'miss_rates');
+% 
+% % Plot summary statistics 
+% if b_data.rewardOmissionPercent > 1
+%     figure; subplot(1,2,2); 
+%     bar(avg_licks_post_cue);
+%     hold on; errorbar(avg_licks_post_cue, avg_licks_post_cue_sem);
+%     title('Omission trials: avg # of licks in 500ms window post cue across days');
+%     xlabel('day');
+%     ylabel('# of licks');
+%     
+%     subplot(1,2,1); bar(avg_licks_pre_cue);
+%     hold on; errorbar(avg_licks_pre_cue, avg_licks_pre_cue_sem);
+%     title('Omission trials: avg # of licks in 500ms window before cue across days');
+%     xlabel('day');
+%     ylabel('# of licks');
+%     max_y_val = max([avg_licks_post_cue, avg_licks_pre_cue]);
+%     if max_y_val > 0
+%         subplot(1,2,1); ylim([0 ceil(max_y_val)]);
+%         subplot(1,2,2); ylim([0 ceil(max_y_val)]);
+%     end
+%     savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_licks_pre_vs_post_cue']);
+% end
+% 
+% figure; subplot(2,2,1);
+% suptitle(days{ii}(end-4:end));
+% errorbar(RT_across_days, RT_across_days_sem);
+% title(['RT across days']);
+% xlabel('day');
+% ylabel('RT (ms)');
+% 
+% subplot(2,2,2); plot(std_of_RT_across_days);
+% title('std of RT across days');
+% xlabel('day');
+% ylabel('standard deviation');
+% 
+% subplot(2,2,3); plot(TFT_rates);
+% title('too fast lick rates as a % of all trials by day: FA = RT<200ms');
+% xlabel('day');
+% ylabel('% false alarms');
+% ylim([0 1]);
+% 
+% subplot(2,2,4); plot(miss_rates);
+% title('Miss rates as a % of all trials by day: misses = RT>1000ms or 1500ms');
+% xlabel('day');
+% ylabel('% misses');
+% ylim([0 1]);
+% savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_RTstd_misses_TFT']);
+% 
+% if length(days_divider_inx) > 0
+%     figure; plot(RT_across_sessions);
+%     title(['RTs across days. No delay. ' days{ii}(end-4:end)]);
+%     xlabel('trial num');
+%     ylabel('RT(ms)');
+%     vline(days_divider_inx, 'k');
+%     if ~isempty(non_consecutive_inx)
+%         vline(non_consecutive_inx, 'r');
+%     end
+%     savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_0ms_summary']);
+% end
+% 
+% if length(RT_across_sessions_delay) > 0
+%     figure; plot(RT_across_sessions_delay);
+%     title(['RTs across days. 500ms delay. ' days{ii}(end-4:end)]);
+%     xlabel('trial num');
+%     ylabel('RT(ms)');
+%     vline(days_divider_inx_delay, 'k');
+%     if ~isempty(non_consecutive_inx_delay)
+%         vline(non_consecutive_inx_delay, 'r');
+%     end
+%     savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_500ms_summary']);
+% end
+% 
+% if length(RT_across_sessions_1000ms_delay) > 0
+%     figure; plot(RT_across_sessions_1000ms_delay);
+%     title(['RTs across days. 1000ms delay. ' days{ii}(end-4:end)]);
+%     xlabel('trial num');
+%     ylabel('RT(ms)');
+%     vline(days_divider_inx_1000ms_delay, 'k');
+%     if ~isempty(non_consecutive_inx_1000ms_delay)
+%         vline(non_consecutive_inx_1000ms_delay, 'r');
+%     end
+%     savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_RT_1000ms_summary']);
+% end
+% 
+% %plot # of licks in iti window vs pre-cue window
+% figure; errorbar(iti_lick_window_avg, iti_lick_rate_sem, 'k');
+% hold on; 
+% errorbar(pre_cue_lick_window_avg, pre_cue_lick_rate_sem, 'b');
+% title('licking in iti (black) vs pre-cue (blue)');
+% ylabel('avg # of licks in 500ms window');
+% xlabel('day #')
+% savefig([sum_fig_dir, '\', days{ii}(end-4:end), '_iti_vs_pre-cue_licking']);
+% 
+% %save variables for across animals RT plot
+% 
+% out_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT\';
+% save([out_dir, days{ii}(end-4:end), 'RT_sem_across_days'], 'RT_across_days', 'RT_across_days_sem');
 

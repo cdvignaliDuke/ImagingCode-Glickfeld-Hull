@@ -1,10 +1,16 @@
 function [input, data, t] = Load_SBXdataPlusMWorksData(SubNum,date,time,mouse,ImgFolder,fName,varargin)
-CD = 'Y:\home\andrew\Behavior\Data';
+rc = behavConstsAV;
+CD = rc.behavData;
 mworks = ['data-' 'i' SubNum '-' date '-' time]; 
 load (fullfile(CD,mworks));
 
 % Set current directory to imaging data location
-CD = ['X:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
+if strcmp(rc.name,'ashle')
+    CD = ['Z:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder];
+elseif strcmp(rc.name,'carolyn')
+    CD = fullfile(rc.carolynData,'two-photon imaging',date,ImgFolder);
+end
+    
 cd(CD);
 % CD = ['D:\Ashley_temp\' date '\' ImgFolder];
 % cd(CD);

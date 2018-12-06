@@ -27,8 +27,8 @@ for ii = 1:length(laser_up_ind)
     laser_down_ind(ii) = find(laser_power_vec_ttl(laser_up_ind(ii):end)==0 ,1,'first') + laser_up_ind(ii) -1;
 end
 
-laser_up_ind = laser_up_ind+20;
-laser_down_ind = laser_down_ind-20;
+laser_up_ind = laser_up_ind+10;
+laser_down_ind = laser_down_ind-10;
 
 laser_on_ind_conserv = zeros(1,length(laser_power_vec_ttl));
 for ii = 1:length(laser_up_ind)

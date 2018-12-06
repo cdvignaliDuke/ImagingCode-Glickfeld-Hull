@@ -1,5 +1,5 @@
-function [data,nframes] = loadsbx_choosepmt(pmt,mouse,expdate,imgfolder,fname,varargin)
-
+function [data,nframes] = loadsbx_choosepmt(pmt,mouse,expdate,imgfolder,fName,varargin)
+%% varargin has two spots for variables, 1) n frames 2) other data path
 %% Set current directory to imaging data location
 if length(varargin) > 1
 %     rc = varargin{2};
@@ -11,7 +11,7 @@ end
 cd(fdir);
 
 %% load sbx info file
-imgMatFile = [fname '.mat'];
+imgMatFile = [fName '.mat'];
 load(imgMatFile);
 
 %% get number of frames
@@ -26,7 +26,7 @@ else
 end
 
 %% load data
-data = sbxread(fname,0,nframes);
+data = sbxread(fName,0,nframes);
 data = squeeze(data(pmt,:,:,:));
 data = squeeze(data);
 end

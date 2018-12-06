@@ -1,10 +1,10 @@
 clear all
 close all
-ds = 'awFSAVdatasets_longStimON_V1';
+ds = 'FSAV_V1_SOM';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 5;
-doPreviousReg = true;
+slct_expt = 7;
+doPreviousReg = false;
 %%
 iexp = slct_expt
 
@@ -13,10 +13,18 @@ mouse = expt(iexp).mouse;
 expDate = expt(iexp).date;
 dirFolder = expt(iexp).dirtuning;
 dirTime = expt(iexp).dirtuning_time;
-
-fn = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
-if ~exist(fullfile(fn,'data processing'),'dir')
-    mkdir(fn,'data processing')
+if strcmp(rc.name, 'ashle')
+    fn = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
+    if ~exist(fullfile(fn,'data processing'),'dir')
+        mkdir(fn,'data processing')
+    end
+elseif strcmp(rc.name, 'carolyn')
+    fn = fullfile(rc.carolynAnalysis,mouse,'Two-Photon Imaging',expDate);
+    if ~exist(fullfile(fn,'data processing'),'dir')
+        mkdir(fn,'data processing')
+    end  
+else
+    error('you do not belong here')
 end
 fnout = fullfile(fn,'data processing');
 %% load and register all behavior and tuning data
@@ -33,8 +41,13 @@ for irun = 1:expt(iexp).nrun
         [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName,nframes);
 %     elseif (strcmp(ds, '_V1') | strcmp(ds,'')) & irun == 2 & strcmp(expDate, '150508')
 %         continue
+    elseif ~isempty(expt(iexp).nframesPerRun)
+        nframes = expt(iexp).nframesPerRun(irun);
+        [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
+            SubNum,expDate,expTime,mouse,runFolder,fName,nframes);
     else
-        [input, data_temp, t] = Load_SBXdataPlusMWorksData(SubNum,expDate,expTime,mouse,runFolder,fName);
+        [input, data_temp, t] = Load_SBXdataPlusMWorksData(...
+            SubNum,expDate,expTime,mouse,runFolder,fName);
     end
     
     disp(t)
@@ -78,7 +91,12 @@ clear data_sub
 
 % load tuning data
 down = 10;
-fntun = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,dirFolder);
+if strcmp(rc.name, 'ashle')
+    fntun = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,dirFolder);
+elseif strcmp(rc.name, 'ashle')
+    fntun = fullfile(rc.carolynAnalysis,mouse,'two-photon imaging',expDate,dirFolder);
+end
+
 fName = [dirFolder '_000_000'];
 
 if any(strcmp(fieldnames(expt),'nTunFrames'))
@@ -140,8 +158,8 @@ bx_img = max(dFF_bxMax,[],3);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:35 725:xpix];
-ycrop = [1:20 250:ypix];
+xcrop = [1:5 780:xpix];
+ycrop = [1:5 260:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;

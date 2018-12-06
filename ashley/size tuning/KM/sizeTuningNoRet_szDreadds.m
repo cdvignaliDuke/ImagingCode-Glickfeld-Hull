@@ -38,7 +38,7 @@ data = [];
 clear temp
 
 fprintf(['\nBegin reading ' num2str(nrun) ' runs...'])
-for irun = 1:nrun
+for irun = 1%:nrun
     %load imaging data
     dataFolder = runs{irun};
     fprintf(['\nLoading run ' num2str(irun) '...'])
@@ -111,7 +111,7 @@ if nrun>1
     dataFolder = [runs{1} '_' runs{nrun}];
 end
 
-chooseInt = 5; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
+chooseInt = 2; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
 
 fprintf('\nBegin registering...\n')
 % use data_avg selected above (could move here?)

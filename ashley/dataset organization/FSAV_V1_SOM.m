@@ -25,6 +25,8 @@ expt(1).greenredsimultaneous = 0;
 expt(1).areaBorders = 0;
 expt(1).regImgStartFrame = 70755;
 expt(1).trial_range = 77:280;
+expt(1).attentionTask = true;
+expt(1).hasAttention = true;
 
 %% 750 180502
 expt(2).SubNum = '750';
@@ -53,6 +55,9 @@ expt(2).greenredsimultaneous = 0;
 expt(2).areaBorders = 0;
 expt(2).regImgStartFrame = 87909;
 expt(2).trial_range = nan;
+expt(2).attentionTask = true;
+expt(2).hasAttention = true;
+
 
 %% 750 180503
 expt(3).SubNum = '750';
@@ -81,6 +86,9 @@ expt(3).greenredsimultaneous = 0;
 expt(3).areaBorders = 0;
 expt(3).regImgStartFrame = 5782;
 expt(3).trial_range = 50:447;
+expt(3).attentionTask = true;
+expt(3).hasAttention = true;
+
 
 %% 750 180505
 expt(4).SubNum = '750';
@@ -109,25 +117,27 @@ expt(4).greenredsimultaneous = 0;
 expt(4).areaBorders = 0;
 expt(4).regImgStartFrame = 13702;
 expt(4).trial_range = 100:329;
-
-% %% 750 180509
+expt(4).attentionTask = true;
+expt(4).hasAttention = true;
+% 
+% %% 750 180511
 % expt(5).SubNum = '750';
 % expt(5).mouse = '750';
-% expt(5).date = '180509';
-% expt(5).img_loc  = {'V1';'L1'};
-% expt(5).z = -107;
+% expt(5).date = '180511';
+% expt(5).img_loc  = {'V1';'L2/3'};
+% expt(5).z = -291;
 % expt(5).img_strct  = {'cells'};
 % expt(5).indicator = {'virus';'flex-GCaMP6s'};
-% expt(5).time_mat = ['0924'];
+% expt(5).time_mat = ['0855'];
 % expt(5).runs = ['001'];
 % expt(5).nrun = size(expt(5).runs,1);
 % expt(5).frame_rate = 30;
 % expt(5).folder = 'two-photon imaging';
 % expt(5).catch = 1;
 % expt(5).catchRew = 1;
-% expt(5).dirtuning = '003';
-% expt(5).dirtuning_time = '1045';
-% expt(5).rettuning = {'004';'1027'};
+% expt(5).dirtuning = '002';
+% expt(5).dirtuning_time = '1027';
+% expt(5).rettuning = {'003';'1044'};
 % expt(5).stimOnMs = 100;
 % expt(5).motionThreshold = 0.05;
 % expt(5).redChannelOn = 0;
@@ -135,27 +145,29 @@ expt(4).trial_range = 100:329;
 % expt(5).redChannelRun = '';
 % expt(5).greenredsimultaneous = 0;
 % expt(5).areaBorders = 0;
-% expt(5).regImgStartFrame = 91622;
-% expt(5).trial_range = 50:250;
+% expt(5).regImgStartFrame = 68232;
+% expt(5).trial_range = nan;
+% expt(5).attentionTask = true;
+% expt(5).hasAttention = true;
 
-%% 750 180511
+%% 750 180516
 expt(5).SubNum = '750';
 expt(5).mouse = '750';
-expt(5).date = '180511';
+expt(5).date = '180516';
 expt(5).img_loc  = {'V1';'L2/3'};
 expt(5).z = -291;
 expt(5).img_strct  = {'cells'};
 expt(5).indicator = {'virus';'flex-GCaMP6s'};
-expt(5).time_mat = ['0855'];
-expt(5).runs = ['001'];
+expt(5).time_mat = ['0939';'1042'];
+expt(5).runs = ['001';'002'];
 expt(5).nrun = size(expt(5).runs,1);
 expt(5).frame_rate = 30;
 expt(5).folder = 'two-photon imaging';
 expt(5).catch = 1;
 expt(5).catchRew = 1;
-expt(5).dirtuning = '002';
-expt(5).dirtuning_time = '1027';
-expt(5).rettuning = {'003';'1044'};
+expt(5).dirtuning = '003';
+expt(5).dirtuning_time = '1114';
+expt(5).rettuning = {'004';'1135'};
 expt(5).stimOnMs = 100;
 expt(5).motionThreshold = 0.05;
 expt(5).redChannelOn = 0;
@@ -163,27 +175,30 @@ expt(5).redChannelLabel = '';
 expt(5).redChannelRun = '';
 expt(5).greenredsimultaneous = 0;
 expt(5).areaBorders = 0;
-expt(5).regImgStartFrame = 68232;
-expt(5).trial_range = nan;
+expt(5).regImgStartFrame = 45509;
+expt(5).trial_range = 100:591;
+expt(5).attentionTask = true;
+expt(5).hasAttention = true;
 
-%% 750 180511
-expt(6).SubNum = '750';
-expt(6).mouse = '750';
-expt(6).date = '180516';
+%% 754 181012
+expt(6).SubNum = '754';
+expt(6).mouse = '754';
+expt(6).date = '181012';
 expt(6).img_loc  = {'V1';'L2/3'};
-expt(6).z = -291;
+expt(6).z = -210;
 expt(6).img_strct  = {'cells'};
 expt(6).indicator = {'virus';'flex-GCaMP6s'};
-expt(6).time_mat = ['0939';'1042'];
-expt(6).runs = ['001';'002'];
+expt(6).time_mat = ['1543';'1603'];
+expt(6).runs = ['002';'003'];
 expt(6).nrun = size(expt(6).runs,1);
+expt(6).nframesPerRun = [35200,108000];
 expt(6).frame_rate = 30;
 expt(6).folder = 'two-photon imaging';
 expt(6).catch = 1;
-expt(6).catchRew = 1;
-expt(6).dirtuning = '003';
-expt(6).dirtuning_time = '1114';
-expt(6).rettuning = {'004';'1135'};
+expt(6).catchRew = 0;
+expt(6).dirtuning = '004';
+expt(6).dirtuning_time = '1707';
+expt(6).rettuning = {'001';'1524'};
 expt(6).stimOnMs = 100;
 expt(6).motionThreshold = 0.05;
 expt(6).redChannelOn = 0;
@@ -191,5 +206,69 @@ expt(6).redChannelLabel = '';
 expt(6).redChannelRun = '';
 expt(6).greenredsimultaneous = 0;
 expt(6).areaBorders = 0;
-expt(6).regImgStartFrame = 45509;
-expt(6).trial_range = 100:591;
+expt(6).regImgStartFrame = 46676;
+expt(6).trial_range = 50:525;
+expt(6).attentionTask = true;
+expt(6).hasAttention = true;
+
+%% 754 181017
+expt(7).SubNum = '754';
+expt(7).mouse = '754';
+expt(7).date = '181017';
+expt(7).img_loc  = {'V1';'L2/3'};
+expt(7).z = -241;
+expt(7).img_strct  = {'cells'};
+expt(7).indicator = {'virus';'flex-GCaMP6s'};
+expt(7).time_mat = ['1603'];
+expt(7).runs = ['002'];
+expt(7).nrun = size(expt(7).runs,1);
+expt(7).nframesPerRun = [];
+expt(7).frame_rate = 30;
+expt(7).folder = 'two-photon imaging';
+expt(7).catch = 1;
+expt(7).catchRew = 0;
+expt(7).dirtuning = '003';
+expt(7).dirtuning_time = '1714';
+expt(7).rettuning = {'001';'1534'};
+expt(7).stimOnMs = 100;
+expt(7).motionThreshold = 0.05;
+expt(7).redChannelOn = 0;
+expt(7).redChannelLabel = '';
+expt(7).redChannelRun = '';
+expt(7).greenredsimultaneous = 0;
+expt(7).areaBorders = 0;
+expt(7).regImgStartFrame = 59009;
+expt(7).trial_range = 1:200;
+expt(7).attentionTask = true;
+expt(7).hasAttention = true;
+
+%% 754 181019
+expt(8).SubNum = '754';
+expt(8).mouse = '754';
+expt(8).date = '181019';
+expt(8).img_loc  = {'V1';'L2/3'};
+expt(8).z = -300;
+expt(8).img_strct  = {'cells'};
+expt(8).indicator = {'virus';'flex-GCaMP6s'};
+expt(8).time_mat = ['1043'];
+expt(8).runs = ['004'];
+expt(8).nrun = size(expt(8).runs,1);
+expt(8).nframesPerRun = [];
+expt(8).frame_rate = 30;
+expt(8).folder = 'two-photon imaging';
+expt(8).catch = 1;
+expt(8).catchRew = 0;
+expt(8).dirtuning = '005';
+expt(8).dirtuning_time = '1150';
+expt(8).rettuning = {'002';'1029'};
+expt(8).stimOnMs = 100;
+expt(8).motionThreshold = 0.05;
+expt(8).redChannelOn = 0;
+expt(8).redChannelLabel = '';
+expt(8).redChannelRun = '';
+expt(8).greenredsimultaneous = 0;
+expt(8).areaBorders = 0;
+expt(8).regImgStartFrame = 87909;
+expt(8).trial_range = 50:331;
+expt(8).attentionTask = true;
+expt(8).hasAttention = true;

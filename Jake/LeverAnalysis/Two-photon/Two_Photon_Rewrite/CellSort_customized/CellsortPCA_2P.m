@@ -119,8 +119,8 @@ end
 
 %------------
 
-save(fnmat,'mixedfilters','CovEvals','mixedsig', ...
-    'movm','movtm','covtrace')
+% save(fnmat,'mixedfilters','CovEvals','mixedsig', ...
+%     'movm','movtm','covtrace')
 fprintf(' CellsortPCA: saving data and exiting; ')
 
 toc

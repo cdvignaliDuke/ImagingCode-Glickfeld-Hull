@@ -1,3 +1,4 @@
+%% for 30 Hz imaging
 % 16x 2014 - 2016
 x_um = 555;
 y_um = 233;

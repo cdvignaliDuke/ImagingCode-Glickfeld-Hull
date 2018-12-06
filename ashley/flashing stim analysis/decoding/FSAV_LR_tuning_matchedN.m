@@ -1,14 +1,14 @@
 close all
 clear all
 
-load('Z:\Analysis\FSAV Choice\FSAV_decodeData.mat')
-load('Z:\Analysis\FSAV Summaries\FSAV_V1_decode\V1_decode_startAlign_FSAV_attnData')
-fnout = 'Z:\Analysis\FSAV Choice';
+load('X:\home\ashley\Analysis\FSAV Choice\FSAV_decodeData.mat')
+load('X:\home\ashley\Analysis\FSAV Summaries\FSAV_attentionV1\attentionV1_startAlign_FSAV_attnData')
+fnout = 'X:\home\ashley\Analysis\FSAV Choice';
 nexp = length(dcExpt);
 
 doExptPlots = 0;
 %%
-minTrN = 20;
+minTrN = 17;
 theta90Threshold = 11.25;
 decisionVariable = 0.5;
 detectThresholdHR = 0.8;

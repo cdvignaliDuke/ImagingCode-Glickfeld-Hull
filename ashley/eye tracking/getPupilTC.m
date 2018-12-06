@@ -1,11 +1,13 @@
 clear all
 close all
-awData_audMod_V13trialtypes;
-slct_exp = 1;
+ds = 'FSAV_attentionV1';
+eval(ds)
+slct_exp = [13 size(expt,2)];
 %%
 calib = 1/26.6; %mm per pixel
 
 rc = behavConstsAV;
+imgParams_FSAV
 
 for iexp = slct_exp
     subnum = expt(iexp).SubNum;
@@ -14,11 +16,12 @@ for iexp = slct_exp
     frame_rate = expt(iexp).frame_rate;
     nrun = size(expt(iexp).runs,1);
 %% load and combine mworks files
+if ~any(isnan(expt(iexp).eyeradrange))
     for irun = 1:nrun
         runFolder = expt(iexp).runs(irun,:);
         runTime = expt(iexp).time_mat(irun,:);
         fName = [runFolder '_000_000'];
-        fn = fullfile('\\CRASH.dhe.duke.edu\data\home\ashley\data',mouse,'two-photon imaging', expDate,runFolder);
+        fn = fullfile(rc.ashleyData,mouse,'two-photon imaging', expDate,runFolder);
         
         cd(fn)
         try
@@ -27,16 +30,19 @@ for iexp = slct_exp
             data = read(eyeObj,[1 Inf]);
             data = squeeze(data(:,:,1,:));
         catch
-            try
+%             try
                 eyeName = [runFolder '_000_000_eye.mat'];
                 load(eyeName)
                 data = squeeze(data(:,:,1,:));
-            catch
-                continue
-            end
+%             catch
+%                 continue
+%             end
         end
         
         fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate,runFolder);
+        if ~exist(fnout,'dir') ~= 7
+            mkdir(fnout)
+        end
     %% Load and combine eye tracking data
     % Set current directory to crash folder
     Area = {};
@@ -134,6 +140,7 @@ for iexp = slct_exp
         % save
         save(fullfile(fnout,'eyeTC.mat'),'Centroid','Area','Radius')
     end
+end
 end
 
 

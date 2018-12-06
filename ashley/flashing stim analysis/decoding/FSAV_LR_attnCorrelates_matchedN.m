@@ -3,9 +3,9 @@ clear all
 
 FSAV_V1_decode
 
-load('Z:\Analysis\FSAV Choice\FSAV_decodeData.mat')
-load('Z:\Analysis\FSAV Summaries\FSAV_V1_decode\V1_decode_startAlign_FSAV_attnData')
-fnout = 'Z:\Analysis\FSAV Choice';
+load('X:\home\ashley\Analysis\FSAV Choice\FSAV_decodeData.mat')
+load('X:\home\ashley\Analysis\FSAV Summaries\FSAV_attentionV1\attentionV1_startAlign_FSAV_attnData')
+fnout = 'X:\home\ashley\Analysis\FSAV Choice';
 nexp = length(dcExpt);
 
 doExptPlots = 0;
@@ -23,7 +23,7 @@ corrLim = [-1 1];
 siLim = [-12 12];
 adaptLim = [-1.5 1.5];
 
-minTrN = 20;
+minTrN = 17;
 theta90Threshold = 11.25;
 decisionVariable = 0.5;
 detectThresholdHR = 0.8;
@@ -145,7 +145,6 @@ for iexp=1:nexp
    
    si = cat(2,si,attnInfoExpt(iexp).si(cellIdx));
    avMod = cat(2,avMod,attnInfoExpt(iexp).avModTest(cellIdx));
-   
    
    tc = dcExpt(iexp).targetResponsiveCells(cellIdx);
    fbrc = dcExpt(iexp).firstBaseResponsiveCells(cellIdx);
@@ -480,60 +479,75 @@ print(fullfile(fnout,'LRmodelXcellType'),'-dpdf')
 setFigParams4Print('portrait')
 set(0,'defaultAxesFontSize',12)
 figure
-suptitle('Visual Trials Model, Significantly Modulated Cells in Blue(target resp only) and Red(first stim resp only) and Magenta (both)')
+suptitle('Visual Trials Model')
 % ind1 = avMod & firstRespCells' & ~targetRespCells';
 % ind2 = avMod & ~firstRespCells' & targetRespCells';
 % ind3 = avMod & firstRespCells' & targetRespCells';
-ind1 = avMod' & respCells_targetOnly & ~respCells_lateBaseOnly;
-ind2 = avMod' & (respCells_firstBase | respCells_lateBaseOnly);
-ind3 = avMod' & (respCells_targetAndBase |...
-    (respCells_lateBaseOnly & respCells_targetOnly));
-ind4 = avMod' & suppCells & ~(ind1 | ind2 | ind3);
+ind1 = logical(avMod');
+% ind1 = avMod' & respCells_targetOnly & ~respCells_lateBaseOnly;
+% ind2 = avMod' & (respCells_firstBase | respCells_lateBaseOnly);
+% ind3 = avMod' & (respCells_targetAndBase |...
+%     (respCells_lateBaseOnly & respCells_targetOnly));
+% ind4 = avMod' & suppCells & ~(ind1 | ind2 | ind3);
 subplot 221
-scatter(si,targetCorrsAll_vis,'k.')
+h=plot(si,targetCorrsAll_vis,'o');
+h.Color = [0.5 0.5 0.5];
+h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-scatter(si(ind1),targetCorrsAll_vis(ind1),'ro')
-scatter(si(ind2),targetCorrsAll_vis(ind2),'bo')
-scatter(si(ind3),targetCorrsAll_vis(ind3),'mo')
-scatter(si(ind4),targetCorrsAll_vis(ind4),'go')
+h=plot(si(ind1),targetCorrsAll_vis(ind1),'ko');
+h.MarkerFaceColor = 'k';
+% h=plot(si(ind2),targetCorrsAll_vis(ind2),'bo')
+% h=plot(si(ind3),targetCorrsAll_vis(ind3),'mo')
+% scatter(si(ind4),targetCorrsAll_vis(ind4),'go')
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Correlation',corrLim)
 figAxForm
 title('Target')
 subplot 222
-scatter(si,detectCorrsAll_vis,'k.')
+h=plot(si,detectCorrsAll_vis,'o');
+h.Color = [0.5 0.5 0.5];
+h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-scatter(si(ind1),detectCorrsAll_vis(ind1),'ro')
-scatter(si(ind2),detectCorrsAll_vis(ind2),'bo')
-scatter(si(ind3),detectCorrsAll_vis(ind3),'mo')
-scatter(si(ind4),detectCorrsAll_vis(ind4),'go')
+h=plot(si(ind1),detectCorrsAll_vis(ind1),'ko');
+h.MarkerFaceColor = 'k';
+% scatter(si(ind2),detectCorrsAll_vis(ind2),'bo')
+% scatter(si(ind3),detectCorrsAll_vis(ind3),'mo')
+% scatter(si(ind4),detectCorrsAll_vis(ind4),'go')
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Correlation',corrLim)
 figAxForm
 title('Detect')
 subplot 223
-scatter(si,targetWeightsAll_vis,'k.')
+h=plot(si,targetWeightsAll_vis,'o');
+h.Color = [0.5 0.5 0.5];
+h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-scatter(si(ind1),targetWeightsAll_vis(ind1),'ro')
-scatter(si(ind2),targetWeightsAll_vis(ind2),'bo')
-scatter(si(ind3),targetWeightsAll_vis(ind3),'mo')
-scatter(si(ind4),targetWeightsAll_vis(ind4),'go')
+h=plot(si(ind1),targetWeightsAll_vis(ind1),'ko');
+h.MarkerFaceColor = 'k';
+% scatter(si(ind2),targetWeightsAll_vis(ind2),'bo')
+% scatter(si(ind3),targetWeightsAll_vis(ind3),'mo')
+% scatter(si(ind4),targetWeightsAll_vis(ind4),'go')
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Weight',weightLim)
 figAxForm
 title('Target')
 subplot 224
-scatter(si,detectWeightsAll_vis,'k.')
+h=plot(si,detectWeightsAll_vis,'ko');
+h.Color = [0.5 0.5 0.5];
+h.MarkerFaceColor = [0.5 0.5 0.5];
 hold on
-scatter(si(ind1),detectWeightsAll_vis(ind1),'ro')
-scatter(si(ind2),detectWeightsAll_vis(ind2),'bo')
-scatter(si(ind3),detectWeightsAll_vis(ind3),'mo')
-scatter(si(ind4),detectWeightsAll_vis(ind4),'go')
+h=plot(si(ind1),detectWeightsAll_vis(ind1),'ko');
+h.MarkerFaceColor = 'k';
+% scatter(si(ind2),detectWeightsAll_vis(ind2),'bo')
+% scatter(si(ind3),detectWeightsAll_vis(ind3),'mo')
+% scatter(si(ind4),detectWeightsAll_vis(ind4),'go')
 figXAxis([],'V-A Selectivity',siLim)
 figYAxis([],'Weight',weightLim)
 figAxForm
 title('Detect')
-legend({'All';'Target Only';'Base Only';'Base & Target';'Base Supp Only'},...
+% legend({'All';'Target Only';'Base Only';'Base & Target';'Base Supp Only'},...
+%     'location','northeast')
+legend({'All';'Selective Only'},...
     'location','northeast')
 
 print(fullfile(fnout,'LRmodelXattn2'),'-dpdf','-fillpage')

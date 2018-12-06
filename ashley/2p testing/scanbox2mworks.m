@@ -1,12 +1,13 @@
 %% expt info
-fnout = 'Z:\Analysis\two-photon tinkering\scanboxAlign2Mworks';
+fnout = 'X:\home\ashley\Analysis\two-photon tinkering\scanboxAlign2Mworks';
 rc = behavConstsAV;
-subnum = '999';
+subnum = '998';
 mouse = 'Other\2P testing';
-expDate = '170710';
-runs = {'001';'002';'003';'004';'005'};
-expTimes = {'1628';'1631';'1636';'1638';'1643'};
+expDate = '180904';
+runs = {'001'};
+expTimes = {'1901'};
 nexp = length(runs);
+exptType = 
 %% get data
 mw = cell(1,nexp);
 data = cell(1,nexp);
@@ -14,8 +15,11 @@ for irun = 1:nexp
     runFolder = runs{irun};
     runTime = expTimes{irun};
     fname = [runFolder '_000_000'];
-    fn = fullfile(rc.ashleyAnalysis,mouse, expDate,runFolder);
-    [mw{irun},data{irun}] = Load_SBXdataPlusMWorksData(subnum,expDate,runTime,mouse,runFolder,fname);
+    fn = fullfile(rc.ashleyData,mouse, expDate,runFolder);
+    cd(fn)
+    mw{irun} = loadMworksFile(subnum,expDate,runTime);
+    load([fname '.mat'])
+    data{irun} = squeeze(sbxread(fname,0,info.config.frames));
 end
 rows = cellfun(@(x) x(101:end,:,:), data, 'unif',0);
 tc = cellfun(@(x) squeeze(mean(mean(x,1),2)), rows, 'unif',0);
@@ -49,7 +53,6 @@ title('zoomed in')
 
 print(fullfile(fnout,'visStimRet'),'-dpdf','-fillpage')
 
-
 %% stim test align to stim on
 ip = mw{5};
 d = tc{5};
@@ -79,16 +82,17 @@ title('zoomed in')
 
 print(fullfile(fnout,'stimTest'),'-dpdf','-fillpage')
 
-%% flashingStim_2P_Frames align to trial start stim on
-preframes = 50;
-postframes = 50;
-ip = mw{2};
-d = tc{2};
+%% flashingStim_2P_Frames align to first stim and catch stim
+preframes = 30;
+postframes = 60;
+tt = (1:(preframes+postframes))-preframes;
 
-trStart = cell2mat(ip.cStimOn);
+ip = mw{1};
+d = tc{1};
+
+trStart = cell2mat(ip.cFirstStim);
 ntrials = length(trStart)-1;
 trStart = trStart(1:ntrials);
-
 d_tr = nan(preframes+postframes,ntrials);
 for itrial = 1:ntrials
    ind = trStart(itrial);
@@ -96,19 +100,60 @@ for itrial = 1:ntrials
    d_tr(:,itrial) = d(indfr);    
 end
 
-setFigParams4Print('portrait');figure;
-suptitle('FS 2P Frames')
-subplot 211
-plot(tFr,d_tr)
-figXAxis([],'frames from onset',[])
-figYAxis([],'F',[])
-subplot 212
-plot(tFr,d_tr)
-figXAxis([],'frames from onset',[-1 5])
-figYAxis([],'F',[970 982])
-title('zoomed in')
+targetStart = cell2mat(ip.cTargetOn);
+ntrials = length(targetStart)-1;
+targetStart = targetStart(1:ntrials);
+d_target = nan(preframes+postframes,ntrials);
+for itrial = 1:ntrials
+   ind = targetStart(itrial);
+   indfr = ind-preframes+1:ind+postframes;
+   d_target(:,itrial) = d(indfr);    
+end
 
-print(fullfile(fnout,'FS2PFrames'),'-dpdf','-fillpage')
+catchStart = celleqel2mat_padded(ip.cCatchOn);
+catchStart = catchStart(~isnan(catchStart));
+ntrials = length(catchStart);
+d_catch = nan(preframes+postframes,ntrials);
+for itrial = 1:ntrials
+   ind = catchStart(itrial);
+   indfr = ind-preframes+1:ind+postframes;
+   d_catch(:,itrial) = d(indfr);    
+end
+
+setFigParams4Print('landscape');figure;
+suptitle('FS 2P Frames')
+subplot 221
+plot(tt,d_target)
+hold on
+h = plot(tt,mean(d_target,2),'k');
+h.LineWidth = 1;
+figXAxis([],'frames from cTargetStim',[])
+figYAxis([],'F',[])
+subplot 222
+plot(tt,d_catch)
+hold on
+h = plot(tt,mean(d_catch,2),'k');
+h.LineWidth = 1;
+figXAxis([],'frames from cCatchOn',[])
+figYAxis([],'F',[])
+subplot 223
+plot(tt,d_tr)
+hold on
+h = plot(tt,mean(d_tr,2),'k');
+h.LineWidth = 1;
+figXAxis([],'frames from cFirstStim',[])
+figYAxis([],'F',[])
+subplot 224
+h = plot(tt,mean(d_target,2),'k');
+hold on
+h = plot(tt,mean(d_catch,2),'b');
+h = plot(tt,mean(d_tr,2),'r');
+h.LineWidth = 1;
+figXAxis([],'frames from stim on',[-10 10])
+figYAxis([],'F',[])
+legend({'Target Stim';'Catch Stim';'First Stim'},'location','northwest')
+
+print(fullfile(fnout,'FS2PFrames_withCatch'),'-dpdf','-fillpage')
 
 
 %% holdanddetect_2P_Frames align to target

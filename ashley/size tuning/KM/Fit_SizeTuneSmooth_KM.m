@@ -143,7 +143,11 @@ if PLOTIT_FIT == 1
         start = 1;
     end
     h = subplot(6,6,start);
-    errorbar([0 szs],[0 sizeMean(:,nCon,iCell)'],[0 sizeSEM(:,nCon,iCell)'])
+    if nCon>1
+        errorbar([0 szs],[0 sizeMean(:,nCon,iCell)'],[0 sizeSEM(:,nCon,iCell)'])
+    elseif nrun>1
+        errorbar([0 szs],[0 sizeMean(:,1,iCell)'],[0 sizeSEM(:,1,iCell)'])
+    end
     hold on
     plot(s.szs0,s.data,'.b')
     if s.Ftest

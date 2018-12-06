@@ -1,10 +1,11 @@
 clear all
 close all
-ds = 'FSAV_longStimON_V1';
+ds = 'FSAV_V1_SOM';
 cellsOrDendrites = 1;
 doRawData = 0;
 %%
 rc = behavConstsAV;
+imgParams_FSAV
 if strcmp(rc.name,'ashle') & isempty(ds)
     dataGroup = ['awFSAVdatasets' ds];
 elseif strcmp(rc.name,'ashle') & strcmp(ds(1:3),'FSA')
@@ -78,16 +79,16 @@ exptMice = {expt.SubNum};
 basewin = 1:34;
 basewin_0 = 32:34;
 respwin = 36:38;
-basewinTarget = 31:33;
-respwinTarget = 35:37;
-nCycles = 7;
+% basewinTarget = 31:33;
+% respwinTarget = 35:37;
+nCycles = 8;
 cellGroupsAlpha = 0.01;
 lateCycles = 5:nCycles;
 tuningReliabilityThresh = 45;
 minRespThreshold = 0.002;
 
 %%
-doExptCellPlots = true;
+doExptCellPlots = false;
 
 attnInfoExpt = struct;
 
@@ -124,31 +125,43 @@ for imouse = 1:size(mouse,2)
         cycLengthFr = mouse(imouse).expt(iexp).info.cyc_time;
         lateWinFrames = cycLengthFr*length(lateCycles);
         exptCycLengthFr(exptN) = cycLengthFr;
-%         if cycLengthFr == 11            
-%         elseif cycLengthFr == 14
+
+%         if cycLengthFr > 11
+%             respwin_cellTest = respwin(1):(respwin(1)+5);
+%         else
+%             respwin_cellTest = respwin;
 %         end
+        respwin_cellTest = respwin;
         exptName{exptN} = [mouse(imouse).expt(iexp).mouse_name '-' ...
             mouse(imouse).expt(iexp).date];
         exptSN(exptN) = str2num(mouse(imouse).expt(iexp).mouse_name);
-        
-        if doExptCellPlots
-            dAV_cycle2 = mean(cat(3,...
-                mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{2},...
-                mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{2}),3);
-            dAV_cycle2_err = ste(cat(3,...
-                mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{2},...
-                mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{2}),3);
-            plotEachCellTC(exptName{exptN},dAV_cycle2,dAV_cycle2_err,nBaselineFr,cycLengthFr,frRateHz)
-        end
         
         dAV_cycle1 = cat(3,...
             mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{1},...
             mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{1});
         responsiveCellsAV{exptN} = ttest(...
-            squeeze(mean(dAV_cycle1(respwin,:,:),1)),...
-            squeeze(mean(dAV_cycle1(basewin,:,:),1)),...
+            squeeze(mean(dAV_cycle1(respwin_cellTest,:,:),1)),...
+            squeeze(mean(dAV_cycle1(basewin_0,:,:),1)),...
             'dim',2,'tail','right','alpha',cellGroupsAlpha)' ... 
-            & mean(mean(dAV_cycle1(respwin,:,:),3),1) > minRespThreshold;
+            & mean(mean(dAV_cycle1(respwin_cellTest,:,:),3),1) > minRespThreshold;
+        
+        if doExptCellPlots
+            dAV_cycle = mean(cat(3,...
+                mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{4},...
+                mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{4}),3);
+            dAV_cycle_err = ste(cat(3,...
+                mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{4},...
+                mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{4}),3);
+            if exist(fullfile(rc.ashleyAnalysis,['AW' mouse(imouse).expt(iexp).mouse_name(end-1:end)]),'dir') == 7
+                fnMs = fullfile(rc.ashleyAnalysis,['AW' mouse(imouse).expt(iexp).mouse_name(end-1:end)],...
+                    'two-photon imaging',mouse(imouse).expt(iexp).date);
+            else
+                fnMs = fullfile(rc.ashleyAnalysis,mouse(imouse).expt(iexp).mouse_name,...
+                    'two-photon imaging',mouse(imouse).expt(iexp).date);
+            end
+            plotEachCellTC(exptName{exptN},dAV_cycle2,dAV_cycle2_err,nBaselineFr,cycLengthFr,frRateHz,responsiveCellsAV{exptN},fnMs)
+        end
+        
         
         dAV_nCycles = cat(3,mouse(imouse).expt(iexp).align(pressAlign).av(visualTrials).outcome(hitTrials).cmlvCycResp{nCycles},...
             mouse(imouse).expt(iexp).align(pressAlign).av(auditoryTrials).outcome(hitTrials).cmlvCycResp{nCycles});
@@ -282,30 +295,32 @@ lateRespCells_shortCycExpt = cell2mat(lateRespCellsAV(shortCycExptInd)');
 
 longTC = cell(1,nav);
 lateCycResp = cell(1,nav);
-lateCycWin = cell(1,nav);
+% lateCycWin = cell(1,nav);
 lateWin = cell(1,nav);
 for iav = 1:nav
     longTC{iav} = trialTCEaCycEaCell(nCycles,shortCycExptInd,iav);
     lateCycResp{iav} = cell2mat(lateCycRespEaExpt(:,iav)');
-    lateCycWin{iav} = cell2mat(lateCycMeanEaExpt(:,iav)');
+%     lateCycWin{iav} = cell2mat(lateCycMeanEaExpt(:,iav)');
     lateWin{iav} = cell2mat(lateWinRespAVEaExpt(:,iav)');
 end
 longTC = cellfun(@cell2mat,longTC,'unif',0);
 
 siCycResp = cell2mat(lateSIEaExpt');
-siCycWin = cell2mat(lateCycWinSIEaExpt');
-siLateWin = cell2mat(lateWinSIEaExpt');
+% siCycWin = cell2mat(lateCycWinSIEaExpt');
+% siLateWin = cell2mat(lateWinSIEaExpt');
 
 lateAVModCycResp = cell2mat(ttestLateAVEaExpt');
-lateAVModCycWin = cell2mat(ttestLateCycWinAVEaExpt');
-lateAVModLateWin = cell2mat(ttestLateWinAVEaExpt');
+% lateAVModCycWin = cell2mat(ttestLateCycWinAVEaExpt');
+% lateAVModLateWin = cell2mat(ttestLateWinAVEaExpt');
 
-tcAVallCells = cell2mat(longTrialTCAV(shortCycExptInd));
+tcAVallCells_shortCycExpt = cell2mat(longTrialTCAV(shortCycExptInd));
+tcAVAllCells_allExpt = cell2mat(cellfun(@(x) x(1:size(tcAVallCells_shortCycExpt,1),:),...
+    longTrialTCAV,'unif',0));
 %%
-responseLim = [-0.005 0.05];
-cycResponseLim = [-0.005 0.02];
+responseLim = [-0.005 0.25];
+cycResponseLim = [-0.005 0.1];
 scatLim = [-0.15 1];
-scatRespLim = [-0.15 0.45];
+scatRespLim = [-0.02 0.1];
 ttLabel = 0:500:2500;
 nFr = size(longTC{1,1},1);
 tt = ((26:nFr)-33).*(1000/frRateHz);
@@ -315,11 +330,12 @@ lateWinTT = ([nFr - lateWinFrames nFr] - 33)...
     .*(1000/frRateHz);
 binEdgesSI = -10:0.5:10;
 siLim = [-15 15];
-hmLim = [-0.1 0.1];
-exCellRespLim = [-0.1 0.25];
+hmLim = [-0.2 0.2];
+exCellRespLim = [-0.11 0.25];
 cycTCLim = [-0.005 0.015];
 cycRespLim = [-0.005 0.025];
 normRespLim = [-6 6];
+normTCLim = [-0.5 1.5];
 %%
 setFigParams4Print('portrait')
 figure
@@ -357,63 +373,105 @@ title(sprintf('Responsive Cells (%s), p = %s',num2str(sum(respCells_allExpt)),..
 
 print([fnout '_respCellsTC&Scatter'],'-dpdf','-fillpage')
 
+figure
+subplot 211
+for iav = 1:nav
+    y = mean(longTC{iav}(:,respCells_shortCycExpt | lateRespCells_shortCycExpt),2);
+    yerr = ste(longTC{iav}(:,respCells_shortCycExpt | lateRespCells_shortCycExpt),2);    
+    tt = ((26:length(y))-33).*(1000/frRateHz);
+    h = shadedErrorBar(tt,y(26:length(y)),yerr(26:length(y)),avcolmat{iav});
+    for i = 1:2
+        h.edge(i).Color = 'none';
+    end
+    hold on
+end
+figXAxis([],'Time (ms)',[tt(1) tt(end)],ttLabel,ttLabel)
+figYAxis([],'dF/F',responseLim)  
+vline(lateWinTT,'k--')
+figAxForm([],0)
+title(sprintf('First Stim Responsive Cells (%s/%s)',...
+    num2str(sum(respCells_shortCycExpt | lateRespCells_shortCycExpt)),...
+    num2str(length(respCells_shortCycExpt | lateRespCells_shortCycExpt))))
+
+subplot 212
+x = lateWin{visualTrials}(respCells_allExpt | lateRespCells_allExpt);
+y = lateWin{auditoryTrials}(respCells_allExpt | lateRespCells_allExpt);
+h = scatter(x,y,'ko');
+hold on
+errorbar(mean(x),mean(y),ste(y,2),ste(y,2),ste(x,2),ste(x,2),'ro')
+plot(scatLim,scatLim,'k--');
+[~,p] = ttest(x,y);
+figXAxis([],'Visual (dF/F)',scatLim)
+figYAxis([],'Auditory (dF/F)',scatLim)
+figAxForm([])
+title(sprintf('Responsive Cells (%s), p = %s',num2str(sum(respCells_allExpt)),...
+    num2str(round(p,2,'significant'))))
+
+print([fnout '_allRespCellsTC&Scatter'],'-dpdf','-fillpage')
+
+
 setFigParams4Print('landscape')
 figure
 subplot 121
-si = siCycWin;
-ind = lateAVModCycWin;
+si = siCycResp;
+ind = lateAVModCycResp;
 h = histogram(si(respCells_allExpt),binEdgesSI);
 h.FaceColor = [0.5 0.5 0.5];
 h.EdgeColor = 'none';
 h = vline(0,'k-');
 h.LineWidth = 2;
-h = vline(mean(si(respCells_allExpt)),'r-');
+h = vline(mean(si(respCells_allExpt)),'r-',...
+    sprintf('all %s',num2str(mean(si(respCells_allExpt)))));
 h.LineWidth = 2;
 hold on
 h = histogram(si(ind & respCells_allExpt),binEdgesSI);
 h.FaceColor = 'k';
 h.EdgeColor = 'none';
-h = vline(mean(si(respCells_allExpt & ind)),'m-');
+h = vline(mean(si(respCells_allExpt & ind)),'m-',...
+    sprintf('sn %s',num2str(mean(si(respCells_allExpt & ind)))));
 h.LineWidth = 2;
 figXAxis([],'Late Trial Selectivity Index (using resp to cycles 5-8)',siLim)
 figYAxis([],'n ncells',[])
 figAxForm([])
-title({sprintf('Significantly Attn Modulated (%s/%s)'...
-    ,num2str(sum(ind & respCells_allExpt)),num2str(sum(respCells_allExpt))),...
+title({sprintf('Significantly Attn Modulated (%s/%s/%s)'...
+    ,num2str(sum(ind & respCells_allExpt)),num2str(sum(respCells_allExpt))...
+    ,num2str(length(respCells_allExpt))),...
     'SI calc using cyc reposnses'})
 
 subplot 122
-x = lateCycWin{visualTrials}(respCells_allExpt);
-y = lateCycWin{auditoryTrials}(respCells_allExpt);
+x = lateCycResp{visualTrials}(respCells_allExpt);
+y = lateCycResp{auditoryTrials}(respCells_allExpt);
 h = scatter(x,y,'ko');
 [~,p] = ttest(x,y);
 hold on
-x = lateCycWin{visualTrials}(respCells_allExpt & ind & si > 0);
-y = lateCycWin{auditoryTrials}(respCells_allExpt & ind & si > 0);
+x = lateCycResp{visualTrials}(respCells_allExpt & ind & si > 0);
+y = lateCycResp{auditoryTrials}(respCells_allExpt & ind & si > 0);
 h = scatter(x,y,'ro');
-x = lateCycWin{visualTrials}(respCells_allExpt & ind & si < 0);
-y = lateCycWin{auditoryTrials}(respCells_allExpt & ind & si < 0);
+x = lateCycResp{visualTrials}(respCells_allExpt & ind & si < 0);
+y = lateCycResp{auditoryTrials}(respCells_allExpt & ind & si < 0);
 h = scatter(x,y,'bo');
 plot(scatRespLim,scatRespLim,'k--');
 figXAxis([],'Visual (dF/F)',scatRespLim)
 figYAxis([],'Auditory (dF/F)',scatRespLim)
 figAxForm([])
-title(sprintf('Responsive Cells (%s), p = %s',num2str(sum(respCells_allExpt)),...
-    num2str(round(p,2,'significant'))))
+title(sprintf('Responsive Cells (%s/%s), p = %s',num2str(sum(respCells_allExpt)),...
+    num2str(length(respCells_allExpt)), num2str(round(p,2,'significant'))))
 
 print([fnout '_respCellsAttnSI&Scat'],'-dpdf','-fillpage')
 %% example cells
-if strcmp(ds,'FSAV_V1_100ms')
-    tcAVAllCellsSem = cell2mat(longTrialTCAV_sem);
-    exCellTC = tcAVallCells(26:end,:);
-    exCellTCsem = tcAVAllCellsSem(26:end,:);
+if strcmp(ds,'FSAV_attentionV1')
+%     tcAVAllCellsSem = cell2mat(longTrialTCAV_sem(shortCycExptInd));
+tcAVAllCellsSem_allExpt = cell2mat(cellfun(@(x) x(1:size(tcAVallCells_shortCycExpt,1),:),...
+    longTrialTCAV_sem,'unif',0));
+    exCellTC = tcAVAllCells_allExpt(26:end,:);
+    exCellTCsem = tcAVAllCellsSem_allExpt(26:end,:);
 
-    exRespCell = 738; 
-    exLateRespCell = 319; 
-    exLateSuppCell = 386;
+    exRespCell = exampleCell_1; 
+    exLateRespCell = exampleCell_2; 
+    exLateSuppCell = exampleCell_3;
     exampleCells = [exRespCell exLateRespCell exLateSuppCell];
 
-    setFigParams4Print('portrait')
+    setFigParams4Print('landscape')
     figure
     subplot 311
     shadedErrorBar(tt,exCellTC(:,exRespCell),exCellTCsem(:,exRespCell),'k');
@@ -432,20 +490,20 @@ if strcmp(ds,'FSAV_V1_100ms')
     title(sprintf('suppressed late, #%s',num2str(exLateSuppCell)))
     for i = 1:3
         subplot(3,1,i)
-        figXAxis([],'time (ms)',[tt(1) tt(end)],ttLabelFr,ttLabel)
+        figXAxis([],'time (ms)',[tt(1) tt(end)],ttLabel,ttLabel)
         figYAxis([],'dF/F',exCellRespLim)
         figAxForm([],0)
         hold on
         vline(0,'k--')
-        vline(0,'k--')
+        vline(0:350:tt(end),'k:')
     end
 
-    print([fnout '_exCellTC'],'-dpdf')
+    print([fnout '_exCellTC'],'-dpdf','-fillpage')
 else
     exampleCells = 0;
 end
 %% heatmaps
-avTCrespCells = tcAVallCells(:,respCells_shortCycExpt);
+avTCrespCells = tcAVallCells_shortCycExpt(:,respCells_shortCycExpt);
 TCrespCells = cell(1,nav);
 for iav = 1:nav
     TCrespCells{iav} = longTC{iav}(:,respCells_shortCycExpt);
@@ -478,10 +536,10 @@ caxis(hmLim)
 title('Auditory Trials');
 
 allCells = respCells_shortCycExpt | lateStimModCells_shortCycExpt;
-avTCallCells = tcAVallCells;
+avTCallCells = tcAVAllCells_allExpt;
 [~,sortInd] = sort(mean(avTCallCells((end-lateWinFrames):end,:),1));
 hm = flipud(avTCallCells(:,sortInd)');
-if strcmp(ds,'FSAV_V1_100ms')
+if strcmp(ds,'FSAV_attentionV1')
     exCellInd = find(fliplr(ismember(sortInd,exampleCells)));
 else
     exCellInd = [];
@@ -507,13 +565,20 @@ cycTC = cell(nCycles,nav);
 lateCycResp = cell(1,nav);
 for iav = 1:nav
     for icyc = 1:nCycles
-        cycTC{icyc,iav} = cell2mat(tcEaCellEaCycAllOutcome(icyc,shortCycExptInd,iav));
+%         cycTC{icyc,iav} = cell2mat(cellfun(@(x) x(1:41,:),...
+%             tcEaCellEaCycAllOutcome(icyc,shortCycExptInd,iav)));
+        
+        cycTC{icyc,iav} = cell2mat(cellfun(@(x) x(1:41,:),...
+            tcEaCellEaCycAllOutcome(icyc,:,iav),'unif',0));
     end
-    lateCycResp{iav} = cell2mat(lateCycRespEaExpt(shortCycExptInd,iav)');
+%     lateCycResp{iav} = cell2mat(lateCycRespEaExpt(shortCycExptInd,iav)');
+    lateCycResp{iav} = cell2mat(lateCycRespEaExpt(:,iav)');
 end
 cycResp = cellfun(@(x) mean(x(respwin,:),1),cycTC,'unif',0);
 
-minRespCells = respCells_shortCycExpt & cycResp{1,visualTrials} > minRespThreshold & ...
+% minRespCells = respCells_shortCycExpt & cycResp{1,visualTrials} > minRespThreshold & ...
+%     cycResp{1,auditoryTrials} > minRespThreshold;
+minRespCells = respCells_allExpt & cycResp{1,visualTrials} > minRespThreshold & ...
     cycResp{1,auditoryTrials} > minRespThreshold;
 
 earlyLateCycResp = cell(2,nav);
@@ -522,10 +587,15 @@ earlyLateCycResp(2,:) = lateCycResp;
 
 normCycResp = cell(nCycles,nav);
 normEarlyLateCycResp = cell(2,nav);
+normCycTCLateCyc = cell(2,nav);
 for iav = 1:nav
     normCycResp(:,iav) = cellfun(@(x) x./cycResp{1,iav},cycResp(:,iav),'unif',0);
     normEarlyLateCycResp(:,iav) =  ...
         cellfun(@(x) x./earlyLateCycResp{1,iav},earlyLateCycResp(:,iav),'unif',0);
+    tc = cycTC{1,iav};
+    normCycTCLateCyc{1,iav} = tc./earlyLateCycResp{1,iav};
+    tc = cell2mat(cellfun(@(x) x(1:41,:),cycTCAllLateTrials(:,iav),'unif',0)');
+    normCycTCLateCyc{2,iav} = tc./earlyLateCycResp{1,iav};
 end
 respCellsNormCycResp = cellfun(@(x) mean(x(minRespCells)),normCycResp);
 
@@ -640,7 +710,8 @@ figure
     
     subplot 122
     for iav = 1:nav
-        tc = cell2mat(cycTCAllLateTrials(shortCycExptInd,iav)');
+%         tc = cell2mat(cycTCAllLateTrials(shortCycExptInd,iav)');
+        tc = cell2mat(cellfun(@(x) x(1:41,:),cycTCAllLateTrials(:,iav),'unif',0)');
         earlyLateTC{2,iav} = tc;
         y = mean(tc(26:end,minRespCells),2);
         yerr = ste(tc(26:end,minRespCells),2);
@@ -661,6 +732,43 @@ figure
         earlyLateTC(1,:),'unif',0);
     
     figure
+    subplot 221
+    for iav = 1:nav
+        y = mean(normCycTCLateCyc{1,iav}(26:end,minRespCells),2);
+        yerr = ste(normCycTCLateCyc{1,iav}(26:end,minRespCells),2);
+        hold on
+        h = shadedErrorBar(ttCyc,y,yerr);
+        h.mainLine.Color = cueColor{iav};
+        h.patch.FaceColor = errorPatchColor(h.mainLine.Color);
+        for i = 1:2
+            h.edge(i).Color = 'none';
+        end
+    end
+    vline(ttCycResp,'k--')
+    figXAxis([],'Time (ms)',[ttCyc(1) ttCyc(end)])
+    figYAxis([],'dF/F',normTCLim)
+    figAxForm
+    title('First Stim, Normalized')
+    
+    subplot 222
+    for iav = 1:nav
+        y = mean(normCycTCLateCyc{2,iav}(26:end,minRespCells),2);
+        yerr = ste(normCycTCLateCyc{2,iav}(26:end,minRespCells),2);
+        hold on
+        h = shadedErrorBar(ttCyc,y,yerr);
+        h.mainLine.Color = cueColor{iav};
+        h.patch.FaceColor = errorPatchColor(h.mainLine.Color);
+        for i = 1:2
+            h.edge(i).Color = 'none';
+        end
+    end
+    vline(ttCycResp,'k--')
+    figXAxis([],'Time (ms)',[ttCyc(1) ttCyc(end)])
+    figYAxis([],'dF/F',normTCLim)
+    figAxForm
+    title('Late Stim, Normalized')
+    
+    subplot 223
     x = earlyLateNormResp{visualTrials}(minRespCells);
     y = earlyLateNormResp{auditoryTrials}(minRespCells);
     plot(x,y,'ko')
@@ -674,12 +782,155 @@ figure
     figXAxis([],'Visual',normRespLim)
     figYAxis([],'Auditory',normRespLim)
     figAxForm
-    title('Late Cycle Response Normalized to First Stim')
+    title('Late Cycle Response Normalized to First Stim')    
+
+    subplot 224
+    y = cellfun(@(x) mean(x(minRespCells)), earlyLateNormResp);
+    yerr = cellfun(@(x) ste(x(minRespCells),2), earlyLateNormResp);
+    d = cellfun(@(x) x(minRespCells), earlyLateNormResp,'unif',0);
+    [~,p] = ttest(d{visualTrials},d{auditoryTrials},'alpha',0.05);
+    h = errorbar(1:2,y,yerr);
+    h.Color = 'k';
+    h.LineWidth = 2;
+    figXAxis([],'',[0 3],1:2,{'Visual','Auditory'})
+    figYAxis([],'Normalized dF/F',[0 1.1])
+    figAxForm([])
+    title(sprintf('p=%s',num2str(p)))
+    
+    print([fnout '_adaptCycResp'],'-dpdf','-fillpage')
+
+
+figure
+    earlyLateTC = cell(2,2);
+    subplot 121
+    for iav = 1:nav
+        earlyLateTC{1,iav} = cycTC{1,iav};
+        y = mean(cycTC{1,iav}(26:end,minRespCells),2);
+        yerr = ste(cycTC{1,iav}(26:end,minRespCells),2);
+        h = shadedErrorBar(ttCyc,y,yerr,avcolmat{iav});
+        for i = 1:2
+            h.edge(i).Color = 'none';
+        end
+        hold on
+    end
+    vline(ttCycResp,'k--')
+    figXAxis([],'Time (ms)',[ttCyc(1) ttCyc(end)])
+    figYAxis([],'dF/F',cycRespLim)
+    figAxForm
+    title('First Stim')
+    
+    subplot 122
+    for iav = 1:nav
+%         tc = cell2mat(cycTCAllLateTrials(shortCycExptInd,iav)');
+        tc = cell2mat(cellfun(@(x) x(1:41,:),cycTCAllLateTrials(:,iav),'unif',0)');
+        earlyLateTC{2,iav} = tc;
+        y = mean(tc(26:end,minRespCells),2);
+        yerr = ste(tc(26:end,minRespCells),2);
+        h = shadedErrorBar(ttCyc,y,yerr,avcolmat{iav});
+        for i = 1:2
+            h.edge(i).Color = 'none';
+        end
+        hold on
+    end
+    vline(ttCycResp,'k--')
+    figXAxis([],'Time (ms)',[ttCyc(1) ttCyc(end)])
+    figYAxis([],'dF/F',cycRespLim)
+    figAxForm
+    title('Late Stim')
+
+    earlyLateNormResp = cellfun(@(x,y) ...
+        mean(x(respwin,:),1)./mean(y(respwin,:),1),earlyLateTC(2,:),...
+        earlyLateTC(1,:),'unif',0);
+    
+    earlyLateTC_rect = cell(2,2);
+    for i = 1:2
+       for iav = 1:2
+            d = earlyLateTC{i,iav};
+            d(d<0) = 0;
+            earlyLateTC_rect{i,iav} = d;
+        end
+    end
+    
+    earlyLateNormResp_rect = cellfun(@(x,y) ...
+        mean(x(respwin,:),1)./mean(y(respwin,:),1),earlyLateTC_rect(2,:),...
+        earlyLateTC_rect(1,:),'unif',0);
+    %%
+setFigParams4Print('landscape')
+    figure
+    ind = minRespCells & lateAVModCycResp;
+    suptitle(sprintf('Minimally responsive and AV mod cells (%s/%s)',...
+        num2str(sum(ind)),num2str(length(ind))))
+    subplot 221
+    for iav = 1:nav
+        y = mean(normCycTCLateCyc{1,iav}(26:end,ind),2);
+        yerr = ste(normCycTCLateCyc{1,iav}(26:end,ind),2);
+        hold on
+        h = shadedErrorBar(ttCyc,y,yerr);
+        h.mainLine.Color = cueColor{iav};
+        h.patch.FaceColor = errorPatchColor(h.mainLine.Color);
+        for i = 1:2
+            h.edge(i).Color = 'none';
+        end
+    end
+    vline(ttCycResp,'k--')
+    figXAxis([],'Time (ms)',[ttCyc(1) ttCyc(end)])
+    figYAxis([],'dF/F',normTCLim)
+    figAxForm
+    title('First Stim, Normalized')
+    
+    subplot 222
+    for iav = 1:nav
+        y = mean(normCycTCLateCyc{2,iav}(26:end,ind),2);
+        yerr = ste(normCycTCLateCyc{2,iav}(26:end,ind),2);
+        hold on
+        h = shadedErrorBar(ttCyc,y,yerr);
+        h.mainLine.Color = cueColor{iav};
+        h.patch.FaceColor = errorPatchColor(h.mainLine.Color);
+        for i = 1:2
+            h.edge(i).Color = 'none';
+        end
+    end
+    vline(ttCycResp,'k--')
+    figXAxis([],'Time (ms)',[ttCyc(1) ttCyc(end)])
+    figYAxis([],'dF/F',normTCLim)
+    figAxForm
+    title('Late Stim, Normalized')
+    
+    subplot 223
+    x = earlyLateNormResp{visualTrials}(ind);
+    y = earlyLateNormResp{auditoryTrials}(ind);
+    plot(x,y,'ko')
+    hold on
+    errorbar(mean(x),mean(y),ste(y,2),ste(y,2),ste(x,2),ste(x,2),'ro')
+    plot(normRespLim,normRespLim,'b--')
+    hline(0,'b')
+    vline(0,'b')
+    hline(1,'b:')
+    vline(1,'b:')
+    figXAxis([],'Visual',normRespLim)
+    figYAxis([],'Auditory',normRespLim)
+    figAxForm
+    title('Late Cycle Response Normalized to First Stim')    
+
+    subplot 224
+    y = cellfun(@(x) mean(x(ind)), earlyLateNormResp);
+    yerr = cellfun(@(x) ste(x(ind),2), earlyLateNormResp);
+    d = cellfun(@(x) x(ind),earlyLateNormResp,'unif',0);
+    [~,p] = ttest(d{visualTrials},d{auditoryTrials},'alpha',0.05);
+    h = errorbar(1:2,y,yerr);
+    h.Color = 'k';
+    h.LineWidth = 2;
+    figXAxis([],'',[0 3],1:2,{'Visual','Auditory'})
+    figYAxis([],'Normalized dF/F',[0 1.1])
+    figAxForm([])
+    title(sprintf('p=%s',num2str(p)))
+    
+print([fnout '_adaptCycResp_modCells'],'-dpdf','-fillpage')
 %% tuning
 oris = 0:22.5:180;
 oriLabel = (oris)+1;
 oriFit_allExpt = cell2mat(oriTuningFitEaExpt');
-[oriFitMaxVal, oriPeak_allExpt] = max(oriFit_allExpt,[],1);
+[~, oriPeak_allExpt] = max(oriFit_allExpt,[],1);
 oriPeak_allExpt = oriPeak_allExpt-1;
 oriBins = [0 22.5:45:157.5 180];
 [~,~,oriPref_allExpt] = histcounts(oriPeak_allExpt,oriBins);
@@ -687,9 +938,8 @@ oriPref_allExpt(oriPref_allExpt == 5) = 1;
 nori = 4;
 
 oriFit_shortCycExpt = cell2mat(oriTuningFitEaExpt(shortCycExptInd)');
-[oriFitMaxVal, oriPeak_shortCycExpt] = max(oriFit_shortCycExpt,[],1);
+[~, oriPeak_shortCycExpt] = max(oriFit_shortCycExpt,[],1);
 oriPeak_shortCycExpt = oriPeak_shortCycExpt-1;
-oriBins = [0 22.5:45:157.5 180];
 [~,~,oriPref_shortCycExpt] = histcounts(oriPeak_shortCycExpt,oriBins);
 oriPref_shortCycExpt(oriPref_shortCycExpt == 5) = 1;
 
@@ -698,68 +948,43 @@ isTuned_shortCycExpt = cell2mat(oriTuningFitReliability(shortCycExptInd)') < tun
 
 oriFitLim = [-0.5 0.5];
 
-avTCtunedCells = tcAVallCells(:,respCells_shortCycExpt & isTuned_shortCycExpt);
+% avTCtunedCells = tcAVallCells_shortCycExpt(:,respCells_shortCycExpt & isTuned_shortCycExpt);
 oriFits_tunedResponsive = oriFit_allExpt(:,respCells_allExpt & isTuned_allExpt);
 
 %%
-oriFitNormLim = [-1 1];
-figure
-colormap(brewermap([],'*RdBu'));
-hm = [];
-n = zeros(1,nori);
-for i = 1:nori
-    ind = oriPref_shortCycExpt == i & isTuned_shortCycExpt & minRespCells;
-    [~,sortInd] = sort(oriPeak_allExpt(ind));
-    fits = oriFit_allExpt(:,ind);
-    normFits = fits./(max(fits,[],1));
-    hm = cat(1,hm,normFits(:,sortInd)');
-    if i > 1
-        n(i) = sum(ind)+n(i-1);
-    else
-        n(i) = sum(ind);
-    end
-end
-h = imagesc(hm);
-hold on
-hline(n,'k-');
-figXAxis([],'Orientation (deg)',[1 181],oriLabel,oris)
-figYAxis([],'Cell #',[])
-figAxForm([],0)
-colorbar
-caxis(oriFitNormLim)
-title('Responsive tuned neurons sorted by pref')
-print([fnout '_oriTuningFits_sorted'],'-dpdf')
+% oriFitNormLim = [-1 1];
+% figure
+% colormap(brewermap([],'*RdBu'));
+% hm = [];
+% n = zeros(1,nori);
+% for i = 1:nori
+%     ind = oriPref_shortCycExpt == i & isTuned_shortCycExpt & minRespCells;
+%     [~,sortInd] = sort(oriPeak_allExpt(ind));
+%     fits = oriFit_allExpt(:,ind);
+%     normFits = fits./(max(fits,[],1));
+%     hm = cat(1,hm,normFits(:,sortInd)');
+%     if i > 1
+%         n(i) = sum(ind)+n(i-1);
+%     else
+%         n(i) = sum(ind);
+%     end
+% end
+% h = imagesc(hm);
+% hold on
+% hline(n,'k-');
+% figXAxis([],'Orientation (deg)',[1 181],oriLabel,oris)
+% figYAxis([],'Cell #',[])
+% figAxForm([],0)
+% colorbar
+% caxis(oriFitNormLim)
+% title('Responsive tuned neurons sorted by pref')
+% print([fnout '_oriTuningFits_sorted'],'-dpdf')
 %%
 setFigParams4Print('landscape')
 figure
 suptitle(sprintf('Responsive & Tuned Cells (%s)',num2str(sum(respCells_allExpt & isTuned_allExpt))));
 
-[~,sortInd] = sort(oriPeak_allExpt(respCells_allExpt & isTuned_allExpt));
-hm = oriFits_tunedResponsive(:,sortInd)';
 subplot 221
-colormap(brewermap([],'*RdBu'));
-h = imagesc(hm);
-hold on
-figXAxis([],'Orientation (deg)',[1 181],oriLabel,oris)
-figYAxis([],'Cell #',[])
-figAxForm([])
-colorbar
-caxis(oriFitLim)
-title('Sorted By Ori Pref')
-
-[~,sortInd] = sort(mean(avTCtunedCells((end-lateWinFrames):end,:),1));
-hm = oriFits_tunedResponsive(:,fliplr(sortInd))';
-subplot 222
-h = imagesc(hm);
-hold on
-figXAxis([],'Orientation (deg)',[1 181],oriLabel,oris)
-figYAxis([],'Cell #',[])
-figAxForm([])
-colorbar
-caxis(oriFitLim)
-title('Sorted By Task Stim Resp')
-
-subplot 223
 h = polarplot(deg2rad(oriPeak_allExpt(respCells_allExpt & isTuned_allExpt)),siCycResp(respCells_allExpt & isTuned_allExpt),'k.');
 h.Color = [0.5 0.5 0.5];
 h.MarkerSize = 12;
@@ -769,16 +994,55 @@ h = polarplot(deg2rad(oriPeak_allExpt(respCells_allExpt & isTuned_allExpt & late
 h.MarkerSize = 12;
 title('Attn Selectivity by Ori Tuning')
 
-subplot 224
+subplot 222
 visX = 1:3:10;
 audX = visX+1;
 orientations = [0 45 90 135];
 leg = [];
 n = cell(1,nori);
 for iori = 1:nori
-    ind = oriPref_shortCycExpt == iori;
-    y = cellfun(@(x) mean(x(minRespCells & isTuned_shortCycExpt & ind)), normEarlyLateCycResp(2,:));
-    yerr = cellfun(@(x) ste(x(minRespCells & isTuned_shortCycExpt & ind),2), normEarlyLateCycResp(2,:));
+    ind = oriPref_allExpt == iori;
+    y = cellfun(@(x) mean(x(minRespCells & isTuned_allExpt & ind)),...
+        earlyLateNormResp);
+    yerr = cellfun(@(x) ste(x(minRespCells & isTuned_allExpt & ind),2),...
+        earlyLateNormResp);
+    d = cellfun(@(x) x(minRespCells & isTuned_allExpt & ind),...
+        earlyLateNormResp,'unif',0);
+    [~,p] = ttest(d{visualTrials},d{auditoryTrials},'alpha',0.05/nori);
+    for iav = 1:nav
+        if iav == 1
+            x = visX(iori);
+        else
+            x = audX(iori);
+        end
+        h = bar(x,y(iav));
+        h.BarWidth = 1;
+        h.EdgeColor = 'none';
+        h.FaceColor = avcolmat{iav};
+        hold on
+        errorbar(x,y(iav),yerr(iav),avcolmat{iav});
+    end
+    leg(iori) = h;
+    n{iori} = sprintf('%s: %s, p = %s',num2str(orientations(iori)),...
+        num2str(sum(minRespCells & isTuned_allExpt & ind)),...
+        num2str(round(p,2,'significant')));
+end
+figXAxis([],'Preferred Orientation (deg)',[0 12],visX+0.5,orientations)
+figYAxis([],'Normalized dF/F',[0 1.1])
+figAxForm([],0)
+L = legend(leg,n,'location','northwest');
+title('Responsive, tuned Cells with minimum response cutoff')
+title(L,'N Cells Per Group')
+
+subplot 224
+leg = [];
+n = cell(1,nori);
+for iori = 1:nori
+    ind = oriPref_allExpt == iori & lateAVModCycResp;
+    y = cellfun(@(x) mean(x(minRespCells & isTuned_allExpt & ind)),...
+        earlyLateNormResp);
+    yerr = cellfun(@(x) ste(x(minRespCells & isTuned_allExpt & ind),2),...
+        earlyLateNormResp);
     for iav = 1:nav
         if iav == 1
             x = visX(iori);
@@ -794,73 +1058,366 @@ for iori = 1:nori
     end
     leg(iori) = h;
     n{iori} = sprintf('%s: %s',num2str(orientations(iori)),...
-        num2str(sum(minRespCells & isTuned_shortCycExpt & ind)));
+        num2str(sum(minRespCells & isTuned_allExpt & ind)));
 end
 figXAxis([],'Preferred Orientation (deg)',[0 12],visX+0.5,orientations)
 figYAxis([],'Normalized dF/F',[0 1.1])
 figAxForm([],0)
 L = legend(leg,n,'location','northwest');
-title('Responsive, tuned Cells with minimum response cutoff')
+title('Responsive, tuned, modulated cells')
 title(L,'N Cells Per Group')
 
-print([fnout '_oriTuningFits'],'-dpdf','-fillpage')
+print([fnout '_oriTuningSIandAdapt'],'-dpdf','-fillpage')
 
-
-%% rectified adaptation
-setFigParams4Print('landscape')
-set(0,'defaultAxesFontSize',16)
+%% each cell adaptation
 figure
-subplot 121
-for iav = 1:nav
-    y =  normEarlyLateCycResp{2,iav}(minRespCells);
-    y(y < 0) = 0;
-    ybar = mean(y);
-    yerr = ste(y,2);
-    h = bar(iav,ybar);
-    h.BarWidth = 1;
-    h.EdgeColor = 'none';
-    h.FaceColor = avcolmat{iav};
-    hold on
-    errorbar(iav,ybar,yerr,avcolmat{iav});
-end
-figXAxis([],'',[0 3],1:2,{'Visual','Auditory'})
-figYAxis([],'Normalized dF/F',[0 1.1])
-figAxForm([],0)
-
-subplot 122
-visX = 1:3:10;
-audX = visX+1;
 orientations = [0 45 90 135];
 leg = [];
 n = cell(1,nori);
 for iori = 1:nori
-    for iav = 1:nav
-    ind = oriPref_shortCycExpt == iori & minRespCells & isTuned_shortCycExpt;
-    y = normEarlyLateCycResp{2,iav}(ind);
-    y(y < 0) = 0;
-    ybar = mean(y);
-    yerr = ste(y,2);
-        if iav == 1
-            x = visX(iori);
+    subplot(2,2,iori)
+    ind = oriPref_allExpt == iori & minRespCells & isTuned_allExpt;
+    y_all = cell2mat(cellfun(@(x) x(ind),...
+        earlyLateNormResp,'unif',0)')';
+    y = cellfun(@(x) mean(x(ind)),...
+        earlyLateNormResp);
+    yerr = cellfun(@(x) ste(x(ind),2),...
+        earlyLateNormResp);
+    d = cellfun(@(x) x(ind),...
+        earlyLateNormResp,'unif',0);
+    [~,p] = ttest(d{visualTrials},d{auditoryTrials},'alpha',0.05/nori);
+    nc = size(y_all,1);
+    rc = lateAVModCycResp(ind);
+    for i = 1:nc
+        h = plot(1:2,y_all(i,:),'-');
+        if rc(i)
+            h.Color = [0.5 0 0];
         else
-            x = audX(iori);
+            h.Color = [0.5 0.5 0.5];
         end
-        h = bar(x,ybar);
-        h.BarWidth = 1;
-        h.EdgeColor = 'none';
-        h.FaceColor = avcolmat{iav};
         hold on
-        errorbar(x,ybar,yerr,avcolmat{iav});
+    end
+    h = errorbar(1:2,y,yerr,'k-');
+    h.LineWidth = 2;
+    leg(iori) = h;
+    n{iori} = sprintf('%s: %s, p = %s',num2str(orientations(iori)),...
+        num2str(sum(minRespCells & isTuned_allExpt & ind)),...
+        num2str(round(p,2,'significant')));
+    figXAxis([],'Trial Type',[0 3],1:2,{'Vis';'Aud'})
+    figYAxis([],'Normalized dF/F',[-1 2])
+    figAxForm
+    title(sprintf('Pref %s',num2str(orientations(iori))))
+end
+% L = legend(leg,n,'location','northwest');
+% title('Responsive, tuned Cells with minimum response cutoff')
+% title(L,'N Cells Per Group')
+%% first and late stim dF/F, tuning groups and all responsive cells, plotted with lines and errorbars
+tcLim = [-0.003 0.1];
+respLim = [-0.003 0.05];
+respLim2 = [0 0.01];
+nRows = nori;
+nCols = 4;
+setFigParams4Print('landscape')
+figure
+for iori = 1:nori
+    iplot = 1+(4*(iori-1));
+    subplot (nRows,nCols,iplot)
+    ind = oriPref_shortCycExpt == iori & isTuned_shortCycExpt & respCells_shortCycExpt;
+    for iav = 1:nav
+        y = mean(longTC{iav}(:,ind),2);
+        yerr = ste(longTC{iav}(:,ind),2);
+        tt = ((26:length(y))-33).*(1000/frRateHz);
+        hold on
+        h = shadedErrorBar_chooseColor(tt,y(26:length(y)),yerr(26:length(y)),cueColor{iav});
+    end
+    figXAxis([],'Time (ms)',[tt(1) tt(end)],ttLabel,ttLabel)
+    figYAxis([],'dF/F',tcLim)  
+    vline(lateWinTT,'k--')
+    figAxForm([],0)
+    title(sprintf('%sdeg-Tuned Cells (%s/%s)',...
+        num2str(orientations(iori)),...
+        num2str(sum(ind)),num2str(length(respCells_shortCycExpt))))
+    
+    iplot = 2+(4*(iori-1));
+    subplot (nRows,nCols,iplot)
+    ind = oriPref_allExpt == iori & isTuned_allExpt & respCells_allExpt;
+    for iav = 1:nav
+        y = mean(earlyLateTC{1,iav}(26:end,ind),2);
+        yerr = ste(earlyLateTC{1,iav}(26:end,ind),2);
+        h = shadedErrorBar_chooseColor(ttCyc,y,yerr,cueColor{iav});
+%         for i = 1:2
+%             h.edge(i).Color = 'none';
+%         end
+        hold on
+    end
+    vline(ttCycResp,'k--')
+    figXAxis([],'Time (ms)',[ttCyc(1) ttCyc(end)])
+    figYAxis([],'dF/F',respLim)
+    figAxForm
+    title('First Stim')
+    
+    iplot = 3+(4*(iori-1));
+    subplot (nRows,nCols,iplot)
+    ind = oriPref_allExpt == iori & isTuned_allExpt & respCells_allExpt;
+    for iav = 1:nav
+        y = mean(earlyLateTC{2,iav}(26:end,ind),2);
+        yerr = ste(earlyLateTC{2,iav}(26:end,ind),2);
+        h = shadedErrorBar_chooseColor(ttCyc,y,yerr,cueColor{iav});
+%         for i = 1:2
+%             h.edge(i).Color = 'none';
+%         end
+        hold on
+    end
+    vline(ttCycResp,'k--')
+    figXAxis([],'Time (ms)',[ttCyc(1) ttCyc(end)])
+    figYAxis([],'dF/F',respLim)
+    figAxForm
+    title('Late Stim')
+    
+    iplot = 4+(4*(iori-1));
+    subplot (nRows,nCols,iplot)
+    y = cellfun(@(x) mean(x(ind)),earlyLateCycResp(2,:));
+    yerr = cellfun(@(x) ste(x(ind),2),earlyLateCycResp(2,:));
+    d = cellfun(@(x) x(ind),earlyLateCycResp(2,:),'unif',0);
+    [~,p] = ttest(d{visualTrials},d{auditoryTrials},'alpha',0.05/nori);
+    h = errorbar(1:2,y,yerr);
+    h.Color = 'k';
+    h.LineWidth = 2;
+    figXAxis([],'',[0 3],1:2,{'V';'A'})
+    figYAxis([],'dF/F',respLim2)
+    figAxForm
+    title(sprintf('p=%s',num2str(p)))
+end
+
+print([fnout '_tuningFirstAndLate'],'-dpdf','-fillpage')
+%% first and late stim dF/F, tuning groups
+
+setFigParams4Print('landscape')
+figure
+suptitle('Responsive, tuned Cells with minimum response cutoff')
+for istim = 1:2
+    subplot(1,2,istim)
+    visX = 1:3:10;
+    audX = visX+1;
+    orientations = [0 45 90 135];
+    leg = [];
+    n = cell(1,nori);
+    for iori = 1:nori
+        ind = oriPref_allExpt == iori;
+        y = cellfun(@(x) mean(x(minRespCells & isTuned_allExpt & ind)),...
+            earlyLateCycResp(istim,:));
+        yerr = cellfun(@(x) ste(x(minRespCells & isTuned_allExpt & ind),2),...
+            earlyLateCycResp(istim,:));
+        d = cellfun(@(x) x(minRespCells & isTuned_allExpt & ind),...
+            earlyLateCycResp(istim,:),'unif',0);
+        [~,p] = ttest(d{visualTrials},d{auditoryTrials},'alpha',0.05/nori);
+        for iav = 1:nav
+            if iav == 1
+                x = visX(iori);
+            else
+                x = audX(iori);
+            end
+            h = bar(x,y(iav));
+            h.BarWidth = 1;
+            h.EdgeColor = 'none';
+            h.FaceColor = cueColor{iav};
+            hold on
+            h = errorbar(x,y(iav),yerr(iav));
+            h.Color = cueColor{iav};
+        end
+        leg(iori) = h;
+        n{iori} = sprintf('%s: %s, p = %s',num2str(orientations(iori)),...
+            num2str(sum(minRespCells & isTuned_allExpt & ind)),...
+            num2str(round(p,2,'significant')));
+    end
+    figXAxis([],'Preferred Orientation (deg)',[0 12],visX+0.5,orientations)
+    figYAxis([],'dF/F',[-0.005 0.04])
+    figAxForm([],0)
+    L = legend(leg,n,'location','northwest');
+    if istim == 1
+        title('First Stim')
+    else
+        title('Late Stim')
+    end
+    title(L,'N Cells Per Group')
+end
+print([fnout '_oriTuningCycResp'],'-dpdf','-fillpage')
+
+%% each stim adaptation each tuning group
+
+figure
+suptitle(sprintf('Tuned & Min Resp Cells (%s/%s)',num2str(sum(minRespCells & isTuned_allExpt)),num2str(length(minRespCells))))
+orientations = [0 45 90 135];
+leg = [];
+n = cell(1,nori);
+for iori = 1:nori
+    subplot(2,2,iori)
+    ind = oriPref_allExpt == iori;
+    for icyc = 1:nCycles
+        y = cellfun(@(x) mean(x(minRespCells & isTuned_allExpt & ind)),...
+            normCycResp(icyc,:));
+        yerr = cellfun(@(x) ste(x(minRespCells & isTuned_allExpt & ind),2),...
+            normCycResp(icyc,:));
+%         d = cellfun(@(x) x(minRespCells & isTuned_allExpt & ind),...
+%             normCycResp(2,:),'unif',0);
+%         [~,p] = ttest(d{visualTrials},d{auditoryTrials},'alpha',0.05/nori);
+        for iav = 1:nav
+            h = errorbar(icyc,y(iav),yerr(iav),'o');
+            h.Color = cueColor{iav};
+            h.MarkerFaceColor = [1 1 1];
+            hold on
+        end
     end
     leg(iori) = h;
-    n{iori} = sprintf('%s: %s',num2str(orientations(iori)),...
-        num2str(sum(ind)));
+    n{iori} = sprintf('%s: %s, p = %s',num2str(orientations(iori)),...
+        num2str(sum(minRespCells & isTuned_allExpt & ind)),...
+        num2str(round(p,2,'significant')));
+    figXAxis([],'Stimulus Number',[0 nCycles+1],1:nCycles,1:nCycles)
+    figYAxis([],'Norm. dF/F',[0 1.1])
+    figAxForm
+    title(sprintf('Pref %s (n=%s)',num2str(orientations(iori)),num2str(sum(ind & minRespCells & isTuned_allExpt))))
 end
-figXAxis([],'Preferred Orientation (deg)',[0 12],visX+0.5,orientations)
-figYAxis([],'Normalized dF/F',[0 1.1])
-figAxForm([],0)
-L = legend(leg,n,'location','northwest');
-title('Responsive, tuned Cells with minimum response cutoff')
-title(L,'N Cells Per Group')
+% L = legend(leg,n,'location','northwest');
+% title(L,'N Cells Per Group')
+print([fnout '_oriTuningCycResp'],'-dpdf','-fillpage')
 
-print([fnout '_lateCycAdaptationRectified'],'-dpdf','-fillpage')
+figure
+colors = brewermap(nori+1,'PuRd');
+colors = colors(2:end,:);
+leg = [];
+for iori = 1:nori
+    ind = oriPref_allExpt == iori;
+    for icyc = 1:nCycles
+        y = cellfun(@(x) mean(x(minRespCells & isTuned_allExpt & ind)),...
+            normCycResp(icyc,:));
+        yerr = cellfun(@(x) ste(x(minRespCells & isTuned_allExpt & ind),2),...
+            normCycResp(icyc,:));
+        h = errorbar(icyc,y(visualTrials),yerr(visualTrials),'o');
+        h.Color = colors(iori,:);
+        h.MarkerFaceColor = [1 1 1];
+        hold on
+        if icyc == 1
+            leg(iori) = h;
+        end
+    end
+end
+figXAxis([],'Stimulus Number',[0 nCycles+1],1:nCycles,1:nCycles)
+figYAxis([],'Norm. dF/F',[0 1.1])
+figAxForm
+legend(leg,{'0','45','90','135'})
+title(sprintf('Visual Trials, Ori Groups (n=%s)',num2str(sum(minRespCells & isTuned_allExpt))))
+print([fnout '_oriTuningCycResp_visOnly'],'-dpdf')
+%% time-course of tuned cells
+%time-courses
+setFigParams4Print('portrait')
+figure
+for iori = 1:nori
+subplot (nori,1,iori)
+ind = oriPref_shortCycExpt == iori & isTuned_shortCycExpt & respCells_shortCycExpt;
+for iav = 1:nav
+    y = mean(longTC{iav}(:,ind),2);
+    yerr = ste(longTC{iav}(:,ind),2);
+    tt = ((26:length(y))-33).*(1000/frRateHz);
+    hold on
+    h = shadedErrorBar_chooseColor(tt,y(26:length(y)),yerr(26:length(y)),cueColor{iav});
+end
+figXAxis([],'Time (ms)',[tt(1) tt(end)],ttLabel,ttLabel)
+figYAxis([],'dF/F',[-0.005 0.1])  
+vline(lateWinTT,'k--')
+figAxForm([],0)
+title(sprintf('%sdeg-Tuned Cells (%s/%s)',...
+    num2str(orientations(iori)),...
+    num2str(sum(ind)),num2str(length(respCells_shortCycExpt))))
+end
+print([fnout '_tunedCellsTCs'],'-dpdf','-fillpage')
+
+% heatmaps
+avTCrespCells = tcAVallCells_shortCycExpt(:,respCells_shortCycExpt...
+    & isTuned_shortCycExpt);
+TCrespCells = cell(1,nav);
+for iav = 1:nav
+    TCrespCells{iav} = longTC{iav}(:,respCells_shortCycExpt...
+    & isTuned_shortCycExpt);
+end
+[~,sortInd] = sort(mean(avTCrespCells((end-lateWinFrames):end,:),1));
+hm = cellfun(@(x) flipud(x(:,sortInd)'),TCrespCells,'unif',0);
+oriPref_hmCells = oriPref_shortCycExpt(isTuned_shortCycExpt & respCells_shortCycExpt);
+
+setFigParams4Print('landscape')
+figure
+colormap(brewermap([],'*RdBu'));
+suptitle(sprintf('Visual Trials,Responsive, Tuned Cells (%s)',num2str(length(oriPref_hmCells))));
+
+for iori = 1:nori
+    subplot(2,2,iori)
+    h = imagesc(hm{visualTrials}(oriPref_hmCells == iori,26:end));
+    figXAxis([],'Time (ms)',[],ttLabelFr,ttLabel)
+    figYAxis([],'Cell #',[])
+    figAxForm
+    colorbar
+    caxis([-0.2 0.2])
+    title(sprintf('%sdeg-Tuned',num2str(orientations(iori))));
+end
+print([fnout '_tunedCellsHeatmap_vis'],'-dpdf','-fillpage')
+
+setFigParams4Print('landscape')
+figure
+colormap(brewermap([],'*RdBu'));
+suptitle(sprintf('Auditory Trials,Responsive, Tuned Cells (%s)',num2str(length(oriPref_hmCells))));
+
+for iori = 1:nori
+    subplot(2,2,iori)
+    h = imagesc(hm{auditoryTrials}(oriPref_hmCells == iori,26:end));
+    figXAxis([],'Time (ms)',[],ttLabelFr,ttLabel)
+    figYAxis([],'Cell #',[])
+    figAxForm
+    colorbar
+    caxis([-0.2 0.2])
+    title(sprintf('%sdeg-Tuned',num2str(orientations(iori))));
+end
+print([fnout '_tunedCellsHeatmap_aud'],'-dpdf','-fillpage')
+
+
+% heatmaps all tuned cells
+avTCrespCells = tcAVallCells_shortCycExpt(:,isTuned_shortCycExpt);
+TCrespCells = cell(1,nav);
+for iav = 1:nav
+    TCrespCells{iav} = longTC{iav}(:,isTuned_shortCycExpt);
+end
+[~,sortInd] = sort(mean(avTCrespCells((end-lateWinFrames):end,:),1));
+hm = cellfun(@(x) flipud(x(:,sortInd)'),TCrespCells,'unif',0);
+oriPref_hmCells = oriPref_shortCycExpt(isTuned_shortCycExpt);
+
+setFigParams4Print('landscape')
+figure
+colormap(brewermap([],'*RdBu'));
+suptitle(sprintf('Visual Trials, Tuned Cells (%s)',num2str(length(oriPref_hmCells))));
+
+for iori = 1:nori
+    subplot(2,2,iori)
+    h = imagesc(hm{visualTrials}(oriPref_hmCells == iori,26:end));
+    figXAxis([],'Time (ms)',[],ttLabelFr,ttLabel)
+    figYAxis([],'Cell #',[])
+    figAxForm
+    colorbar
+    caxis([-0.2 0.2])
+    title(sprintf('%sdeg-Tuned',num2str(orientations(iori))));
+end
+print([fnout '_allTunedCellsHeatmap_vis'],'-dpdf','-fillpage')
+
+setFigParams4Print('landscape')
+figure
+colormap(brewermap([],'*RdBu'));
+suptitle(sprintf('Auditory Trials,Responsive, Tuned Cells (%s)',num2str(length(oriPref_hmCells))));
+
+for iori = 1:nori
+    subplot(2,2,iori)
+    h = imagesc(hm{auditoryTrials}(oriPref_hmCells == iori,26:end));
+    figXAxis([],'Time (ms)',[],ttLabelFr,ttLabel)
+    figYAxis([],'Cell #',[])
+    figAxForm
+    colorbar
+    caxis([-0.2 0.2])
+    title(sprintf('%sdeg-Tuned',num2str(orientations(iori))));
+end
+print([fnout '_allTunedCellsHeatmap_aud'],'-dpdf','-fillpage')

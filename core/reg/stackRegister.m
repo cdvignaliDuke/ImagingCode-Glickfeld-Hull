@@ -32,14 +32,13 @@ function [outs,stack]=stackRegister(stack,target,usFac);
 % $$$ end
 
 if nargin < 3, usFac = 100; end
-
 c = class(stack);
 
 TARGET = fft2(cast(target,'single'));
 
 [ny,nx,nframes]=size(stack);
 
-outs = zeros(nframes,4,c);
+outs = zeros(nframes,4);
 
 % if nargout > 1
 %     reg = zeros(size(stack),c);
