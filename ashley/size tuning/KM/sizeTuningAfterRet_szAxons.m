@@ -8,8 +8,8 @@
 %% get path names
 clear all;close all; clc;
 
-ds = 'szTuning_axons_LM';
-iexp = 3;
+ds = 'szTuning_axons_PM';
+iexp = 5;
 rc = behavConstsAV;
 eval(ds)
 
@@ -325,7 +325,7 @@ fprintf('Cell and neuropil masks loaded\n')
 % load(fn_out);
 
 % [mask_cell, nCells] = bwlabel(mask_cell); % bwlabel labels all individual cells
-nCells = max(mask_cell(:)); % take max label of mask_cell, should circumvent bwlabel
+nCells = sum(mask_cell(:)); % take max label of mask_cell, should circumvent bwlabel
 fprintf([num2str(nCells) ' total cells selected\n'])
 fprintf('Cell segmentation complete\n')
 
@@ -579,7 +579,7 @@ fprintf('\nBegin shuffling...\n')
 figure;
 
 fprintf('Creating new size-tuning curve fit data...\n')
-fprintf('Begin fitting size-tuning curves at all cells, all runs...')
+fprintf('Begin fitting size-tuning curves at all cells, all runs...\n')
 for count_shuf = 0:Nshuf
     fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
     for iSz = 1:nSize
@@ -854,7 +854,7 @@ ylabel('dF/F normalized')
 xlabel('Size (deg)')
 ylim([-0.3 1.2])
 axis square
-title(['M2 cells resp to stim <=10 deg- n = ' num2str(length(ind))])
+title(['M2 cells within 10 deg- n = ' num2str(length(ind))])
 subplot(2,2,3)
 ind = intersect(goodfit_ind_size, find(cellDists<=10));
 ret_avg = mean(tuning_norm(:,ind),2)';
@@ -864,7 +864,7 @@ ylabel('dF/F normalized')
 xlabel('Size (deg)')
 ylim([-0.3 1.2])
 axis square
-title(['All well-fit cells resp to stim <=10 deg- n = ' num2str(length(ind))])
+title(['All well-fit cells within 10 deg- n = ' num2str(length(ind))])
 subplot(2,2,4)
 hist(lbub_fits(ind,1,4))
 xlim([0 80])
