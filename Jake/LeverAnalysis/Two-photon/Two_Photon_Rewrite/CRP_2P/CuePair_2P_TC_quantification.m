@@ -1,10 +1,14 @@
+% SCRIPT RETIRED ON 10/22/18. Replaced by resp_cell_criteria
+
+
+
 % finds and maps responsive cells for each condition
-% 1. calculate average timecourses for NR/release events
+% 1. calculate average timecourses for NR Ca events
 % 2. calculate variability by trial over base and resp windows, 
 %    ttest for significant responses
 % 3. calculate 10% rise time of F onset
 % 4. define cells by response to event
-% 4. plot everything
+% 5. plot everything
 
 % load([dest 'ROI_TCs.mat']);
 load([dest 'parse_behavior.mat']);
@@ -57,14 +61,16 @@ supertitle([session_date ' ' mouse_ID ' timecourse of normal reward- black (n = 
 orient landscape
 saveas(fig, [dest '_NR_OR_allTCs.fig']);
 print([dest '_NR_OR_allTCs.eps'], '-depsc');
-print([dest '_NR_OR_allTCs.pdf'], '-dpdf');
+print([dest 'NR_OR_allTCs.pdf'], '-dpdf');
 
 %% 2. calculate response amplitude and variablity by trial over base and resp windows
 
 %POSITIVE CUE responsive neurons 
-base_cue_buffer = 500;
-resp_cue_buffer = 400;
-effect_sign = 'pos';
+ops.base_cue_buffer = 500;
+ops.resp_cue_buffer = 400;
+ops.effect_sign = 'pos';
+ops.event_type = 'cue';
+ops.ifi = ifi;
 [NR_Cue_h_pos, NR_Cue_p_pos, NR_Cue_resp_cells_pos, NR_Cue_resp_avg_pos, NR_Cue_resp_sem_pos, NR_Cue_base_pos, NR_Cue_resp_pos] = findRespCell(NR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer, effect_sign);
 [OR_Cue_h_pos, OR_Cue_p_pos, OR_Cue_resp_cells_pos, OR_Cue_resp_avg_pos, OR_Cue_resp_sem_pos, OR_Cue_base_pos, OR_Cue_resp_pos] = findRespCell(OR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer, effect_sign);
 [UR_Cue_h_pos, UR_Cue_p_pos, UR_Cue_resp_cells_pos, UR_Cue_resp_avg_pos, UR_Cue_resp_sem_pos, UR_Cue_base_pos, UR_Cue_resp_pos] = findRespCell(UR_movie_nolick, pre_cue_frames, ifi, base_cue_buffer, resp_cue_buffer, effect_sign);

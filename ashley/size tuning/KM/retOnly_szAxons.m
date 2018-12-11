@@ -9,7 +9,7 @@
 close all;clear all;clc;
 
 ds = 'szTuning_axons_AL';
-iexp = 2; 
+iexp = 5; 
 rc = behavConstsAV;
 eval(ds)
 
@@ -28,7 +28,9 @@ nrun = length(runs);
 frame_rate = params.frameRate;
 
 fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
-mkdir(fnout)
+if ~exist(fnout)
+    mkdir(fnout)
+end
 
 fprintf(['2P imaging retinotopy analysis - by KM, Glickfeld Lab\nSelected data:\nMouse: ' mouse '\nDate: ' expDate '\nExperiments:\n'])
 for irun=1:nrun
@@ -732,6 +734,11 @@ h_ttest = zeros(nCells,nStim);
 h_all = zeros(1,nCells);
 
 fprintf('Begin shuffling...\n')
+%temp
+nCells = size(resp_dFoverF,1);
+% for iCell = 1:nCells; rs(iCell) = Fit_struct(iCell).True.s_.Rsq; end
+% ind_cells = intersect(find(h_all),find(rs>0.7));
+% nCells = length(ind_cells);
 for count_shuf = 0:Nshuf
     fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
     Im_mat_USE = zeros(nCells, nStim);
@@ -746,10 +753,9 @@ for count_shuf = 0:Nshuf
         Im_mat_USE(:,iCond) = mean(resp_dFoverF(:,ind_all_1),2);
     end
     
-    ifig = 1;
-    start = 1;
+    %temp 
     for iCell = 1:nCells
-        if count_shuf == 0
+        if count_shuf== 0
             if sum(h_ttest(iCell,:),2) == 0
                 ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/2));
                 if length(ind_p)<2
@@ -783,7 +789,7 @@ for count_shuf = 0:Nshuf
             if h_all(1,iCell) == 0
                 continue
             end
-            if nCells > 2000 & Fit_struct(iCell).True.s_.Rsq < 0.5
+            if nCells > 2000 & Fit_struct(iCell).True.s_.Rsq < 0.7
                 continue
             end
         end
@@ -804,7 +810,7 @@ for count_shuf = 0:Nshuf
             end
         end
     end
-    if count_shuf == 0  
+    if PLOTIT_FIT & count_shuf == 0  
         set(gcf, 'Position', [0 0 800 1000]);
         fn_out = fullfile(fnout, dataFolder, [mouse '_' expDate '_RFfits' num2str(ifig) '.pdf']);
         print(fn_out,'-dpdf')
@@ -851,6 +857,7 @@ if Nshuf>1
             end
         end
     end
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_fit_shuf.mat']), 'fit_shuf_vec', 'fit_true_vec')
     
     Npars = size(fit_shuf_vec,2);
     lbub_fits = NaN(nCells,Npars,5);
@@ -1052,107 +1059,3 @@ end
 set(gcf, 'Position', [0 0 800 1000]);
 print(fullfile(fnout, dataFolder, [mouse '_' expDate '_RawFit' num2str(f) '.pdf']), '-dpdf')
 
-%% present single cell (48) (2,5)
-% iCell = 48;
-% figure(1);clf;
-% set(gcf, 'Position', [100 100 1020 420]);
-% subplot(1,2,1)
-% ret_raw = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
-% ret_raw = ret_raw';
-% imagesc(ret_raw)
-% colormap gray
-% title(['#' num2str(iCell) ' raw retinotopy data'])
-% axis equal
-% xticks(1:7)
-% xticklabels(Azs)
-% yticks(1:7)
-% yticklabels(Els)
-% xlabel('Azimuth (deg)')
-% ylabel('Elevation (deg)')
-% % fit
-% subplot(1,2,2)
-% Azs00 = min(Azs):0.1:max(Azs);
-% Els00 = max(Els):-0.1:min(Els);
-% [p q] = meshgrid(Azs00,Els00); Stims00 = [p(:) q(:)];
-% fit_mat = Gauss2D_ellipseMA(lbub_fits(iCell,:,4),Stims00);%get gaussian as 25x1 vector
-% ret_fit = reshape(fit_mat, [length(Azs00) length(Els00)]);
-% ret_fit = ret_fit;
-% imagesc(Azs00,Els00,ret_fit)
-% set(gca,'YDir','normal')
-% hold on
-% plot(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'bx')
-% ellipse(sqrt(2*log(2))*lbub_fits(iCell,2,4), sqrt(2*log(2))*lbub_fits(iCell,3,4), 0, lbub_fits(iCell,4,4), lbub_fits(iCell,5,4));
-% colormap gray
-% title(['#' num2str(iCell) ' 2D Gaussian fit'])
-% axis equal
-% xlabel('Azimuth (deg)')
-% ylabel('Elevation (deg)')
-% legend('RF center', 'half-max','Location','se')
-% 
-% %% present two cells (2,5)
-% iCell=2;
-% figure(1);clf;
-% set(gcf, 'Position', [100 100 520 510]); %[100 100 650 640]
-% subplot(2,2,1)
-% ret_raw = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
-% ret_raw = ret_raw';
-% imagesc(ret_raw)
-% colormap gray
-% title('Good retinotopy example cell #2')
-% axis equal
-% xticks(1:7)
-% xticklabels(Azs)
-% yticks(1:7)
-% yticklabels(Els)
-% xlabel('Azimuth (deg)')
-% ylabel('Elevation (deg)')
-% % fit
-% subplot(2,2,2)
-% Azs00 = min(Azs):0.1:max(Azs);
-% Els00 = max(Els):-0.1:min(Els);
-% [p q] = meshgrid(Azs00,Els00); Stims00 = [p(:) q(:)];
-% fit_mat = Gauss2D_ellipseMA(lbub_fits(iCell,:,4),Stims00);%get gaussian as 25x1 vector
-% ret_fit = reshape(fit_mat, [length(Azs00) length(Els00)]);
-% ret_fit = ret_fit;
-% imagesc(Azs00,Els00,ret_fit)
-% set(gca,'YDir','normal')
-% hold on
-% plot(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'bx')
-% ellipse(sqrt(2*log(2))*lbub_fits(iCell,2,4), sqrt(2*log(2))*lbub_fits(iCell,3,4), 0, lbub_fits(iCell,4,4), lbub_fits(iCell,5,4));
-% colormap gray
-% title(['#' num2str(iCell) ' 2D Gaussian fit'])
-% axis equal
-% xlabel('Azimuth (deg)')
-% ylabel('Elevation (deg)')
-% legend('RF center', 'half-max','Location','se')
-% % second cell (5)
-% iCell=15;
-% subplot(2,2,3)
-% ret_raw = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
-% ret_raw = ret_raw';
-% imagesc(ret_raw)
-% colormap gray
-% title('Bad retinotopy example cell #15')
-% axis equal
-% xticks(1:7)
-% xticklabels(Azs)
-% yticks(1:7)
-% yticklabels(Els)
-% xlabel('Azimuth (deg)')
-% ylabel('Elevation (deg)')
-% % fit
-% subplot(2,2,4);cla;
-% fit_mat = Gauss2D_ellipseMA(lbub_fits(iCell,:,4),Stims00);%get gaussian as 25x1 vector
-% ret_fit = reshape(fit_mat, [length(Azs00) length(Els00)]);
-% ret_fit = ret_fit;
-% imagesc(Azs00,Els00,ret_fit)
-% set(gca,'YDir','normal')
-% hold on
-% plot(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'bx')
-% ellipse(sqrt(2*log(2))*lbub_fits(iCell,2,4), sqrt(2*log(2))*lbub_fits(iCell,3,4), 0, lbub_fits(iCell,4,4), lbub_fits(iCell,5,4));
-% colormap gray
-% title(['#' num2str(iCell) ' 2D Gaussian fit'])
-% axis equal
-% xlabel('Azimuth (deg)')
-% ylabel('Elevation (deg)')
-% legend('RF center', 'half-max','Location','se')

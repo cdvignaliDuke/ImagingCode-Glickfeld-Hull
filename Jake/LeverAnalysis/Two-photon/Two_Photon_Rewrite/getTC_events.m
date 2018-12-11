@@ -18,29 +18,35 @@
         ifi = mode(diff(cell2mat(cellfun(@int64,input.counterTimesUs,'UniformOutput',0))))/1000;
     end
     
+    load([dest, 'img_reg.mat'], 'laser_on_ind_conserv');
     Sampeling_rate = 1000/ifi;
     
     % ---- parse behavior
     holdT_min  = 500000;  %us
-    [lever, frame_info, trial_outcome, lick_data] = cleanBehav_CRP(input, ifi, holdT_min);
+    [lever, frame_info, trial_outcome, lick_data] = cleanBehav_CRP(input, ifi, holdT_min, laser_on_ind_conserv);
     frame_info.ifi = ifi;
     
     data_dest = [dest 'parse_behavior.mat'];
-     save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'Sampeling_rate', 'holdT_min', 'ifi');
+    save(data_dest, 'lever', 'frame_info', 'trial_outcome', 'Sampeling_rate', 'holdT_min', 'ifi');
     
     %% 2. Obtain a df/f TC from baseline times
     
     %adjust tc_avg to account for trimmed frames 
-    load([dest, 'img_reg.mat'], 'laser_on_ind_conserv', 'img_nframes');
+    load([dest, 'img_reg.mat'], 'img_nframes'); 
+    if isfield(frame_info, 'laser_on_ind_conserv')
+        laser_on_ind_conserv = frame_info.laser_on_ind_conserv;
+    else
+        load([dest, 'img_reg.mat'], 'laser_on_ind_conserv');
+    end
+    
+    %just in case some sessions do not have the laser power toggling. 
     if exist('laser_on_ind_conserv', 'var') == 1
         data_tc = zeros(frame_info.counter_by_time(end), size(tc_avg,2));
-        if laser_on_ind_conserv(end) > size(data_tc,1)
+        if laser_on_ind_conserv(end) > img_nframes
             laser_on_ind_conserv = laser_on_ind_conserv(find(laser_on_ind_conserv<=img_nframes));
         end
-        if laser_on_ind_conserv(end) > frame_info.counter_by_time(end)
-            cut_ind = find(laser_on_ind_conserv > frame_info.counter_by_time(end));
-            laser_on_ind_conserv(cut_ind) = [];
-            tc_avg([cut_ind],:) = [];
+        if laser_on_ind_conserv(end) > size(data_tc,1)
+            laser_on_ind_conserv = laser_on_ind_conserv(find(laser_on_ind_conserv<=img_nframes));
         end
         assert(length(laser_on_ind_conserv) == size(tc_avg,1))
         data_tc([laser_on_ind_conserv],:) = tc_avg;
@@ -49,6 +55,8 @@
     else
         data_tc = tc_avg';
     end
+    
+    %quick check to make sure the matrix is oriented correctly
     if size(data_tc,1) > 10000
         data_tc = data_tc';
     end
@@ -146,8 +154,6 @@ if input.doLeverSolenoidAllTrials == 1 || input.doLever == 1
     use_ev_late_fail = trial_outcome.late_early_time;
     [late_fail_movie, ~,~,~, late_fail_lick] =               trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
         use_ev_late_fail, pre_release_frames, post_release_frames, lick_data, [], do_lickAna, do_alignLick);
-    
-%     lick_data.lickRateF(remove_idx) = [];
     
     [fail_movie_long, ~, ~, ~, fail_lick_long] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
         use_ev_fail, pre_release_frames2, post_release_frames2, lick_data, [], do_lickAna, do_alignLick);
@@ -359,6 +365,24 @@ else
     % get rid of trials with licking bout
     UR_movie_nolick = nan(size(UR_movie));
     UR_movie_nolick(~UR_lick_info.lickTrial,:,:) = UR_movie(~UR_lick_info.lickTrial, :, :);
+    
+    %correct for visual artifact in two datasets
+    if strcmp(session, '180502_img084') | strcmp(session, '180403_img077')
+        if strcmp(session, '180502_img084') 
+            artifact_ind = [2:5]+pre_cue_frames+1;
+        elseif strcmp(session, '180403_img077')
+            artifact_ind = [2:4]+pre_cue_frames+1;
+        end
+        for n_cell = 1:size(NR_movie,2)
+            for n_trial = 1:size(NR_movie,1)
+                NR_movie(n_trial, n_cell, artifact_ind) = linspace(NR_movie(n_trial, n_cell, artifact_ind(1)-1), NR_movie(n_trial, n_cell, artifact_ind(end)+1), length(artifact_ind));
+            end
+            for n_trial = 1:size(OR_movie,1)
+                OR_movie(n_trial, n_cell, artifact_ind) = linspace(OR_movie(n_trial, n_cell, artifact_ind(1)-1), OR_movie(n_trial, n_cell, artifact_ind(end)+1), length(artifact_ind));
+            end
+            
+        end
+    end
     
     save([dest  'parse_behavior.mat'], 'lever', 'frame_info', 'trial_outcome', 'lick_data', 'Sampeling_rate', 'holdT_min', 'ifi')
     save([dest '_cue_movies.mat'], 'NR_movie','OR_movie', 'UR_movie', 'NR_movie_nolick','OR_movie_nolick', 'UR_movie_nolick', 'pre_cue_frames', 'post_cue_frames', 'ifi');

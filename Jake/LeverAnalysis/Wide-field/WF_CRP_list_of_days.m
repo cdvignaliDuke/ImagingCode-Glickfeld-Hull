@@ -4,6 +4,7 @@ animals = {'img86', 'img87', 'img88', 'img95', 'img96', 'img98', 'img99'};
 
 days_1 = {'170321_img86', [], '170408_img88', '170605_img95', '170612_img96', '170628_img98', '170705_img99'};  %'170408_img87' first day of imaging but animal quit licking part way through
 days_1_ROI = {[1,5], [], [1,2,5], [1:4], [1,2,4], [1:5], [3,4,5]};
+days_1_stable_int = {[1,150], [], [1126,1200], [1417,1485], [808,890], [273,324], [230,292]};
 
 days_post = {'170325_img86', [], '170415_img88', '170614_img95' '170622_img96', '170704_img98', '170710_img99'}; %'170326_img86',  are also 10%omission post learning
 days_post_ROI = {[1,5], [], [1,2,5], [1:4], [1,2,4], [1:5], [3,4,5]};
@@ -17,8 +18,8 @@ days_1000_post = {[],[], '170426_img88', [], [], [], []};   %'170426_img88' 10/0
 
 %% 
 %last_day_of_500 = [6, 11, 8, 7, 9, 9, 9, 9, 6, 10, 8, 6, 6]; %listed in numerical order according to mouseID: img86 to img99   ***for img90 the first day of 500ms post learning is used
-days_to_post_learning = [4, 10, 7, 6, 9, 8, 8, 8, 5, 10, 7, 5, 5];   %listed in numerical order by animal ID
-all_bx_animals = {'img86', 'img87', 'img88', 'img89', 'img90', 'img91', 'img92', 'img93', 'img94', 'img95', 'img96', 'img98', 'img99'};
+days_to_post_learning = [4, 10, 7, 6, 9, 8, 8, 8, 5, 10, 7, 5, 5, 6, 7, 8, 5, 13, 12, 8, 9];   %listed in numerical order by animal ID
+all_bx_animals = {'img86', 'img87', 'img88', 'img89', 'img90', 'img91', 'img92', 'img93', 'img94', 'img95', 'img96', 'img98', 'img99', 'img044', 'img050', 'img067', 'img070', 'img077', 'img081', 'img084', 'img085'};
 
 %% all days of bx listed in order: 2P and WF
 %WF

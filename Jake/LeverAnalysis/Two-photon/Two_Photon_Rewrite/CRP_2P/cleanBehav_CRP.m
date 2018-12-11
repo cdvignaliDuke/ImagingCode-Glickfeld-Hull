@@ -1,11 +1,10 @@
-function [lever, frame, trial_outcome, licking_data] = cleanBehav_CRP(b_data, ifi, holdT_min)
+function [lever, frame, trial_outcome, licking_data] = cleanBehav_CRP(b_data, ifi, holdT_min, laser_on_ind_conserv)
 %Processes the behavior data for frames, lever info, licking data, and
 %trial outcome so it can be used for TCs later.
 
 trial_outcome.ind_press_prerelease = [];
 
 % --- Obtain frame info from behavior file
-
 [counterValues, counterTimesMs, shift_info] = counter_fixer_2P_CRP(cell2mat(cellfun(@int64,b_data.counterValues,'UniformOutput',0)), cell2mat(cellfun(@int64,b_data.counterTimesUs,'UniformOutput',0))/1000, b_data.saveTime(1:6), b_data.subjectNum);
 
 %store frame data
@@ -13,7 +12,6 @@ frame.counter_by_time = counterValues;
 frame.times = counterTimesMs;
 frame.counter = counter_calculator(counterValues, counterTimesMs);  %each slot represents a ms of time during imaging. Each value in a slot represents the frame# being collected at that time.
 last_frame = counterValues(end);
-
 
 %This code looks at frame.times while it is still in free floating MWtimes. It extracts the values needed to cut baseline_timesMs to remove
 %all events without associated frames and align it to frame.counter after frame.counter has been cut to align with the camera start.
@@ -35,13 +33,11 @@ if isfield(b_data, 'lickometerTimesUs') && doLick ~= 0  %img24 and 25 use datase
     lickTimes = double(lickTimes);
     frameTimes = frame.times; %frame times is monotonic by the time it gets here.
     
+    %index licking by frame number
     licksByFrame = [];
-%     lickStart = min(find((lickTimes(1) - frameTimes<0))) - 1;
     for i = 1:length(frameTimes)-1;
-        
         licksThisFrame = sum(lickTimes>frameTimes(i) & lickTimes<=frameTimes(i+1));
         licksByFrame = [licksByFrame licksThisFrame];
-
     end
     
     licking_data.lickTimes = lickTimes-imaging_start_MW_T;
@@ -58,7 +54,6 @@ if isfield(b_data, 'lickometerTimesUs') && doLick ~= 0  %img24 and 25 use datase
     buffer_press = round(500/double(ifi));
     licking_data.buffer_lick = buffer_lick;
     for i = 2:length(b_data.cTrialStart)-1
-        
         lick_itiTrial = licksByFrame(b_data.cTrialStart{i} : b_data.cLeverDown{i} - buffer_press);
         lick_itiTrial2 = licksByFrame(b_data.cTrialStart{i} : b_data.cTrialStart{i} + b_data.tItiWaitFrames{i});
         lick_idx = find(lick_itiTrial);
@@ -120,11 +115,15 @@ end
         cTrialEnd(mod_vals_ind) = cTrialEnd(mod_vals_ind) - shift_info.frame_num_shift; 
         mod_vals_ind = find(cTrialStart >= shift_info.first_bad_frame);
         cTrialStart(mod_vals_ind) = cTrialStart(mod_vals_ind) - shift_info.frame_num_shift; 
+        if isempty(findstr(b_data.savedDataName, 'i067-171227'))
+            mod_vals_ind = find(laser_on_ind_conserv >= shift_info.first_bad_frame);
+            laser_on_ind_conserv(mod_vals_ind) = laser_on_ind_conserv(mod_vals_ind) - double(shift_info.frame_num_shift);
+        end
     end
+    frame.laser_on_ind_conserv = laser_on_ind_conserv;
    
     lever.press = counterTimesMs(cTargetOn); % cue onset counter times
-    lever.release   = counterTimesMs(cLeverUp); % reward counter times
-    
+    lever.release   = counterTimesMs(cLeverUp); % cue offset times
     lever.press = remove_events_and_adjust_inx(lever.press, imaging_start_MW_T, l_frame_MWorks_time);  %this is a nested function at the end of parse_bx
     lever.release = remove_events_and_adjust_inx(lever.release, imaging_start_MW_T, l_frame_MWorks_time);
     
@@ -142,13 +141,13 @@ end
     trial_outcome.omitRewardCue = lever.press(logical(omitRewardIndx));
     trial_outcome.unexpRewardCue = lever.press(logical(unexpRewardIndx));
     
-    delayTime = double(cell2mat(b_data.tRewardDelayDurationMs));
+    delayTime = double(cell2mat(b_data.tRewardDelayDurationMs) + mean(cell2mat(b_data.reactTimesMs)));
     
     trial_outcome.normalReward = lever.release(logical(normalRewardIndx)) + delayTime(logical(normalRewardIndx));
     trial_outcome.omitReward = lever.release(logical(omitRewardIndx)) + delayTime(logical(omitRewardIndx));
     trial_outcome.unexpReward = lever.release(logical(unexpRewardIndx)) + delayTime(logical(unexpRewardIndx));
     
-    trial_outcome.trialLen = cTrialEnd - cTrialStart %========================================
+    trial_outcome.trialLen = cTrialEnd - cTrialStart; %========================================
     trial_outcome.omitRewardIndx = omitRewardIndx;
 
 % inx = find(frame.counter_by_time>=first_frame & frame.counter_by_time<=last_frame);
@@ -183,6 +182,18 @@ baseline_timesMs = baseline_timesMs - imaging_start_MW_T;
 lever.baseline_timesMs = baseline_timesMs;
 % frame.f_frame_trial_num = f_frame_trial_num;
 % frame.l_frame_trial_num = l_frame_trial_num;
+
+%trial 77 incompletely imaged for this animal so exlude from analysis
+if b_data.subjectNum == 77 && ~isempty(findstr('180403', b_data.savedDataName))
+    lever.press(77) = [];
+    lever.release(77) = [];
+    lever.baseline_timesMs(77) = NaN;
+    trial_outcome.trialLen(77)= NaN;
+    trial_outcome.omitRewardIndx(77)=[];
+    trial_outcome.normalRewardCue(62)=[];
+    trial_outcome.normalReward(62)=[];
+end
+
 return;
 
 function res = remove_events_and_adjust_inx(vec, imaging_start_MW_T, l_frame_MWorks_time)  %takes a given vector of events and removes the events which did not occur during imaging. Also subtracts off the time of the first frame

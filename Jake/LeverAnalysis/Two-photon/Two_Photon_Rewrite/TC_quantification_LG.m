@@ -441,7 +441,7 @@ save([dest_sub '_cell_resp_LG.mat'], 'press_base', 'press_resp', 'success_base',
 
 save([dest_sub '_dff_lick_LG.mat'], 'success_lick_corr', 'fail_lick_corr', 'itiR_lick_corr', 'omitR_lick_corr');
 
-% 2. ttest for significant responses
+%% 2. ttest for significant responses
 [release_h, release_p] = ttest(release_base, release_resp, 'dim', 1, 'tail', 'both');
 [success_h, success_p] = ttest(success_base, success_resp, 'dim', 1, 'tail', 'both');
 [tooFast_h, tooFast_p] = ttest(tooFast_base, tooFast_resp, 'dim', 1, 'tail', 'both');

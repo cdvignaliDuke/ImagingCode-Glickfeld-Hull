@@ -25,6 +25,33 @@ end
 ct_vals_diff = diff(counterValues);
 ct_time_diff = diff(counterTimesMs);
 
+%identify miss-timed frame
+late_frames = find(ct_time_diff>IFI*1.4 & ct_time_diff<IFI*1.9);
+if ~isempty(late_frames)
+    for this_late_frame = late_frames
+        if ct_time_diff(this_late_frame+1)<IFI*0.5 & ct_time_diff(this_late_frame+1)>IFI*0.1;
+            interval_check = counterTimesMs(this_late_frame+2) - counterTimesMs(this_late_frame);
+            assert(interval_check>IFI*1.85 &  interval_check<IFI*2.15 );  %verify that there is a supposed to be a frame here. Rought 2 IFI
+            counterTimesMs(this_late_frame+1) = counterTimesMs(this_late_frame)+IFI;
+            ct_vals_diff = diff(counterValues);
+            ct_time_diff = diff(counterTimesMs);
+        end
+    end
+end
+
+%identify sequential missed frame followed by a missed timed frame
+skip_and_late_frames = find(ct_time_diff>IFI*2.25 & ct_time_diff<IFI*2.5);
+if ~isempty(skip_and_late_frames)
+    for this_late_frame = skip_and_late_frames
+        if ct_time_diff(this_late_frame+1)<IFI*0.75 & ct_time_diff(this_late_frame+1)>IFI*0.5  &  ct_vals_diff(this_late_frame)==2
+            counterValues = [counterValues(1:this_late_frame), counterValues(this_late_frame)+1, counterValues(this_late_frame+1:end)];
+            counterTimesMs = [counterTimesMs(1:this_late_frame), counterTimesMs(this_late_frame)+IFI, counterTimesMs(this_late_frame)+2*IFI, counterTimesMs(this_late_frame+2:end)];
+            ct_vals_diff = diff(counterValues);
+            ct_time_diff = diff(counterTimesMs);
+        end
+    end
+end
+
 %Write in an IF statement for 171227_img067 170428_img92
 if strcmp(session_date, '171227') && mouse_id == 67
     string_match = 1;
@@ -86,6 +113,5 @@ assert(max(ct_vals_diff ==1)); assert(min(ct_vals_diff ==1));
 
 counterTimesMs = double(counterTimesMs);
 counterValues = double(counterValues); 
-
 
 end
