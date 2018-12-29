@@ -1,8 +1,8 @@
 %% get path names
-date = '171003';
-ImgFolder = strvcat('001','002');
-time = strvcat('1426','1529');
-mouse = 'i560';
+date = '181221';
+ImgFolder = strvcat('003','004');
+time = strvcat('1733');
+mouse = 'i1103';
 doFromRef = 0;
 ref = strvcat('005');
 nrun = size(ImgFolder,1);
@@ -15,14 +15,15 @@ if tUsername(1:4) == 'ryan'
 elseif tUsername(1:4) == 'lind'
     tDir = 'lindsey';
 end
-
+fn_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\' ;
+data_base = 'home\lindsey\Data\2P_images\';
 %% load dataset
 data = [];
 clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = ['\\CRASH.dhe.duke.edu\data\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
+    CD = [fn_base data_base date '_' mouse '\' ImgFolder(irun,:)];
     %CD = ['\\CRASH.dhe.duke.edu\data\home\ryan\2Pimages\' date '_' mouse '\' ImgFolder(irun,:)];
     %CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\AW14\two-photon imaging\' date '\' ImgFolder(irun,:)];
     cd(CD);
@@ -30,7 +31,7 @@ for irun = 1:nrun
     load(imgMatFile);
 
     if size(time,1) >= irun
-        fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
+        fName = [fn_base 'Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
         load(fName);
         temp(irun) = input;
         if irun>1
@@ -82,7 +83,7 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*10000):50
 
 %% Register data
 
-data_avg = mean(data(:,:,50001:50500),3);
+data_avg = mean(data(:,:,20001:20500),3);
 
 if exist(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
     load(fullfile(['\\CRASH.dhe.duke.edu\data\home\' tDir '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))

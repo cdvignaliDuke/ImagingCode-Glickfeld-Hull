@@ -69,19 +69,20 @@ input = concatenateDataBlocks(temp);
 clear data_temp
 clear temp
 toc
+
 %% For behavior experiments
-% Plot outcome by trial number
-SIx = strcmp(input.trialOutcomeCell, 'success');
-MIx = strcmp(input.trialOutcomeCell, 'ignore');
-
-figure;
-plot(smooth(SIx,10));
-hold on
-plot(smooth(MIx,10));
-
-% Crop data and input struct
-input = trialChopper(input,[1 200]);
-data = data(:,:,input.counterValues{1}(1):input.counterValues{end}(end));
+% % Plot outcome by trial number
+% SIx = strcmp(input.trialOutcomeCell, 'success');
+% MIx = strcmp(input.trialOutcomeCell, 'ignore');
+% 
+% figure;
+% plot(smooth(SIx,10));
+% hold on
+% plot(smooth(MIx,10));
+% 
+% % Crop data and input struct
+% input = trialChopper(input,[1 200]);
+% data = data(:,:,input.counterValues{1}(1):input.counterValues{end}(end));
 
 %% Choose register interval
 nep = floor(size(data,3)./10000);
@@ -125,84 +126,57 @@ print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run
 
 %% find activated cells
 
-tCyc = cell2mat(input.tCyclesOn);
-cStart = cell2mat(input.cFirstStim);
-cStim = cell2mat(input.cStimOn);
 cTarget = celleqel2mat_padded(input.cTargetOn);
-nTrials = length(tCyc);
+cStart = celleqel2mat_padded(input.cLeverDown);
+nTrials = length(cTarget);
 sz = size(data_reg);
-data_f = zeros(sz(1),sz(2),nTrials);
-data_base = zeros(sz(1),sz(2),nTrials);
-data_base2 = zeros(sz(1),sz(2),nTrials);
-data_targ = zeros(sz(1),sz(2),nTrials);
-for itrial = 1:nTrials
+data_f_base = zeros(sz(1),sz(2),nTrials);
+data_base = nan(sz(1),sz(2),nTrials);
+data_f_targ = zeros(sz(1),sz(2),nTrials);
+data_targ = nan(sz(1),sz(2),nTrials);
+for itrial = 1:nTrials    
     if ~isnan(cStart(itrial))
-        data_f(:,:,itrial) = mean(data_reg(:,:,cStart(itrial)-20:cStart(itrial)-1),3);
-        data_base(:,:,itrial) = mean(data_reg(:,:,cStart(itrial)+10:cStart(itrial)+20),3);
-        if cStim(itrial) > cStart(itrial) 
-            data_base2(:,:,itrial) = mean(data_reg(:,:,cStim(itrial)+9:cStim(itrial)+19),3);
-        else
-            data_base2(:,:,itrial) = nan(sz(1),sz(2));
+        if cStart(itrial)+19 < sz(3)
+            data_f_base(:,:,itrial) = mean(data_reg(:,:,cStart(itrial)-20:cStart(itrial)-1),3);
+            data_base(:,:,itrial) = mean(data_reg(:,:,cStart(itrial)+5:cStart(itrial)+10),3);
         end
-    else
-        data_f(:,:,itrial) = nan(sz(1),sz(2));
-        data_base(:,:,itrial) = nan(sz(1),sz(2));
-        data_base2(:,:,itrial) = nan(sz(1),sz(2));
     end
     if ~isnan(cTarget(itrial))
         if cTarget(itrial)+19 < sz(3)
+            data_f_targ(:,:,itrial) = mean(data_reg(:,:,cTarget(itrial)-20:cTarget(itrial)-1),3);
             data_targ(:,:,itrial) = mean(data_reg(:,:,cTarget(itrial)+5:cTarget(itrial)+10),3);
-        else
-            data_targ(:,:,itrial) = nan(sz(1),sz(2));
         end
-    else
-        data_targ(:,:,itrial) = nan(sz(1),sz(2));
     end
+    
 end
-data_base_dfof = (data_base-data_f)./data_f;
-data_base2_dfof = (data_base2-data_f)./data_f;
-data_targ_dfof = (data_targ-data_f)./data_f;
-targCon = celleqel2mat_padded(input.tGratingContrast);
-if input.doRandCon
-        baseCon = ones(size(targCon));
-else
-    baseCon = celleqel2mat_padded(input.tBaseGratingContrast);
-end
-ind_con = intersect(find(targCon == 1),find(baseCon == 0));
-baseDir = celleqel2mat_padded(input.tBaseGratingDirectionDeg);
-dirs = unique(baseDir);
-ndir = length(dirs);
-targetDelta = round(celleqel2mat_padded(input.tGratingDirectionDeg),0);
-deltas = unique(targetDelta);
-nDelta = length(deltas);
-data_dfof_dir = zeros(sz(1),sz(2),ndir);
-data_dfof2_dir = zeros(sz(1),sz(2),ndir);
-[n n2] = subplotn(ndir);
+data_base_dfof = (data_base-data_f_base)./data_f_base;
+data_targ_dfof = (data_targ-data_f_targ)./data_f_targ;
+targSpeed = celleqel2mat_padded(input.tDotSpeedDPS);
+spds = unique(targSpeed);
+nSpd = length(spds);
+baseCon = celleqel2mat_padded(input.tBaseDotContrast);
+cons = unique(baseCon);
+nCon = length(cons);
+data_dfof_spd = zeros(sz(1),sz(2),nSpd,nCon);
+[n n2] = subplotn(nSpd);
 figure;
-for idir = 1:ndir
-    ind = setdiff(find(baseDir == dirs(idir)),ind_con);
-    data_dfof_dir(:,:,idir) = nanmean(data_base_dfof(:,:,ind),3);
-    data_dfof2_dir(:,:,idir) = nanmean(data_base2_dfof(:,:,ind),3);
-    subplot(n,n2,idir)
-    imagesc(data_dfof_dir(:,:,idir))
-    title(dirs(idir))
+for iCon = 1:nCon
+    figure;
+    ind_con = find(baseCon == cons(iCon));
+    for ispd = 1:nSpd
+        ind_spd = intersect(ind_con, find(targSpeed==spds(ispd)));
+        data_dfof_spd(:,:,ispd,iCon) = nanmean(data_targ_dfof(:,:,ind_spd),3);
+        subplot(n,n2,ispd)
+        imagesc(data_dfof_spd(:,:,ispd,iCon))
+        title(spds(ispd))
+    end
+    suptitle(['Base con = ' num2str(cons(iCon))])
 end
-if sum(~isnan(data_dfof2_dir))>1
-    data_dfof_dir_all = cat(3, data_dfof_dir, data_dfof2_dir);
-else
-    data_dfof_dir_all = data_dfof_dir;
-end
-data_dfof_targ = zeros(sz(1),sz(2),nDelta);
-[n n2] = subplotn(nDelta);
 figure;
-for idir = 1:nDelta
-    ind = find(targetDelta == deltas(idir));
-    data_dfof_targ(:,:,idir) = nanmean(data_targ_dfof(:,:,ind),3);
-    subplot(n,n2,idir)
-    imagesc(data_dfof_targ(:,:,idir))
-    title(deltas(idir))
-end
-data_dfof = cat(3,data_dfof_dir_all,data_dfof_targ);
+ind_con = find(baseCon == 1);
+data_dfof_base = nanmean(data_base_dfof(:,:,ind_con),3);
+
+data_dfof = cat(3, reshape(data_dfof_spd,[sz(1), sz(2), nCon*nSpd]), data_dfof_base);
 myfilter = fspecial('gaussian',[20 20], 0.5);
 data_dfof_max = max(imfilter(data_dfof,myfilter),[],3);
 figure;
@@ -261,100 +235,27 @@ clear data_reg data_reg_down
 save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
 
 clear data_tc data_tc_down np_tc np_tc_down mask_np mask_cell
-%% FS cycle analysis
-
-if iscell(input.nFramesOn)
-    nOn = input.nFramesOn{1};
-else
-    nOn = input.nFramesOn;
-end
-
-tCyc = cell2mat(input.tCyclesOn);
-cStart = celleqel2mat_padded(input.cFirstStim);
-cTarget = celleqel2mat_padded(input.cTargetOn);
-nTrials = length(tCyc);
-nCells = size(npSub_tc,2);
-maxCyc = max(tCyc,[],2);
-data_trial = nan(120,nCells,maxCyc+1,nTrials);
-if iscell(input.nFramesOff)
-    data_notarg = nan((nOn+max(celleqel2mat_padded(input.nFramesOff),[],2))*maxCyc,nCells,nTrials);
-else
-    data_notarg = nan((nOn+input.nFramesOff)*maxCyc,nCells,nTrials);
-end
-tFramesOff = nan(nTrials,maxCyc);
-SIx = strcmp(input.trialOutcomeCell, 'success');
-MIx = strcmp(input.trialOutcomeCell, 'ignore');
-FIx = strcmp(input.trialOutcomeCell, 'failure');
-nCyc = tCyc;
-nCyc([find(MIx) find(SIx)]) = tCyc([find(MIx) find(SIx)])+1;
+%% target analysis
+data_targ = nan(120,nCells,nTrials);
+data_base = nan(120,nCells,nTrials);
 for itrial = 1:nTrials
-    if isfield(input, 'tFramesOff')
-        if length(input.tFramesOff{itrial}>0)
-            tempFramesOff = input.tFramesOff{itrial};
-        else
-            tempFramesOff = input.nFramesOff{itrial}.*(ones(1,tCyc(itrial)));
-            input.tFramesOff{itrial} = tempFramesOff;
-        end
-    else
-        if iscell(input.nFramesOff)
-            tempFramesOff = input.nFramesOff{itrial}.*(ones(1,tCyc(itrial)));
-        else
-            tempFramesOff = input.nFramesOff.*(ones(1,tCyc(itrial)));
-        end
-    end
-
-    tFramesOff(itrial,1:tCyc(itrial)) = tempFramesOff(1:tCyc(itrial));
     if ~isnan(cStart(itrial))
-        for icyc = 1:nCyc(itrial)
-            if icyc > 1
-                cyc_add = ((icyc-1)*nOn)+sum(tempFramesOff(1:icyc-1));
-            else
-                cyc_add = 0;
-            end
-            if cStart(itrial)+99+cyc_add <= size(npSub_tc,1)
-                data_trial(:,:,icyc,itrial) = npSub_tc(cStart(itrial)-20+cyc_add:cStart(itrial)+99+cyc_add,:);
-            else
-                data_trial(:,:,icyc,itrial) = NaN(120,nCells);
-            end 
-            if icyc == nCyc(itrial)
-                if cStart(itrial)+99+cyc_add <= size(npSub_tc,1)
-                    temp  = npSub_tc(cStart(itrial)-20:cStart(itrial)+cyc_add-1,:);
-                    data_notarg(1:size(temp,1),:,itrial) = temp;
-                end
-            end
+        if cStart(itrial)+99 <= size(npSub_tc,1)
+            data_base(:,:,itrial) = npSub_tc(cStart(itrial)-20:cStart(itrial)+99,:);
         end
-    else
-        data_trial(:,:,icyc,itrial) = NaN(120,nCells);
+    end
+    if ~isnan(cTarget(itrial))
+        if cTarget(itrial)+99 <= size(npSub_tc,1)
+            data_targ(:,:,itrial) = npSub_tc(cTarget(itrial)-20:cTarget(itrial)+99,:);
+        end
     end
 end
-data_f = nanmean(data_trial(1:20,:,1,:),1);
-data_dfof = bsxfun(@rdivide,bsxfun(@minus,data_trial,data_f),data_f);
-data_notarg_dfof = bsxfun(@rdivide,bsxfun(@minus,data_notarg,mean(data_notarg(1:20,:,:),1)),mean(data_notarg(1:20,:,:),1));
-targCon = celleqel2mat_padded(input.tGratingContrast);
-if isfield(input,'doRandCon') & input.doRandCon
-	baseCon = nan(maxCyc,nTrials);
-    for itrial = 1:nTrials
-        baseCon(:,itrial) = input.tBaseGratingContrast{itrial}(1:tCyc(itrial));
-    end
-    ind_con = [];
-else
-    baseCon = celleqel2mat_padded(input.tBaseGratingContrast);
-    ind_con = intersect(find(targCon == 1),find(baseCon == 0));
-end
-baseDir = celleqel2mat_padded(input.tBaseGratingDirectionDeg);
-dirs = unique(baseDir);
-ndir = length(dirs);
-tGratingDir = round(double(celleqel2mat_padded(input.tGratingDirectionDeg)),0);
-if sum(tGratingDir-baseDir) == 0
-    targetDelta = tGratingDir-baseDir;
-else
-    targetDelta = tGratingDir;
-end
-deltas = unique(targetDelta);
-nDelta = length(deltas);
-offs = unique(tFramesOff(:,1));
-noff = length(offs);
-frameRateHz = input.frameRateHz;
+data_f_targ = nanmean(data_targ(1:20,:,:),1);
+data_dfof_targ = bsxfun(@rdivide,bsxfun(@minus,data_targ,data_f_targ),data_f_targ);
+data_f_base = nanmean(data_base(1:20,:,:),1);
+data_dfof_base = bsxfun(@rdivide,bsxfun(@minus,data_base,data_f_base),data_f_base);
+
+frameRateHz = double(input.frameRateHz);
 
 base_win =19:21;
 resp_win =25:29; 
@@ -367,38 +268,115 @@ else
 end
 for i = 1:ii
     subplot(5,5,i)
-if length(ind_con)>10
-    plot(squeeze(nanmean(mean(data_dfof(20:50,i,2,ind_con),2),4)))
-elseif noff>1
-    ind = find(tFramesOff(:,1) == offs(noff));
-    plot(squeeze(nanmean(mean(data_dfof(20:50,i,1,:),2),4)))
-else
-    plot(squeeze(nanmean(mean(data_dfof(20:50,i,1,:),2),4)))
-end
-vline(base_win-19)
-vline(resp_win-19)
+    plot(squeeze(nanmean(mean(data_dfof_targ(20:50,i,:),2),3)))
+    vline(base_win-19)
+    vline(resp_win-19)
 end
 
+tt = [-20:99].*(1000/frameRateHz);
 figure;
 subplot(2,1,1)
-plot(squeeze(nanmean(mean(data_dfof(:,:,1,:),2),4)));
-vline(base_win)
-vline(resp_win)
+plot(tt,squeeze(nanmean(mean(data_dfof_base,2),3)));
+vline((base_win-20).*(1000/frameRateHz))
+vline((resp_win-20).*(1000/frameRateHz))
 title('Baseline')
 subplot(2,1,2)
-sz = size(data_dfof);
-data_targ = zeros(sz(1),sz(2),length([find(SIx)]));
-for itrial = 1:sz(4);
-    if find([find(SIx)] == itrial)
-        data_targ(:,:,itrial) = data_dfof(:,:,nCyc(itrial),itrial);
-    end
-end
-plot(squeeze(nanmean(mean(data_targ,2),3)));
+plot(tt,squeeze(nanmean(mean(data_dfof_targ,2),3)));
+vline((base_win-20).*(1000/frameRateHz))
+vline((resp_win-20).*(1000/frameRateHz))
 title('Target')
-vline(base_win)
-vline(resp_win)
+
 
 %%
 
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']), 'data_dfof', 'data_notarg_dfof')
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']),'baseDir', 'dirs', 'ndir', 'tFramesOff', 'offs', 'noff', 'baseCon', 'ind_con', 'tGratingDir', 'targetDelta', 'deltas', 'nDelta', 'tCyc', 'nCyc', 'maxCyc', 'nCells', 'frameRateHz', 'nTrials', 'SIx', 'MIx', 'FIx', 'cTarget', 'cStart', 'base_win','resp_win')
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']), 'data_dfof_base', 'data_dfof_targ')
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']),'baseCon', 'cons', 'nCon', 'targSpeed','spds','nspeed', 'nCells', 'frameRateHz', 'nTrials', 'cTarget', 'cStart', 'base_win','resp_win')
+
+%% Speed analysis
+late_win = resp_win+(2.*frameRateHz);
+figure;
+spd_mat = zeros(nSpd,nCon,nCells,2);
+spd_mat_late = zeros(nSpd,nCon,nCells,2);
+h_early = zeros(nCon,nSpd,nCells);
+p_early = zeros(nCon,nSpd,nCells);
+h_late = zeros(nCon,nSpd,nCells);
+p_late = zeros(nCon,nSpd,nCells);
+for iCon = 1:nCon
+    ind_con = find(baseCon == cons(iCon));
+    subplot(2,2,iCon+(iCon-1))
+    for iSpd = 1:nSpd
+        ind_spd = intersect(ind_con, find(targSpeed==spds(iSpd)));
+        plot(tt, mean(nanmean(data_dfof_targ(:,:,ind_spd),3),2))
+        hold on
+        [h_early(iCon,iSpd,:), p_early(iCon,iSpd,:)] = ttest(mean(permute(data_dfof_targ(resp_win,:,ind_spd),[1 3 2]),1),mean(permute(data_dfof_targ(base_win,:,ind_spd),[1 3 2]),1),'tail','right','alpha',0.05./(nSpd*nCon));
+        [h_late(iCon,iSpd,:), p_late(iCon,iSpd,:)] = ttest(mean(permute(data_dfof_targ(late_win,:,ind_spd),[1 3 2]),1),mean(permute(data_dfof_targ(base_win,:,ind_spd),[1 3 2]),1),'tail','right','alpha',0.05./(nSpd*nCon));
+        for iCell = 1:nCells
+            spd_mat(iSpd,iCon,iCell,1) = mean(nanmean(data_dfof_targ(resp_win,iCell,ind_spd),3),1);
+            spd_mat(iSpd,iCon,iCell,2) = nanstd(nanmean(data_dfof_targ(resp_win,iCell,ind_spd),1),[],3)./sqrt(length(ind_spd));
+            spd_mat_late(iSpd,iCon,iCell,1) = mean(nanmean(data_dfof_targ(late_win,iCell,ind_spd),3),1);
+            spd_mat_late(iSpd,iCon,iCell,2) = nanstd(nanmean(data_dfof_targ(late_win,iCell,ind_spd),1),[],3)./sqrt(length(ind_spd));
+        end
+    end
+    title(['BaseCon = ' num2str(cons(iCon))]) 
+    ylabel('dF/F')
+    xlabel('Time from target (ms)')
+    ylim([-.02 .1])
+    if iCon == 1
+        legend(num2str(chop(spds,2)'))
+    end
+    subplot(2,2,iCon+(iCon-1)+1)
+    errorbar(spds, mean(spd_mat(:,iCon,:,1),3), std(spd_mat(:,iCon,:,1),[],3)./sqrt(nCells))
+    hold on
+    errorbar(spds, mean(spd_mat_late(:,iCon,:,1),3), std(spd_mat_late(:,iCon,:,1),[],3)./sqrt(nCells))
+    ylabel('dF/F')
+    ylim([0 .1])
+    xlabel('Speed (DPS)')
+    if iCon == 1
+        legend({'early', 'late'})
+    end
+    title(['BaseCon = ' num2str(cons(iCon))]) 
+end
+suptitle([date ' ' mouse '- Avg speed tuning- n = ' num2str(nCells)])
+print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_avgSpeedResp.pdf']),'-dpdf', '-bestfit')
+
+good_ind = unique([find(sum(sum(h_early,1),2)); find(sum(sum(h_late,1),2))]);
+
+for iCell = 1:length(good_ind)
+    figure;
+    iC = good_ind(iCell);
+    y = zeros(4,2);
+    clear Ax
+    for iCon = 1:nCon
+        ind_con = find(baseCon == cons(iCon));
+        Ax(iCon+(iCon-1)) = subplot(2,2,iCon+(iCon-1));
+        for iSpd = 1:nSpd
+            ind_spd = intersect(ind_con, find(targSpeed==spds(iSpd)));
+            plot(tt, nanmean(data_dfof_targ(:,iC,ind_spd),3))
+            hold on
+        end
+        y(iCon+(iCon-1),:) = Ax(iCon+(iCon-1)).YLim;
+        title(['BaseCon = ' num2str(cons(iCon))]) 
+        ylabel('dF/F')
+        xlabel('Time from target (ms)')
+        if iCon == 1
+            legend(num2str(chop(spds,2)'))
+        end
+        Ax(iCon+(iCon-1)+1) = subplot(2,2,iCon+(iCon-1)+1);
+        errorbar(spds, spd_mat(:,iCon,iC,1), spd_mat(:,iCon,iC,2))
+        hold on
+        errorbar(spds, spd_mat_late(:,iCon,iC,1), spd_mat_late(:,iCon,iC,2))
+        y(iCon+(iCon-1)+1,:) = Ax(iCon+(iCon-1)+1).YLim;
+        ylabel('dF/F')
+        xlabel('Speed (DPS)')
+        if iCon == 1
+            legend({'early', 'late'})
+        end
+        title(['BaseCon = ' num2str(cons(iCon))]) 
+    end
+    min_y = min(y(:,1),[],1);
+    max_y = max(y(:,2),[],1);
+    set(Ax(1:4),'YLim',[min_y max_y])
+    suptitle([date ' ' mouse '- Cell #' num2str(iC)])
+    print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_avgSpeedResp_Cell#' num2str(iC) '.pdf']),'-dpdf', '-bestfit')
+end
+    
