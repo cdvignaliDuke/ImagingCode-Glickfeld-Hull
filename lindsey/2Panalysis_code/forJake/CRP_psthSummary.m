@@ -1,9 +1,10 @@
 clear all
 close all
-CRP_expt_list
+CRP_expt_list_Crus
 plotAvg = 0;
 doSpr2017sep = 0;
-for id = 3:4
+area_list = {'C1','C2','LS'};
+for id = 3
     fprintf(['Day: ' num2str(id) '\n'])
     lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
     nexp = size(expt(id).date,1);
@@ -38,10 +39,10 @@ for id = 3:4
     all_long_unexp = [];
     all_preomit = [];
     all_postomit = [];
-    all_early_rew_time = [];
-    all_late_rew_time = [];
-    all_early_omit_time = [];
-    all_late_omit_time = [];
+    all_early_rew_time = zeros(1,nexp);
+    all_late_rew_time = zeros(1,nexp);
+    all_early_omit_time = zeros(1,nexp);
+    all_late_omit_time = zeros(1,nexp);
     all_rew_df = [];
     all_omit_df = [];
     all_unexp_df = [];
@@ -72,10 +73,10 @@ for id = 3:4
         all_lick_rew_6 = [];
         all_lick_omit_6 = [];
         all_lick_unexp_6 = [];
-        all_early_rew_time_6 = [];
-        all_late_rew_time_6 = [];
-        all_early_omit_time_6 = [];
-        all_late_omit_time_6 = [];
+        all_early_rew_time_6 = zeros(1,nexp);
+        all_late_rew_time_6 = zeros(1,nexp);
+        all_early_omit_time_6 = zeros(1,nexp);
+        all_late_omit_time_6 = zeros(1,nexp);
         all_short_omit_6 = [];
         all_long_omit_6 = [];
         all_short_unexp_6 = [];
@@ -86,6 +87,8 @@ for id = 3:4
     end
     all_pct_precue_burst = [];
     mouse_str = [];
+    all_area_id = [];
+    expt_areas = zeros(length(area_list),nexp);
     for iexp = 1:nexp
         mouse = expt(id).mouse(iexp,:);
         date = expt(id).date(iexp,:);
@@ -96,6 +99,18 @@ for id = 3:4
         
         load(fullfile(lg_out,img_fn, [img_fn '_targetAlign.mat']))
         load(fullfile(lg_out,img_fn, [img_fn '_cueAlignLick.mat']))
+        if exist(fullfile(lg_out,img_fn, [img_fn '_splitImage.mat']))
+            load(fullfile(lg_out,img_fn, [img_fn '_splitImage.mat']))
+            area_temp = zeros(1,size(targetAligndFoverF,2));
+            for i = 1:2
+                x = find(strcmp(area_list, expt(id).areas{iexp}(i)));
+                ind = find(maskCat==i);
+                area_temp(1,ind) = x;
+                expt_areas(x,iexp) = 1;
+            end
+            all_area_id = [all_area_id area_temp];
+        end
+        
         nTrials = size(targetAligndFoverF,3);
         rew_avg_df = nanmean(targetAligndFoverF(:,:,ind_rew),3);
         omit_avg_df = nanmean(targetAligndFoverF(:,:,ind_omit),3);
@@ -123,12 +138,12 @@ for id = 3:4
         earlytrial_unexp_avg_df = nanmean(targetAligndFoverF(:,:,ind_unexp(find(ind_unexp<floor(nTrials./2)))),3);
         latetrial_unexp_avg_df = nanmean(targetAligndFoverF(:,:,ind_unexp(find(ind_unexp>floor(nTrials./2)))),3);
         
-        earlytrial_rew_avg_lick = nanmean(lickCueAlign(:,ind_rew(find(ind_rew<floor(nTrials./2)))),3);
-        latetrial_rew_avg_lick = nanmean(lickCueAlign(:,ind_rew(find(ind_rew>floor(nTrials./2)))),3);
-        earlytrial_omit_avg_lick = nanmean(lickCueAlign(:,ind_omit(find(ind_omit<floor(nTrials./2)))),3);
-        latetrial_omit_avg_lick = nanmean(lickCueAlign(:,ind_omit(find(ind_omit>floor(nTrials./2)))),3);
-        earlytrial_unexp_avg_lick = nanmean(lickCueAlign(:,ind_unexp(find(ind_unexp<floor(nTrials./2)))),3);
-        latetrial_unexp_avg_lick = nanmean(lickCueAlign(:,ind_unexp(find(ind_unexp>floor(nTrials./2)))),3);
+        earlytrial_rew_avg_lick = nanmean(lickCueAlign(:,ind_rew(find(ind_rew<floor(nTrials./2)))),2);
+        latetrial_rew_avg_lick = nanmean(lickCueAlign(:,ind_rew(find(ind_rew>floor(nTrials./2)))),2);
+        earlytrial_omit_avg_lick = nanmean(lickCueAlign(:,ind_omit(find(ind_omit<floor(nTrials./2)))),2);
+        latetrial_omit_avg_lick = nanmean(lickCueAlign(:,ind_omit(find(ind_omit>floor(nTrials./2)))),2);
+        earlytrial_unexp_avg_lick = nanmean(lickCueAlign(:,ind_unexp(find(ind_unexp<floor(nTrials./2)))),2);
+        latetrial_unexp_avg_lick = nanmean(lickCueAlign(:,ind_unexp(find(ind_unexp>floor(nTrials./2)))),2);
         
         short_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_omit_short)),3);
         long_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_omit_long)),3);
@@ -237,10 +252,10 @@ for id = 3:4
         all_lick_rew = [all_lick_rew lick_rew_avg];
         all_lick_omit = [all_lick_omit lick_omit_avg];
         all_lick_unexp = [all_lick_unexp lick_unexp_avg];
-        all_early_rew_time = [all_early_rew_time early_rew_time];
-        all_late_rew_time = [all_late_rew_time late_rew_time];
-        all_early_omit_time = [all_early_omit_time early_omit_time];
-        all_late_omit_time = [all_late_omit_time late_omit_time];
+        all_early_rew_time(:,iexp) = early_rew_time;
+        all_late_rew_time(:,iexp) = late_rew_time;
+        all_early_omit_time(:,iexp) = early_omit_time;
+        all_late_omit_time(:,iexp) = late_omit_time;
         all_pct_precue_burst = [all_pct_precue_burst pct_precue_burst];
         all_postrew_lick_rew = [all_postrew_lick_rew postrew_lick_rew_avg];
         all_postrew_lick_omit = [all_postrew_lick_omit postrew_lick_omit_avg];
@@ -376,101 +391,202 @@ for id = 3:4
     suptitle(['Day ' num2str(id) ': n= ' num2str(nexp) ' mice, ' num2str(totIC) ' dendrites']);
     savefig(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary' mouse_str '.fig'])    
     
+    if size(all_area_id,2)>10
+        totExp = sum(expt_areas,2);
+        for i = 1:size(area_list,2)
+            ind = find(all_area_id==i);
+            totIC_area = length(ind);
+            figure;
+            subplot(3,3,1)
+            shadedErrorBar(tt, nanmean(all_rew_df(:,ind),2), (nanstd(all_rew_df(:,ind),[],2)./sqrt(totIC_area)),'k');
+            xlabel('Time from cue')
+            ylabel('dF/F')
+            title('Reward')
+            ylim([-.05 0.1])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(3,3,2)
+            shadedErrorBar(tt, nanmean(all_rew(:,ind),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title('Reward')
+            ylim([0 5])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(3,3,3)
+            shadedErrorBar(tt', nanmean(all_lick_rew(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_rew(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'k');
+            xlabel('Time from cue')
+            ylabel('Lick rate (Hz)')
+            title('Reward')
+            ylim([0 10])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(3,3,4)
+            shadedErrorBar(tt, nanmean(all_omit_df(:,ind),2), (nanstd(all_omit_df(:,ind),[],2)./sqrt(totIC_area)),'r');
+            xlabel('Time from cue')
+            ylabel('dF/F')
+            title('Omission')
+            ylim([-.05 0.1])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(3,3,5)
+            shadedErrorBar(tt, nanmean(all_omit(:,ind),2).*(1000./frameRateHz), (nanstd(all_omit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'r');
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title('Omission')
+            ylim([0 5])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(3,3,6)
+            shadedErrorBar(tt, nanmean(all_lick_omit(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_omit(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'r');
+            xlabel('Time from cue')
+            ylabel('Lick rate (Hz)')
+            title('Omission')
+            ylim([0 10])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(3,3,7)
+            shadedErrorBar(tt, nanmean(all_unexp_df(:,ind),2), (nanstd(all_unexp_df(:,ind),[],2)./sqrt(totIC_area)),'g');
+            xlabel('Time from cue')
+            ylabel('dF/F')
+            title('Unexpected Reward')
+            ylim([-.05 0.1])
+            xlim([-500 2000])
+            vline([600], 'b')
+            subplot(3,3,8)
+            shadedErrorBar(tt, nanmean(all_unexp(:,ind),2).*(1000./frameRateHz), (nanstd(all_unexp(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'g');
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title('Unexpected Reward')
+            ylim([0 5])
+            xlim([-500 2000])
+            vline([600], 'b')
+            subplot(3,3,9)
+            shadedErrorBar(tt, nanmean(all_lick_unexp(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_unexp(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'g');
+            xlabel('Time from cue')
+            ylabel('Lick rate (Hz)')
+            title('Unexpected Reward')
+            ylim([0 10])
+            xlim([-500 2000])
+            vline([600], 'b')
+            suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites']);
+            savefig(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_' mouse_str '.fig'])    
+        end
+    end
+            
     if doSpr2017sep
-    totIC_6 = size(all_rew_6,2);
-    figure;
-    subplot(3,3,1)
-    shadedErrorBar(tt, nanmean(all_rew_6_df,2), (nanstd(all_rew_6_df,[],2)./sqrt(totIC_6)),'k');
-    xlabel('Time from cue')
-    ylabel('dF/F')
-    title('Reward')
-    ylim([-.05 0.1])
-    xlim([-500 2000])
-    vline([600], 'b')
-    if id == 4
-        vline([1100], 'c')
-    end
-    subplot(3,3,2)
-    shadedErrorBar(tt, nanmean(all_rew_6,2).*(1000./frameRateHz), (nanstd(all_rew_6,[],2)./sqrt(totIC_6)).*(1000./frameRateHz),'k');
-    xlabel('Time from cue')
-    ylabel('Spike rate (Hz)')
-    title('Reward')
-    ylim([0 3])
-    xlim([-500 2000])
-    vline([600], 'b')
-    if id == 4
-        vline([1100], 'c')
-    end
-    subplot(3,3,3)
-    shadedErrorBar(tt, nanmean(all_lick_rew_6,2).*(1000./frameRateHz), (nanstd(all_lick_rew_6,[],2)./sqrt(6)).*(1000./frameRateHz),'k');
-    xlabel('Time from cue')
-    ylabel('Lick rate (Hz)')
-    title('Reward')
-    ylim([0 10])
-    xlim([-500 2000])
-    vline([600], 'b')
-    if id == 4
-        vline([1100], 'c')
-    end
-    subplot(3,3,4)
-    shadedErrorBar(tt, nanmean(all_omit_6_df,2), (nanstd(all_omit_6_df,[],2)./sqrt(totIC_6)),'r');
-    xlabel('Time from cue')
-    ylabel('dF/F')
-    title('Omission')
-    ylim([-.05 0.1])
-    xlim([-500 2000])
-    vline([600], 'b')
-    if id == 4
-        vline([1100], 'c')
-    end
-    subplot(3,3,5)
-    shadedErrorBar(tt, nanmean(all_omit_6,2).*(1000./frameRateHz), (nanstd(all_omit_6,[],2)./sqrt(totIC_6)).*(1000./frameRateHz),'r');
-    xlabel('Time from cue')
-    ylabel('Spike rate (Hz)')
-    title('Omission')
-    ylim([0 3])
-    xlim([-500 2000])
-    vline([600], 'b')
-    if id == 4
-        vline([1100], 'c')
-    end
-    subplot(3,3,6)
-    shadedErrorBar(tt, nanmean(all_lick_omit_6,2).*(1000./frameRateHz), (nanstd(all_lick_omit_6,[],2)./sqrt(6)).*(1000./frameRateHz),'r');
-    xlabel('Time from cue')
-    ylabel('Lick rate (Hz)')
-    title('Omission')
-    ylim([0 10])
-    xlim([-500 2000])
-    vline([600], 'b')
-    if id == 4
-        vline([1100], 'c')
-    end
-    subplot(3,3,7)
-    shadedErrorBar(tt, nanmean(all_unexp_6_df,2), (nanstd(all_unexp_6_df,[],2)./sqrt(totIC_6)),'g');
-    xlabel('Time from cue')
-    ylabel('dF/F')
-    title('Unexpected Reward')
-    ylim([-.05 .1])
-    xlim([-500 2000])
-    vline([600], 'b')
-    subplot(3,3,8)
-    shadedErrorBar(tt, nanmean(all_unexp_6,2).*(1000./frameRateHz), (nanstd(all_unexp_6,[],2)./sqrt(totIC_6)).*(1000./frameRateHz),'g');
-    xlabel('Time from cue')
-    ylabel('Spike rate (Hz)')
-    title('Unexpected Reward')
-    ylim([0 3])
-    xlim([-500 2000])
-    vline([600], 'b')
-    subplot(3,3,9)
-    shadedErrorBar(tt, nanmean(all_lick_unexp_6,2).*(1000./frameRateHz), (nanstd(all_lick_unexp_6,[],2)./sqrt(6)).*(1000./frameRateHz),'g');
-    xlabel('Time from cue')
-    ylabel('Lick rate (Hz)')
-    title('Unexpected Reward')
-    ylim([0 10])
-    xlim([-500 2000])
-    vline([600], 'b')
-    suptitle(['Day ' num2str(id) ': n= ' num2str(6) ' mice, ' num2str(totIC_6) ' dendrites']);
-    savefig(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_spring2017mice' mouse_str_6 '.fig'])    
+        totIC_6 = size(all_rew_6,2);
+        figure;
+        subplot(3,3,1)
+        shadedErrorBar(tt, nanmean(all_rew_6_df,2), (nanstd(all_rew_6_df,[],2)./sqrt(totIC_6)),'k');
+        xlabel('Time from cue')
+        ylabel('dF/F')
+        title('Reward')
+        ylim([-.05 0.1])
+        xlim([-500 2000])
+        vline([600], 'b')
+        if id == 4
+            vline([1100], 'c')
+        end
+        subplot(3,3,2)
+        shadedErrorBar(tt, nanmean(all_rew_6,2).*(1000./frameRateHz), (nanstd(all_rew_6,[],2)./sqrt(totIC_6)).*(1000./frameRateHz),'k');
+        xlabel('Time from cue')
+        ylabel('Spike rate (Hz)')
+        title('Reward')
+        ylim([0 3])
+        xlim([-500 2000])
+        vline([600], 'b')
+        if id == 4
+            vline([1100], 'c')
+        end
+        subplot(3,3,3)
+        shadedErrorBar(tt, nanmean(all_lick_rew_6,2).*(1000./frameRateHz), (nanstd(all_lick_rew_6,[],2)./sqrt(6)).*(1000./frameRateHz),'k');
+        xlabel('Time from cue')
+        ylabel('Lick rate (Hz)')
+        title('Reward')
+        ylim([0 10])
+        xlim([-500 2000])
+        vline([600], 'b')
+        if id == 4
+            vline([1100], 'c')
+        end
+        subplot(3,3,4)
+        shadedErrorBar(tt, nanmean(all_omit_6_df,2), (nanstd(all_omit_6_df,[],2)./sqrt(totIC_6)),'r');
+        xlabel('Time from cue')
+        ylabel('dF/F')
+        title('Omission')
+        ylim([-.05 0.1])
+        xlim([-500 2000])
+        vline([600], 'b')
+        if id == 4
+            vline([1100], 'c')
+        end
+        subplot(3,3,5)
+        shadedErrorBar(tt, nanmean(all_omit_6,2).*(1000./frameRateHz), (nanstd(all_omit_6,[],2)./sqrt(totIC_6)).*(1000./frameRateHz),'r');
+        xlabel('Time from cue')
+        ylabel('Spike rate (Hz)')
+        title('Omission')
+        ylim([0 3])
+        xlim([-500 2000])
+        vline([600], 'b')
+        if id == 4
+            vline([1100], 'c')
+        end
+        subplot(3,3,6)
+        shadedErrorBar(tt, nanmean(all_lick_omit_6,2).*(1000./frameRateHz), (nanstd(all_lick_omit_6,[],2)./sqrt(6)).*(1000./frameRateHz),'r');
+        xlabel('Time from cue')
+        ylabel('Lick rate (Hz)')
+        title('Omission')
+        ylim([0 10])
+        xlim([-500 2000])
+        vline([600], 'b')
+        if id == 4
+            vline([1100], 'c')
+        end
+        subplot(3,3,7)
+        shadedErrorBar(tt, nanmean(all_unexp_6_df,2), (nanstd(all_unexp_6_df,[],2)./sqrt(totIC_6)),'g');
+        xlabel('Time from cue')
+        ylabel('dF/F')
+        title('Unexpected Reward')
+        ylim([-.05 .1])
+        xlim([-500 2000])
+        vline([600], 'b')
+        subplot(3,3,8)
+        shadedErrorBar(tt, nanmean(all_unexp_6,2).*(1000./frameRateHz), (nanstd(all_unexp_6,[],2)./sqrt(totIC_6)).*(1000./frameRateHz),'g');
+        xlabel('Time from cue')
+        ylabel('Spike rate (Hz)')
+        title('Unexpected Reward')
+        ylim([0 3])
+        xlim([-500 2000])
+        vline([600], 'b')
+        subplot(3,3,9)
+        shadedErrorBar(tt, nanmean(all_lick_unexp_6,2).*(1000./frameRateHz), (nanstd(all_lick_unexp_6,[],2)./sqrt(6)).*(1000./frameRateHz),'g');
+        xlabel('Time from cue')
+        ylabel('Lick rate (Hz)')
+        title('Unexpected Reward')
+        ylim([0 10])
+        xlim([-500 2000])
+        vline([600], 'b')
+        suptitle(['Day ' num2str(id) ': n= ' num2str(6) ' mice, ' num2str(totIC_6) ' dendrites']);
+        savefig(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_spring2017mice' mouse_str_6 '.fig'])    
     end
     
     figure;
@@ -576,6 +692,116 @@ for id = 3:4
     suptitle(['Day ' num2str(id) ': n= ' num2str(nexp) ' mice, ' num2str(totIC) ' dendrites- early (black) vs late (blue) trials']);
     savefig(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_earlyVlateTrial' mouse_str '.fig'])    
     
+    if size(all_area_id,2)>10
+        totExp = sum(expt_areas,2);
+        for i = 1:size(area_list,2)
+            ind = find(all_area_id==i);
+            totIC_area = length(ind);
+            figure;
+            subplot(2,3,1)
+            shadedErrorBar(tt, nanmean(all_earlytrial_rew_df(:,ind),2), (nanstd(all_earlytrial_rew_df(:,ind),[],2)./sqrt(totIC_area)),'k');
+            hold on
+            shadedErrorBar(tt, nanmean(all_latetrial_rew_df(:,ind),2), (nanstd(all_latetrial_rew_df(:,ind),[],2)./sqrt(totIC_area)),'b');
+            xlabel('Time from cue')
+            ylabel('dF/F')
+            title('Reward')
+            ylim([-.05 0.1])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(2,3,2)
+            shadedErrorBar(tt, nanmean(all_earlytrial_rew(:,ind),2).*(1000./frameRateHz), (nanstd(all_earlytrial_rew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
+            hold on
+            shadedErrorBar(tt, nanmean(all_latetrial_rew(:,ind),2).*(1000./frameRateHz), (nanstd(all_latetrial_rew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'b');
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title('Reward')
+            ylim([0 3])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(2,3,3)
+            plot(tt, nanmean(all_earlytrial_rew_lick(:,find(expt_areas(i,:))),2).*(1000./frameRateHz),'k');
+            hold on
+            plot(tt, nanmean(all_latetrial_rew_lick(:,find(expt_areas(i,:))),2).*(1000./frameRateHz),'b');
+            xlabel('Time from cue')
+            ylabel('Lick rate (Hz)')
+            title('Reward')
+            ylim([0 10])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(2,3,4)
+            if id == 3
+                shadedErrorBar(tt, nanmean(all_earlytrial_unexp_df(:,ind),2), (nanstd(all_earlytrial_unexp_df(:,ind),[],2)./sqrt(totIC_area)),'k');
+                hold on
+                shadedErrorBar(tt, nanmean(all_latetrial_unexp_df(:,ind),2), (nanstd(all_latetrial_unexp_df(:,ind),[],2)./sqrt(totIC_area)),'b');
+                title('Unexpected')
+            else
+                shadedErrorBar(tt, nanmean(all_earlytrial_omit_df(:,ind),2), (nanstd(all_earlytrial_omit_df(:,ind),[],2)./sqrt(totIC_area)),'k');
+                hold on
+                shadedErrorBar(tt, nanmean(all_latetrial_omit_df(:,ind),2), (nanstd(all_latetrial_omit_df(:,ind),[],2)./sqrt(totIC_area)),'b');
+                title('Omission')
+            end
+            xlabel('Time from cue')
+            ylabel('dF/F')
+            ylim([-.05 0.1])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(2,3,5)
+            if id == 3
+                shadedErrorBar(tt, nanmean(all_earlytrial_unexp(:,ind),2).*(1000./frameRateHz), (nanstd(all_earlytrial_unexp(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
+                hold on
+                shadedErrorBar(tt, nanmean(all_latetrial_unexp(:,ind),2).*(1000./frameRateHz), (nanstd(all_latetrial_unexp(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'b');
+                title('Unexpected')
+            else
+                shadedErrorBar(tt, nanmean(all_earlytrial_omit(:,ind),2).*(1000./frameRateHz), (nanstd(all_earlytrial_omit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
+                hold on
+                shadedErrorBar(tt, nanmean(all_latetrial_omit(:,ind),2).*(1000./frameRateHz), (nanstd(all_latetrial_omit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'b');
+                title('Omission')
+            end
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            ylim([0 3])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(2,3,6)
+            if id == 3
+                plot(tt, nanmean(all_earlytrial_unexp_lick(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), 'k');
+                hold on
+                plot(tt, nanmean(all_latetrial_unexp_lick(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), 'b');
+                title('Unexpected')
+            else
+                plot(tt, nanmean(all_earlytrial_omit_lick(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), 'k');
+                hold on
+                plot(tt, nanmean(all_latetrial_omit_lick(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), 'b');
+                title('Omission')
+            end
+            xlabel('Time from cue')
+            ylabel('Lick rate (Hz)')
+            ylim([0 10])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites- early (black) vs late (blue) trials']);
+            savefig(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_earlyVlateTrial_' mouse_str '.fig'])    
+         end
+    end
+    
     figure;
     subplot(2,2,1)
     shadedErrorBar(tt, nanmean(all_earlylick_rew,2).*(1000./frameRateHz), (nanstd(all_earlylick_rew,[],2)./sqrt(totIC)).*(1000./frameRateHz),'k');
@@ -642,6 +868,47 @@ for id = 3:4
     end
     suptitle(['Day ' num2str(id) ': n= ' num2str(nexp) ' mice, ' num2str(totIC) ' dendrites- Early (black) vs late (blue) lick bursts']);
     savefig(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_EarlyVsLateLicks' mouse_str '.fig'])    
+    
+    if size(all_area_id,2)>10
+        totExp = sum(expt_areas,2);
+        for i = 1:size(area_list,2)
+            ind = find(all_area_id==i);
+            totIC_area = length(ind);
+            figure;
+            subplot(2,2,1)
+            shadedErrorBar(tt, nanmean(all_earlylick_rew(:,ind),2).*(1000./frameRateHz), (nanstd(all_earlylick_rew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
+            hold on
+            shadedErrorBar(tt, nanmean(all_latelick_rew(:,ind),2).*(1000./frameRateHz), (nanstd(all_latelick_rew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'b');
+            scatter(all_early_rew_time(:,find(expt_areas(i,:))), -0.5.*ones(size(all_early_rew_time(:,find(expt_areas(i,:))))), 'xk');
+            scatter(all_late_rew_time(:,find(expt_areas(i,:))), -0.5.*ones(size(all_late_rew_time(:,find(expt_areas(i,:))))), 'xb');
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title('Rewarded trials')
+            ylim([-1 4])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            subplot(2,2,2)
+            shadedErrorBar(tt, nanmean(all_earlylick_omit(:,ind),2).*(1000./frameRateHz), (nanstd(all_earlylick_omit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
+            hold on
+            shadedErrorBar(tt, nanmean(all_latelick_omit(:,ind),2).*(1000./frameRateHz), (nanstd(all_latelick_omit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'b');
+            scatter(all_early_omit_time(:,find(expt_areas(i,:))), -0.5.*ones(size(all_early_omit_time(:,find(expt_areas(i,:))))), 'xk');
+            scatter(all_late_omit_time(:,find(expt_areas(i,:))), -0.5.*ones(size(all_late_omit_time(:,find(expt_areas(i,:))))), 'xb');
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title('Omission trials')
+            ylim([-1 4])
+            xlim([-500 2000])
+            vline([600], 'b')
+            if id == 4
+                vline([1100], 'c')
+            end
+            suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites- Early (black) vs late (blue) lick bursts']);
+            savefig(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_EarlyVsLateLicks_' mouse_str '.fig'])     
+        end
+    end
     
     figure;
     if size(all_short_omit,2)

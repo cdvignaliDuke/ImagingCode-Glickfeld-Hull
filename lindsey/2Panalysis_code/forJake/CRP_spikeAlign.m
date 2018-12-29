@@ -3,9 +3,9 @@ plotDetect = 1;
 negAdjust = 0;
 for id = 3
     close all
-    CRP_expt_list
+    CRP_expt_list_Crus
     lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
-    behav_dir = '\\crash.dhe.duke.edu\data\home\andrew\Behavior\Data';
+    behav_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
     nexp = size(expt(id).date,1);
     for iexp = 1:nexp
         mouse = expt(id).mouse(iexp,:);
@@ -109,7 +109,7 @@ for id = 3
         tc_avg_temp = tc_avg;
         cTargetOn = celleqel2mat_padded(input.cTargetOn);
         if expt(id).ttl(iexp)
-            cd(fullfile('\\crash.dhe.duke.edu\data\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
+            cd(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
             load(['img' mouse_name '_000_' run '_realtime.mat'])
             ttl_log = ttl_log(1:size(tc_avg,1),:);
             ttl_trans = find(abs(diff(ttl_log)));
@@ -329,6 +329,72 @@ for id = 3
             ind_unexp_short = [];
             ind_unexp_long = [];
         end
+        
+        figure;
+        n = floor(nTrials./3);
+        start = 1;
+        for i = 1:3
+            subplot(3,2,start)
+            ind_rew_temp = intersect(ind_rew,1+(i-1).*n:i*n);
+            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_rew_temp),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew_temp),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'k');
+            hold on
+            ylim([0 5])
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title(['Trials ' num2str(1+(i-1).*n) ':' num2str(i*n)])
+            vline(600)
+            if length(ind_omit)>=10
+                subplot(3,2,start+1)
+                ind_omit_temp = intersect(ind_omit,1+(i-1).*n:i*n);
+                shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_omit_temp),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit_temp),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'r');
+                ylim([0 5])
+                xlabel('Time from cue')
+                ylabel('Spike rate (Hz)')
+                title(['Trials ' num2str(1+(i-1).*n) ':' num2str(i*n)])
+                vline(600)
+            end
+            start = start+2;
+        end
+        suptitle([date ' ' mouse '- Reward (black), Omit (red)'])
+        savefig(fullfile(lg_out,img_fn, [img_fn '_repsByTrial.fig']))
+        
+        if unique(expt(id).name == 'Crus')
+            load(fullfile(lg_out,img_fn, [img_fn '_splitImage.mat']))
+            figure;
+            indL = find(maskCat==1);
+            indR = find(maskCat==2);
+            subplot(2,2,1)
+            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indL,ind_rew),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indL,ind_rew),3),[],2).*(1000./frameRateHz))./sqrt(length(indL)),'k');
+            ylim([0 5])
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title(['Reward- Left side- n=' num2str(length(indL))])
+            vline(600)
+            subplot(2,2,2)
+            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indR,ind_rew),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indR,ind_rew),3),[],2).*(1000./frameRateHz))./sqrt(length(indR)),'k');
+            ylim([0 5])
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            vline(600)
+            title(['Reward- Right side- n=' num2str(length(indR))])
+            subplot(2,2,3)
+            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indL,ind_omit),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indL,ind_omit),3),[],2).*(1000./frameRateHz))./sqrt(length(indL)),'r');
+            ylim([0 5])
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title(['Omit- Left side- n=' num2str(length(indL))])
+            vline(600)
+            subplot(2,2,4)
+            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indR,ind_omit),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indR,ind_omit),3),[],2).*(1000./frameRateHz))./sqrt(length(indR)),'r');
+            ylim([0 5])
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            title(['omit- Right side- n=' num2str(length(indR))])
+            vline(600)
+            suptitle([date ' ' mouse '- Reward (black), Omit (red)'])
+            savefig(fullfile(lg_out,img_fn, [img_fn '_repsByCrus.fig']))
+        end
+
         
         save(fullfile(lg_out,img_fn, [img_fn '_targetAlign.mat']), 'ind_rew', 'ind_omit', 'ind_unexp', 'targetAlign_events', 'targetAligndFoverF', 'prewin_frames', 'postwin_frames', 'tt', 'frameRateHz', 'ind_omit_short','ind_omit_long','ind_unexp_short','ind_unexp_long','ind_rew_preomit','ind_rew_postomit')
         save(fullfile(lg_out,img_fn, [img_fn '_input.mat']), 'input')

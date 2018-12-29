@@ -1,7 +1,7 @@
 clear all
 close all
-CRP_expt_list
-for id = 1:4
+CRP_expt_list_Crus
+for id = 3
 lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
 nexp = size(expt(id).date,1);
 fprintf(['Day ' num2str(id) '\n'])
@@ -132,8 +132,8 @@ fprintf(['Day ' num2str(id) '\n'])
         else
             ind_early_omit = [];
             ind_late_omit = [];
-            early_omit_time = [];
-            late_omit_time = [];
+            early_omit_time = NaN;
+            late_omit_time = NaN;
         end
         if sum(~isnan(lickBurstStart(:,ind_rew)))>6
         figure;
@@ -211,7 +211,7 @@ fprintf(['Day ' num2str(id) '\n'])
         savefig(fullfile(lg_out,img_fn, [img_fn '_postRew_lickAlignSpiking.fig']))
         
         save(fullfile(lg_out,img_fn, [img_fn '_cueAlignLick.mat']), 'lickCueAlign', 'lickBurstStart', 'lickCounterVals', 'lickSearch_frames', 'lickDelay_frames', 'lickTC', 'postwin_frames', 'prewin_frames', 'frameRateHz', 'tt', 'ind_early_rew', 'ind_late_rew', 'ind_early_omit', 'ind_late_omit', 'early_rew_time', 'late_rew_time', 'early_omit_time', 'late_omit_time','pct_precue_burst', 'postRew_lickAlignEvents', 'postLick_frames', 'postRew_lickBurstStart','tl', 'ind_prerew_early_rew', 'ind_prerew_late_rew','postRew_lickAlign')
-        
+
         figure; 
         for i = 1:4
             plot(tt,cumsum(sum(lickCueAlign(:,1+((i-1).*floor(nTrials/4)):floor(nTrials/4)+((i-1).*floor(nTrials/4))),2)));
@@ -222,6 +222,7 @@ fprintf(['Day ' num2str(id) '\n'])
         ylabel('Cumulative Licks')
         savefig(fullfile(lg_out,img_fn, [img_fn '_cumulativeLicking.fig']))        
     end
-    close all
+    
+    %close all
 end
     

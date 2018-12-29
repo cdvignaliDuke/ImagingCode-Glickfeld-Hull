@@ -1,7 +1,7 @@
 clear all
-CRP_expt_list
+CRP_expt_list_Crus
 id = 3;
-jake_dir = '\\crash.dhe.duke.edu\data\home\jake\Analysis\Cue_reward_pairing_analysis\2P';
+jake_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Analysis\Cue_reward_pairing_analysis\2P';
 lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
 nexp = size(expt(id).date,1);
 
@@ -9,6 +9,7 @@ for iexp = 1:nexp
     mouse = expt(id).mouse(iexp,:);
     date = expt(id).date(iexp,:);
     run = expt(id).run(iexp,:);
+    time = expt(id).time(iexp,:);
     fprintf([date ' ' mouse '\n'])
     img_fn = [date '_' mouse];
     if ~exist(fullfile(lg_out,img_fn))
@@ -21,18 +22,26 @@ for iexp = 1:nexp
         mouse_name = mouse;
     end
     
-    cd(fullfile('\\crash.dhe.duke.edu\data\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
+    cd(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
     load(['img' mouse_name '_000_' run '.mat'])
-    load(fullfile(lg_out, img_fn, [img_fn '_input.mat']))
+    if exist(fullfile(lg_out, img_fn, [img_fn '_input.mat']))
+        load(fullfile(lg_out, img_fn, [img_fn '_input.mat']))
+    else
+        load(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-i' mouse '-' date '-' time '.mat'])
+        mworks = input;
+        clear input;
+    end
     clear ttl_log
-    nf= input.counterValues{end}(end);
+    nf= mworks.counterValues{end}(end);
     if mod(nf,10000)==2
         nf = nf-2;
     elseif mod(nf,10000)==1
         nf = nf-1;
     end
+    
     if expt(id).ttl(iexp)
         load(['img' mouse_name '_000_' run '_realtime.mat'])
+        fprintf('Loading data \n')
         data = sbxread(['img' mouse_name '_000_' run],0,nf);
         data = squeeze(data);
         ttl_trans = find(abs(diff(ttl_log)));
@@ -46,14 +55,31 @@ for iexp = 1:nexp
         if nf > 60000
             nf = 60000;
         end
+        fprintf('Loading data \n')
         data = sbxread(['img' mouse_name '_000_' run],0,nf);
         data = squeeze(data);
     end
-
-    load(fullfile(lg_out, img_fn, [img_fn '_reg.mat']))
+    if exist(fullfile(lg_out, img_fn, [img_fn '_reg.mat']))
+        load(fullfile(lg_out, img_fn, [img_fn '_reg.mat']))
+    else
+       figure;
+       nplot = floor(size(data,3)./5000);
+       [n n2] = subplotn(nplot);
+       for i = 1:nplot
+           subplot(n,n2,i)
+           imagesc(mean(data(:,:,1+(i-1).*5000:500+(i-1).*5000),3))
+           title(num2str(i));
+       end
+       prompt = 'Choose a registration frame \n';
+       x = input(prompt);
+       img_ref = mean(data(:,:,1+(x-1).*5000:500+(x-1).*5000),3);
+       save(fullfile(lg_out, img_fn, [img_fn '_reg.mat']), 'img_ref');
+    end
+    %%    
     if size(data,3) >= 60000
         data = data(:,:,1:2:end);
     end
+    fprintf(['Registering ' num2str(size(data,3)) ' frames'])
     [outs img_reg]= stackRegister(data, img_ref);
     
     clear data
@@ -90,20 +116,24 @@ for iexp = 1:nexp
     icasig = stackFilter(icasig); % filter IC with gaussian filter
     
     %% select ICs
-    if id == 1 & iexp == 4
-        cluster_threshold = 95;
-    elseif id == 2 & iexp == 4
-        cluster_threshold = 96;
-    elseif id == 2 & iexp == 7
-        cluster_threshold = 96.5;
-    elseif id == 3 & iexp == 1
-        cluster_threshold = 96.5;
-    elseif id == 3 & iexp == 4
-        cluster_threshold = 96;
-    elseif id == 4 & iexp == 4
-        cluster_threshold = 95.5;
-    else
-        cluster_threshold = 97;%percentile for thresholding 97- img90 97- img91   94.5- img044 97.5- img060 96- img064 97- img063 97- img065 XXXXXXXXXXXX
+    if expt(id).name == 'Simp'
+        if id == 1 & iexp == 4
+            cluster_threshold = 95;
+        elseif id == 2 & iexp == 4
+            cluster_threshold = 96;
+        elseif id == 2 & iexp == 7
+            cluster_threshold = 96.5;
+        elseif id == 3 & iexp == 1
+            cluster_threshold = 96.5;
+        elseif id == 3 & iexp == 4
+            cluster_threshold = 96;
+        elseif id == 4 & iexp == 4
+            cluster_threshold = 95.5;
+        else
+            cluster_threshold = 97;%percentile for thresholding 97- img90 97- img91   94.5- img044 97.5- img060 96- img064 97- img063 97- img065 XXXXXXXXXXXX
+        end
+    elseif expt(id).name == 'Crus'
+        cluster_threshold = 97;
     end
     threshold = 0.8; % correlation threshold
     mask_cell = zeros(size(icasig));
@@ -126,14 +156,17 @@ for iexp = 1:nexp
     % combine highly correlated ICs to one 
     [ ~, mask3D, ~] = finalMask(img_reg(:,:,1:5:end), mask_final, threshold, fullfile(lg_out,img_fn));
     
+    pause
+    
     %% Plotting TCs
     %reload data
-    nf= input.counterValues{end}(end); 
+    nf= mworks.counterValues{end}(end); 
     if mod(nf,10000)==2
         nf = nf-2;
     elseif mod(nf,10000)==1
         nf = nf-1;
     end
+    fprintf('Loading data \n')
     data = sbxread(['img' mouse_name '_000_' run],0,nf);
     data = squeeze(data);
     [outs img_reg]= stackRegister(data, img_ref);
@@ -141,6 +174,7 @@ for iexp = 1:nexp
     save(fullfile(lg_out, img_fn, [img_fn '_reg.mat']), 'img_ref', 'outs');
     nmask = size(mask3D,3);
     FrameRate = 30;
+    fprintf('Getting TCs \n')
     tc_avg = getTC(img_reg, mask3D, nmask);
 
     saveData = 1;
@@ -161,11 +195,12 @@ for iexp = 1:nexp
     save(fullfile(lg_out,img_fn, [img_fn '_ROI_TCs.mat']), 'tc_avg', 'mask_raw', 'mask_flat', 'mask3D', 'mask_final', 'data_corr');
     
     %% make movie
+    fprintf('Making movie \n')
     sz = size(img_reg);    
-    cTargetOn = celleqel2mat_padded(input.cTargetOn);
+    cTargetOn = celleqel2mat_padded(mworks.cTargetOn);
     nTrials = length(cTargetOn);
-    prewin_frames = round(1500./input.frameRateHz);
-    postwin_frames = round(3000./input.frameRateHz);
+    prewin_frames = round(1500./mworks.frameRateHz);
+    postwin_frames = round(3000./mworks.frameRateHz);
     reg_align = nan(sz(1),sz(2),prewin_frames+postwin_frames,nTrials);
     for itrial = 1:nTrials
         if cTargetOn(itrial)+postwin_frames<size(img_reg,3)
@@ -173,7 +208,7 @@ for iexp = 1:nexp
         end
     end
     reg_align_avg = nanmean(reg_align,4);
-    writetiff(reg_align_avg(:,:,1:2:end), fullfile('\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_movies', ['Day' num2str(id)], [img_fn '_cueAlign_rereg.tif']))
+    writetiff(reg_align_avg(:,:,1:2:end), fullfile('\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper', expt(id).name, 'CC_movies', ['Day' num2str(id)], [img_fn '_cueAlign_rereg.tif']))
 
 end
         

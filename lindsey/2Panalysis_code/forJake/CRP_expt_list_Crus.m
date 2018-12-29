@@ -1,0 +1,32 @@
+expt(1).name= 'Crus';
+expt(1).mouse = strvcat('087', '091', '088', '089');
+expt(1).date = strvcat('181213', '181213', '181214', '181214');
+expt(1).run = strvcat('000', '000', '002', '000');
+expt(1).time = strvcat('1725', '1915', '1918', '1713');
+expt(1).ttl = [1, 1, 1, 1, 1];
+expt(1).areas{1} = {'C2', 'C1'};
+expt(1).areas{2} = {'C1', 'LS'};
+expt(1).areas{3} = {'C1', 'C1'};
+expt(1).areas{4} = {'C2', 'C1'};
+
+expt(2).name= 'Crus';
+expt(2).mouse = strvcat('087', '091', '088', '089', '091');
+expt(2).date = strvcat('181217', '181217', '181221', '181218', '181218');
+expt(2).run = strvcat('000', '000', '000', '000', '000');
+expt(2).time = strvcat('1600', '1753', '1305', '2005', '1821');
+expt(2).ttl = [1, 1, 1, 1, 1];
+expt(2).areas{1} = {'C2', 'C1'};
+expt(2).areas{2} = {'C1', 'LS'};
+expt(2).areas{3} = {'C1', 'C1'};
+expt(2).areas{4} = {'C2', 'C1'};
+expt(2).areas{5} = {'C2', 'C1'};
+
+expt(3).name= 'Crus';
+expt(3).mouse = strvcat('087', '091', '089');
+expt(3).date = strvcat('181218', '181220', '181219');
+expt(3).run = strvcat('000', '000',  '000');
+expt(3).time = strvcat('1540', '1947', '1748');
+expt(3).ttl = [1, 1, 1, 1, 1];
+expt(3).areas{1} = {'C2', 'C1'};
+expt(3).areas{2} = {'C2', 'C1'};
+expt(3).areas{3} = {'C2', 'C1'};
