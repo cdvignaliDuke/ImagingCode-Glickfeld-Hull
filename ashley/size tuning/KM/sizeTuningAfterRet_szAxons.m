@@ -8,8 +8,8 @@
 %% get path names
 clear all;close all; clc;
 
-ds = 'szTuning_axons_PM';
-iexp = 5;
+ds = 'szTuning_axons_AL';
+iexp = 6;
 rc = behavConstsAV;
 eval(ds)
 
@@ -60,7 +60,7 @@ for irun = 1:nrun
     end
 
     % load behavior data
-    fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' mouse '-' expDate '-' expTime{irun} '.mat'];
+    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-i' mouse '-' expDate '-' expTime{irun} '.mat'];
     load(fName);
     ntrials = size(input.tGratingDirectionDeg,2);
     temp(irun) = input;
@@ -351,6 +351,8 @@ print(fullfile(fnout, dataFolder, [mouse '_' expDate '_retSz_maskOverlap.pdf']),
 fprintf('Extracting cell signal...\n')
 nCells = sum(mask_cell(:));
 data_tc = zeros(sz(3),nCells);
+np_tc = zeros(sz(3),nCells);
+%data_reg_long = reshape(data_reg,[sz(1)*sz(2) sz(3)]);
 iC = 1;
 for i = 1:sz(1)
     ind = find(mask_cell(i,:));
@@ -359,10 +361,17 @@ for i = 1:sz(1)
             fprintf([num2str(iC) ' '])
             j = ind(ii);
             data_tc(:,iC) = squeeze(mean(mean(data_reg(i-1:i+1,j-1:j+1,:),1),2));
+%             blank = zeros(sz(1),sz(2));
+%             blank2 = zeros(sz(1),sz(2));    
+%             blank(i-1:i+1,j-1:j+1) = 1;
+%             blank2(i-2:i+2,j-2:j+2) = 1;
+%             nppix = find(blank2-blank);
+%             np_tc(:,iC) = squeeze(mean(data_reg_long(nppix,:),1));
             iC = 1+iC;
         end
     end
 end
+%             data_tc = data_tc+np_tc;
 fprintf([num2str(nCells) ' total cells extracted\n'])
 save(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs.mat']), 'data_tc')
 
@@ -423,6 +432,8 @@ fprintf(['Stimulus at: El ' num2str(stimEl) ', Az ' num2str(stimAz) '\n'])
 % calculate cell distances
 fprintf('Calculating cell RF distances to stimulus...\n')
 cellDists = sqrt((cellAz-stimAz).^2+(cellEl-stimEl).^2);
+n = length(find(cellDists<=10));
+fprintf(['# goodfit cells within 10 deg = ' num2str(n) '\n'])
 
 %% plot tuning
 nSize = length(szs);
@@ -602,7 +613,7 @@ for count_shuf = 0:Nshuf
 
         % max of each size mean for use in initial guesses
         [maxMean maxVal] = max(tuning_mat(:,1,iCell));
-            
+        x_max = szs(maxVal);    
         if count_shuf == 0 
             PLOTIT_FIT = 0;
             SAVEALLDATA = 1;
@@ -681,7 +692,7 @@ end
     %chosen=[44 54]; %[31 41 45 46 52 64 67 71 72 73 75 77 79 83 89];
     %chosen = goodfit_ind_size(ind(1:10));
     chosen = 1:10;
-    %chosen = find(cellDists<=10);
+    %chosen = intersect(ism1(1:50),find(cellDists<=10));
     Npars = size(fit_shuf_vec,2);
     lbub_fits = NaN(nCells,Npars,5);
     alpha_bound = .025;

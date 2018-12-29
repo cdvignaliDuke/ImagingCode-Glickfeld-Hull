@@ -71,3 +71,47 @@ expt(3).areaBorders = 0;
 expt(3).regImgStartFrame = 7103;
 expt(3).saveLoc = 'ashley';
 
+%% 1200 181005
+expt(3).mouse = '1200';
+expt(3).date = '181005';
+expt(3).img_loc  = {'LM';'L23'};
+expt(3).z = -150;
+expt(3).img_strct  = {'axons'};
+expt(3).indicator = {'tg';'GCaMP6s'};
+expt(3).label = {'None'};
+expt(3).labelFolder = '';
+expt(3).drug = '';
+expt(3).matchExptDate = nan;
+expt(3).retinotopyStimSize = 10;
+expt(3).retinotopyFolder = {'005'};
+expt(3).retinotopyTime = {'1833'};
+expt(3).sizeTuningFolder = {'006'};
+expt(3).sizeTuningTime = {'1928'};
+expt(3).sizeTuningMaxTrials = {''};
+expt(3).sizeTuningTimeFromDrugMin = {''};
+expt(3).areaBorders = 0;
+expt(3).regImgStartFrame = 7103;
+expt(3).saveLoc = 'ashley';
+
+%% 1207 181205
+expt(4).mouse = '1207';
+expt(4).date = '181205';
+expt(4).img_loc  = {'LM';'L23'};
+expt(4).z = -150;
+expt(4).img_strct  = {'axons'};
+expt(4).indicator = {'tg';'GCaMP6s'};
+expt(4).label = {'None'};
+expt(4).labelFolder = '';
+expt(4).drug = '';
+expt(4).matchExptDate = nan;
+expt(4).retinotopyStimSize = 10;
+expt(4).retinotopyFolder = {'004'};
+expt(4).retinotopyTime = {'1247'};
+expt(4).sizeTuningFolder = {'005'};
+expt(4).sizeTuningTime = {'1346'};
+expt(4).sizeTuningMaxTrials = {''};
+expt(4).sizeTuningTimeFromDrugMin = {''};
+expt(4).areaBorders = 0;
+expt(4).regImgStartFrame = 7103;
+expt(4).saveLoc = 'ashley';
+

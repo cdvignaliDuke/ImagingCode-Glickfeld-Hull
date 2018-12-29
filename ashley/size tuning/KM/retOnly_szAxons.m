@@ -9,7 +9,7 @@
 close all;clear all;clc;
 
 ds = 'szTuning_axons_AL';
-iexp = 5; 
+iexp = 6; 
 rc = behavConstsAV;
 eval(ds)
 
@@ -58,7 +58,7 @@ for irun = 1:nrun
     end
 
     % load behavior data
-    fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' mouse '-' expDate '-' expTime{irun} '.mat'];
+    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-i' mouse '-' expDate '-' expTime{irun} '.mat'];
     load(fName);
 
     temp(irun) = input;
@@ -157,7 +157,9 @@ fprintf('\nBegin registering...\n')
     
     % save
     fprintf('Registration complete, now saving...\n')
-    mkdir(fullfile(fnout,dataFolder))
+    if ~exist(fullfile(fnout,dataFolder))
+    	mkdir(fullfile(fnout,dataFolder))
+    end
     save(fullfile(fnout, dataFolder, [mouse '_' expDate 'ret_reg_shifts.mat']), 'out', 'data_avg','meanrng')
     save(fullfile(fnout, dataFolder, [mouse '_' expDate '_input.mat']), 'input')
 %end
@@ -699,7 +701,7 @@ title(['All Cell Average dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(
 %% fit retinotopy data
 
 close all
-
+clear data_reg
 fprintf('\nBegin fitting retinotopy data...\n')
 
 % fprintf('Plot tc_dfof for all stims of cell 10\n')
@@ -780,8 +782,9 @@ for count_shuf = 0:Nshuf
         if count_shuf == 1 & iCell == 1
             x = zeros(1,nCells);
             for i = 1:nCells
-                x(1,i) = Fit_struct(iCell).True.s_.Rsq;
+                x(1,i) = Fit_struct(i).True.s_.Rsq;
             end
+            x_sort = sort(x,'descend');
             n = length(find(x>=0.5));
             fprintf([num2str(n) '/' num2str(nCells) ' r-squared > 0.5\n'])
         end
@@ -789,7 +792,7 @@ for count_shuf = 0:Nshuf
             if h_all(1,iCell) == 0
                 continue
             end
-            if nCells > 2000 & Fit_struct(iCell).True.s_.Rsq < 0.7
+            if nCells > 2000 & Fit_struct(iCell).True.s_.Rsq < x_sort(2000)
                 continue
             end
         end
@@ -818,7 +821,7 @@ for count_shuf = 0:Nshuf
 end
 fprintf('\nShuffling done, saving fit results\n')
 s = whos('Fit_struct');
-if s.bytes < 2300000000
+if s.bytes < 2000000000
     save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct.mat']), 'Fit_struct')
     fprintf('\nSaved all shuffles\n')
 else 
@@ -959,6 +962,7 @@ print(fn_out,'-dpdf')
 
 %% visualize retinotopic organization
 % takes each of the goodfit_inds and colors masks by El+Az of RF center
+fprintf('Making bouton response map')
 mask_label = bwlabel(mask_all);
 retMap_El = NaN(size(mask_cell));
 retMap_Az = retMap_El;
