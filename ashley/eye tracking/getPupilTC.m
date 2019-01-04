@@ -2,7 +2,7 @@ clear all
 close all
 ds = 'FSAV_attentionV1';
 eval(ds)
-slct_exp = [13 size(expt,2)];
+slct_exp = 9;
 %%
 calib = 1/26.6; %mm per pixel
 
@@ -30,6 +30,7 @@ if ~any(isnan(expt(iexp).eyeradrange))
             data = read(eyeObj,[1 Inf]);
             data = squeeze(data(:,:,1,:));
         catch
+            fprintf('loading...')
 %             try
                 eyeName = [runFolder '_000_000_eye.mat'];
                 load(eyeName)
@@ -61,7 +62,11 @@ if ~any(isnan(expt(iexp).eyeradrange))
         W=40;
 
         rad_range = expt(iexp).eyeradrange;
-        data = double(data(yc-W:yc+W,xc-W:xc+W,:));
+        if strcmp(subnum,'668')
+            data = double(data(yc-W:yc+W,20:(W*2+20),:));
+        else
+            data = double(data(yc-W:yc+W,xc-W:xc+W,:));
+        end
         warning off;
 
         A = cell(size(data,3),1);
