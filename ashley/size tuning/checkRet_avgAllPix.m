@@ -1,16 +1,17 @@
-ms = '1209';
-dt = '181202';
-t = '1407';
-imgFolder = '001';
-imgName = '001_000_000';
-nfr = 29400;
+ms = '842';
+dt = '190104';
+t = '1728';
+imgFolder = '005';
+imgName = '005_000_000';
+nfr = 4050;
+doShortSession = true;
 %%
 fn = fullfile('Z:\home\ashley\data',ms,'two-photon imaging',dt,imgFolder);
 fnout = fullfile('Z:\home\ashley\Analysis',ms,'two-photon imaging',dt,imgFolder);
 cd(fn);
 d = squeeze(sbxread(imgName,0,nfr));
 tc = squeeze(mean(mean(d,1),2));
-d = loadsbx_choosepmt(1,ms,dt,imgFolder,imgName);
+% d = loadsbx_choosepmt(1,ms,dt,imgFolder,imgName);
 %%
 mw = loadMworksFile(ms,dt,t);
  
@@ -45,7 +46,13 @@ end
 pos_azel = unique(tpos);
 
 %%
+if doShortSession
+    ntr = floor(nfr./(on+off));
+    tpos = tpos(1:ntr);
+end
 
+%%
+tc = tc(1:((on+off).*ntr));
 tc_tr = reshape(tc,[on+off,ntr]);
 f0 = mean(tc_tr(off/2:off,:),1);
 dff = (tc_tr - f0)./f0;
@@ -99,3 +106,25 @@ if exist(fnout,'dir') == 0
     mkdir(fnout)
 end
 print(fullfile(fnout,'checkRet_meanPixVal'),'-dpdf','-fillpage')
+
+%%
+[ypix,xpix,nfr] = size(d);
+
+d_align = double(reshape(d,[ypix,xpix,on+off,ntr]));
+f0 = mean(d_align(:,:,(off/2):off,:),3);
+dff = (d_align - f0)./f0;
+
+dff_img_pos = nan(ypix,xpix,npos);
+for i = 1:npos
+    ind = strcmp(tpos,pos_azel(i));
+    dff_img_pos(:,:,i) = mean(mean(dff(:,:,(on/2+off):(off+on),ind),4),3);
+end
+
+figure
+[nrows, ncols] = optimizeSubplotDim(npos);
+for i = 1:npos
+    subplot(nrows,ncols,i)
+    imagesc(dff_img_pos(:,:,i))
+    title(pos_azel(i))
+end
+print(fullfile(fnout,'checkRet_imgEaPos'),'-dpdf','-fillpage')

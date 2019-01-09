@@ -1,0 +1,30 @@
+%% 754 181116 **not registered
+expt(1).SubNum = '754';
+expt(1).mouse = '754';
+expt(1).date = '181116';
+expt(1).img_loc  = {'V1';'L5'};
+expt(1).z = -450;
+expt(1).img_strct  = {'cells'};
+expt(1).indicator = {'virus';'flex-GCaMP6s'};
+expt(1).time_mat = ['1031'];
+expt(1).runs = ['002'];
+expt(1).nrun = size(expt(1).runs,1);
+expt(1).frame_rate = 30;
+expt(1).folder = 'two-photon imaging';
+expt(1).catch = 1;
+expt(1).catchRew = 1;
+expt(1).dirtuning = '001';
+expt(1).dirtuning_time = '1138';
+expt(1).rettuning = {'003';'1019'};
+expt(1).stimOnMs = 100;
+expt(1).motionThreshold = 0.05;
+expt(1).redChannelOn = 0;
+expt(1).redChannelLabel = '';
+expt(1).redChannelRun = '';
+expt(1).greenredsimultaneous = 0;
+expt(1).areaBorders = 0;
+expt(1).regImgStartFrame = '';
+expt(1).trial_range = nan;
+expt(1).attentionTask = true;
+expt(1).hasAttention = true;
+

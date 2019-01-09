@@ -180,7 +180,7 @@ expt(5).trial_range = 100:591;
 expt(5).attentionTask = true;
 expt(5).hasAttention = true;
 
-%% 754 181012
+%% 754 181012 ** needs to be registered again, bx timecourses # cells not correct
 expt(6).SubNum = '754';
 expt(6).mouse = '754';
 expt(6).date = '181012';
@@ -272,3 +272,65 @@ expt(8).regImgStartFrame = 87909;
 expt(8).trial_range = 50:331;
 expt(8).attentionTask = true;
 expt(8).hasAttention = true;
+
+%% 754 181026 **not registered
+expt(9).SubNum = '754';
+expt(9).mouse = '754';
+expt(9).date = '181026';
+expt(9).img_loc  = {'V1';'L2/3'};
+expt(9).z = -240;
+expt(9).img_strct  = {'cells'};
+expt(9).indicator = {'virus';'flex-GCaMP6s'};
+expt(9).time_mat = ['1004'];
+expt(9).runs = ['002'];
+expt(9).nrun = size(expt(9).runs,1);
+expt(9).nframesPerRun = [];
+expt(9).frame_rate = 30;
+expt(9).folder = 'two-photon imaging';
+expt(9).catch = 1;
+expt(9).catchRew = 0;
+expt(9).dirtuning = '004';
+expt(9).dirtuning_time = '1109';
+expt(9).rettuning = {'001';'0947'};
+expt(9).stimOnMs = 100;
+expt(9).motionThreshold = 0.05;
+expt(9).redChannelOn = 0;
+expt(9).redChannelLabel = '';
+expt(9).redChannelRun = '';
+expt(9).greenredsimultaneous = 0;
+expt(9).areaBorders = 0;
+expt(9).regImgStartFrame = 4625;
+expt(9).trial_range = nan;
+expt(9).attentionTask = true;
+expt(9).hasAttention = true;
+
+%% 754 181029 ** not registered
+expt(10).SubNum = '754';
+expt(10).mouse = '754';
+expt(10).date = '181029';
+expt(10).img_loc  = {'V1';'L2/3'};
+expt(10).z = -240;
+expt(10).img_strct  = {'cells'};
+expt(10).indicator = {'virus';'flex-GCaMP6s'};
+expt(10).time_mat = ['1041'];
+expt(10).runs = ['002'];
+expt(10).nrun = size(expt(10).runs,1);
+expt(10).nframesPerRun = [];
+expt(10).frame_rate = 30;
+expt(10).folder = 'two-photon imaging';
+expt(10).catch = 1;
+expt(10).catchRew = 0;
+expt(10).dirtuning = '003';
+expt(10).dirtuning_time = '1145';
+expt(10).rettuning = {'001';'1017'}; % trials in mworks lost
+expt(10).stimOnMs = 100;
+expt(10).motionThreshold = 0.05;
+expt(10).redChannelOn = 0;
+expt(10).redChannelLabel = '';
+expt(10).redChannelRun = '';
+expt(10).greenredsimultaneous = 0;
+expt(10).areaBorders = 0;
+expt(10).regImgStartFrame = 89350;
+expt(10).trial_range = nan;
+expt(10).attentionTask = true;
+expt(10).hasAttention = true;

@@ -1307,6 +1307,37 @@ figAxForm
 legend(leg,{'0','45','90','135'})
 title(sprintf('Visual Trials, Ori Groups (n=%s)',num2str(sum(minRespCells & isTuned_allExpt))))
 print([fnout '_oriTuningCycResp_visOnly'],'-dpdf')
+
+%%
+figure
+suptitle('Responsive, tuned Cells with minimum response cutoff')
+orientations = [0 45 90 135];
+leg = [];
+n = cell(1,nori);
+for iori = 1:nori
+    ind = oriPref_allExpt == iori;
+    d = siCycResp(lateRespCells_allExpt & isTuned_allExpt & ind);
+    y = mean(d,2);
+    yerr = ste(d,2);
+    [~,p] = ttest(d);
+        h = bar(iori,y);
+        h.BarWidth = .5;
+        h.EdgeColor = 'none';
+        h.FaceColor = cueColor{1};
+        hold on
+        h = errorbar(iori,y,yerr);
+        h.Color = cueColor{1};
+    leg(iori) = h;
+    n{iori} = sprintf('%s: %s, p = %s',num2str(orientations(iori)),...
+        num2str(sum(lateRespCells_allExpt & isTuned_allExpt & ind)),...
+        num2str(round(p,2,'significant')));
+end
+L = legend(leg,n,'location','northwest');
+figXAxis([],'Preferred Orientation (deg)',[0 nori+1],1:nori,orientations)
+figYAxis([],'V-A Selectivity',[-2 2],-2:2)
+figAxForm
+print([fnout '_respTunedCellsSelectivity'],'-dpdf','-fillpage')
+
 %% time-course of tuned cells
 %time-courses
 setFigParams4Print('portrait')
