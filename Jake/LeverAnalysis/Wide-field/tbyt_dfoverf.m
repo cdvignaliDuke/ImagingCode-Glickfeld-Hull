@@ -3,6 +3,8 @@ function tc_dfoverf = tbyt_dfoverf(b_data, bx_out_dir);
 
 %load variables from bx_outputs
 load(bx_out_dir, 'lever', 'frame_info', 'data_tc');
+% load(bx_out_dir2, 'data_tc');
+% load(bx_out_dir, 'lever', 'frame_info');
 
 shift = 4;
 baseline_timesMs = lever.baseline_timesMs;

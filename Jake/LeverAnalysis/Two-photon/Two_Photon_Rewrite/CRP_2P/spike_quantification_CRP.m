@@ -4,19 +4,20 @@
 % 3. compare PSTH for success/fail and press
 % 4. compare amplitudes of evoked and spontaneous events
 
-
+%load data
 load([dest_sub '_spont_events.mat'])
 load([dest_sub '_evoked_events.mat'])
 load([dest 'parse_behavior.mat'])
-load([dest_sub '_pvals.mat'])
-load([dest_sub '_cell_categories.mat']);
-load([dest_sub 'ROI_TCs.mat'])
-load([dest_sub '_cue_movies_lick.mat']); load([dest_sub '_cue_movies.mat']); 
+load([dest '_pvals.mat'])
+load([dest '_cell_categories.mat']);
+load([dest 'ROI_TCs.mat'])
+load([dest '_cue_movies_lick.mat']); 
+load([dest '_cue_movies.mat']); 
 pre_rew_frames = pre_cue_frames + round((trial_outcome.normalReward(1) - trial_outcome.normalRewardCue(1))/ifi);
 
+%define useful variables
 nCells = size(tc_avg,2);
 RS_cells = allresp_cells;
-
 n = ceil(sqrt(nCells));
 if nCells <((n.^2)-n)
     n2= n-1;
@@ -31,7 +32,7 @@ end
 for ic = 1:nCells
     events(ic).dfoverf_avg = nanmean(events(ic).dfoverf_chunk,1);
     events(ic).dfoverf_sem = std(events(ic).dfoverf_chunk,[],1)./sqrt(size(events(ic).dfoverf_chunk,1));
-%     
+     
     normalR(ic).good_event_dfoverf = normalR(ic).dfoverf_chunk(find(normalR(ic).good_event==1),:);
     if ~isempty(omitR)
         omitR(ic).good_event_dfoverf = omitR(ic).dfoverf_chunk(find(omitR(ic).good_event==1),:);
@@ -369,7 +370,6 @@ all_UR_nolick_hist = zeros(sz1,nCells);
 NegRate_cell = [];
 % all_success_syn = zeros(sz1,sz_s,nCells);
 % all_fail_syn = zeros(sz1,sz_f,nCells);
-
 
 for ic = 1:nCells
     normalCue(ic).hist = zeros(sz1,sz_n);
@@ -750,7 +750,7 @@ end
 save([dest_sub '_event_hist.mat'], 'NR_ind_all', 'OR_ind_all', 'all_NR_hist', 'all_OR_hist', 'all_UR_hist', 'all_NR_nolick_hist', ...
     'all_OR_nolick_hist', 'all_UR_nolick_hist', 'NR_ind_RS', 'OR_ind_RS', 'all_OR_hist_negR');
 
-%% compare spontaneous and evoked event amplitudes and waveforms
+%% 4) compare spontaneous and evoked event amplitudes and waveforms
 %compare amplitude distributions of triggered events
 % fig=figure;
 % spontN = [];

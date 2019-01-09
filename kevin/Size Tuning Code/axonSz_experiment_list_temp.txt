@@ -1,0 +1,11 @@
+date,mouse,run_str,area,GECI
+180913,i1200,runs-005,PM,s
+180917,i1200,runs-004,PM,s
+180920,i1200,runs-009,AL,s
+180921,i1201,runs-007,PM,s
+180922,i1201,runs-004,AL,s %not analyzed
+180926,i1200,runs-006,AL,s
+181003,i1209,runs-003,AL,s
+181004,i1209,runs-004,LM,s 
+181005,i1200,runs-006,LM,s 
+

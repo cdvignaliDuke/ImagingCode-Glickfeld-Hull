@@ -8,8 +8,8 @@
 %% get path names
 clear all;close all; clc;
 
-ds = 'szTuning_axons_LM';
-iexp = 3;
+ds = 'szTuning_axons_AL';
+iexp = 6;
 rc = behavConstsAV;
 eval(ds)
 
@@ -60,7 +60,7 @@ for irun = 1:nrun
     end
 
     % load behavior data
-    fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-i' mouse '-' expDate '-' expTime{irun} '.mat'];
+    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-i' mouse '-' expDate '-' expTime{irun} '.mat'];
     load(fName);
     ntrials = size(input.tGratingDirectionDeg,2);
     temp(irun) = input;
@@ -325,7 +325,7 @@ fprintf('Cell and neuropil masks loaded\n')
 % load(fn_out);
 
 % [mask_cell, nCells] = bwlabel(mask_cell); % bwlabel labels all individual cells
-nCells = max(mask_cell(:)); % take max label of mask_cell, should circumvent bwlabel
+nCells = sum(mask_cell(:)); % take max label of mask_cell, should circumvent bwlabel
 fprintf([num2str(nCells) ' total cells selected\n'])
 fprintf('Cell segmentation complete\n')
 
@@ -351,6 +351,8 @@ print(fullfile(fnout, dataFolder, [mouse '_' expDate '_retSz_maskOverlap.pdf']),
 fprintf('Extracting cell signal...\n')
 nCells = sum(mask_cell(:));
 data_tc = zeros(sz(3),nCells);
+np_tc = zeros(sz(3),nCells);
+%data_reg_long = reshape(data_reg,[sz(1)*sz(2) sz(3)]);
 iC = 1;
 for i = 1:sz(1)
     ind = find(mask_cell(i,:));
@@ -359,10 +361,17 @@ for i = 1:sz(1)
             fprintf([num2str(iC) ' '])
             j = ind(ii);
             data_tc(:,iC) = squeeze(mean(mean(data_reg(i-1:i+1,j-1:j+1,:),1),2));
+%             blank = zeros(sz(1),sz(2));
+%             blank2 = zeros(sz(1),sz(2));    
+%             blank(i-1:i+1,j-1:j+1) = 1;
+%             blank2(i-2:i+2,j-2:j+2) = 1;
+%             nppix = find(blank2-blank);
+%             np_tc(:,iC) = squeeze(mean(data_reg_long(nppix,:),1));
             iC = 1+iC;
         end
     end
 end
+%             data_tc = data_tc+np_tc;
 fprintf([num2str(nCells) ' total cells extracted\n'])
 save(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs.mat']), 'data_tc')
 
@@ -423,6 +432,8 @@ fprintf(['Stimulus at: El ' num2str(stimEl) ', Az ' num2str(stimAz) '\n'])
 % calculate cell distances
 fprintf('Calculating cell RF distances to stimulus...\n')
 cellDists = sqrt((cellAz-stimAz).^2+(cellEl-stimEl).^2);
+n = length(find(cellDists<=10));
+fprintf(['# goodfit cells within 10 deg = ' num2str(n) '\n'])
 
 %% plot tuning
 nSize = length(szs);
@@ -579,7 +590,7 @@ fprintf('\nBegin shuffling...\n')
 figure;
 
 fprintf('Creating new size-tuning curve fit data...\n')
-fprintf('Begin fitting size-tuning curves at all cells, all runs...')
+fprintf('Begin fitting size-tuning curves at all cells, all runs...\n')
 for count_shuf = 0:Nshuf
     fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
     for iSz = 1:nSize
@@ -602,7 +613,7 @@ for count_shuf = 0:Nshuf
 
         % max of each size mean for use in initial guesses
         [maxMean maxVal] = max(tuning_mat(:,1,iCell));
-            
+        x_max = szs(maxVal);    
         if count_shuf == 0 
             PLOTIT_FIT = 0;
             SAVEALLDATA = 1;
@@ -681,7 +692,7 @@ end
     %chosen=[44 54]; %[31 41 45 46 52 64 67 71 72 73 75 77 79 83 89];
     %chosen = goodfit_ind_size(ind(1:10));
     chosen = 1:10;
-    %chosen = find(cellDists<=10);
+    %chosen = intersect(ism1(1:50),find(cellDists<=10));
     Npars = size(fit_shuf_vec,2);
     lbub_fits = NaN(nCells,Npars,5);
     alpha_bound = .025;
@@ -854,7 +865,7 @@ ylabel('dF/F normalized')
 xlabel('Size (deg)')
 ylim([-0.3 1.2])
 axis square
-title(['M2 cells resp to stim <=10 deg- n = ' num2str(length(ind))])
+title(['M2 cells within 10 deg- n = ' num2str(length(ind))])
 subplot(2,2,3)
 ind = intersect(goodfit_ind_size, find(cellDists<=10));
 ret_avg = mean(tuning_norm(:,ind),2)';
@@ -864,7 +875,7 @@ ylabel('dF/F normalized')
 xlabel('Size (deg)')
 ylim([-0.3 1.2])
 axis square
-title(['All well-fit cells resp to stim <=10 deg- n = ' num2str(length(ind))])
+title(['All well-fit cells within 10 deg- n = ' num2str(length(ind))])
 subplot(2,2,4)
 hist(lbub_fits(ind,1,4))
 xlim([0 80])

@@ -1,11 +1,11 @@
 
 clear all; clear global; clear cd;
-subjNum = '085';
-session_date = '180517';
+subjNum = '93';
+session_date = '170510';
 file_num = '_000_000';
 frame_rate = '30Hz ';
-frame_start = 0;
-num_frames = 800;
+frame_start = 50000;
+num_frames = 1000;
 cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
 %cd('Z:\Data\2P_imaging\171121_img050\img050');
 %cd('Z:\Data\2P_imaging\img040\170912_img039\img039');
@@ -25,7 +25,7 @@ end
 data_max= max(data,[],3);
 %figure; imagesc(data_avg); colormap gray; %truesize;
 %title([frame_rate, subjNum, ' ', session_date, ' recon avg frames ', num2str(frame_start), ':', num2str(num_frames), ' ', file_num]);
-writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
+%writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
 
 %% write a tiff movie to analyze diff. in sessions
 % 

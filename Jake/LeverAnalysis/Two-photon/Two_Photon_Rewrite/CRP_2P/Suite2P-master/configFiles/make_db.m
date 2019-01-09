@@ -1,0 +1,90 @@
+i = 0;
+
+i = i+1; %1
+db(i).mouse_name    = '989';
+db(i).date          = '2017-05-19';
+db(i).expts         = [];
+db(i).nchannels     = 1;
+db(i).gchannel      = 1; 
+db(i).nplanes       = 1; 
+db(i).expred        = [];
+db(i).nchannels_red = [];
+db(i).diameter      = 60;
+db(i).comments      = 'raw video';
+
+i = i+1; %2
+db(i).mouse_name    = '990';
+db(i).date          = '2017-04-16';
+db(i).doRegistration= 1;
+db(i).expts         = [];
+db(i).nchannels     = 1;
+db(i).gchannel      = 1; 
+db(i).nplanes       = 1; 
+db(i).expred        = [];
+db(i).nchannels_red = [];
+db(i).diameter      = 40;
+db(i).comments      = 'motion registered tiff';
+
+i = i+1;%3
+db(i).mouse_name    = '050';
+db(i).date          = '2017-11-13';
+db(i).expts         = [];
+db(i).nchannels     = 1;
+db(i).gchannel      = 1; 
+db(i).nplanes       = 1; 
+db(i).expred        = [];
+db(i).nchannels_red = [];
+db(i).diameter      = 60;
+db(i).comments      = 'raw tiff';
+
+i = i+1;  %4
+db(i).mouse_name    = '044';
+db(i).date          = '2017-09-21';
+db(i).expts         = [];
+db(i).nchannels     = 1;
+db(i).gchannel      = 1; 
+db(i).nplanes       = 1; 
+db(i).expred        = [];
+db(i).nchannels_red = [];
+db(i).diameter      = 60;
+db(i).comments      = 'raw tiff';
+
+i = i+1;  %5
+db(i).mouse_name    = '084';
+db(i).date          = '2018-04-25';
+db(i).expts         = [];
+db(i).nchannels     = 1;
+db(i).gchannel      = 1; 
+db(i).nplanes       = 1; 
+db(i).expred        = [];
+db(i).nchannels_red = [];
+db(i).diameter      = 40;
+db(i).nSVDforROI    = 600;
+db(i).comments      = 'raw tiff';
+
+i = i+1;  %6
+db(i).mouse_name    = '084';
+db(i).date          = '2000-01-01';
+db(i).expts         = [];
+db(i).nchannels     = 1;
+db(i).gchannel      = 1; 
+db(i).nplanes       = 1; 
+db(i).expred        = [];
+db(i).nchannels_red = [];
+db(i).diameter      = 20;
+db(i).nSVDforROI    = 100;
+db(i).comments      = 'raw tiff';
+
+i = i+1;  %7
+db(i).mouse_name    = '084';
+db(i).date          = '2000-01-02';
+db(i).expts         = [];
+db(i).nchannels     = 1;
+db(i).gchannel      = 1; 
+db(i).nplanes       = 1; 
+db(i).expred        = [];
+db(i).nchannels_red = [];
+db(i).diameter      = 15;
+db(i).nSVDforROI    = 600;
+db(i).comments      = 'raw tiff';
+

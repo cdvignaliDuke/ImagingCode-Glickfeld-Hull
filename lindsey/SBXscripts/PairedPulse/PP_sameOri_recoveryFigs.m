@@ -283,7 +283,7 @@ save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_
 
 %% Figures
 
-tt = (1-20:1+99).*(1000/frameRateHz);
+tt = (1-20:1+99).*(1000/double(frameRateHz));
 %response by interval- all and max dir- by cell
 for iCell = 1:length(good_ind)
     figure;
@@ -342,29 +342,37 @@ for iCell = 1:length(good_ind)
 end
 
 %average all cells by interval all directions
-tt = (1-20:1+99).*(1000/frameRateHz);
-b_tt = (base_win-20).*(1000/frameRateHz);
-r_tt = (resp_win-20).*(1000/frameRateHz);
+frameRateHz = double(frameRateHz);
+tt = (1-20:1+99).*(1000/double(frameRateHz));
+b_tt = (base_win-20).*(1000/double(frameRateHz));
+r_tt = (resp_win-20).*(1000/double(frameRateHz));
 figure;
 temp_resp_tc = bsxfun(@minus,data_dfof(:,:,:,:),nanmean(data_dfof(base_win,:,:,:),1));
 ind_off = [];
 subplot(2,1,1)
 plot(tt, squeeze(nanmean(nanmean(temp_resp_tc(:,good_ind,1,:),2),4)))
 ylabel('dF/F')
+xlabel('Time from stim (ms)')
 hold on
 subplot(2,1,2)
-errorbar(8000, nanmean(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,1,:),1),2),4), nanstd(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,1,:),1),4),[],2)./sqrt(length(good_ind)), 'ob');
+errorbar(8000, nanmean(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,1,:),1),2),4), nanstd(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,1,:),1),4),[],2)./sqrt(length(good_ind)), 'o');
 ylabel('Average dF/F')
+xlabel('Time from stim (ms)')
 hold on
+leg_str = cell(1,5);
+leg_str{1} = 'Adapt';
 for ioff = 1:noff
     ind = find(tFramesOff == offs(ioff));
     ind_off = [ind_off length(ind)];
     subplot(2,1,1)
     plot(tt, squeeze(nanmean(nanmean(temp_resp_tc(:,good_ind,2,ind),2),4)))
     subplot(2,1,2)
-    errorbar(offs(ioff)*(1000/frameRateHz), nanmean(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,2,ind),1),2),4), nanstd(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,2,ind),1),4),[],2)./sqrt(length(good_ind)), 'ob');
+    errorbar(offs(ioff)*(1000/frameRateHz), nanmean(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,2,ind),1),2),4), nanstd(nanmean(nanmean(temp_resp_tc(resp_win,good_ind,2,ind),1),4),[],2)./sqrt(length(good_ind)), 'o');
     hold on;
+    leg_str{ioff+1} = num2str(offs(ioff).*(1000/double(frameRateHz)));
 end
+subplot(2,1,1)
+legend(leg_str)
 suptitle([mouse ' ' date '- ' num2str(length(good_ind)) ' cells- ' num2str(ind_off)]) 
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_avgResp_byInt_allDir.pdf']),'-dpdf','-bestfit')
 

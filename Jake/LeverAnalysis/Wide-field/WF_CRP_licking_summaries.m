@@ -11,15 +11,14 @@ post_cue_sem_all = cell(size(all_bx_animals));
 pre_cue_sem_all = cell(size(all_bx_animals));
 miss_rates_all = cell(size(all_bx_animals));
 RTstd_all = cell(size(all_bx_animals));
-rew_om_hist_all
+%rew_om_hist_all
 
 figure;
 hold on;
 x_axis = 1:1:max(days_to_post_learning);
 for ii = 1:length(all_bx_animals)
-    load([data_dir, all_bx_animals{ii}, 'RT_sem_across_days'], 'RT_across_days_sem');
+    load([data_dir, all_bx_animals{ii}, 'RT_sem_across_days'], 'RT_across_days_sem', 'RT_across_days');
     avg_sem_all{ii} = RT_across_days_sem; 
-    load([data_dir, all_bx_animals{ii}, 'RT_sem_across_days'], 'RT_across_days');
     avg_RTs_all{ii} =  RT_across_days;
     load(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_post_cue_lick\', all_bx_animals{ii}, 'rew_om_post_cue_lick']);
     post_cue_lick_all{ii} = avg_licks_post_cue;
@@ -35,6 +34,7 @@ for ii = 1:length(all_bx_animals)
     ylabel('RT relative to cue onset');
     xlabel('training day #');
     title('mean reaction time across days for all animals');
+    hline(600, 'r');
 end
 
 
@@ -81,7 +81,8 @@ last_training_day_RT_sem = std(last_training_day_RT)/sqrt(length(last_training_d
 PL_RT_sem = std(PL_RT)/sqrt(length(PL_RT));
 
 figure;
-errorbar([1:3], [day_1_RT_mean, last_training_day_RT_mean, PL_RT_mean], [day_1_RT_sem, last_training_day_RT_sem, PL_RT_sem])
+bar([1:3], [day_1_RT_mean, last_training_day_RT_mean, PL_RT_mean]); hold on;
+errorbar([1:3], [day_1_RT_mean, last_training_day_RT_mean, PL_RT_mean], [day_1_RT_sem, last_training_day_RT_sem, PL_RT_sem], 'LineStyle', 'none'); 
 title('mean RT across animals for day 1, last day of bx training, and second day of imaging');
 ylabel('RT');
 hline(600);
@@ -204,7 +205,6 @@ x_axis2 = 1:max(days_to_post_learning);
 errorbar(x_axis2, RTstd_mean, RTstd_sem);
 ylabel('RT standard deviation'); xlabel('training day number'); title('mean st. dev of the RT across animals all days');
 
-%% licking histogram across animals on day 1 and post learning 500ms
 
 
 

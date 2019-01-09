@@ -1614,6 +1614,20 @@ ind_nan = find(~isnan(roc_val_diff(1,1,:,5,1)));
 %250 vs 750 for >30 pos
 ind_nan = find(~isnan(roc_val_diff(1,1,:,3,1)));
 [p,table] = anova2([squeeze(roc_val_diff(1:3,1,ind_nan,3,1))'; squeeze(roc_val_diff(1:3,2,ind_nan,3,1))'],length(ind_nan))
+
+%250 vs 750 for >30 pos
+ind_nan = find(~isnan(roc_val_diff(1,1,:,3,1)));
+[p1,table] = anova2([squeeze(roc_val_diff(2:5,1,ind_nan,3,1))'; squeeze(roc_val_diff(2:5,2,ind_nan,3,1))'],length(ind_nan));
+%250 vs 750 for >60 pos
+ind_nan = find(~isnan(roc_val_diff(1,1,:,5,1)));
+[p2,table] = anova2([squeeze(roc_val_diff(2:5,1,ind_nan,5,1))'; squeeze(roc_val_diff(2:5,2,ind_nan,5,1))'],length(ind_nan));
+%250 vs 750 for >30 pos & <15 neg
+ind_nan = find(~isnan(roc_val_diff(1,1,:,3,2)));
+[p3,table] = anova2([squeeze(roc_val_diff(2:5,1,ind_nan,3,2))'; squeeze(roc_val_diff(2:5,2,ind_nan,3,2))'],length(ind_nan));
+%250 vs 750 for >60 pos & <15 neg
+ind_nan = find(~isnan(roc_val_diff(1,1,:,5,2)));
+[p4,table] = anova2([squeeze(roc_val_diff(2:5,1,ind_nan,5,2))'; squeeze(roc_val_diff(2:5,2,ind_nan,5,2))'],length(ind_nan));
+
 %histograms for all experiments
 offset = 0;
 for iexp = 1:nexp
