@@ -2,7 +2,7 @@ clear all
 close all
 ds = 'FSAV_attentionV1';
 eval(ds)
-slct_exp = 9;
+slct_exp = 8:9;
 %%
 calib = 1/26.6; %mm per pixel
 
