@@ -2,82 +2,54 @@ clear all
 close all
 ds = 'FSAV_attentionV1';
 cellsOrDendrites = 1;
-doRawData = 0;
 %%
 rc = behavConstsAV;
 imgParams_FSAV
-if strcmp(rc.name,'ashle') & isempty(ds)
-    dataGroup = ['awFSAVdatasets' ds];
-elseif strcmp(rc.name,'ashle') & strcmp(ds(1:3),'FSA')
-    dataGroup = ds;
-elseif strcmp(rc.name,'ashle')
-    dataGroup = ['awFSAVdatasets' ds];
-else
-    dataGroup = [];
-end
-eval(dataGroup)
-titleStr = ds;
-if strcmp(titleStr, '')
-    titleStr = 'V1_100ms';
-elseif strcmp(titleStr(1),'_')
-    titleStr = titleStr(2:end);    
-elseif strcmp(titleStr(1:4), 'FSAV')
-    titleStr = titleStr(6:end);
-end
-str = unique({expt.SubNum});
-mouse_str = ['i' strjoin(str,'_i')];
-if doRawData == 1
-    mouse_str = [mouse_str '_rawDataTC'];
-    titleStr = [titleStr '_rawDataTC'];
-end
 
-% if isempty(ds)
-%     load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
-% elseif strcmp(ds(1:3),'FSA')
-%     if cellsOrDendrites == 1
-%         load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_cells' ds(5:end) '.mat']));    
-%     elseif cellsOrDendrites == 2
-%         load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary_dendrites' ds(5:end) '.mat']));    
-%     end        
-% else
-%     load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_CaSummary' ds '.mat']));
-% end
-load(fullfile(rc.caOutputDir,dataGroup,[mouse_str '_trOutcomeStruct_cells' ds(5:end) '.mat']));
+eval(ds)
+titleStr = ds(6:end);
+mice = unique({expt.SubNum});
+mouse_str = ['i' strjoin(mice,'_i')];
+
 if cellsOrDendrites == 1
-    fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr '_startAlign']); 
+    load(fullfile(rc.caOutputDir,ds,...
+        [mouse_str '_trOutcomeStruct_cells' ds(5:end) '.mat']));
+    fnout = fullfile(rc.caOutputDir, ds,[titleStr '_startAlign']); 
 elseif cellsOrDendrites == 2
-    fnout = fullfile(rc.caOutputDir, dataGroup,[titleStr '_den_startAlign']); 
+    load(fullfile(rc.caOutputDir,ds,...
+        [mouse_str '_trOutcomeStruct_cells' ds(5:end) '.mat']));
+    fnout = fullfile(rc.caOutputDir, ds,[titleStr '_den_startAlign']); 
 end
-
-if cellsOrDendrites == 1
-    load(fullfile(rc.caOutputDir,dataGroup,'FSAV Choice','FSAV_decodeData.mat'))
-end
+% 
+% if cellsOrDendrites == 1
+%     load(fullfile(rc.caOutputDir,ds,'FSAV Choice','FSAV_decodeData.mat'))
+% end
 
 %%
-outcomecolmat = {'k';'r'};
-avcolmat = {'k','c'};
+% outcomecolmat = {'k';'r'};
+% avcolmat = {'k','c'};
 avmat = {'visual';'auditory'};
 outcomemat = {'hit';'miss'};
-pressAlign = 1;
-targetAlign = 2;
+% pressAlign = 1;
+% targetAlign = 2;
 visualTrials = 1;
 auditoryTrials = 2;
-prevTrialVisual = 0;
-prevTrialAuditory = 1;
+% prevTrialVisual = 0;
+% prevTrialAuditory = 1;
 nav = 2;
-hitTrials = 1;
-missTrials = 2;
-nout = 2;
-frRateHz = expt(1).frame_rate;
-onTimeFr = 0.1*frRateHz;
-nMonitorDelayFr = 2;
-nBaselineFr = mouse(1).expt(1).pre_event_frames;
-nexp = 0;
-for imouse = 1:size(mouse,2)
-    nexp = nexp+size(mouse(imouse).expt,2);
-end
-exptDates = {expt.date};
-exptMice = {expt.SubNum};
+% hitTrials = 1;
+% missTrials = 2;
+% nout = 2;
+% frameRateHz = expt(1).frame_rate;
+% onTimeFr = 0.1*frameRateHz;
+% nMonitorDelayFr = 2;
+nBaselineFr = mouse(1).expt(1).info.preAlignFrames;
+nexp = size(expt,1);
+% for imouse = 1:size(mouse,2)
+%     nexp = nexp+size(mouse(imouse).expt,2);
+% end
+% exptDates = {expt.date};
+% exptMice = {expt.SubNum};
 
 basewin = 1:34;
 basewin_0 = 32:34;
@@ -85,11 +57,7 @@ respwin = 36:38;
 % basewinTarget = 31:33;
 % respwinTarget = 35:37;
 nCycles = 8;
-cellGroupsAlpha = 0.01;
 lateCycles = 5:nCycles;
-tuningReliabilityThresh = 30;
-minRespThreshold = 0.002;
-minTrN = 5;
 
 orientations = [0 45 90 135];
 %%

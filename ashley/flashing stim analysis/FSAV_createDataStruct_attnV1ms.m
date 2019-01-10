@@ -1,8 +1,8 @@
 function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
 %cellsOrDendrites: 1 == cells; 2 == dendrites
     % set analysis windows
-    pre_event_time = 1000; %ms
-    post_event_time = 2000; %ms
+    preEventMs = 1000; %ms
+    postEventMs = 2000; %ms
 %     resp_win_time = 100; %ms
 %     pre_win_time = [-30 70];
 %     trans_win_time = [150 250]; %this is actually ~166-266 ms at 30 Hz
@@ -15,6 +15,7 @@ function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
     end
     
     rc = behavConstsAV;
+    imgParams_FSAV
 
     eval(datasetStr)
 
@@ -46,8 +47,8 @@ function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
         
         
         %translate time windows into frames 
-        pre_event_frames = ceil(pre_event_time*(expt(iexp).frame_rate/1000));
-        post_event_frames = ceil(post_event_time*(expt(iexp).frame_rate/1000));
+        pre_event_frames = ceil(preEventMs*(expt(iexp).frame_rate/1000));
+        post_event_frames = ceil(postEventMs*(expt(iexp).frame_rate/1000));
         basewin = (pre_event_frames-1):pre_event_frames+1;
         
         mouse(imouse).expt(exptN(:,imouse)).info.preAlignFrames = pre_event_frames;
@@ -389,8 +390,6 @@ function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).ori = [];
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).amp = [];
         end
-        
-        %% Align data to false alarm and correct reject, matched for n cycles
         ialign = 3;
         
         maxTrials = max(find(cLeverDown+post_event_frames+double(cycTime*(tCyclesOn-1))-1 <  size(dataTC,1)),[],2);
