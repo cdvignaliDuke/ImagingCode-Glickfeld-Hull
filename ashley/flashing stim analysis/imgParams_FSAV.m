@@ -2,13 +2,21 @@
 visualTrials = 1;
 auditoryTrials = 2;
 alignStart = 1;
-alignTarget = 2;
+alignFA = 2;
+alignCR = 3;
+alignTarget = 4;
+hitTrials = 1;
+missTrials = 2;
 %% common variables
 frameRateHz = 30;
 nVisDelayFr = 3;
 
 %% testing
 eyeAlpha = 0.05;
+cellGroupsAlpha = 0.01;
+tuningReliabilityThresh = 30;
+minRespThreshold = 0.002;
+minTrN = 5;
 %% colors
 cueColor = {[0 0 0];[.5 .5 1]};
 AVColor = {[0 0 0];[0.5 0.5 0.5]};
@@ -38,3 +46,7 @@ targetTimeS_eye = 1; %s
 eyeBLFr = 16:30;
 eyeRespWinFr = 48:54; % aligned with preEventMs_eye
 eyeLateRespWinFr = 74:117; % aligned with preEventMs_eye
+
+%% imaging align
+preEventMs = 1000; %ms
+postEventMs = 4500; %ms
