@@ -1,9 +1,9 @@
 clear all
-plotDetect = 1;
+plotDetect = 0;
 negAdjust = 0;
-for id = 3
+for id = 1:4
     close all
-    CRP_expt_list_Crus
+    CRP_expt_list
     lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
     behav_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
     nexp = size(expt(id).date,1);
@@ -204,7 +204,7 @@ for id = 3
         targetAlign_events = nan(prewin_frames+postwin_frames,nIC,nTrials);
         nFrames = size(tc_avg,1);
         for itrial = 1:nTrials
-            if cTargetOn(itrial)+postwin_frames-1 <= nFrames & input.counterValues{itrial}(end)-cTargetOn(itrial) > postwin_frames
+            if cTargetOn(itrial)+postwin_frames-1 <= nFrames %& input.counterValues{itrial}(end)-cTargetOn(itrial) > postwin_frames
                 targetAlign_tc(:,:,itrial) = tc_avg(cTargetOn(itrial)-prewin_frames:cTargetOn(itrial)+postwin_frames-1,:);
                 targetAlign_events(:,:,itrial) = all_events(cTargetOn(itrial)-prewin_frames:cTargetOn(itrial)+postwin_frames-1,:);
                 if id == 2 & (iexp == 12 | iexp ==14)
