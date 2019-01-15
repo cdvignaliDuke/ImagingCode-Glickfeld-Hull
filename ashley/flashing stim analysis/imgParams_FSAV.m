@@ -1,6 +1,7 @@
 %% common indices
 visualTrials = 1;
 auditoryTrials = 2;
+allTrialsInd = 3;
 alignStart = 1;
 alignFA = 2;
 alignCR = 3;
@@ -24,13 +25,15 @@ hiLoColor = {[0.5 0.5 0.5];[0 0 0]};
 
 %% example cells
 if strcmp(ds,'FSAV_attentionV1')
-    exampleCell_1 = 418; %738 % first-stim responsive
-    exampleCell_2 = 1223;%1269;%1269 % late responsive
-    exampleCell_3 = 543;%386; % late suppressed
+    exampleCell_1 = 429; %418; %738 % first-stim responsive
+    exampleCell_2 = 1297;%1269;%1269 % late responsive
+%     exampleCell_3 = 543;%386; % late suppressed
     
-    attnExCell_1 = 366; %first-stim responsive and modulated by attention(+V)
-elseif strcmp(ds,'FSAV_V1_100ms_naive')    
-    attnExCell_1 = 506;%603; %first-stim responsive 
+%     attnExCell_1 = 366; %first-stim responsive and modulated by attention(+V)
+% elseif strcmp(ds,'FSAV_V1_100ms_naive')    
+%     attnExCell_1 = 506;%603; %first-stim responsive 
+
+    
 end
 
 %% eye tracking
@@ -50,3 +53,8 @@ eyeLateRespWinFr = 74:117; % aligned with preEventMs_eye
 %% imaging align
 preEventMs = 1000; %ms
 postEventMs = 4500; %ms
+longTrialLengthFr = 88;
+
+basewin = 1:34;
+basewin_0 = 32:34; % change to 29:31
+respwin = 36:38;

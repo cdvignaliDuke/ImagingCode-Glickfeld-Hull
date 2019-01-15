@@ -1,8 +1,8 @@
-function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
+function mouse = FSAV_createDataStruct_attnV1ms(ds,cellsOrDendrites)
 %cellsOrDendrites: 1 == cells; 2 == dendrites
     % set analysis windows
-    preEventMs = 1000; %ms
-    postEventMs = 2000; %ms
+%     preEventMs = 1000; %ms
+%     postEventMs = 2000; %ms
 %     resp_win_time = 100; %ms
 %     pre_win_time = [-30 70];
 %     trans_win_time = [150 250]; %this is actually ~166-266 ms at 30 Hz
@@ -16,10 +16,11 @@ function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
     
     rc = behavConstsAV;
     imgParams_FSAV
+    bxParams_FSAV_attnV1ms
 
-    eval(datasetStr)
+    eval(ds)
 
-    dataGroup = datasetStr;
+    dataGroup = ds;
     
     %create list of mice for file names
     mice = unique({expt.SubNum});
@@ -216,6 +217,18 @@ function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
             cCatchOn = cCatchOn(tr);
         end
         
+        tGratingDirectionDeg = chop(celleqel2mat_padded(input.tGratingDirectionDeg),4);
+        tGratingDirectionDeg = tGratingDirectionDeg(tr);
+        Dirs = unique(tGratingDirectionDeg);
+        
+        if isfield(input,'tSoundTargetAmplitude')
+            tSoundTargetAmp = celleqel2mat_padded(input.tSoundTargetAmplitude);
+        else
+            tSoundTargetAmp = ones(1,ntrials).*input.soundTargetAmplitude;
+            tSoundTargetAmp(cell2mat(input.tBlock2TrialNumber) == 0) = 0;
+        end
+        tSoundTargetAmp = tSoundTargetAmp(tr);
+        Amps = unique(tSoundTargetAmp);
         
 
         %previous trial info
@@ -240,6 +253,19 @@ function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
             
         trOut = input.trialOutcomeCell;
         trOut = trOut(tr);
+        
+        earlyHits_vis = strcmp(trOut,'success') & ...
+            reactTimeCalc < visRTwindow(1) & tGratingDirectionDeg > 0;
+        lateHits_vis = strcmp(trOut,'success') & ...
+            reactTimeCalc > visRTwindow(2) & tGratingDirectionDeg > 0;
+        earlyHits_aud = strcmp(trOut,'success') & ...
+            reactTimeCalc < audRTwindow(1) & tSoundTargetAmp > 0;
+        lateHits_aud = strcmp(trOut,'success') & ...
+            reactTimeCalc > audRTwindow(2) & tSoundTargetAmp > 0;
+        
+        trOut(earlyHits_vis | earlyHits_aud) = {'failure'};
+        trOut(lateHits_vis | lateHits_aud) = {'ignore'};
+        
         trOut_shift = [{NaN} trOut];
         prevTrOut = trOut_shift(1:length(trOut));
         trOut_shift = [{NaN} {NaN} trOut];
@@ -253,17 +279,6 @@ function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
         end
         isCatchTrial = isCatchTrial(tr);
 
-        tGratingDirectionDeg = chop(celleqel2mat_padded(input.tGratingDirectionDeg),4);
-        tGratingDirectionDeg = tGratingDirectionDeg(tr);
-        Dirs = unique(tGratingDirectionDeg);
-        
-        if isfield(input,'tSoundTargetAmplitude')
-            tSoundTargetAmp = celleqel2mat_padded(input.tSoundTargetAmplitude);
-        else
-            tSoundTargetAmp = ones(1,ntrials).*input.soundTargetAmplitude;
-        end
-        tSoundTargetAmp = tSoundTargetAmp(tr);
-        Amps = unique(tSoundTargetAmp);
         
         mouse(imouse).expt(exptN(:,imouse)).info.visTargets = Dirs;
         mouse(imouse).expt(exptN(:,imouse)).info.audTargets = Amps;
@@ -546,10 +561,10 @@ function mouse = FSAV_createDataStruct_attnV1ms(datasetStr,cellsOrDendrites)
     end
     %%
     if cellsOrDendrites == 1
-        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_trOutcomeStruct_cells' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_trOutcomeStruct_cells' ds(5:end) '.mat']), 'mouse','-v7.3');
 %         print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
     elseif cellsOrDendrites == 2
-        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_trOutcomeStruct_dendrites' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_trOutcomeStruct_dendrites' ds(5:end) '.mat']), 'mouse','-v7.3');
 %         print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
     end
 end
