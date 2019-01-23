@@ -7,14 +7,14 @@ s.data = data;
 s.orig = reshape(b',size(b,1)*size(b,2),1);
 
 %m = @(pars,dummy) Gauss2D_ellipseMA(pars,grid2.sfsf,grid2.tftf);
-m = @(pars,sftf) Gauss2D_ellipseMA(pars,sftf);
+m = @(pars,azel) Gauss2D_ellipseMA(pars,azel);
 s.m = func2str(m);
 
 % A = pars(1);
-% sigma_SF = pars(2); % in cycles/deg
-% sigma_TF = pars(3); % in Hz
-% sf0 = pars(4); %center sf
-% tf0 = pars(5); %center tf
+% sigma_Az = pars(2); % in deg
+% sigma_El = pars(3); % in deg
+% Az0 = pars(4); %center Az
+% El0 = pars(5); %center El
 
 %s.lb =  [.001 1/6   .005  0 xmin xmin -pi/2];
 %s.ub =  [1000 2/6   .05   2*pi  xmax  xmax  pi/2];
@@ -67,10 +67,10 @@ dbin = [s.ub(1) - s.lb(1); ...
     s.ub(5) - s.lb(5)]./ (Nsamps-1);
 %s.ub(6) - s.lb(6)] ./ (Nsamps-1);
 
-sigma_El_vec = s.lb(2)+dbin(2)/2:dbin(2):s.ub(2);
-sigma_Az_vec = s.lb(3)+dbin(3)/2:dbin(3):s.ub(3);
-El_vec = s.lb(4)+dbin(4)/2:dbin(4):s.ub(4);
-Az_vec = s.lb(5)+dbin(5)/2:dbin(5):s.ub(5);
+sigma_Az_vec = s.lb(2)+dbin(2)/2:dbin(2):s.ub(2);
+sigma_El_vec = s.lb(3)+dbin(3)/2:dbin(3):s.ub(3);
+Az_vec = s.lb(4)+dbin(4)/2:dbin(4):s.ub(4);
+El_vec = s.lb(5)+dbin(5)/2:dbin(5):s.ub(5);
 %xi_vec = s.lb(6)+dbin(6)/2:dbin(6):s.ub(6);
 
 
@@ -83,13 +83,13 @@ names = {'x2','resnorm'};
 args = cell(5);
 
 %options.Display = 'off';
-for iSigEl = 1:length(sigma_El_vec)
-    for iSigAz = 1:length(sigma_Az_vec)
-        for iEl = 1:length(El_vec)
-            for iAz = 1:length(Az_vec)
+for iSigAz = 1:length(sigma_Az_vec)
+    for iSigEl = 1:length(sigma_El_vec)
+        for iAz = 1:length(Az_vec)
+            for iEl = 1:length(El_vec)
                 %for ixi = 1:length(xi_vec)
                 %                    fprintf('.');
-                s.x0 =  [max(max(s.data)) sigma_El_vec(iSigEl) sigma_Az_vec(iSigAz) El_vec(iEl) Az_vec(iAz) 0]; %xi_vec(ixi)];
+                s.x0 =  [max(max(s.data)) sigma_Az_vec(iSigAz) sigma_El_vec(iSigEl) Az_vec(iAz) El_vec(iEl) 0]; %xi_vec(ixi)];
                 
                 %                test = Gauss2D_ellipseMA(s.x0,x);
                 
@@ -137,8 +137,8 @@ s.Maxdata = max(max(s.data));
 %    TF_vec0 = ind_TFuse(:,2);
 %    SF_vec0 = ind_SFuse(:,2);
 x00 = zeros(size(grid2.ElEl00,1)*size(grid2.ElEl00,2),2);
-x00(:,1) = (grid2.ElEl00(:));
-x00(:,2) = (grid2.AzAz00(:));
+x00(:,1) = (grid2.AzAz00(:));
+x00(:,2) = (grid2.ElEl00(:));
 k2b00 = m(s.fit.x2,x00);
 %now find 10% and 50%
 s.Maxfit00 = max(max(k2b00));
@@ -146,36 +146,36 @@ s.Maxfit00 = max(max(k2b00));
 %tmp2 = max(tmp,[],1); %max over TFs
 %tmp3 = tmp > .5*max(max(tmp));
 %imagesc(2.^TF_vec00,flipud(2.^SF_vec00),flipud(tmp3'))
-MaxEl00 = s.x(4);
-MaxAz00 = s.x(5);
+MaxAz00 = s.x(4);
+MaxEl00 = s.x(5);
 
-indEl50 = find(k2b00>.5*s.Maxfit00 & x00(:,1)>MaxEl00);
-indAz50 = find(k2b00>.5*s.Maxfit00 & x00(:,2)>MaxAz00);
-Elhicut_50 = NaN;
+indAz50 = find(k2b00>.5*s.Maxfit00 & x00(:,1)>MaxAz00);
+indEl50 = find(k2b00>.5*s.Maxfit00 & x00(:,2)>MaxEl00);
 Azhicut_50 = NaN;
-if ~isempty(indEl50)
-    Elhicut_50 = max(x00(indEl50,1));
-end
+Elhicut_50 = NaN;
 if ~isempty(indAz50)
-    Azhicut_50 = max(x00(indAz50,2));
+    Azhicut_50 = max(x00(indAz50,1));
 end
-s.Elhicut_50 = Elhicut_50;
+if ~isempty(indEl50)
+    Elhicut_50 = max(x00(indEl50,2));
+end
 s.Azhicut_50 = Azhicut_50;
+s.Elhicut_50 = Elhicut_50;
 
 %repeat for 10% cutoff
 
-indEl10 = find(k2b00>.1*s.Maxfit00 & x00(:,1)>MaxEl00);
-indAz10 = find(k2b00>.1*s.Maxfit00 & x00(:,2)>MaxAz00);
-Elhicut_10 = NaN;
+indAz10 = find(k2b00>.1*s.Maxfit00 & x00(:,1)>MaxAz00);
+indEl10 = find(k2b00>.1*s.Maxfit00 & x00(:,2)>MaxEl00);
 Azhicut_10 = NaN;
-if ~isempty(indEl10)
-    Elhicut_10 = max(x00(indEl10,1));
-end
+Elhicut_10 = NaN;
 if ~isempty(indAz10)
-    Azhicut_10 = max(x00(indAz10,2));
+    Azhicut_10 = max(x00(indAz10,1));
 end
-s.Elhicut_10 = Elhicut_10;
+if ~isempty(indEl10)
+    Elhicut_10 = max(x00(indEl10,2));
+end
 s.Azhicut_10 = Azhicut_10;
+s.Elhicut_10 = Elhicut_10;
 
 
 
