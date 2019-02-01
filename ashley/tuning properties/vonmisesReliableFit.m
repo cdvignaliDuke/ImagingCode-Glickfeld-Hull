@@ -42,7 +42,7 @@ for iCell = 1:nCells
         theta_dist_save(1,iCell) = nan;
         theta_90(1,iCell) = nan;
     else
-        if ~isnan(R_square(iCell))
+        if ~isnan(R_square(1,iCell))
             theta_dist = abs(theta_smooth(squeeze(max_ori(1,iCell)))-theta_smooth(squeeze(max_ori(2:nboot+1,iCell))));
             theta_dist(find(theta_dist>90)) = 180-theta_dist(find(theta_dist>90));
             theta_dist_save(:,iCell) = theta_dist;

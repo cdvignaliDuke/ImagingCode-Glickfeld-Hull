@@ -405,11 +405,15 @@ function mouse = FSAV_createDataStruct_attnV1ms(ds,cellsOrDendrites)
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).ori = [];
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).amp = [];
         end
+
         ialign = 3;
         
         maxTrials = max(find(cLeverDown+post_event_frames+double(cycTime*(tCyclesOn-1))-1 <  size(dataTC,1)),[],2);
-        
-        hitsAndMissTr = strcmp(trOut,'success') | strcmp(trOut,'ignore');
+        if strcmp(ds(end-4:end),'naive')
+            hitsAndMissTr = strcmp(trOut,'failure') | strcmp(trOut,'success') ;
+        else
+            hitsAndMissTr = strcmp(trOut,'success') | strcmp(trOut,'ignore');
+        end
         
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataF = zeros(1,size(dataTC,2),ntrials);
