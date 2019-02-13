@@ -266,6 +266,13 @@ function mouse = FSAV_createDataStruct_attnV1ms(ds,cellsOrDendrites)
         trOut(earlyHits_vis | earlyHits_aud) = {'failure'};
         trOut(lateHits_vis | lateHits_aud) = {'ignore'};
         
+        earlyFail_vis = strcmp(trOut,'failure') & ...
+            reactTimeFromLastBaseMs < visRTwindow(1) & tGratingDirectionDeg > 0;
+        earlyFail_aud = strcmp(trOut,'failure') & ...
+            reactTimeFromLastBaseMs < audRTwindow(1) & tSoundTargetAmp > 0;
+        reactTimeFromLastBaseMs(earlyFail_vis) = reactTimeFromLastBaseMs(earlyFail_vis)+cycTimeMs;
+        reactTimeFromLastBaseMs(earlyFail_aud) = reactTimeFromLastBaseMs(earlyFail_aud)+cycTimeMs;
+        tCyclesOn(earlyFail_vis |earlyFail_aud) = tCyclesOn(earlyFail_vis |earlyFail_aud) - 1;
         trOut_shift = [{NaN} trOut];
         prevTrOut = trOut_shift(1:length(trOut));
         trOut_shift = [{NaN} {NaN} trOut];
