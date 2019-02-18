@@ -38,7 +38,7 @@ nBaselineFr = mouse(1).expt(1).info.preAlignFrames;
 nFrames1s = frameRateHz;
 nexp = size(expt,2);
 nCycles = 8;
-lateCycles = 5:nCycles;
+% lateCycles = 5:nCycles;
 lateWinFr = (45:88)+nBaselineFr;
 minTargetRT = (nVisDelayFr_target+respwin_target(1)-nBaselineFr)./frameRateHz*1000;
 
@@ -46,6 +46,11 @@ oriBinSize = 45;
 orientations = 0:oriBinSize:(180-oriBinSize);
 oriBinEdges = [0, (oriBinSize/2):oriBinSize:(180-(oriBinSize/2)), 180];
 nOri = length(orientations);
+
+nMovWin = 15;
+movWinLabelFr = 30:(30+nMovWin-1);
+movWinLabelFr_target = 30:(30+nMovWin-1);
+% movWinLabelMs = 
 %% pool experiment data
 antiDataExpt = struct;
 oriTuningExpt = struct;
@@ -67,18 +72,48 @@ for imouse = 1:size(mouse,2)
         cycLengthFr = d.info.cycTimeFrames;
         nCycLongTC = ceil(longTrialLengthFr./cycLengthFr);
         
+        maxCycles = max(cat(2,d.av(visualTrials).align(alignStart).nCycles,...
+            d.av(auditoryTrials).align(alignStart).nCycles));
+        
         tc_AV = [];
-        cycTC = cell(2,nCycles);
+%         cycTC = cell(2,nCycles);
+        cycTC = cell(2,maxCycles);
         longTC = cell(2,1);
         for iav = 1:2
             dd = d.av(iav);
             trOut = [];
             trStim = [];
             trResp = [];
+            trResp_movWin = [];
             for ialign = 2:4
                 ddd = dd.align(ialign);
-                trResp = cat(2,trResp,squeeze(mean(ddd.respTC(respwin,:,:),1)...
-                    - mean(ddd.respTC(basewin_0,:,:),1)));
+                if ialign == 4
+                    trResp = cat(2,trResp,squeeze(mean(ddd.respTC(respwin_target,:,:),1)...
+                        - mean(ddd.respTC(basewin_0_target,:,:),1)));
+                else
+                    trResp = cat(2,trResp,squeeze(mean(ddd.respTC(respwin,:,:),1)...
+                        - mean(ddd.respTC(basewin_0,:,:),1)));
+                end
+                tc = ddd.respTC;
+                nfr = length(respwin)-1;
+                nMovWin = 15;
+                trResp_movWin_temp = nan(size(tc,2),size(tc,3),nMovWin);
+                if ialign == 4
+                    tempwinstart = 30;
+                else
+                    tempwinstart = 29;
+                end
+                for iwin = 1:nMovWin
+                    tempwin = tempwinstart+(iwin-1):(tempwinstart+(iwin-1)+nfr);
+                    if ialign == 4
+                        trResp_movWin_temp(:,:,iwin) = squeeze(mean(tc(tempwin,:,:),1)) - ...
+                            squeeze(mean(tc(basewin_0_target,:,:),1));
+                    else
+                        trResp_movWin_temp(:,:,iwin) = squeeze(mean(tc(tempwin,:,:),1)) - ...
+                            squeeze(mean(tc(basewin_0,:,:),1));
+                    end
+                end
+                trResp_movWin = cat(2,trResp_movWin,trResp_movWin_temp);
                 if ialign == alignCR
                     trOut = cat(2,trOut,repmat({'cr'},[1,length(ddd.outcome)]));
                 else
@@ -100,6 +135,7 @@ for imouse = 1:size(mouse,2)
             decodeDataExpt(exptN).av(iav).outcome = trOut;
             decodeDataExpt(exptN).av(iav).stim = trStim;
             decodeDataExpt(exptN).av(iav).resp = trResp;
+            decodeDataExpt(exptN).av(iav).movWinResp = trResp_movWin;
             
             
             de = d.av(iav).align(alignStart);
@@ -110,7 +146,8 @@ for imouse = 1:size(mouse,2)
             end
             misses = strcmp(de.outcome,'ignore');
             tc_AV = cat(3,tc_AV,de.respTC(:,:,hits)); % make hits or misses
-            for icyc = 1:nCycles
+%             for icyc = 1:nCycles
+            for icyc = 1:maxCycles
                 tc = de.respTC(:,:,de.nCycles >= icyc & (hits | misses));
                 cycStartOffset = ((icyc-1).*cycLengthFr)+nBaselineFr;
                 cycTC{iav,icyc} = tc(...
@@ -171,6 +208,7 @@ for iexp = 1:nexp
     
     lateTC_vis = [];
     lateTC_aud = [];
+    lateCycles = 5:size(antiDataExpt(iexp).cycTC,2);
     for icyc = 1:length(lateCycles)
         lateTC_vis = cat(3,lateTC_vis,...
             antiDataExpt(iexp).cycTC{visualTrials,lateCycles(icyc)});
@@ -199,6 +237,8 @@ for iexp = 1:nexp
         squeeze(mean(lateTCAV(basewin_0,:,:),1)),...
         'dim',2,'tail','right','alpha',cellGroupsAlpha);
     
+    lateCycRespCutoffPass = mean(mean(lateTCAV(respwin,:,:),3),1) > minRespThreshold_decode;
+    
     eaTarRespCells = sum(cell2mat(cellfun(@(x) ...
         ttest(squeeze(mean(x(respwin_target,:,:),1)),...
         squeeze(mean(x(basewin_0_target,:,:),1)),...
@@ -216,8 +256,8 @@ for iexp = 1:nexp
         'dim',2,'tail','right','alpha',cellGroupsAlpha);
     
     eaTarRespCutoffPass = sum(cell2mat(cellfun(@(x) mean(mean(x(respwin_target,:,:),3),1) - mean(mean(x(basewin_0_target,:,:),3),1),...
-        targetDataExpt(iexp).av(visualTrials).tc,'unif',0)') > minRespThreshold,1) > 0 ...
-        | (mean(mean(allTargetTC(respwin_target,:,:),3),1) - mean(mean(allTargetTC(basewin_0_target,:,:),3),1)) > 0; 
+        targetDataExpt(iexp).av(visualTrials).tc,'unif',0)') > minRespThreshold_decode,1) > 0 ...
+        | (mean(mean(allTargetTC(respwin_target,:,:),3),1) - mean(mean(allTargetTC(basewin_0_target,:,:),3),1)) > minRespThreshold_decode; 
         
     respCellsExpt(iexp).exptName = antiDataExpt(iexp).exptName;
     respCellsExpt(iexp).firstRespCells = firstRespCells;
@@ -229,7 +269,7 @@ for iexp = 1:nexp
 %         (firstRespCells & mean(mean(firstTCAV(respwin,:,:),3),1)' > minRespThreshold)...
 %         | ((eaTarRespCells | allTarRespCells) & eaTarRespCutoffPass');
     respCellsExpt(iexp).decodeAnalysisCells = ...
-        lateCycRespCells...
+        (lateCycRespCells & lateCycRespCutoffPass')...
         | ((eaTarRespCells | allTarRespCells) & eaTarRespCutoffPass');
     if shortCycExptInd(iexp)
         isShortCycExpt = cat(1,isShortCycExpt,true(length(firstRespCells),1));
@@ -246,7 +286,18 @@ for iexp = 1:nexp
     cellInd = respCellsExpt(iexp).decodeAnalysisCells & ...
         oriTuningExpt(iexp).tuningReliability' <= tuningReliabilityThresh_decode;
     decodeAnalysis(iexp).nCells = sum(cellInd);
+    if sum(cellInd) > maxCellN
+        ind = find(cellInd);
+        cellSampleID = randsample(ind,maxCellN);
+        cellInd = false(length(cellInd),1);
+        cellInd(cellSampleID) = true;
+    end
+    decodeAnalysis(iexp).nCellsSelected = sum(cellInd);
     decodeAnalysis(iexp).cellInd = cellInd;
+    respOther = cell(1,2);
+    trOutOther = cell(1,2);
+    detectGLMOther = cell(1,2);
+    targetGLMOther = cell(1,2);
     for iav = 1:2
         trOut = decodeDataExpt(iexp).av(iav).outcome;
 %         [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOut);        
@@ -258,15 +309,15 @@ for iexp = 1:nexp
             trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
         end
         nStimPerBin = histcounts(trStimID);
-        minBinN = min(nStimPerBin(nStimPerBin >= minTrN));
+        minBinN = min(nStimPerBin(nStimPerBin > minTrN));
         respStimSort = cell(1,nStimBins);
         trOutStimSort = cell(1,nStimBins);
         for istim = 1:nStimBins
             ind = find(trStimID == istim);
-            if length(ind) >= minTrN
+            if length(ind) > minTrN
                 if istim == 1
                     matchTrialsInd = [];
-                    if sum(nStimPerBin >= minTrN) == 2
+                    if sum(nStimPerBin > minTrN) == 2
                         n = minBinN;
                     elseif minBinN == nStimPerBin(istim)
                         error('not enough FA/CR trials')
@@ -300,7 +351,7 @@ for iexp = 1:nexp
         
 %         resp = zscore(respAllCells(cellInd,matchTrialsInd)');
         resp = respAllCells(matchTrialsInd,cellInd);
-        [detectTrIndAll, targetTrIndAll] = getStimAndBehaviorYs(trOut);
+%         [detectTrIndAll, targetTrIndAll] = getStimAndBehaviorYs(trOut);
         [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOut(matchTrialsInd));
         
         detectCorr = corr(detectTrInd,resp);
@@ -311,6 +362,7 @@ for iexp = 1:nexp
         [~,~,detectGLM] = glmfit(resp*C,detectTrInd,'binomial');
         [~,~,targetGLM] = glmfit(resp*C,targetTrInd,'binomial');
         
+        fprintf('Expt %s, hold-out analysis\n',num2str(iexp))
         detectWeight = detectGLM.beta(2:end);
         targetWeight = targetGLM.beta(2:end);
         
@@ -342,6 +394,30 @@ for iexp = 1:nexp
             end
         end
         
+        fprintf('Expt %s, starting resp win analysis\n',num2str(iexp))
+        nwins = size(decodeDataExpt(iexp).av(iav).movWinResp,3);
+        pctCorrectDetect_train_respwin = nan(1,nwins);
+        pctCorrectDetect_ho_respwin = nan(1,nwins);
+        pctCorrectTarget_train_respwin = nan(1,nwins);
+        pctCorrectTarget_ho_respwin = nan(1,nwins);
+        for iwin = 1:nwins
+            rAllCells = zscore(decodeDataExpt(iexp).av(iav).movWinResp(:,:,iwin)');
+            r = rAllCells(matchTrialsInd,cellInd);
+            [~,~,detectGLM_temp] = glmfit(r*C,detectTrInd,'binomial');
+            [~,~,targetGLM_temp] = glmfit(r*C,targetTrInd,'binomial');
+            
+            pctCorrectDetect_train_respwin(iwin) = getPctCorr_trainData(...
+                detectGLM_temp,r,detectTrInd,dv_detect);
+            pctCorrectDetect_ho_respwin(iwin) = getPctCorr_hoData(r,detectTrInd,dv_detect);
+            pctCorrectTarget_train_respwin(iwin) = getPctCorr_trainData(...
+                targetGLM_temp,r,targetTrInd,dv_target);
+            pctCorrectTarget_ho_respwin(iwin) = getPctCorr_hoData(r,targetTrInd,dv_target);
+        end
+        
+        respOther{iav} = resp;
+        trOutOther{iav} = trOut(matchTrialsInd);
+        detectGLMOther{iav} = detectGLM;
+        targetGLMOther{iav} = targetGLM;        
         
         decodeAnalysis(iexp).av(iav).dvDetect = dv_detect;
         decodeAnalysis(iexp).av(iav).dvTarget = dv_target;
@@ -357,7 +433,29 @@ for iexp = 1:nexp
         decodeAnalysis(iexp).av(iav).pctCorrectXStimDetect_holdout = pctCorrDetect_xStim_ho;
         decodeAnalysis(iexp).av(iav).pctCorrectXStimTarget_train = pctCorrTarget_xStim_train;
         decodeAnalysis(iexp).av(iav).pctCorrectXStimTarget_holdout = pctCorrTarget_xStim_ho;
+        decodeAnalysis(iexp).av(iav).pctCorrectDetectMovRespWin_train = pctCorrectDetect_train_respwin;
+        decodeAnalysis(iexp).av(iav).pctCorrectDetectMovRespWin_holdout = pctCorrectDetect_ho_respwin;
+        decodeAnalysis(iexp).av(iav).pctCorrectTargetMovRespWin_train = pctCorrectTarget_train_respwin;
+        decodeAnalysis(iexp).av(iav).pctCorrectTargetMovRespWin_holdout = pctCorrectTarget_ho_respwin;
+    end
+    fprintf('Expt %s: Testing opposite model...\n',num2str(iexp))
+    for iav = 1:2
+        if iav == 1
+            otherAV = 2;
+        elseif iav == 2
+            otherAV = 1;
+        end
+        resp = respOther{otherAV};
+        [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOutOther{otherAV});
         
+        dv_detect = mean(detectTrInd);
+        dv_target = mean(targetTrInd);
+        
+        pctCorrectDetect = getPctCorr_trainData(detectGLMOther{iav},resp,detectTrInd,dv_detect);
+        pctCorrectTarget = getPctCorr_trainData(targetGLMOther{iav},resp,targetTrInd,dv_target);
+        
+        decodeAnalysis(iexp).av(iav).pctCorrectDetect_otherAV = pctCorrectDetect;
+        decodeAnalysis(iexp).av(iav).pctCorrectTarget_otherAV = pctCorrectTarget;
     end
 end
 
@@ -395,6 +493,7 @@ for iexp = 1:nexp
     
     lateCycTC_vis = [];
     lateCycTC_aud = [];
+    lateCycles = 5:size(antiDataExpt(iexp).cycTC,2);
     for icyc = 1:length(lateCycles)
         lateCycTC_vis = cat(3,lateCycTC_vis,...
             cycTC_vis{lateCycles(icyc)} - mean(cycTC_vis{lateCycles(icyc)}(basewin_0,:,:),1));
@@ -567,7 +666,7 @@ cellInfo.firstStimAuROCTest = auroc_first_test;
 cellInfo.lateStimAuROCTest = auroc_late_test;
 %% plotting params
 respTCLim = [-0.005 0.05];
-cycTCLim = [-0.005 0.01];
+cycTCLim = [-0.005 0.015];
 cycTCLim_minRespCells = [-0.005 0.025];
 scatLim_win = [-0.2 0.6];
 scatLim_cyc = [-0.035 0.085];
@@ -587,6 +686,7 @@ firstTCLim = [-0.005 0.04];
 
 tcStartFrame = 26;
 cycTCEndTimeMs = 350;
+cycTCEndFr = 45;
 ttLabel_long = 0:500:2500;
 ttLabel_cyc = -200:100:cycTCEndTimeMs;
 ttLabel_target = -1000:250:900;
@@ -594,6 +694,8 @@ preTargetStimLabel = -700:350:0;
 nFr_long = size(antiAnalysis.longTC{1,1},1);
 tt_longTC = ((tcStartFrame:nFr_long)-(nBaselineFr+nVisDelayFr)).*(1000/frameRateHz);
 ttLabelFr_long = ((ttLabel_long./1000)*frameRateHz)+...
+    ((nBaselineFr+nVisDelayFr)-tcStartFrame+1);
+ttLabelFr_cyc = ((ttLabel_cyc./1000)*frameRateHz)+...
     ((nBaselineFr+nVisDelayFr)-tcStartFrame+1);
 ttLabelFr_target = ((ttLabel_target./1000)*frameRateHz)+...
     ((nBaselineFr+nVisDelayFr_target)+1);
@@ -609,6 +711,15 @@ respWinTT = ([respwin(1) respwin(end)] - (nBaselineFr+nVisDelayFr))...
 respWinTT_target = (...
     [respwin_target(1) respwin_target(end)] - (nBaselineFr+nVisDelayFr_target))...
     .*(1000/frameRateHz);
+baseWinTT = (...
+    [basewin_0(1) basewin_0(end)] - (nBaselineFr+nVisDelayFr))...
+    .*(1000/frameRateHz);
+
+movWinLabelFr = 30:(30+nMovWin-1);
+movWinLabelMs = (movWinLabelFr - (nBaselineFr+nVisDelayFr)).*(1000/frameRateHz);
+
+weightLim = [-2.5 2.5];
+binnedWeightLim = [-0.4 0.4];
 
 %% plot anticipation analysis (Figure 2)
 
@@ -642,7 +753,7 @@ print([fnout 'heatmapAllTrialsAllCells'],'-dpdf','-fillpage')
 figure
 colormap gray
 % subplot 122
-ind = cellInfo.firstRespCells | cellInfo.lateRespCells;
+ind = cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells;
 indBW = ind; indBW(ind) = 0; indBW(~ind) = 1;
 imagesc(flipud(indBW(lateWinSortInd)))
 figYAxis([],'Cell #',[])
@@ -655,12 +766,13 @@ print([fnout 'cellIDforHeatmap'],'-dpdf','-fillpage')
 setFigParams4Print('portrait')
 figure
 subplot 311
+ind = cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells;
 for iav = 1:2
     y = mean(antiAnalysis.longTC{iav}...
-        ((tcStartFrame:end),(cellInfo.firstRespCells | cellInfo.lateRespCells) & ...
+        ((tcStartFrame:end),(ind) & ...
         cellInfo.isShortCycExpt),2);
     yerr = ste(antiAnalysis.longTC{iav}...
-        ((tcStartFrame:end),(cellInfo.firstRespCells | cellInfo.lateRespCells) & cellInfo.isShortCycExpt),2);
+        ((tcStartFrame:end),(ind) & cellInfo.isShortCycExpt),2);
     hold on
     shadedErrorBar_chooseColor(tt_longTC,y,yerr,cueColor{iav});
 end
@@ -670,15 +782,17 @@ vline(lateWinTT,'k--')
 hline(0,'k:')
 figAxForm([],0)
 title(sprintf('First Stim Responsive Cells (%s/%s)',...
-    num2str(sum((cellInfo.firstRespCells | cellInfo.lateRespCells) & cellInfo.isShortCycExpt)),...
+    num2str(sum((...
+    cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells)...
+    & cellInfo.isShortCycExpt)),...
     num2str(sum(cellInfo.isShortCycExpt))))
 
 subplot 323
 x = mean(antiAnalysis.longTC{visualTrials}(lateWinFr,...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells)),1);
+    (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells)),1);
 xerr = ste(x,2);
 y = mean(antiAnalysis.longTC{auditoryTrials}(lateWinFr,...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells)),1);
+    (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells)),1);
 yerr = ste(y,2);
 plot(x,y,'.')
 hold on
@@ -690,8 +804,8 @@ plot([0 0],scatLim_win,'k:')
 figXAxis([],'Visual (dF/F)',scatLim_win)
 figYAxis([],'Auditory (dF/F)',scatLim_win)
 figAxForm
-title(sprintf('Late Window, Resp. Cells (%s/%s), p = %s',...
-    num2str(sum(cellInfo.firstRespCells | cellInfo.lateRespCells)),...
+title(sprintf('Late Window, All Resp. Cells (%s/%s), p = %s',...
+    num2str(sum(cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells)),...
     num2str(length(cellInfo.firstRespCells)),...
     num2str(round(p,2,'significant'))))
 
@@ -699,9 +813,9 @@ title(sprintf('Late Window, Resp. Cells (%s/%s), p = %s',...
 subplot 325
 for iav = 1:2
     y = mean(antiAnalysis.lateCycTC{iav}...
-        ((tcStartFrame:end),(cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        ((tcStartFrame:end),(cellInfo.lateCycRespCells)),2);
     yerr = ste(antiAnalysis.lateCycTC{iav}...
-        ((tcStartFrame:end),(cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        ((tcStartFrame:end),(cellInfo.lateCycRespCells)),2);
     hold on
     shadedErrorBar_chooseColor(tt_cycTC,y,yerr,cueColor{iav});
 end
@@ -711,16 +825,16 @@ vline(lateWinTT,'k--')
 hline(0,'k:')
 vline(respWinTT,'k--')
 figAxForm
-title(sprintf('First Stim Responsive Cells (%s/%s)',...
-    num2str(sum(cellInfo.firstRespCells | cellInfo.lateRespCells)),...
+title(sprintf('Late Cycle Resp. Cells (%s/%s)',...
+    num2str(sum(cellInfo.lateCycRespCells)),...
     num2str(length(cellInfo.firstRespCells))))
 
 subplot 326
 x = mean(antiAnalysis.lateCycTC{visualTrials}(respwin,...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells)),1);
+    (cellInfo.lateCycRespCells)),1);
 xerr = ste(x,2);
 y = mean(antiAnalysis.lateCycTC{auditoryTrials}(respwin,...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells)),1);
+    (cellInfo.lateCycRespCells)),1);
 yerr = ste(y,2);
 plot(x,y,'.')
 hold on
@@ -732,12 +846,12 @@ plot([0 0],scatLim_cyc,'k:')
 figXAxis([],'Visual (dF/F)',scatLim_cyc)
 figYAxis([],'Auditory (dF/F)',scatLim_cyc)
 figAxForm
-title(sprintf('Late Cycles, Resp. Cells (%s/%s), p = %s',...
-    num2str(sum(cellInfo.firstRespCells | cellInfo.lateRespCells)),...
+title(sprintf('Late Cycles, Late Cyc. Resp. Cells (%s/%s), p = %s',...
+    num2str(sum(cellInfo.lateCycRespCells)),...
     num2str(length(cellInfo.firstRespCells)),...
     num2str(round(p,2,'significant'))))
 
-print([fnout 'tcLongTrialsAndLateCycWithQuant_RespCells'],'-dpdf','-fillpage')
+print([fnout 'tcLongTrialsAndLateCycWithQuant_LateCycRespCells'],'-dpdf','-fillpage')
 
 % example cells time-courses
 if strcmp(ds,'FSAV_attentionV1')
@@ -799,14 +913,14 @@ end
 
 % selectivity
 figure
-y = antiAnalysis.lateCycSI(cellInfo.firstRespCells | cellInfo.lateRespCells);
+y = antiAnalysis.lateCycSI(cellInfo.lateCycRespCells);
 h = cdfplot(y);
 hold on;
 vline(mean(y),'k-')
 figXAxis([],'Selectivity Index',siLim)
 figYAxis([],'Fraction of Cells',[0 1])
 figAxForm
-title(sprintf('Resp. Cells, mean = %s, ste = %s',...
+title(sprintf('Late Cyc. Resp. Cells, mean = %s, ste = %s',...
     num2str(round(mean(y),2,'significant')),...
     num2str(round(ste(y,2),2,'significant'))))
 
@@ -818,15 +932,17 @@ imgStats.lateWinTimeMs = round(lateWinTT,4,'significant');
 
 imgStats.nCells.totalCells = length(cellInfo.firstRespCells);
 imgStats.nCells.firstResp = sum(cellInfo.firstRespCells);
-imgStats.nCells.lateOnlyResp = sum(...
-    ~cellInfo.firstRespCells & cellInfo.lateRespCells);
+imgStats.nCells.lateCycResp = sum(cellInfo.lateCycRespCells);
+imgStats.nCells.lateCycOnlyResp = sum(...
+    ~cellInfo.firstRespCells & cellInfo.lateCycRespCells);
+imgStats.nCells.lateTCResp = sum(cellInfo.lateRespCells);
 imgStats.nCells.lateSupp = sum(cellInfo.lateSuppCells);
 imgStats.nCells
 
 x = mean(antiAnalysis.longTC{visualTrials}(lateWinFr,...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells)),1);
+    (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells)),1);
 y = mean(antiAnalysis.longTC{auditoryTrials}(lateWinFr,...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells)),1);
+    (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells)),1);
 imgStats.av(visualTrials).lateWinResp = mean(x);
 imgStats.av(visualTrials).lateWinRespErr = ste(x,2);
 imgStats.av(auditoryTrials).lateWinResp = mean(y);
@@ -841,9 +957,9 @@ fprintf('Auditory - Mean/Err Late Win: %s/%s\n',...
     num2str(round(imgStats.av(auditoryTrials).lateWinRespErr,2,'significant')))
 
 x = mean(antiAnalysis.lateCycTC{visualTrials}(respwin,...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells)),1);
+    (cellInfo.lateCycRespCells)),1);
 y = mean(antiAnalysis.lateCycTC{auditoryTrials}(respwin,...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells)),1);
+    (cellInfo.lateCycRespCells)),1);
 imgStats.av(visualTrials).lateCycResp = mean(x);
 imgStats.av(visualTrials).lateCycRespErr = ste(x,2);
 imgStats.av(auditoryTrials).lateCycResp = mean(y);
@@ -919,11 +1035,11 @@ oriGroups.firstStimRespErrForTargetAnalysis = nan(1,nOri);
 % adaptAnalysis.oriGroupsErr = nan(3,nOri);
 for iori = 1:nOri
     ind = cellInfo.isTuned & cellInfo.oriPref == iori &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells);
+        (cellInfo.lateCycRespCells);
 %     ind2 = cellInfo.isTuned & cellInfo.oriPref == iori & ...
 %         cellInfo.firstRespCells & cellInfo.minRespCells;
     ind_tarAndDist = cellInfo.isTuned & cellInfo.oriPref == iori &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.targetRespCells);
+        (cellInfo.lateCycRespCells | cellInfo.targetRespCells);
     ind_tar = cellInfo.isTuned & cellInfo.oriPref == iori & cellInfo.targetRespCells;
     oriGroups.n(iori) = sum(ind);
     oriGroups.nShortCyc(iori) = sum(ind & cellInfo.isShortCycExpt);
@@ -1007,7 +1123,7 @@ for iori = 1:nOri
     end
 end
 ind = cellInfo.isTuned &...
-    (cellInfo.firstRespCells | cellInfo.lateRespCells);
+    (cellInfo.lateCycRespCells);
 lateCycRespDiffData = ...
     mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind),1) - ...
     mean(antiAnalysis.lateCycTC{auditoryTrials}(respwin,ind),1);
@@ -1116,8 +1232,8 @@ print([fnout 'tuningAnalysis_oriGroupsTC'],'-dpdf','-fillpage')
 
 setFigParams4Print('portrait')
 figure;
-suptitle(sprintf('Tuned, Distractor-Responsive Neurons, %s/%s',...
-    num2str(sum(cellInfo.isTuned & (cellInfo.firstRespCells | cellInfo.lateRespCells))),...
+suptitle(sprintf('Tuned, Late Distractor-Responsive Neurons, %s/%s',...
+    num2str(sum(cellInfo.isTuned & (cellInfo.lateCycRespCells))),...
     num2str(length(cellInfo.isTuned))))
 xsub = [-0.25 +0.25];
 subplot 421
@@ -1205,7 +1321,7 @@ figAxForm
 title(sprintf('Late Stim Resp, One-Way ANOVA p=%s',num2str(round(...
     oriGroups.lateCycSITest,2,'significant'))))
 
-print([fnout 'tuningAnalysis_distRespCells'],'-dpdf','-fillpage')
+print([fnout 'tuningAnalysis_lateDistRespCells'],'-dpdf','-fillpage')
 
 % task tuning
 setFigParams4Print('landscape')    
@@ -1257,26 +1373,26 @@ end
 for igrp = 1:3
     if igrp == 3
         ind_first = ~cellInfo.firstStimAuROCTest & ...
-            (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.targetRespCells);
+            (cellInfo.lateCycRespCells | cellInfo.targetRespCells);
         ind_late = ~cellInfo.lateStimAuROCTest & ...
-            (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.targetRespCells);
+            (cellInfo.lateCycRespCells | cellInfo.targetRespCells);
     elseif igrp == 1
         ind_first = cellInfo.firstStimAuROCTest & cellInfo.firstStimAuROC < 0.5 & ...
-            (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.targetRespCells);
+            (cellInfo.lateCycRespCells | cellInfo.targetRespCells);
         ind_late = cellInfo.lateStimAuROCTest & cellInfo.lateStimAuROC < 0.5 & ...
-            (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.targetRespCells);
+            (cellInfo.lateCycRespCells | cellInfo.targetRespCells);
     elseif igrp == 2
         ind_first = cellInfo.firstStimAuROCTest & cellInfo.firstStimAuROC > 0.5 & ...
-            (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.targetRespCells);
+            (cellInfo.lateCycRespCells | cellInfo.targetRespCells);
         ind_late = cellInfo.lateStimAuROCTest & cellInfo.lateStimAuROC > 0.5 & ...
-            (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.targetRespCells);
+            (cellInfo.lateCycRespCells | cellInfo.targetRespCells);
     end
     aurocGroups.cmp(1).n(igrp) = sum(ind_first);
     aurocGroups.cmp(2).n(igrp) = sum(ind_late);
     aurocGroups.cmp(1).n4SI(igrp) = sum(ind_first &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells));
+        (cellInfo.lateCycRespCells));
     aurocGroups.cmp(2).n4SI(igrp) = sum(ind_late &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells));
+        (cellInfo.lateCycRespCells));
     aurocGroups.cmp(1).targetTC{igrp} = mean(targetAnalysis.tc{3,visualTrials}...
         (:,ind_first),2);
     aurocGroups.cmp(1).targetTCErr{igrp} = ste(targetAnalysis.tc{3,visualTrials}...
@@ -1286,35 +1402,35 @@ for igrp = 1:3
     aurocGroups.cmp(2).targetTCErr{igrp} = ste(targetAnalysis.tc{3,visualTrials}...
         (:,ind_late),2);
     aurocGroups.cmp(1).targetTC_distOnly{igrp} = mean(targetAnalysis.tc{3,visualTrials}...
-        (:,ind_first & (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (:,ind_first & (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(1).targetTCErr_distOnly{igrp} = ste(targetAnalysis.tc{3,visualTrials}...
-        (:,ind_first & (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (:,ind_first & (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(2).targetTC_distOnly{igrp} = mean(targetAnalysis.tc{3,visualTrials}...
-        (:,ind_late & (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (:,ind_late & (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(2).targetTCErr_distOnly{igrp} = ste(targetAnalysis.tc{3,visualTrials}...
-        (:,ind_late & (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (:,ind_late & (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(1).firstTC{igrp} = mean(antiAnalysis.firstCycTC{visualTrials}...
         (:,ind_first &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(1).firstTCErr{igrp} = ste(antiAnalysis.firstCycTC{visualTrials}...
         (:,ind_first &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(2).firstTC{igrp} = mean(antiAnalysis.firstCycTC{visualTrials}...
         (:,ind_late &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(2).firstTCErr{igrp} = ste(antiAnalysis.firstCycTC{visualTrials}...
         (:,ind_late &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(1).lateCycSI(igrp) = mean(antiAnalysis.lateCycSI(ind_first &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(1).lateCycSIErr(igrp) = ste(antiAnalysis.lateCycSI(ind_first &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(2).lateCycSI(igrp) = mean(antiAnalysis.lateCycSI(ind_late &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
     aurocGroups.cmp(2).lateCycSIErr(igrp) = ste(antiAnalysis.lateCycSI(ind_late &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
 end
-ind = (cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.targetRespCells);
+ind = (cellInfo.lateCycRespCells | cellInfo.targetRespCells);
 [~,sortInd] = sort(cellInfo.firstStimAuROC(ind));
 tc = targetAnalysis.tc{3,visualTrials}(:,ind)';
 aurocGroups.cmp(1).hm = flipud(tc(sortInd,:));
@@ -1425,16 +1541,16 @@ taskGroups.lateCycSIErr = nan(1,4);
 for igrp = 1:4
     if igrp == 4
         ind = ~cellInfo.taskTuningTest & ...
-            (cellInfo.firstRespCells | cellInfo.lateRespCells ...
+            (cellInfo.lateCycRespCells ...
             | cellInfo.targetRespCells);
     else
         ind = cellInfo.taskTuningTest & cellInfo.taskTuningPref == igrp & ...
-            (cellInfo.firstRespCells | cellInfo.lateRespCells ...
+            (cellInfo.lateCycRespCells ...
             | cellInfo.targetRespCells);
     end
     taskGroups.n(igrp) = sum(ind);
     taskGroups.n4SI(igrp) = sum(ind &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells));
+        (cellInfo.lateCycRespCells));
     taskGroups.targetTC{igrp} = mean(targetAnalysis.tc{3,visualTrials}...
         (:,ind),2);
     taskGroups.targetTCErr{igrp} = ste(targetAnalysis.tc{3,visualTrials}...
@@ -1444,9 +1560,9 @@ for igrp = 1:4
     taskGroups.firstTCErr{igrp} = ste(antiAnalysis.firstCycTC{visualTrials}...
         (:,ind),2);
     taskGroups.lateCycSI(igrp) = mean(antiAnalysis.lateCycSI(ind &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
     taskGroups.lateCycSIErr(igrp) = ste(antiAnalysis.lateCycSI(ind &...
-        (cellInfo.firstRespCells | cellInfo.lateRespCells)),2);
+        (cellInfo.lateCycRespCells)),2);
 end
 
 setFigParams4Print('portrait')
@@ -1506,8 +1622,8 @@ respBinEdges = [-1, -0.002:0.002:0.006, 1];
 nTotal = nan(1,4);
 figure
 subplot 131
-% ind = (cellInfo.firstRespCells | cellInfo.lateRespCells) & cellInfo.targetRespCells;
-ind = (cellInfo.firstRespCells | cellInfo.lateRespCells);
+% ind = (cellInfo.lateCycRespCells) & cellInfo.targetRespCells;
+ind = (cellInfo.lateCycRespCells);
 ind2 = ind & cellInfo.firstStimAuROC < 0.5 & cellInfo.firstStimAuROCTest;
 nTotal(1) = sum(ind2);
 x = mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1);
@@ -1521,8 +1637,8 @@ x = binnedMean(mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),...
     mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),respBinEdges,minTrN);
 errorbar(x,y,yerr,'.-')
 subplot 133
-n = histcounts(discretize(...
-    mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),respBinEdges));
+n = histcounts(...
+    mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),respBinEdges);
 plot(x,n,'.-')
 subplot 131
 hold on
@@ -1541,8 +1657,8 @@ x = binnedMean(mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),...
 errorbar(x,y,yerr,'.-')
 subplot 133
 hold on
-n = histcounts(discretize(...
-    mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),respBinEdges));
+n = histcounts(...
+    mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),respBinEdges);
 plot(x,n,'.-')
 subplot 131
 hold on
@@ -1561,8 +1677,8 @@ x = binnedMean(mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),...
 errorbar(x,y,yerr,'.-')
 subplot 133
 hold on
-n = histcounts(discretize(...
-    mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),respBinEdges));
+n = histcounts(...
+    mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind2),1),respBinEdges);
 plot(x,n,'.-')
 subplot 132
 x = binnedMean(mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind),1),...
@@ -1572,8 +1688,8 @@ x = binnedMean(mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind),1),...
 errorbar(x,y,yerr,'k.-')
 subplot 133
 hold on
-n = histcounts(discretize(...
-    mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind),1),respBinEdges));
+n = histcounts(...
+    mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind),1),respBinEdges);
 plot(x,n,'k.-')
 nTotal(4) = sum(ind);
 subplot 131
@@ -1600,7 +1716,7 @@ print([fnout 'tuningAnalysis_taskTuningGroups_SIbyResp'],'-dpdf','-fillpage')
 respBinEdges = [-1, -0.002:0.002:0.006, 1];
 nTotal = nan(1,5);
 cOri = nan(1,4);
-ind = (cellInfo.firstRespCells | cellInfo.lateRespCells) & cellInfo.isTuned;
+ind = (cellInfo.lateCycRespCells) & cellInfo.isTuned;
 figure
 for iori = 1:nOri
     subplot 131
@@ -1665,15 +1781,350 @@ legend(strcat([cellfun(@num2str,num2cell(orientations),'unif',0)';'All'],...
 
 print([fnout 'tuningAnalysis_oriGroups_SIbyResp'],'-dpdf','-fillpage')
 
+
 %%
 imgStats.cellGroups(1).name = 'ori';
 imgStats.cellGroups(2).name = 'task';
 
 
-ind = cellInfo.firstRespCells | cellInfo.lateRespCells;
+ind = cellInfo.lateCycRespCells;
 auROCpref = nan(1,length(ind));
 auROCpref(cellInfo.firstStimAuROC < 0.5 & cellInfo.firstStimAuROCTest) = 1;
 auROCpref(cellInfo.firstStimAuROC > 0.5 & cellInfo.firstStimAuROCTest) = 2;
 auROCpref(~cellInfo.firstStimAuROCTest) = 3;
 imgStats.cellGroups(2).test = anova1(antiAnalysis.lateCycSI(ind),...
     auROCpref(ind));
+
+%% decoding analysis (Figure 4)
+
+setFigParams4Print('landscape')
+figure
+colormap(brewermap([],'*RdBu'));
+
+targetRespAll = mean(targetAnalysis.tc{allTrialsInd,visualTrials}...
+    (respwin_target,:),1);
+[~,targetSortInd] = sort(targetRespAll);
+subplot 131
+% lateCycRespAll = mean(antiAnalysis.lateCycTC{allTrialsInd}(respwin,:),1);
+% [~,lateCycSortInd] = sort(lateCycRespAll);
+hm = flipud(antiAnalysis.lateCycTC{visualTrials}...
+    (tcStartFrame:cycTCEndFr,targetSortInd)');
+imagesc(hm)
+caxis(hmLim)
+colorbar
+figXAxis([],'Time (ms)',[],ttLabelFr_cyc,ttLabel_cyc)
+figYAxis([],'Cell # (Target Resp Sorted)',[])
+figAxForm
+title('Late Dist. Resp, All Cells')
+
+subplot 132
+% targetRespAll = mean(targetAnalysis.tc{allTrialsInd,visualTrials}...
+%     (respwin_target,:),1);
+hm = flipud(targetAnalysis.tc{1,visualTrials}...
+    ((tcStartFrame-1):(cycTCEndFr-1),targetSortInd)');
+imagesc(hm)
+caxis(hmLim)
+colorbar
+figXAxis([],'Time (ms)',[],ttLabelFr_cyc,ttLabel_cyc)
+figYAxis([],'Cell # (Target Resp Sorted)',[])
+figAxForm
+title('Hard Target Resp, All Cells')
+
+subplot 133
+hm = flipud(targetAnalysis.tc{2,visualTrials}...
+    ((tcStartFrame-1):(cycTCEndFr-1),targetSortInd)');
+imagesc(hm)
+caxis(hmLim)
+colorbar
+figXAxis([],'Time (ms)',[],ttLabelFr_cyc-1,ttLabel_cyc)
+figYAxis([],'Cell # (Target Resp Sorted)',[])
+figAxForm
+title('Easy Target Resp, All Cells')
+print([fnout 'heatmapVisTrialsAllCells_dist&target'],'-dpdf','-fillpage')
+
+figure
+colormap gray
+suptitle('Responsive Cells IDs, sorted by target response')
+
+subplot 131
+ind = cellInfo.lateRespCells;
+indBW = ind; indBW(ind) = 0; indBW(~ind) = 1;
+imagesc(flipud(indBW(targetSortInd)))
+title(sprintf('Late Cyc. Resp. Cells n=%s',num2str(sum(ind))))
+figYAxis([],'Cell # (Target Resp Sorted)',[])
+figAxForm
+
+subplot 132
+ind = cellInfo.targetRespCells;
+indBW = ind; indBW(ind) = 0; indBW(~ind) = 1;
+imagesc(flipud(indBW(targetSortInd)))
+title(sprintf('Target Resp. Cells n=%s',num2str(sum(ind))))
+figYAxis([],'Cell # (Target Resp Sorted)',[])
+figAxForm
+
+print([fnout 'cellIDforHeatmap_dist&target'],'-dpdf','-fillpage')
+
+dcModel = struct;
+dcModel(1).name = 'Target';
+dcModel(2).name = 'Detect';
+for imod = 1:2
+    dcModel(imod).av(1).name = 'Visual';
+    dcModel(imod).av(2).name = 'Auditory';
+    for iav = 1:2
+        dcModel(imod).av(iav).correlation = [];
+        dcModel(imod).av(iav).weight = [];
+        dcModel(imod).av(iav).pctCorrect = nan(4,nexp);
+        dcModel(imod).av(iav).testPerformance = nan(4,nexp);
+        dcModel(imod).av(iav).pctCorrect_movRespWin = nan(nMovWin,nexp);
+        dcModel(imod).av(iav).pctCorrect_otherAV = nan(1,nexp);
+    end
+end
+for iav = 1:2
+    for iexp = 1:nexp
+        d = decodeAnalysis(iexp).av(iav);
+        
+        dcModel(1).av(iav).correlation = cat(2, ...
+            dcModel(1).av(iav).correlation,d.correlationTarget);
+        dcModel(1).av(iav).weight = cat(1, ...
+            dcModel(1).av(iav).weight,d.weightTarget);
+        dcModel(1).av(iav).pctCorrect(:,iexp) = cat(2,...
+            d.pctCorrectXStimTarget_holdout,d.pctCorrectAllTarget_holdout);
+        dcModel(1).av(iav).testPerformance(:,iexp) = cat(2,...
+            d.pctCorrectXStimTarget_train,d.pctCorrectAllTarget_train) - ...
+            cat(2,...
+            d.pctCorrectXStimTarget_holdout,d.pctCorrectAllTarget_holdout);
+        dcModel(1).av(iav).pctCorrect_movRespWin(:,iexp) = d.pctCorrectTargetMovRespWin_holdout;
+        dcModel(1).av(iav).pctCorrect_otherAV(iexp) = d.pctCorrectTarget_otherAV;
+        
+        dcModel(2).av(iav).correlation = cat(2, ...
+            dcModel(2).av(iav).correlation,d.correlationDetect);
+        dcModel(2).av(iav).weight = cat(1, ...
+            dcModel(2).av(iav).weight,d.weightDetect);
+        dcModel(2).av(iav).pctCorrect(:,iexp) = cat(2,...
+            d.pctCorrectXStimDetect_holdout,d.pctCorrectAllDetect_holdout);
+        dcModel(2).av(iav).testPerformance(:,iexp) = cat(2,...
+            d.pctCorrectXStimDetect_train,d.pctCorrectAllDetect_train) - ...
+            cat(2,...
+            d.pctCorrectXStimDetect_holdout,d.pctCorrectAllDetect_holdout);
+        dcModel(2).av(iav).pctCorrect_movRespWin(:,iexp) = d.pctCorrectDetectMovRespWin_holdout;
+        dcModel(2).av(iav).pctCorrect_otherAV(iexp) = d.pctCorrectDetect_otherAV;
+    end
+end
+
+stimLabel = {'0';'HT';'ET';'All'};
+mdlXStimAlpha = 0.05./3;
+
+figure;
+x = 1:4;
+for imod = 1:2
+    if imod == 1
+        iplot = 0;
+    else
+        iplot = 2;
+    end
+    for iav = 1:2
+        y = dcModel(imod).av(iav).pctCorrect;
+        yerr = ste(dcModel(imod).av(iav).pctCorrect,2);
+        [mdlTest,mdlP] = ttest(y,0.5,'dim',2,'alpha',mdlXStimAlpha);
+        subplot(2,2,iplot+iav)
+        for iexp = 1:nexp
+            ind = ~isnan(y(:,iexp));
+            hold on
+            plot(x(ind),y(ind,iexp),'k.-');
+        end
+        for itest = 1:4
+            if mdlTest(itest)
+                text(x(itest),1,sprintf('*%s',...
+                    num2str(round(mdlP(itest),2,'significant'))))
+            else
+                text(x(itest),1,sprintf('%s',...
+                    num2str(round(mdlP(itest),2,'significant'))))
+            end
+        end
+        errorbar(nanmean(y,2),yerr,'.-','MarkerSize',15)
+        figXAxis([],'Stim',[0 5],x,stimLabel)
+        hline(0.5,'k:')
+        figYAxis([],'Fraction Correct',[0 1])
+        figAxForm
+        title(sprintf('%s Model, Train %s, Test %s',dcModel(imod).name,...
+            dcModel(imod).av(iav).name,dcModel(imod).av(iav).name))
+    end
+end
+
+print([fnout 'decodeModelPctCorrectXStim'],'-dpdf','-fillpage')
+
+figure;
+suptitle('Performace of trained model on hold-out trials')
+x = 1:4;
+for imod = 1:2
+    if imod == 1
+        iplot = 0;
+    else
+        iplot = 2;
+    end
+    for iav = 1:2
+        y = dcModel(imod).av(iav).testPerformance;
+        yerr = ste(dcModel(imod).av(iav).testPerformance,2);
+        [mdlTest,mdlP] = ttest(y,0,'dim',2,'alpha',mdlXStimAlpha);
+        subplot(2,2,iplot+iav)
+        for iexp = 1:nexp
+            ind = ~isnan(y(:,iexp));
+            hold on
+            plot(x(ind),y(ind,iexp),'k.-');
+        end
+        for itest = 1:4
+            if mdlTest(itest)
+                text(x(itest),0.5,sprintf('*%s',...
+                    num2str(round(mdlP(itest),2,'significant'))))
+            else
+                text(x(itest),0.5,sprintf('%s',...
+                    num2str(round(mdlP(itest),2,'significant'))))
+            end
+        end
+        errorbar(nanmean(y,2),yerr,'.-','MarkerSize',15)
+        figXAxis([],'Stim',[0 5],x,stimLabel)
+        hline(0,'k:')
+        figYAxis([],'Train - HO Frac. Correct',[-0.5 0.5])
+        figAxForm
+        title(sprintf('%s Model, Train %s, Test %s',dcModel(imod).name,...
+            dcModel(imod).av(iav).name,dcModel(imod).av(iav).name))
+    end
+end
+
+print([fnout 'decodeModelPerformanceXStim'],'-dpdf','-fillpage')
+
+figure
+suptitle('Percent Correct of responses analyzed at different time windows around stimulus')
+x = movWinLabelMs;
+for imod = 1:2
+    if imod == 1
+        iplot = 0;
+    else
+        iplot = 2;
+    end
+    for iav = 1:2
+        y = dcModel(imod).av(iav).pctCorrect_movRespWin;
+        yerr = ste(dcModel(imod).av(iav).pctCorrect_movRespWin,2);
+%         [mdlTest,mdlP] = ttest(y,0,'dim',2,'alpha',mdlXStimAlpha);
+        subplot(2,2,iplot+iav)
+        for iexp = 1:nexp
+            ind = ~isnan(y(:,iexp));
+            hold on
+            plot(x(ind),y(ind,iexp),'k.-');
+        end
+        errorbar(x,nanmean(y,2),yerr,'.-','MarkerSize',15)
+        figXAxis([],'Resp. Win. Center (Relative to Stim)',[x(1) x(end)],x,x)
+        hline(0.5,'k:')
+        figYAxis([],'Frac. Correct',[0 1])
+        figAxForm
+        title(sprintf('%s Model, Train %s, Test %s',dcModel(imod).name,...
+            dcModel(imod).av(iav).name,dcModel(imod).av(iav).name))
+        vline(respWinTT,'r--')
+        vline(baseWinTT,'k--')
+    end
+end
+
+print([fnout 'decodeModelPerformanceXRespWindow'],'-dpdf','-fillpage')
+
+for iav = 1:2
+    figure
+    suptitle(sprintf('%s,Task correlation and weights of cells used in model',...
+        dcModel(1).av(iav).name))
+    
+    weightInd = dcModel(imod).av(iav).weight > 0;
+    binnedTargetWeight = nan(1,2);
+    binnedTargetWeightErr = nan(1,2);
+    binnedDetectWeight = nan(1,2);
+    binnedDetectWeightErr = nan(1,2);
+    binnedDetectWeightTest = nan(1,2);
+    binnedTargetWeight(1) = mean(dcModel(1).av(iav).weight(~weightInd));
+    binnedTargetWeight(2) = mean(dcModel(1).av(iav).weight(weightInd));
+    binnedTargetWeightErr(1) = ste(dcModel(1).av(iav).weight(~weightInd),1);
+    binnedTargetWeightErr(2) = ste(dcModel(1).av(iav).weight(weightInd),1);
+    binnedDetectWeight(1) = mean(dcModel(2).av(iav).weight(~weightInd));
+    binnedDetectWeight(2) = mean(dcModel(2).av(iav).weight(weightInd));
+    binnedDetectWeightErr(1) = ste(dcModel(2).av(iav).weight(~weightInd),1);
+    binnedDetectWeightErr(2) = ste(dcModel(2).av(iav).weight(weightInd),1);
+    [~,binnedDetectWeightTest(1)] = ttest(dcModel(2).av(iav).weight(~weightInd));
+    [~,binnedDetectWeightTest(2)] = ttest(dcModel(2).av(iav).weight(weightInd));
+    
+    for imod = 1:2
+        x = dcModel(imod).av(iav).correlation;
+        y = dcModel(imod).av(iav).weight;
+
+        subplot(2,2,imod)
+        plot(x,y,'.')
+        figXAxis([],'Correlation',[-1 1])
+        figYAxis([],'Weight',weightLim)
+        figAxForm
+        vline(0,'k:')
+        hline(0,'k:')
+        title(sprintf('%s Model',dcModel(imod).name))
+    end
+    
+    subplot(2,2,3)
+    plot(dcModel(1).av(iav).weight,dcModel(2).av(iav).weight,'.')
+    figXAxis([],'Target Weight',weightLim)
+    figYAxis([],'Detect Weight',weightLim)
+    figAxForm
+    hline(0,'k:')
+    vline(0,'k:')
+    
+    subplot(2,2,4)
+    hold on
+    for i = 1:2
+        if i == 1
+            ind = ~weightInd;
+        elseif i == 2
+            ind = weightInd;
+        end
+        y = dcModel(2).av(iav).weight(ind);
+        x = binnedTargetWeight(i).*(ones(sum(ind),1));
+        plot(x,y,'.')
+        text(binnedTargetWeight(i),weightLim(end),num2str(round(...
+            binnedDetectWeightTest(i),2,'significant')))
+    end
+    errorbar(binnedTargetWeight,binnedDetectWeight,binnedDetectWeightErr,'.-')
+    figXAxis([],'Target Weight',binnedWeightLim)
+    figYAxis([],'Detect Weight',weightLim)
+    figAxForm
+    hline(0,'k:')
+    vline(0,'k:')
+    
+    dcModel(1).av(iav).binnedWeight = binnedTargetWeight;
+    dcModel(1).av(iav).binnedWeightErr = binnedTargetWeightErr;
+    dcModel(2).av(iav).binnedWeight = binnedDetectWeight;
+    dcModel(2).av(iav).binnedWeightErr = binnedDetectWeightErr;
+    dcModel(2).av(iav).binnedWeightTest = binnedDetectWeightTest;
+    
+    print([fnout 'decodeModelWeights_' dcModel(1).av(iav).name],'-dpdf','-fillpage')
+end
+
+figure
+for imod = 1:2
+    for iav = 1:2
+        if imod == 1
+            subplot(2,2,iav)
+        elseif imod == 2
+            subplot(2,2,iav+2)
+        end
+        if iav == visualTrials
+            otherAV = 'Auditory';
+        else
+            otherAV = 'Visual';
+        end
+        x = 1:2;
+        y = [dcModel(imod).av(iav).pctCorrect(end,:)', dcModel(imod).av(iav).pctCorrect_otherAV'];
+        hold on
+        plot(x,y,'k')
+        errorbar(x,mean(y,1),ste(y,1),'.')
+        
+        figXAxis([],'Test Trials',[0 3],x,{dcModel(imod).av(iav).name,otherAV})
+        figYAxis([],'Fraction Correct',[0 1])
+        figAxForm
+        hline(0.5,'k:')
+        title(sprintf('%s Model, Train %s',dcModel(imod).name,dcModel(imod).av(iav).name))
+    end
+end
+
+print([fnout 'decodeModelPctCorrectOtherAVModel'],'-dpdf','-fillpage')

@@ -25,6 +25,7 @@ tuningReliabilityThresh_decode = 11;
 minRespThreshold = 0.002;
 minRespThreshold_decode = 0.005;
 minTrN = 5;
+maxCellN = 20;
 %% colors
 cueColor = {[0 0 0];[.5 .5 1]};
 AVColor = {[0 0 0];[0.5 0.5 0.5]};
