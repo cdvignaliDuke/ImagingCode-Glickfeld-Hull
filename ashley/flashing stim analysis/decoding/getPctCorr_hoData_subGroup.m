@@ -11,7 +11,7 @@ for i = 1:nt_group
     
     groupTrialInd = groupIndNumber(i);
     othersInd = [1:(groupTrialInd-1),(groupTrialInd+1):nt_all];
-    
+
     [~,~,othersGLM] = glmfit(X_all(othersInd,:),Y_all(othersInd),'binomial');
     yhat(i) = glmval(othersGLM.beta,X_holdout,'logit') > dv;
 end

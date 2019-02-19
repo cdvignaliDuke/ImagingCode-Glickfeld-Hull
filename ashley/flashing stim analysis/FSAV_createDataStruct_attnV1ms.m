@@ -266,6 +266,13 @@ function mouse = FSAV_createDataStruct_attnV1ms(ds,cellsOrDendrites)
         trOut(earlyHits_vis | earlyHits_aud) = {'failure'};
         trOut(lateHits_vis | lateHits_aud) = {'ignore'};
         
+        earlyFail_vis = strcmp(trOut,'failure') & ...
+            reactTimeFromLastBaseMs < visRTwindow(1) & tGratingDirectionDeg > 0;
+        earlyFail_aud = strcmp(trOut,'failure') & ...
+            reactTimeFromLastBaseMs < audRTwindow(1) & tSoundTargetAmp > 0;
+        reactTimeFromLastBaseMs(earlyFail_vis) = reactTimeFromLastBaseMs(earlyFail_vis)+cycTimeMs;
+        reactTimeFromLastBaseMs(earlyFail_aud) = reactTimeFromLastBaseMs(earlyFail_aud)+cycTimeMs;
+        tCyclesOn(earlyFail_vis |earlyFail_aud) = tCyclesOn(earlyFail_vis |earlyFail_aud) - 1;
         trOut_shift = [{NaN} trOut];
         prevTrOut = trOut_shift(1:length(trOut));
         trOut_shift = [{NaN} {NaN} trOut];
@@ -405,11 +412,15 @@ function mouse = FSAV_createDataStruct_attnV1ms(ds,cellsOrDendrites)
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).ori = [];
             mouse(imouse).expt(exptN(:,imouse)).av(iav).align(ialign).amp = [];
         end
+
         ialign = 3;
         
         maxTrials = max(find(cLeverDown+post_event_frames+double(cycTime*(tCyclesOn-1))-1 <  size(dataTC,1)),[],2);
-        
-        hitsAndMissTr = strcmp(trOut,'success') | strcmp(trOut,'ignore');
+        if strcmp(ds(end-4:end),'naive')
+            hitsAndMissTr = strcmp(trOut,'failure') | strcmp(trOut,'success') ;
+        else
+            hitsAndMissTr = strcmp(trOut,'success') | strcmp(trOut,'ignore');
+        end
         
         Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),ntrials);
         DataF = zeros(1,size(dataTC,2),ntrials);
