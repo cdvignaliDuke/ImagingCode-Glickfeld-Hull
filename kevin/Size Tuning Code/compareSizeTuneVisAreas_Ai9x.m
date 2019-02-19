@@ -16,7 +16,8 @@
 %% load csv to define exp
 
 clear all; clc;
-expfile = '\\CRASH.dhe.duke.edu\data\home\kevin\Code\Ai9x_experiment_list.txt';
+%expfile = '\\CRASH.dhe.duke.edu\data\home\kevin\Code\Ai9x_experiment_list.txt';
+expfile = 'C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code\Ai9x_experiment_list.txt';
 fID = fopen(expfile);
 head = textscan(fID,'%s%s%s%s%s',1,'delimiter',',');
 head = vertcat(head{:});
@@ -136,7 +137,7 @@ szs = 5*1.5.^[0:7]; nSize = length(szs);
 szRng = linspace(0,max(szs));
 
 %% con resp for all cells
-override = 0;
+override = 1;
 conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
 conRng = 0.001:0.001:1;
 opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
@@ -236,7 +237,7 @@ end
 
 %% present each exp to examine cells+fits and choose example cells
 % show each cell rawdata w/ model1+2 overlaid
-if 0 % skip plotting
+while 0 % skip plotting
     close all
     for iExp = 1:nExp
         % select only cells in exp i with goodfits and RF<10
@@ -354,7 +355,7 @@ nCells_area = nExp_area;
 
 %close all
 
-choosefig = [7];%[3 5 8 9 10 11];
+choosefig = [5 8];%[3 5 8 9 10 11];
 % choose figs: 1=modelcounts; 2=averagecurves; 3=prefSize; 4=suppInd;
 % 5=conresp; 6=ex.cells; 7=C50f vs C50r; 8=conresp matched size @20deg,
 % 9=prefSize but PS within 10-30, 10=conresp but PS within 10-30
@@ -362,7 +363,7 @@ choosefig = [7];%[3 5 8 9 10 11];
 legStrs = strings(1,length(areas));
 legStrs5=legStrs;legStrs8=legStrs;legStrs10=legStrs;legStrs11=legStrs;
 legStrsPC=legStrs;
-x = []; yPS = []; ySI = [];
+x = []; yPS = []; ySI = []; ySS = [];
 for i = 1:length(areas)
     fprintf(['Area #' num2str(i) ' : ' char(areas(i)) '\n'])
     % select exps matching area
@@ -404,6 +405,7 @@ for i = 1:length(areas)
     suppInd = reshape([sizeFits.suppInd],size(sizeFits));
     suppInd(suppInd<0)=0;suppInd(suppInd>1)=1;
     ySI = [ySI;suppInd(:,nCon)];
+    ySS = [ySS;reshape([sizeFits(:,nCon).Ftest],size(sizeFits(:,nCon)))];
     
     cons_c = categorical({'0.1' '0.2' '0.4' '0.8'});
     conStruct = conStruct_all(ind);
@@ -578,7 +580,7 @@ for i = 1:length(areas)
         ylabel('norm. dF/F @ pref size')
         xlim([0 1])
         ylim([0 1.2])
-        if i==4;legend(legStrs5,'location','best');end%'southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
+        if i==4;legend(legStrs5,'location','se');end%'southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
     
         % fit
         conResp_norm = conResp_norm';
@@ -677,7 +679,7 @@ for i = 1:length(areas)
         ylabel('norm. dF/F @20deg')
         xlim([0 1])
         ylim([0 1.2])
-        if i==4;legend(legStrs8,'location','best');end%'southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
+        if i==4;legend(legStrs8,'location','se');end%'southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
     
         % fit
         conResp_norm = conResp_norm';
@@ -847,6 +849,7 @@ end
 [results, means] = multcompare(statPS,'CType','hsd')
 [p,~,statSI] = anova1(ySI,x)
 [results, means] = multcompare(statSI,'CType','hsd')
+[tbl,chi2stat,pval] = crosstab(x,ySS) % chi square on SS designation
 
 %% fig x - contrast response on 8 random example cells
 while 0 %collapse
@@ -1162,6 +1165,7 @@ for i = 1:length(areas)
     sizeMean_normall = sizeMean_normall/norm;
     sizeSEM_normall = geomean(sizeSEM_norm,3)/norm;
     
+    cellFit = sizeFits_all(exCell,:);
     subplot(4,4,1+(i-1)*4) % plot example cell
     for iCon = 1:nCon
         errorbar(szs,sizeMean_all(:,iCon,exCell),sizeSEM_all(:,iCon,exCell),'.')
@@ -1410,11 +1414,95 @@ legend('mean+SEM')
 ylim([-0.1 1])
 
 %% stats on C50, BLr
+areas = ["V1","LM","AL","PM"];
+Rsqcutoff = 0.9;
+x =[]; yC50=x; yBLr=x;
+x20 =[]; yC5020=x; yBLr20=x;
+for i = 1:length(areas)
+    fprintf(['Area #' num2str(i) ' : ' char(areas(i)) '\n'])
+    % select exps matching area
+    expIndi = find(cellfun(@(x) strcmp(x,areas(i)), expdata.area, 'UniformOutput', 1));
+    % find cells with correct exp inds, take only good fit cells
+    ind = intersect(find(ismember(expInd,expIndi)),goodfit_ind_size_all);
+    
+    % cutoff by cellDist
+    switch areas(i)
+        case 'V1'
+            cutoff = 10; %v1 cutoff at 10
+        case {'LM','AL'}
+            cutoff = 15; %alm cutoff at 15
+        case 'PM'
+            cutoff = 20; %pm cutoff at 20
+    end
+    ind = intersect(ind,find(cellDists_all<cutoff));
+    
+    sizeFits = sizeFits_all(ind,:); %cell,con
+    prefSize = reshape([sizeFits.prefSize],size(sizeFits));
+    
+    nExpi = length(expIndi);
+    nCellsi = length(ind);
+    sizeFits = sizeFits_all(ind,:); %cell,con
+    lbub_fits = lbub_fits_all(ind,:,:); %cell,par,val (low up mean true stdev)
+    ism1 = reshape(~[sizeFits.Ftest],size(sizeFits));
+    ism2 = reshape([sizeFits.Ftest],size(sizeFits));
+    
+    conStruct = conStruct_all(ind);
+    C50f = 0*ind;
+    %baseline = C50f;
+    %Rmax = C50f;
+    BLr = C50f; C50f20=C50f; BLr20=C50f;
+    for iCell = 1:nCellsi
+        C50f(iCell) = conStruct(iCell).fit(3);
+        %baseline(iCell) = conStruct(iCell).fit(1);
+        %Rmax(iCell) = conStruct(iCell).fit(2);
+        %BLr = baseline(cut)./(baseline(cut)+Rmax(cut));
+        BLr(iCell) = conStruct(iCell).fit(1)./(conStruct(iCell).fit(1)+conStruct(iCell).fit(2));
+        C50f20(iCell) = conStruct(iCell).fit20(3);
+        BLr20(iCell) = conStruct(iCell).fit20(1)./(conStruct(iCell).fit20(1)+conStruct(iCell).fit20(2));
+    end
+    C50r = [conStruct.C50r]';
+    C50r20 = [conStruct.C50r20]';
+    
+    prefCut = find((prefSize(:,nCon)>10).*(prefSize(:,nCon)<30));
+    
+    Rsq = [conStruct.Rsq];
+    cut = find(Rsq>Rsqcutoff);
+    cut = intersect(cut,prefCut);
+    nCut(i) = length(cut);
+    Rsq20 = [conStruct.Rsq20];
+    cut20 = find(Rsq20>Rsqcutoff);
+    cut20 = intersect(cut20,prefCut);
+    nCut20(i) = length(cut20);
+    
+    x = [x; i+0*cut];
+    yC50 = [yC50; C50r(cut)];
+    yBLr = [yBLr; BLr(cut)];
+    x20 = [x20; i+0*cut20];
+    yC5020 = [yC5020; C50r20(cut20)];
+    yBLr20 = [yBLr20; BLr20(cut20)];
+    
+end
+
+fprintf(['C50 @pS, nCut=' num2str(nCut)])
 [p,~,statC50] = anova1(yC50,x)
 [results, means] = multcompare(statC50,'CType','hsd')
+pause
 
+fprintf(['C50 @20d, nCut=' num2str(nCut20)])
+[p,~,statC5020] = anova1(yC5020,x20)
+[results, means] = multcompare(statC5020,'CType','hsd')
+pause
+
+fprintf(['BLr @pS, nCut=' num2str(nCut)])
 [p,~,statBLr] = anova1(yBLr,x)
 [results, means] = multcompare(statBLr,'CType','hsd')
+pause
+
+fprintf(['BLr @20d, nCut=' num2str(nCut20)])
+[p,~,statBLr20] = anova1(yBLr20,x20)
+[results, means] = multcompare(statBLr20,'CType','hsd')
+pause
+
 %%
 
 for i=1:4

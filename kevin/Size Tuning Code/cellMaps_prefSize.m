@@ -7,7 +7,8 @@
 %% load csv to define exp
 
 clear all; clc;
-expfile = '\\CRASH.dhe.duke.edu\data\home\kevin\Code\Ai9x_experiment_list.txt';
+%expfile = '\\CRASH.dhe.duke.edu\data\home\kevin\Code\Ai9x_experiment_list.txt';
+expfile = 'C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code\Ai9x_experiment_list.txt';
 fID = fopen(expfile);
 head = textscan(fID,'%s%s%s%s%s',1,'delimiter',',');
 head = vertcat(head{:});
@@ -23,7 +24,7 @@ fprintf(['Cell maps, prefSize v Az analysis - by KM, Glickfeld Lab\nLoading ' nu
 %% load each exp individually
 
 close all
-for iExp = 1:nExp
+for iExp = 39%1:nExp
     date = expdata.date{iExp};
     mouse = expdata.mouse{iExp};
     ret_str = 'runs-002';
@@ -159,7 +160,40 @@ for iExp = 1:nExp
      
     suptitle(sprintf('Mouse: %s, date: %s, area: %s',mouse,date,expdata.area{iExp}))
     set(gcf, 'Position', [0,50,1600,800])
+    close all
+    %%
+    figure(2)
+    imagesc(rot90(retMap_El),'AlphaData',rot90(imAlpha))
+    colormap jet
+    h = colorbar;
+    caxis([-15 15])
+    ylabel(h,'El (deg)','Rotation',270.0,'VerticalAlignment','bottom')
+    set(gca,'Color',0*[1 1 1]);
+    set(gca,'XTickLabel',[]);
+    set(gca,'YTickLabel',[]);
+    axis square
+    set(gcf,'Color',[1 1 1]); set(gca,'Color',[0 0 0]); set(gcf,'InvertHardCopy','off');
+    %addpath('K:\Code\export_fig\altmany-export_fig-412662f')
+    %export_fig('K:\ppts\_paper figs\fig1_cellEl2.pdf','-a2');
+    print('K:\ppts\_paper figs\fig1_cellEl.pdf','-dpdf')
     
-    pause
+    figure(3)
+    imagesc(rot90(retMap_Az),'AlphaData',rot90(imAlpha))
+    colormap jet
+    oldmap = colormap;
+    colormap( flipud(oldmap) );
+    h = colorbar;
+    caxis([-10 20])
+    ylabel(h,'Az (deg)','Rotation',270.0,'VerticalAlignment','bottom')
+    set(gca,'color',0*[1 1 1]);
+    set(gca,'XTickLabel',[]);
+    set(gca,'YTickLabel',[]);
+    axis square
+    set(gcf,'Color',[1 1 1]); set(gca,'Color',[0 0 0]); set(gcf,'InvertHardCopy','off');
+    print('K:\ppts\_paper figs\fig1_cellAz.pdf','-dpdf')
+    
+    if iExp == 39
+        %pause
+    end
 end
-close all
+%close all
