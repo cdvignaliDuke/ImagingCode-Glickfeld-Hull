@@ -164,10 +164,8 @@ text(20, 40,['R^2=' num2str(Rsq)])
 % plot of RF-size vs RF-stim distance (with maesure of correlation)
 
 % extract RF size (lbub_fits_all -> only goodfit_ind -> only goodfit_ind_size)
-%sigmax = lbub_fits_all(goodfit_ind_all,2,4);
-%sigmay = lbub_fits_all(goodfit_ind_all,3,4);
-sigmax = lbub_fits_all(:,2,4);
-sigmay = lbub_fits_all(:,3,4);
+sigmax = lbub_fits_all(goodfit_ind_all,2,4);
+sigmay = lbub_fits_all(goodfit_ind_all,3,4);
 RFsize_all = sqrt(2*log(2))*geomean([sigmax sigmay],2);
 
 fprintf('Examine cells from each area:\n')
@@ -185,9 +183,8 @@ for i = 1:length(areas)
     % select exps matching area
     expIndi = find(cellfun(@(x) strcmp(x,areas(i)), expdata.area, 'UniformOutput', 1));
     % find cells with correct exp inds, take only good size fit cells
+    % or comment out to take all cells with good ret
     %ind = intersect(find(ismember(expInd,expIndi)),goodfit_ind_size_all);
-    % or comment out and just take all cells with good ret
-    ind = find(ismember(expInd,expIndi));
     
     % no cutoff for now
     % cutoff by cellDist
@@ -195,22 +192,16 @@ for i = 1:length(areas)
     switch areas(i)
         case 'V1'
             cutoff = 10; %v1 cutoff at 10
-            RFsize_V1 = RFsize_all(ind);
-        case 'LM'
+        case {'LM','AL'}
             cutoff = 15; %alm cutoff at 15
-            RFsize_LM = RFsize_all(ind);
-        case 'AL'
-            cutoff = 15; %alm cutoff at 15
-            RFsize_AL = RFsize_all(ind);
         case 'PM'
             cutoff = 20; %pm cutoff at 20
-            RFsize_PM = RFsize_all(ind);
     end
     %ind = intersect(ind,find(cellDists_all<cutoff));
     
     nExpi = length(expIndi);
     nCellsi = length(ind);
-    %cellDists = cellDists_all(ind);
+    cellDists = cellDists_all(ind);
     RFsize = RFsize_all(ind);
     
 %     sizeFits = sizeFits_all(ind,:); %cell,con
@@ -226,7 +217,7 @@ for i = 1:length(areas)
     % rf-stim distance
     figure(2);if i==1;clf;end
     subplot(2,2,i)
-    %histogram(cellDists,[0:1:40])
+    histogram(cellDists,[0:1:40])
     hold on
     line([cutoff cutoff],[0 1000],'color','red','LineStyle','--')
     title({sprintf('Area:%s',areas(i));['(n=' num2str(nCellsi) ', n_{exp}=' num2str(nExpi) ')']})
@@ -247,10 +238,10 @@ for i = 1:length(areas)
     % rf size vs rf-stim dist
     figure(4);if i==1;clf;end
     subplot(2,2,i)
-    %plot(cellDists,RFsize,'.')
+    plot(cellDists,RFsize,'.')
     title({sprintf('Area:%s',areas(i));['(n=' num2str(nCellsi) ', n_{exp}=' num2str(nExpi) ')']})
-    %cc = corrcoef(cellDists,RFsize);
-    %text(1,2,['R^2=' num2str(cc(2))])
+    cc = corrcoef(cellDists,RFsize);
+    text(1,2,['R^2=' num2str(cc(2))])
     xlabel('RF-stim dist')
     ylabel('RF size')
     

@@ -1202,7 +1202,7 @@ ylabel('Elevation (deg)')
 legend('RF center', 'half-max','Location','se')
 
 %% present two cells (2,5)
-iCell=2;
+iCell=47;
 figure(1);clf;
 set(gcf, 'Position', [100 100 520 510]); %[100 100 650 640]
 subplot(2,2,1)
@@ -1238,7 +1238,7 @@ xlabel('Azimuth (deg)')
 ylabel('Elevation (deg)')
 legend('RF center', 'half-max','Location','se')
 % second cell (5)
-iCell=15;
+iCell=19;
 subplot(2,2,3)
 ret_raw = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
 ret_raw = ret_raw';
