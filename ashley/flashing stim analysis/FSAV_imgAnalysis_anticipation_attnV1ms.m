@@ -51,7 +51,11 @@ nMovWin = 15;
 movWinLabelFr = 30:(30+nMovWin-1);
 movWinLabelFr_target = 30:(30+nMovWin-1);
 % movWinLabelMs = 
+
+trOutType = {'h';'m';'fa';'cr'};
+trOutTypeName = {'H-All';'H-HT';'H-ET';'M-All';'M-HT';'M-ET';'FA';'CR'};
 %% pool experiment data
+
 antiDataExpt = struct;
 oriTuningExpt = struct;
 targetDataExpt = struct;
@@ -84,22 +88,31 @@ for imouse = 1:size(mouse,2)
             trOut = [];
             trStim = [];
             trResp = [];
+            trTC = [];
             trResp_movWin = [];
             for ialign = 2:4
                 ddd = dd.align(ialign);
-                if ialign == 4
-                    trResp = cat(2,trResp,squeeze(mean(ddd.respTC(respwin_target,:,:),1)...
-                        - mean(ddd.respTC(basewin_0_target,:,:),1)));
-                else
-                    trResp = cat(2,trResp,squeeze(mean(ddd.respTC(respwin,:,:),1)...
-                        - mean(ddd.respTC(basewin_0,:,:),1)));
-                end
+%                 if iav 
+%                     fprintf('%s/%s auditory trials < 200 ms\n', ...
+%                         num2str(sum(ddd.reactTime < 200)),num2str(length(ddd.reactTime)))
+%                 end
                 tc = ddd.respTC;
+                if ialign == 4
+                    tc_temp = circshift(tc,-1,1);
+                    tc_temp(end,:,:) = nan;
+                    trTC = cat(3,trTC,tc);
+                    trResp = cat(2,trResp,squeeze(mean(tc(respwin_target,:,:),1)...
+                        - mean(tc(basewin_0_target,:,:),1)));
+                else
+                    trResp = cat(2,trResp,squeeze(mean(tc(respwin,:,:),1)...
+                        - mean(tc(basewin_0,:,:),1)));
+                    trTC = cat(3,trTC,tc);
+                end
                 nfr = length(respwin)-1;
                 nMovWin = 15;
                 trResp_movWin_temp = nan(size(tc,2),size(tc,3),nMovWin);
                 if ialign == 4
-                    tempwinstart = 30;
+                    tempwinstart = 28;
                 else
                     tempwinstart = 29;
                 end
@@ -136,6 +149,42 @@ for imouse = 1:size(mouse,2)
             decodeDataExpt(exptN).av(iav).stim = trStim;
             decodeDataExpt(exptN).av(iav).resp = trResp;
             decodeDataExpt(exptN).av(iav).movWinResp = trResp_movWin;
+            
+            if iav == 1
+                binEdges = oriBins;
+            elseif iav == 2
+                binEdges = ampBins;
+            end
+            trStimID = discretize(trStim,binEdges);
+            rng(0)
+            matchTrInd = getMatchedOutcomeTrialIndex(trOut,trStimID,minTrN);
+            trOutTC = cell(1,length(trOutTypeName));
+            for iout = 1:length(trOutType)
+                if iout == 1 || iout == 2
+                    for istim = 2:3
+                        ind = trStimID == istim;
+                        if istim == 2
+                            ind2 = ((iout-1)*3)+2;
+                        elseif istim == 3
+                            ind2 = ((iout-1)*3)+3;
+                        end
+                        ind3 = ind & strcmp(trOut,trOutType(iout));
+                        if sum(ind3) == 0
+                            trOutTC{ind2} = nan(size(trTC,1),size(trTC,2),1);
+                        else
+                            trOutTC{ind2} = trTC(:,:,ind3);
+                        end
+%                         fprintf(num2str(ind2))
+                    end
+                    ind2 = ((iout-1)*3)+1;
+                    trOutTC{ind2} = trTC(:,:,strcmp(trOut,trOutType(iout)) & matchTrInd);
+%                     fprintf(num2str(ind2))
+                else
+%                     fprintf(num2str(iout+4))
+                    trOutTC{iout+4} = trTC(:,:,strcmp(trOut,trOutType(iout)));
+                end
+            end
+            targetDataExpt(exptN).av(iav).trOutTC = trOutTC;
             
             
             de = d.av(iav).align(alignStart);
@@ -178,7 +227,6 @@ for imouse = 1:size(mouse,2)
         antiDataExpt(exptN).longTC = longTC;
         antiDataExpt(exptN).cycTC = cycTC;
         targetDataExpt(exptN).exptName = [mouse(imouse).mouse_name '-' d.date];
-        
         do = d.oriTuning;
         if size(do.oriResp,2) == 8
             oriTuningExpt(exptN).oriResp = do.oriResp(:,1:2:8);
@@ -283,6 +331,7 @@ decodeAnalysis = struct;
 decodeAnalysis.av(visualTrials).name = 'Visual';
 decodeAnalysis.av(auditoryTrials).name = 'Auditory';
 for iexp = 1:nexp
+    rng(0) % cells randomized and trials randomized
     cellInd = respCellsExpt(iexp).decodeAnalysisCells & ...
         oriTuningExpt(iexp).tuningReliability' <= tuningReliabilityThresh_decode;
     decodeAnalysis(iexp).nCells = sum(cellInd);
@@ -309,15 +358,15 @@ for iexp = 1:nexp
             trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
         end
         nStimPerBin = histcounts(trStimID);
-        minBinN = min(nStimPerBin(nStimPerBin > minTrN));
+        minBinN = min(nStimPerBin(nStimPerBin >= minTrN_mdl));
         respStimSort = cell(1,nStimBins);
         trOutStimSort = cell(1,nStimBins);
         for istim = 1:nStimBins
             ind = find(trStimID == istim);
-            if length(ind) > minTrN
+            if length(ind) >= minTrN_mdl
                 if istim == 1
                     matchTrialsInd = [];
-                    if sum(nStimPerBin > minTrN) == 2
+                    if sum(nStimPerBin >= minTrN_mdl) == 2
                         n = minBinN;
                     elseif minBinN == nStimPerBin(istim)
                         error('not enough FA/CR trials')
@@ -348,9 +397,11 @@ for iexp = 1:nexp
             end
         end
         
-        
+%         matchTrialsInd = 1:size(respAllCells,2);
 %         resp = zscore(respAllCells(cellInd,matchTrialsInd)');
         resp = respAllCells(matchTrialsInd,cellInd);
+%         [c,score,latent] = pca(decodeDataExpt(iexp).av(iav).resp(:,matchTrialsInd)');
+%         resp_pcs = zscore(score(:,1:10));
 %         [detectTrIndAll, targetTrIndAll] = getStimAndBehaviorYs(trOut);
         [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOut(matchTrialsInd));
         
@@ -380,7 +431,7 @@ for iexp = 1:nexp
         pctCorrTarget_xStim_train = nan(1,nStimBins);
         pctCorrTarget_xStim_ho = nan(1,nStimBins);
         for istim = 1:nStimBins
-            if nStimPerBin(istim) > minTrN
+            if nStimPerBin(istim) >= minTrN_mdl
                 [detectStimInd, targetStimInd] = getStimAndBehaviorYs(...
                     trOutStimSort{istim});
                 pctCorrDetect_xStim_train(istim) = getPctCorr_trainData(...
@@ -393,7 +444,7 @@ for iexp = 1:nexp
                     resp,targetTrInd,stimSortInd{istim},dv_target);
             end
         end
-        
+       
         fprintf('Expt %s, starting resp win analysis\n',num2str(iexp))
         nwins = size(decodeDataExpt(iexp).av(iav).movWinResp,3);
         pctCorrectDetect_train_respwin = nan(1,nwins);
@@ -471,6 +522,7 @@ targetAnalysis.tc = cell(3,2);
 targetAnalysis.targets = cell(1,2);
 targetAnalysis.targetsAuROC = [];
 targetAnalysis.targetsAuROCTest = [];
+targetAnalysis.trOutTC = cell(length(trOutTypeName),2);
 firstStimAuROC = [];
 lateStimAuROC = [];
 firstStimAuROCTest = [];
@@ -591,6 +643,12 @@ for iexp = 1:nexp
     targetAnalysis.tc{3,auditoryTrials} = cat(2,targetAnalysis.tc{3,auditoryTrials},...
         mean(cat(3,targetDataExpt(iexp).av(auditoryTrials).tc{1},...
         targetDataExpt(iexp).av(auditoryTrials).tc{2}),3));
+    targetAnalysis.trOutTC(:,visualTrials) = cellfun(@(x,y) cat(2,x,mean(y(1:(nBaselineFr*2),:,:),3)),...
+        targetAnalysis.trOutTC(:,visualTrials),...
+        targetDataExpt(iexp).av(visualTrials).trOutTC','unif',0);
+    targetAnalysis.trOutTC(:,auditoryTrials) = cellfun(@(x,y) cat(2,x,mean(y(1:(nBaselineFr*2),:,:),3)),...
+        targetAnalysis.trOutTC(:,auditoryTrials),...
+        targetDataExpt(iexp).av(auditoryTrials).trOutTC','unif',0);
     
     targetAnalysis.targets{visualTrials} = cat(2,targetAnalysis.targets{visualTrials},...
         cat(1,ones(1,nCells).*mean(targetDataExpt(iexp).av(visualTrials).targets{1}),...
@@ -664,6 +722,9 @@ cellInfo.firstStimAuROC = auroc_first;
 cellInfo.lateStimAuROC = auroc_late;
 cellInfo.firstStimAuROCTest = auroc_first_test;
 cellInfo.lateStimAuROCTest = auroc_late_test;
+
+save([fnout 'imgAnalysisData'],...
+    'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo')
 %% plotting params
 respTCLim = [-0.005 0.05];
 cycTCLim = [-0.005 0.015];
@@ -681,6 +742,7 @@ oriLim_taskResp = [-0.005 0.035];
 oriNLim = [0 120];
 oriTCLim = [-0.005 0.08];
 targetTCLim = [-0.015 0.08];
+outTCLim = [-0.005 0.04];
 firstTCLim = [-0.005 0.04];
 % adaptLim = [0 1];
 
@@ -718,7 +780,7 @@ baseWinTT = (...
 movWinLabelFr = 30:(30+nMovWin-1);
 movWinLabelMs = (movWinLabelFr - (nBaselineFr+nVisDelayFr)).*(1000/frameRateHz);
 
-weightLim = [-2.5 2.5];
+weightLim = [-2 4];
 binnedWeightLim = [-0.4 0.4];
 
 %% plot anticipation analysis (Figure 2)
@@ -1840,6 +1902,7 @@ figXAxis([],'Time (ms)',[],ttLabelFr_cyc-1,ttLabel_cyc)
 figYAxis([],'Cell # (Target Resp Sorted)',[])
 figAxForm
 title('Easy Target Resp, All Cells')
+
 print([fnout 'heatmapVisTrialsAllCells_dist&target'],'-dpdf','-fillpage')
 
 figure
@@ -1847,7 +1910,7 @@ colormap gray
 suptitle('Responsive Cells IDs, sorted by target response')
 
 subplot 131
-ind = cellInfo.lateRespCells;
+ind = cellInfo.lateCycRespCells;
 indBW = ind; indBW(ind) = 0; indBW(~ind) = 1;
 imagesc(flipud(indBW(targetSortInd)))
 title(sprintf('Late Cyc. Resp. Cells n=%s',num2str(sum(ind))))
@@ -1863,6 +1926,40 @@ figYAxis([],'Cell # (Target Resp Sorted)',[])
 figAxForm
 
 print([fnout 'cellIDforHeatmap_dist&target'],'-dpdf','-fillpage')
+
+figure
+subplot 121
+ind = strcmp(trOutTypeName,'H-All');
+x = tt_cycTC;
+y = nanmean(targetAnalysis.trOutTC{ind,visualTrials}(tcStartFrame:end,cellInfo.lateCycRespCells),2);
+yerr = ste(targetAnalysis.trOutTC{ind,visualTrials}(tcStartFrame:end,cellInfo.lateCycRespCells),2);
+shadedErrorBar_chooseColor(x,y,yerr,trOutColor{strcmp(trOutType,'h')});
+hold on
+ind = strcmp(trOutTypeName,'M-All');
+y = nanmean(targetAnalysis.trOutTC{ind,visualTrials}(tcStartFrame:end,cellInfo.lateCycRespCells),2);
+yerr = ste(targetAnalysis.trOutTC{ind,visualTrials}(tcStartFrame:end,cellInfo.lateCycRespCells),2);
+shadedErrorBar_chooseColor(x,y,yerr,trOutColor{strcmp(trOutType,'m')});
+figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+figYAxis([],'dF/F',outTCLim)  
+hline(0,'k:')
+vline(respWinTT,'k--')
+figAxForm
+subplot 122
+ind = strcmp(trOutTypeName,'FA');
+x = tt_cycTC;
+y = nanmean(targetAnalysis.trOutTC{ind,visualTrials}(tcStartFrame:end,cellInfo.lateCycRespCells),2);
+yerr = ste(targetAnalysis.trOutTC{ind,visualTrials}(tcStartFrame:end,cellInfo.lateCycRespCells),2);
+shadedErrorBar_chooseColor(x,y,yerr,trOutColor{strcmp(trOutType,'fa')});
+hold on
+ind = strcmp(trOutTypeName,'CR');
+y = nanmean(targetAnalysis.trOutTC{ind,visualTrials}(tcStartFrame:end,cellInfo.lateCycRespCells),2);
+yerr = ste(targetAnalysis.trOutTC{ind,visualTrials}(tcStartFrame:end,cellInfo.lateCycRespCells),2);
+shadedErrorBar_chooseColor(x,y,yerr,trOutColor{strcmp(trOutType,'cr')});
+figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+figYAxis([],'dF/F',outTCLim)  
+hline(0,'k:')
+vline(respWinTT,'k--')
+figAxForm
 
 dcModel = struct;
 dcModel(1).name = 'Target';
@@ -1933,7 +2030,7 @@ for imod = 1:2
             plot(x(ind),y(ind,iexp),'k.-');
         end
         for itest = 1:4
-            if mdlTest(itest)
+            if mdlTest(itest) == 1 
                 text(x(itest),1,sprintf('*%s',...
                     num2str(round(mdlP(itest),2,'significant'))))
             else
@@ -1973,7 +2070,7 @@ for imod = 1:2
             plot(x(ind),y(ind,iexp),'k.-');
         end
         for itest = 1:4
-            if mdlTest(itest)
+            if mdlTest(itest) == 1
                 text(x(itest),0.5,sprintf('*%s',...
                     num2str(round(mdlP(itest),2,'significant'))))
             else
@@ -1994,8 +2091,10 @@ end
 print([fnout 'decodeModelPerformanceXStim'],'-dpdf','-fillpage')
 
 figure
-suptitle('Percent Correct of responses analyzed at different time windows around stimulus')
-x = movWinLabelMs;
+suptitle('Percent Correct of responses analyzed at different time windows around stimulus; red is used analysis window; blue is min RT')
+
+winInd = [1:3,5:nwins];
+x = movWinLabelMs(winInd);
 for imod = 1:2
     if imod == 1
         iplot = 0;
@@ -2003,8 +2102,8 @@ for imod = 1:2
         iplot = 2;
     end
     for iav = 1:2
-        y = dcModel(imod).av(iav).pctCorrect_movRespWin;
-        yerr = ste(dcModel(imod).av(iav).pctCorrect_movRespWin,2);
+        y = dcModel(imod).av(iav).pctCorrect_movRespWin(winInd,:);
+        yerr = ste(dcModel(imod).av(iav).pctCorrect_movRespWin(winInd,:),2);
 %         [mdlTest,mdlP] = ttest(y,0,'dim',2,'alpha',mdlXStimAlpha);
         subplot(2,2,iplot+iav)
         for iexp = 1:nexp
@@ -2013,7 +2112,7 @@ for imod = 1:2
             plot(x(ind),y(ind,iexp),'k.-');
         end
         errorbar(x,nanmean(y,2),yerr,'.-','MarkerSize',15)
-        figXAxis([],'Resp. Win. Center (Relative to Stim)',[x(1) x(end)],x,x)
+        figXAxis([],'Resp. Win. Center (Relative to Stim)',[x(1) x(end)],x(1:2:length(x)),round(x(1:2:length(x))))
         hline(0.5,'k:')
         figYAxis([],'Frac. Correct',[0 1])
         figAxForm
@@ -2021,6 +2120,12 @@ for imod = 1:2
             dcModel(imod).av(iav).name,dcModel(imod).av(iav).name))
         vline(respWinTT,'r--')
         vline(baseWinTT,'k--')
+        vline(0,'k:')
+        if iav == 1
+            vline(visRTwindow(1),'b--')
+        else
+            vline(audRTwindow(1),'b--')
+        end
     end
 end
 
@@ -2118,13 +2223,46 @@ for imod = 1:2
         hold on
         plot(x,y,'k')
         errorbar(x,mean(y,1),ste(y,1),'.')
+        [~,p] = ttest(y,0.5);
+        [~,p2] = ttest(y(:,1),y(:,2));
         
         figXAxis([],'Test Trials',[0 3],x,{dcModel(imod).av(iav).name,otherAV})
         figYAxis([],'Fraction Correct',[0 1])
         figAxForm
         hline(0.5,'k:')
         title(sprintf('%s Model, Train %s',dcModel(imod).name,dcModel(imod).av(iav).name))
+        for i = 1:2
+            if p(i) < 0.05/7
+                text(i,1,sprintf('*%s',num2str(round(p(i),2,'significant'))))
+            else
+                text(i,1,num2str(round(p(i),2,'significant')))
+            end
+        end
+        if p2 < 0.05/4
+            text(1.5,0,sprintf('*%s',num2str(round(p2,2,'significant'))))
+        else
+            text(1.5,0,sprintf('%s',num2str(round(p2,2,'significant'))))
+        end
     end
 end
 
 print([fnout 'decodeModelPctCorrectOtherAVModel'],'-dpdf','-fillpage')
+
+figure
+for imod = 1:2
+    subplot(1,2,imod)
+    x = dcModel(imod).av(visualTrials).weight;
+    y = dcModel(imod).av(auditoryTrials).weight;
+    hold on
+    plot(x,y,'.')
+    mdl = fitlm(x,y);
+    rsq = mdl.Rsquared.Ordinary;
+    yfit = predict(mdl,x);
+    plot(x,yfit,'-')
+    figXAxis([],'Visual Weight',weightLim)
+    figYAxis([],'Auditory Weight',weightLim)
+    figAxForm
+    title(sprintf('%s Model, Rsq = %s',dcModel(imod).name,num2str(round(rsq,2,'significant'))))    
+end
+
+print([fnout 'decodeModelCompareAVWeights'],'-dpdf','-fillpage')
