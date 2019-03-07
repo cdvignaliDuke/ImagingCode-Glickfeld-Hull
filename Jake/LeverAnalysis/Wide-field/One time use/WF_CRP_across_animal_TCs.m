@@ -5,8 +5,8 @@
 %for day1 to get naive mice. 
 
 WF_CRP_list_of_days;
-TC_dir = 'Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\';
-licking_dir = 'Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\';
+TC_dir = 'Y:\home\jake\Analysis\WF Lever Analysis\LeverSummaryFolder\';
+licking_dir = 'Y:\home\jake\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\';
 days = days_1;
 ROI_cell = days_1_ROI;
 reward_frame_num = 12;

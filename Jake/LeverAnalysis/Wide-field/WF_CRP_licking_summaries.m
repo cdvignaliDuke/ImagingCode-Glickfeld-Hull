@@ -2,7 +2,8 @@
 %across animal RT summary
 clear;
 WF_CRP_list_of_days;
-data_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT\';
+date_spec = days_to_PL_imaging_session; %days_to_learn_criteria; %; %
+data_dir = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT\';
 avg_RTs_all = cell(size(all_bx_animals));
 avg_sem_all = cell(size(all_bx_animals));
 post_cue_lick_all = cell(size(all_bx_animals));
@@ -15,22 +16,22 @@ RTstd_all = cell(size(all_bx_animals));
 
 figure;
 hold on;
-x_axis = 1:1:max(days_to_post_learning);
+x_axis = 1:1:max(date_spec);
 for ii = 1:length(all_bx_animals)
     load([data_dir, all_bx_animals{ii}, 'RT_sem_across_days'], 'RT_across_days_sem', 'RT_across_days');
     avg_sem_all{ii} = RT_across_days_sem; 
     avg_RTs_all{ii} =  RT_across_days;
-    load(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_post_cue_lick\', all_bx_animals{ii}, 'rew_om_post_cue_lick']);
+    load(['Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_post_cue_lick\', all_bx_animals{ii}, 'rew_om_post_cue_lick']);
     post_cue_lick_all{ii} = avg_licks_post_cue;
     pre_cue_lick_all{ii} = avg_licks_pre_cue;
     post_cue_sem_all{ii} = avg_licks_post_cue_sem;
     pre_cue_sem_all{ii} = avg_licks_pre_cue_sem;
     
-    load(['Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT_stats\', all_bx_animals{ii}, 'RTstd_FA_misses']);
+    load(['Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_RT_stats\', all_bx_animals{ii}, 'RTstd_FA_misses']);
     miss_rates_all{ii} = miss_rates;
     RTstd_all{ii} = std_of_RT_across_days;
     
-    plot(x_axis(1:days_to_post_learning(ii)), RT_across_days(1:days_to_post_learning(ii)), 'k');
+    plot(x_axis(1:date_spec(ii)), RT_across_days(1:date_spec(ii)), 'k');
     ylabel('RT relative to cue onset');
     xlabel('training day #');
     title('mean reaction time across days for all animals');
@@ -42,9 +43,9 @@ end
 curr_day_mean = [];
 grand_RT_mean = [];
 grand_RT_sem = [];
-for day_num = 1:max(days_to_post_learning);
+for day_num = 1:max(date_spec);
     for ii = 1:length(all_bx_animals)
-        if day_num <= days_to_post_learning(ii)
+        if day_num <= date_spec(ii)
             curr_day_mean = [curr_day_mean, avg_RTs_all{ii}(day_num)];
         end
     end
@@ -68,8 +69,8 @@ last_training_day_RT=[];
 PL_RT = [];
 for ii = 1:length(all_bx_animals)
     day_1_RT = [day_1_RT, avg_RTs_all{ii}(1)];
-    last_training_day_RT = [last_training_day_RT, avg_RTs_all{ii}(days_to_post_learning(ii)-1)];
-    PL_RT = [PL_RT, avg_RTs_all{ii}(days_to_post_learning(ii))];
+    last_training_day_RT = [last_training_day_RT, avg_RTs_all{ii}(date_spec(ii)-1)];
+    PL_RT = [PL_RT, avg_RTs_all{ii}(date_spec(ii))];
 end
 
 day_1_RT_mean = mean(day_1_RT);
@@ -81,9 +82,9 @@ last_training_day_RT_sem = std(last_training_day_RT)/sqrt(length(last_training_d
 PL_RT_sem = std(PL_RT)/sqrt(length(PL_RT));
 
 figure;
-bar([1:3], [day_1_RT_mean, last_training_day_RT_mean, PL_RT_mean]); hold on;
-errorbar([1:3], [day_1_RT_mean, last_training_day_RT_mean, PL_RT_mean], [day_1_RT_sem, last_training_day_RT_sem, PL_RT_sem], 'LineStyle', 'none'); 
-title('mean RT across animals for day 1, last day of bx training, and second day of imaging');
+bar([1:2], [day_1_RT_mean, PL_RT_mean]); hold on;
+errorbar([1:2], [day_1_RT_mean,  PL_RT_mean], [day_1_RT_sem, PL_RT_sem], 'LineStyle', 'none'); 
+title('mean RT across animals for day 1, and second day of imaging');
 ylabel('RT');
 hline(600);
 round(max(last_training_day_RT))
@@ -100,11 +101,11 @@ PL_pre_cue_sem = [];
 day_1_post_cue_sem=[];
 PL_post_cue_sem = [];
 for ii = 1:length(all_bx_animals)
-    if ~isnan(pre_cue_lick_all{ii}(1)) && ~isnan(pre_cue_lick_all{ii}(days_to_post_learning(ii)));
+    if ~isnan(pre_cue_lick_all{ii}(1)) && ~isnan(pre_cue_lick_all{ii}(date_spec(ii)));
         day_1_pre_cue = [day_1_pre_cue, pre_cue_lick_all{ii}(1)];
-        PL_pre_cue = [PL_pre_cue, pre_cue_lick_all{ii}(days_to_post_learning(ii))];
+        PL_pre_cue = [PL_pre_cue, pre_cue_lick_all{ii}(date_spec(ii))];
         day_1_post_cue = [day_1_post_cue, post_cue_lick_all{ii}(1)];
-        PL_post_cue = [PL_post_cue, post_cue_lick_all{ii}(days_to_post_learning(ii))];
+        PL_post_cue = [PL_post_cue, post_cue_lick_all{ii}(date_spec(ii))];
     else
         day_1_pre_cue = [day_1_pre_cue, NaN];
         PL_pre_cue = [PL_pre_cue, NaN];
@@ -141,10 +142,10 @@ day_1_RTstd=[];
 PL_RTstd = [];
 for ii = 1:length(all_bx_animals)
         day_1_MR = [day_1_MR, miss_rates_all{ii}(1)];
-        PL_MR = [PL_MR, miss_rates_all{ii}(days_to_post_learning(ii))];
+        PL_MR = [PL_MR, miss_rates_all{ii}(date_spec(ii))];
         
         day_1_RTstd = [day_1_RTstd, RTstd_all{ii}(1)];
-        PL_RTstd = [PL_RTstd, RTstd_all{ii}(days_to_post_learning(ii))];
+        PL_RTstd = [PL_RTstd, RTstd_all{ii}(date_spec(ii))];
 end
  
 %plot miss rates across days and before vs after learning
@@ -162,17 +163,17 @@ xlabel('Left: day 1       Right: post-learning');
 title('miss rate before and after learning');
 suptitle('miss rate for 500ms delay training days (1000ms+ RT)');
 %plot all miss rates
-for day_num =1:max(days_to_post_learning)
+for day_num =1:max(date_spec)
     this_day_miss_rate = [];
     for ii = 1:length(miss_rates_all)
-    if day_num <= days_to_post_learning(ii);
+    if day_num <= date_spec(ii);
         this_day_miss_rate = [this_day_miss_rate, miss_rates_all{ii}(day_num)];
     end
     end
     [miss_rates_mean(day_num), miss_rates_sem(day_num)] = get_mean_and_sem(this_day_miss_rate);
 end
 subplot(1,3,[1:2]);
-x_axis2 = 1:max(days_to_post_learning);
+x_axis2 = 1:max(date_spec);
 errorbar(x_axis2, miss_rates_mean, miss_rates_sem);
 ylabel('miss rate'); xlabel('training day number'); title('miss rate as a percent of all trials over days');
 
@@ -191,17 +192,17 @@ xlabel('Left: day 1       Right: post-learning');
 title('RT standard deviation before and after learning');
 suptitle('RT st.dev for 500ms delay training days');
 %plot all RTstd
-for day_num =1:max(days_to_post_learning)
+for day_num =1:max(date_spec)
     this_day_RTstd = [];
     for ii = 1:length(RTstd_all)
-    if day_num <= days_to_post_learning(ii);
+    if day_num <= date_spec(ii);
         this_day_RTstd = [this_day_RTstd, RTstd_all{ii}(day_num)];
     end
     end
     [RTstd_mean(day_num), RTstd_sem(day_num)] = get_mean_and_sem(this_day_RTstd);
 end
 subplot(1,3,[1:2]);
-x_axis2 = 1:max(days_to_post_learning);
+x_axis2 = 1:max(date_spec);
 errorbar(x_axis2, RTstd_mean, RTstd_sem);
 ylabel('RT standard deviation'); xlabel('training day number'); title('mean st. dev of the RT across animals all days');
 

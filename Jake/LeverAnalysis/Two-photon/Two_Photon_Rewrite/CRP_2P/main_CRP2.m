@@ -138,29 +138,29 @@ for session_subset = 1:4
 %                    end
                    
                     %% Compute independent components
-%                     %mus = [0.97, 0.7];
-%                     %all_nIC = {[PCuse], [PCuse(1):(PCuse(end)-50)]};
-%                     %for this_mu = mus
-%                       mu = 0.97; % spatial temporal mix
-%                     %for this_nIC = [1:2]
-%                     nIC = round(length(PCuse)*0.9); %length(all_nIC{this_nIC});%300;  %400- img90 100- img91
-%                     termtol = 0.00001;
-%                     maxrounds = 1000;
-%                     nph = 796; npw = 264;
+                    %mus = [0.97, 0.7];
+                    %all_nIC = {[PCuse], [PCuse(1):(PCuse(end)-50)]};
+                    %for this_mu = mus
+                      mu = 0.97; % spatial temporal mix
+                    %for this_nIC = [1:2]
+                    nIC = round(length(PCuse)*0.9); %length(all_nIC{this_nIC});%300;  %400- img90 100- img91
+                    termtol = 0.00001;
+                    maxrounds = 1000;
+                    nph = 796; npw = 264;
                     
-                    %run ICA and save outputs
-%                     [ica_sig, mixedfilters_ICA, ica_A, numiter] = CellsortICA_2P(mixedsig_PCA, mixedfilters_PCA, CovEvals_PCA, PCuse, mu, nIC, [], termtol, maxrounds);
-%                     icasig = permute(mixedfilters_ICA,[2,3,1]);
-%                     ICA_variables.mu = mu; ICA_variables.nIC = nIC;  ICA_variables.termtol = termtol; ICA_variables.naxrounds = maxrounds;
-%                     ICA_variables.npw = npw;  ICA_variables.nph = nph;
-%                     save([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat'], 'ica_sig', 'icasig', 'ICA_variables');
-% %                     writetiff(icasig, [out_dir, 'icasig_for_nPCA_', num2str(nPCA)]);
-%                     figure; imagesc(sum(icasig,3));
-%                     savefig([out_dir, 'icasig_sum_', num2str(nPCA)]);
-%                     %continue
-%                      load([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat']);
-%                       %load([out_dir, 'img_reg_movie']);
-%                      nph=ICA_variables.nph; npw = ICA_variables.npw; mu = ICA_variables.mu;
+                    run ICA and save outputs
+                    [ica_sig, mixedfilters_ICA, ica_A, numiter] = CellsortICA_2P(mixedsig_PCA, mixedfilters_PCA, CovEvals_PCA, PCuse, mu, nIC, [], termtol, maxrounds);
+                    icasig = permute(mixedfilters_ICA,[2,3,1]);
+                    ICA_variables.mu = mu; ICA_variables.nIC = nIC;  ICA_variables.termtol = termtol; ICA_variables.naxrounds = maxrounds;
+                    ICA_variables.npw = npw;  ICA_variables.nph = nph;
+                    save([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat'], 'ica_sig', 'icasig', 'ICA_variables');
+%                     writetiff(icasig, [out_dir, 'icasig_for_nPCA_', num2str(nPCA)]);
+                    figure; imagesc(sum(icasig,3));
+                    savefig([out_dir, 'icasig_sum_', num2str(nPCA)]);
+                    %continue
+                     load([out_dir, 'ICA_variables_for_nPCA_', num2str(nPCA), '.mat']);
+                      %load([out_dir, 'img_reg_movie']);
+                     nph=ICA_variables.nph; npw = ICA_variables.npw; mu = ICA_variables.mu;
 
                     %% Process the masks from the PCA/ICA
                     

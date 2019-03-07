@@ -1,16 +1,16 @@
 
 clear all; clear global; clear cd;
-subjNum = '93';
-session_date = '170510';
+subjNum = '093';
+session_date = '190215';
 file_num = '_000_000';
 frame_rate = '30Hz ';
-frame_start = 50000;
+frame_start = 1;
 num_frames = 1000;
-cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
+cd(['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
 %cd('Z:\Data\2P_imaging\171121_img050\img050');
 %cd('Z:\Data\2P_imaging\img040\170912_img039\img039');
 %cd('Z:\Data\2P_imaging\180507_img085\img085');
-%cd('Z:\Data\2P_imaging\WindowOutcomes\180509_img085\img085');
+%cd(['Y:\home\jake\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
 fname = ['img', subjNum, file_num];
 data = squeeze(sbxread(fname,frame_start,num_frames, '.sbx'));
 %data = squeeze(sbxread('img036_000_000',0,15, '.sbx'));
@@ -23,16 +23,17 @@ else
     data_avg = mean(data,3);
 end
 data_max= max(data,[],3);
-%figure; imagesc(data_avg); colormap gray; %truesize;
-%title([frame_rate, subjNum, ' ', session_date, ' recon avg frames ', num2str(frame_start), ':', num2str(num_frames), ' ', file_num]);
-%writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
+figure; imagesc(data_avg); colormap gray; %truesize;
+title([frame_rate, subjNum, ' ', session_date, ' recon avg frames ', num2str(frame_start), ':', num2str(num_frames), ' ', file_num]);
+writetiff(data, ['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
+%writetiff(data, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
 
 %% write a tiff movie to analyze diff. in sessions
 % 
 % subjNum = '070';
 % session_date = '180104';
-% cd(['Z:\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
-% %cd(['Z:\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
+% cd(['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
+% %cd(['Y:\home\jake\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
 % fname = ['img', subjNum, '_000_000'];
 % for ii = 1%:20
 %     data = squeeze(sbxread(fname,0,800));
@@ -43,8 +44,8 @@ data_max= max(data,[],3);
 %     title(['30HZ ', subjNum, ' ', session_date, '  recon max proj frames  1:800']);
 %     truesize;
 % end
-% writetiff(data, ['Z:\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_801']);
-% %writetiff(data, ['Z:\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_800']);
+% writetiff(data, ['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_801']);
+% %writetiff(data, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_ 1_800']);
 
 %% motion registration 
 % 
@@ -73,7 +74,7 @@ data_max= max(data,[],3);
 % img_ref = ref30(:,:,min_f);
 % [reg_out, img_reg] = stackRegister(data, img_ref);
 % %img_reg = img_reg(:,:,[1:3:end])
-% writetiff(img_reg, 'Z:\Data\2P_imaging\160416_img90\img90_tiff_motion_reg');
+% writetiff(img_reg, 'Y:\home\jake\Data\2P_imaging\160416_img90\img90_tiff_motion_reg');
 
 
 
