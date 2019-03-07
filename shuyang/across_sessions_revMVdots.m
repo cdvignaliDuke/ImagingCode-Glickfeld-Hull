@@ -1,3 +1,9 @@
+% plots for wide field imaging, moving dot reverse experiments, acorss sessions
+% reverse trigger ave across sessions
+% reverse trigger ave during running across sessions
+% reverse trigger ave during stationary across sessions
+
+
 %% assign pathnames and datasets to be analyzed/written for moving dot experiments
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES

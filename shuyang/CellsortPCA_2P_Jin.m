@@ -1,3 +1,5 @@
+%principle component analysis, used in twophoton_imageAnalysis
+
 function [mixedsig, mixedfilters, CovEvals, covtrace, movm, ...
     movtm] = CellsortPCA_2P_Jin(rt, flims, nPCs, dsamp, badframes)
 % [mixedsig, mixedfilters, CovEvals, covtrace, movm, movtm] = CellsortPCA(fn, flims, nPCs, dsamp, outputdir, badframes)

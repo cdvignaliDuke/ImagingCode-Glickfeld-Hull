@@ -1,9 +1,13 @@
+%plotting fluorescence data for wide field imaging, moving dots behavior.
+% df/f &speed
+% df/f vs. unique speed values
+% ave df/f during stationary and running
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'181012_img1011_1'};
-days = {'1011-181012_1'};
-sessionID = {'1011-181012'};
+sessions = {'181115_img1011_1'};
+days = {'1011-181115_1'};
+sessionID = {'1011-181115'};
 % this  variable name is confusing, this session ID is just tha date and the subject#, 
 %there might be more than 1 sessions on a single subject on the same day
 %bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];

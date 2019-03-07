@@ -5,8 +5,8 @@
 %% Section I: set paths and create analysis folders for each session
 %define the directory and files
 clear;
-folder = 'Z:\Data\Behv_MovingDots\behavior_raw\';
-sessionID = '1011-181012';% this  variable name is confusing, this session ID is just tha date and the subject#, 
+folder = 'Z:\Data\Behv_MovingDots\behavior_raw_WFS\';
+sessionID = '1011-181115';% this  variable name is confusing, this session ID is just tha date and the subject#, 
 %there might be more than 1 sessions on a single subject on the same day
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)

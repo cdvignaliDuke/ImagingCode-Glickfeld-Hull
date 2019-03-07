@@ -1,9 +1,16 @@
+% plotting fluroscence data for wide field imaging, moving dot experiments
+% generate cells for before and after running windows, 
+% matrix for run trigger average and running windows, using findFrames_runWindows
+% scatter plot for ave df/f before, during, and after running
+% plot df/f from 300ms before running to 300ms after running, each point is the ave for 300ms
+% plot run triggered average
+
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'181012_img1011_1'};
-days = {'1011-181012_1'};
-sessionID = {'1011-181012'};
+sessions = {'181115_img1011_1'};
+days = {'1011-181115_1'};
+sessionID = {'1011-181115'};
 %there might be more than 1 sessions on a single subject on the same day
 %bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
 %image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
