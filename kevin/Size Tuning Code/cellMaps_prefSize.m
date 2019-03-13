@@ -175,7 +175,7 @@ for iExp = 39%1:nExp
     set(gcf,'Color',[1 1 1]); set(gca,'Color',[0 0 0]); set(gcf,'InvertHardCopy','off');
     %addpath('K:\Code\export_fig\altmany-export_fig-412662f')
     %export_fig('K:\ppts\_paper figs\fig1_cellEl2.pdf','-a2');
-    print('K:\ppts\_paper figs\fig1_cellEl.pdf','-dpdf')
+    print('N:\home\kevin\ppts\_paper figs\fig1 subfigs\fig1_cellEl.pdf','-dpdf')
     
     figure(3)
     imagesc(rot90(retMap_Az),'AlphaData',rot90(imAlpha))

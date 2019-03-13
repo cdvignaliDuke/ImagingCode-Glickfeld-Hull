@@ -16,8 +16,9 @@
 %% load csv to define exp
 
 clear all; clc;
-expfile = '\\CRASH.dhe.duke.edu\data\home\kevin\Code\Ai9x_experiment_list.txt';
-expfile = 'C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code
+%expfile = '\\CRASH.dhe.duke.edu\data\home\kevin\Code\Ai9x_experiment_list.txt';
+%expfile = 'C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code\Ai9x_experiment_list.txt';
+expfile = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Code\Ai9x_experiment_list.txt';
 fID = fopen(expfile);
 head = textscan(fID,'%s%s%s%s%s',1,'delimiter',',');
 head = vertcat(head{:});
@@ -141,10 +142,10 @@ override = 0;
 conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
 conRng = 0.001:0.001:1;
 opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
-if exist(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct_4con.mat'),'file') && ~override
+if exist(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', 'conStruct_4con.mat'),'file') && ~override
     % load contrast response instead of compute
     fprintf('Found previous fits, loading...\n')
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct_4con.mat');
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', 'conStruct_4con.mat');
     load(filename);
 else
     fprintf('Extracting contrast response of each cell at prefSize\n')
@@ -153,7 +154,7 @@ else
     conStruct_all = struct('resp',s4,'resp20',s4,'fit',s4,'C50r',s,'Rsq',s,'x0',s4);
     conStruct_all(nCellsTot) = conStruct_all;
     
-    parfor iCell=1:nCellsTot
+    for iCell=1:nCellsTot
         if ~sum(iCell==goodfit_ind_size_all)
             if sum(iCell==[1 nCellsTot]) % check first and last to reset zeros to blank
                 conStruct_all(iCell).resp = [];conStruct_all(iCell).resp20 = [];conStruct_all(iCell).fit = [];conStruct_all(iCell).C50r = [];conStruct_all(iCell).Rsq = [];conStruct_all(iCell).x0 = [];
@@ -231,7 +232,7 @@ else
         %fprintf('Cell %d/%d fit: BL=%.3f Rmax=%.3f C50=%.3f n=%.2f : Rsq=%.3f C50r=%.3f\n',iCell,nCellsTot,cF(1),cF(2),cF(3),cF(4),R2,C50)
     end
     fprintf('Done, saving...\n')
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', 'conStruct_4con.mat');
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', 'conStruct_4con.mat');
     save(filename,'conStruct_all');
 end
 
@@ -262,7 +263,7 @@ while 0 % skip plotting
             if start ==37
                 suptitle(['Exp: ' num2str(iExp) ', area: ' char(expdata.area{iExp}) ', mouse: ' char(expdata.mouse{iExp}) ', date: ' char(expdata.date{iExp})])
                 set(gcf, 'Position', [0 0 800 1000]);
-                fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P\HVAcomparison', ['exp' num2str(iExp) '_SizeTuneFits' num2str(ifig) '.pdf']);
+                fn_out = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P\HVAcomparison', ['exp' num2str(iExp) '_SizeTuneFits' num2str(ifig) '.pdf']);
                 print(fn_out,'-dpdf')
                 figure;
                 ifig = 1+ifig;
@@ -286,7 +287,7 @@ while 0 % skip plotting
         end
         suptitle(['Exp: ' num2str(iExp) ', area: ' char(expdata.area{iExp}) ', mouse: ' char(expdata.mouse{iExp}) ', date: ' char(expdata.date{iExp})])
         set(gcf, 'Position', [0 0 800 1000]);
-        fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P\HVAcomparison', ['exp_' num2str(iExp) '_SizeTuneFits' num2str(ifig) '.pdf']);
+        fn_out = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P\HVAcomparison', ['exp_' num2str(iExp) '_SizeTuneFits' num2str(ifig) '.pdf']);
         print(fn_out,'-dpdf')
     end
 end
@@ -1080,34 +1081,35 @@ for i = 1:length(areas2)
 end
 
 %% plot random example cells at all cons with models overlaid
-while 1
+%while 1
     iCell=randi(sum(nCellsExp),1);
-% for i = 1:11
-%     iCells = [284 1290 2618 54 2289  3297 1116];
-%     iCell = iCells(i);
+for i = 1:11
+    iCells = [ 2516 ];
+    iCell = iCells(i);
     cellFit = sizeFits_all(iCell,:);
     figure(16);clf;
-    for iCon = 1:nCon
-        %plot(cellFit(iCon).szs0,cellFit(iCon).data,'.')
-        errorbar(szs,sizeMean_all(:,iCon,iCell),sizeSEM_all(:,iCon,iCell),'-.')
-        hold on
-    end
-    ax = gca;
-    ax.ColorOrderIndex = 1;
-    for iCon = 1:nCon
-        if cellFit(iCon).Ftest
-            plot(szRng,cellFit(iCon).fitout2);
-        else
-            plot(szRng,cellFit(iCon).fitout1);
-        end
-        hold on
-    end
-    title(['Cell #' num2str(iCell) ', Area:' expdata.area(expInd(iCell))])
+%     for iCon = 1:nCon
+%         %plot(cellFit(iCon).szs0,cellFit(iCon).data,'.')
+%         errorbar(szs,sizeMean_all(:,iCon,iCell),sizeSEM_all(:,iCon,iCell),'-.')
+%         hold on
+%     end
+%     ax = gca;
+%     ax.ColorOrderIndex = 1;
+%     for iCon = 1:nCon
+%         if cellFit(iCon).Ftest
+%             plot(szRng,cellFit(iCon).fitout2);
+%         else
+%             plot(szRng,cellFit(iCon).fitout1);
+%         end
+%         hold on
+%     end
+    plot(szRng
+    %title(['Cell #' num2str(iCell) ', Area:' expdata.area(expInd(iCell))])
     xlabel('Size (deg)')
     ylabel('dF/F')
     maxAmp = max([sizeFits_all(iCell,:).maxResp1 sizeFits_all(iCell,:).maxResp2]);
     ylim([-0.2*maxAmp 1.2*maxAmp])
-    legend(num2str(cons'))
+    %legend()
     pause
 %         title({sprintf('Area:%s',areas(i));['(n=' num2str(nCellsi) ', n_{exp}=' num2str(nExpi) ')']})
 %         xlabel('Size (deg)')
