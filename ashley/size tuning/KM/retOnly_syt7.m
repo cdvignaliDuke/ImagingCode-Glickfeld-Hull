@@ -8,7 +8,7 @@
 %% get path names
 close all;clear all;clc;
 
-ds = 'szTuning_syt7_V1';
+ds = 'szTuning_syt7_LM';
 iexp = 1; 
 rc = behavConstsAV;
 eval(ds)
