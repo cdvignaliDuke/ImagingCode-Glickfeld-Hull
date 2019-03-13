@@ -1,3 +1,5 @@
+%used in twophoton_imageAnalysis
+
 function sm_dsum = plotMask_Jin(sm, plot_mask)
 
 nmask = size(sm,3);

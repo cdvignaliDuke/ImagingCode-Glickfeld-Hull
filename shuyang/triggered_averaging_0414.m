@@ -1,13 +1,16 @@
+%plot run trigger average for wide field imaging, aligned with running onset
+%section IV of plot_run_windowsnTrigger is doing the same thing, double
+%check if there's any difference of this scirpt and that part.
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'180423_img1010_1'}; 
-days = '1010-180423_1';
-bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
-image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
+sessions = {'181031_img1011_1'}; 
+days = '1011-181031_1';
+bx_source = ['Z:\Data\Behv_MovingDots\behavior_raw'];
+%image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
 image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
-behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days];
+behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
 
 %% run trigger averaging
@@ -17,7 +20,7 @@ for ii = 1: length(sessions)
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
     dfOvF_strct_staybase = load([image_dest, '_dfOvF_staybase.mat']);
     dfOvF_staybase = dfOvF_strct_staybase.dfOvF_staybase;
-    behav_output = load([behav_dest '\' days '_behavAnalysis.mat']);
+    behav_output = load([behav_dest days '_behavAnalysis.mat']);
     speed = behav_output.speed;
     frames_runTrigger = behav_output.frames_runTrigger;
     %% find speed

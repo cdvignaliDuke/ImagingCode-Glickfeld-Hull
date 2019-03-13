@@ -1,4 +1,6 @@
-function plotTC_Jin(tc_avg, sm, reg_mean, ICuse, frGetFrameRate, saveData)
+%used in twophoton_imageAnalysis
+
+function plotTC_Jin(tc_avg, sm, reg_mean, ICuse, frGetFrameRate)
 %nmask = max(max(mask_final));
 % RGBmat = NaN(nmask,3);
 %

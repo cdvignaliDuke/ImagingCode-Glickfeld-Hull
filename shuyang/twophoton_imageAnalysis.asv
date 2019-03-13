@@ -105,9 +105,9 @@ save([image_analysis_dest sessions '_' order '_PCA_variables_', num2str(nPCA),'.
 
 
 %% ICA: seperates independent spatial and temporal components
-PCuse =       1:size();
+PCuse =       150;
 mu =          0.3; % weight of temporal info in spatio-teporal ICA
-nIC =         150; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
+nIC =         148; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
 ica_A_guess = []; %If this is empty than matlab will randomdize it and you can get different results, can see the random number generator in CellsortICA2P
 termtol =      1e-6;
 maxrounds =   2000;
@@ -188,7 +188,7 @@ savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_process.fig']);
 
 % combine highly correlated ICs to one
-threshold = 0.9;
+threshold = 0.8;
 [ ~, mask3D, ~] = finalMask_Jin(img_rgs, mask_final, threshold);
 figure; imagesc(sum(mask3D,3)); truesize; % got the same thing as the figure above
 savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...

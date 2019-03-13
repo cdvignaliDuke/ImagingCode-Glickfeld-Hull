@@ -1,11 +1,20 @@
 clear;
 %file_info_CRP_all
 %WF_CRP_list_of_days;
-days_1 = {'170321_img86', '170408_img88', '170605_img95', '170612_img96', '170628_img98', '170705_img99'}
-days_post = {'170325_img86', '170415_img88', '170614_img95', '170622_img96', '170704_img98', '170710_img99'};
- %days_1 = {'170321_img86',      [],           '170408_img88', '170513_img89', '170416_img90',  '170417_img91', '170420_img92', '170510_img93', '170524_img94', '170605_img95', '170612_img96', '170628_img98', '170705_img99'};  %'170408_img87' first day of imaging but animal quit licking part way through
- %days_post = {'170325_img86', '170419_img87', '170415_img88', '170519_img89', '170426_img90',  '170425_img91', '170428_img92', '170518_img93', '170529_img94', '170614_img95', '170622_img96', '170704_img98', '170710_img99'}; %'170326_img86',  are also 10%omission post learning
-data_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_hist_data\';
+%days_1 = {'170321_img86', '170408_img88', '170605_img95', '170612_img96', '170628_img98', '170705_img99'}
+%days_post = {'170325_img86', '170415_img88', '170614_img95', '170622_img96', '170704_img98', '170710_img99'};
+
+ days_1 = {'170321_img86',   '170408_img88', '170513_img89', '170416_img90',  '170417_img91', '170420_img92', ... 
+     '170510_img93', '170524_img94', '170605_img95', '170612_img96', '170628_img98', '170705_img99', '170921_img044', ...
+     '171113_img050', '171227_img067', '180104_img070', '180322_img077', '180507_img081', '180425_img084', '180509_img085', ...
+     '181213_img087', '181214_img088', '181214_img089', '181213_img091'};  %'170408_img87' first day of imaging but animal quit licking part way through
+ 
+ days_post = {'170325_img86', '170415_img88', '170519_img89', '170426_img90',  '170425_img91', '170428_img92', ... 
+     '170518_img93', '170529_img94', '170614_img95', '170622_img96', '170704_img98', '170710_img99' '170926_img044', ...
+    '171122_img050', '180104_img067', '180108_img070',  '180403_img077', '180518_img081', '180502_img084', '180517_img085', ...
+    '181217_img087', '181219_img088', '181218_img089', '181217_img091'}; %'170326_img86',  are also 10%omission post learning
+ 
+data_dir = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\across_animals_hist_data\';
 
 useable_days_inx = [];
 lick_hist_NR_all = [];
@@ -67,7 +76,7 @@ end
 num_animals = size(lick_hist_OR_all, 1);
 figure; subplot(2,1,1);
 bar(x_axis, lick_hist_OR_all_mean); hold on;
-errorbar(x_axis, lick_hist_OR_all_mean, lick_hist_OR_all_sem, 'b', 'LineStyle', 'none', 'CapSize', 1);
+errorbar(x_axis, lick_hist_OR_all_mean, lick_hist_OR_all_sem, 'b', 'LineStyle', 'none',  'CapSize', 1);
 title(['Omission trials: Day 1. n=', num2str(num_animals)]);
 xlabel('time in ms relative to cue onset');
 ylabel('lick rate (Hz)');

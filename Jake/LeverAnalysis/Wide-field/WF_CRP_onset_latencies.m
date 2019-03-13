@@ -1,18 +1,19 @@
 % Quantify df/f onset latency and licking onset latency for the WF data
-% across days. 
+
 %use the df/f onset latency code from the lever project. 
 %adapt the licking onset latency code from the 2P CRP project, 
 
 clear; 
 WF_CRP_list_of_days;
-F_TC_dir    = 'Z:\Analysis\WF Lever Analysis\LeverSummaryFolder\';
-lick_TC_dir = 'Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\'; 
-out_dir = 'Z:\Analysis\Cue_reward_pairing_analysis\WF\onset_latencies\';
+F_TC_dir    = 'Y:\home\jake\Analysis\WF Lever Analysis\LeverSummaryFolder\';
+lick_TC_dir = 'Y:\home\jake\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\BxOutputs\'; 
+out_dir = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\WF\onset_latencies\';
 days = days_1;
 ROI_cell = days_1_ROI;
+
 cue_time_interp = 501;
 reward_time_interp = 1101;
-no_lick_window = [9:11];  %cueonset=6  reward=12
+no_lick_window = []; % [9:11];  %cueonset=6  reward=12
 
 rew_onset_times_all =  [];
 rew_onset_times_all_sem = [];
@@ -20,6 +21,7 @@ rew_om_onset_times_all =  [];
 rew_om_onset_times_all_sem = [];
 unexp_onset_times_all =  [];
 unexp_onset_times_all_sem = [];
+
 rew_om_peak_to_base_diff_mean = [];
 rew_om_peak_to_base_diff_sem = [];
 rew_peak_to_base_diff_mean = [];
@@ -57,20 +59,22 @@ for ii = 1:length(days)
     
     %identify trials where lick bout starts before reward delivery  ------------
     %remove trials with licking between cue and reward
-    rew_no_lick_inx = remove_trials_with_licks(lick_trace_rew, no_lick_window, days{ii});
-    lick_trace_rew = lick_trace_rew([rew_no_lick_inx], :);
-    rewarded_roi = rewarded_roi([rew_no_lick_inx], :, :);
-    disp([days{ii}, ' rewarded n=', num2str(length(rew_no_lick_inx))]);
-    if exist('rew_om_roi')
-        rew_om_no_lick_inx = remove_trials_with_licks(lick_trace_rew_om, no_lick_window, days{ii});
-        lick_trace_rew_om = lick_trace_rew_om([rew_om_no_lick_inx], :);
-        rew_om_roi = rew_om_roi([rew_om_no_lick_inx], :, :);
-        disp([days{ii}, ' omission n=', num2str(length(rew_om_no_lick_inx))]);
-    elseif exist('unexp_rew_roi');
-        unexp_no_lick_inx = remove_trials_with_licks(lick_trace_unexp_rew, no_lick_window, days{ii});
-        lick_trace_unexp_rew = lick_trace_unexp_rew([unexp_no_lick_inx], :);
-        unexp_rew_roi = unexp_rew_roi([unexp_no_lick_inx], :, :);
-        disp([days{ii}, ' unexpected n=', num2str(length(unexp_no_lick_inx))]);
+    if ~isempty(no_lick_window)
+        rew_no_lick_inx = remove_trials_with_licks(lick_trace_rew, no_lick_window, days{ii});
+        lick_trace_rew = lick_trace_rew([rew_no_lick_inx], :);
+        rewarded_roi = rewarded_roi([rew_no_lick_inx], :, :);
+        disp([days{ii}, ' rewarded n=', num2str(length(rew_no_lick_inx))]);
+        if exist('rew_om_roi')
+            rew_om_no_lick_inx = remove_trials_with_licks(lick_trace_rew_om, no_lick_window, days{ii});
+            lick_trace_rew_om = lick_trace_rew_om([rew_om_no_lick_inx], :);
+            rew_om_roi = rew_om_roi([rew_om_no_lick_inx], :, :);
+            disp([days{ii}, ' omission n=', num2str(length(rew_om_no_lick_inx))]);
+        elseif exist('unexp_rew_roi');
+            unexp_no_lick_inx = remove_trials_with_licks(lick_trace_unexp_rew, no_lick_window, days{ii});
+            lick_trace_unexp_rew = lick_trace_unexp_rew([unexp_no_lick_inx], :);
+            unexp_rew_roi = unexp_rew_roi([unexp_no_lick_inx], :, :);
+            disp([days{ii}, ' unexpected n=', num2str(length(unexp_no_lick_inx))]);
+        end
     end
     
     %interpolate data ---------------------------------
@@ -102,11 +106,11 @@ for ii = 1:length(days)
     end
     
     if strcmp(days{1}, days_1{1});
-        save(['Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\mean interpolated TCs\day_1_vars_' ,days{ii}], 'rew_roi_interp', 'rew_om_roi_interp');
+        save(['Y:\home\jake\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\mean interpolated TCs\day_1_vars_' ,days{ii}, '_all'], 'rew_roi_interp', 'rew_om_roi_interp');
     elseif strcmp(days{1}, days_post{1});
-        save(['Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\mean interpolated TCs\day_N_vars_' ,days{ii}], 'rew_roi_interp', 'rew_om_roi_interp');
+        save(['Y:\home\jake\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\mean interpolated TCs\day_N_vars_' ,days{ii}, '_all'], 'rew_roi_interp', 'rew_om_roi_interp');
     elseif strcmp(days{1}, days_UR{1});
-        save(['Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\mean interpolated TCs\day_N+1_vars_' ,days{ii}], 'rew_roi_interp', 'unexp_rew_roi_interp');
+        save(['Y:\home\jake\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\mean interpolated TCs\day_N+1_vars_' ,days{ii}, '_all'], 'rew_roi_interp', 'unexp_rew_roi_interp');
     end
     
     %baseline TCs------------------------------------------
@@ -320,17 +324,17 @@ elseif strcmp(days{1}, days_UR{1});
 end
 
 if strcmp(days{1}, days_post{1})
-    save('Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\dayN_variables', 'rew_om_peak_to_base_diff_mean', 'rew_om_peak_to_base_diff_sem', 'rew_peak_to_base_diff_mean', 'rew_peak_to_base_diff_sem', 'rew_onset_times_all', 'rew_onset_times_all_sem', 'rew_om_onset_times_all', 'rew_om_onset_times_all_sem', 'days')
+    save('Y:\home\jake\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\dayN_variables_all', 'rew_om_peak_to_base_diff_mean', 'rew_om_peak_to_base_diff_sem', 'rew_peak_to_base_diff_mean', 'rew_peak_to_base_diff_sem', 'rew_onset_times_all', 'rew_onset_times_all_sem', 'rew_om_onset_times_all', 'rew_om_onset_times_all_sem', 'days')
 elseif strcmp(days{1}, days_1{1});
-    save('Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\day1_variables', 'rew_om_peak_to_base_diff_mean', 'rew_om_peak_to_base_diff_sem', 'rew_peak_to_base_diff_mean', 'rew_peak_to_base_diff_sem', 'rew_onset_times_all', 'rew_onset_times_all_sem', 'rew_om_onset_times_all', 'rew_om_onset_times_all_sem', 'days')
+    save('Y:\home\jake\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\day1_variables_all', 'rew_om_peak_to_base_diff_mean', 'rew_om_peak_to_base_diff_sem', 'rew_peak_to_base_diff_mean', 'rew_peak_to_base_diff_sem', 'rew_onset_times_all', 'rew_onset_times_all_sem', 'rew_om_onset_times_all', 'rew_om_onset_times_all_sem', 'days')
 elseif strcmp(days{1}, days_UR{1});
     %save('Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\dayUR_variables', 'rew_peak_to_base_diff', 'rew_onset_times_all', 'rew_om_onset_times_all', 'days')
 end
 
 %% 
-clear; 
-dayN_vars = load('Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\dayN_variables');
-day1_vars = load('Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\day1_variables');
+% clear; 
+% dayN_vars = load('Y:\home\jake\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\dayN_variables');
+% day1_vars = load('Y:\home\jake\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and peak mags\day1_variables');
 
 %onset latencies for OMISSION  day1 vs dayN 
 % figure; subplot(1,2,1);  hold on;
@@ -347,20 +351,20 @@ day1_vars = load('Z:\Analysis\Cue_reward_pairing_analysis\WF\onset latencies and
 
 %onset latencies for REWARD  day1 vs dayN 
 %subplot(1,2,2); 
-figure; hold on;
-for ii = 1:length(day1_vars.rew_onset_times_all)
-    if ~isnan(day1_vars.rew_onset_times_all(ii)) & ~isnan(dayN_vars.rew_onset_times_all(ii))
-        %errorbar(dayN_vars.rew_onset_times_all(ii), day1_vars.rew_onset_times_all(ii), day1_vars.rew_onset_times_all_sem(ii));
-        scatter(dayN_vars.rew_onset_times_all(ii), day1_vars.rew_onset_times_all(ii), 'k');
-        plot([dayN_vars.rew_onset_times_all(ii), dayN_vars.rew_onset_times_all(ii)], ...
-            [day1_vars.rew_onset_times_all(ii)-day1_vars.rew_onset_times_all_sem(ii), day1_vars.rew_onset_times_all(ii)+day1_vars.rew_onset_times_all_sem(ii)], 'k');
-        plot( [dayN_vars.rew_onset_times_all(ii)-dayN_vars.rew_onset_times_all_sem(ii), dayN_vars.rew_onset_times_all(ii)+dayN_vars.rew_onset_times_all_sem(ii)] ...
-            ,[day1_vars.rew_onset_times_all(ii), day1_vars.rew_onset_times_all(ii)], 'k');
-    end
-end
-yy = [1:100:1400]; plot(yy,yy, 'k');
-xlim([0 1200]); ylim([0 1200]);
-title('Reward: df/f onset latencies (ms relative to cue onset) across days'); xlabel('day N'); ylabel('day 1');
+% figure; hold on;
+% for ii = 1:length(day1_vars.rew_onset_times_all)
+%     if ~isnan(day1_vars.rew_onset_times_all(ii)) & ~isnan(dayN_vars.rew_onset_times_all(ii))
+%         %errorbar(dayN_vars.rew_onset_times_all(ii), day1_vars.rew_onset_times_all(ii), day1_vars.rew_onset_times_all_sem(ii));
+%         scatter(dayN_vars.rew_onset_times_all(ii), day1_vars.rew_onset_times_all(ii), 'k');
+%         plot([dayN_vars.rew_onset_times_all(ii), dayN_vars.rew_onset_times_all(ii)], ...
+%             [day1_vars.rew_onset_times_all(ii)-day1_vars.rew_onset_times_all_sem(ii), day1_vars.rew_onset_times_all(ii)+day1_vars.rew_onset_times_all_sem(ii)], 'k');
+%         plot( [dayN_vars.rew_onset_times_all(ii)-dayN_vars.rew_onset_times_all_sem(ii), dayN_vars.rew_onset_times_all(ii)+dayN_vars.rew_onset_times_all_sem(ii)] ...
+%             ,[day1_vars.rew_onset_times_all(ii), day1_vars.rew_onset_times_all(ii)], 'k');
+%     end
+% end
+% yy = [1:100:1400]; plot(yy,yy, 'k');
+% xlim([0 1200]); ylim([0 1200]);
+% title('Reward: df/f onset latencies (ms relative to cue onset) across days'); xlabel('day N'); ylabel('day 1');
 
 %% plotpeak magnitudes for omission  day1 vs dayN 
 % figure; subplot(1,2,1);  hold on;

@@ -1,65 +1,23 @@
-function [trigger_movie, remove_event_idx, hold_dur, use_times, trigger_licks, trigger_licks_10ms, lick] = trigger_movie_by_event_2P(movie, frame_info, ...
-    event_times, pre_frames, post_frames, licking_data, hold_dur, do_lickAna, do_alignLick, cue_2_rew_delay_ms)
+ function [trigger_licks, trigger_licks_10ms, lick] = trigger_movie_by_event_2P(frame_info, licking_data, use_event_times, ...
+     pre_frames, post_frames, do_lickAna, cue_2_rew_delay_ms)
+ 
+ % licking analysis
+ lick.bout_onset = []; lick.cue_onset = []; lick.reward_onset = []; lick.reward_late_onset = [];
+ lick.lickTrial = []; lick.lickTrial_1000 = [];    lick.no_lick_cue_to_500=[]; lick.reward_late_onset_500 = [];
+ lick.reward_late_onset_250 = []; lick.reward_prox = [];
+ 
+ % if there is licking_data
+ if ~isempty(licking_data)
+     lickTimes = licking_data.lickTimes;
+     licksByFrame = licking_data.licksByFrame;
+     trigger_licks = nan([length(use_event_times), pre_frames + post_frames+1]);
+     trigger_licks_10ms = nan([length(use_event_times), pre_frames*10 + post_frames*10+1]);
+ else
+     trigger_licks = [];
+     trigger_licks_10ms = [];
+ end
 
-% ---- cut the movie around event times
-% movie - the movie in 2-dimantional matrix
-% frame_info: output of parse behavior syncs frame number to time  in behavior
-
-% --- use only events that are in the times of the movie, leave space for last event
-last_time=  find(frame_info.counter<size(movie,2)-post_frames, 1, 'last');
-use_event_times = event_times(event_times < last_time);
-first_time = find(frame_info.counter>pre_frames+1, 1, 'first');
-% first_time = 758175; %for img38_160320 remove first 25 trials
-use_event_times = use_event_times(use_event_times >first_time);
-if ~isempty(hold_dur)
-    hold_dur = hold_dur(event_times < last_time & event_times > first_time);
-end
-trigger_movie =nan([length(use_event_times) size(movie,1), pre_frames + post_frames+1]);
-use_times =[]; lick.bout_onset = []; lick.cue_onset = [];
-lick.reward_onset = []; lick.reward_late_onset = []; lick.lickTrial = []; lick.lickTrial_1000 = [];    lick.no_lick_cue_to_500=[]; lick.reward_late_onset_500 = []; lick.reward_late_onset_250 = [];
-lick.reward_prox = [];
-
-% if there is licking_data
-if ~isempty(licking_data)
-    lickTimes = licking_data.lickTimes;
-    licksByFrame = licking_data.licksByFrame;
-    trigger_licks = nan([length(use_event_times), pre_frames + post_frames+1]);
-    trigger_licks_10ms = nan([length(use_event_times), pre_frames*10 + post_frames*10+1]);
-else
-    trigger_licks = [];
-    trigger_licks_10ms = [];
-end
-
-%for each event time extract the frames and licking info
-for event_num=1:length(use_event_times)
-    
-    %checks to make sure this is a valid event time and also logs the event time
-    c_time = use_event_times(event_num);
-    frame_no = frame_info.counter(c_time); % find the corresponding frame
-    if(isnan(frame_no))
-        continue; % discard
-    end
-    use_times(end+1) = c_time;
-    
-    %Either align TCs to the first lick or to the reward/cue
-    if ~do_alignLick %input variable 
-        trigger_movie(event_num,:,:) = movie(:, frame_no-pre_frames:frame_no+post_frames);
-    else
-        temp_lick = licksByFrame(frame_no:frame_no+post_frames);
-        if ~isempty( find(temp_lick, 1, 'first') )
-            frame_no = find(temp_lick, 1, 'first') + frame_no - 1;
-        end
-        trigger_movie(event_num,:,:) = movie(:, frame_no-pre_frames:frame_no+post_frames);
-    end
-    
-    %% piezo analysis 
-    
-    
-    %% licking analysis 
-    %Do not include the licking code if there is no licking data ---------------------------
-    if isempty(licking_data)
-        continue
-    end
+for event_num=1:length(use_event_times)  
     
     %get licking TC for the interval around event time
     trigger_licks(event_num,:) = licksByFrame(frame_no-pre_frames:frame_no+post_frames);
@@ -203,8 +161,3 @@ for event_num=1:length(use_event_times)
     end
     trigger_licks_10ms(event_num,:);
 end
-remove_event_idx = find(~ismember(event_times, use_event_times));
-
-
-
-
