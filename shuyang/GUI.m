@@ -39,7 +39,7 @@ plot_component(1)
             title(['cell' num2str(k) 'frm' num2str(frames_mat(1,j)) '-' num2str(frames_mat(end,j))]);
             drawnow; hold off
         end
-        
+      supertitle('spike events std 2_5');
     end
     
 end

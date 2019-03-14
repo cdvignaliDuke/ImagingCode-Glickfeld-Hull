@@ -23,7 +23,7 @@ for ic=1:nmask
     %tcbaseF = mean(mean(tc(1:size(i,1),1:200)));
     %tc_avg(:,ic) = mean(tc,1)';
     %     tc_avg(:,ic) = (tc_avg(:,ic)./tcbaseF)-1;
-    for a = 1:3;
+    for a = 1:3
         sm_dsum(:,:,a) = sm_dsum(:,:,a) + sm_d(:,:,ic,a);
     end
 end

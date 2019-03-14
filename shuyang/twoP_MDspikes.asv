@@ -5,12 +5,12 @@
 
 %% assign document paths and experimental sessions
 clear;
-sessions = '190117_img1016'; 
+sessions = '190131_img1018'; 
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 
 % behavior analysis results 
-days = '1016-190117_1';
+days = '1018-190131_1';
 behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
 
@@ -42,7 +42,7 @@ for i = 1: size(frm_run,2)                                                  % fo
     t = length(frm_run{i})/30;                                              %t = nframes*1/30s, thus the unit of t is second
     der_run_temp = deriv(frm_run{i},:); 
     for j = 1: size(der_run_temp,2)                                         % for each cell
-        nspk(j) = sum(der_run_temp(:,j) >= std_best(j));                    %number of spikes during this window for each cell
+        nspk(j) = sum(der_run_temp(:,j) >= std_best(j));                    % number of spikes during this window for each cell
     end
     frate(i,:) = nspk/t;                                                    % 2 dimensions: window index*cell
 end
@@ -77,7 +77,8 @@ aveSpkTrig_all = mean(aveSpkTrig,2);                                        % av
 steSpkTrig_all = std(aveSpkTrig,0,2)/sqrt(size(aveSpkTrig,2));
 x = (1:45);
 figure; shadedErrorBar(x,aveSpkTrig_all,steSpkTrig_all);hold on;
-ylim([0,2]); hold on; vline(16,'r');
+%ylim([0,2]); hold on; 
+vline(16,'r');
 title([sessions ' running triggered average']);
 savefig([image_analysis_dest sessions '_runTrigAve']);
 % PLOT speed
@@ -103,7 +104,8 @@ aveSpkoff_all = mean(aveSpkoff,2);                                        % ave 
 steSpkoff_all = std(aveSpkoff,0,2)/sqrt(size(aveSpkoff,2));
 x = (1:45);
 figure; shadedErrorBar(x,aveSpkoff_all,steSpkoff_all);hold on;
-ylim([0,2]); hold on; vline(31,'r');
+%ylim([0,2]); hold on; 
+vline(31,'r');
 title([sessions ' aligned to running offset']);
 savefig([image_analysis_dest sessions '_runOff']);
 % PLOT speed
@@ -115,9 +117,50 @@ vline(31,'r'); title([sessions ' aligned to offset']);
 savefig([image_analysis_dest sessions '_runoff_speed']);
 
 
-%% plots when deciding the best threshold
+%% plots to go back and look at the raw data
 
 % plot first derivatives with horizontal std lines --------------------------------------------------
+listfrm = [1:1000; 3001:4000; 6001:7000; 10001:11000; 15001:16000; 17001:18000; ...
+  21001:22000; 24001:25000; 28001:29000];
+listfrm = listfrm';
+[fig_deriv] = GUI_w_hline(deriv, listfrm,std_deriv,std2,std2_5,std3);
+savefig([image_analysis_dest sessions '_GUIraw_fluo_stdlines']);
+
+% after function best_spkthreshold_2P, go back to raw fluorescence and see if the time points of spikes make sense
+% plot red dots over rawTC when deriv > std_bestv for all cells and several frames---------------------------------------------------
+listfrm = [1:1000; 3001:4000; 6001:7000; 10001:11000; 15001:16000; 17001:18000; ...
+  21001:22000; 24001:25000; 28001:29000];
+listfrm = listfrm';
+[fig] = GUI(TCave, deriv, listfrm,std2_5);  !!!!!!!!!! you have to go into the function and change the super title depends on what std you give.
+savefig([image_analysis_dest sessions '_GUIraw_fluo_w_spkEvent_std2_5']); !!!!!! remember to change the file name depends on the std you give
+
+% Plot raw fluorescence for the running triggered average windows
+[fig_runtrig] = GUI_w_vline(TCave, deriv, frames_runTrigger_mat,std_best); !!!!! you will get an error if you have less than 9 running windows
+savefig([image_analysis_dest sessions '_GUIraw_fluo_RUNtrig']);
+
+% -------------------------------------------NOT USEFUL--------------plot all of the first derivatives: not very useful ------------------------------------------------------------
+%make a for loop to plot the shit so that the lines are not on top of each other
+colord=[         0         0    1.0000
+    0    0.4000         0
+    1.0000         0         0
+    0    0.7500    0.7500
+    0.7500         0    0.7500
+    0.8, 0.5, 0
+    0         0    0.5
+    0         0.85      0];
+
+shift  = 0;
+fig = figure;
+for j = 1:size(deriv,2)
+    plot(deriv(:,j)+shift,'Color',colord(mod(j-1,size(colord,1))+1,:)); hold on
+    %     if ismember(i, [5,10,15,20,25,30,35,40,45,50])
+    %         hline(shift);
+    %     end
+    shift = shift+10000;  %10000 for 2P
+end
+set(gca,'YTick',10000:10000:shift);
+set(gca,'YTicklabel',(1:size(deriv,2)));
+
 listfrm = [1:1000; 3001:4000; 6001:7000; 10001:11000; 15001:16000; 17001:18000; ...
   21001:22000; 24001:25000; 28001:29000];
 
@@ -142,38 +185,3 @@ hline(2*std_deriv(1),'g'); hold on;
 hline(3*std_deriv(1),'k'); hold on;
 title(['cell1 frm 1-1000']);
 
-% after function best_spkthreshold_2P, go back to raw fluorescence and see if the time points of spikes make sense
-% plot red dots over rawTC when deriv > std_bestv for all cells and several frames---------------------------------------------------
-listfrm = [1:1000; 3001:4000; 6001:7000; 10001:11000; 15001:16000; 17001:18000; ...
-  21001:22000; 24001:25000; 28001:29000];
-listfrm = listfrm';
-[fig] = GUI(TCave, deriv, listfrm,std_best);
-savefig([image_analysis_dest sessions '_raw_fluo_w_spkEvent']);
-
-
-
-% Plot raw
-[fig] = GUI()
-
-% plot all of the first derivatives: not very useful ------------------------------------------------------------
-%make a for loop to plot the shit so that the lines are not on top of each other
-colord=[         0         0    1.0000
-    0    0.4000         0
-    1.0000         0         0
-    0    0.7500    0.7500
-    0.7500         0    0.7500
-    0.8, 0.5, 0
-    0         0    0.5
-    0         0.85      0];
-
-shift  = 0;
-fig = figure;
-for j = 1:size(deriv,2)
-    plot(deriv(:,j)+shift,'Color',colord(mod(j-1,size(colord,1))+1,:)); hold on
-    %     if ismember(i, [5,10,15,20,25,30,35,40,45,50])
-    %         hline(shift);
-    %     end
-    shift = shift+10000;  %10000 for 2P
-end
-set(gca,'YTick',10000:10000:shift);
-set(gca,'YTicklabel',(1:size(deriv,2)));
