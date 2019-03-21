@@ -318,3 +318,40 @@ ylim([0 20])
 % plot([1 4],[37 37],'-k', 'LineWidth',2)
 % plot([2.4 2.5 2.6],[38 38 38],'*k')
 % ylim([0 40])
+
+%% try 4 new plots
+% average(current), dotplot, CDF, violin plot, KDE
+
+figure(2);clf;set(gcf,'Color','w');
+% 1. average
+subplot(1,2,1)
+errorbar(1:4,means(:,1),y_std,'ok');
+set(gca,'box','off','TickDir','out')
+set(gca,'XTick',1:4,'XTickLabel',areas,'TickLength',[0.015 0.015])
+ylabel('HWHM (deg)')
+xlim([0.5 4.5])
+ylim([0 20])
+%5 sideways violin
+for i = 1:length(areas)
+    [fi xi] = ksdensity(RFrads_geo{i});
+    fnorm(:,i) = fi/max(fi)*0.3;
+    xinorm(:,i) = xi;
+end
+ax = subplot(1,2,2);
+colors = get(ax,'ColorOrder');
+for i=1:length(areas)
+    hold on
+    h5(i)=fill([xinorm(:,i);flipud(xinorm(:,i))],[fnorm(:,i)+(5-i);flipud((5-i)-fnorm(:,i))],[1 1 1],'EdgeColor','k');
+    p(1)=plot([means(i,1) y_mean(i)],[interp1(xinorm(:,i),fnorm(:,i)+(5-i),means(i,1)), interp1(flipud(xinorm(:,i)),flipud((5-i)-fnorm(:,i)),means(i,1)) ],'k','LineWidth',2);
+    h5(i).FaceColor = colors(i,:);
+end
+axis([0 40 0.5 length(areas)+0.5]);
+legend off
+ax.YTick = [1:4];
+ax.YTickLabel = fliplr(areas);
+set(gca,'box','off','TickDir','out')
+ylabel('Area')
+xlabel('RF size (deg)')
+%filename = 'N:\home\kevin\ppts\_paper figs\plots\RF_testplots.pdf';
+%set(gcf,'PaperSize',[12 3])
+%print(filename,'-dpdf','-fillpage')

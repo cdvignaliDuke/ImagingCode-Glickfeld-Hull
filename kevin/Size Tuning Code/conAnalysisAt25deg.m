@@ -529,7 +529,7 @@ x=[];y_C50=[];
 C50_all = [conStruct_all.C50r];
 
 sig_ind = find([conStruct_all.sig]);
-    notgood_ind = setdiff(sig_ind,goodfit_ind_con);
+notgood_ind = setdiff(sig_ind,goodfit_ind_con);
 for i = 1:length(areas)
     fprintf(['Area #' num2str(i) ' : ' char(areas(i)) '\n'])
     % select exps matching area
@@ -687,10 +687,3 @@ for iCell = 1:length(sig_ind)
 end
 xlabel('resp Max')
 ylabel('n true') 
-
-%next step, implement smoothness penalty or n restriction
-% think start with n restriction, just examine some made up graphs (based
-% on fits) but change n to be higher than 100 or low etc, just find a good
-% range
-% third option is to just fit the mean data points, idk, need to look at
-% retinotopy fitting methods and size tuning
