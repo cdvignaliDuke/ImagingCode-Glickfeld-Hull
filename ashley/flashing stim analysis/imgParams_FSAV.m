@@ -26,6 +26,7 @@ minRespThreshold = 0.002;
 minRespThreshold_decode = 0.005;
 minTrN = 5;
 maxCellN = 15;
+minCellN = 7;
 minTrN_mdl = 20;
 %% colors
 cueColor = {[0 0 0];[.5 .5 1]};
