@@ -1,27 +1,17 @@
-%1. try not downsampling the data (don' do stackGroupProject)--- tried?
-%2. try with a bigger dataset (more frames, like 300000).
-%   The way Court did it: take first 6000 frames of the 300000, and take every
-%   other frame --> feed these 3000 to PCA. 
-%3. try different nPCAs. Does having a bigger number help/hurt? Is there any
-%   difference b/t taking the first 100 of 1000 principle component vs. just
-%   give it nPCA = 100 in the first place? 
-%4. look at your registered movies. How Court did it was to average every
-%   500 frames,and choose the one that looks the sharpest as the reference
-%   (the ave image is the reference)
-% mask the edges after registration?
-
-
-
-
+%Analyze raw 2P data
+%motion correction; PCA, ICA
+%smooth and threshold mask, seperate overlaps and combine the one have a high correlation
+%get TCs
 
 
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = '1023_img1016'; 
+sessions = '190312_imgJ89'; 
 %ID = '1016';
 image_source_base  = 'Z:\Data\2photon\'; %location of permanently stored image files for retreiving meta data
-image_analysis_base    = 'Z:\Analysis\2photon_test\'; %stores the data on crash in the movingDots analysis folder
+%image_analysis_base    = 'Z:\Analysis\2photon_test\'; %stores the data on crash in the movingDots analysis folder
+image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 %image_source = [image_source_base, sessions,'\',ID,'\'];
 image_source = [image_source_base, sessions,'\'];
 image_analysis_dest = [image_analysis_base, sessions, '\'];
@@ -36,26 +26,50 @@ file = [sessions '_000_' order];
 % the data in imageJ. Look at the tiff stack, find a stack of about 100
 % frames that doesn't shift by eyeballing. 
 
-frame_start = 100;
-nframes = 500;
-load ([file,'.mat']);
-imgread = squeeze(sbxread(file,0,1));
-writetiff(imgread,[image_analysis_base,sessions,'\' sessions '_'...
-    order '_tiff_', num2str(frame_start), '_', num2str(nframes)]);
+% write tiff to get an idea about what the data looks like --------------------------------------------------------
+frame_start = 0;
+nframes = 4000;
+imgread = squeeze(sbxread(file,frame_start,nframes));
+f1 = 1;
+f2 = 1000;
+img_tiff = imgread(:,:,f1:f2);
+writetiff(img_tiff,[image_analysis_dest sessions '_'...
+    order '_tiff_', num2str(f1), '_', num2str(f2)]);
+
+%average every 500 frames and make figure, pick ref frame -----------------------------------------------------------
+[npw,nph,nt] = size(imgread);
+fprintf('Finding reference frame for motion correction...');
+ncat = mod(-nt,500);
+data = cat(3,imgread,nan(npw,nph,ncat));
+img_refstacks = nanmean(permute(reshape(data,npw,nph,500,[]), [1 2 4 3]),4);
+figure;
+for i = 1:size(img_refstacks,3)
+    subplot(3,3,i);imagesc(img_refstacks(:,:,i)); colormap gray;
+    set(gca,'xticklabel',[],'yticklabel',[]);
+    text(.8,.1,num2str(i),'fontsize',12,'color','w','fontweight','bold','unit','norm');
+end
+savefig([image_analysis_dest sessions '_' order 'ref_frames']);
+ref_frame = input('Input most stable region for reference: ');
+img_ref = img_refstacks(:,:,ref_frame);
+save([image_analysis_dest sessions '_' order '_img_rgs_ref' num2str(ref_frame) '.mat'], 'ref_frame','-v7.3');
+%fprintf('done \n');
+
+%choose stable frms by eyeball:
+%stable_int = (180:330);img_ref = mean(imgread(:,:,stable_int),3);
+%writetiff(img_ref,[image_analysis_base,sessions,'\' sessions '_'...
+ %   order '_avetiffref_', num2str(stable_int(1)), '_', num2str(stable_int(end))]);
 %motion register (use stack register, needs images that need to be registered 
 % and reference of what these images need to be aligned to. Output: how
-% much each frame moved and registed images
-stable_int = (180:330);
-img_ref = mean(imgread(:,:,stable_int),3);
-writetiff(img_ref,[image_analysis_base,sessions,'\' sessions '_'...
-    order '_avetiffref_', num2str(stable_int(1)), '_', num2str(stable_int(end))]);
+% much each frame moved and registed images ---------------------------------------------------
 [rgs_out,img_rgs] = stackRegister(imgread, img_ref);
-% look at the part of the registered image and save the new array
-idx = (1:2:nframes);
-writetiff(img_rgs(:,:,idx),[image_analysis_base,sessions,'\' sessions '_'...
-    order '_rgstr_tiff_', num2str(frame_start), '_', num2str(nframes)]);
-save([image_analysis_base,sessions,'\' sessions '_' order '_img_rgstr.mat'], 'img_rgstr', 'rgstr_out', 'img_ref');
-
+% look at the part of the registered image and save the new array ----------------------------------------------
+gap = 50;
+idx = (1:gap:nframes);
+writetiff(img_rgs(:,:,idx),[image_analysis_dest sessions '_'...
+    order '_rgstr_tiff_', num2str(frame_start), '_', num2str(nframes) '_',num2str(gap) '_ref' num2str(ref_frame)]);
+save([image_analysis_dest sessions '_' order '_img_rgs_ref' num2str(ref_frame) '.mat'], 'img_rgs', 'rgs_out', 'img_ref','-append');
+%another way to look at the registered movies: wirte an index(e.g.: all running onsets), and draw 100
+%frames around each element, average each of those 100 frames and write a movie
 
 %% PCA: reduce the dimensions that we don't need (the dimensions that do not
 %contribute much to the varience of the data)
@@ -65,32 +79,38 @@ save([image_analysis_base,sessions,'\' sessions '_' order '_img_rgstr.mat'], 'im
 %img_ave = stackGroupProject(img_rgstr, 3); %average together every 3 frames
 %imgsize = size(img_ave,3);
 imgsize = size (img_rgs,3);
-nPCA = 300; % the command window tells you "First #PCs contain #% of variance
+nPCA = 200; % the command window tells you "First #PCs contain #% of variance
             % if the nPCA is too good (contains all of the variances, ICA
             % will give you warinings (matrix is cloase to singular or
             % badly saled) and the # of convergence in rounds will be very
             % low like 3.
 %run the PCA
-[mixedsig_PCA, mixedfilters_PCA, CovEvals_PCA, ~, ~, ~] = CellsortPCA_2P_Jin(img_ave,[1 imgsize], nPCA,[], []);
+[mixedsig_PCA, mixedfilters_PCA, CovEvals_PCA, ~, ~, ~] = CellsortPCA_2P_Jin(img_rgs,[1 imgsize], nPCA,[], []);
 % if don't down sample, first 300PCs contain 34.3% of the variance. If down
-% sample, first 300PCs contain 91.7% of the variance
+% sample, first 300PCs contain 91.7% of the variance. Nathan said this number doesn't matter
 % visualize 
+figure; plot(CovEvals_PCA); % looks like can take 2-60th PCA or sth
+savefig([image_analysis_dest sessions '_' order '_PCA', num2str(nPCA) 'CoEvals']);
+
 figure;
-for i = 1:100
-subplot(10,10,i); imagesc(mixedfilters_PCA(:,:,i));
+for i = 1:196
+subplot(14,14,i); imagesc(mixedfilters_PCA(:,:,i));
+set(gca,'xticklabel',[],'yticklabel',[]);
+    text(.8,.1,num2str(i),'fontsize',12,'color','w','fontweight','bold','unit','norm');
 colormap gray
 end
-figure; plot(CovEvals_PCA); % looks like can take 2-60th PCA or sth
-save([image_analysis_base,sessions, '\', sessions '_' order '_PCA_variables_dsamped_', num2str(nPCA),'.mat'], 'mixedsig_PCA', 'mixedfilters_PCA', 'CovEvals_PCA', 'nPCA');
-% save figure?
+savefig([image_analysis_dest sessions '_' order '_PCA', num2str(nPCA)]);
+
+save([image_analysis_dest sessions '_' order '_PCA_variables_', num2str(nPCA),'.mat'], 'mixedsig_PCA', 'mixedfilters_PCA', 'CovEvals_PCA', 'nPCA');
+
 
 %% ICA: seperates independent spatial and temporal components
-PCuse =       1:size(mixedsig_PCA,1);% try 3:70
-mu =          0.5; % weight of temporal info in spatio-teporal ICA
-nIC =         299; % cannot be bigger than nPCA. does it hurt if it's too small?
-ica_A_guess = [];
+PCuse =       1:size(mixedfilters_PCA,3);%
+mu =          0.3; % weight of temporal info in spatio-teporal ICA
+nIC =         50; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
+ica_A_guess = []; %If this is empty than matlab will randomdize it and you can get different results, can see the random number generator in CellsortICA2P
 termtol =      1e-6;
-maxrounds =   400;
+maxrounds =   2000;
 npw =         264;
 nph =         796;
 [ica_sig, mixedfilters_ICA, ica_A, numiter] = CellsortICA_2P(mixedsig_PCA,...
@@ -102,17 +122,16 @@ nph =         796;
                                                              [],...
                                                              termtol,...
                                                              maxrounds);
-                                               %convergence in 74 rounds
+                                     
  icasig = permute(mixedfilters_ICA,[2,3,1]);% make it the same dimension as the raw data (pixel by pixel by time)
  ICA_variables.mu = mu; ICA_variables.nIC = nIC;  ICA_variables.termtol = termtol; ICA_variables.naxrounds = maxrounds;
  ICA_variables.npw = npw;  ICA_variables.nph = nph;
- save([image_analysis_base,sessions,'\' sessions '_' order ...
-     '_ICA_variables_for_nPCA_', num2str(nPCA), '.mat'], 'ica_sig', 'icasig', 'ICA_variables');
- writetiff(icasig, [image_analysis_base,sessions,'\' sessions '_'...
-    order '_icasig_for_nPCA', num2str(nPCA)]);
+ save([image_analysis_dest sessions '_' order '_nIC' num2str(nIC) '_variables_for_nPCA_', ...
+     num2str(nPCA), '.mat'], 'ica_sig', 'icasig', 'ICA_variables');
+ writetiff(icasig, [image_analysis_dest sessions '_'...
+    order '_icasig_for_nPCA', num2str(nPCA) '_nIC' num2str(nIC)]);
  figure; imagesc(sum(icasig,3));
- savefig([image_analysis_base,sessions,'\' sessions '_'...
-    order '_icasig_sum_', num2str(nPCA)]);
+ savefig([image_analysis_dest sessions '_' order '_icasig_sum_', num2str(nPCA) '_nIC' num2str(nIC)]);
 
  
 %select which ICs to keep based on morphology
@@ -126,10 +145,9 @@ icasig_filt = stackFilter(icasig);
 
 %set threshold a threshold for which pixels to include in a given dendrite's mask.
 nIC = size(icasig_filt, 3);
-cluster_threshold = 97; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
+cluster_threshold = 95; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
 mask_cell = zeros(size(icasig_filt));
 sm_logical = zeros(npw,nph);
-%bwimgcell = zeros(size(icasig2));
 for ic = 1:nIC
     %convert to a binary mask (0 and 1)
     icasig_filt(:,:,ic) = imclearborder(icasig_filt(:,:,ic));
@@ -142,23 +160,22 @@ for ic = 1:nIC
     end
     mask_cell(:,:,ic) = bwlabel(sm_logical); 
 end
-save([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', ...
+save([image_analysis_dest sessions '_' order, '_nPCA', ...
     num2str(nPCA), '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', ...
     num2str(cluster_threshold), '_mask_cell.mat'], 'mask_cell');
 
 %visualize the masks
-figure;
 figure('rend', 'painters', 'pos', [50 150 (796*1.5) (264*1.5)]); imagesc(sum(mask_cell,3));...
     title([sessions, order, '_', ' nPCA ', num2str(nPCA), ' mu ', num2str(mu), ' nIC ', num2str(nIC)]);
-savefig([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', num2str(nPCA),...
+savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_cell_sum.fig']);
 
 figure;
-for i = 1:100
+for i = 1:60
 subplot(10,10,i); imagesc(mask_cell(:,:,i));
 colormap gray
 end
-savefig([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', num2str(nPCA),...
+savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_cell_indi.fig']);
 
 
@@ -167,15 +184,21 @@ savefig([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', num2str(n
 mask_final = processMask(mask_cell);
 mask_raw = reshape(mask_final, npw, nph);
 figure; imagesc(mask_raw); truesize;
-savefig([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', num2str(nPCA),...
+savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_process.fig']);
 
 % combine highly correlated ICs to one
-threshold = 0.8;
+threshold = 0.9;
 [ ~, mask3D, ~] = finalMask_Jin(img_rgs, mask_final, threshold);
-figure; imagesc(sum(mask3D,3)); truesize; % got the same thing as the figure above
-savefig([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', num2str(nPCA),...
-    '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_final.fig']);
+imshow([image_analysis_dest 'AVG_' sessions '_' order '_jpeg_1_1000.jpg']); hold on;
+for i  = 1:size(mask3D,3)
+    bound = cell2mat(bwboundaries(mask3D(:,:,i)));
+    randcolor = rand(1,4);
+    plot(bound(:,2),bound(:,1),'.','color',randcolor); hold on;
+end
+%figure; imagesc(sum(mask3D,3)); truesize; % got the same thing as the figure above
+savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
+    '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_wdendrites.fig']);
 
 % get TCs
 nmask = size(mask3D,3);
@@ -184,18 +207,20 @@ tc_avg = getTC(img_rgs, mask3D, nmask);
 
 rgstr_sum = sum(img_rgs,3);
 plotTC_Jin(tc_avg, mask3D, rgstr_sum, 1:size(tc_avg,2), FrameRate);
-savefig([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', num2str(nPCA),...
+savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_TC.fig']);
 mask_flat = plotMask_Jin(mask3D,1); %second input is either 0 or 1, if 1, makes a figure. 
-savefig([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', num2str(nPCA),...
+savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_plotMask.fig']);
 
 data_corr = corrcoef(tc_avg);
 figure; fig = imagesc(data_corr);
-savefig([image_analysis_base,sessions,'\' sessions '_' order, '_nPCA', num2str(nPCA),...
+savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_corrcoef.fig']);
 
-
+save([image_analysis_dest sessions '_' order, '_nPCA', ...
+    num2str(nPCA), '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', ...
+    num2str(cluster_threshold), '_TCave.mat'], 'tc_avg');
 
 
 

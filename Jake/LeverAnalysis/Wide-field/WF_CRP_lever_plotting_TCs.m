@@ -4,14 +4,14 @@
 %plots correlation coefficient between the ROIs
 %plots TCs of the df/f for success, earlies, tooFast, fidget and press.  
 clear
-BEHAVE_DIR = 'Z:\Data\WidefieldImaging\GCaMP\behavior\';
-ANALYSIS_DIR = 'Z:\Analysis\WF Lever Analysis\';
-CLUSTER_DIR  ='Z:\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
+BEHAVE_DIR = 'Y:\home\jake\Data\WidefieldImaging\GCaMP\behavior\';
+ANALYSIS_DIR = 'Y:\home\jake\Analysis\WF Lever Analysis\';
+CLUSTER_DIR  ='Y:\home\jake\Analysis\WF Lever Analysis\BxAndAnalysisOutputs\'; 
 WF_CRP_list_of_days; 
 days = days_1;%([1,4,5,6,7]);  %'151212_img32',  
 save_data = 0;
 
-for kk= 1 %[1,3:7]%:length(days)
+for kk= 1%[1,3:7]%:length(days)
     %set directories and load bxOutputs and cluter data. 
     ROI_name  =  days{kk};
     b_data = get_bx_data(BEHAVE_DIR, days{kk});  %find the correct behavior file and loads it.
@@ -46,6 +46,8 @@ for kk= 1 %[1,3:7]%:length(days)
     end
     std_rewarded = squeeze(std(squeeze(rewarded_roi),1));
     sm_rewarded = std_rewarded./sqrt(size(rewarded_roi,1));
+    rewarded_roi_mean = squeeze(mean(rewarded_roi,2));
+    sm_rewarded_avg = std(rewarded_roi_mean,1)/size(rewarded_roi_mean,1);
     for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
         shift = (-1)*avg_rewarded_roi(i,1);
         avg_rewarded_roi(i,:) = avg_rewarded_roi(i,:)+shift;
@@ -56,9 +58,11 @@ for kk= 1 %[1,3:7]%:length(days)
     for i = 1:size(ts,1);
         subplot(1,3,2); errorbar(ts(i,:), avg_rewarded_roi(i,:), sm_rewarded(i,:), 'Color', colors(i,:)); hold on;
     end
+    %subplot(1,3,2); errorbar(ts(i,:), mean(rewarded_roi_mean), sm_rewarded_avg, 'k'); hold on;
+    
     if b_data.rewardDelayPercent >0
         assert(b_data.rewardDelayPercent == 100);
-        rewardDelay = b_data.RewardDelayDurationMs;
+        rewardDelay = b_data.RewardDelayDurationMs + round(mean(cell2mat(b_data.reactTimesMs)));
         xlabel(['Time from cue onset (ms): reward at ' num2str(rewardDelay), '(ms)']);
         vert_lines(rewardDelay);
     elseif b_data.rewardDelayPercent ==0;
@@ -72,6 +76,8 @@ for kk= 1 %[1,3:7]%:length(days)
     %plot reward omission trials
     use_ev_rew_omission = trial_outcome.rew_omission_trial_time;
     if length(use_ev_rew_omission) >2
+        use_ev_rew_omission = use_ev_rew_omission(1:round(length(use_ev_rew_omission)/2));
+    
         [rew_om_roi, use_times_rew_om, lick_trace_rew_om, lick_trace_rew_om_10ms] = trigger_movie_by_event_licks(tc_dfoverf, frame_info, licking_data, use_ev_rew_omission, pre_frames, post_frames);
         avg_rew_om_roi = squeeze(func(rew_om_roi,1));
         if cluster.num_cluster == 1
@@ -79,6 +85,8 @@ for kk= 1 %[1,3:7]%:length(days)
         end
         std_rew_om = squeeze(std(squeeze(rew_om_roi),1));
         sm_rewarded = std_rew_om./sqrt(size(rew_om_roi,1));
+        rew_om_roi_mean = squeeze(mean(rew_om_roi,2));
+        sm_om_avg = std(rew_om_roi_mean,1)/size(rew_om_roi_mean,1);
         for i = 1:cluster.num_cluster  %baseline each curve so it passes through zero
             shift = (-1)*avg_rew_om_roi(i,1);
             avg_rew_om_roi(i,:) = avg_rew_om_roi(i,:)+shift;
@@ -89,9 +97,11 @@ for kk= 1 %[1,3:7]%:length(days)
         for i = 1:size(ts,1);
             subplot(1,3,3); errorbar(ts(i,:), avg_rew_om_roi(i,:), sm_rewarded(i,:), 'Color', colors(i,:)); hold on;
         end
+       % subplot(1,3,3); errorbar(ts(i,:), mean(rew_om_roi_mean), sm_om_avg, 'k'); hold on;
+
         if b_data.rewardDelayPercent >0 %set axes for reward delay condition
             assert(b_data.rewardDelayPercent == 100);
-            rewardDelay = b_data.RewardDelayDurationMs;
+            rewardDelay = b_data.RewardDelayDurationMs + round(mean(cell2mat(b_data.reactTimesMs)));
             xlabel(['Time from cue onset (ms)']);
             vert_lines(rewardDelay);
         elseif b_data.rewardDelayPercent ==0;

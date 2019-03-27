@@ -5,12 +5,12 @@
 %% Section I: set paths and create analysis folders for each session
 %define the directory and files
 clear;
-folder = 'Z:\Data\Behv_MovingDots\behavior_raw\';
-sessionID = '1011-181012';% this  variable name is confusing, this session ID is just tha date and the subject#, 
+folder = 'Z:\Data\Behv_MovingDots\behavior_raw_2P\';
+sessionID = '1018-190131';% this  variable name is confusing, this session ID is just tha date and the subject#, 
 %there might be more than 1 sessions on a single subject on the same day
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)
-    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
+    behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
     if ~exist(behav_dest)
         mkdir(behav_dest);
     end
@@ -23,9 +23,9 @@ for i = 1:size(filename,1)
     % later analysis will need to know if this session is a reverse session, and if yes, the frames of the reverse stimuli. 
     cReverse = input.cReverse;
     cReverse_vec = [cReverse{:}];
-    speed = calculate_speed(input);
+    speed = calculate_speed_2P(input);
     % find relative behavioral states and save to behavior analysis file
-    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates(speed);
+    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed);
     save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
         'cReverse_vec','speed','frames','frames_stay_cell','frames_bf_cell',...
         'frames_run_cell','frames_move_cell');
@@ -43,7 +43,7 @@ end
 % check if found frames are what I want to find
 figure;plot(speed);
 hold on;
-plot(cell2mat(frames_bf_cell), 10*ones(1,length(cell2mat(frames_bf_cell))),'r.');
+plot(cell2mat(frames_bf_cell), 30*ones(1,length(cell2mat(frames_bf_cell))),'r.');
 
 %% draw distribution of running duration
 %num_frames_run_all = {};

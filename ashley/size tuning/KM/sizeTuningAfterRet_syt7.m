@@ -8,7 +8,7 @@
 %% get path names
 clear all;clc;
 
-ds = 'szTuning_syt7_V1';
+ds = 'szTuning_syt7_LM';
 iexp = 1;
 rc = behavConstsAV;
 eval(ds)
@@ -17,7 +17,7 @@ eval(ds)
 %% conditionals for ashley analysis
 doRegFrame = true;
 doUsePreviousReg = false;
-analyzer = 'ashley';
+analyzer = 'lindsey';
 
 
 %%
@@ -686,7 +686,7 @@ fit_true_vec = NaN(nCells,10,nrun);
     %% plot cells with size tuning curve and shuffle results
     %chosen=[44 54]; %[31 41 45 46 52 64 67 71 72 73 75 77 79 83 89];
     %chosen = goodfit_ind_size;
-    chosen = [7];
+    chosen = [1:nCells];
     Npars = size(fit_shuf_vec,2);
     lbub_fits = NaN(nCells,Npars,5);
     alpha_bound = .025;

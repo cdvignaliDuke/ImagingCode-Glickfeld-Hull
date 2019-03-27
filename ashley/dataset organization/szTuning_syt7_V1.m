@@ -23,3 +23,22 @@ expt(1).sizeTuningTime = {'1537'};
 expt(1).areaBorders = 0;
 expt(1).regImgStartFrame = '';
 expt(1).saveLoc = 'lindsey';
+
+%% 1300 181228
+expt(2).mouse = '1300';
+expt(2).date = '181228';
+expt(2).img_loc  = {'V1';'L2/3'};
+expt(2).inj_loc = {'V1'};
+expt(2).z = -223;
+expt(2).img_strct  = {'cells'};
+expt(2).indicator = {'AAV';'GCaMP6f'};
+expt(2).label = {nan;nan};
+expt(2).labelFolder = nan;
+expt(2).matchExptDate = nan;
+expt(2).retinotopyFolder = {'002'};
+expt(2).retinotopyTime = {'1144'};
+expt(2).sizeTuningFolder = {'003'};
+expt(2).sizeTuningTime = {'1233'};
+expt(2).areaBorders = 0;
+expt(2).regImgStartFrame = '';
+expt(2).saveLoc = 'lindsey';

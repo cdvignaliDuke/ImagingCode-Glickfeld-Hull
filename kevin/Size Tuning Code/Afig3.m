@@ -64,7 +64,8 @@ for i = 1:length(areas)
     conRng = 0.001:0.001:1;
     opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
     cut = find([conStruct.Rsq]>0.9);
-    legStrs5(i)=sprintf('%s (n=%d)',areas(i),length(cut));
+    %legStrs5(i)=sprintf('%s (n=%d)',areas(i),length(cut));
+    legStrs5(i)=sprintf('%s',areas(i));
     conResp = reshape([conStruct(cut).resp],nCon,length(cut))';
     conResp_norm = conResp./conResp(:,nCon);
     conMean = mean(conResp_norm,1);
@@ -79,12 +80,12 @@ for i = 1:length(areas)
     %end
     hold on
     ax.ColorOrderIndex = i;
-    errorbar(cons,conMean,conSEM)
+    errorbar(cons,conMean,conSEM,'.')
     %title({sprintf('Contrast response - Area:%s',areas(i));['(n=' num2str(nCellsi) ', n_{exp}=' num2str(nExpi) ')']})
     %title('Mean contrast response @prefSize')
     set(gca,'box','off','TickDir','out')
     xlabel('Contrast')
-    ylabel('norm. dF/F @ pref size')
+    ylabel('dF/F (norm) @ pref size')
     xlim([0 1])
     ylim([0 1.2])
     if i==4;legend(legStrs5,'location','se');end%'southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
@@ -108,7 +109,7 @@ for i = 1:length(areas)
     
     ax = gca;
     ax.ColorOrderIndex = i;
-    plot(conRng,fitout,':','HandleVisibility','off')
+    plot(conRng,fitout,'-','HandleVisibility','off')
     ax = gca;
     ax.ColorOrderIndex = i;
     plot(C50,R50,'x','HandleVisibility','off')
@@ -117,12 +118,13 @@ for i = 1:length(areas)
     plot([C50 C50],[0 R50],'--','HandleVisibility','off')
     
     
-    %if sum(choosefig==8) %figure 5: average contrast response at 20 deg in each area
+    %if sum(choosefig==8) %figure 8: average contrast response at 20 deg in each area
     subplot(2,2,3)
     conRng = 0.001:0.001:1;
     opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
     cut = find([conStruct.Rsq20]>0.9);
-    legStrs8(i)=sprintf('%s (n=%d)',areas(i),length(cut));
+    %legStrs8(i)=sprintf('%s (n=%d)',areas(i),length(cut));
+    legStrs8(i)=sprintf('%s',areas(i));
     conResp = reshape([conStruct(cut).resp20],nCon,length(cut))';
     conResp_norm = conResp./conResp(:,nCon);
     conMean = mean(conResp_norm,1);
@@ -137,12 +139,12 @@ for i = 1:length(areas)
     %end
     hold on
     ax.ColorOrderIndex = i;
-    errorbar(cons,conMean,conSEM)
+    errorbar(cons,conMean,conSEM,'.')
     %title({sprintf('Contrast response - Area:%s',areas(i));['(n=' num2str(nCellsi) ', n_{exp}=' num2str(nExpi) ')']})
     %title('Mean contrast response @20deg')
     set(gca,'box','off','TickDir','out')
     xlabel('Contrast')
-    ylabel('norm. dF/F @20deg')
+    ylabel('dF/F (norm) @ 20 deg')
     xlim([0 1])
     ylim([0 1.2])
     if i==4;legend(legStrs8,'location','se');end%'southoutside','Orientation','horizontal');end %'location','southoutside','Orientation','horizontal' for bottom
@@ -166,7 +168,7 @@ for i = 1:length(areas)
     
     ax = gca;
     ax.ColorOrderIndex = i;
-    plot(conRng,fitout,':','HandleVisibility','off')
+    plot(conRng,fitout,'-','HandleVisibility','off')
     ax = gca;
     ax.ColorOrderIndex = i;
     plot(C50,R50,'x','HandleVisibility','off')
@@ -252,13 +254,14 @@ fprintf(['C50 @pS, nCut=' num2str(nCut)])
 [results, means] = multcompare(statC50,'CType','hsd','Display','off')
 figure(18)
 subplot(2,2,2) % C50 @prefSize
-boxplot(yC50,x,'Labels',cellstr(areas))
-hold on
+%boxplot(yC50,x,'Labels',cellstr(areas))
+%hold on
 errorbar(c_areas,means(:,1),means(:,2),'.k');
 set(gca,'box','off','TickDir','out')
+set(gca,'XTick',1:4,'XTickLabel',areas,'TickLength',[0.015 0.015])
 xlabel('Area')
 ylabel('C_{50}')
-%xlim([0 1])
+xlim([0.5 4.5])
 ylim([0 1])
 
 fprintf(['C50 @20d, nCut=' num2str(nCut20)])
@@ -266,13 +269,14 @@ fprintf(['C50 @20d, nCut=' num2str(nCut20)])
 [results, means] = multcompare(statC5020,'CType','hsd','Display','off')
 figure(18)
 subplot(2,2,4) % C50 @20deg
-boxplot(yC5020,x20,'Labels',cellstr(areas))
-hold on
+%boxplot(yC5020,x20,'Labels',cellstr(areas))
+%hold on
 errorbar(c_areas,means(:,1),means(:,2),'.k');
 set(gca,'box','off','TickDir','out')
+set(gca,'XTick',1:4,'XTickLabel',areas,'TickLength',[0.015 0.015])
 xlabel('Area')
 ylabel('C_{50}')
-%xlim([0 1])
+xlim([0.5 4.5])
 ylim([0 1])
 
 set(gcf,'Color','w')

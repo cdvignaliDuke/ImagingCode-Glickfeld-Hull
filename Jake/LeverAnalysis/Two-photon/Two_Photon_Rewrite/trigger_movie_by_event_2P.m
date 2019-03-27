@@ -1,5 +1,6 @@
 function [trigger_movie, remove_event_idx, hold_dur, use_times, trigger_licks, trigger_licks_10ms, lick] = trigger_movie_by_event_2P(movie, frame_info, ...
     event_times, pre_frames, post_frames, licking_data, hold_dur, do_lickAna, do_alignLick, cue_2_rew_delay_ms)
+
 % ---- cut the movie around event times
 % movie - the movie in 2-dimantional matrix
 % frame_info: output of parse behavior syncs frame number to time  in behavior
@@ -51,6 +52,10 @@ for event_num=1:length(use_event_times)
         trigger_movie(event_num,:,:) = movie(:, frame_no-pre_frames:frame_no+post_frames);
     end
     
+    %% piezo analysis 
+    
+    
+    %% licking analysis 
     %Do not include the licking code if there is no licking data ---------------------------
     if isempty(licking_data)
         continue

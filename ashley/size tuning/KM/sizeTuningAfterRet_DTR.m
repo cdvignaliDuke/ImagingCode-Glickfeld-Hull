@@ -6,7 +6,7 @@
 % here we extract size tuning, using the neuron mask from retOnly run
 
 %% get path names
-clear all;clc;
+clear all;clc; close all
 
 ds = 'szTuning_DTR_AL';
 iexp = 1;
@@ -31,7 +31,7 @@ frame_rate = params.frameRate;
 
 retFolder = cell2mat(expt(iexp).retinotopyFolder);
 
-fnout = fullfile(rc.ashleyAnalysis,[expDate '_i' mouse]);
+fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
 
 fprintf(['2P imaging size tuning analysis\nSelected data:\nMouse: ' mouse '\nDate: ' expDate '\nExperiments:\n'])
 for irun=1:nrun
@@ -704,7 +704,7 @@ fit_true_vec = NaN(nCells,10,nrun);
             plot(szRng,s.fitout2,'-g')
             hold off
             ylim([min([-0.5*s.maxResp1 min(s.data)]) 1.2*max([s.maxResp2 max(s.data)])])
-            title(['Cell #' num2str(iCell) ' Size Tuning for high Con (Ftest=' num2str(fit_true_vec(iCell,8)) ')']);
+            title(['Cell #' num2str(iCell) ': Dist= ' num2str(cellDists(iCell,1)) '- Size Tuning for high Con (Ftest=' num2str(fit_true_vec(iCell,8)) ')']);
             xlabel('Stimulus size (deg)')
             ylabel('dF/F')
         end
@@ -841,42 +841,41 @@ save(fullfile(fnout, dataFolder, [mouse '_' expDate '_lbub_fits']), 'goodfit_ind
 %% plot summary
 tuning_norm = squeeze(tuning_mat(:,:,1,:)./max(max(tuning_mat(:,:,1,:),[],1),[],2));
 figure;
-for iCon = 1:nCon
-    subplot(2,2,1)
-    ind = intersect(ism1, find(cellDists<=10));
-    ret_avg = mean(tuning_norm(:,iCon,ind),3)';
-    ret_sem= std(tuning_norm(:,iCon,ind),[],3)./sqrt(length(ind))';
-    errorbar(szs,ret_avg,ret_sem)
-    hold on
-    ylabel('dF/F normalized')
-    xlabel('Size (deg)')
-    ylim([-0.3 1.2])
-    axis square
-    title(['M1 cells within 10 deg of stim- n = ' num2str(length(ind))])
-    subplot(2,2,2)
-    ind = intersect(ism2, find(cellDists<=10));
-    ret_avg = mean(tuning_norm(:,iCon,ind),3)';
-    ret_sem= std(tuning_norm(:,iCon,ind),[],3)./sqrt(length(ind))';
-    errorbar(szs,ret_avg,ret_sem)
-    hold on
-    ylabel('dF/F normalized')
-    xlabel('Size (deg)')
-    ylim([-0.3 1.2])
-    axis square
-    title(['M2 cells within 10 deg- n = ' num2str(length(ind))])
-    subplot(2,2,3)
-    ind = intersect(goodfit_ind_size, find(cellDists<=10));
-    ret_avg = mean(tuning_norm(:,iCon,ind),3)';
-    ret_sem= std(tuning_norm(:,iCon,ind),[],3)./sqrt(length(ind))';
-    errorbar(szs,ret_avg,ret_sem)
-    hold on
-    ylabel('dF/F normalized')
-    xlabel('Size (deg)')
-    ylim([-0.3 1.2])
-    axis square
-    title(['All well-fit cells within 10 deg- n = ' num2str(length(ind))])
-end
-legend(num2str(chop(cons',2)))
+
+subplot(2,2,1)
+ind = intersect(ism1, find(cellDists<=10));
+ret_avg = mean(tuning_norm(:,ind),2)';
+ret_sem= std(tuning_norm(:,ind),[],2)./sqrt(length(ind))';
+errorbar(szs,ret_avg,ret_sem)
+hold on
+ylabel('dF/F normalized')
+xlabel('Size (deg)')
+ylim([-0.3 1.2])
+axis square
+title(['M1 cells within 10 deg of stim- n = ' num2str(length(ind))])
+subplot(2,2,2)
+ind = intersect(ism2, find(cellDists<=10));
+ret_avg = mean(tuning_norm(:,ind),2)';
+ret_sem= std(tuning_norm(:,ind),[],2)./sqrt(length(ind))';
+errorbar(szs,ret_avg,ret_sem)
+hold on
+ylabel('dF/F normalized')
+xlabel('Size (deg)')
+ylim([-0.3 1.2])
+axis square
+title(['M2 cells within 10 deg- n = ' num2str(length(ind))])
+subplot(2,2,3)
+ind = intersect(goodfit_ind_size, find(cellDists<=10));
+ret_avg = mean(tuning_norm(:,ind),2)';
+ret_sem= std(tuning_norm(:,ind),[],2)./sqrt(length(ind))';
+errorbar(szs,ret_avg,ret_sem)
+hold on
+ylabel('dF/F normalized')
+xlabel('Size (deg)')
+ylim([-0.3 1.2])
+axis square
+title(['All well-fit cells within 10 deg- n = ' num2str(length(ind))])
+
 subplot(2,2,4)
 hist(lbub_fits(ind,1,4))
 xlim([0 80])

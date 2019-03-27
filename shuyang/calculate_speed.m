@@ -1,3 +1,6 @@
+%calculate speed for moving dot experiments, used in
+%behav_analysis_movingDots_WF
+
 function speed = calculate_speed(input)
 % before ziye updated the coding, qudrature times and value are only
 % reported when there's move. so can't use qudrature times and values 

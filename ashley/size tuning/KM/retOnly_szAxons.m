@@ -8,8 +8,8 @@
 %% get path names
 close all;clear all;clc;
 
-ds = 'szTuning_axons_AL';
-iexp = 6; 
+ds = 'szTuning_axons_PM';
+iexp = 14; 
 rc = behavConstsAV;
 eval(ds)
 
@@ -464,6 +464,10 @@ temp_data = ones(sz(1),sz(2));
 temp_max = squeeze(max(max(data_dfof_avg,[],1),[],2));
 [a, max_sort] = sort(temp_max,'descend');
 data_dfof_avg_sort = cat(3,data_dfof_max,data_dfof_avg(:,:,max_sort));
+%data_dfof_avg_sort(397:443,410:456,:) = NaN;
+% data_dfof_avg_sort(373:388,591:617,:) = NaN;
+% data_dfof_avg_sort(365:388,198:227,:) = NaN;
+%data_dfof_avg_sort(373:389,588:618,:) = NaN;
 for ia = 1:size(data_dfof_avg_sort,3)
     fprintf([ '\n img:' num2str(ia)])
     temp_data_log = ~isnan(temp_data);
@@ -530,9 +534,6 @@ end
 set(gcf, 'Position', [0 0 800 1000]);
 print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOVresp.pdf']), '-dpdf')
 
-
-% clear data_dfof data_dfof_avg max_dfof mask_data mask_all mask_2 data_base data_base_dfof data_targ data_targ_dfof data_f data_base2 data_base2_dfof data_dfof_dir_all data_dfof_max data_dfof_targ data_avg data_dfof2_dir data_dfof_dir
-
 %% Get time courses
 nCells = sum(mask_cell(:));
 fprintf(['Found ' num2str(nCells) ' boutons\n'])
@@ -552,7 +553,13 @@ for i = 1:sz(1)
     end
 end
 fprintf([num2str(nCells) ' total cells extracted\n'])
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs.mat']), 'data_tc')
+s = whos('data_tc');
+if s.bytes < 2000000000
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs.mat']), 'data_tc')
+else
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs.mat']), 'data_tc' ,'-v7.3')
+end
+
 
 fprintf('Calculating dF/F time courses...\n')
 %get dF/F
@@ -569,7 +576,7 @@ tc_f = mean(tc_mat(nOff/2:nOff,:,:),1);
 fulltc_f = mean(fulltc_mat(nOff/2:nOff,:,:),1);
 tc_dfof = (tc_mat - tc_f) ./ tc_f;
 fulltc_dfof = (fulltc_mat - fulltc_f) ./ fulltc_f;
-clear tc_mat tc_f fulltc_mat fulltc_f
+clear tc_mat tc_f fulltc_mat fulltc_f data_tc data_dfof data_dfof_avg data_dfof_avg_sort data_dfof_avg_reduced shade_img
 
 fprintf('Time course extraction complete.\n')
 
@@ -598,6 +605,8 @@ title('Avg dF/F resp by cell,stimulus')
 xlabel('Stim (El,Az)')
 ylabel('Cell')
 colorbar
+
+clear trialRespMap trialRespMapSort backup 
 
 %% calculate tuning mat and plot
 
@@ -676,7 +685,12 @@ end
 % end
 % % set(gcf, 'Position', [0 0 800 1000]);
 % % print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning' num2str(f) '.pdf']), '-dpdf')
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'Stims', 'Ind_struct')
+s = whos('tc_dfof');
+if s.bytes < 2000000000
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'Stims', 'Ind_struct')
+else
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'Stims', 'Ind_struct','-v7.3')
+end
 
 % plot tc and ret_mat for full and cell avg
 figure;
@@ -719,7 +733,10 @@ Fit_struct = [];
 [AzAz, ElEl] = meshgrid(Azs,Els);
 grid2.AzAz = AzAz;
 grid2.ElEl = ElEl;
-
+[m2,n2] = size(grid2.AzAz);
+x_plot = [grid2.AzAz(:) grid2.ElEl(:)];
+uvar.Az = unique(x_plot(:,1));
+uvar.El = unique(x_plot(:,2));
 dAz = median(diff(Azs));
 dEl = median(diff(Els));
 Az_vec00 = Azs(1):(dAz/10):Azs(end);
@@ -727,6 +744,12 @@ El_vec00 = Els(1):(dEl/10):Els(end);
 [AzAz00,ElEl00]=meshgrid(Az_vec00,El_vec00);
 grid2.AzAz00 = AzAz00;
 grid2.ElEl00 = ElEl00;
+xNperfreq = size(grid2.AzAz00,1);
+yNperfreq = size(grid2.AzAz00,2);
+xhigh = reshape(grid2.AzAz00,[xNperfreq*yNperfreq],1);
+yhigh = reshape(grid2.ElEl00,[xNperfreq*yNperfreq],1);
+xyhigh = [xhigh yhigh];
+
 Nshuf = 500;
 fprintf(['Nshuf = ' num2str(Nshuf) '\n'])
 resp_dFoverF = squeeze(mean(tc_dfof(nOff:nOn+nOff,:,:),1));
@@ -734,91 +757,95 @@ base_dFoverF = squeeze(mean(tc_dfof(nOff/2:nOff,:,:),1));
 p_ttest = zeros(nCells,nStim);
 h_ttest = zeros(nCells,nStim);
 h_all = zeros(1,nCells);
-
-fprintf('Begin shuffling...\n')
-%temp
+m = @(pars,sftf) Gauss2D_ellipseMA(pars,sftf);
 nCells = size(resp_dFoverF,1);
 % for iCell = 1:nCells; rs(iCell) = Fit_struct(iCell).True.s_.Rsq; end
 % ind_cells = intersect(find(h_all),find(rs>0.7));
 % nCells = length(ind_cells);
-for count_shuf = 0:Nshuf
-    fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
-    Im_mat_USE = zeros(nCells, nStim);
-    for iCond = 1:nStim
-        ind_all = Ind_struct(iCond).all_trials;
-        if count_shuf > 0 %resample with replacement, don't resample by trial for now because running-rejection may be uneven for various trials..
-            ind_all_1 = ind_all(randsample(length(ind_all),length(ind_all),1));
-        else
-            ind_all_1 = ind_all;
-            [h_ttest(:,iCond), p_ttest(:,iCond)] = ttest(resp_dFoverF(:,ind_all), base_dFoverF(:,ind_all), 'tail', 'right', 'dim', 2, 'alpha', 0.05./(nStim-1));
-        end
-        Im_mat_USE(:,iCond) = mean(resp_dFoverF(:,ind_all_1),2);
-    end
-    
-    %temp 
-    for iCell = 1:nCells
-        if count_shuf== 0
-            if sum(h_ttest(iCell,:),2) == 0
-                ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/2));
-                if length(ind_p)<2
-                    ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/3));
-                    if length(ind_p)<3
-                        ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/4));
-                        if length(ind_p)<4
-                            h_all(1,iCell) = 0;
-                        else
-                            h_all(1,iCell) = 1;
-                        end
-                    else
-                        h_all(1,iCell) = 1;
-                    end
+fprintf(['True fit\n'])
+Im_mat_USE = zeros(nCells, nStim);
+for iCond = 1:nStim
+    ind_all = Ind_struct(iCond).all_trials;
+    Im_mat_USE(:,iCond) = mean(resp_dFoverF(:,ind_all),2);
+    [h_ttest(:,iCond), p_ttest(:,iCond)] = ttest(resp_dFoverF(:,ind_all), base_dFoverF(:,ind_all), 'tail', 'right', 'dim', 2, 'alpha', 0.05./(nStim-1));
+end
+PLOTIT_FIT = 0;
+SAVEALLDATA = 1;
+for iCell = 1:nCells
+    if sum(h_ttest(iCell,:),2) == 0
+        ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/2));
+        if length(ind_p)<2
+            ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/3));
+            if length(ind_p)<3
+                ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/4));
+                if length(ind_p)<4
+                    h_all(1,iCell) = 0;
                 else
                     h_all(1,iCell) = 1;
                 end
             else
                 h_all(1,iCell) = 1;
             end
+        else
+            h_all(1,iCell) = 1;
         end
-        if count_shuf == 1 & iCell == 1
-            x = zeros(1,nCells);
-            for i = 1:nCells
-                x(1,i) = Fit_struct(i).True.s_.Rsq;
-            end
-            x_sort = sort(x,'descend');
-            n = length(find(x>=0.5));
-            fprintf([num2str(n) '/' num2str(nCells) ' r-squared > 0.5\n'])
-        end
-        if count_shuf>0
-            if h_all(1,iCell) == 0
-                continue
-            end
-            if nCells > 2000 & Fit_struct(iCell).True.s_.Rsq < x_sort(2000)
-                continue
-            end
-        end
+    else
+        h_all(1,iCell) = 1;
+    end
+    
+    a = Im_mat_USE(iCell,:);
+    if max(a,[],2) > 0
+        b = reshape(a',length(Azs),length(Els));
+        data = b';
+        Fit_2Dellipse_LG_Ret_KM_min
+        Fit_struct(iCell).True.s_ = s;
+    end
+end
+if PLOTIT_FIT
+    set(gcf, 'Position', [0 0 800 1000]);
+    fn_out = fullfile(fnout, dataFolder, [mouse '_' expDate '_RFfits' num2str(ifig) '.pdf']);
+    print(fn_out,'-dpdf')
+end
+rsq = zeros(1,nCells);
+peak_ind = zeros(2,nCells);
+for i = 1:nCells
+    rsq(1,i) = Fit_struct(i).True.s_.Rsq;
+    peak_ind(:,i) = [Fit_struct(i).True.s_.x(4);Fit_struct(i).True.s_.x(5)];
+end
+edge_ind = unique([find(round(peak_ind(2,:))==Els(1)) find(round(peak_ind(2,:))==Els(end)) find(round(peak_ind(1,:))==Azs(1)) find(round(peak_ind(1,:))==Azs(end))]);
+good_ind = setdiff(find(h_all), edge_ind);
+fprintf([num2str(length(good_ind)) '/' num2str(nCells) ' responsive cells not on edge\n'])
+n = length(find(rsq(good_ind)>=0.5));
+if length(good_ind)>2000
+    n = length(find(rsq(good_ind)>=0.5));
+    good_ind = intersect(good_ind,find(rsq>=0.5));
+    if n>2000
+        good_ind = good_ind(randsample(length(good_ind),2000,0));
+    end
+end
+fprintf([num2str(n) '/' num2str(nCells) ' r-squared > 0.5\n'])
+PLOTIT_FIT = 0;
+SAVEALLDATA = 0;
+fprintf('Begin shuffling...\n')
+for count_shuf = 1:Nshuf
+    fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
+    Im_mat_USE = zeros(nCells, nStim);
+    for iCond = 1:nStim
+        ind_all = Ind_struct(iCond).all_trials;
+        ind_all_1 = ind_all(randsample(length(ind_all),length(ind_all),1));
+        Im_mat_USE(:,iCond) = mean(resp_dFoverF(:,ind_all_1),2);
+    end
+    for iCell = good_ind
         a = Im_mat_USE(iCell,:);
         if max(a,[],2) > 0
             b = reshape(a',length(Azs),length(Els));
             data = b';
-            if count_shuf == 0
-                PLOTIT_FIT = 0;
-                SAVEALLDATA = 1;
-                Fit_2Dellipse_LG_Ret_KM % modified due to error from file saving in script, saves to kevin analysis folder
-                eval(['Fit_struct(iCell).True.s_',' = s;']);
-            else
-                SAVEALLDATA = 0;
-                PLOTIT_FIT = 0;
-                Fit_2Dellipse_LG_Ret_KM
-                eval(['Fit_struct(iCell).Shuf(count_shuf).s_',' = s;']);
-            end
+            Fit_2Dellipse_LG_Ret_KM_min
+            Fit_struct(iCell).Shuf(count_shuf).s_ = s;
         end
     end
-    if PLOTIT_FIT & count_shuf == 0  
-        set(gcf, 'Position', [0 0 800 1000]);
-        fn_out = fullfile(fnout, dataFolder, [mouse '_' expDate '_RFfits' num2str(ifig) '.pdf']);
-        print(fn_out,'-dpdf')
-    end
 end
+        
 fprintf('\nShuffling done, saving fit results\n')
 s = whos('Fit_struct');
 if s.bytes < 2000000000
@@ -826,7 +853,12 @@ if s.bytes < 2000000000
     fprintf('\nSaved all shuffles\n')
 else 
     Fit_struct_sub = rmfield(Fit_struct,'Shuf');
-    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct_sub.mat']), 'Fit_struct_sub')
+    s = whos('Fit_struct_sub');
+    if s.bytes < 2000000000
+        save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct_sub.mat']), 'Fit_struct_sub')
+    else
+        save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct_sub.mat']), 'Fit_struct_sub','-v7.3')
+    end
     fprintf('\nSaved only true fits\n')
 end
 %% assess fits
@@ -992,74 +1024,4 @@ ylabel(h,'Az (deg)','Rotation',270.0,'VerticalAlignment','bottom')
 set(gca,'color',0*[1 1 1]); 
 set(gcf, 'Position', [100,300,1200,400])
 print(fullfile(fnout, dataFolder, [mouse '_' expDate '_retMap.pdf']), '-dpdf')
-
-%% more plots
-% right now just show raw data vs fit data at 5x5 resolution
-% only cells with dF/F > 0.05
-
-% load data
-% _FOVs.mat: 'Azs', 'Els', 'Stims', 'data_dfof_avg'
-load(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOVs.mat']))
-% _Tuning.mat: 'tc_dfof', 'tuning_mat', 'Stims', 'Ind_struct'
-load(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning.mat']))
-% % _Fit_struct.mat: Fit_Struct?
-% fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Fit_struct.mat']);
-% load(fn_out)
-% _lbub_fits.mat: 'lbub_fits', 'lbub_diff', 'goodfit_ind', 'resp_ind'
-fn_out = fullfile(fnout, dataFolder, [mouse '_' expDate '_lbub_fits.mat']);
-load(fn_out);
-
-% use tuning_mat for dF/F response during stimOn (mean 1st column, stdev 2nd column)
-% paired with Stims which is the El, Az
-
-% examine raw data and fit data in 5x5 resolution
-% include in title if good fit
-% first cutoff at peak dF/F >0.05
-% figure layout: 36 subplots per, using 2 per cell, so 18 cells per figure
-figure;
-sp = 1;
-f = 1;
-for iCell = 1:size(tuning_mat,3)
-    if max(tuning_mat(:,1,iCell)) < 0.05
-        continue
-    else
-        if sp >36
-            set(gcf, 'Position', [0 0 800 1000]);
-            print(fullfile(fnout, dataFolder, [mouse '_' expDate '_RawFit' num2str(f) '.pdf']), '-dpdf')
-            sp = 1;
-            f = f+1;
-            figure;
-        end
-        subplot(6,6,sp)
-        ret_raw = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
-        ret_raw = ret_raw';
-        imagesc(ret_raw)
-        colormap gray
-        %clim([0 max(max(tuning_mat(:,1,:),[],1),[],3)])
-        %clim([0 chop(max(tuning_mat(:,1,iCell),[],1),2)])
-        title(['#' num2str(iCell) ' ' num2str(chop(max(tuning_mat(:,1,iCell),[],1),2))])
-        
-        % fit data
-        % plug in lbub_fits(i,:,4) (all 10 parameters, only 6 used, and 4 corresponds to truefit
-        % and 25x2 Stims, with columns swapped ([Az El] instead of [El Az])
-        % to get back 2D gaussian 
-        subplot(6,6,sp+1)
-        fit_mat = Gauss2D_ellipseMA(lbub_fits(iCell,:,4),[Stims(:,2) Stims(:,1)]);%get gaussian as 25x1 vector
-        ret_fit = reshape(fit_mat, [length(Azs) length(Els)]);
-        ret_fit = ret_fit';
-        imagesc(ret_fit)
-        colormap gray
-        %clim([0 max(max(tuning_mat(:,1,:),[],1),[],3)])
-        %clim([0 chop(max(tuning_mat(:,1,iCell),[],1),2)])
-        if sum(iCell==goodfit_ind)
-            title(['**' num2str(chop(max(fit_mat,[],1),2))])
-        else
-            title(num2str(chop(max(fit_mat,[],1),2)))
-        end
-        
-        sp = sp + 2;
-    end
-end
-set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_RawFit' num2str(f) '.pdf']), '-dpdf')
 

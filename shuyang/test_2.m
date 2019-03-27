@@ -1,8 +1,10 @@
-for ii = 1:length(sessions)
-    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
-    meta_data_dir = [image_dest_base sessions{ii} '\' sessions{ii} '_meta_data'];
-    cluster_dir = [image_dest_base sessions{ii} '\' sessions{ii} '_cluster'];
-    [avg_img, roi_sz,data_tc] = calculate_data_tc_jin(meta_data_dir, cluster_dir);
-    rawF_dir = [image_dest, '_raw_F.mat'];
-    save(rawF_dir, 'data_tc', 'roi_sz', 'avg_img');%automatically saves data_tc to bxOutputs
+%b = bwboundaries(mask_cell(:,:,1));
+
+img = imread('Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\190131_img1018\AVG_190131_img1018_001_jpeg_1_1000.jpg');
+imshow('Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\190131_img1018\AVG_190131_img1018_001_jpeg_1_1000.jpg'); hold on;
+%figure;
+for i  = 1:size(mask3D,3)
+    bound = cell2mat(bwboundaries(mask3D(:,:,i)));
+    randcolor = rand(1,4);
+    plot(bound(:,2),bound(:,1),'.','color',randcolor); hold on;
 end
