@@ -32,14 +32,19 @@ plot_component(1)
         %figure('units', 'normalized', 'outerposition', [0 0 1 1]); % open the figure full screen
         %set(gcf, 'position', get(0,'screensize'))
         for j = 1:9                                                         % first 9 windows
-            frm_abv = ind_all(deriv(frames_mat(:,j),k) >= std_best(k)); %get the frames when spike happens
-            subplot(3,3,j);plot(TCave(frames_mat(:,j),k));hold on; 
-            plot(frm_abv, (max(TCave(frames_mat(:,j),k))-10)*ones(1,length(frm_abv)),'r.'); % plot red dots on top of the spikes
-            set(gca,'xticklabel',[]); %,'yticklabel',[]);
-            title(['cell' num2str(k) 'frm' num2str(frames_mat(1,j)) '-' num2str(frames_mat(end,j))]);
+            subplot(3,3,j);plot(TCave(frames_mat(:,j),k));
+            if isempty(std_best)
+                continue
+            else
+                frm_abv = ind_all(deriv(frames_mat(:,j),k) >= std_best(k)); %get the frames when spike happens
+                hold on;
+                plot(frm_abv, (max(TCave(frames_mat(:,j),k))-10)*ones(1,length(frm_abv)),'r.'); % plot red dots on top of the spikes
+            end
+            hold on; set(gca,'xticklabel',[]); %,'yticklabel',[]);
+            hold on; title(['cell' num2str(k) 'frm' num2str(frames_mat(1,j)) '-' num2str(frames_mat(end,j))]);
             drawnow; hold off
         end
-      supertitle('spike events std 2_5');
+        supertitle('TC ave'); hold off
     end
     
 end

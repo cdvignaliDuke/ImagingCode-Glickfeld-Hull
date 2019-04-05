@@ -5,14 +5,78 @@
 
 %% assign document paths and experimental sessions
 clear;
-sessions = '190131_img1018'; 
+sessions = '190314_imgJ89'; 
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 
 % behavior analysis results 
-days = '1018-190131_1';
+days = 'J89-190314_1';
 behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
+
+%% df/f
+filename = dir([image_analysis_dest '*' '_TCave.mat']);
+TCave = load([image_analysis_dest filename.name]);
+TCave = TCave.tc_avg;
+behav_output = load([behav_dest days '_behavAnalysis.mat']);
+frm_stay_cell = behav_output.frames_stay_cell;
+frm_stay = cell2mat(frm_stay_cell);
+baseline = mean(TCave(frm_stay,:));         % baseline for each cell
+dfOvF = zeros(size(TCave,1),size(TCave,2));
+for i = 1:size(TCave,2)                     % for each cell
+    dfOvF(:,i) = (TCave(:,i)-baseline(i))/baseline(i); %frames*cell
+end
+
+
+%% run triggered ave and run offset ave --- df/f
+frames_run_cell = behav_output.frames_run_cell;
+speed = double(behav_output.speed);
+[~,~,frames_runTrigger_mat,frms_runoff_mat,~]= findFrames_runWindows_2P (speed,frames_run_cell);
+% aligned with running onset ----------------------------------------------------------------------------
+dfOvF_runtrig_mat = zeros(size(frames_runTrigger_mat,1),size(frames_runTrigger_mat,2),size(TCave,2));
+for i = 1: size(frames_runTrigger_mat,2)                                    % for each running trig window
+    dfOvF_runtrig_mat(:,i,:) = dfOvF(frames_runTrigger_mat(:,i),:);         % df/f for all cells during that window, frame*cells 
+end
+ave_dfOvF_runtrig_trials = squeeze(mean(dfOvF_runtrig_mat,2));
+ave_dfOvF_runtrig = squeeze(mean(ave_dfOvF_runtrig_trials,2));
+ste_dfOvF_runTrig = std(ave_dfOvF_runtrig,0,2)/sqrt(size(ave_dfOvF_runtrig,2)); % a bunch of zeros
+% speed
+speed_runtrig = speed(frames_runTrigger_mat);
+aveSpd_runtrig = mean(speed_runtrig,2);
+steSpd_runtrig = std(speed_runtrig,0,2)/sqrt(size(speed_runtrig,2));
+%plot
+x = (1:45);
+figure; subplot(2,1,1);
+shadedErrorBar(x,ave_dfOvF_runtrig,ste_dfOvF_runTrig);hold on;
+vline(16,'r'); ylabel('df/f');
+subplot(2,1,2); 
+shadedErrorBar(x,aveSpd_runtrig, steSpd_runtrig);hold on;
+vline(16,'r');ylabel('speed');
+supertitle([sessions ' running triggered average']);
+savefig([image_analysis_dest sessions '_runTrigAve_dfOvF_wspeed']);
+
+% aligned with running offset ------------------------------------------------------------------------
+dfOvF_runoff_mat = zeros(size(frms_runoff_mat,1),size(frms_runoff_mat,2),size(TCave,2));
+for i = 1: size(frms_runoff_mat,2)                                    % for each running trig window
+    dfOvF_runoff_mat(:,i,:) = dfOvF(frms_runoff_mat(:,i),:);         % df/f for all cells during that window, frame*cells 
+end
+ave_dfOvF_runoff_trials = squeeze(mean(dfOvF_runoff_mat,2));
+ave_dfOvF_runoff = squeeze(mean(ave_dfOvF_runoff_trials,2));
+ste_dfOvF_runoff = std(ave_dfOvF_runoff,0,2)/sqrt(size(ave_dfOvF_runoff,2)); % a bunch of zeros
+% speed
+speed_runoff = speed(frms_runoff_mat);
+aveSpd_runoff = mean(speed_runoff,2);
+steSpd_runoff = std(speed_runoff,0,2)/sqrt(size(speed_runoff,2));
+%plot
+x = (1:45);
+figure; subplot(2,1,1);
+shadedErrorBar(x,ave_dfOvF_runoff,ste_dfOvF_runoff);hold on;
+vline(31,'r'); ylabel('df/f');
+subplot(2,1,2); 
+shadedErrorBar(x,aveSpd_runoff, steSpd_runoff);hold on;
+vline(31,'r');ylabel('speed');
+supertitle([sessions ' aligned to running offset -  average']);
+savefig([image_analysis_dest sessions '_runTrigAve_dfOvF_wspeed']);
 
 %% SECTION I 
 % get derivatives from raw fluorescence, decide the threshold for spikes,  
@@ -26,21 +90,21 @@ std2 = 2*std_deriv;
 std3 = 3*std_deriv;
 std2_5 = 2.5*std_deriv;
 behav_output = load([behav_dest days '_behavAnalysis.mat']);
-frm_run = behav_output.frames_run_cell;
-frm_stay = behav_output.frames_stay_cell;
+frm_run_cell = behav_output.frames_run_cell;
+frm_stay_cell = behav_output.frames_stay_cell;
 
 % get the best threshold std for deciding spikes, ave FRs during stationary for each cell 
-[avesWvarystd,best_thres,aveFR_allcells_stay,std_best] = best_spkthreshold_2P (deriv, frm_stay,std2,std2_5,std3,std_deriv); 
+[avesWvarystd,best_thres,aveFR_allcells_stay,std_best] = best_spkthreshold_2P (deriv, frm_stay_cell,std2,std2_5,std3,std_deriv); 
 aveFR_stay = mean(aveFR_allcells_stay);
 
 %% SECTION II 
 % calculate ave FRs during running for each cell and make scatter plot for
 % spikes rates during running vs. still, each dot is a cell
 nspk = zeros(1,size(deriv,2));                                              % num of cells
-frate = zeros(size(frm_run,2),size(deriv,2));                               % num of stationary windows*num of cells
-for i = 1: size(frm_run,2)                                                  % for each running window
-    t = length(frm_run{i})/30;                                              %t = nframes*1/30s, thus the unit of t is second
-    der_run_temp = deriv(frm_run{i},:); 
+frate = zeros(size(frm_run_cell,2),size(deriv,2));                               % num of stationary windows*num of cells
+for i = 1: size(frm_run_cell,2)                                                  % for each running window
+    t = length(frm_run_cell{i})/30;                                              %t = nframes*1/30s, thus the unit of t is second
+    der_run_temp = deriv(frm_run_cell{i},:); 
     for j = 1: size(der_run_temp,2)                                         % for each cell
         nspk(j) = sum(der_run_temp(:,j) >= std_best(j));                    % number of spikes during this window for each cell
     end
@@ -58,7 +122,8 @@ title('mean firing rate per second');
 savefig([image_analysis_dest sessions '_meanFRstayVSrun']);
 
 
-%% SECTION III : run trigger average and run offset average
+%% SECTION III : run trigger average and run offset average--- spikes
+behav_output = load([behav_dest days '_behavAnalysis.mat']);
 frames_run_cell = behav_output.frames_run_cell;
 speed = double(behav_output.speed);
 [~,~,frames_runTrigger_mat,frms_runoff_mat,~]= findFrames_runWindows_2P (speed,frames_run_cell);
@@ -78,9 +143,9 @@ steSpkTrig_all = std(aveSpkTrig,0,2)/sqrt(size(aveSpkTrig,2));
 x = (1:45);
 figure; shadedErrorBar(x,aveSpkTrig_all,steSpkTrig_all);hold on;
 %ylim([0,2]); hold on; 
-vline(16,'r');
-title([sessions ' running triggered average']);
-savefig([image_analysis_dest sessions '_runTrigAve']);
+vline(16,'r'); ylabel('firing rate');
+title([sessions ' running triggered average firing rate']);
+savefig([image_analysis_dest sessions '_runTrigAve_FR']);
 % PLOT speed
 speed_runtrig = speed(frames_runTrigger_mat);
 aveSpd_runtrig = mean(speed_runtrig,2);
@@ -105,9 +170,9 @@ steSpkoff_all = std(aveSpkoff,0,2)/sqrt(size(aveSpkoff,2));
 x = (1:45);
 figure; shadedErrorBar(x,aveSpkoff_all,steSpkoff_all);hold on;
 %ylim([0,2]); hold on; 
-vline(31,'r');
+vline(31,'r'); ylabel ('firing rate');
 title([sessions ' aligned to running offset']);
-savefig([image_analysis_dest sessions '_runOff']);
+savefig([image_analysis_dest sessions '_runOff_FR']);
 % PLOT speed
 speed_runoff = speed(frms_runoff_mat);
 aveSpd_runoff = mean(speed_runoff,2);
