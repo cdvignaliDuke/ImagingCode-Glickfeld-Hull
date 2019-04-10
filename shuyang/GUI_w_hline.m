@@ -26,8 +26,8 @@ plot_component(1)
 
     function plot_component(k)                                              % each cell
     cla
-        for j = 1:9                                                         % every time period
-            subplot(3,3,j);plot(deriv(frames_mat(:,j),k));hold on; 
+        for j = 1:4                                                         % every time period
+            subplot(2,2,j);plot(deriv(frames_mat(:,j),k));hold on; 
             hline(std_deriv(k),'r'); hold on;
             hline(std2(k),'b');hold on;
             hline(std2_5(k),'g');hold on;

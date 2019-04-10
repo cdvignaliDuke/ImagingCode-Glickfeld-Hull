@@ -31,8 +31,8 @@ plot_component(1)
     %for i = randperm(size(TCave,2),10)                                      
         %figure('units', 'normalized', 'outerposition', [0 0 1 1]); % open the figure full screen
         %set(gcf, 'position', get(0,'screensize'))
-        for j = 1:9                                                         % first 9 windows
-            subplot(3,3,j);plot(TCave(frames_mat(:,j),k));
+        for j = 1:4                                                         % first 9 windows
+            subplot(2,2,j);plot(TCave(frames_mat(:,j),k));
             if isempty(std_best)
                 continue
             else

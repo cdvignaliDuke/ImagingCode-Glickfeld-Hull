@@ -5,12 +5,12 @@
 
 %% assign document paths and experimental sessions
 clear;
-sessions = '190117_img1016'; 
+sessions = '190405_img1020'; 
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 
 % behavior analysis results 
-days = '1016-190117_1';
+days = '1020-190405_1';
 behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
 
@@ -39,7 +39,7 @@ figure; n1 = 500; n2 = 9000;
 %set(hline2,'color',color_code{n});
 legend('speed','df/f','Location','northeast');
 ylim(hAx(1),[-30 80]);
-ylim(hAx(2),[-0.4,0.4]);
+ylim(hAx(2),[-0.1,0.1]);
 title(['speed and average df/f' days]);
 savefig([image_analysis_dest sessions '_avedfOvF_wspeed']);
 
@@ -191,7 +191,7 @@ steSpd_runoff = std(speed_runoff,0,2)/sqrt(size(speed_runoff,2));
 x = (1:size(frms_runoff_mat,1));
 figure; subplot(2,1,1);
 shadedErrorBar(x,spk_runoff_grand,ste_runoff);hold on;
-ylim([0,3]); hold on; 
+ylim([0,2]); hold on; 
 vline(31,'r'); ylabel('average firing rate');xlabel('frame');
 title([sessions ' aligned to running offset']);
 
