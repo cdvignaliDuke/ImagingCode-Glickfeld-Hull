@@ -7,7 +7,7 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = '190312_imgJ89'; 
+sessions = '190207_img1020'; 
 %ID = '1016';
 image_source_base  = 'Z:\Data\2photon\'; %location of permanently stored image files for retreiving meta data
 %image_analysis_base    = 'Z:\Analysis\2photon_test\'; %stores the data on crash in the movingDots analysis folder
@@ -28,7 +28,7 @@ file = [sessions '_000_' order];
 
 % write tiff to get an idea about what the data looks like --------------------------------------------------------
 frame_start = 0;
-nframes = 4000;
+nframes = 30000;
 imgread = squeeze(sbxread(file,frame_start,nframes));
 f1 = 1;
 f2 = 1000;
@@ -44,7 +44,7 @@ data = cat(3,imgread,nan(npw,nph,ncat));
 img_refstacks = nanmean(permute(reshape(data,npw,nph,500,[]), [1 2 4 3]),4);
 figure;
 for i = 1:size(img_refstacks,3)
-    subplot(3,3,i);imagesc(img_refstacks(:,:,i)); colormap gray;
+    subplot(8,8,i);imagesc(img_refstacks(:,:,i)); colormap gray;
     set(gca,'xticklabel',[],'yticklabel',[]);
     text(.8,.1,num2str(i),'fontsize',12,'color','w','fontweight','bold','unit','norm');
 end
@@ -105,9 +105,10 @@ save([image_analysis_dest sessions '_' order '_PCA_variables_', num2str(nPCA),'.
 
 
 %% ICA: seperates independent spatial and temporal components
+%PCuse =       1:125;
 PCuse =       1:size(mixedfilters_PCA,3);%
 mu =          0.3; % weight of temporal info in spatio-teporal ICA
-nIC =         50; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
+nIC =         80; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
 ica_A_guess = []; %If this is empty than matlab will randomdize it and you can get different results, can see the random number generator in CellsortICA2P
 termtol =      1e-6;
 maxrounds =   2000;
@@ -145,7 +146,9 @@ icasig_filt = stackFilter(icasig);
 
 %set threshold a threshold for which pixels to include in a given dendrite's mask.
 nIC = size(icasig_filt, 3);
-cluster_threshold = 95; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
+cluster_threshold = 96.8; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
+%tried lower values for the threshold and turns out to have some wierd
+%masks
 mask_cell = zeros(size(icasig_filt));
 sm_logical = zeros(npw,nph);
 for ic = 1:nIC
@@ -162,7 +165,7 @@ for ic = 1:nIC
 end
 save([image_analysis_dest sessions '_' order, '_nPCA', ...
     num2str(nPCA), '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', ...
-    num2str(cluster_threshold), '_mask_cell.mat'], 'mask_cell');
+    num2str(cluster_threshold), '_mask.mat'], 'mask_cell');
 
 %visualize the masks
 figure('rend', 'painters', 'pos', [50 150 (796*1.5) (264*1.5)]); imagesc(sum(mask_cell,3));...
@@ -171,7 +174,7 @@ savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_cell_sum.fig']);
 
 figure;
-for i = 1:60
+for i = 1:55
 subplot(10,10,i); imagesc(mask_cell(:,:,i));
 colormap gray
 end
@@ -188,9 +191,9 @@ savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_process.fig']);
 
 % combine highly correlated ICs to one
-threshold = 0.9;
+threshold = 0.8; %got the same thing when threshold = 0.8 and 0.9, tried different values, doesn't seem to change things
 [ ~, mask3D, ~] = finalMask_Jin(img_rgs, mask_final, threshold);
-imshow([image_analysis_dest 'AVG_' sessions '_' order '_jpeg_1_1000.jpg']); hold on;
+figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
 for i  = 1:size(mask3D,3)
     bound = cell2mat(bwboundaries(mask3D(:,:,i)));
     randcolor = rand(1,4);
@@ -198,9 +201,14 @@ for i  = 1:size(mask3D,3)
 end
 %figure; imagesc(sum(mask3D,3)); truesize; % got the same thing as the figure above
 savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
-    '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_wdendrites.fig']);
+    '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), ...
+    '_coor' num2str(threshold),'_mask_wdendrites.fig']);
+save([image_analysis_dest sessions '_' order, '_nPCA', ...
+    num2str(nPCA), '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', ...
+    num2str(cluster_threshold), '_coor' num2str(threshold) '_mask3D.mat'], 'mask3D');
 
-% get TCs
+
+%% get TCs
 nmask = size(mask3D,3);
 FrameRate = 30;
 tc_avg = getTC(img_rgs, mask3D, nmask);
