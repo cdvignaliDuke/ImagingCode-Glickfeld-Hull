@@ -210,3 +210,34 @@ title(['2D Gaussian fit'])
 axis equal
 xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
 xlim([min(Azs,[],2) max(Azs,[],2)]); ylim([min(Els,[],2) max(Els,[],2)])
+
+%% try to do timecourses?
+figure(1);clf;
+iCell1=47; %47, 254
+iCell2 = 254;
+h = zeros(49,1);
+max_tc1=0; max_tc2=0;
+tc_cell1 = zeros(size(tc_dfof,1),length(Stims));
+tc_cell2 = tc_cell1;
+time = [1:15]*1/15*1000
+for i=1:length(Stims)
+    tc_cell1(:,i) = mean(tc_dfof(:,iCell1,[Ind_struct(i).all_trials]),3);
+    tc_cell2(:,i) = mean(tc_dfof(:,iCell2,[Ind_struct(i).all_trials]),3);
+    max_tc1 = max(max_tc1,max(tc_cell1(:,i)));
+    max_tc2 = max(max_tc2,max(tc_cell2(:,i)));
+end
+% normalize
+tc_cell1 = tc_cell1./max_tc1;
+tc_cell2 = tc_cell2./max_tc2;
+for i=1:length(Stims)
+    h(i)=subplot(7,7,i);
+    plot(time,tc_cell1(46:end,i),'r');
+    hold on
+    plot(time,tc_cell2(46:end,i),'b');
+    set(gca,'box','off','TickDir','out')
+    if i==22; ylabel('dF/F (norm)'); end
+    if i==46; xlabel('Time (ms)'); end
+end
+linkaxes(h,'xy')
+max_tc = 1% max(max_tc1,max_tc2);
+ylim([-0.2*max_tc 1.2*max_tc])

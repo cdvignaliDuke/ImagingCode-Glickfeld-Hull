@@ -1,3 +1,6 @@
+%combine highly correlated ICs to one
+%used in twophoton_imageAnalysis
+
 function [ data_corr, sm, sm_dsum] = finalMask_Jin(img_reg,mask_final, threshold)
 %nmask = max(max(mask_final));
 nmask = unique(mask_final);

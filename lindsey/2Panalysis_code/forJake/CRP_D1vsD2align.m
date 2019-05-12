@@ -23,14 +23,23 @@ for iexp = 1:nexp
                 mouse_name = mouse;
             end
             cd(fullfile('\\crash.dhe.duke.edu\data\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
+            clear global
             load(['img' mouse_name '_000_' run '.mat'])
             load(fullfile(lg_out, img_fn, [img_fn '_reg.mat']));
+            fName = [mouse_name '_000_000'];
             data = sbxread(['img' mouse_name '_000_' run],0,1000);
             data = squeeze(data);
             [out img_reg1] = stackRegister(data,img_ref);
             subplot(3,3,id)
             img_reg1_avg = mean(img_reg1,3);
             imagesc(img_reg1_avg)
+            colormap gray
+            cmin = min(img_reg1_avg(:));
+            cmax = max(img_reg1_avg(:))/3;
+            if (cmax./cmin)<1.5
+                cmax = max(img_reg1_avg(:));
+            end
+            clim([cmin cmax])
             title(date)
             load(fullfile(lg_out, img_fn, [img_fn '_ROI_TCs.mat']));
             subplot(3,3,id+3)
@@ -57,6 +66,7 @@ for iexp = 1:nexp
             fprintf([mouse ' ' date '\n'])
             img_fn = [date '_' mouse];
             cd(fullfile('\\crash.dhe.duke.edu\data\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
+            clear global
             load(['img' mouse_name '_000_' run '.mat'])
             load(fullfile(lg_out, img_fn, [img_fn '_reg.mat']));
             data = sbxread(['img' mouse_name '_000_' run],0,1000);
@@ -65,6 +75,13 @@ for iexp = 1:nexp
             subplot(3,3,id)
             img_reg2_avg = mean(img_reg2,3);
             imagesc(img_reg2_avg)
+            colormap gray
+            cmin = min(img_reg2_avg(:));
+            cmax = max(img_reg2_avg(:))/3;
+            if (cmax./cmin)<1.5
+                cmax = max(img_reg2_avg(:));
+            end
+            clim([cmin cmax])
             title(date)
             load(fullfile(lg_out, img_fn, [img_fn '_ROI_TCs.mat']));
             subplot(3,3,id+3)
@@ -75,6 +92,13 @@ for iexp = 1:nexp
             [D2toD1_out img_reg3] = stackRegister(img_reg2_avg,img_reg1_avg);
             subplot(3,3,id+1)
             imagesc(img_reg3)
+            colormap gray
+            cmin = min(img_reg3(:));
+            cmax = max(img_reg3(:))/3;
+            if (cmax./cmin)<1.5
+                cmax = max(img_reg3(:));
+            end
+            clim([cmin cmax])
             title('Reg')
             [out2 mask_reg] = stackRegister_MA(mask2,[],[],D2toD1_out);
             subplot(3,3,6)
@@ -139,73 +163,74 @@ for iexp = 1:nexp
         end
     end
     suptitle(mouse)
-    print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '.pdf'],'-bestfit','-dpdf')
-    save(fullfile(lg_out, img_fn, [img_fn '_D2toD1_overlap.mat']), 'D2toD1_out', 'ind_overlap', 'pct_overlap','overlap_id')
-    if sum(~isnan(overlap_id))
-        nmatch = sum(~isnan(overlap_id));
-        ind = find(~isnan(overlap_id));
-        [n n2] = subplotn(nmatch);
-        figure;
-        for i = 1:nmatch
-            subplot(n,n2,i)
-            shadedErrorBar(tt,nanmean(targetAlign_events1(:,overlap_id(ind(i)),ind_rew1),3).*1000/frameRateHz, (nanstd(targetAlign_events1(:,overlap_id(ind(i)),ind_rew1),[],3).*1000/frameRateHz)./sqrt(length(ind_rew2)),'k');
-            hold on
-            shadedErrorBar(tt,nanmean(targetAlign_events2(:,ind(i),ind_rew2),3).*1000/frameRateHz, (nanstd(targetAlign_events2(:,ind(i),ind_rew2),[],3).*1000/frameRateHz)./sqrt(length(ind_rew2)),'b');
-            xlabel('Time from cue (ms)')
-            ylabel('Spike rate (Hz)')
-            ylim([-1 8])
-            xlim([-500 2000])
-            vline([600], 'b')
-        end
-        suptitle([mouse ' ' date ' rewarded trials- D1 (black) vs D2 (blue)'])
-        print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_matchedCellsD1vD2_spikes_reward.pdf'],'-bestfit','-dpdf')
-        
-        figure;
-        for i = 1:nmatch
-            subplot(n,n2,i)
-            shadedErrorBar(tt,nanmean(targetAligndFoverF1(:,overlap_id(ind(i)),ind_rew1),3), (nanstd(targetAligndFoverF1(:,overlap_id(ind(i)),ind_rew1),[],3))./sqrt(length(ind_rew2)),'k');
-            hold on
-            shadedErrorBar(tt,nanmean(targetAligndFoverF2(:,ind(i),ind_rew2),3), (nanstd(targetAligndFoverF2(:,ind(i),ind_rew2),[],3))./sqrt(length(ind_rew2)),'b');
-            xlabel('Time from cue (ms)')
-            ylabel('dF/F')
-            ylim([-0.1 1])
-            xlim([-500 2000])
-            vline([600], 'b')
-        end
-        suptitle([mouse ' ' date ' rewarded trials- D1 (black) vs D2 (blue)'])
-        print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_matchedCellsD1vD2_dfoverf_reward.pdf'],'-bestfit','-dpdf')
-
-        figure;
-        for i = 1:nmatch
-            subplot(n,n2,i)
-            shadedErrorBar(tt,nanmean(targetAlign_events1(:,overlap_id(ind(i)),ind_omit1),3).*1000/frameRateHz, (nanstd(targetAlign_events1(:,overlap_id(ind(i)),ind_omit1),[],3).*1000/frameRateHz)./sqrt(length(ind_omit2)),'k');
-            hold on
-            shadedErrorBar(tt,nanmean(targetAlign_events2(:,ind(i),ind_omit2),3).*1000/frameRateHz, (nanstd(targetAlign_events2(:,ind(i),ind_omit2),[],3).*1000/frameRateHz)./sqrt(length(ind_omit2)),'b');
-            xlabel('Time from cue (ms)')
-            ylabel('Spike rate (Hz)')
-            ylim([-1 8])
-            xlim([-500 2000])
-            vline([600], 'b')
-        end
-        suptitle([mouse ' ' date ' omission trials- D1 (black) vs D2 (blue)'])
-        print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_matchedCellsD1vD2_spikes_omission.pdf'],'-bestfit','-dpdf')
-        
-        figure;
-        for i = 1:nmatch
-            subplot(n,n2,i)
-            shadedErrorBar(tt,nanmean(targetAligndFoverF1(:,overlap_id(ind(i)),ind_omit1),3), (nanstd(targetAligndFoverF1(:,overlap_id(ind(i)),ind_omit1),[],3))./sqrt(length(ind_omit2)),'k');
-            hold on
-            shadedErrorBar(tt,nanmean(targetAligndFoverF2(:,ind(i),ind_omit2),3), (nanstd(targetAligndFoverF2(:,ind(i),ind_omit2),[],3))./sqrt(length(ind_omit2)),'b');
-            xlabel('Time from cue (ms)')
-            ylabel('dF/F')
-            ylim([-0.1 1])
-            xlim([-500 2000])
-            vline([600], 'b')
-        end
-        suptitle([mouse ' ' date ' omission trials- D1 (black) vs D2 (blue)'])
-        print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_matchedCellsD1vD2_dfoverf_omission.pdf'],'-bestfit','-dpdf')
-
-    end
-    close all
+    print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_refs.pdf'],'-bestfit','-dpdf')
+    print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '.eps'],'-depsc')
+%     save(fullfile(lg_out, img_fn, [img_fn '_D2toD1_overlap.mat']), 'D2toD1_out', 'ind_overlap', 'pct_overlap','overlap_id')
+%     if sum(~isnan(overlap_id))
+%         nmatch = sum(~isnan(overlap_id));
+%         ind = find(~isnan(overlap_id));
+%         [n n2] = subplotn(nmatch);
+%         figure;
+%         for i = 1:nmatch
+%             subplot(n,n2,i)
+%             shadedErrorBar(tt,nanmean(targetAlign_events1(:,overlap_id(ind(i)),ind_rew1),3).*1000/frameRateHz, (nanstd(targetAlign_events1(:,overlap_id(ind(i)),ind_rew1),[],3).*1000/frameRateHz)./sqrt(length(ind_rew2)),'k');
+%             hold on
+%             shadedErrorBar(tt,nanmean(targetAlign_events2(:,ind(i),ind_rew2),3).*1000/frameRateHz, (nanstd(targetAlign_events2(:,ind(i),ind_rew2),[],3).*1000/frameRateHz)./sqrt(length(ind_rew2)),'b');
+%             xlabel('Time from cue (ms)')
+%             ylabel('Spike rate (Hz)')
+%             ylim([-1 8])
+%             xlim([-500 2000])
+%             vline([600], 'b')
+%         end
+%         suptitle([mouse ' ' date ' rewarded trials- D1 (black) vs D2 (blue)'])
+%         print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_matchedCellsD1vD2_spikes_reward.pdf'],'-bestfit','-dpdf')
+%         
+%         figure;
+%         for i = 1:nmatch
+%             subplot(n,n2,i)
+%             shadedErrorBar(tt,nanmean(targetAligndFoverF1(:,overlap_id(ind(i)),ind_rew1),3), (nanstd(targetAligndFoverF1(:,overlap_id(ind(i)),ind_rew1),[],3))./sqrt(length(ind_rew2)),'k');
+%             hold on
+%             shadedErrorBar(tt,nanmean(targetAligndFoverF2(:,ind(i),ind_rew2),3), (nanstd(targetAligndFoverF2(:,ind(i),ind_rew2),[],3))./sqrt(length(ind_rew2)),'b');
+%             xlabel('Time from cue (ms)')
+%             ylabel('dF/F')
+%             ylim([-0.1 1])
+%             xlim([-500 2000])
+%             vline([600], 'b')
+%         end
+%         suptitle([mouse ' ' date ' rewarded trials- D1 (black) vs D2 (blue)'])
+%         print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_matchedCellsD1vD2_dfoverf_reward.pdf'],'-bestfit','-dpdf')
+% 
+%         figure;
+%         for i = 1:nmatch
+%             subplot(n,n2,i)
+%             shadedErrorBar(tt,nanmean(targetAlign_events1(:,overlap_id(ind(i)),ind_omit1),3).*1000/frameRateHz, (nanstd(targetAlign_events1(:,overlap_id(ind(i)),ind_omit1),[],3).*1000/frameRateHz)./sqrt(length(ind_omit2)),'k');
+%             hold on
+%             shadedErrorBar(tt,nanmean(targetAlign_events2(:,ind(i),ind_omit2),3).*1000/frameRateHz, (nanstd(targetAlign_events2(:,ind(i),ind_omit2),[],3).*1000/frameRateHz)./sqrt(length(ind_omit2)),'b');
+%             xlabel('Time from cue (ms)')
+%             ylabel('Spike rate (Hz)')
+%             ylim([-1 8])
+%             xlim([-500 2000])
+%             vline([600], 'b')
+%         end
+%         suptitle([mouse ' ' date ' omission trials- D1 (black) vs D2 (blue)'])
+%         print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_matchedCellsD1vD2_spikes_omission.pdf'],'-bestfit','-dpdf')
+%         
+%         figure;
+%         for i = 1:nmatch
+%             subplot(n,n2,i)
+%             shadedErrorBar(tt,nanmean(targetAligndFoverF1(:,overlap_id(ind(i)),ind_omit1),3), (nanstd(targetAligndFoverF1(:,overlap_id(ind(i)),ind_omit1),[],3))./sqrt(length(ind_omit2)),'k');
+%             hold on
+%             shadedErrorBar(tt,nanmean(targetAligndFoverF2(:,ind(i),ind_omit2),3), (nanstd(targetAligndFoverF2(:,ind(i),ind_omit2),[],3))./sqrt(length(ind_omit2)),'b');
+%             xlabel('Time from cue (ms)')
+%             ylabel('dF/F')
+%             ylim([-0.1 1])
+%             xlim([-500 2000])
+%             vline([600], 'b')
+%         end
+%         suptitle([mouse ' ' date ' omission trials- D1 (black) vs D2 (blue)'])
+%         print(['\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper\CC_crossday\' mouse '_matchedCellsD1vD2_dfoverf_omission.pdf'],'-bestfit','-dpdf')
+% 
+%     end
+    %close all
 end
             

@@ -9,7 +9,7 @@
 close all;clear all;clc;
 
 ds = 'szTuning_DTR_AL';
-iexp = 2; 
+iexp = 4; 
 rc = behavConstsAV;
 eval(ds)
 
@@ -27,7 +27,7 @@ expTime = expt(iexp).retinotopyTime;
 nrun = length(runs);
 frame_rate = params.frameRate;
 
-fnout = fullfile(rc.ashleyAnalysis,[expDate '_i' mouse]);
+fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
 mkdir(fnout)
 
 fprintf(['2P imaging retinotopy analysis\nSelected data:\nMouse: ' mouse '\nDate: ' expDate '\nExperiments:\n'])

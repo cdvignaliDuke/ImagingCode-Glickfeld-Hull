@@ -1,3 +1,8 @@
+%use with behav_analysis_movingDots
+%find frames for running, stationary, back and forth, 
+%generate cell for stationary windows, running windows, and moving windows
+%(running+back and forth)
+
 function[frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates(speed)
 
 frames = 1: length(speed);

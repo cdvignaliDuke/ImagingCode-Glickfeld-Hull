@@ -1,3 +1,9 @@
+% plots for wide field imaging, moving dot experiments, acorss sessions
+% df/f vs/ speed
+% staytionary vs. running across sessions
+% before running &. during running &. after running across sessions
+% running window from 300ms before onset to 300ms after offset, each point is an average of 300ms
+% running trigger ave across sessions
 %% assign pathnames and datasets to be analyzed/written for moving dot experiments
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES

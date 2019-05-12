@@ -1,12 +1,12 @@
+%plot reverse stimulus triggered average response
+%for: all reverse stimulus windows  & 
+%     reverse windows during running and stationary respectively
+
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
-sessions = {'180417_img1005_1','180419_img1005_1','180419_img1007_1','180423_img1005_1','180424_img1008_1',...
-    '180425_img1008_1','180428_img1008_1','180429_img1008_1','180430_img1005_1','180430_img1007_1',...
-    '180430_img1008_1','180430_img1010_1','180505_img1007_1','180505_img1008_1','180505_img1010_1'}; 
+sessions = {'181115_img1011_1'}; 
 
-days = {'1005-180417_1','1005-180419_1','1007-180419_1','1005-180423_1','1008-180424_1','1008-180425_1','1008-180428_1',...
-    '1008-180429_1','1005-180430_1','1007-180430_1','1008-180430_1','1010-180430_1','1007-180505_1','1008-180505_1',...
-    '1010-180505_1'};
+days = {'1011-181115_1'};
 image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
 color_code = {'b','r','k','m'};

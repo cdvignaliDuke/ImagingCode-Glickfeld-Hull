@@ -1,3 +1,7 @@
+%used in 
+%generate cell for all windows right before and after running (300ms)
+% matrix for run triggered average (500ms before run and 1s from running onset)
+% matrix for running windows w/ 300ms before and after
 function[frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,frames_run_mat]= findFrames_runWindows (speed,frames_run_cell)
 
 frames = 1: length(speed);
@@ -11,7 +15,7 @@ frames_befo_run_cell = {};
 %was trying to generate a matrix in the for loop but then when m=1, if it doesn't fullfill the requirement and just continues, 
 %the first line is going to be zeros. and matlab doesn't do (end,:) if the variable is initialized to []. so cell is easier
 frames_aft_run_cell = {}; 
-frames_runTrigger_mat = []; % frames_runTrigger is for run triggered average analysis.
+frames_runTrigger_mat = []; % frames_runTrigger is for run triggered average analysis. 
 
 for m = 1: size(frames_run_cell,2)
         if (frames_run_cell{m}(1)-period < 1) || (frames_run_cell{end}(end)+ period > frames(end))
