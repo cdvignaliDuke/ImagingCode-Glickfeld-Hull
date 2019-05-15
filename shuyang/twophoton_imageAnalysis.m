@@ -7,7 +7,7 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = '190207_img1020'; 
+sessions = '190315_imgJ88'; 
 %ID = '1016';
 image_source_base  = 'Z:\Data\2photon\'; %location of permanently stored image files for retreiving meta data
 %image_analysis_base    = 'Z:\Analysis\2photon_test\'; %stores the data on crash in the movingDots analysis folder
@@ -28,7 +28,7 @@ file = [sessions '_000_' order];
 
 % write tiff to get an idea about what the data looks like --------------------------------------------------------
 frame_start = 0;
-nframes = 30000;
+nframes = 35469;
 imgread = squeeze(sbxread(file,frame_start,nframes));
 f1 = 1;
 f2 = 1000;
@@ -108,7 +108,7 @@ save([image_analysis_dest sessions '_' order '_PCA_variables_', num2str(nPCA),'.
 %PCuse =       1:125;
 PCuse =       1:size(mixedfilters_PCA,3);%
 mu =          0.3; % weight of temporal info in spatio-teporal ICA
-nIC =         80; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
+nIC =         150; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
 ica_A_guess = []; %If this is empty than matlab will randomdize it and you can get different results, can see the random number generator in CellsortICA2P
 termtol =      1e-6;
 maxrounds =   2000;
@@ -146,7 +146,7 @@ icasig_filt = stackFilter(icasig);
 
 %set threshold a threshold for which pixels to include in a given dendrite's mask.
 nIC = size(icasig_filt, 3);
-cluster_threshold = 96.8; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
+cluster_threshold = 97; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
 %tried lower values for the threshold and turns out to have some wierd
 %masks
 mask_cell = zeros(size(icasig_filt));
@@ -174,7 +174,7 @@ savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_cell_sum.fig']);
 
 figure;
-for i = 1:55
+for i = 1:100
 subplot(10,10,i); imagesc(mask_cell(:,:,i));
 colormap gray
 end

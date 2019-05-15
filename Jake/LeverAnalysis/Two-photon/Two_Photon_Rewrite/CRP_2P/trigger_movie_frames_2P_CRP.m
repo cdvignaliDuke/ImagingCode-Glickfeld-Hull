@@ -1,9 +1,12 @@
-function [trigger_movie, remove_event_idx, hold_dur, use_times] = trigger_movie_by_event_2P(movie, frame_info, ...
-    event_times, pre_frames, post_frames, licking_data, hold_dur, do_alignLick)
+function [trigger_movie, remove_event_idx, hold_dur, use_times] = trigger_movie_frames_2P_CRP(movie, frame_info, ...
+    event_times, trigger_vars, licking_data, hold_dur)
 
 % ---- cut the movie around event times
 % movie - the movie in 2-dimantional matrix
 % frame_info: output of parse behavior syncs frame number to time  in behavior
+pre_frames = trigger_vars.pre_cue_frames;
+post_frames = trigger_vars.post_cue_frames;
+do_alignLick = trigger_vars.do_lickAna;
 
 % --- use only events that are in the times of the movie, leave space for last event
 last_time=  find(frame_info.counter<size(movie,2)-post_frames, 1, 'last');

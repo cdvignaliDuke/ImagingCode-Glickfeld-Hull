@@ -2,16 +2,16 @@
 %generate cell for all windows right before and after running (300ms)
 % matrix for run triggered average (500ms before run and 1s from running onset)
 % matrix for running windows w/ 300ms before and after
-function[frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,frms_runoff_mat, frames_run_mat]= findFrames_runWindows_2P (speed,frames_run_cell)
+function[frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,frms_runoff_mat, frames_run_mat]= findFrames_runWindows_2P_longer (speed,frames_run_cell)
 
 frames = 1: length(speed);
 
 %% generate frames_befo/aft run, and runTriggers
 
 period = 9; % 300ms % numbers in this script should change b/c the sampling rate is now 3 times of wide field
-befoRunStay = 15; %500ms
-runTriggerDura = 45; %1.5s
-aftRunOff = 15; %500ms
+befoRunStay = 30; %1s
+runTriggerDura = 60; %2s
+aftRunOff = 30; %1s
 frames_befo_run_cell = {};
 %was trying to generate a matrix in the for loop but then when m=1, if it doesn't fullfill the requirement and just continues, 
 %the first line is going to be zeros. and matlab doesn't do (end,:) if the variable is initialized to []. so cell is easier
@@ -40,7 +40,6 @@ for m = 1: size(frames_run_cell,2)
 end
 
 %% create matrix for frames_runTrigger, this can be used for triggered_averaging plot
-runTriggerDura = 45;
 frames_runTrigger_mat = reshape(frames_runTrigger_mat, runTriggerDura, length(frames_runTrigger_mat)/runTriggerDura);
 frms_runoff_mat = reshape(frms_runoff_mat, runTriggerDura, length(frms_runoff_mat)/runTriggerDura);
 

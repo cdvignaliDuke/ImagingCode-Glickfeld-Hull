@@ -2,8 +2,8 @@
 % 1. finds frame and lever times based on events and outcomes
 % 2. obtain df/f timecourse
 % 3. create event triggered movies
-% 4. correct for visual artifact in two datasets
-% 5. save data
+% 5. correct for visual artifact in two datasets
+% 6. save data
 
 %% 1. find frame and lever times
 if exist('frame_times') == 1
@@ -98,43 +98,54 @@ save(data_dest2, 'tc_dfoverf', 'data_tc')
 %define some variables
 pre_cue_ms = 1000;
 post_cue_ms = 2500;
-pre_cue_frames = round(pre_cue_ms./double(ifi));
-post_cue_frames = round(post_cue_ms./double(ifi));
-cue_2_rew_delay_ms = mode(trial_outcome.normalReward - trial_outcome.normalRewardCue);
-do_lickAna = 1; do_alignLick = 0;
+trigger_vars.pre_cue_frames = round(pre_cue_ms./double(ifi));
+trigger_vars. post_cue_frames = round(post_cue_ms./double(ifi));
+trigger_vars.cue_2_rew_delay_ms = mode(trial_outcome.normalReward - trial_outcome.normalRewardCue);
+trigger_vars.do_lickAna = 1; trigger_vars.do_alignLick = 0;
 
-%use event times to extract df/f and licking traces/info ------------
+%Normal Reward trials ------------ use event times to extract df/f and licking traces/info 
 use_ev_NR = trial_outcome.normalRewardCue;
 use_ev_NR(isnan(use_ev_NR)) = [];
-[NR_movie, ~, ~, ~] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...  %NR_movie dim1=trials  dim2=cells  dim3=frames
-    use_ev_NR, pre_cue_frames, post_cue_frames, lick_data, [], do_alignLick)
-[trigger_licks, trigger_licks_10ms, lick] = trigger_movie_by_event_2P(frame_info, lick_data, use_ev_NR, ...
-     pre_cue_frames, post_cue_frames, do_lickAna, cue_2_rew_delay_ms)
-% [NR_movie, ~, ~, ~, lick_trace_NR, lick_trace_NR_10ms, NR_lick_info] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
-%     use_ev_NR, pre_cue_frames, post_cue_frames, lick_data, [], do_lickAna, do_alignLick, cue_2_rew_delay_ms);  
+[NR_movie, ~, ~, ~] = trigger_movie_frames_2P_CRP(tc_dfoverf, frame_info, use_ev_NR, trigger_vars, lick_data, []);  %NR_movie dim1=trials  dim2=cells  dim3=frames
+[lick_trace_NR, lick_trace_NR_10ms, NR_lick_info] = trigger_movie_licks_2P_CRP(frame_info, lick_data, use_ev_NR, trigger_vars);
 % get rid of trials with licking bout
 NR_movie_nolick = nan(size(NR_movie));
 NR_movie_nolick(logical(NR_lick_info.no_lick_cue_to_500) ,:,:) = NR_movie(logical(NR_lick_info.no_lick_cue_to_500), :, :);
 
-%use event times to extract df/f and licking traces/info ------------
+%Omitted Reward trials ------------ use event times to extract df/f and licking traces/info
 use_ev_OR = trial_outcome.omitRewardCue;
 use_ev_OR(isnan(use_ev_OR)) = [];
-[OR_movie, ~, ~, ~, lick_trace_OR, lick_trace_OR_10ms, OR_lick_info] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
-    use_ev_OR, pre_cue_frames, post_cue_frames, lick_data, [], do_lickAna, do_alignLick, cue_2_rew_delay_ms);
+[OR_movie, ~, ~, ~] = trigger_movie_frames_2P_CRP(tc_dfoverf, frame_info, use_ev_OR, trigger_vars, lick_data, []);
+[lick_trace_OR, lick_trace_OR_10ms, OR_lick_info] = trigger_movie_licks_2P_CRP(frame_info, lick_data, use_ev_OR, trigger_vars);
 % get rid of trials with licking bout
 OR_movie_nolick = nan(size(OR_movie));
 OR_movie_nolick(logical(OR_lick_info.no_lick_cue_to_500),:,:) = OR_movie(logical(OR_lick_info.no_lick_cue_to_500), :, :);
 
-%use event times to extract df/f and licking traces/info ------------
+%Unexpected Reward trilas ------------ use event times to extract df/f and licking traces/info
 use_ev_UR = trial_outcome.unexpRewardCue;
 use_ev_UR(isnan(use_ev_UR)) = [];
-[UR_movie, ~, ~, ~, lick_trace_UR, lick_trace_UR_10ms, UR_lick_info] = trigger_movie_by_event_2P(tc_dfoverf, frame_info, ...
-    use_ev_UR, pre_cue_frames, post_cue_frames, lick_data, [], do_lickAna, do_alignLick, cue_2_rew_delay_ms);
+[UR_movie, ~, ~, ~] = trigger_movie_frames_2P_CRP(tc_dfoverf, frame_info, use_ev_UR, trigger_vars, lick_data, []);
+[lick_trace_UR, lick_trace_UR_10ms, UR_lick_info] = trigger_movie_licks_2P_CRP(frame_info, lick_data, use_ev_UR, trigger_vars);
 % get rid of trials with licking bout
 UR_movie_nolick = nan(size(UR_movie));
 UR_movie_nolick(logical(UR_lick_info.no_lick_cue_to_500),:,:) = UR_movie(logical(UR_lick_info.no_lick_cue_to_500), :, :);
 
-%% 4. correct for visual artifact in two datasets
+%% 4. Analyze piezo data
+if ~isempty(dir(fullfile(data_dir,['*' runID{rID} '.ephys'])));
+    %load piezo data
+    piezo_file = dir(fullfile(data_dir,['*' runID{rID} '.ephys']));
+    piezo_data_temp = fopen([data_dir, piezo_file.name]);
+    piezo_data = fread(piezo_data_temp, 'single');
+    piezo_frame_ind = piezo_data([1:2:end]);
+    piezo_data = piezo_data([2:2:end]);
+    
+    %Extract movement traces aligned to cue/reward
+    [NR_piezo, NR_piezo_info] = trigger_movie_piezo_2P_CRP(piezo_data, piezo_frame_ind, frame_info, use_ev_NR, trigger_vars);
+    [OR_piezo, OR_piezo_info] = trigger_movie_piezo_2P_CRP(piezo_data, piezo_frame_ind, frame_info, use_ev_OR, trigger_vars);
+    [UR_piezo, UR_piezo_info] = trigger_movie_piezo_2P_CRP(piezo_data, piezo_frame_ind, frame_info, use_ev_UR, trigger_vars);
+end
+
+%% 5. correct for visual artifact in two datasets
 if strcmp(session, '180502_img084') | strcmp(session, '180403_img077') | strcmp(session, '180404_img077')
     if strcmp(session, '180502_img084')
         artifact_ind = [2:5]+pre_cue_frames+1;
@@ -159,11 +170,11 @@ if strcmp(session, '180502_img084') | strcmp(session, '180403_img077') | strcmp(
     end
 end
 
-%% 5. save data
+%% 6. save data
 %save([dest  'parse_behavior.mat'], 'lever', 'frame_info', 'trial_outcome', 'lick_data', 'Sampeling_rate', 'holdT_min', 'ifi')
 save([dest '_cue_movies.mat'], 'NR_movie','OR_movie', 'UR_movie', 'NR_movie_nolick','OR_movie_nolick', 'UR_movie_nolick', 'pre_cue_frames', 'post_cue_frames', 'ifi', 'cue_2_rew_delay_ms');
 save([dest '_cue_movies_lick.mat'], 'lick_trace_NR','lick_trace_OR', 'lick_trace_UR', 'NR_lick_info', 'OR_lick_info', 'UR_lick_info');
-
+save([dest '_cue_movies_piezo.mat'], 'NR_piezo','OR_piezo', 'UR_piezo', 'NR_piezo_info', 'OR_piezo_info', 'UR_piezo_info');
 
 
 

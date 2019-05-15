@@ -35,7 +35,7 @@ plot_component(1)
         %set(gcf, 'position', get(0,'screensize'))
         for j = randperm(size(frames_mat,2),9)                                                         % first 9 running trig windows
             frm_abv = ind_all(deriv(frames_mat(:,j),k) >= std_best(k)); %get the frames when spike happens
-            subplot(3,3,j);plot(TCave(frames_mat(:,j),k));hold on; vline(16,'r'); hold on;
+            subplot(3,3,j);plot(TCave(frames_mat(:,j),k));hold on; vline(31,'r'); hold on;
             plot(frm_abv, (max(TCave(frames_mat(:,j),k))-10)*ones(1,length(frm_abv)),'r.'); % plot red dots on top of the spikes
             set(gca,'xticklabel',[]); %,'yticklabel',[]);
             title(['cell' num2str(k) 'frm' num2str(frames_mat(1,j)) '-' num2str(frames_mat(45,j))]);
