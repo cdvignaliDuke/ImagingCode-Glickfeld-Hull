@@ -92,7 +92,7 @@ clear data_temp
 clear temp
 
 %% Choose register interval
-regIntv = 3000;
+regIntv = 10000;
 nep = floor(size(data,3)./regIntv);
 if doRegFrame
     fprintf(['\nSplitting into ' num2str(nep) ' epochs of length ' num2str(regIntv) ' frames.\n'])
@@ -105,11 +105,12 @@ if doRegFrame
         subplot(n,n2,i);
         imagesc(mean(data(:,:,(1:500)+(i-1)*regIntv),3));
         title([num2str(i) ': ' num2str(1+((i-1)*regIntv)) '-' num2str(500+((i-1)*regIntv))]);
+        clim([0 3000])
     end
 end
 %% Register data
 
-chooseInt = 5; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
+chooseInt = 3; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
 
 fprintf('\nBegin registering...\n')
 if exist(fullfile(fnout,dataFolder), 'dir')
@@ -170,6 +171,8 @@ for i = 1:nep
     subplot(n,n2,i);
     imagesc(mean(data_reg(:,:,(1:500)+((i-1)*regIntv)),3));
     title([num2str(i) ': ' num2str(1+((i-1)*regIntv)) '-' num2str(500+((i-1)*regIntv))]);
+    clim([0 3000])
+    colormap gray
 end
 
 % figure 3 shows imagesq (scaled?) of the registered data 1-10000, then prints to FOV_avg.mat
@@ -238,7 +241,7 @@ if isfield(input, 'nScansOn')
 end
 
 % with dF/F, average by each stimulus, depending on experiment
-if input.doRetStim
+
     % doRetStim -> retinotopy
     % requires data_dfof from above nScansOn method
     fprintf('input.doRetStim method - varying Az+El position\n')
@@ -247,74 +250,67 @@ if input.doRetStim
     % what is celleqel2mat_padded?
     Az = celleqel2mat_padded(input.tGratingAzimuthDeg);
     El = celleqel2mat_padded(input.tGratingElevationDeg);
+    Ori = celleqel2mat_padded(input.tGratingDirectionDeg);
     Azs = unique(Az);
     Els = unique(El);
+    Oris = unique(Ori);
+    nOri = length(Oris);
     if min(Els,[],2)<0
         Els = fliplr(Els);
     end
     
-    nStim = length(Azs)*length(Els);
-    fprintf([num2str(nStim) ' unique Az+El stimuli\n'])
+    nStim = length(Azs)*length(Els)*length(Oris);
+    fprintf([num2str(nStim) ' unique Az+El+Ori stimuli\n'])
     
-    fprintf('Averaging dF/F for each Az+El combination...\n')
-    data_dfof_avg = zeros(sz(1), sz(2), nStim);
-    start=1;
-    Stims = [];
+    fprintf('Averaging dF/F for each Az+El+Ori combination...\n')
+    data_dfof_avg = zeros(sz(1), sz(2), nStim./nOri, nOri);
+    
+    Stims = zeros(nStim./nOri, 3, nOri);
     %zeros(nStim, 2);
-    
-    for iEl = 1:length(Els)
-        % runs through all unique Els to find indices of all same El
-        indE = find(El == Els(iEl));
-        for iAz = 1:length(Azs)
-            % runs through all unique Azs to find indices of all same Az
-            % then choose common El and Az indices
-            % average over selected indices for all pixels and frames
-            indA = find(Az == Azs(iAz));
-            ind = intersect(indE,indA);
-            data_dfof_avg(:,:,start) = mean(data_dfof(:,:,ind),3);
-            
-            % stores combination to Stims and iterates start
-            Stims = [Stims; Els(iEl) Azs(iAz)];
-            start = start+1;
+    for iOri = 1:length(Oris)
+        indO = find(Ori == Oris(iOri));
+        start=1;
+        for iEl = 1:length(Els)
+            % runs through all unique Els to find indices of all same El
+            indE = find(El == Els(iEl));
+            for iAz = 1:length(Azs)
+                % runs through all unique Azs to find indices of all same Az
+                % then choose common El and Az indices
+                % average over selected indices for all pixels and frames
+                indA = find(Az == Azs(iAz));
+                ind = intersect(indO,intersect(indE,indA));
+                data_dfof_avg(:,:,start,iOri) = mean(data_dfof(:,:,ind),3);
+
+                % stores combination to Stims and iterates start
+                Stims(start,:,iOri) = [Els(iEl) Azs(iAz) Oris(iOri)];
+                start = start+1;
+            end
         end
     end
     
     % plot dF/F for all stimuli
-    figure(4);clf;
-    for i = 1:nStim
-        subplot(length(Els),length(Azs),i);
-        imagesc(data_dfof_avg(:,:,i));
-        clim([0 max(data_dfof_avg(:))])
-        title(['El: ' num2str(Stims(i,1)) ', Az: ' num2str(Stims(i,2))])
+    for iOri = 1:nOri
+        figure(3+iOri);clf;
+        for i = 1:nStim./nOri
+            subplot(length(Els),length(Azs),i);
+            imagesc(data_dfof_avg(:,:,i,iOri));
+            clim([0 max(data_dfof_avg(:))])
+            title(['El: ' num2str(Stims(i,1)) ', Az: ' num2str(Stims(i,2))])
+        end
+        % print to pdf
+        print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOV_resp_Ret_Ori' num2str(iOri) '.pdf']), '-dpdf')
     end
-    % print to pdf
-    print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOV_resp_Ret.pdf']), '-dpdf')
-    
-elseif input.doSizeStim
-    % doSizeStim -> size tuning
-    % requires data_dfof from above nScansOn method
-    fprintf('input.doSizeStim method - varying grating diameter\n')
-    fprintf('ERROR: this script only does retinotopy not size tuning')
-    
-elseif input.doTFStim && ~input.doMatrix
-    % doTFStim + !doMatrix -> temporal frequency?
-    % requires data_dfof from above nScansOn method
-    fprintf('input.doTFStim method - varying grating TF+SF\n')
-    fprintf('ERROR: this script only does retinotopy not TF tuning')
-    
-elseif input.doDirStim
-    % doDirStim -> directional stimulation tuning curve
-    % requires data_dfof from above nScansOn method
-    fprintf('input.doDirStim method - varying grating direction\n')
-    fprintf('ERROR: this script only does retinotopy not direction tuning')
-end
 
 % take max across stimuli
 fprintf('Final step: take max across stimuli\n')
-data_dfof_max = max(data_dfof_avg,[],3);
+data_dfof_max = squeeze(max(data_dfof_avg,[],3));
 figure(10);clf;
-imagesc(data_dfof_max)
-clim([0 max(data_dfof_max(:))])
+[n,n2] = subplotn(nOri);
+for iOri = 1:nOri
+    subplot(n,n2,iOri)
+    imagesc(data_dfof_max(:,:,iOri))
+    clim([0 max(data_dfof_max(:))])
+end
 title('Maximum dF/F across all stimuli')
 
 % save stimActFOV.mat containing: data_dfof_max, data_dfof_avg, nStim
@@ -332,7 +328,7 @@ if reduceFlag
             fprintf('3x3 pixel median\n')
         case 4
             fprintf('Max project across El,Az\n')
-            nStim_reduced = length(Els)+length(Azs); % overwrite for different stim #s
+            nStim_reduced = nOri.*(length(Els)+length(Azs)); % overwrite for different stim #s
     end
     data_dfof_avg_reduced = zeros(sz(1),sz(2),nStim_reduced);
     Stims_reduced = zeros(nStim_reduced,2);
@@ -358,19 +354,21 @@ if reduceFlag
             end
         end
     else % reduceFlag >= 4, El/Az reduce (across all Az at each El, then vice versa)
-        for i = 1:length(Els)
-            % find indices of El to reduce by max
-            reduce_ind = ismember(Stims(:,1),Els(i));
-            data_dfof_avg_reduced(:,:,start) = max(data_dfof_avg(:,:,find(reduce_ind)),[],3);
-            Stims_reduced(start,:) = [Els(i), NaN];
-            start = start+1;
-        end
-        for j = 1:length(Azs)
-            % find indices of Az to reduce by max
-            reduce_ind = ismember(Stims(:,2),Azs(j));
-            data_dfof_avg_reduced(:,:,start) = max(data_dfof_avg(:,:,find(reduce_ind)),[],3);
-            Stims_reduced(start,:) = [NaN, Azs(j)];
-            start = start+1;
+        for iOri = 1:nOri
+            for i = 1:length(Els)
+                % find indices of El to reduce by max
+                reduce_ind = ismember(Stims(:,1,1),Els(i));
+                data_dfof_avg_reduced(:,:,start) = max(data_dfof_avg(:,:,find(reduce_ind),iOri),[],3);
+                Stims_reduced(start,:) = [Els(i), NaN];
+                start = start+1;
+            end
+            for j = 1:length(Azs)
+                % find indices of Az to reduce by max
+                reduce_ind = ismember(Stims(:,2,1),Azs(j));
+                data_dfof_avg_reduced(:,:,start) = max(data_dfof_avg(:,:,find(reduce_ind),iOri),[],3);
+                Stims_reduced(start,:) = [NaN, Azs(j)];
+                start = start+1;
+            end
         end
     end
 end
@@ -462,14 +460,17 @@ end
 
 % start with max projection
 fprintf('\nFirst Step: Max Projection\n')
-mask_data_temp = data_dfof_max;
-mask_data_temp(mask_exp >= 1) = 0;
-bwout = imCellEditInteractive(mask_data_temp);
-mask_all = mask_all+bwout;
-mask_exp = imCellBuffer(mask_all,3)+mask_all;
+for iOri = 1:nOri
+    mask_data_temp = data_dfof_max(:,:,iOri);
+    mask_data_temp(mask_exp >= 1) = 0;
+    bwout = imCellEditInteractive(mask_data_temp);
+    mask_all = mask_all+bwout;
+    mask_exp = imCellBuffer(mask_all,3)+mask_all;
+    close all
+end
 
 % by each stim
-for iStim = size(mask_data,3)
+for iStim = 1:size(mask_data,3)
     fprintf(['Stim ' num2str(iStim) ' / ' num2str(size(mask_data,3)) '\n'])
     mask_data_temp = mask_data(:,:,iStim);
     mask_data_temp(mask_exp >= 1) = 0;
@@ -494,10 +495,16 @@ end
 
 % repeat for max projection
 fprintf('\nFinal Step: Max Projection\n')
-mask_data_temp = data_dfof_max;
+mask_data_temp = data_dfof_max(:,:,1);
 mask_data_temp(mask_exp >= 1) = 0;
 bwout = imCellEditInteractive(mask_data_temp);
 mask_all = mask_all+bwout;
+close all
+mask_data_temp = data_dfof_max(:,:,2);
+mask_data_temp(mask_exp >= 1) = 0;
+bwout = imCellEditInteractive(mask_data_temp);
+mask_all = mask_all+bwout;
+close all
 
 [mask_cell, nCells] = bwlabel(mask_all); % bwlabel labels all individual cells
 fprintf([num2str(nCells) ' total cells selected\n'])
@@ -608,19 +615,22 @@ fprintf('Time course extraction complete.\n')
 %% retinotopy for these cells
 
 %load masks from experiment
-load(fullfile(fnout, dataFolder, [mouse '_' expDate '_mask_cell.mat']))
+%load(fullfile(fnout, dataFolder, [mouse '_' expDate '_mask_cell.mat']))
 
 % look at masks overlaid on dfof average FOV for each stimulus
-figure;
+
 mask_all = mask_cell;
 mask_all(find(mask_all>0)) = 1;
-for i = 1:nStim
-    subplot(length(Els),length(Azs),i);
-    shade_img = imShade(data_dfof_avg(:,:,i), mask_all);
-    imagesc(shade_img)
-    title(num2str(Stims(i,:)))
-    clim([0 max(data_dfof_avg(:))]);
-    colormap(gray)
+for iOri = 1:nOri
+    figure;
+    for i = 1:nStim./nOri
+        subplot(length(Els),length(Azs),i);
+        shade_img = imShade(data_dfof_avg(:,:,i,iOri), mask_all);
+        imagesc(shade_img)
+        title(num2str(Stims(i,:)))
+        clim([0 max(data_dfof_avg(:))]);
+        colormap(gray)
+    end
 end
 set(gcf, 'Position', [0 0 800 1000]);
 print(fullfile(fnout, dataFolder, [mouse '_' expDate '_FOVresp.pdf']), '-dpdf')
@@ -654,8 +664,8 @@ colorbar
 %% calculate tuning mat and plot
 
 fprintf('\nPlotting timecourses and measuring stimOn response\n')
-tuning_mat = zeros(nStim, 2, nCells);
-fulltuning_mat = zeros(nStim, 2, 4);
+tuning_mat = zeros(nStim./nOri, nOri, 2, nCells);
+fulltuning_mat = zeros(nStim./nOri, 2, 4);
 Ind_struct = [];
 if nCells<36
     [n, n2] = subplotn(nCells);
@@ -675,31 +685,41 @@ for iCell = 1:nCells
         figure;
     end
     subplot(n, n2, start)
-    for iStim = 1:nStim
-        indA = find(Az == Stims(iStim,2));
-        indE = find(El == Stims(iStim,1));
-        ind = intersect(indE,indA);
-        plot(tt', squeeze(mean(tc_dfof(:,iCell,ind),3)))
-        hold on
-        tuning_mat(iStim,1,iCell) = mean(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),1),3);
-        tuning_mat(iStim,2,iCell) = std(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),1),[],3)./sqrt(length(ind));
-        Ind_struct(iStim).all_trials = ind;
+    for iOri = 1:nOri
+        for iStim = 1:nStim./nOri
+            indA = find(Az == Stims(iStim,2));
+            indE = find(El == Stims(iStim,1));
+            indO = find(Ori == Oris(iOri));
+            ind = intersect(indO,intersect(indE,indA));
+            if iOri == 1
+                plot(tt', squeeze(mean(tc_dfof(:,iCell,ind),3)))
+                hold on
+            end
+            tuning_mat(iStim,iOri,1,iCell) = mean(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),1),3);
+            tuning_mat(iStim,iOri,2,iCell) = std(mean(tc_dfof(nOff+1:nOn+nOff,iCell,ind),1),[],3)./sqrt(length(ind));
+            Ind_struct(iStim,iOri).all_trials = ind;
+            if nansum(tuning_mat(:,1,1,iCell),1) > nansum(tuning_mat(:,2,1,iCell),1)
+                ori_pref(:,iCell) = 1;
+            else
+                ori_pref(:,iCell) = 2;
+            end
+        end
     end
     ylim([-0.05 0.25])
     vline(nOff)
     start = start + 1;
 end
-for iCell = 1:4
-    for iStim = 1:nStim
-        indA = find(Az == Stims(iStim,2));
-        indE = find(El == Stims(iStim,1));
-        ind = intersect(indE,indA);
-        fulltuning_mat(iStim,1,iCell) = mean(mean(fulltc_dfof(nOff+1:nOn+nOff,iCell,ind),1),3);
-        fulltuning_mat(iStim,2,iCell) = std(mean(fulltc_dfof(nOff+1:nOn+nOff,iCell,ind),1),[],3)./sqrt(length(ind));
-    end
-end
-set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs' num2str(f) '.pdf']), '-dpdf')
+% for iCell = 1:4
+%     for iStim = 1:nStim./nOri
+%         indA = find(Az == Stims(iStim,2));
+%         indE = find(El == Stims(iStim,1));
+%         ind = intersect(indE,indA);
+%         fulltuning_mat(iStim,1,iCell) = mean(mean(fulltc_dfof(nOff+1:nOn+nOff,iCell,ind),1),3);
+%         fulltuning_mat(iStim,2,iCell) = std(mean(fulltc_dfof(nOff+1:nOn+nOff,iCell,ind),1),[],3)./sqrt(length(ind));
+%     end
+% % end
+% set(gcf, 'Position', [0 0 800 1000]);
+% print(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs' num2str(f) '.pdf']), '-dpdf')
 
 fprintf('Plotting tuning maps\n')
 figure;
@@ -713,46 +733,53 @@ for iCell = 1:nCells
         f= f+1;
         figure;
     end
-    subplot(n, n2, start)
-    ret_mat = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
-    ret_mat = ret_mat';
-    imagesc(ret_mat)
-    colormap gray
-    %clim([0 max(max(tuning_mat(:,1,:),[],1),[],3)])
-    %clim([0 chop(max(tuning_mat(:,1,iCell),[],1),2)])
-    title(num2str(chop(max(tuning_mat(:,1,iCell),[],1),2)))
-    start = start +1;
+    
+    for iOri = 1:nOri
+        subplot(n, n2, start)
+        ret_mat = reshape(tuning_mat(:,iOri,1,iCell), [length(Azs) length(Els)]);
+        ret_mat = ret_mat';
+        imagesc(ret_mat)
+        colormap gray
+        %clim([0 max(max(tuning_mat(:,1,:),[],1),[],3)])
+        %clim([0 chop(max(tuning_mat(:,1,iCell),[],1),2)])
+        tit_str = num2str(chop(max(tuning_mat(:,iOri,1,iCell),[],1),2));
+        if ori_pref(:,iCell) == iOri
+            tit_str = [tit_str ' -pref'];
+        end
+        title(tit_str)
+        start = start +1;
+    end  
 end
 set(gcf, 'Position', [0 0 800 1000]);
 print(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning' num2str(f) '.pdf']), '-dpdf')
-save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'Stims', 'Ind_struct')
+save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'Stims', 'Ind_struct','ori_pref')
 
-% plot tc and ret_mat for full and cell avg
-figure;
-subplot(2,2,1)
-ret_mat = reshape(fulltuning_mat(:,1,1), [length(Azs) length(Els)]);
-ret_mat = ret_mat';
-imagesc(ret_mat)
-colormap gray
-title(['Full image dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(:,1,1),[],1),2))])
-subplot(2,2,2)
-ret_mat = reshape(fulltuning_mat(:,1,2), [length(Azs) length(Els)]);
-ret_mat = ret_mat';
-imagesc(ret_mat)
-colormap gray
-title(['All Cell Average dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(:,1,2),[],1),2))])
-subplot(2,2,3)
-ret_mat = reshape(fulltuning_mat(:,1,3), [length(Azs) length(Els)]);
-ret_mat = ret_mat';
-imagesc(ret_mat)
-colormap gray
-title(['Neuropil-DC dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(:,1,3),[],1),2))])
-subplot(2,2,4)
-ret_mat = reshape(fulltuning_mat(:,1,4), [length(Azs) length(Els)]);
-ret_mat = ret_mat';
-imagesc(ret_mat)
-colormap gray
-title(['Neuropil dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(:,1,4),[],1),2))])
+% % plot tc and ret_mat for full and cell avg
+% figure;
+% subplot(2,2,1)
+% ret_mat = reshape(fulltuning_mat(:,1,1), [length(Azs) length(Els)]);
+% ret_mat = ret_mat';
+% imagesc(ret_mat)
+% colormap gray
+% title(['Full image dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(:,1,1),[],1),2))])
+% subplot(2,2,2)
+% ret_mat = reshape(fulltuning_mat(:,1,2), [length(Azs) length(Els)]);
+% ret_mat = ret_mat';
+% imagesc(ret_mat)
+% colormap gray
+% title(['All Cell Average dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(:,1,2),[],1),2))])
+% subplot(2,2,3)
+% ret_mat = reshape(fulltuning_mat(:,1,3), [length(Azs) length(Els)]);
+% ret_mat = ret_mat';
+% imagesc(ret_mat)
+% colormap gray
+% title(['Neuropil-DC dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(:,1,3),[],1),2))])
+% subplot(2,2,4)
+% ret_mat = reshape(fulltuning_mat(:,1,4), [length(Azs) length(Els)]);
+% ret_mat = ret_mat';
+% imagesc(ret_mat)
+% colormap gray
+% title(['Neuropil dF/F tuning map, max:' num2str(chop(max(fulltuning_mat(:,1,4),[],1),2))])
 
 % look at neuropil response
 % remove top and bottom trials at each position
@@ -765,16 +792,16 @@ close all
 
 fprintf('\nBegin fitting retinotopy data...\n')
 
-fprintf('Plot tc_dfof for all stims of cell 10\n')
-figure;
-for iCell = 10
-    for iCond = 1:nStim
-        subplot(7,7,iCond)
-        ind_all = Ind_struct(iCond).all_trials;
-        plot(squeeze(tc_dfof(:,iCell,ind_all)))
-        ylim([-0.1 0.4])
-    end
-end
+% fprintf('Plot tc_dfof for all stims of cell 10\n')
+% figure;
+% for iCell = 10
+%     for iCond = 1:nStim./nOri
+%         subplot(7,7,iCond)
+%         ind_all = Ind_struct(iCond,iOri).all_trials;
+%         plot(squeeze(tc_dfof(:,iCell,ind_all)))
+%         ylim([-0.1 0.4])
+%     end
+% end
 
 Fit_struct = [];
 [AzAz, ElEl] = meshgrid(Azs,Els);
@@ -792,56 +819,63 @@ Nshuf = 500;
 fprintf(['Nshuf = ' num2str(Nshuf) '\n'])
 resp_dFoverF = squeeze(mean(tc_dfof(nOff:nOn+nOff,:,:),1));
 base_dFoverF = squeeze(mean(tc_dfof(nOff/2:nOff,:,:),1));
-p_ttest = zeros(nCells,nStim);
-h_ttest = zeros(nCells,nStim);
+p_ttest = zeros(nCells,nStim./nOri,nOri);
+h_ttest = zeros(nCells,nStim./nOri,nOri);
 h_all = zeros(1,nCells);
-
+ind_all = cell(1,2);
 fprintf('Begin shuffling...\n')
 for count_shuf = 0:Nshuf
     fprintf(['count_shuf: ' num2str(count_shuf) '/' num2str(Nshuf) '\n'])
-    Im_mat_USE = zeros(nCells, nStim);
-    for iCond = 1:nStim
-        ind_all = Ind_struct(iCond).all_trials;
+    Im_mat_USE = zeros(nCells, nStim./nOri,nOri);
+    for iCond = 1:nStim./nOri
+        ind_all{1} = Ind_struct(iCond,1).all_trials;
+        ind_all{2} = Ind_struct(iCond,2).all_trials;
         if count_shuf > 0 %resample with replacement, don't resample by trial for now because running-rejection may be uneven for various trials..
-            ind_all_1 = ind_all(randsample(length(ind_all),length(ind_all),1));
+            ind_all_1{1} = ind_all{1}(randsample(length(ind_all{1}),length(ind_all{1}),1));
+            ind_all_1{2} = ind_all{2}(randsample(length(ind_all{2}),length(ind_all{2}),1));
         else
-            ind_all_1 = ind_all;
-            [h_ttest(:,iCond), p_ttest(:,iCond)] = ttest(resp_dFoverF(:,ind_all), base_dFoverF(:,ind_all), 'tail', 'right', 'dim', 2, 'alpha', 0.05./(nStim-1));
+            ind_all_1{1} = ind_all{1};
+            ind_all_1{2} = ind_all{2};
+            for iOri = 1:nOri
+                [h_ttest(:,iCond,nOri), p_ttest(:,iCond,nOri)] = ttest(resp_dFoverF(:,ind_all{iOri}), base_dFoverF(:,ind_all{iOri}), 'tail', 'right', 'dim', 2, 'alpha', 0.05./(nStim-1));
+            end
         end
-        Im_mat_USE(:,iCond) = mean(resp_dFoverF(:,ind_all_1),2);
+        Im_mat_USE(:,iCond,1) = mean(resp_dFoverF(:,ind_all_1{1}),2);
+        Im_mat_USE(:,iCond,2) = mean(resp_dFoverF(:,ind_all_1{2}),2);
     end
     
     ifig = 1;
     start = 1;
     for iCell = 1:nCells
+        iOri = ori_pref(:,iCell);
         if count_shuf == 0
-            if sum(h_ttest(iCell,:),2) == 0
-                ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/2));
+            if sum(h_ttest(iCell,:,iOri),2) == 0
+                ind_p = find(p_ttest(iCell,:,iOri)< 0.05./(((nStim./nOri)-1)/2));
                 if length(ind_p)<2
-                    ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/3));
+                    ind_p = find(p_ttest(iCell,:,iOri)< 0.05./(((nStim./nOri)-1)/3));
                     if length(ind_p)<3
-                        ind_p = find(p_ttest(iCell,:)< 0.05./((nStim-1)/4));
+                        ind_p = find(p_ttest(iCell,:,iOri)< 0.05./(((nStim./nOri)-1)/4));
                         if length(ind_p)<4
-                            h_all(1,iCell) = 0;
+                            h_all(1,iCell,iOri) = 0;
                         else
-                            h_all(1,iCell) = 1;
+                            h_all(1,iCell,iOri) = 1;
                         end
                     else
-                        h_all(1,iCell) = 1;
+                        h_all(1,iCell,iOri) = 1;
                     end
                 else
-                    h_all(1,iCell) = 1;
+                    h_all(1,iCell,iOri) = 1;
                 end
             else
-                h_all(1,iCell) = 1;
+                h_all(1,iCell,iOri) = 1;
             end
         end
         if count_shuf>0
-            if h_all(1,iCell) == 0
+            if h_all(1,iCell,iOri) == 0
                 continue
             end
         end
-        a = Im_mat_USE(iCell,:);
+        a = Im_mat_USE(iCell,:,iOri);
         if max(a,[],2) > 0
             b = reshape(a',length(Azs),length(Els));
             data = b';
@@ -866,8 +900,20 @@ for count_shuf = 0:Nshuf
 end
 fprintf('Shuffling done, saving fit results\n')
 
-fn_out = fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct.mat']);
-save(fn_out, 'Fit_struct')
+s = whos('Fit_struct');
+if s.bytes < 2000000
+    save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct.mat']), 'Fit_struct')
+    fprintf('\nSaved all shuffles\n')
+else 
+    Fit_struct_sub = rmfield(Fit_struct,'Shuf');
+    s = whos('Fit_struct_sub');
+    if s.bytes < 2000000
+        save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct_sub.mat']), 'Fit_struct_sub')
+    else
+        save(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct_sub.mat']), 'Fit_struct_sub','-v7.3')
+    end
+    fprintf('\nSaved only true fits\n')
+end
 
 resp_ind = find(h_all); % h_all indicates responsive cell (by t-test against baseline)
 
@@ -1028,7 +1074,7 @@ h = colorbar;
 ylabel(h,'Az (deg)','Rotation',270.0,'VerticalAlignment','bottom')
 set(gca,'color',0*[1 1 1]); 
 set(gcf, 'Position', [100,300,1200,400])
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_retMap.pdf']), '-dpdf')
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_retMap.pdf']), '-dpdf', '-bestfit')
 
 %% more plots
 % right now just show raw data vs fit data at 5x5 resolution
@@ -1056,7 +1102,7 @@ load(fn_out);
 figure;
 sp = 1;
 f = 1;
-for iCell = 1:size(tuning_mat,3)
+for iCell = 1:size(tuning_mat,4)
     if max(tuning_mat(:,1,iCell)) < 0.05
         continue
     else
@@ -1068,13 +1114,14 @@ for iCell = 1:size(tuning_mat,3)
             figure;
         end
         subplot(6,6,sp)
-        ret_raw = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)]);
+        iOri = ori_pref(iCell);
+        ret_raw = reshape(tuning_mat(:,iOri,1,iCell), [length(Azs) length(Els)]);
         ret_raw = ret_raw';
         imagesc(ret_raw)
         colormap gray
         %clim([0 max(max(tuning_mat(:,1,:),[],1),[],3)])
         %clim([0 chop(max(tuning_mat(:,1,iCell),[],1),2)])
-        title(['#' num2str(iCell) ' ' num2str(chop(max(tuning_mat(:,1,iCell),[],1),2))])
+        title(['#' num2str(iCell) ' ' num2str(chop(max(tuning_mat(:,iOri,1,iCell),[],1),2))])
         
         % fit data
         % plug in lbub_fits(i,:,4) (all 10 parameters, only 6 used, and 4 corresponds to truefit
