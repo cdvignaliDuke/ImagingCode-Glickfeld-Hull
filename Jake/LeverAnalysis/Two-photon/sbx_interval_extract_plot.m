@@ -1,16 +1,16 @@
 
 clear all; clear global; clear cd;
-subjNum = '093';
-session_date = '190215';
+subjNum = '096';
+session_date = '190411';
 file_num = '_000_000';
 frame_rate = '30Hz ';
-frame_start = 1;
+frame_start = 0;
 num_frames = 1000;
 cd(['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
+%cd(['Y:\home\jake\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
 %cd('Z:\Data\2P_imaging\171121_img050\img050');
 %cd('Z:\Data\2P_imaging\img040\170912_img039\img039');
 %cd('Z:\Data\2P_imaging\180507_img085\img085');
-%cd(['Y:\home\jake\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
 fname = ['img', subjNum, file_num];
 data = squeeze(sbxread(fname,frame_start,num_frames, '.sbx'));
 %data = squeeze(sbxread('img036_000_000',0,15, '.sbx'));

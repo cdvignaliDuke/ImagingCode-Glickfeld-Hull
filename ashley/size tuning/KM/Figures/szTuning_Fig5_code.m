@@ -1,8 +1,17 @@
-%%cell IDs for axon imaging
-
+%%mouse and cell IDs for axon imaging
+rc = behavConstsAV;
+mouse = '1202';
+expDate = '190110';
+dataFolder = '003';
 i = 3;
 ii = 1500;
 
+fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
+load(fullfile(fnout, dataFolder, [mouse '_' expDate '_input.mat']))
+load(fullfile(fnout, dataFolder, [mouse '_' expDate '_lbub_fits.mat']))
+load(fullfile(fnout, dataFolder, [mouse '_' expDate '_Fit_struct_sub.mat']))
+load(fullfile(fnout, dataFolder, [mouse '_' expDate '_mask_cell.mat']))
+load(fullfile(fnout, dataFolder, [mouse '_' expDate '_TCs.mat']))
 %%
 Az = celleqel2mat_padded(input.tGratingAzimuthDeg);
 El = celleqel2mat_padded(input.tGratingElevationDeg);
@@ -15,6 +24,11 @@ dEl = median(diff(Els));
 Az_vec00 = Azs(1):(dAz/10):Azs(end);
 El_vec00 = Els(1):(dEl/10):Els(end);
 [AzAz00,ElEl00]=meshgrid(Az_vec00,El_vec00);
+[AzAz, ElEl] = meshgrid(Azs,Els);
+grid2.AzAz = AzAz;
+grid2.ElEl = ElEl;
+grid2.AzAz00 = AzAz00;
+grid2.ElEl00 = ElEl00;
 
 %% example time courses
 nOff = input.nScansOff;
@@ -54,7 +68,7 @@ for iEl = 1:nEl
     end
 end
 suptitle(['i1202 190110 - Cell#' num2str(iC)])
-print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figure5\i1202_190110_Cell#' num2str(iC) '_retTC.pdf'],'-dpdf','-bestfit')
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figures5-6\i1202_190110_Cell#' num2str(iC) '_retTC.pdf'],'-dpdf','-bestfit')
 
 figure;
 iC = goodfit_ind(ii);
@@ -74,7 +88,7 @@ for iEl = 1:nEl
     end
 end
 suptitle(['i1202 190110 - Cell#' num2str(iC)])
-print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figure5\i1202_190110_Cell#' num2str(iC) '_retTC.pdf'],'-dpdf','-bestfit')
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figures5-6\i1202_190110_Cell#' num2str(iC) '_retTC.pdf'],'-dpdf','-bestfit')
 
 
     
@@ -90,7 +104,7 @@ subplot(2,2,1)
 x  = Fit_struct_sub(iC).True.s_.data;
 imagesq(x);
 title(num2str(chop(max(x(:)),3)))
-colormap(c_red)
+colormap gray
 subplot(2,2,2)
 y  = Fit_struct_sub(iC).True.s_.k2_plot_oversamp;
 imagesq(y);
@@ -103,9 +117,9 @@ azero = interp1(grid2.AzAz00(1,:),1:61,0);
 ezero = interp1(flipud(grid2.ElEl00(:,1)),1:61,0);
 scatter(a, e, 'ok')
 ellipse(abs(a1-azero), abs(e1-ezero), 0, a, e,'r');
-colormap(c_red)
+colormap gray
 suptitle(['i1202 190110 - Cell#' num2str(iC)])
-print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figure5\i1202_190110_Cell#' num2str(iC) '_ret.pdf'],'-dpdf','-bestfit')
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figures5-6\i1202_190110_Cell#' num2str(iC) '_ret.pdf'],'-dpdf','-bestfit')
 
 figure; 
 iC = goodfit_ind(ii);
@@ -113,7 +127,7 @@ subplot(2,2,1)
 x  = Fit_struct_sub(iC).True.s_.data;
 imagesq(x);
 title(num2str(chop(max(x(:)),3)))
-colormap(c_blue)
+colormap gray
 subplot(2,2,2)
 y  = Fit_struct_sub(iC).True.s_.k2_plot_oversamp;
 imagesq(y);
@@ -126,6 +140,42 @@ azero = interp1(grid2.AzAz00(1,:),1:61,0);
 ezero = interp1(flipud(grid2.ElEl00(:,1)),1:61,0);
 scatter(a, e, 'ok')
 ellipse(abs(a1-azero), abs(e1-ezero), 0, a, e,'b');
-colormap(c_blue)
+colormap gray
 suptitle(['i1202 190110 - Cell#' num2str(iC)])
-print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figure5\i1202_190110_Cell#' num2str(iC) '_ret.pdf'],'-dpdf','-bestfit')
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figures5-6\i1202_190110_Cell#' num2str(iC) '_ret.pdf'],'-dpdf','-bestfit')
+
+%% ret for field of view
+fprintf('Making bouton response map \n')
+mask_label = bwlabel(mask_all);
+retMap_El = NaN(size(mask_cell));
+retMap_Az = retMap_El;
+for i=1:length(goodfit_ind)
+    ind = find(mask_label == goodfit_ind(i));
+    retMap_El(ind) = lbub_fits(goodfit_ind(i),5,4);
+    retMap_Az(ind) = lbub_fits(goodfit_ind(i),4,4);
+end
+
+imAlpha=ones(size(retMap_El));
+imAlpha(isnan(retMap_El))=0; % set all unmasked pixels to alpha=0
+
+figure;clf;
+colormap jet
+imagesc(retMap_El,'AlphaData',imAlpha)
+title('Retinotopy of goodfit cells by El')
+h = colorbar;
+ylabel(h,'El (deg)','Rotation',270.0,'VerticalAlignment','bottom')
+set(gca,'color',0*[1 1 1]);
+truesize
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figures5-6\' mouse '_' expDate '_retMapEl.pdf'], '-dpdf','-bestfit')
+
+
+figure;clf;
+colormap jet
+imagesc(retMap_Az,'AlphaData',imAlpha)
+title('Retinotopy of goodfit cells by Az')
+h = colorbar;
+ylabel(h,'Az (deg)','Rotation',270.0,'VerticalAlignment','bottom')
+set(gca,'color',0*[1 1 1]); 
+truesize
+
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Manuscripts\sizeTuning\Figures5-6\' mouse '_' expDate '_retMapAz.pdf'], '-dpdf','-bestfit')
