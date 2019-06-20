@@ -6,7 +6,7 @@
 %define the directory and files
 clear;
 folder = 'Z:\Data\Behv_MovingDots\behavior_raw_2P\';
-sessionID = '1020-190405';% this  variable name is confusing, this session ID is just tha date and the subject#, 
+sessionID = '1025-190607';% this  variable name is confusing, this session ID is just tha date and the subject#, 
 %there might be more than 1 sessions on a single subject on the same day
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)
@@ -24,7 +24,9 @@ for i = 1:size(filename,1)
     cReverse = input.cReverse;
     cReverse_vec = [cReverse{:}];
     speed = calculate_speed_2P(input);
+    % this gives you the average for each frame (ave speed in number of units during that 33.3333ms)
     speed = double(speed);
+    %speed = speed(1:30028);
     % find relative behavioral states and save to behavior analysis file
     [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed);
     save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
@@ -36,7 +38,7 @@ for i = 1:size(filename,1)
     if isempty(cReverse_vec) == 0
     vline(cReverse_vec, 'r');
     end
-    title (['average speed every frame(100ms)', '  ', sessionID '-' num2str(i)]);
+    title (['average speed every frame(30ms)', '  ', sessionID '-' num2str(i)]);
     xlabel ('frames');
     ylabel ('speed(pulses/s)');
     saveas(fig_speedtc,[behav_dest '\' sessionID '_' num2str(i) '_speed']);

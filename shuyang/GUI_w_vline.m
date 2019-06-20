@@ -4,7 +4,7 @@
 %generate a GUI with plots of raw fluorescnece for cells during picked
 %frames (this can be run triggered ave, etc). 
 %Spike events (Fluorescnece > std best) have red dots over them.
-function [fig] = GUI(TCave, deriv, frames_mat,std_best)
+function [fig] = GUI(TCave, frames_mat,spk_inx)
 num_components = size(TCave,2);
 ind_all = 1:size(TCave,1);
 fig = figure('Visible','off');
@@ -33,12 +33,14 @@ plot_component(1)
     %for i = randperm(size(TCave,2),10)                                      
         %figure('units', 'normalized', 'outerposition', [0 0 1 1]); % open the figure full screen
         %set(gcf, 'position', get(0,'screensize'))
-        for j = randperm(size(frames_mat,2),9)                                                         % first 9 running trig windows
-            frm_abv = ind_all(deriv(frames_mat(:,j),k) >= std_best(k)); %get the frames when spike happens
-            subplot(3,3,j);plot(TCave(frames_mat(:,j),k));hold on; vline(31,'r'); hold on;
-            plot(frm_abv, (max(TCave(frames_mat(:,j),k))-10)*ones(1,length(frm_abv)),'r.'); % plot red dots on top of the spikes
+        r = randperm(size(frames_mat,2),4); 
+        for j = 1:4                                                       % first 9 running trig windows
+            frm_abv = intersect(spk_inx{k},frames_mat(:,r(j))); %get the frames when spike happens
+            subplot(2,2,j);plot(TCave(frames_mat(:,r(j)),k));hold on; vline(31,'r'); hold on;
+            plot(frm_abv - min(frames_mat(:,r(j))), (max(TCave(frames_mat(:,r(j)),k))-10)*ones(1,length(frm_abv)),'r.'); % plot red dots on top of the spikes
+            % do frm_abv - min because otherwise the x of the red dots start from 0.
             set(gca,'xticklabel',[]); %,'yticklabel',[]);
-            title(['cell' num2str(k) 'frm' num2str(frames_mat(1,j)) '-' num2str(frames_mat(45,j))]);
+            title(['cell' num2str(k) 'frm' num2str(frames_mat(1,r(j))) '-' num2str(frames_mat(45,r(j)))]);
             drawnow; hold off
         end
         

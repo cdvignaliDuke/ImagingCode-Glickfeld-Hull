@@ -37,7 +37,7 @@ end
 runTriggerDura = 15;
 frames_runTrigger_mat = reshape(frames_runTrigger_mat, runTriggerDura, length(frames_runTrigger_mat)/runTriggerDura);
 
-%% create matrix for frames of running windows with buffer of 3 frames before and after all windows, this will be useful when drawing the figures. 
+%% create matrix for frames of running windows
 %each line in frames_run_buffer_mat is a single running window.
 run_length_temp = cell2mat(cellfun(@size,frames_run_cell, 'UniformOutput',0));
 run_length = max(run_length_temp);
