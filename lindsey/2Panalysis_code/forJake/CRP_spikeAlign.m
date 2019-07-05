@@ -1,19 +1,31 @@
 clear all
 plotDetect = 0;
 negAdjust = 0;
-for id = 1:4
+for id = 5
     close all
-    CRP_expt_list
+    CRP_expt_list_LS2019
     lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
     behav_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
+    jake_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
     nexp = size(expt(id).date,1);
-    for iexp = 1:nexp
+    for iexp = 3:5
         mouse = expt(id).mouse(iexp,:);
+        if find(mouse == ' ')
+            ind = find(mouse == ' ');
+            mouse(ind) = [];
+        end
         date = expt(id).date(iexp,:);
         run = expt(id).run(iexp,:);
         fprintf([date ' ' mouse '\n'])
         img_fn = [date '_' mouse];
-        load(fullfile(lg_out,img_fn, [img_fn '_ROI_TCs.mat']))
+        if exist(fullfile(lg_out,img_fn, [img_fn '_ROI_TCs.mat']))
+            load(fullfile(lg_out,img_fn, [img_fn '_ROI_TCs.mat']))
+        elseif exist(fullfile(jake_dir,img_fn, [img_fn '_ROI_TCs.mat']))
+            load(fullfile(jake_dir,img_fn, [img_fn '_ROI_TCs.mat']))
+            if ~exist(fullfile(lg_out,img_fn))
+                mkdir(fullfile(lg_out,img_fn))
+            end
+        end
         nIC = size(tc_avg,2);
 
         opt.thresh = 1.7;
@@ -21,7 +33,7 @@ for id = 1:4
         opt.deconvtau = 0;
         opt.dt = 1;
 
-        if str2num(mouse)>800
+        if str2num(mouse)>800 & str2num(mouse)<1000
             mouse_name = mouse(2:3);
         else
             mouse_name = mouse;
@@ -112,7 +124,24 @@ for id = 1:4
             cd(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
             load(['img' mouse_name '_000_' run '_realtime.mat'])
             ttl_log = ttl_log(1:size(tc_avg,1),:);
+            if sum(ttl_log,1)==0
+                figure; hist(mean(tc_avg,2));
+                gm= fitgmdist(mean(tc_avg,2),2);
+                cX = cluster(gm,mean(tc_avg,2));
+                avgF = zeros(1,2);
+                for i = 1:2
+                    avgF(1,i) = mean(mean(tc_avg(find(cX==i),:),2),1);
+                end
+                [s i] = min(avgF,[],2);
+                ttl_log = cX;
+                ttl_log(find(cX==i)) = 0;
+                ttl_log(find(cX~=i)) = 1;
+            end
             ttl_trans = find(abs(diff(ttl_log)));
+            if find(ttl_trans<50)
+                ttl_log(1:ttl_trans(1)) = 0;
+                ttl_trans(1) = [];
+            end
             n = length(ttl_trans);
             for i = 1:n
                 ttl_log(ttl_trans(i)-4:ttl_trans(i)+4,:) = 0;
@@ -207,9 +236,24 @@ for id = 1:4
             if cTargetOn(itrial)+postwin_frames-1 <= nFrames %& input.counterValues{itrial}(end)-cTargetOn(itrial) > postwin_frames
                 targetAlign_tc(:,:,itrial) = tc_avg(cTargetOn(itrial)-prewin_frames:cTargetOn(itrial)+postwin_frames-1,:);
                 targetAlign_events(:,:,itrial) = all_events(cTargetOn(itrial)-prewin_frames:cTargetOn(itrial)+postwin_frames-1,:);
-                if id == 2 & (iexp == 12 | iexp ==14)
-                    targetAlign_tc(prewin_frames+3:prewin_frames+5,:,itrial) = NaN;
-                    targetAlign_events(prewin_frames+3:prewin_frames+5,:,itrial) = NaN;
+                %remove artifacts
+                if find(expt(id).visArtifact==iexp)
+                    for itrial = 1:nTrials
+                        if id == 1 & itrial<=30
+                            targetAlign_tc(prewin_frames+3:prewin_frames+4,:,itrial) = NaN;
+                            targetAlign_events(prewin_frames+3:prewin_frames+4,:,itrial) = NaN;
+                        elseif id == 1 & itrial>30
+                            targetAlign_tc(prewin_frames+3:prewin_frames+6,:,itrial) = NaN;
+                            targetAlign_events(prewin_frames+3:prewin_frames+6,:,itrial) = NaN;
+                        elseif id == 2
+                            targetAlign_tc(prewin_frames+3:prewin_frames+5,:,itrial) = NaN;
+                            targetAlign_events(prewin_frames+3:prewin_frames+5,:,itrial) = NaN;
+                        end
+                    end
+                end
+                if find(expt(id).rewArtifact==iexp)
+                    targetAlign_tc(prewin_frames+20:prewin_frames+22,:,itrial) = NaN;
+                    targetAlign_events(prewin_frames+20:prewin_frames+22,:,itrial) = NaN;
                 end
             end
         end
@@ -358,8 +402,12 @@ for id = 1:4
         suptitle([date ' ' mouse '- Reward (black), Omit (red)'])
         savefig(fullfile(lg_out,img_fn, [img_fn '_repsByTrial.fig']))
         
-        if unique(expt(id).name == 'Crus')
-            load(fullfile(lg_out,img_fn, [img_fn '_splitImage.mat']))
+        if size(expt(id).areas{iexp},2)>1
+            if exist(fullfile(lg_out,img_fn, [img_fn '_splitImage.mat']))
+                load(fullfile(lg_out,img_fn, [img_fn '_splitImage.mat']))
+            elseif exist(fullfile(jake_dir,img_fn, [img_fn '_splitImage.mat']))
+                load(fullfile(jake_dir,img_fn, [img_fn '_splitImage.mat']))
+            end
             figure;
             indL = find(maskCat==1);
             indR = find(maskCat==2);
@@ -371,7 +419,7 @@ for id = 1:4
             title(['Reward- Left side- n=' num2str(length(indL))])
             vline(600)
             subplot(2,2,2)
-            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indR,ind_rew),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indR,ind_rew),3),[],2).*(1000./frameRateHz))./sqrt(length(indR)),'k');
+            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indR,ind_rew(50:80)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indR,ind_rew(50:80)),3),[],2).*(1000./frameRateHz))./sqrt(length(indR)),'k');
             ylim([0 5])
             xlabel('Time from cue')
             ylabel('Spike rate (Hz)')
@@ -398,6 +446,6 @@ for id = 1:4
         
         save(fullfile(lg_out,img_fn, [img_fn '_targetAlign.mat']), 'ind_rew', 'ind_omit', 'ind_unexp', 'targetAlign_events', 'targetAligndFoverF', 'prewin_frames', 'postwin_frames', 'tt', 'frameRateHz', 'ind_omit_short','ind_omit_long','ind_unexp_short','ind_unexp_long','ind_rew_preomit','ind_rew_postomit')
         save(fullfile(lg_out,img_fn, [img_fn '_input.mat']), 'input')
-        close all
+        %close all
     end
 end

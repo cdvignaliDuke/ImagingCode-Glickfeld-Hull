@@ -8,9 +8,9 @@
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'181115_img1011_1'};
-days = {'1011-181115_1'};
-sessionID = {'1011-181115'};
+sessions = {'190409_img1018_1'};
+days = {'1018-190409_1'};
+sessionID = {'1018-190409'};
 %there might be more than 1 sessions on a single subject on the same day
 %bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
 %image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
@@ -92,7 +92,7 @@ for ii = 1:length(sessions)
     save([behav_dest '\' sessionID{ii} '_1_behavAnalysis.mat' ],...
         'ave_dfOvF_befoRun','ave_dfOvF_aftRun','ste_dfOvF_befoRun','ste_dfOvF_aftRun',...
         'ave_speed_befoRun','ste_speed_befoRun','ave_speed_aftRun','ste_speed_aftRun','-append');
-    save([image_dest '_imgAnalysis.mat' ],'ave_befoRunaft','-append');
+    save([image_dest '_imgAnalysis.mat' ],'ave_befoRunaft');
 end
 
 %% SECTION III: df/f before, after and during running, every 300ms.

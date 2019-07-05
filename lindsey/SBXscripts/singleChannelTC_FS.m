@@ -1,12 +1,12 @@
 %% get path names
-date = '181227';
+date = '190515';
 ImgFolder = strvcat('002');
-time = strvcat('1215');
-mouse = 'i1103';
+time = strvcat('1007');
+mouse = 'i1304';
 doFromRef = 0;
 ref = strvcat('002');
 nrun = size(ImgFolder,1);
-frame_rate = 30;
+frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
 
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';

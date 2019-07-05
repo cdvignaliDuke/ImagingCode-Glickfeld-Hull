@@ -8,8 +8,8 @@
 %% get path names
 close all;clear all;clc;
 
-ds = 'szTuning_axons_PM';
-iexp = 14; 
+ds = 'szTuning_axons_LM';
+iexp = 5; 
 rc = behavConstsAV;
 eval(ds)
 
@@ -109,7 +109,7 @@ if doRegFrame
 end
 %% Register data
 
-chooseInt = 5; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
+chooseInt = 4; %nep/2 % interval chosen for data_avg =[epoch of choice]-1
 
 fprintf('\nBegin registering...\n')
 % if exist(fullfile(fnout,dataFolder), 'dir')
@@ -1023,5 +1023,5 @@ h = colorbar;
 ylabel(h,'Az (deg)','Rotation',270.0,'VerticalAlignment','bottom')
 set(gca,'color',0*[1 1 1]); 
 set(gcf, 'Position', [100,300,1200,400])
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_retMap.pdf']), '-dpdf')
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_retMap.pdf']), '-dpdf','-bestfit')
 

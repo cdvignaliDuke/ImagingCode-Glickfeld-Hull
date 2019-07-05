@@ -7,14 +7,14 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = '190315_imgJ88'; 
+sessions = '190606_img1029'; 
 %ID = '1016';
 image_source_base  = 'Z:\Data\2photon\'; %location of permanently stored image files for retreiving meta data
 %image_analysis_base    = 'Z:\Analysis\2photon_test\'; %stores the data on crash in the movingDots analysis folder
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 %image_source = [image_source_base, sessions,'\',ID,'\'];
 image_source = [image_source_base, sessions,'\'];
-image_analysis_dest = [image_analysis_base, sessions, '\'];
+image_analysis_dest = [image_analysis_base, sessions, '\' 'getTC\'];
 %% 
 cd(image_source);
 order = '000';
@@ -28,13 +28,15 @@ file = [sessions '_000_' order];
 
 % write tiff to get an idea about what the data looks like --------------------------------------------------------
 frame_start = 0;
-nframes = ;
+nframes = 30000;
 imgread = squeeze(sbxread(file,frame_start,nframes));
+%imgread = imgread(:,:,1:17780);
 f1 = 1;
 f2 = 1000;
 img_tiff = imgread(:,:,f1:f2);
 writetiff(img_tiff,[image_analysis_dest sessions '_'...
     order '_tiff_', num2str(f1), '_', num2str(f2)]);
+%saveastiff(img_tiff,[image_analysis_dest sessions '_' order '_tiff_', num2str(f1) '_' num2str(f2)]);
 
 %average every 500 frames and make figure, pick ref frame -----------------------------------------------------------
 [npw,nph,nt] = size(imgread);
@@ -43,7 +45,7 @@ ncat = mod(-nt,500);
 data = cat(3,imgread,nan(npw,nph,ncat));
 img_refstacks = nanmean(permute(reshape(data,npw,nph,500,[]), [1 2 4 3]),4);
 figure;
-for i = 1:size(img_refstacks,3)
+for i = 1:60
     subplot(8,8,i);imagesc(img_refstacks(:,:,i)); colormap gray;
     set(gca,'xticklabel',[],'yticklabel',[]);
     text(.8,.1,num2str(i),'fontsize',12,'color','w','fontweight','bold','unit','norm');
@@ -78,6 +80,7 @@ save([image_analysis_dest sessions '_' order '_img_rgs_ref' num2str(ref_frame) '
 
 %img_ave = stackGroupProject(img_rgstr, 3); %average together every 3 frames
 %imgsize = size(img_ave,3);
+%img_rgs = img_rgs(:,:,101:end);
 imgsize = size (img_rgs,3);
 nPCA = 200; % the command window tells you "First #PCs contain #% of variance
             % if the nPCA is too good (contains all of the variances, ICA
@@ -108,7 +111,7 @@ save([image_analysis_dest sessions '_' order '_PCA_variables_', num2str(nPCA),'.
 %PCuse =       1:125;
 PCuse =       1:size(mixedfilters_PCA,3);%
 mu =          0.3; % weight of temporal info in spatio-teporal ICA
-nIC =         170; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
+nIC =         200; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
 ica_A_guess = []; %If this is empty than matlab will randomdize it and you can get different results, can see the random number generator in CellsortICA2P
 termtol =      1e-6;
 maxrounds =   2000;
@@ -146,7 +149,7 @@ icasig_filt = stackFilter(icasig);
 
 %set threshold a threshold for which pixels to include in a given dendrite's mask.
 nIC = size(icasig_filt, 3);
-cluster_threshold = 97; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
+cluster_threshold = 96; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
 %tried lower values for the threshold and turns out to have some wierd
 %masks
 mask_cell = zeros(size(icasig_filt));
@@ -198,6 +201,8 @@ for i  = 1:size(mask3D,3)
     bound = cell2mat(bwboundaries(mask3D(:,:,i)));
     randcolor = rand(1,4);
     plot(bound(:,2),bound(:,1),'.','color',randcolor); hold on;
+    text(mean(bound(:,2)),mean(bound(:,1)), ...
+            num2str(i), 'color', 'y', 'FontSize', 8);
 end
 %figure; imagesc(sum(mask3D,3)); truesize; % got the same thing as the figure above
 savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
@@ -206,6 +211,24 @@ savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
 save([image_analysis_dest sessions '_' order, '_nPCA', ...
     num2str(nPCA), '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', ...
     num2str(cluster_threshold), '_coor' num2str(threshold) '_mask3D.mat'], 'mask3D');
+
+
+%% look at the masks, mananully delete the ones that don't look like dendrites
+mask3D(:,:,[41,67,6,70,77,94]) = [];
+figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
+for i  = 1:size(mask3D,3)
+    bound = cell2mat(bwboundaries(mask3D(:,:,i)));
+    randcolor = rand(1,4);
+    plot(bound(:,2),bound(:,1),'.','color',randcolor); hold on;
+    text(mean(bound(:,2)),mean(bound(:,1)), ...
+            num2str(i), 'color', 'y', 'FontSize', 8);
+end
+savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
+    '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), ...
+    '_coor' num2str(threshold),'_mask_wdendrites_final.fig']);
+save([image_analysis_dest sessions '_' order, '_nPCA', ...
+    num2str(nPCA), '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', ...
+    num2str(cluster_threshold), '_coor' num2str(threshold) '_mask3D_final.mat'], 'mask3D');
 
 
 %% get TCs

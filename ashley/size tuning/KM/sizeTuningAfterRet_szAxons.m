@@ -8,8 +8,8 @@
 %% get path names
 clear all;close all; clc;
 
-ds = 'szTuning_axons_PM';
-iexp = 14;
+ds = 'szTuning_axons_LM';
+iexp = 5;
 rc = behavConstsAV;
 eval(ds)
 
@@ -427,7 +427,7 @@ fprintf(['Loading fits from retinotopy runs: ' retFolder '\n'])
 load(fullfile(fnout, retFolder, [mouse '_' expDate '_lbub_fits.mat']))
 
 fprintf('\nExamine average cell dF/F timecourse to select response window\n')
-respWindow = int64(5:13); % this will be the window to define dF/F response (offset by nITI + nDelay)
+respWindow = int64(4:12); % this will be the window to define dF/F response (offset by nITI + nDelay)
 baseWindow = int64(-5:0);
 
 tt = (1-nOff:nOn)*(1000./frame_rate);
