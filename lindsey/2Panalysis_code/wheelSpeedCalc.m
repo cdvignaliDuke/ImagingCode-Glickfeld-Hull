@@ -24,6 +24,12 @@ wheel_speed = nan(1,nframes);
 for iframe = 1:nframes-1
     fr_time_start = counterTimes(find(counterValues==iframe,1,'last'));
     fr_time_end = counterTimes(find(counterValues==iframe+1));
+    if isempty(fr_time_start)
+        fr_time_start = fr_time_end - mean(diff(counterTimes),2);
+    end
+    if isempty(fr_time_end)
+        fr_time_end = fr_time_start + mean(diff(counterTimes),2);
+    end
     ind = intersect(find(wheelSpeedTimes>=fr_time_start),find(wheelSpeedTimes<=fr_time_end));
     if length(ind)>0
         wheel_speed(:,iframe) = mean(wheelSpeedValues(ind),2);
