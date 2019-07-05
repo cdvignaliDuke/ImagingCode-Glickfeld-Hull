@@ -1,25 +1,24 @@
-function [wheel_speed] = wheelSpeedCalc(input,ticks,wheel);
+function [wheel_speed] = wheelSpeedCalc(input,ticks,wheel)
 
 %outputs wheel_speed in cm/s for each frame
 %input is (1) input structure, (2) number of ticks on encoder (32, 64 or
 %1000), (3) and type of wheel ('r' for red).
 
-if wheel == 'r'
+if strcmp(wheel,'red')
     diameter = 13.6;
     circ = pi.*diameter;
+else
+    error('wrong color')
 end
+
 cm_per_tick = circ./(ticks.*4);
 ntrials = length(input.tGratingDirectionDeg);
-counterTimes = [];
-counterValues = [];
-wheelSpeedTimes = [];
-wheelSpeedValues = [];
-for itrial = 1:ntrials
-    counterTimes = [counterTimes input.counterTimesUs{itrial}];
-    counterValues = [counterValues input.counterValues{itrial}];
-    wheelSpeedTimes = [wheelSpeedTimes input.wheelSpeedTimesUs{itrial}];
-    wheelSpeedValues = [wheelSpeedValues input.wheelSpeedValues{itrial}];
-end
+counterTimes = cell2mat(input.counterTimesUs);
+counterValues = cell2mat(input.counterValues);
+wheelSpeedTimes = cell2mat(input.wheelSpeedTimesUs);
+wheelSpeedValues = cell2mat(input.wheelSpeedValues)./...
+    (1000./(round(mean(diff(input.wheelSpeedTimesUs{1}))./1000,-1))); % math to correct for ticks/s correction in labjack plugin
+
 nframes = input.counterValues{end}(end);
 wheel_speed = nan(1,nframes);
 for iframe = 1:nframes-1
