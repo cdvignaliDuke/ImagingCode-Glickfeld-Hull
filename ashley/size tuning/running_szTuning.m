@@ -16,7 +16,7 @@ tt_stimOnS_label = -0.75:0.25:0.75;
 tcStartTimeS = -1;
 
 nexp = size(expt,2);
-%% load and align run tc for each experiment, new PM expts and all axon expts
+%% load and align eye tc for each experiment
 
 runExpt = struct;
 for iexp = 1:nexp
@@ -63,63 +63,7 @@ for iexp = 1:nexp
     end
 end
 
-area_list = {'LM', 'AL', 'PM'};
-exptInd = [];
-runExpt_axons = struct;
-for iarea = 1:size(area_list,2)
-    ds = ['szTuning_axons_' area_list{iarea}];
-    eval(ds)
-    nexp = size(expt,2);
-    wheelOn = nan(1,nexp);
-    for iexp = 1:nexp
-        mouse = expt(iexp).mouse;
-        expDate = expt(iexp).date;
-        retRun = expt(iexp).retinotopyFolder;
-        retTime = expt(iexp).retinotopyTime;
-        szRun = expt(iexp).sizeTuningFolder;
-        szTime = expt(iexp).sizeTuningTime{1};
-        
-        mwSize = loadMworksFile(mouse,expDate,szTime);
-        if sum(cell2mat(mwSize.wheelSpeedValues))>0
-            wheelOn(1,iexp) = true;
-        else
-            wheelOn(1,iexp) = false;
-        end
-        
-        if wheelOn(iexp)
-            if sum(wheelOn(~isnan(wheelOn))) == 1
-                exptN = 1;
-            else
-                exptN = exptN+1;
-            end
-            ws_cps = wheelSpeedCalc(mwSize,32,'red');
-            
-            on = mwSize.nScansOn;
-            off = mwSize.nScansOff;
-            sz = celleqel2mat_padded(mwSize.tGratingDiameterDeg);
-
-            basewin = (off-nbaselinefr+1):off;
-
-            nfr = length(ws_cps)-1;
-            ntrials = floor(nfr./(on+off));
-            if ntrials > length(sz)
-                ntrials = length(sz);
-            end
-            nfr_tr = (on+off)*ntrials;
-
-            running = ws_cps(1:nfr_tr);
-            running_tr = reshape(running,[on+off,ntrials]);
-            
-            runExpt_axons(exptN).allTrialsTC = running_tr;
-            runExpt_axons(exptN).tSz = sz;
-        else
-        end        
-    end
-    exptInd = cat(2,exptInd,wheelOn);
-end
-  
-
-save(fullfile(fnout,'runInfoEaExpt'),'runExpt')
+save(fullfile(fnout,'runSummary'),'-dpdf','-fillpage')
 %% plot each mouse
 wsLim = [-2 2];
 runProbLim = [0 0.15];
