@@ -1,7 +1,7 @@
-xpix = size(data_bx_reg,2);
-ypix = size(data_bx_reg,1);
+xpix = size(data_bx_g_reg,2);
+ypix = size(data_bx_g_reg,1);
 
-nRuns = expt(iexp).nrun;
+nRuns = expt(slct_expt).nrun;
 
     % need only trial-related frames: trial start, last trial, target
     if iscell(input_bx.nFramesOn)
@@ -12,7 +12,7 @@ nRuns = expt(iexp).nrun;
         off = input_bx.nFramesOff;        
     end
     
-    frame_rate = expt(iexp).frame_rate;
+    frame_rate = expt(slct_expt).frame_rate;
     nframes_1s = frame_rate;
     nframes_2stim = (on+off)*2;
     
@@ -52,7 +52,7 @@ nRuns = expt(iexp).nrun;
     tr_L = cell2mat(tr_L_offset);
 
 %     if strcmp(expDate,'150508')
-%         ind = find(tr_tar_all > size(data_bx_reg,3),1,'first');
+%         ind = find(tr_tar_all > size(data_bx_g_reg,3),1,'first');
 %         tr_start_all = tr_start_all(1:(ind-2));
 %         tr_L = tr_L(1:(ind-2));
 %         tr_tar_all = tr_tar_all(1:(ind-2));
@@ -66,6 +66,7 @@ tr_start = tr_L >= 3;
 tr_long = tr_L >= 6;
 
 nt = length(tr_tar_on);
+
 tr_bl_frames = nan(ypix,xpix,nframes_1s,nt);
 tr_start_frames = nan(ypix,xpix,nframes_2stim,sum(tr_start));
 ind1 = 0;
@@ -75,21 +76,21 @@ tr_tar_frames = nan(ypix,xpix,nframes_1s,sum(tr_tar_on));
 ind3 = 0;
 ind4 = 0;
 for i = 1:nt
-    tr_bl_frames(:,:,:,i) = data_bx_reg(:,:,...
+    tr_bl_frames(:,:,:,i) = data_bx_g_reg(:,:,...
         (tr_start_all(i)-nframes_1s+1):tr_start_all(i));
     if tr_start(i)
         ind1 = ind1+1;
-        tr_start_frames(:,:,:,ind1) = data_bx_reg(:,:,...
+        tr_start_frames(:,:,:,ind1) = data_bx_g_reg(:,:,...
         double((tr_start_all(i)+1):(tr_start_all(i)+nframes_2stim)));
     end
     if tr_long(i)
         ind2 = ind2+1;
-        tr_long_frames(:,:,:,ind2) = data_bx_reg(:,:,...
+        tr_long_frames(:,:,:,ind2) = data_bx_g_reg(:,:,...
         (tr_start_all(i)+(2*nframes_2stim)+1):(tr_start_all(i)+(3*nframes_2stim)));
     end
     if tr_tar_on(i) && (tr_tar_all(i)+nframes_1s) < nfr_bx
         ind3 = ind3+1;
-        tr_tar_frames(:,:,:,ind3) = data_bx_reg(:,:,...
+        tr_tar_frames(:,:,:,ind3) = data_bx_g_reg(:,:,...
         (tr_tar_all(i)+1):(tr_tar_all(i)+nframes_1s));
     elseif (tr_tar_all(i)+nframes_1s) < nfr_bx
         tr_tar_frames = tr_tar_frames(:,:,:,1:ind3);
@@ -112,8 +113,8 @@ end
 %     tr_tar = double(tr_tar_all(tr_tar_on));
 %     tr_tar_ind = linspaceNDim(tr_tar+1,tr_tar+nframes_1s,nframes_1s);
 %     
-%     if tr_tar_ind(end) > size(data_bx_reg,3)
-%         ind = find(tr_tar+nframes_1s > size(data_bx_reg,3),1,'first');
+%     if tr_tar_ind(end) > size(data_bx_g_reg,3)
+%         ind = find(tr_tar+nframes_1s > size(data_bx_g_reg,3),1,'first');
 %         nt = ind-1;
 %         tr_bl_ind = tr_bl_ind(1:nt,:);
 %         tr_start_ind = tr_start_ind(1:nt,:);
@@ -122,16 +123,16 @@ end
 %         tr_L = tr_L(1:nt);
 %     end
 %     
-%     if tr_long_ind(end) > size(data_bx_reg,3)
-%         ind = find(tr_long+nframes_1s > size(data_bx_reg,3),1,'first');
+%     if tr_long_ind(end) > size(data_bx_g_reg,3)
+%         ind = find(tr_long+nframes_1s > size(data_bx_g_reg,3),1,'first');
 %         nt = ind-1;
 %         tr_long_ind = tr_long_ind(1:nt,:);
 %     end
 %         
-%     tr_bl_frames = data_bx_reg(:,:,tr_bl_ind(:));
-%     tr_start_frames = data_bx_reg(:,:,tr_start_ind(:));
-%     tr_long_frames = data_bx_reg(:,:,tr_long_ind(:));
-%     tr_tar_frames = data_bx_reg(:,:,tr_tar_ind(:));
+%     tr_bl_frames = data_bx_g_reg(:,:,tr_bl_ind(:));
+%     tr_start_frames = data_bx_g_reg(:,:,tr_start_ind(:));
+%     tr_long_frames = data_bx_g_reg(:,:,tr_long_ind(:));
+%     tr_tar_frames = data_bx_g_reg(:,:,tr_tar_ind(:));
 
 %     % get dF/F for each
 %     tr_bl_frames = double(reshape(tr_bl_frames,ypix,xpix,nframes_1s,...

@@ -19,7 +19,7 @@ if strcmp(ds,'FSAV_attentionV1') | strcmp(ds,'FSAV_V1_SOM_temp')
     fnout = fullfile(rc.ashleyAnalysis, 'Expt summaries','adaptation','behavior',...
         [titleStr '_']); 
     bxExpt = true;
-elseif strcmp(ds,'FSAV_V1_100ms_naive')
+elseif strcmp(ds,'FSAV_V1_SOM_naive_temp')
     fnout = fullfile(rc.ashleyAnalysis, 'Expt summaries','adaptation','naive',...
         [titleStr '_']);     
     bxExpt = false;
@@ -107,34 +107,35 @@ trOutTypeName = {'H-All';'H-HT';'H-ET';'M-All';'M-HT';'M-ET';'FA';'CR'};
                 easyTarTC = dd.respTC(1:(nBaselineFr+nFrames1s),:,dd.ori > 60);
                 tarDataExpt(exptN).tag(itag).easyTarTC = easyTarTC;
             end
-            
-            d = mousePass(imouse).expt(iexp);
-            antiDataExpt_passive(exptN).exptName = [mouse(imouse).mouse_name '-' d.date];
-            antiDataExpt_passive(exptN).exptCycLengthFr = cycLengthFr;
-            tarDataExpt_passive(exptN).exptName = [mouse(imouse).mouse_name '-' d.date];
-            tarDataExpt_passive(exptN).exptCycLengthFr = cycLengthFr;
-            for itag = 1:2
-                cycTC = cell(1,maxCycles);
-    %             longTC = [];
-                dd = d.tag(itag).av(visualTrials).align(alignStart);
-                hits = true(1,length(dd.outcome));
-                misses = false(1,length(dd.outcome));
-                for icyc = 1:maxCycles
-                    tc = dd.respTC(:,:,dd.nCycles >= icyc & (hits | misses));
-                    cycStartOffset = ((icyc-1).*cycLengthFr)+nBaselineFr;
-                    cycTC{icyc} = tc(...
-                        (cycStartOffset-nBaselineFr+1):(cycStartOffset+nFrames1s),:,:);
-                end
-                longTC = dd.respTC(1:(longTrialLengthFr+nBaselineFr),:,...
-                    dd.nCycles >= nCycLongTC & (hits | misses));
+            if bxExpt
+                d = mousePass(imouse).expt(iexp);
+                antiDataExpt_passive(exptN).exptName = [mouse(imouse).mouse_name '-' d.date];
+                antiDataExpt_passive(exptN).exptCycLengthFr = cycLengthFr;
+                tarDataExpt_passive(exptN).exptName = [mouse(imouse).mouse_name '-' d.date];
+                tarDataExpt_passive(exptN).exptCycLengthFr = cycLengthFr;
+                for itag = 1:2
+                    cycTC = cell(1,maxCycles);
+        %             longTC = [];
+                    dd = d.tag(itag).av(visualTrials).align(alignStart);
+                    hits = true(1,length(dd.outcome));
+                    misses = false(1,length(dd.outcome));
+                    for icyc = 1:maxCycles
+                        tc = dd.respTC(:,:,dd.nCycles >= icyc & (hits | misses));
+                        cycStartOffset = ((icyc-1).*cycLengthFr)+nBaselineFr;
+                        cycTC{icyc} = tc(...
+                            (cycStartOffset-nBaselineFr+1):(cycStartOffset+nFrames1s),:,:);
+                    end
+                    longTC = dd.respTC(1:(longTrialLengthFr+nBaselineFr),:,...
+                        dd.nCycles >= nCycLongTC & (hits | misses));
 
-                antiDataExpt_passive(exptN).tag(itag).name = d.tag(itag).name;
-                antiDataExpt_passive(exptN).tag(itag).longTC = longTC;
-                antiDataExpt_passive(exptN).tag(itag).cycTC = cycTC;
-                
-                dd = d.tag(itag).av(visualTrials).align(alignTarget);
-                easyTarTC = dd.respTC(1:(nBaselineFr+nFrames1s),:,dd.ori > 60);
-                tarDataExpt_passive(exptN).tag(itag).easyTarTC = easyTarTC;
+                    antiDataExpt_passive(exptN).tag(itag).name = d.tag(itag).name;
+                    antiDataExpt_passive(exptN).tag(itag).longTC = longTC;
+                    antiDataExpt_passive(exptN).tag(itag).cycTC = cycTC;
+
+                    dd = d.tag(itag).av(visualTrials).align(alignTarget);
+                    easyTarTC = dd.respTC(1:(nBaselineFr+nFrames1s),:,dd.ori > 60);
+                    tarDataExpt_passive(exptN).tag(itag).easyTarTC = easyTarTC;
+                end
             end
         end
     end
@@ -212,14 +213,15 @@ trOutTypeName = {'H-All';'H-HT';'H-ET';'M-All';'M-HT';'M-ET';'FA';'CR'};
             
             respCellsExpt(iexp).tag(itag).lateCycRespCells = lateCycRespCells;
         end
-    
-        antiAnalysis_passive.tag(itag).longTC = [];
-        antiAnalysis_passive.tag(itag).longTCErr = [];
-        antiAnalysis_passive.tag(itag).cycTC = cell(1,nCycles);
-        antiAnalysis_passive.tag(itag).cycTCErr = cell(1,nCycles);
-        antiAnalysis_passive.tag(itag).lateCycTC = [];
-        antiAnalysis_passive.tag(itag).lateCycTCErr = [];
-        for iexp = 1:nexp
+        
+        if bxExpt
+            antiAnalysis_passive.tag(itag).longTC = [];
+            antiAnalysis_passive.tag(itag).longTCErr = [];
+            antiAnalysis_passive.tag(itag).cycTC = cell(1,nCycles);
+            antiAnalysis_passive.tag(itag).cycTCErr = cell(1,nCycles);
+            antiAnalysis_passive.tag(itag).lateCycTC = [];
+            antiAnalysis_passive.tag(itag).lateCycTCErr = [];
+            for iexp = 1:nexp
             longTC = antiDataExpt_passive(iexp).tag(itag).longTC;
             cycTC = antiDataExpt_passive(iexp).tag(itag).cycTC(1:nCycles);
             lateCycTC = [];
@@ -239,6 +241,7 @@ trOutTypeName = {'H-All';'H-HT';'H-ET';'M-All';'M-HT';'M-ET';'FA';'CR'};
                 mean(lateCycTC,3));
             antiAnalysis_passive.tag(itag).lateCycTCErr = cat(2,antiAnalysis_passive.tag(itag).lateCycTCErr,...
                 ste(lateCycTC,3));
+            end
         end
         
         tarAnalysis.tag(itag).easyTC = [];
@@ -247,9 +250,11 @@ trOutTypeName = {'H-All';'H-HT';'H-ET';'M-All';'M-HT';'M-ET';'FA';'CR'};
             tc = tarDataExpt(iexp).tag(itag).easyTarTC;
             tarAnalysis.tag(itag).easyTC = cat(2,tarAnalysis.tag(itag).easyTC,...
                 mean(tc,3));
-            tc = tarDataExpt_passive(iexp).tag(itag).easyTarTC;
-            tarAnalysis_passive.tag(itag).easyTC = cat(2,tarAnalysis_passive.tag(itag).easyTC,...
-                mean(tc,3));
+            if bxExpt
+                tc = tarDataExpt_passive(iexp).tag(itag).easyTarTC;
+                tarAnalysis_passive.tag(itag).easyTC = cat(2,tarAnalysis_passive.tag(itag).easyTC,...
+                    mean(tc,3));
+            end
         end
         
         cellInfo.tag(itag).name = antiDataExpt(1).tag(itag).name;
@@ -280,7 +285,7 @@ trOutTypeName = {'H-All';'H-HT';'H-ET';'M-All';'M-HT';'M-ET';'FA';'CR'};
 %     cellInfo.tag(itag).oriPref = cell2mat({oriTuningExpt.oriPref})';
 %     cellInfo.tag(itag).hwhm = hwhmFromOriFit(cellInfo.oriFit(:,1:180)',1:180)';
 
-save([fnout 'adaptAnalysis'],'antiAnalysis','tarAnalysis','antiAnalysis_passive','cellInfo')
+save([fnout 'adaptAnalysis'],'antiAnalysis','tarAnalysis','antiAnalysis_passive','cellInfo','respCellsExpt')
 %% plotting params
 respTCLim = [-0.005 0.05];
 cycTCLim = [-0.01 0.12];
@@ -463,9 +468,12 @@ suptitle('Anticipation: Late Resp. Cells')
 colormap(brewermap([],'*RdBu'));
 for itag = 1:2
     subplot(2,2,itag)
-    ind = logical(cellInfo.tag(itag).lateWinRespCells);
+%     ind = logical(cellInfo.tag(itag).lateWinRespCells);
 %     ind = logical(cellInfo.tag(itag).lateWinSuppCells);
-%     ind = cellInfo.tag(itag).lateWinRespCells | cellInfo.tag(itag).lateWinSuppCells;
+    ind = cellInfo.tag(itag).lateWinRespCells | ...
+        cellInfo.tag(itag).lateWinSuppCells | ...
+        cellInfo.tag(itag).firstRespCells | ...
+        cellInfo.tag(itag).lateCycRespCells;
     lateWinTC = antiAnalysis.tag(itag).longTC(:,ind);
     lateWinResp = mean(lateWinTC(lateWinFr,:),1);
     [~,lateWinSortInd] = sort(lateWinResp);
@@ -479,24 +487,26 @@ for itag = 1:2
     caxis(hmLim)
     title(sprintf('Behaving, %s Cells',antiAnalysis.tag(itag).name))
     
-    subplot(2,2,itag+2)
-    lateWinTC = antiAnalysis_passive.tag(itag).longTC(:,ind);
-    hm = flipud(lateWinTC(:,lateWinSortInd)');
-    imagesc(hm(:,tcStartFrame:end))
-    hold on
-    if strcmp(ds,'FSAV_attentionV1')
-        exCellInd = [exampleCell_1,exampleCell_2];
-        exCellMat = zeros(1,length(cellInfo.firstRespCells));
-        exCellMat(exCellInd) = 1;
-        exCellSortInd = find(flip(exCellMat(lateWinSortInd)));
-        hline(exCellSortInd,'k-')
+    if bxExpt
+        subplot(2,2,itag+2)
+        lateWinTC = antiAnalysis_passive.tag(itag).longTC(:,ind);
+        hm = flipud(lateWinTC(:,lateWinSortInd)');
+        imagesc(hm(:,tcStartFrame:end))
+        hold on
+        if strcmp(ds,'FSAV_attentionV1')
+            exCellInd = [exampleCell_1,exampleCell_2];
+            exCellMat = zeros(1,length(cellInfo.firstRespCells));
+            exCellMat(exCellInd) = 1;
+            exCellSortInd = find(flip(exCellMat(lateWinSortInd)));
+            hline(exCellSortInd,'k-')
+        end
+        figXAxis([],'Time from Start (fr)',[],ttLabelFr_long,ttLabelFr_long)
+        figYAxis([],'Cell #',[])
+        figAxForm
+        colorbar
+        caxis(hmLim)
+        title(sprintf('Passive, %s Cells',antiAnalysis.tag(itag).name))
     end
-    figXAxis([],'Time from Start (fr)',[],ttLabelFr_long,ttLabelFr_long)
-    figYAxis([],'Cell #',[])
-    figAxForm
-    colorbar
-    caxis(hmLim)
-    title(sprintf('Passive, %s Cells',antiAnalysis.tag(itag).name))
 end
 print([fnout 'heatmapsAllCells'],'-dpdf','-fillpage')
 
@@ -521,17 +531,19 @@ for itag = 1:2
     caxis(hmLim)
     title(sprintf('Behaving, %s Cells',antiAnalysis.tag(itag).name))
     
-    subplot(2,2,itag+2)
-    tc = tarAnalysis_passive.tag(itag).easyTC(:,ind);
-    hm = flipud(tc(:,lateWinSortInd)');
-    imagesc(hm(:,tcStartFrame:end))
-    hold on
-    figXAxis([],'Time from Start (fr)',[],ttLabelFr_target,ttLabelFr_target)
-    figYAxis([],'Cell #',[])
-    figAxForm
-    colorbar
-    caxis(hmLim)
-    title(sprintf('Passive, %s Cells',antiAnalysis.tag(itag).name))
+    if bxExpt
+        subplot(2,2,itag+2)
+        tc = tarAnalysis_passive.tag(itag).easyTC(:,ind);
+        hm = flipud(tc(:,lateWinSortInd)');
+        imagesc(hm(:,tcStartFrame:end))
+        hold on
+        figXAxis([],'Time from Start (fr)',[],ttLabelFr_target,ttLabelFr_target)
+        figYAxis([],'Cell #',[])
+        figAxForm
+        colorbar
+        caxis(hmLim)
+        title(sprintf('Passive, %s Cells',antiAnalysis.tag(itag).name))
+    end
 end
 
 hmLim = [-0.1 0.1];
@@ -556,18 +568,146 @@ for itag = 1:2
     caxis(hmLim)
     title(sprintf('Behaving, %s Cells',antiAnalysis.tag(itag).name))
     
-    subplot(2,2,itag+2)
-    tc = antiAnalysis_passive.tag(itag).lateCycTC(:,ind);
-    hm = flipud(tc(:,lateWinSortInd)');
-    imagesc(hm(:,tcStartFrame:end))
-    hold on
-    figXAxis([],'Time from Start (fr)',[],ttLabelFr_target,ttLabelFr_target)
-    figYAxis([],'Cell #',[])
-    figAxForm
-    colorbar
-    caxis(hmLim)
-    title(sprintf('Passive, %s Cells',antiAnalysis.tag(itag).name))
+    if bxExpt
+        subplot(2,2,itag+2)
+        tc = antiAnalysis_passive.tag(itag).lateCycTC(:,ind);
+        hm = flipud(tc(:,lateWinSortInd)');
+        imagesc(hm(:,tcStartFrame:end))
+        hold on
+        figXAxis([],'Time from Start (fr)',[],ttLabelFr_target,ttLabelFr_target)
+        figYAxis([],'Cell #',[])
+        figAxForm
+        colorbar
+        caxis(hmLim)
+        title(sprintf('Passive, %s Cells',antiAnalysis.tag(itag).name))
+    end
 end
+
+%% cluster analysis
+allCells = [];
+allCells_pass = [];
+cellTag = [];
+for itag = 1:2
+    ind = cellInfo.tag(itag).lateWinRespCells | ...
+        cellInfo.tag(itag).lateWinSuppCells | ...
+        cellInfo.tag(itag).firstRespCells | ...
+        cellInfo.tag(itag).lateCycRespCells;
+    lateWinTC = antiAnalysis.tag(itag).longTC(:,ind);
+    lateWinResp = mean(lateWinTC(lateWinFr,:),1);
+    [~,lateWinSortInd] = sort(lateWinResp);
+    lateWinTC_pass = antiAnalysis_passive.tag(itag).longTC(:,ind);
+    allCells = cat(2,allCells,lateWinTC(:,lateWinSortInd));
+    allCells_pass = cat(2,allCells_pass,lateWinTC_pass(:,lateWinSortInd));
+    cellTag = cat(2,cellTag,repmat({cellInfo.tag(itag).name},1,sum(ind)));
+end
+
+nc = size(allCells,2);
+allCells_norm = allCells./max(allCells,[],1);
+allCells_pass_norm = allCells_pass./max(allCells,[],1);
+
+% allCells_pca = pca(allCells_norm);
+
+nCluster = 3;
+[clustID, clustCentroid] = kmeans(allCells_norm',nCluster,'MaxIter',1000000,'Replicates',1000);
+[~,clustID_pass] = pdist2(clustCentroid,allCells_pass_norm','euclidean','smallest',1);
+
+figure
+subplot 221
+histogram(clustID,0:(nCluster+1),'Normalization','probability')
+figXAxis([],'Cluster #',[0 (nCluster+2)])
+figYAxis([],'Fraction of Cells',[0 1])
+figAxForm
+subplot 222
+histogram(clustID_pass,0:(nCluster+1),'Normalization','probability')
+figXAxis([],'Cluster #',[0 (nCluster+2)])
+figYAxis([],'Fraction of Cells',[0 1])
+figAxForm
+subplot 223
+for ic = 1:nCluster
+    cInd = clustID == ic;
+    hold on
+    plot(ones(1,sum(cInd)).*ic,find(cInd),'.','MarkerSize',10);
+end
+tagInd = strcmp(cellTag,'SOM+');
+plot(ones(1,sum(tagInd)).*(nCluster+1),find(tagInd),'k.','MarkerSize',10)
+figXAxis([],'Cluster #',[0 (nCluster+2)],1:(nCluster+1),...
+    cat(2,cellfun(@num2str,num2cell(1:nCluster),'unif',0),{'SOM+'}))
+figYAxis([],'Fraction of Cells',[0 nc])
+figAxForm
+subplot 224
+for ic = 1:nCluster
+    cInd = clustID_pass == ic;
+    hold on
+    plot(ones(1,sum(cInd)).*ic,find(cInd),'.','MarkerSize',10);
+end
+figXAxis([],'Cluster #',[0 (nCluster+1)])
+figYAxis([],'Fraction of Cells',[0 nc])
+figAxForm
+print([fnout 'clusterAnalysisBxPass_clusterID'],'-dpdf','-fillpage')
+
+clusterTC = cell(1,nCluster);
+clusterTC_pass = cell(1,nCluster);
+for ic = 1:nCluster
+    cInd = clustID == ic;
+    clusterTC{ic} = allCells(:,cInd);
+    cInd = clustID_pass == ic;
+    clusterTC_pass{ic} = allCells_pass(:,cInd);    
+end
+
+figure
+for ic = 1:nCluster
+    subplot(2,nCluster,ic)
+    y = mean(clusterTC{ic}(tcStartFrame:end,:),2);
+    yerr = ste(clusterTC{ic}(tcStartFrame:end,:),2);
+    if all(~isnan(yerr))
+        shadedErrorBar_chooseColor(tt_longTC,y,yerr,[0 0 0]);
+    else
+        plot(tt_longTC,y,'k')
+    end
+    figXAxis([],'Time from start (ms)',[tt_longTC(1) tt_longTC(end)],ttLabel_long)
+    figYAxis([],'dF/F',[-0.1 0.1])
+    figAxForm
+    title(sprintf('Cluster %s, n=%s',num2str(ic),num2str(size(clusterTC{ic},2))))
+    
+    subplot(2,nCluster,ic+nCluster)
+    y = mean(clusterTC_pass{ic}(tcStartFrame:end,:),2);
+    yerr = ste(clusterTC_pass{ic}(tcStartFrame:end,:),2);
+    if all(~isnan(yerr))
+        shadedErrorBar_chooseColor(tt_longTC,y,yerr,[0 0 0]);
+    else
+        plot(tt_longTC,y,'k')
+    end
+    figXAxis([],'Time from start (ms)',[tt_longTC(1) tt_longTC(end)],ttLabel_long)
+    figYAxis([],'dF/F',[-0.1 0.1])
+    figAxForm
+    title(sprintf('Cluster %s, n=%s',num2str(ic),num2str(size(clusterTC_pass{ic},2))))
+end
+print([fnout 'clusterAnalysisBxPass_clusterTC'],'-dpdf','-fillpage')
+
+switchClustID = clustID'-clustID_pass ~= 0;
+
+figure
+subplot 121
+y = sum(switchClustID & ~tagInd)./sum(~tagInd);
+plot(1,y,'.','MarkerSize',20)
+hold on
+y = sum(switchClustID & tagInd)./sum(tagInd);
+plot(2,y,'.','MarkerSize',20);
+figXAxis([],'',[0 3],1:2,{'SOM-','SOM+'})
+figYAxis([],'Fraction Switch Cluster',[0 0.2])
+figAxForm
+subplot 122
+hold on
+for ic = 1:nCluster
+    cInd = clustID' == ic & switchClustID;
+    n = histcounts(clustID_pass(cInd),1:nCluster+1);
+    scatter(ic.*(ones(1,nCluster)),1:nCluster,(n*5)+1)
+end
+figXAxis([],'Behavior Cluster #',[0 nCluster+1])
+figYAxis([],'Passive Cluster #',[0 nCluster+1])
+figAxForm
+title(sprintf('Cluster Switch Cells, n=%s',num2str(sum(switchClustID))))
+print([fnout 'clusterAnalysisBxPass_nClusterSwitch'],'-dpdf','-fillpage')
 
 %%
     figure

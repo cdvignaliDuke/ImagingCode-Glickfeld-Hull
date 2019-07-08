@@ -1,4 +1,4 @@
-function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
+function mouse = createFSVDataStruct_2color(datasetStr,taggedCellType,cellsOrDendrites)
 %cellsOrDendrites: 1 == cells; 2 == dendrites
     % set analysis windows
     pre_event_time = 1000; %ms
@@ -7,6 +7,15 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
     pre_win_time = [-30 70];
     trans_win_time = [150 250]; %this is actually ~166-266 ms at 30 Hz
     minTrialLengthMs = 2500; % time in ms of trial rather than hard-coding cycle number for analysis
+    
+    if contains(datasetStr,'naive')
+        bxExpt = false;
+    else
+        bxExpt = true;
+    end
+    
+    grnLabel = {['non-' taggedCellType];taggedCellType;'EMX';'no tag'};
+    redLabel = {taggedCellType;nan};
     
     if cellsOrDendrites == 1
         motionThreshold = 0.1;
@@ -28,12 +37,29 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
     %initialize structure
     exptN = zeros(1,nMice);
     mouse = struct;
-    mousePass = struct;
+    
+    if bxExpt && isfield(expt,'passExpt')
+        mousePass = struct;
+    end
     
     
     %collect data from each experiment
     for iexp = 1:size(expt,2)
         disp([num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum)])
+        
+        if contains(expt(iexp).indicator{2},'flex')
+            grnID = 2;
+            redID = 2;
+        elseif contains(expt(iexp).indicator{1},'tg')
+            grnID = 3;
+            redID = 2;
+        elseif ~contains(expt(iexp).redChannelLabel,taggedCellType)
+            grnID = 4;
+            redID = 2;            
+        else
+            grnID = 1;
+            redID = 1;
+        end
 
         nrun = size(expt(iexp).runs,1);
         
@@ -72,8 +98,16 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
         
         if cellsOrDendrites == 1
             load(fullfile(fnTC,'timecourses_bx_cells.mat'))
-            dataTC_notag = data_bx_g_tc_subnp;
-            dataTC_tag = data_bx_r_tc_subnp;
+            if grnID == 4
+                dataTC_notag = data_bx_tc_subnp;
+            elseif grnID == 2 || grnID == 3
+                dataTC_tag = data_bx_tc_subnp;
+            elseif grnID == 1
+                dataTC_notag = data_bx_g_tc_subnp;
+                dataTC_tag = data_bx_r_tc_subnp;
+            end
+        else
+            error('dendrite data not yet selected')
         end
 
         % load and combine mworks data and timecourses
@@ -150,36 +184,6 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
         reactTimeCalc = holdTimesMs - requiredStimTimeMs;
         reactTimeFromLastBaseMs = holdTimesMs - ((tCyclesOn-1).*cycTimeMs);
         ntrials = length(tr);
-        
-        
-        %catch trial Info
-        if expt(iexp).catch
-            cCatchOn = celleqel2mat_padded(input.cCatchOn);
-            nt = length(cCatchOn);
-            tCatchDirection = celleqel2mat_padded(input.tCatchGratingDirectionDeg);
-            
-%             trialStartFr = celleqel2mat_padded(input.cFirstStim);
-            trialEndFr = celleqel2mat_padded(input.cLeverUp);
-            cCyc = celleqel2mat_padded(input.catchCyclesOn);
-            cCyc = cCyc(tr);
-            catchReactFr = trialEndFr - cCatchOn;
-            catchCycOnMs = (cCyc-1).*cycTimeMs;
-            catchReactMs = holdTimesMs - catchCycOnMs;
-            tooFastFr = round(frameRate*((input.tooFastTimeMs)/1000));
-            reactTimeFr = round(frameRate*((input.reactTimeMs)/1000));
-        
-            catchOutcome = cell(1,nt);
-            outInd = catchReactFr > tooFastFr & catchReactFr < reactTimeFr;
-            catchOutcome(outInd) = {'FA'};
-            outInd = catchReactFr > reactTimeFr;
-            catchOutcome(outInd) = {'CR'};
-            outInd = catchReactFr < 0;
-            catchOutcome(outInd) = {'failure'};
-            
-            tCatchDirection = tCatchDirection(tr);
-%             catchReactMs = catchReactMs(tr);
-%             catchOutcome = catchOutcome(tr);
-        end  
                 
         offset = 0;
         for irun = 1:nrun
@@ -195,9 +199,6 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 cTargetOn(1,startTrial:endTrial) = cTargetOn(1,startTrial:endTrial)+offset;
                 cStimOn(1,startTrial:endTrial) = cStimOn(1,startTrial:endTrial)+offset;
                 cItiStart(1,startTrial:endTrial) = cItiStart(1,startTrial:endTrial)+offset;
-                if expt(iexp).catch
-                    cCatchOn(1,startTrial:endTrial) = cCatchOn(1,startTrial:endTrial)+offset;
-                end
             end
         end
         
@@ -206,12 +207,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
         cLeverUp = cLeverUp(tr);
         cTargetOn = cTargetOn(tr);
         cStimOn = cStimOn(tr);
-        cItiStart = cItiStart(tr);
-        if expt(iexp).catch
-            cCatchOn = cCatchOn(tr);
-        end
-        
-        
+        cItiStart = cItiStart(tr);        
 
         %previous trial info
         trType = double(cell2mat(input.tBlock2TrialNumber));
@@ -279,8 +275,17 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
 %         mouse(imouse).expt(exptN(:,imouse)).oriTuning.oriFit = vonMisesFitAllCells;
 %         mouse(imouse).expt(exptN(:,imouse)).oriTuning.oriFitReliability = ...
 %             fitReliability;
-        mouse(imouse).expt(exptN(:,imouse)).tag(1).name = [expt(iexp).redChannelLabel '-'];
-        mouse(imouse).expt(exptN(:,imouse)).tag(2).name = [expt(iexp).redChannelLabel '+'];
+
+%         mouse(imouse).expt(exptN(:,imouse)).tag(1).name = [expt(iexp).redChannelLabel '-'];
+%         mouse(imouse).expt(exptN(:,imouse)).tag(2).name = [expt(iexp).redChannelLabel '+'];
+        
+        if grnID == 1 || grnID == 4
+            mouse(imouse).expt(exptN(:,imouse)).tag(1).name = grnLabel{grnID};
+            mouse(imouse).expt(exptN(:,imouse)).tag(2).name = redLabel{grnID};
+        else
+            mouse(imouse).expt(exptN(:,imouse)).tag(1).name = nan;
+            mouse(imouse).expt(exptN(:,imouse)).tag(2).name = grnLabel{grnID};            
+        end
         for itag = 1:2
             mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).name = 'visual';
             mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(2).name = 'auditory';
@@ -300,6 +305,9 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 dataTC = dataTC_notag;
             elseif itag == 2
                 dataTC = dataTC_tag;
+            end
+            if isempty(dataTC)
+                continue
             end
         
         ialign = 1;
@@ -492,70 +500,12 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
             mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(iav).align(ialign).amp = tSoundTargetAmp(ind);
         end 
         
-        %% align to catch trials
-        ialign = 5;
-        disp(expt(iexp).catch)
-        if expt(iexp).catch
-            cInd = ~isnan(cCatchOn);
-            cCatchOn = cCatchOn(cInd);
-            catchOutcome = catchOutcome(cInd);
-            cCyc = cCyc(cInd);
-            tCatchDirection = tCatchDirection(cInd);
-            catchReactMs = catchReactMs(cInd);
-            nt = length(cCatchOn);
-            
-            % catch target aligned
-            Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-            DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-            DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-            for itrial = 1:nt
-                Data(:,:,itrial) = dataTC((cCatchOn(itrial)-pre_event_frames+1):cCatchOn(itrial)+post_event_frames,:);
-                DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
-                DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
-                DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), DataF(:,:,itrial));
-            end
-            DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
-
-            ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
-
-            removeTrials = ind_motion;
-            ind = ~removeTrials & ~strcmp(catchOutcome,'failure') & trType(cInd) == 1;
-            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).respTC = DataDFoverF_bl(:,:,ind);
-            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).outcome = catchOutcome(ind);
-            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).reactTime = catchReactMs(ind);
-            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).nCycles = cCyc(ind)-1;
-            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).ori = tCatchDirection(ind);
-            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).amp = [];
-            
-            % 1 stim back from catch target aligned
-            Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-            DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-            DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-            for itrial = 1:nt
-                n = cCyc(itrial)-1;
-                tc_ind = (cLeverDown(itrial)-pre_event_frames:...
-                    cLeverDown(itrial)+post_event_frames-1) + double((n-1)*cycTime); %one stim before delivered target
-            
-                Data(:,:,itrial) = dataTC(tc_ind,:);
-            DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
-            DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
-            DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
-            end
-            DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
-
-            ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
-            removeTrials = ind_motion;
-            ind = ~removeTrials & ~strcmp(catchOutcome,'failure') & trType(cInd) == 1;
-            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).crRespTC = DataDFoverF_bl(:,:,ind);
-            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).crNCycles = cCyc(ind)-2;
-        end
-        
         
         end
     
     %%
         %% passive expt
-        if isfield(expt,'passExpt')
+        if isfield(expt,'dothislater')
             disp(['Passive Expt - ' num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum)])
 
             nrun = size(expt(iexp).runs,1);
@@ -575,10 +525,18 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
 
             if cellsOrDendrites == 1
-                load(fullfile(fnTC,'timecourses_pass_cells.mat'))
-                dataTC_notag = data_pass_g_tc_subnp;
-                dataTC_tag = data_pass_r_tc_subnp;
+            load(fullfile(fnTC,'timecourses_bx_cells.mat'))
+            if grnID == 4
+                dataTC_notag = data_pass_bx_tc_subnp;
+            elseif grnID == 2 || grnID == 3
+                dataTC_tag = data_pass_bx_tc_subnp;
+            elseif grnID == 1
+                dataTC_notag = data_pass_bx_g_tc_subnp;
+                dataTC_tag = data_pass_bx_r_tc_subnp;
             end
+        else
+            error('dendrite data not yet selected')
+        end
 
             % load and combine mworks data and timecourses
             input = loadMworksFile(expt(iexp).SubNum,expt(iexp).date,expt(iexp).passExptTime);
@@ -619,34 +577,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
             ntrials = length(tr);
 
 
-            %catch trial Info
-            if expt(iexp).catch
-                cCatchOn = celleqel2mat_padded(input.cCatchOn);
-                nt = length(cCatchOn);
-                tCatchDirection = celleqel2mat_padded(input.tCatchGratingDirectionDeg);
-
-    %             trialStartFr = celleqel2mat_padded(input.cFirstStim);
-                trialEndFr = celleqel2mat_padded(input.cLeverUp);
-                cCyc = celleqel2mat_padded(input.catchCyclesOn);
-                cCyc = cCyc(tr);
-                catchReactFr = trialEndFr - cCatchOn;
-                catchCycOnMs = (cCyc-1).*cycTimeMs;
-                catchReactMs = holdTimesMs - catchCycOnMs;
-                tooFastFr = round(frameRate*((input.tooFastTimeMs)/1000));
-                reactTimeFr = round(frameRate*((input.reactTimeMs)/1000));
-
-                catchOutcome = cell(1,nt);
-                outInd = catchReactFr > tooFastFr & catchReactFr < reactTimeFr;
-                catchOutcome(outInd) = {'FA'};
-                outInd = catchReactFr > reactTimeFr;
-                catchOutcome(outInd) = {'CR'};
-                outInd = catchReactFr < 0;
-                catchOutcome(outInd) = {'failure'};
-
-                tCatchDirection = tCatchDirection(tr);
-    %             catchReactMs = catchReactMs(tr);
-    %             catchOutcome = catchOutcome(tr);
-            end  
+            
 
 %             offset = 0;
 %             for irun = 1:nrun
@@ -674,9 +605,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
             cTargetOn = cTargetOn(tr);
             cStimOn = cStimOn(tr);
             cItiStart = cItiStart(tr);
-            if expt(iexp).catch
-                cCatchOn = cCatchOn(tr);
-            end
+            
             
             %previous trial info
             trType = double(cell2mat(input.tBlock2TrialNumber));
@@ -728,23 +657,21 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
             mousePass(imouse).expt(exptN(:,imouse)).info.visTargets = Dirs;
             mousePass(imouse).expt(exptN(:,imouse)).info.audTargets = Amps;
 
-    %         %load direction tuning data
-    %         fnTun = fullfile(rc.ashleyAnalysis,...
-    %             expt(iexp).mouse,expt(iexp).folder, expt(iexp).date, ...
-    %             expt(iexp).dirtuning);
-    %         if cellsOrDendrites == 1
-    %             load(fullfile(fnTun, 'oriTuningAndFits.mat'));
-    %         elseif cellsOrDendrites == 2
-    %             load(fullfile(fnTun, 'oriTuningAndFits_den.mat'));
-    %         end
-    %         
-    %         mouse(imouse).expt(exptN(:,imouse)).oriTuning.oriResp = avgResponseEaOri;
-    %         mouse(imouse).expt(exptN(:,imouse)).oriTuning.oriRespSem = semResponseEaOri;
-    %         mouse(imouse).expt(exptN(:,imouse)).oriTuning.oriFit = vonMisesFitAllCells;
-    %         mouse(imouse).expt(exptN(:,imouse)).oriTuning.oriFitReliability = ...
-    %             fitReliability;
-            mousePass(imouse).expt(exptN(:,imouse)).tag(1).name = [expt(iexp).redChannelLabel '-'];
-            mousePass(imouse).expt(exptN(:,imouse)).tag(2).name = [expt(iexp).redChannelLabel '+'];
+%             mousePass(imouse).expt(exptN(:,imouse)).tag(1).name = [expt(iexp).redChannelLabel '-'];
+%             mousePass(imouse).expt(exptN(:,imouse)).tag(2).name = [expt(iexp).redChannelLabel '+'];
+
+        if grnID == 1 || grnID == 4
+            mouse(imouse).expt(exptN(:,imouse)).tag(1).name = grnLabel{grnID};
+            mouse(imouse).expt(exptN(:,imouse)).tag(2).name = redLabel{grnID};
+        else
+            mouse(imouse).expt(exptN(:,imouse)).tag(1).name = nan;
+            mouse(imouse).expt(exptN(:,imouse)).tag(2).name = grnLabel{grnID};            
+        end
+        for itag = 1:2
+            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).name = 'visual';
+            mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(2).name = 'auditory';
+        end
+
             for itag = 1:2
                 mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).name = 'visual';
                 mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(2).name = 'auditory';
@@ -765,6 +692,9 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 elseif itag == 2
                     dataTC = dataTC_tag;
                 end
+            if isempty(dataTC)
+                continue
+            end
 
             ialign = 1;
             maxTrials = max(find(cLeverDown+post_event_frames-1 <  size(dataTC,1)),[],2);
@@ -956,68 +886,15 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(iav).align(ialign).amp = tSoundTargetAmp(ind);
             end 
 
-            %% align to catch trials
-            ialign = 5;
-            disp(expt(iexp).catch)
-            if expt(iexp).catch
-                cInd = ~isnan(cCatchOn);
-                cCatchOn = cCatchOn(cInd);
-                catchOutcome = catchOutcome(cInd);
-                cCyc = cCyc(cInd);
-                tCatchDirection = tCatchDirection(cInd);
-                catchReactMs = catchReactMs(cInd);
-                nt = length(cCatchOn);
-
-                % catch target aligned
-                Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-                DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-                DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-                for itrial = 1:nt
-                    Data(:,:,itrial) = dataTC((cCatchOn(itrial)-pre_event_frames+1):cCatchOn(itrial)+post_event_frames,:);
-                    DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
-                    DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
-                    DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), DataF(:,:,itrial));
-                end
-                DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
-
-                ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
-
-                removeTrials = ind_motion;
-                ind = ~removeTrials & ~strcmp(catchOutcome,'failure') & trType(cInd) == 1;
-                mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).respTC = DataDFoverF_bl(:,:,ind);
-                mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).outcome = catchOutcome(ind);
-                mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).reactTime = catchReactMs(ind);
-                mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).nCycles = cCyc(ind)-1;
-                mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).ori = tCatchDirection(ind);
-                mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).amp = [];
-
-                % 1 stim back from catch target aligned
-                Data = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-                DataDF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-                DataDFoverF = zeros(pre_event_frames+post_event_frames,size(dataTC,2),nt);
-                for itrial = 1:nt
-                    n = cCyc(itrial)-1;
-                    tc_ind = (cLeverDown(itrial)-pre_event_frames:...
-                        cLeverDown(itrial)+post_event_frames-1) + double((n-1)*cycTime); %one stim before delivered target
-
-                    Data(:,:,itrial) = dataTC(tc_ind,:);
-                DataF(:,:,itrial) = mean(Data(1:pre_event_frames,:,itrial),1);
-                DataDF(:,:,itrial) = bsxfun(@minus, Data(:,:,itrial), DataF(:,:,itrial));
-                DataDFoverF(:,:,itrial) = bsxfun(@rdivide, DataDF(:,:,itrial), mean(Data(1:pre_event_frames,:,itrial),1));
-                end
-                DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
-
-                ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
-                removeTrials = ind_motion;
-                ind = ~removeTrials & ~strcmp(catchOutcome,'failure') & trType(cInd) == 1;
-                mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).crRespTC = DataDFoverF_bl(:,:,ind);
-                mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).crNCycles = cCyc(ind)-2;
-            end
             end
         end
     end
     if cellsOrDendrites == 1
-        save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_trOutcomeStruct_cells' datasetStr(5:end) '.mat']), 'mouse','mousePass','-v7.3');
+        if isfield(expt,'passExpt')
+            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_trOutcomeStruct_cells' datasetStr(5:end) '.mat']), 'mouse','mousePass','-v7.3');
+        else
+            save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_trOutcomeStruct_cells' datasetStr(5:end) '.mat']), 'mouse','-v7.3');
+        end
 %         print(fullfile(rc.caOutputDir, dataGroup, [datasetStr(5:end) '_motionHist.pdf']), '-dpdf')
     elseif cellsOrDendrites == 2
         save(fullfile(rc.caOutputDir, dataGroup, [mouse_str '_trOutcomeStruct_dendrites' datasetStr(5:end) '.mat']), 'mouse','mousePass','-v7.3');
