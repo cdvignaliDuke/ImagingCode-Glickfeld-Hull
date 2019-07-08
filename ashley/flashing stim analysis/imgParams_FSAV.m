@@ -39,7 +39,7 @@ trOutColor = {[0 0 0];[0.75 0 0];[0.5 0.5 0.5];[0.75 0 0.75]};
 if strcmp(ds,'FSAV_attentionV1')
     exampleCell_1 = 429; %418; %738 % first-stim responsive
     exampleCell_2 = 1297;%1269;%1269 % late responsive
-%     exampleCell_3 = 543;%386; % late suppressed
+    exampleCell_3 = 127;%386; % late suppressed
     
 %     attnExCell_1 = 366; %first-stim responsive and modulated by attention(+V)
 % elseif strcmp(ds,'FSAV_V1_100ms_naive')    

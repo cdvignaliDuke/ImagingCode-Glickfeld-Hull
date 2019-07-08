@@ -1,6 +1,6 @@
 clear all
 close all
-ds = 'FSAV_V1_100ms_naive';
+ds = 'FSAV_attentionV1';
 cellsOrDendrites = 1;
 doLoadPreviousAnalysis = true;
 %%
@@ -1593,6 +1593,8 @@ suppScatLim_win = [-0.2 0.1];
 suppScatLim_cyc = [-0.015 0.015];
 cellRespTCLim = [-0.05 0.15];
 exCellRespTCLim = [-0.1 0.1];
+siBinLim = [-4 4];
+stimRespLim = [-0.01 0.05];
 
 tcStartFrame = 26;
 cycTCEndTimeMs = 350;
@@ -1633,7 +1635,33 @@ binnedWeightLim = [-0.4 0.4];
 weightLimSum = [-0.8 0.8];
 siLimSum = [-0.5 2.5];
 
-lateCycRespAll = mean(antiAnalysis.lateCycTC{visualTrials}(respwin,:),1);
+
+% siBins = [-10,-1,1,10];
+siBins = [-10,0,10];
+nSIBins = length(siBins)-1;
+SI = antiAnalysis.lateCycSI;
+[n,~,siBinID] = histcounts(SI,siBins);
+% siBinID = nan(1,length(SI));
+% siBinID(~antiAnalysis.lateCycAV95CITest) = 2;
+% siBinID(antiAnalysis.lateCycAV95CITest & SI < 0) = 1;
+% siBinID(antiAnalysis.lateCycAV95CITest & SI > 0) = 3;
+% nSIBins = 3;
+
+aurocBinID = nan(1,length(SI));
+aurocBinID(~cellInfo.lateStimAuROCTest) = 3;
+aurocBinID(cellInfo.lateStimAuROCTest & cellInfo.lateStimAuROC < 0.5) = 1;
+aurocBinID(cellInfo.lateStimAuROCTest & cellInfo.lateStimAuROC > 0.5) = 2;
+
+
+aurocBinID_aud = nan(1,length(SI));
+aurocBinID_aud(~cellInfo.audLateStimAuROCTest) = 3;
+aurocBinID_aud(cellInfo.audLateStimAuROCTest & cellInfo.audLateStimAuROC < 0.5) = 1;
+aurocBinID_aud(cellInfo.audLateStimAuROCTest & cellInfo.audLateStimAuROC > 0.5) = 2;
+
+Dr = cellfun(@(x) mean(x(respwin,:),1),antiAnalysis.lateCycTC,'unif',0);
+Tr_vis = cellfun(@(x) mean(x(respwin_target,:),1),targetAnalysis.tc(:,visualTrials),'unif',0);
+Tr_aud = cellfun(@(x) mean(x(respwin_target,:),1),targetAnalysis.tc(:,auditoryTrials),'unif',0);
+
 %% plot anticipation analysis (Figure 2)
 
 setFigParams4Print('landscape')
@@ -2103,6 +2131,7 @@ oriGroups.matchSIxFRErr = nan(1,nOri);
 oriGroups.matchedFR = nan(1,nOri);
 oriGroups.matchedFRErr = nan(1,nOri);
 oriGroups.matchSIxFRTestData = cell(1,nOri);
+oriGroups.taskTuningData = cell(nOri,3);
 % adaptAnalysis.oriGroupsN = nan(1,nOri);
 % adaptAnalysis.oriGroups = nan(3,nOri);
 % adaptAnalysis.oriGroupsErr = nan(3,nOri);
@@ -2168,6 +2197,11 @@ for iori = 1:nOri
 %     oriGroups.targetTuningStimErr{iori} = cat(1,0,...
 %         ste(targetAnalysis.targets{visualTrials}(:,ind_tarAndDist),2));
     
+    oriGroups.taskTuningData{iori,1} = mean(...
+            antiAnalysis.lateCycTC{visualTrials}(respwin_target,ind),1)';
+    oriGroups.taskTuningData(iori,2:3) = cellfun(@(x) ...
+        mean(x(respwin_target,ind),1)' - mean(x(basewin_0,ind),1)',...
+        targetAnalysis.tc(1:2,visualTrials),'unif',0);
     oriGroups.targetTuningResp{iori} = cat(1,mean(mean(...
             antiAnalysis.lateCycTC{visualTrials}(respwin_target,ind),1)),cellfun(@(x) ...
         mean(mean(x(respwin_target,ind),1) - mean(x(basewin_0,ind),1)),...
@@ -2185,7 +2219,7 @@ for iori = 1:nOri
     oriGroups.targetTuningStimErr{iori} = cat(1,0,...
         ste(targetAnalysis.targets{visualTrials}(:,ind),2));
     
-    lateCycResp_grp = lateCycRespAll(ind);
+    lateCycResp_grp = Dr{3}(ind);
     lateCycSI_grp = antiAnalysis.lateCycSI(ind);
     [sortFR,sortFRInd] = sort(lateCycResp_grp,'descend');
     sortSI = lateCycSI_grp(sortFRInd);
@@ -2269,12 +2303,17 @@ popTuningGrp1 = repmat([1:3]',[sum(ind),1]);
 popTuningGrp2 = reshape(repmat(cellInfo.oriPref(ind)',[3,1]),[3*sum(ind),1]);
 oriGroups.popTuningTest = anovan(popTuningData,{popTuningGrp1,popTuningGrp2});
 
-grpID = [];
-for igrp = 1:4
-    grpID = cat(2,grpID,ones(1,length(oriGroups.matchSIxFRTestData{igrp})).*igrp);
-end
-[oriGroups.matchSIxFRTest,~,stats] = anova1(cell2mat(...
-    oriGroups.matchSIxFRTestData),grpID,'off');
+taskTuningTest = twoWayAnovaUnmatched(oriGroups.taskTuningData,{'Ori';'Stim'});
+[p,~,stats] = anova1(Tr_vis{1}(cellInfo.lateCycRespCells),...
+    cellInfo.oriPref(cellInfo.lateCycRespCells),'off');
+tbl = multcompare(stats,[],'off');
+
+% grpID = [];
+% for igrp = 1:4
+%     grpID = cat(2,grpID,ones(1,length(oriGroups.matchSIxFRTestData{igrp})).*igrp);
+% end
+% [oriGroups.matchSIxFRTest,~,stats] = anova1(cell2mat(...
+%     oriGroups.matchSIxFRTestData),grpID,'off');
 
 figure
 suptitle('Tuned, First or Late Distractor Responsive Neurons')
@@ -2482,25 +2521,143 @@ end
 
 print([fnout 'tuningAnalysis_oriGroupsTaskTuning'],'-dpdf','-fillpage')   
 
-%SI matched for FR
+% orientation groups binned by SI
+ind = cellInfo.lateCycRespCells & cellInfo.isTuned;
+frOriInBin = nan(nSIBins,4);
+frSIInOriBin = nan(4,nSIBins);
+siInOriBinChiTest = nan(4,1);
+% binnedSIxOri = nan(4,2);
+for ibin = 1:nSIBins
+    binInd = siBinID' == ibin & ind;
+    frOriInBin(ibin,:) = histcounts(cellInfo.oriPref(binInd),4,...
+        'Normalization','probability');
+%     frOriInBin(ibin,:) = histcounts(cellInfo.oriPref(binInd),4);
+end
+for iori = 1:4
+    binInd = ind & cellInfo.oriPref == iori;
+    frSIInOriBin(iori,:) = histcounts(siBinID(binInd),1:(nSIBins+1),...
+        'Normalization','probability');
+%     binnedSIxOri{iori,1} = SI(binInd & SI' < 0);
+    n = sum(binInd);
+    n2 = sum(binInd' & siBinID == 1);
+    [~,siInOriBinChiTest(iori)] = prop_test([n2, round(n/2)],[n, n], 0.05);
+end
+binnedHT = cell(4,nSIBins);
+binnedET = cell(4,nSIBins);
+binnedT = cell(4,nSIBins);
+binnedD = cell(4,nSIBins);
+binnedSI = cell(4,nSIBins);
+for ibin = 1:nSIBins
+    for iori = 1:4
+        binInd = ind & siBinID' == ibin & cellInfo.oriPref == iori;
+        binnedHT{iori,ibin} = Tr_vis{1}(binInd);
+        binnedET{iori,ibin} = Tr_vis{2}(binInd);
+        binnedT{iori,ibin} = Tr_vis{3}(binInd);
+        binnedD{iori,ibin} = Dr{3}(binInd);
+        binnedSI{iori,ibin} = SI(binInd);
+    end
+end
+
+% matName = {'Stim';'SI'};
+oriSIBinTest = nan(1,nSIBins);
+for ibin = 1:nSIBins
+    binInd = ind & siBinID' == ibin;
+    oriSIBinTest(ibin)= anova1(SI(binInd),cellInfo.oriPref(binInd),'off');
+end
+% for iori = 1:4
+%     d = cat(1,binnedD(iori,:),binnedT(iori,:));
+%     oriSIBinTest{iori} = twoWayAnovaUnmatched(d,matName);
+% end
+
+for iori = 1:4
+    fprintf('%s deg - SI x D/T Two-Way ANOVA, p: %s=%s, %s=%s int=%s\n',...
+        num2str(orientations(iori)),...
+        oriSIBinTest{iori}.varTestName{1},num2str(round(oriSIBinTest{iori}.p(1),2,'significant')),...
+        oriSIBinTest{iori}.varTestName{2},num2str(round(oriSIBinTest{iori}.p(2),2,'significant')),...
+        num2str(round(oriSIBinTest{iori}.p(3),2,'significant')))
+    if any(oriSIBinTest{iori}.p < 0.05)
+%         disp(oriSIBinTest{iori}.posthoc)
+        for ip = 1:2
+            disp(oriSIBinTest{iori}.posthoc{ip})
+        end
+    end
+end
+
+
+
 figure
-suptitle(sprintf('Use top %s cells from each group (ranked by dF/F resp to late vis stim',...
-    num2str(minCellN_SIFRmatch)))
-subplot 121
-errorbar(oriGroups.matchSIxFR,oriGroups.matchSIxFRErr,'.')
-hold on
-figXAxis([],'Ori. Pref.',[0 nOri+1],1:nOri,orientations)
-figYAxis([],'Matched Selectivity',[-1 3])
-hline(0,'k:')
+subplot 221
+bar(frOriInBin,'stacked')
+figXAxis([],'',[0 4],1:2,{'-SI','+SI'})
+figYAxis([],'Fraction of Cells',[0 1])
 figAxForm
-subplot 122
-errorbar(oriGroups.matchedFR,oriGroups.matchedFRErr,'.')
-hold on
-figXAxis([],'Ori. Pref.',[0 nOri+1],1:nOri,orientations)
-figYAxis([],'Matched dF/F',[])
-hline(0,'k:')
+legend(cellfun(@num2str,num2cell(orientations),'unif',0),...
+    'location','northeastoutside')
+subplot 222
+bar(frSIInOriBin,'stacked')
+oriLabel = cellfun(@num2str,num2cell(orientations),'unif',0);
+figXAxis([],'',[0 5],1:4,oriLabel)
+figYAxis([],'Fraction of Cells',[0 1])
 figAxForm
-print([fnout 'tuningAnalysis_oriGroupsMatchedSIxFR'],'-dpdf','-fillpage')   
+legend({'-SI','+SI'},...
+    'location','northeastoutside')
+subplot 223
+for ibin = 1:nSIBins
+    y = cellfun(@mean,binnedSI(:,ibin));
+    yerr = cellfun(@(x) ste(x,2),binnedSI(:,ibin));
+    hold on
+    errorbar(1:4,y,yerr,'.')
+end
+figXAxis([],'',[0 5],1:4,oriLabel)
+figYAxis([],'SI',siBinLim)
+figAxForm
+legend({'-SI','+SI'},...
+    'location','northeastoutside')
+
+% for iori = 1:4
+%     subplot(3,2,iori+2)
+%     x = cellfun(@mean,binnedSI(iori,:));
+%     xerr = cellfun(@(x) ste(x,2),binnedSI(iori,:));
+%     y = cellfun(@mean,binnedD(iori,:));
+%     yerr = cellfun(@(x) ste(x,2),binnedD(iori,:));    
+%     hold on
+%     errorbar(x,y,yerr,yerr,xerr,xerr,'.-')      
+% %     y = cellfun(@mean,binnedHT(iori,:));
+% %     yerr = cellfun(@(x) ste(x,2),binnedHT(iori,:));    
+% %     errorbar(x,y,yerr,yerr,xerr,xerr,'.-')      
+% %     y = cellfun(@mean,binnedET(iori,:));
+% %     yerr = cellfun(@(x) ste(x,2),binnedET(iori,:));    
+% %     errorbar(x,y,yerr,yerr,xerr,xerr,'.-')    
+%     y = cellfun(@mean,binnedT(iori,:));
+%     yerr = cellfun(@(x) ste(x,2),binnedT(iori,:));    
+%     errorbar(x,y,yerr,yerr,xerr,xerr,'.-')  
+%     title(sprintf('Pref. %s', num2str(orientations(iori))))
+%     figXAxis([],'SI (mean in bin)',siBinLim)
+%     figYAxis([],'Stim Resp (dF/F)',stimRespLim)
+%     figAxForm
+%     L=legend({'D_a_l_l','T_a_l_l'},'location','northeastoutside');
+% end
+print([fnout 'tuningAnalysis_oriGroupsSIBinning'],'-dpdf','-fillpage')  
+
+% %SI matched for FR
+% figure
+% suptitle(sprintf('Use top %s cells from each group (ranked by dF/F resp to late vis stim',...
+%     num2str(minCellN_SIFRmatch)))
+% subplot 121
+% errorbar(oriGroups.matchSIxFR,oriGroups.matchSIxFRErr,'.')
+% hold on
+% figXAxis([],'Ori. Pref.',[0 nOri+1],1:nOri,orientations)
+% figYAxis([],'Matched Selectivity',[-1 3])
+% hline(0,'k:')
+% figAxForm
+% subplot 122
+% errorbar(oriGroups.matchedFR,oriGroups.matchedFRErr,'.')
+% hold on
+% figXAxis([],'Ori. Pref.',[0 nOri+1],1:nOri,orientations)
+% figYAxis([],'Matched dF/F',[])
+% hline(0,'k:')
+% figAxForm
+% print([fnout 'tuningAnalysis_oriGroupsMatchedSIxFR'],'-dpdf','-fillpage')   
 
 %%
 imgStats.nCells.oriGroups = oriGroups.n;
@@ -2775,6 +2932,238 @@ for icmp = 1:2
 end
 print([fnout 'tuningAnalysis_aurocGroupsSI'],'-dpdf','-fillpage')
 
+%% task tuning binned by SI (Figure 3)
+ind = cellInfo.lateCycRespCells & antiAnalysis.lateCycAV95CITest';
+frTTInBin = nan(nSIBins,3);
+frSIInTTBin = nan(3,nSIBins);
+for ibin = 1:nSIBins
+    binInd = siBinID' == ibin & ind;
+    frTTInBin(ibin,:) = histcounts(aurocBinID(binInd),3,...
+        'Normalization','probability');
+%     frTTInBin(ibin,:) = histcounts(aurocBinID(binInd),3);
+end
+for itt = 1:3
+    binInd = ind & aurocBinID' == itt;
+    frSIInTTBin(itt,:) = histcounts(siBinID(binInd),nSIBins,...
+        'Normalization','probability');
+end
+binnedHT = cell(3,nSIBins);
+binnedET = cell(3,nSIBins);
+binnedT = cell(3,nSIBins);
+binnedD = cell(3,nSIBins);
+binnedSI = cell(3,nSIBins);
+for ibin = 1:nSIBins
+    for itt = 1:3
+        binInd = ind & siBinID' == ibin & aurocBinID' == itt;
+        binnedHT{itt,ibin} = Tr_vis{1}(binInd);
+        binnedET{itt,ibin} = Tr_vis{2}(binInd);
+        binnedT{itt,ibin} = Tr_vis{3}(binInd);
+        binnedD{itt,ibin} = Dr{3}(binInd);
+        binnedSI{itt,ibin} = SI(binInd);
+    end
+end
+
+matName = {'Stim';'SI'};
+ttVisSIBinTest = cell(1,3);
+for itt = 1:3
+    d = cat(1,binnedD(itt,:),binnedT(itt,:));
+%     d = cat(1,binnedD(itt,:),binnedHT(itt,:));
+    ttVisSIBinTest{itt} = twoWayAnovaUnmatched(d,matName);
+end
+n = cellfun(@length,binnedD);
+
+
+for itt = 1:3
+    fprintf('%s pref - SI x D/T Two-Way ANOVA, p: %s=%s, %s=%s int=%s\n',...
+        aurocGroups.name{itt},...
+        ttVisSIBinTest{itt}.varTestName{1},num2str(round(ttVisSIBinTest{itt}.p(1),2,'significant')),...
+        ttVisSIBinTest{itt}.varTestName{2},num2str(round(ttVisSIBinTest{itt}.p(2),2,'significant')),...
+        num2str(round(ttVisSIBinTest{itt}.p(3),2,'significant')))
+    if any(ttVisSIBinTest{itt}.p < 0.05)
+        for ip = 1:2
+            disp(ttVisSIBinTest{itt}.posthoc{ip})
+        end
+    end
+end
+
+% Supplemental Fig 6: distractor response distribution
+distRespFig = figure;
+subplot 121
+L = [];
+cAll = get(gca,'colororder');
+dFFDist = cell(1,3);
+for itt = 1:3
+    d = cell2mat(binnedD(itt,:));
+    dFFDist{itt} = d;
+    hold on
+    h = cdfplot(d);
+    h.Color = cAll(itt,:);  
+    h2 = vline(mean(d),'-');
+    h2.Color = h.Color;
+    L(itt) = h;
+end
+legend(L,{'D','T','NP'},...
+    'location','northeastoutside')
+figXAxis([],'Dist. Resp (dF/F)',[0 0.04])
+figYAxis([],'Fraction of Cells',[0 1])
+figAxForm
+[p,~,stats] = anova1(Dr{3}(ind),aurocBinID(ind),'off');
+ph = multcompare(stats,'display','off');
+if p < 0.05
+    fprintf('Vis Task Tuning Dist Resp Distributions:\n')
+    disp(ph(:,[1:2,6]))
+end
+title(sprintf('Vis task tuning,p=%s,',num2str(round(p,2,'significant'))))
+
+figure
+suptitle('Visual Trial Task Tuning, Tuned Late Resp Cells')
+subplot 321
+bar(frTTInBin,'stacked')
+figXAxis([],'',[0 4],1:3,{'-SI','0','+SI'})
+figYAxis([],'Fraction of Cells',[0 1])
+figAxForm
+legend({'D','T','NP'},...
+    'location','northeastoutside')
+subplot 322
+bar(frSIInTTBin,'stacked')
+figXAxis([],'',[0 4],1:3,{'D','T','NP'})
+figYAxis([],'Fraction of Cells',[0 1])
+figAxForm
+legend({'-SI','0','+SI'},...
+    'location','northeastoutside')
+for itt = 1:3
+    subplot(3,2,itt+2)
+    x = cellfun(@mean,binnedSI(itt,:));
+    xerr = cellfun(@(x) ste(x,2),binnedSI(itt,:));
+    y = cellfun(@mean,binnedD(itt,:));
+    yerr = cellfun(@(x) ste(x,2),binnedD(itt,:));    
+    hold on
+    errorbar(x,y,yerr,yerr,xerr,xerr,'.-')      
+%     y = cellfun(@mean,binnedHT(itt,:));
+%     yerr = cellfun(@(x) ste(x,2),binnedHT(itt,:));    
+%     errorbar(x,y,yerr,yerr,xerr,xerr,'.-')      
+%     y = cellfun(@mean,binnedET(itt,:));
+%     yerr = cellfun(@(x) ste(x,2),binnedET(itt,:));    
+    y = cellfun(@mean,binnedT(itt,:));
+    yerr = cellfun(@(x) ste(x,2),binnedT(itt,:));        hold on
+    errorbar(x,y,yerr,yerr,xerr,xerr,'.-')   
+    figXAxis([],'SI (mean in bin)',siBinLim)
+    figYAxis([],'Stim Resp (dF/F)',stimRespLim)
+    figAxForm   
+%     L=legend({'D_a_l_l','HT','ET'},'location','northeastoutside');
+    L=legend({'D_a_l_l','T_a_l_l'},'location','northeastoutside');
+end
+subplot 323
+title(sprintf('Pref. Dist., n=%s',num2str(sum(n(1,:)))))
+subplot 324
+title(sprintf('Pref. Target., n=%s',num2str(sum(n(2,:)))))
+subplot 325
+title(sprintf('No Pref., n=%s',num2str(sum(n(3,:)))))
+print([fnout 'tuningAnalysis_aurocGroups_SIBinned'],'-dpdf','-fillpage')
+
+frTTInBin = nan(nSIBins,3);
+frSIInTTBin = nan(3,nSIBins);
+for ibin = 1:nSIBins
+    binInd = siBinID' == ibin & ind;
+    frTTInBin(ibin,:) = histcounts(aurocBinID_aud(binInd),3,...
+        'Normalization','probability');
+%     frTTInBin(ibin,:) = histcounts(aurocBinID(binInd),3);
+end
+for itt = 1:3
+    binInd = ind & aurocBinID_aud' == itt;
+    frSIInTTBin(itt,:) = histcounts(siBinID(binInd),nSIBins,...
+        'Normalization','probability');
+end
+binnedT = cell(3,nSIBins);
+binnedD = cell(3,nSIBins);
+binnedSI = cell(3,nSIBins);
+for ibin = 1:nSIBins
+    for itt = 1:3
+        binInd = ind & siBinID' == ibin & aurocBinID_aud' == itt;
+        binnedT{itt,ibin} = Tr_aud{3}(binInd);
+        binnedD{itt,ibin} = Dr{3}(binInd);
+        binnedSI{itt,ibin} = SI(binInd);
+    end
+end
+
+matName = {'Stim';'SI'};
+ttAudSIBinTest = cell(1,3);
+for itt = 1:3
+    d = cat(1,binnedD(itt,:),binnedT(itt,:));
+%     d = cat(1,binnedD(itt,:),binnedHT(itt,:));
+    ttAudSIBinTest{itt} = twoWayAnovaUnmatched(d,matName);
+end
+n = cellfun(@length,binnedD);
+
+figure
+suptitle('Auditory Trial Task Tuning')
+subplot 321
+bar(frTTInBin,'stacked')
+figXAxis([],'',[0 4],1:3,{'-SI','0','+SI'})
+figYAxis([],'Fraction of Cells',[0 1])
+figAxForm
+legend({'D','T','NP'},...
+    'location','northeastoutside')
+subplot 322
+bar(frSIInTTBin,'stacked')
+figXAxis([],'',[0 4],1:3,{'D','T','NP'})
+figYAxis([],'Fraction of Cells',[0 1])
+figAxForm
+legend({'-SI','0','+SI'},...
+    'location','northeastoutside')
+for itt = 1:3
+    subplot(3,2,itt+2)
+    x = cellfun(@mean,binnedSI(itt,:));
+    xerr = cellfun(@(x) ste(x,2),binnedSI(itt,:));
+    y = cellfun(@mean,binnedD(itt,:));
+    yerr = cellfun(@(x) ste(x,2),binnedD(itt,:));    
+    hold on
+    errorbar(x,y,yerr,yerr,xerr,xerr,'.-')      
+    y = cellfun(@mean,binnedT(itt,:));
+    yerr = cellfun(@(x) ste(x,2),binnedT(itt,:));    
+    hold on
+    errorbar(x,y,yerr,yerr,xerr,xerr,'.-')   
+    figXAxis([],'SI (mean in bin)',siBinLim)
+    figYAxis([],'Stim Resp (dF/F)',stimRespLim)
+    figAxForm   
+    L=legend({'D_a_l_l','T_a_l_l'},'location','northeastoutside');
+end
+subplot 323
+title(sprintf('Pref. Dist., n=%s',num2str(sum(n(1,:)))))
+subplot 324
+title(sprintf('Pref. Target, n=%s',num2str(sum(n(2,:)))))
+subplot 325
+title(sprintf('No Pref., n=%s',num2str(sum(n(3,:)))))
+print([fnout 'tuningAnalysis_audAurocGroups_SIBinned'],'-dpdf','-fillpage')
+
+figure(distRespFig);
+subplot 122
+L = [];
+cAll = get(gca,'colororder');
+dFFDist = cell(1,3);
+for itt = 1:3
+    d = cell2mat(binnedD(itt,:));
+    dFFDist{itt} = d;
+    hold on
+    h = cdfplot(d);
+    h.Color = cAll(itt,:);  
+    h2 = vline(mean(d),'-');
+    h2.Color = h.Color;
+    L(itt) = h;
+end
+legend(L,{'D','T','NP'},...
+    'location','northeastoutside')
+figXAxis([],'Dist. Resp (dF/F)',[0 0.04])
+figYAxis([],'Fraction of Cells',[0 1])
+figAxForm
+[p,~,stats] = anova1(Dr{3}(ind),aurocBinID_aud(ind),'off');
+ph = multcompare(stats,'display','off');
+if p < 0.05
+    fprintf('Aud Task Tuning Dist Resp Distributions:\n')
+    disp(ph(:,[1:2,6]))
+end
+title(sprintf('Aud task tuning,p=%s,',num2str(round(p,2,'significant'))))
+print([fnout 'tuningAnalysis_distRespDistrib_aurocGroups'],'-dpdf','-fillpage')
 %% auditory auroc groups comparison
 
 if strcmp(ds,'FSAV_attentionV1')%%
@@ -3721,12 +4110,17 @@ for iav = 1:2
         end
 
         subplot(2,2,3)
-        plot(dcModel(1).av(iav).weight,dcModel(2).av(iav).weight,'.')
-        figXAxis([],'Target Weight',weightLim)
-        figYAxis([],'Detect Weight',weightLim)
+        x = dcModel(1).av(iav).weight;
+        y = dcModel(2).av(iav).weight;
+        [corrmat,pmat] = corrcoef(x,y);
+        plot(x,y,'.')
+        figXAxis([],'Target Weight',[-2 3])
+        figYAxis([],'Detect Weight',[-2 3])
         figAxForm
         hline(0,'k:')
         vline(0,'k:')
+        title(sprintf('Corr=%s, p=%s',num2str(round(corrmat(1,2),2,'significant')),...
+            num2str(round(pmat(1,2),2,'significant'))))
 
         subplot(2,2,4)
         hold on
@@ -4712,9 +5106,9 @@ if ~strcmp(ds,'FSAV_attentionV1')
         yerr = ste(dcModel.av(iav).pctCorrect,2);
         stimInd = sum(~isnan(y),2) > minTrN;
         y = y(stimInd,:);
-        yerr = yerr(stimInd,:);
+%         yerr = yerr(stimInd,:);
         x = 1:sum(stimInd);
-        [mdlTest,mdlP] = ttest(y,0.5,'dim',2,'alpha',mdlXStimAlpha);
+        [mdlTest,mdlP] = ttest(y,0.5,'dim',2,'tail','right','alpha',mdlXStimAlpha);
         subplot(1,2,iav)
         for iexp = 1:nexp
             ind = ~isnan(y(:,iexp));
