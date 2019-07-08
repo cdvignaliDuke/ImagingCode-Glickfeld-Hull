@@ -1,8 +1,8 @@
 clear all
 close all
-ds = 'FSAV_V1_SOM_temp';
+ds = 'FSAV_V1_100ms_naive';
 cellsOrDendrites = 1;
-doLoadPreviousAnalysis = false;
+doLoadPreviousAnalysis = true;
 %%
 rc = behavConstsAV;
 imgParams_FSAV
@@ -304,7 +304,10 @@ for iori = 1:4
     oriAdaptData(:,iori) = cellfun(@(x) x(indOri),adaptResp,'unif',0);
     oriAdaptGroup(:,iori) = repmat({ones(1,sum(indOri)).*iori},[nCycles 1]);
 end
-leg = legend(L,cellfun(@num2str,num2cell(orientations),'unif',0),...
+n = cellfun(@length,oriAdaptData(1,:));
+leg = legend(L,cellfun(@(x,y) [x '-' y],...
+    cellfun(@num2str,num2cell(orientations),'unif',0),...
+    cellfun(@num2str,num2cell(n),'unif',0),'unif',0),...
     'location','northeast');
 title(leg, 'Ori. Pref.')
 figXAxis([],'Stim #',[0 nCycles+1],1:nCycles,1:nCycles)
@@ -326,14 +329,14 @@ title(sprintf('Two-way ANOVA: Ori p=%s, Stim # p=%s, OrixStim p=%s',...
 
 print([fnout 'adaptation'],'-dpdf','-fillpage')
 %%
-ind = cellInfo.firstRespCells & cellInfo.minRespCells & cellInfo.isTuned;
-[~,x] = max(cellInfo.oriFit(ind,:),[],2);
-y = adaptResp{4}(ind);
-y(y<0) = 0;
-plot(x,y,'.','MarkerSize',20)
-figXAxis([],'Ori. Pref.',[-1 182])
-figYAxis([],'Norm. dF/F',[0 1]);
-figAxForm
+% ind = cellInfo.firstRespCells & cellInfo.minRespCells & cellInfo.isTuned;
+% [~,x] = max(cellInfo.oriFit(ind,:),[],2);
+% y = adaptResp{4}(ind);
+% y(y<0) = 0;
+% plot(x,y,'.','MarkerSize',20)
+% figXAxis([],'Ori. Pref.',[-1 182])
+% figYAxis([],'Norm. dF/F',[0 1]);
+% figAxForm
 %% 
 if ~bxExpt
     bxData = load(fullfile(rc.ashleyAnalysis, 'Expt summaries','adaptation','behavior',...
