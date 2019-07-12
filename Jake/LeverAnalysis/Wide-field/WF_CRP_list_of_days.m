@@ -20,13 +20,13 @@ days_1000_post = {[],[], '170426_img88', [], [], [], []};   %'170426_img88' 10/0
 %last_day_of_500 = [6, 11, 8, 7, 9, 9, 9, 9, 6, 10, 8, 6, 6]; %listed in numerical order according to mouseID: img86 to img99   ***for img90 the first day of 500ms post learning is used
 days_to_learn_criteria =     [3, 6, 5, 10, 7, 7, 6, 4, 8, ...
     7, 3, 4, 5, 6, 7, 3, 10, 11, 7, ...  %consider changing img98 to day 4
-    8, 3, 4, 4, 3];   %listed in numerical order by animal ID
+    8, 3, 4, 4, 3, 4, 4, 5];   %listed in numerical order by animal ID
 days_to_PL_imaging_session = [4, 7, 6, 11, 8, 8, 8, 5, 10, ...
     8, 5, 5, 6, 7, 8, 4, 13, 12, 8, ...
-    9, 5, 8, 5, 5];
+    9, 5, 8, 5, 5, 5, 5, 6];
 all_bx_animals = {'img86', 'img88', 'img89', 'img90', 'img91', 'img92', 'img93', 'img94', 'img95', ...
     'img96', 'img98', 'img99', 'img044', 'img050', 'img067', 'img070', 'img077', 'img081', 'img084', ...
-    'img085', 'img087', 'img088', 'img089', 'img091'};
+    'img085', 'img087', 'img088', 'img089', 'img091', 'img092', 'img093', 'img094'};
 
 %% all days of bx listed in order: 2P and WF
 %WF
