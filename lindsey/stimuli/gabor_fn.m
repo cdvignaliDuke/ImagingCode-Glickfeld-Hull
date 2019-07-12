@@ -1,4 +1,4 @@
-function gb=gabor_fn(sigma,theta,lambda,psi,gamma)
+function gb=gabor_fn(sigma,theta,lambda,psi,gamma,nstds)
 
 %sigma = resolution 
 %theta = orientation
@@ -10,7 +10,7 @@ sigma_x = sigma;
 sigma_y = sigma/gamma;
  
 % Bounding box
-nstds = 3;
+
 xmax = max(abs(nstds*sigma_x*cos(theta)),abs(nstds*sigma_y*sin(theta)));
 xmax = ceil(max(1,xmax));
 ymax = max(abs(nstds*sigma_x*sin(theta)),abs(nstds*sigma_y*cos(theta)));

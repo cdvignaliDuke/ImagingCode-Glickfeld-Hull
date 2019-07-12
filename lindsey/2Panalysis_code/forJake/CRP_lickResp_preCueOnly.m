@@ -1,22 +1,39 @@
 clear all
 close all
-CRP_expt_list_all
+CRP_expt_list_LS2019
 
 lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
+jake_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
 
-for id = 1:4
+for id = [1:3 5];
     nexp = size(expt(id).date,1);
     for iexp = 1:nexp
         mouse = expt(id).mouse(iexp,:);
+        if find(mouse == ' ')
+            ind = find(mouse == ' ');
+            mouse(ind) = [];
+        end
         date = expt(id).date(iexp,:);
         run = expt(id).run(iexp,:);
         fprintf([date ' ' mouse '\n'])
         img_fn = [date '_' mouse];
 
-        load(fullfile(lg_out,img_fn, [img_fn '_input.mat']))
-        load(fullfile(lg_out,img_fn, [img_fn '_targetAlign.mat']))
-        load(fullfile(lg_out,img_fn, [img_fn '_cueAlignLick.mat']))
-
+        if exist(fullfile(lg_out,img_fn, [img_fn '_input.mat']))
+            load(fullfile(lg_out,img_fn, [img_fn '_input.mat']))
+        elseif exist(fullfile(jake_dir,img_fn, [img_fn '_input.mat']))
+            load(fullfile(jake_dir,img_fn, [img_fn '_input.mat']))
+        end
+        if exist(fullfile(lg_out,img_fn, [img_fn '_targetAlign.mat']))
+            load(fullfile(lg_out,img_fn, [img_fn '_targetAlign.mat']))
+        elseif exist(fullfile(jake_dir,img_fn, [img_fn '_targetAlign.mat']))
+            load(fullfile(jake_dir,img_fn, [img_fn '_targetAlign.mat']))
+        end
+        if exist(fullfile(lg_out,img_fn, [img_fn '_cueAlignLick.mat']))
+            load(fullfile(lg_out,img_fn, [img_fn '_cueAlignLick.mat']))
+        elseif exist(fullfile(jake_dir,img_fn, [img_fn '_cueAlignLick.mat']))
+            load(fullfile(jake_dir,img_fn, [img_fn '_cueAlignLick.mat']))
+        end
+        
         nIC = size(targetAlign_events,2);
         nTrials = size(targetAlign_events,3);
         singleLick_frames = round(0.25.*frameRateHz);

@@ -1,9 +1,9 @@
 clear all
 close all
-ds = 'FSAV_attentionV1';
+ds = 'FSAV_V1_SOM_naive';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 3;
+slct_expt = 2;
 %%
 for iexp = slct_expt
 
@@ -119,7 +119,7 @@ end
 %     end
 % end
 if ~exist(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds),'dir')
-    mkdir(fullfilet(rc.ashleyAnalysis,'FSAV Summaries',ds))
+    mkdir(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds))
 end
 print(fullfile(rc.ashleyAnalysis,'FSAV Summaries',ds,...
     ['rand image samples_' SubNum '-' expDate]),'-dpdf','-fillpage')

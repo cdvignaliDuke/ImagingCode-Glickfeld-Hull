@@ -27,6 +27,8 @@ end
 
 %% load data
 data = sbxread(fName,0,nframes);
-data = squeeze(data(pmt,:,:,:));
+if pmt ~= 3
+    data = squeeze(data(pmt,:,:,:));
+end
 data = squeeze(data);
 end

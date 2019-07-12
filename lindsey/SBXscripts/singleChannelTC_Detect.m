@@ -1,32 +1,43 @@
 %% get path names
-date = '181227';
-ImgFolder = strvcat('002');
-time = strvcat('1215');
-mouse = 'i1103';
-doFromRef = 0;
-ref = strvcat('002');
-nrun = size(ImgFolder,1);
-frame_rate = 30;
-run_str = catRunName(ImgFolder, nrun);
+close all;clear all;clc;
+
+ds = 'MovingDotDetect_ExptList';
+iexp = 7; 
+rc = behavConstsAV;
+eval(ds)
+
+%%
+mouse = expt(iexp).mouse;
+date = expt(iexp).date;
+area = expt(iexp).img_loc{1};
+ImgFolder = expt(iexp).dotFolder;
+time = expt(iexp).dotTime;
+nrun = length(ImgFolder);
+run_str = catRunName(cell2mat(ImgFolder), nrun);
 
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
 %LG_base = '\\CRASH.dhe.duke.edu\data\home\lindsey';
 
-%% load and register
+fprintf(['2P imaging retinotopy analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
+for irun=1:nrun
+    fprintf([ImgFolder{irun} ' - ' time{irun} '\n'])
+end
+
+%% load
 tic
 data = [];
 clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = [LG_base '\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
+    CD = [LG_base '\Data\2P_images\' date '_' mouse '\' ImgFolder{irun}];
     %CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\AW68\two-photon imaging\' date '\' ImgFolder(irun,:)];
     %CD = [LG_base '\Data\2P_images\' mouse '-KM' '\' date '_' mouse '\' ImgFolder(irun,:)];
     %CD = ['\\CRASH.dhe.duke.edu\data\home\kevin\Data\2P\' date '_' mouse '\' ImgFolder(irun,:)];
     cd(CD);
-    imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
+    imgMatFile = [ImgFolder{irun} '_000_000.mat'];
     load(imgMatFile);
-    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
+    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\Behavior\Data\data-' mouse '-' date '-' time{irun} '.mat'];
     load(fName);
     
     temp(irun) = input;
@@ -97,18 +108,6 @@ if exist(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' 
     save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
     [outs, data_reg]=stackRegister_MA(double(data),[],[],out_bx);
     clear out outs
-elseif doFromRef
-    ref_str = ['runs-' ref];
-    if size(ref,1)>1
-        ref_str = [ref_str '-' ref(size(ref,1),:)];
-    end
-    load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_reg_shifts.mat']))
-    [out, data_reg] = stackRegister(data,data_avg);
-    mkdir(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
-    save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
-    %load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_mask_cell.mat']))
-    %load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_trialData.mat']))
-    save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 else
     [out, data_reg] = stackRegister(data,data_avg);
     mkdir(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
@@ -159,7 +158,6 @@ cons = unique(baseCon);
 nCon = length(cons);
 data_dfof_spd = zeros(sz(1),sz(2),nSpd,nCon);
 [n n2] = subplotn(nSpd);
-figure;
 for iCon = 1:nCon
     figure;
     ind_con = find(baseCon == cons(iCon));
@@ -170,9 +168,10 @@ for iCon = 1:nCon
         imagesc(data_dfof_spd(:,:,ispd,iCon))
         title(spds(ispd))
     end
-    suptitle(['Base con = ' num2str(cons(iCon))])
+    suptitle([mouse ' ' date '- Base con = ' num2str(cons(iCon))])
+    print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOVbySpd_Con' num2str(cons(iCon)) '.pdf']),'-dpdf','-bestfit')
 end
-figure;
+
 ind_con = find(baseCon == 1);
 data_dfof_base = nanmean(data_base_dfof(:,:,ind_con),3);
 
@@ -290,10 +289,11 @@ title('Target')
 %%
 
 save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']), 'data_dfof_base', 'data_dfof_targ')
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']),'baseCon', 'cons', 'nCon', 'targSpeed','spds','nspeed', 'nCells', 'frameRateHz', 'nTrials', 'cTarget', 'cStart', 'base_win','resp_win')
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']),'baseCon', 'cons', 'nCon', 'targSpeed','spds','nSpd', 'nCells', 'frameRateHz', 'nTrials', 'cTarget', 'cStart', 'base_win','resp_win')
 
 %% Speed analysis
 late_win = resp_win+(2.*frameRateHz);
+full_win = resp_win(1): resp_win(1)+(2.*frameRateHz);
 figure;
 spd_mat = zeros(nSpd,nCon,nCells,2);
 spd_mat_late = zeros(nSpd,nCon,nCells,2);
@@ -301,45 +301,56 @@ h_early = zeros(nCon,nSpd,nCells);
 p_early = zeros(nCon,nSpd,nCells);
 h_late = zeros(nCon,nSpd,nCells);
 p_late = zeros(nCon,nSpd,nCells);
+h_supp = zeros(nCon,nSpd,nCells);
+p_supp = zeros(nCon,nSpd,nCells);
+data_dfof_spd = zeros(size(data_dfof_targ,1), nCells, nCon,nSpd);
 for iCon = 1:nCon
     ind_con = find(baseCon == cons(iCon));
-    subplot(2,2,iCon+(iCon-1))
+    Ax(iCon+(iCon-1)) = subplot(2,2,iCon+(iCon-1));
     for iSpd = 1:nSpd
         ind_spd = intersect(ind_con, find(targSpeed==spds(iSpd)));
         plot(tt, mean(nanmean(data_dfof_targ(:,:,ind_spd),3),2))
+        data_dfof_spd(:,:,iCon,iSpd) = nanmean(data_dfof_targ(:,:,ind_spd),3);
         hold on
-        [h_early(iCon,iSpd,:), p_early(iCon,iSpd,:)] = ttest(mean(permute(data_dfof_targ(resp_win,:,ind_spd),[1 3 2]),1),mean(permute(data_dfof_targ(base_win,:,ind_spd),[1 3 2]),1),'tail','right','alpha',0.05./(nSpd*nCon));
-        [h_late(iCon,iSpd,:), p_late(iCon,iSpd,:)] = ttest(mean(permute(data_dfof_targ(late_win,:,ind_spd),[1 3 2]),1),mean(permute(data_dfof_targ(base_win,:,ind_spd),[1 3 2]),1),'tail','right','alpha',0.05./(nSpd*nCon));
         for iCell = 1:nCells
+            [h_early(iCon,iSpd,iCell), p_early(iCon,iSpd,iCell)] = ttest(mean(permute(data_dfof_targ(resp_win,iCell,ind_spd),[1 3 2]),1),mean(permute(data_dfof_targ(base_win,iCell,ind_spd),[1 3 2]),1),'tail','right','alpha',0.05./(nSpd*nCon));
+            [h_late(iCon,iSpd,iCell), p_late(iCon,iSpd,iCell)] = ttest(mean(permute(data_dfof_targ(late_win,iCell,ind_spd),[1 3 2]),1),mean(permute(data_dfof_targ(base_win,iCell,ind_spd),[1 3 2]),1),'tail','right','alpha',0.05./(nSpd*nCon));
+            [h_supp(iCon,iSpd,iCell), p_supp(iCon,iSpd,iCell)] = ttest(mean(data_dfof_targ(late_win,iCell,ind_spd),1),mean(data_dfof_targ(base_win,iCell,ind_spd),1),'tail','left','alpha',0.05./(nSpd*nCon));
+
             spd_mat(iSpd,iCon,iCell,1) = mean(nanmean(data_dfof_targ(resp_win,iCell,ind_spd),3),1);
             spd_mat(iSpd,iCon,iCell,2) = nanstd(nanmean(data_dfof_targ(resp_win,iCell,ind_spd),1),[],3)./sqrt(length(ind_spd));
             spd_mat_late(iSpd,iCon,iCell,1) = mean(nanmean(data_dfof_targ(late_win,iCell,ind_spd),3),1);
             spd_mat_late(iSpd,iCon,iCell,2) = nanstd(nanmean(data_dfof_targ(late_win,iCell,ind_spd),1),[],3)./sqrt(length(ind_spd));
         end
     end
+    y(iCon+(iCon-1),:) = Ax(iCon+(iCon-1)).YLim;
     title(['BaseCon = ' num2str(cons(iCon))]) 
     ylabel('dF/F')
     xlabel('Time from target (ms)')
-    ylim([-.02 .1])
     if iCon == 1
         legend(num2str(chop(spds,2)'))
     end
-    subplot(2,2,iCon+(iCon-1)+1)
+    Ax(iCon+(iCon-1)+1) = subplot(2,2,iCon+(iCon-1)+1);
     errorbar(spds, mean(spd_mat(:,iCon,:,1),3), std(spd_mat(:,iCon,:,1),[],3)./sqrt(nCells))
     hold on
     errorbar(spds, mean(spd_mat_late(:,iCon,:,1),3), std(spd_mat_late(:,iCon,:,1),[],3)./sqrt(nCells))
+    y(iCon+(iCon-1)+1,:) = Ax(iCon+(iCon-1)+1).YLim;
     ylabel('dF/F')
-    ylim([0 .1])
     xlabel('Speed (DPS)')
     if iCon == 1
         legend({'early', 'late'})
     end
     title(['BaseCon = ' num2str(cons(iCon))]) 
 end
+min_y = min(y(:,1),[],1);
+max_y = max(y(:,2),[],1);
+set(Ax(1:4),'YLim',[min_y max_y])
 suptitle([date ' ' mouse '- Avg speed tuning- n = ' num2str(nCells)])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_avgSpeedResp.pdf']),'-dpdf', '-bestfit')
 
 good_ind = unique([find(sum(sum(h_early,1),2)); find(sum(sum(h_late,1),2))]);
+
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_cellResp.mat']),'data_dfof_spd', 'good_ind', 'tt')
 
 for iCell = 1:length(good_ind)
     figure;
@@ -379,4 +390,43 @@ for iCell = 1:length(good_ind)
     suptitle([date ' ' mouse '- Cell #' num2str(iC)])
     print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_avgSpeedResp_Cell#' num2str(iC) '.pdf']),'-dpdf', '-bestfit')
 end
-    
+
+supp_ind = find(h_supp(end,end,:));
+high_resp_ind = find(h_late(end,end,:));
+low_resp_ind = find(h_late(end,1,:));
+
+figure;
+for iCon = 1:nCon
+    ind_con = find(baseCon == cons(iCon));
+    subplot(3,2,iCon)
+    for iSpd = 1:nSpd
+        ind_spd = intersect(ind_con, find(targSpeed==spds(iSpd)));
+        plot(tt, mean(nanmean(data_dfof_targ(:,low_resp_ind,ind_spd),3),2))
+        hold on
+    end
+    title('Resp to low speed increment')
+end
+title(['n = ' num2str(size(low_resp_ind,1))])
+for iCon = 1:nCon
+    ind_con = find(baseCon == cons(iCon));
+    subplot(3,2,iCon+2)
+    for iSpd = 1:nSpd
+        ind_spd = intersect(ind_con, find(targSpeed==spds(iSpd)));
+        plot(tt, mean(nanmean(data_dfof_targ(:,high_resp_ind,ind_spd),3),2))
+        hold on
+    end
+    title('Resp to high speed increment')
+end
+title(['n = ' num2str(size(high_resp_ind,1))])
+for iCon = 1:nCon
+    ind_con = find(baseCon == cons(iCon));
+    subplot(3,2,iCon+4)
+    for iSpd = 1:nSpd
+        ind_spd = intersect(ind_con, find(targSpeed==spds(iSpd)));
+        plot(tt, mean(nanmean(data_dfof_targ(:,supp_ind,ind_spd),3),2))
+        hold on
+    end
+    title('Supp to high speed increment')
+end
+title(['n = ' num2str(size(supp_ind,1))])
+        

@@ -5,9 +5,9 @@
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'181115_img1011_1'};
-days = {'1011-181115_1'};
-sessionID = {'1011-181115'};
+sessions = {'190409_img1018_1'};
+days = {'1018-190409_1'};
+sessionID = {'1018-190409'};
 % this  variable name is confusing, this session ID is just tha date and the subject#, 
 %there might be more than 1 sessions on a single subject on the same day
 %bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];

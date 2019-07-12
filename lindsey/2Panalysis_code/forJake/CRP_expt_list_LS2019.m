@@ -1,0 +1,46 @@
+expt(1).mouse = strvcat('095', '096', '097', '098', '1030', '1032');
+expt(1).date = strvcat('190309', '190411', '190411', '190615', '190615', '190615');
+expt(1).run = strvcat('000', '000', '000', '000', '000', '000');
+expt(1).ttl = [1, 1, 1, 1, 1, 1];
+expt(1).areas{1} = {'LS'};
+expt(1).areas{2} = {'LS'};
+expt(1).areas{3} = {'LS'};
+expt(1).areas{4} = {'LS'};
+expt(1).areas{5} = {'LS'};
+expt(1).areas{6} = {'LS'};
+expt(1).visArtifact = [];
+expt(1).rewArtifact = [2 3];
+
+expt(2).mouse = strvcat('095', '096', '097', '098', '1032');
+expt(2).date = strvcat('190313', '190415', '190416', '190621', '190621');
+expt(2).run = strvcat('000', '000', '000', '001', '000');
+expt(2).ttl = [1, 1, 1, 1, 1];
+expt(2).areas{1} = {'LS'};
+expt(2).areas{2} = {'LS'};
+expt(2).areas{3} = {'LS'};
+expt(2).areas{4} = {'LS'};
+expt(2).areas{5} = {'LS'};
+expt(2).visArtifact = [];
+expt(2).rewArtifact = [2 3];
+
+expt(3).mouse = strvcat('095', '096', '097');
+expt(3).date = strvcat('190315', '190416', '190417');
+expt(3).run = strvcat('000', '000', '000');
+expt(3).ttl = [1, 1, 1];
+expt(3).areas{1} = {'LS'};
+expt(3).areas{2} = {'LS'};
+expt(3).areas{3} = {'LS'};
+expt(3).visArtifact = [];
+expt(3).rewArtifact = [2 3];
+
+expt(5).mouse = strvcat('095', '096', '098', '1030', '1032');
+expt(5).date = strvcat('190321', '190423', '190628', '190628', '190628');
+expt(5).run = strvcat('000', '000','000', '000', '000');
+expt(5).ttl = [1, 1, 1, 1, 1];
+expt(5).areas{1} = {'LS'};
+expt(5).areas{2} = {'LS'};
+expt(5).areas{3} = {'LS'};
+expt(5).areas{4} = {'LS'};
+expt(5).areas{5} = {'LS'};
+expt(5).visArtifact = [];
+expt(5).rewArtifact = [1 2];

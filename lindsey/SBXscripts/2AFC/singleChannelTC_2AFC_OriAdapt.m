@@ -184,14 +184,19 @@ clear data_tc np_tc
 
 %% 2AFC analysis
 frameRateHz = double(input.frameRateHz);
+cStimOn = celleqel2mat_padded(input.cStimOn);
+tGratingOri = celleqel2mat_padded(input.tGratingDirectionStart);
+tOris = unique(tGratingOri);
+nOri = length(tOris);
 aGratingOri = celleqel2mat_padded(input.aGratingDirectionDeg);
 aGratingContrast = celleqel2mat_padded(input.aGratingContrast);
 aCons = unique(aGratingContrast);
-naCon = length(acons);
+naCon = length(aCons);
 aOris = unique(aGratingOri);
-naOri = length(aoris);
+naOri = length(aOris);
 nCells = size(npSub_tc,2);
 nframes = size(npSub_tc,1);
+nTrials = size(aGratingOri,2);
 data_stim = nan(50,nCells,nTrials);
 for itrial = 1:nTrials
     if cStimOn(itrial)+29 < nframes
@@ -218,9 +223,10 @@ for icon = 1:naCon
             ind_con = find(aGratingContrast == aCons(icon));
             ind_con = intersect(ind_con, find(aGratingOri == aOris(iaOri)));
             for iori = 1:nOri
-                ind_ori = intersect(ind_con, find(tGratingOri == Oris(iori)));
+                ind_ori = intersect(ind_con, find(tGratingOri == tOris(iori)));
                 subplot(3,nOri,start)
                 plot(tt, mean(nanmean(data_stim_dfof(:,:,ind_ori),3),2))
+                hold on
                 title(['Adapt: Ori = '  num2str(aOris(iaOri))])
                 ylim([-0.01 0.1])
                 start = start+1;
@@ -231,28 +237,30 @@ for icon = 1:naCon
     else
         ind_con = find(aGratingContrast == aCons(icon));
         for iori = 1:nOri
-            ind_ori = intersect(ind_con, find(tGratingOri == Oris(iori)));
+            ind_ori = intersect(ind_con, find(tGratingOri == tOris(iori)));
             subplot(3,nOri,start)
             plot(tt, mean(nanmean(data_stim_dfof(:,:,ind_ori),3),2))
-            title(['No adapt; Ori = ' num2str(Oris(iori))])
+            hold on
+            title(['No adapt; Ori = ' num2str(tOris(iori))])
             ylim([-0.01 0.1])
             start = start+1;
             nt{x,iori} = ind_ori;
         end
         x = 1+x;
     end
+    legend({'No adapt','0deg','90deg'})
 end
+print(fullfile([fn_base 'home\lindsey\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_avgTargetResponse_byTarget.pdf']), '-dpdf','-bestfit')
 
 ind_aCon0 = find(aGratingContrast == 0);
 ind_cond{1} = ind_aCon0;
 ind_cond{2} = intersect(find(aGratingContrast),find(aGratingOri==0));
 ind_cond{3} = intersect(find(aGratingContrast),find(aGratingOri==90));
 
-h_ori = zeros(nOri, nCells);
-p_ori = zeros(nOri, nCells);
-[h_all p_all] = ttest(mean(data_stim_dfof(base_win,:,ind_aCon0),1),mean(data_stim_dfof(resp_win,:,ind_aCon0),1),'tail','left','dim',3);
+h_ori = nan(nOri, nCells,3);
+[h_all p_all] = ttest(mean(data_stim_dfof(base_win,:,ind_cond{i}),1),mean(data_stim_dfof(resp_win,:,ind_cond{i}),1),'tail','left','dim',3);
 for iori = 1:nOri
-	ind_ori = intersect(ind_aCon0, find(tGratingOri == Oris(iori))); 
+    ind_ori = intersect(ind_cond{1}, find(tGratingOri == tOris(iori))); 
     [h_ori(iori,:) p_ori(iori,:)] = ttest(mean(data_stim_dfof(base_win,:,ind_ori),1),mean(data_stim_dfof(resp_win,:,ind_ori),1),'tail','left','dim',3,'alpha',0.05./(nOri-1));
 end
 
@@ -260,21 +268,40 @@ good_ind = find(sum([h_all; h_ori],1));
 data_stim_resp = squeeze(mean(data_stim_dfof(resp_win,:,:),1)-mean(data_stim_dfof(base_win,:,:),1));
 
 data_resp_ori = zeros(3,nOri,length(good_ind));
+
 [n n2] = subplotn(length(good_ind));
+h_anova = nan(1,nCells);
 figure;
 for iCell = 1:length(good_ind)
     subplot(n,n2,iCell)
     iC = good_ind(iCell);
+    temp_resp = [];
     for i = 1:3
         for iOri = 1:nOri
             data_resp_ori(i,iOri,iCell) = mean(data_stim_resp(iC,nt{i,iOri}),2);
+            if i == 1
+                temp_resp = [temp_resp; data_stim_resp(iC,nt{i,iOri})' iOri.*ones(length(nt{i,iOri}),1)];
+            end
         end
-        plot(Oris,data_resp_ori(i,:,iCell),'-o')
+        h_anova(iCell) = anova1(temp_resp(:,1), temp_resp(:,2),'off');
+        plot(tOris,data_resp_ori(i,:,iCell),'-o')
         hold on
     end
     ylim([-0.1 1])
 end
-    
+
+[ori_max ori_pref] = max(data_resp_ori(1,:,:),[],2);
+figure
+for ipref = 1:nOri
+    ind = intersect(find(h_anova(good_ind)),find(squeeze(ori_pref) == ipref));
+    subplot(3,3,ipref)
+    for i = 1:3
+        plot(tOris, mean(data_resp_ori(i,:,ind),3),'-o')
+        hold on
+    end
+    title([num2str(tOris(ipref)) 'deg- n = ' num2str(length(ind)) ' cells'])
+end
+
 aCon_p1 = [NaN aGratingContrast];
 aOri_p1 = [NaN aGratingOri];
 ind_aCon0_p1{1} = intersect(ind_aCon0,find(aCon_p1==0));
@@ -290,7 +317,7 @@ for iCell = 1:length(good_ind)
         for iOri = 1:nOri
             data_aCon0_ori(i,iOri,iCell) = mean(data_stim_resp(iC,intersect(ind_aCon0_p1{i},nt{1,iOri})),2);
         end
-        plot(Oris,data_aCon0_ori(i,:,iCell),'-o')
+        plot(tOris,data_aCon0_ori(i,:,iCell),'-o')
         hold on
     end
 end

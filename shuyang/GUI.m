@@ -2,7 +2,7 @@
 %generate a GUI with plots of raw fluorescnece for cells during picked
 %frames (this can be run triggered ave, etc). 
 %Spike events (Fluorescnece > std best) have red dots over them.
-function [fig] = GUI(TCave, deriv, frames_mat,std_best)
+function [fig] = GUI(TCave, frames_mat,spk_inx,sessions)
 num_components = size(TCave,2);
 ind_all = 1:size(TCave,1);
 fig = figure('Visible','off');
@@ -31,21 +31,28 @@ plot_component(1)
     %for i = randperm(size(TCave,2),10)                                      
         %figure('units', 'normalized', 'outerposition', [0 0 1 1]); % open the figure full screen
         %set(gcf, 'position', get(0,'screensize'))
-        for j = 1:4                                                         % first 9 windows
-            subplot(2,2,j);plot(TCave(frames_mat(:,j),k));
-            if isempty(std_best)
-                continue
-            else
-                frm_abv = ind_all(deriv(frames_mat(:,j),k) >= std_best(k)); %get the frames when spike happens
-                hold on;
-                plot(frm_abv, (max(TCave(frames_mat(:,j),k))-10)*ones(1,length(frm_abv)),'r.'); % plot red dots on top of the spikes
-            end
+        for j = 1:4                                                         % first 4 windows
+            %subplot(2,2,j);plot(min(frames_mat(:,j)):max(frames_mat(:,j)),TCave(frames_mat(:,j),k));
+            subplot(2,2,j);plot(min(frames_mat(:,j)):max(frames_mat(:,j)),TCave(frames_mat(:,j),k));
+
+            frm_abv = intersect(spk_inx{k},frames_mat(:,j)); %get the frames when spike happens
+            frames = frames_mat(:,j);
+            spklogic = ismember(frames,frm_abv);
+            plotred = TCave(frames_mat(:,j),k).*spklogic;
+            plotred(plotred==0) = NaN;
+            plotx = frames_mat(:,j).*spklogic;
+            plotx(plotx ==0) = NaN;
+            hold on;
+            plot(plotx,plotred,'ro','MarkerSize',8);
+            %plot(frm_abv, (max(TCave(frames_mat(:,j),k))-10)*ones(1,length(frm_abv)),'r.'); % plot red dots on top of the spikes
+            xlim([min(frames_mat(:,j)),max(frames_mat(:,j))]);
             hold on; set(gca,'xticklabel',[]); %,'yticklabel',[]);
             hold on; title(['cell' num2str(k) 'frm' num2str(frames_mat(1,j)) '-' num2str(frames_mat(end,j))]);
             drawnow; hold off
         end
-        supertitle('TC ave'); hold off
     end
+        supertitle(['TC ave_' sessions]); hold off
+   
     
 end
 

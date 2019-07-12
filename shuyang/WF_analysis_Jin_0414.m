@@ -4,8 +4,8 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'181115_img1011_1'}; 
-days = {'1011-181115_1'};
+sessions = {'190409_img1018_1'}; 
+days = {'1018-190409_1'};
 bx_source = 'Z:\Data\Behv_MovingDots\behavior_raw';
 image_source_base  = 'Z:\Data\WF imaging\'; %location of permanently stored image files for retreiving meta data
 image_dest_base    = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder

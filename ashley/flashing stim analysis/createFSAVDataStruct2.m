@@ -28,7 +28,6 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
     %initialize structure
     exptN = zeros(1,nMice);
     mouse = struct;
-    Dirs_all = [];
     
     
     %collect data from each experiment
@@ -543,6 +542,7 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
             mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).crRespTC = DataDFoverF_bl(:,:,ind);
             mouse(imouse).expt(exptN(:,imouse)).av(1).align(ialign).crNCycles = cCyc(ind)-2;
         end
+        
         
     end
     %%

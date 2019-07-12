@@ -1,15 +1,16 @@
 clear all
-CRP_expt_list_all
-id = 3;
-jake_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Analysis\Cue_reward_pairing_analysis\2P';
+CRP_expt_list_Crus2019
+id = 1;
+jake_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
 lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
+share_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\public\ClassicConditioningPaper';
 nexp = size(expt(id).date,1);
 
-for iexp = 1:nexp
+for iexp = nexp
     mouse = expt(id).mouse(iexp,:);
     date = expt(id).date(iexp,:);
     run = expt(id).run(iexp,:);
-    time = expt(id).time(iexp,:);
+    %time = expt(id).time(iexp,:);
     fprintf([date ' ' mouse '\n'])
     img_fn = [date '_' mouse];
     if ~exist(fullfile(lg_out,img_fn))
@@ -26,6 +27,14 @@ for iexp = 1:nexp
     load(['img' mouse_name '_000_' run '.mat'])
     if exist(fullfile(lg_out, img_fn, [img_fn '_input.mat']))
         load(fullfile(lg_out, img_fn, [img_fn '_input.mat']))
+    elseif str2num(mouse)> 90
+        if exist(fullfile(jake_dir,'CC_analysis_2P',img_fn,[img_fn '_input.mat']))
+            load(fullfile(jake_dir,'CC_analysis_2P',img_fn,[img_fn '_input.mat']))
+        end
+    elseif str2num(mouse)<90
+        if exist(fullfile(jake_dir,'2P',img_fn,[img_fn '_input.mat']))
+            load(fullfile(jake_dir,'2P',img_fn,[img_fn '_input.mat']))
+        end
     else
         load(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-i' mouse '-' date '-' time '.mat'])
         mworks = input;
@@ -61,6 +70,14 @@ for iexp = 1:nexp
     end
     if exist(fullfile(lg_out, img_fn, [img_fn '_reg.mat']))
         load(fullfile(lg_out, img_fn, [img_fn '_reg.mat']))
+    elseif str2num(mouse)> 90
+        if exist(fullfile(jake_dir,'CC_analysis_2P',img_fn,[img_fn '_reg.mat']))
+            load(fullfile(jake_dir,'CC_analysis_2P',img_fn,[img_fn '_reg.mat']))
+        end
+    elseif str2num(mouse)<90
+        if exist(fullfile(jake_dir,'2P',img_fn,[img_fn '_reg.mat']))
+            load(fullfile(jake_dir,'2P',img_fn,[img_fn '_reg.mat']))
+        end
     else
        figure;
        nplot = floor(size(data,3)./5000);
@@ -200,7 +217,7 @@ for iexp = 1:nexp
     cTargetOn = celleqel2mat_padded(mworks.cTargetOn);
     nTrials = length(cTargetOn);
     prewin_frames = round(1500./mworks.frameRateHz);
-    postwin_frames = round(3000./mworks.frameRateHz);
+    postwin_frames = round(1500./mworks.frameRateHz);
     reg_align = nan(sz(1),sz(2),prewin_frames+postwin_frames,nTrials);
     for itrial = 1:nTrials
         if cTargetOn(itrial)+postwin_frames<size(img_reg,3)
@@ -208,7 +225,7 @@ for iexp = 1:nexp
         end
     end
     reg_align_avg = nanmean(reg_align,4);
-    writetiff(reg_align_avg(:,:,1:2:end), fullfile('\\crash.dhe.duke.edu\data\public\ClassicConditioningPaper', expt(id).name, 'CC_movies', ['Day' num2str(id)], [img_fn '_cueAlign_rereg.tif']))
+    writetiff(reg_align_avg, fullfile(share_out, 'CC_movies', ['Day' num2str(id)], [img_fn '_cueAlign_rereg.tif']))
 
 end
         

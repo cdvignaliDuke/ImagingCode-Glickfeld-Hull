@@ -1,9 +1,9 @@
 clear all
 close all
-ds = 'FSAV_attentionV1';
+ds = 'ConAV_V1_naive';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 14;%[13,14];
+slct_expt = 1;
 doPreviousReg = false;
 %%
 iexp = slct_expt
@@ -163,8 +163,8 @@ bx_img = max(dFF_bxMax,[],3);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:36 738:xpix];
-ycrop = [1:30 245:ypix];
+xcrop = [1:20 790:xpix];
+ycrop = [1:30 260:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;
