@@ -1,7 +1,7 @@
 clear all
 close all
-CRP_expt_list_LS2019
-for id = [1:3 5]
+CRP_expt_list_all
+for id = [1:3]
 lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
 jake_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
 nexp = size(expt(id).date,1);
@@ -48,6 +48,7 @@ fprintf(['Day ' num2str(id) '\n'])
         preRew_lickSearchRange_600ms = prewin_frames+lickDelay_frames:prewin_frames+lickDelay_frames+rewDelay_frames;
         lickBurstStart = nan(1,nTrials);
         postRew_lickBurstStart = nan(1,nTrials);
+        lickBurstHz_all = nan(1,nTrials);
         preRew_lickBurstHz = nan(1,nTrials);
         postRew_lickBurstHz = nan(1,nTrials);
         postRew_lickAlignEvents = nan(2.*postLick_frames,nIC,nTrials);
@@ -96,8 +97,10 @@ fprintf(['Day ' num2str(id) '\n'])
                 end
                 ind_pre = intersect(preRew_lickSearchRange_600ms,find(lickCueAlign(:,itrial)));
                 ind_post = intersect(postRew_lickSearchRange,find(lickCueAlign(:,itrial)));
+                ind_all = intersect(lickSearchRange,find(lickCueAlign(:,itrial)));
                 preRew_lickBurstHz(:,itrial) = length(ind_pre)./0.6;
                 postRew_lickBurstHz(:,itrial) = length(ind_post)./(length(postRew_lickSearchRange)./frameRateHz);
+                lickBurstHz_all(:,itrial) = length(ind_all)./(length(lickSearchRange)./frameRateHz);
                 ind = intersect(postRew_lickSearchRange,find(lickCueAlign(:,itrial)));
                 for i = 1:length(ind)
                     ilick = ind(i);
@@ -340,6 +343,13 @@ fprintf(['Day ' num2str(id) '\n'])
         suptitle([mouse ' ' date '- Licks relative to reward'])
         savefig(fullfile(lg_out,img_fn, [img_fn '_lastVsFirstLick.fig'])) 
         
+        [sortlickHz sortlickHz_ind] = sort(lickBurstHz_all(:,ind_rew),'ascend');
+        nnan = sum(isnan(lickBurstHz_all(:,ind_rew)));
+        ind_low_rew = sortlickHz_ind(1:floor(length(ind_rew)/4));
+        ind_high_rew = sortlickHz_ind(length(ind_rew)-floor(length(ind_rew)/4)+1:end-nnan);
+        HL_lickrate.low_rew = mean(lickBurstHz_all(:,ind_rew(ind_low_rew)),2);
+        HL_lickrate.high_rew = mean(lickBurstHz_all(:,ind_rew(ind_high_rew)),2);
+        
         [sortlickHz sortlickHz_ind] = sort(preRew_lickBurstHz(:,ind_rew),'ascend');
         nnan = sum(isnan(preRew_lickBurstHz(:,ind_rew)));
         ind_low_prerew = sortlickHz_ind(1:floor(length(ind_rew)/4));
@@ -354,6 +364,13 @@ fprintf(['Day ' num2str(id) '\n'])
         HL_lickrate.low_postrew = mean(postRew_lickBurstHz(:,ind_rew(ind_low_postrew)),2);
         HL_lickrate.high_postrew = mean(postRew_lickBurstHz(:,ind_rew(ind_high_postrew)),2);
         if length(ind_omit)>5
+            [sortlickHz sortlickHz_ind] = sort(lickBurstHz_all(:,ind_omit),'ascend');
+            nnan = sum(isnan(lickBurstHz_all(:,ind_omit)));
+            ind_low_omit = sortlickHz_ind(1:floor(length(ind_omit)/4));
+            ind_high_omit = sortlickHz_ind(length(ind_omit)-floor(length(ind_omit)/4)+1:end-nnan);
+            HL_lickrate.low_omit = mean(lickBurstHz_all(:,ind_omit(ind_low_omit)),2);
+            HL_lickrate.high_omit = mean(lickBurstHz_all(:,ind_omit(ind_high_omit)),2);
+            
             [sortlickHz sortlickHz_ind] = sort(preRew_lickBurstHz(:,ind_omit),'ascend');
             nnan = sum(isnan(preRew_lickBurstHz(:,ind_omit)));
             ind_low_preomit = sortlickHz_ind(1:floor(length(ind_omit)/4));
@@ -368,10 +385,14 @@ fprintf(['Day ' num2str(id) '\n'])
             HL_lickrate.low_postomit = mean(postRew_lickBurstHz(:,ind_omit(ind_low_postomit)),2);
             HL_lickrate.high_postomit = mean(postRew_lickBurstHz(:,ind_omit(ind_high_postomit)),2);
         else
+            ind_low_omit = [];
+            ind_high_omit = [];
             ind_low_preomit = [];
             ind_high_preomit = [];
             ind_low_postomit = [];
             ind_high_postomit =[];
+            HL_lickrate.low_omit = [];
+            HL_lickrate.high_omit = [];
             HL_lickrate.low_preomit = [];
             HL_lickrate.high_preomit = [];
             HL_lickrate.low_postomit = [];
@@ -380,7 +401,15 @@ fprintf(['Day ' num2str(id) '\n'])
         
                 
         figure;
-        subplot(2,2,1)
+        subplot(2,3,1)
+        shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_rew(ind_low_rew)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew(ind_low_rew)),3),[],2).*(1000./frameRateHz))./sqrt(nIC), 'b');
+        hold on
+        shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_rew(ind_high_rew)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew(ind_high_rew)),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'k');
+        xlabel('Time from cue')
+        ylabel('Spike rate (Hz)')
+        ylim([-1 inf])
+        title(['1s- Rew: ' num2str(chop(HL_lickrate.low_rew,2)) ' vs ' num2str(chop(HL_lickrate.high_rew,2)) ' Hz'])
+        subplot(2,3,2)
         shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_rew(ind_low_prerew)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew(ind_low_prerew)),3),[],2).*(1000./frameRateHz))./sqrt(nIC), 'b');
         hold on
         shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_rew(ind_high_prerew)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew(ind_high_prerew)),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'k');
@@ -388,7 +417,7 @@ fprintf(['Day ' num2str(id) '\n'])
         ylabel('Spike rate (Hz)')
         ylim([-1 inf])
         title(['Pre- Rew: ' num2str(chop(HL_lickrate.low_prerew,2)) ' vs ' num2str(chop(HL_lickrate.high_prerew,2)) ' Hz'])
-        subplot(2,2,3)
+        subplot(2,3,3)
         shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_rew(ind_low_postrew)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew(ind_low_postrew)),3),[],2).*(1000./frameRateHz))./sqrt(nIC), 'b');
         hold on
         shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_rew(ind_high_postrew)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew(ind_high_postrew)),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'k');
@@ -397,7 +426,15 @@ fprintf(['Day ' num2str(id) '\n'])
         ylim([-1 inf])
         title(['Post- Rew: ' num2str(chop(HL_lickrate.low_postrew,2)) ' vs ' num2str(chop(HL_lickrate.high_postrew,2)) ' Hz'])
         if length(ind_omit)>5
-            subplot(2,2,2)
+            subplot(2,3,4)
+            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_omit(ind_low_omit)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit(ind_low_omit)),3),[],2).*(1000./frameRateHz))./sqrt(nIC), 'b');
+            hold on
+            shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_omit(ind_high_omit)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit(ind_high_omit)),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'k');
+            xlabel('Time from cue')
+            ylabel('Spike rate (Hz)')
+            ylim([-1 inf])
+            title(['1s- Omit: ' num2str(chop(HL_lickrate.low_omit,2)) ' vs ' num2str(chop(HL_lickrate.high_omit,2)) ' Hz'])
+            subplot(2,3,5)
             shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_omit(ind_low_preomit)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit(ind_low_preomit)),3),[],2).*(1000./frameRateHz))./sqrt(nIC), 'b');
             hold on
             shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_omit(ind_high_preomit)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit(ind_high_preomit)),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'k');
@@ -405,7 +442,7 @@ fprintf(['Day ' num2str(id) '\n'])
             ylabel('Spike rate (Hz)')
             ylim([-1 inf])
             title(['Pre- Omit: ' num2str(chop(HL_lickrate.low_preomit,2)) ' vs ' num2str(chop(HL_lickrate.high_preomit,2)) ' Hz'])
-            subplot(2,2,4)
+            subplot(2,3,6)
             shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_omit(ind_low_postomit)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit(ind_low_postomit)),3),[],2).*(1000./frameRateHz))./sqrt(nIC), 'b');
             hold on
             shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_omit(ind_high_postomit)),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit(ind_high_postomit)),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'k');
@@ -417,7 +454,7 @@ fprintf(['Day ' num2str(id) '\n'])
         suptitle([mouse ' ' date '- lick bursts by rate: low (blue) & high (black)'])
         savefig(fullfile(lg_out,img_fn, [img_fn '_cueAlignSpiking_byLickRate.fig'])) 
         
-        save(fullfile(lg_out,img_fn, [img_fn '_cueAlignLick.mat']), 'firstPostRewLickFrame', 'lastPreRewLickFrame', 'tl_rew', 'firstPostRew_lickAlignEvents', 'lastPreRew_lickAlignEvents', 'lickCueAlign', 'lickBurstStart', 'lickCounterVals', 'lickSearch_frames', 'lickDelay_frames', 'lickTC', 'postwin_frames', 'prewin_frames', 'frameRateHz', 'tt', 'ind_early_rew', 'ind_late_rew', 'ind_early_omit', 'ind_late_omit', 'early_rew_time', 'late_rew_time', 'early_omit_time', 'late_omit_time','pct_precue_burst', 'postRew_lickAlignEvents', 'postLick_frames', 'postRew_lickBurstStart','tl', 'ind_prerew_early_rew', 'ind_prerew_late_rew','postRew_lickAlign','preRew_lickBurstHz','postRew_lickBurstHz','ind_low_prerew','ind_high_prerew','ind_low_postrew','ind_high_postrew','ind_low_preomit','ind_high_preomit','ind_low_postomit','ind_high_postomit','HL_lickrate')
+        save(fullfile(lg_out,img_fn, [img_fn '_cueAlignLick.mat']), 'firstPostRewLickFrame', 'lastPreRewLickFrame', 'tl_rew', 'firstPostRew_lickAlignEvents', 'lastPreRew_lickAlignEvents', 'lickCueAlign', 'lickBurstStart', 'lickCounterVals', 'lickSearch_frames', 'lickDelay_frames', 'lickTC', 'postwin_frames', 'prewin_frames', 'frameRateHz', 'tt', 'ind_early_rew', 'ind_late_rew', 'ind_early_omit', 'ind_late_omit', 'early_rew_time', 'late_rew_time', 'early_omit_time', 'late_omit_time','pct_precue_burst', 'postRew_lickAlignEvents', 'postLick_frames', 'postRew_lickBurstStart','tl', 'ind_prerew_early_rew', 'ind_prerew_late_rew','postRew_lickAlign','preRew_lickBurstHz','postRew_lickBurstHz','ind_low_prerew','ind_high_prerew','ind_low_postrew','ind_high_postrew','ind_low_preomit','ind_high_preomit','ind_low_postomit','ind_high_postomit','ind_high_rew','ind_low_rew','ind_high_omit','ind_low_omit','HL_lickrate')
         close all
     end
     

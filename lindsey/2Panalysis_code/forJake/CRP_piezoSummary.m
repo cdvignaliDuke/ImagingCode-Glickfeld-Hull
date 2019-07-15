@@ -1,13 +1,13 @@
 clear all
 close all
-CRP_expt_list_LS2019
-%area_list = {'C1','C2'};
-area_list = {'LS'};
-share_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\public\ClassicConditioningPaper\LS2019';
+CRP_expt_list_Crus2019
+area_list = {'C1','C2'};
+%area_list = {'LS'};
+share_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\public\ClassicConditioningPaper\Crus2019';
 if ~exist(share_out)
     mkdir(share_out)
 end
-for id = [1:2 5]
+for id = 1:2
     fprintf(['Day: ' num2str(id) '\n'])
     lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
     jake_dir = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
@@ -87,7 +87,8 @@ for id = [1:2 5]
         fprintf([date ' ' mouse '\n'])
         img_fn = [date '_' mouse];
         mouse_str = [mouse_str '_' mouse];
-        
+        frameRateHz = 30;
+        rewdelay_frames = round(0.6.*frameRateHz);
         load(fullfile(lg_out,img_fn, [img_fn '_targetAlign.mat']))
         load(fullfile(lg_out,img_fn, [img_fn '_cueAlignPiezo.mat']))
         if exist(fullfile(lg_out,img_fn, [img_fn '_splitImage.mat']))
@@ -444,8 +445,27 @@ for id = [1:2 5]
         suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites- High25 (black) vs low25 (blue) pre-reward movements']);
         savefig([share_out '\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_HighVsLow25PreRewPiezo_' mouse_str '.fig'])     
         
+        thresh = 4;
+        avg_rew = mean(all_rew(:,ind),2);
+        avg_low10piezo_prerew = mean(all_low10piezo_prerew(:,ind),2);
+        avg_high10piezo_prerew = mean(all_high10piezo_prerew(:,ind),2);
+        base_avg = mean(all_rew(ceil(prewin_frames./2):prewin_frames,:),1);
+        base_std = std(all_rew(ceil(prewin_frames./2):prewin_frames,:),[],1);
+        base_std_all = std(mean(all_rew(ceil(prewin_frames./2):prewin_frames,ind),2),[],1);
+        [prerew_max_rew prerew_max_ind_rew] = max(avg_rew(prewin_frames+1:prewin_frames+rewdelay_frames+1,:),[],1);
+        [prerew_max_rew_low10 prerew_max_ind_rew_low10] = max(avg_low10piezo_prerew(prewin_frames+1:prewin_frames+rewdelay_frames+1,:),[],1);
+        [prerew_max_rew_high10 prerew_max_ind_rew_high10] = max(avg_high10piezo_prerew(prewin_frames+1:prewin_frames+rewdelay_frames+1,:),[],1);
+        
+        if prerew_max_ind_rew_high10 > mean(base_avg(:,ind),2)+base_std_all.*thresh
+            vline([prerew_max_ind_rew_high10-1].*1000/frameRateHz,'k')
+            tit_str1 = 'r';
+        else
+            vline([prerew_max_ind_rew_high10-1].*1000/frameRateHz,'--k')
+            tit_str1 = 'k';
+        end
+        
         figure;
-        subplot(2,2,1)
+        subplot(3,2,1)
         shadedErrorBar(tt, nanmean(all_high10piezo_prerew(:,ind),2).*(1000./frameRateHz), (nanstd(all_high10piezo_prerew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
         hold on
         shadedErrorBar(tt, nanmean(all_low10piezo_prerew(:,ind),2).*(1000./frameRateHz), (nanstd(all_low10piezo_prerew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'b');
@@ -455,7 +475,7 @@ for id = [1:2 5]
         ylim([-1 12])
         vline(600)
         
-        subplot(2,2,3)
+        subplot(3,2,3)
         shadedErrorBar(tt, nanmean(all_high10piezo_prerew_piezo(:,find(expt_areas(i,:))),2), (nanstd(all_high10piezo_prerew_piezo(:,find(expt_areas(i,:))),[],2)./sqrt(sum(expt_areas(i,:),2))),'k');
         hold on
         shadedErrorBar(tt, nanmean(all_low10piezo_prerew_piezo(:,find(expt_areas(i,:))),2), (nanstd(all_low10piezo_prerew_piezo(:,find(expt_areas(i,:))),[],2)./sqrt(sum(expt_areas(i,:),2))),'b');
@@ -463,7 +483,7 @@ for id = [1:2 5]
         xlabel('Time from cue')
         ylabel('Piezo (V)')
         
-        subplot(2,2,2)
+        subplot(3,2,2)
         shadedErrorBar(tt, nanmean(all_high10piezo_preomit(:,ind),2).*(1000./frameRateHz), (nanstd(all_high10piezo_preomit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
         hold on
         shadedErrorBar(tt, nanmean(all_low10piezo_preomit(:,ind),2).*(1000./frameRateHz), (nanstd(all_low10piezo_preomit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'b');
@@ -472,13 +492,35 @@ for id = [1:2 5]
         title('Omission trials')
         ylim([-1 12])
         
-        subplot(2,2,4)
+        subplot(3,2,4)
         shadedErrorBar(tt, nanmean(all_high10piezo_preomit_piezo(:,find(expt_areas(i,:))),2), (nanstd(all_high10piezo_preomit_piezo(:,find(expt_areas(i,:))),[],2)./sqrt(sum(expt_areas(i,:),2))),'k');
         hold on
         shadedErrorBar(tt, nanmean(all_low10piezo_preomit_piezo(:,find(expt_areas(i,:))),2), (nanstd(all_low10piezo_preomit_piezo(:,find(expt_areas(i,:))),[],2)./sqrt(sum(expt_areas(i,:),2))),'b');
         hold on
         xlabel('Time from cue')
         ylabel('Piezo (V)')
+        
+        all_low10_sub = (all_low10piezo_prerew-nanmean(all_low10piezo_prerew(1:prewin_frames,:),1)).*(1000/frameRateHz);
+        all_high10_sub = (all_high10piezo_prerew-nanmean(all_high10piezo_prerew(1:prewin_frames,:),1)).*(1000/frameRateHz);
+        ind_prerew_rewresp = intersect(ind, find(all_rew(prerew_max_ind_rew,:) > base_avg+(base_std)));
+        subplot(3,2,5)
+        low10_preresp_rew = nanmean(all_low10_sub(prewin_frames+prerew_max_ind_rew_low10-1:prewin_frames+prerew_max_ind_rew_low10+1,ind),1);
+        high10_preresp_rew = nanmean(all_high10_sub(prewin_frames+prerew_max_ind_rew_high10-1:prewin_frames+prerew_max_ind_rew_high10+1,ind),1);
+        scatter(low10_preresp_rew,high10_preresp_rew)
+        hold on
+        errorbarxy(nanmean(low10_preresp_rew,2),nanmean(high10_preresp_rew,2),nanstd(low10_preresp_rew,[],2)./sqrt(totIC_area), nanstd(high10_preresp_rew,[],2)./sqrt(totIC_area),{'ok', 'k','k'});
+        text(0,8,[num2str(chop(nanmean(high10_preresp_rew,2),2)) '+/-' num2str(chop(nanstd(high10_preresp_rew,[],2),2))],'HorizontalAlignment','center','Color','k')
+        text(0,9,[num2str(chop(nanmean(low10_preresp_rew,2),2)) '+/-' num2str(chop(nanstd(low10_preresp_rew,[],2),2))],'HorizontalAlignment','center','Color','b')
+        text(10,0,[num2str(chop([prerew_max_ind_rew_low10-1].*1000/frameRateHz,2)) ' ms'],'HorizontalAlignment','right','Color','b')
+        text(10,-1,[num2str(chop([prerew_max_ind_rew_high10-1].*1000/frameRateHz,2)) ' ms'],'HorizontalAlignment','right','Color','k')
+        [h, p_preresp_lowvshigh] = ttest(low10_preresp_rew,high10_preresp_rew,'dim',2);
+        ylabel('Low lick- FR (Hz)')
+        xlabel('High lick- FR (Hz)')
+        xlim([-3 10])
+        ylim([-3 10])
+        axis square
+        refline(1,0)
+        title(['PreRew peak- p = ' num2str(chop(p_preresp_lowvshigh,2))],'Color',tit_str1)
         suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites- High10 (black) vs low10 (blue) pre-reward movements']);
         savefig([share_out '\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_HighVsLow10PreRewPiezo_' mouse_str '.fig'])     
         
