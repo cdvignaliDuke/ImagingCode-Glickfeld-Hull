@@ -1,3 +1,4 @@
+% save matlab data as tiff
 function res = saveastiff(data, path, options)
 % options.color
 %   : true or FALSE
