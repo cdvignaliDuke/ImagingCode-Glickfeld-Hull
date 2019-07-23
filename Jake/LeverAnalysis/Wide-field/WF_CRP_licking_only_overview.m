@@ -7,6 +7,7 @@
 bx_source      = ['Y:\home\jake\Data\WidefieldImaging\GCaMP\behavior\'];
 bx_outputs_dir = ['Y:\home\jake\Analysis\Cue_reward_pairing_analysis\BxAndAnalysisOutputs\BxOutputs\'];
 CRP_fig_dir_base    = ['Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CRPFigureFolder\'];
+img_dir = ['Y:\home\jake\Data\2P_imaging\'];
 old_cd = cd; %save old cd so I can restore it later
 time_before_ms = 2000; %defines the window around the cue presentation which will be taken for plotting
 time_after_ms = 3000;
@@ -62,8 +63,17 @@ days = {'181213_img091', '181214_img091', '181215_img091', '181216_img091', '181
 days = {'181214_img088', '181215_img088', '181216_img088', '181217_img088', '181218_img088', '181219_img088', '181220_img088', '181221_img088'};
 %days = {'181214_img089', '181215_img089', '181216_img089', '181217_img089', '181218_img089', '181219_img089'};
 %days = {'181216_img090', '181217_img090', '181218_img090', '181219_img090'};
-days = {'190213_img092', '190214_img092', '190215_img092', '190216_img092', '190217_img092', '190218_img092', '190219_img092', '190220_img092', '190221_img092', '190222_img092', '190223_img092', '190224_img092', '190225_img092'};
-days = {'190215_img093', '190216_img093', '190217_img093', '190218_img093', '190219_img093', '190220_img093', '190222_img093', '190225_img093'};
+%days = {'190213_img092', '190214_img092', '190215_img092', '190216_img092', '190217_img092', '190218_img092', '190219_img092', '190220_img092', '190221_img092', '190222_img092', '190223_img092', '190224_img092', '190225_img092', '190226_img092'};
+days = {'190215_img093', '190216_img093', '190217_img093', '190218_img093', '190219_img093', '190220_img093', '190222_img093', '190225_img093', '190226_img093', '190227_img093', '190228_img093', '190301_img093', '190302_img093', '190304_img093', '190306_img093', '190308_img093'};
+
+days = {'190310_img094', '190311_img094', '190312_img094', '190313_img094', '190314_img094', '190315_img094', '190316_img094', '190317_img094', '190318_img094', '190319_img094', '190320_img094', '190321_img094', '190325_img094', '190327_img094'};
+%days = {'190309_img095', '190310_img095', '190311_img095', '190312_img095', '190313_img095', '190315_img095', '190316_img095', '190317_img095', '190318_img095', '190319_img095', '190320_img095', '190321_img095', '190326_img095'};
+days = {'190411_img096', '190412_img096', '190413_img096', '190414_img096', '190415_img096', '190416_img096', '190417_img096', '190418_img096', '190419_img096', '190421_img096', '190422_img096', '190423_img096', '190424_img096'};
+%days = {'190411_img097', '190412_img097', '190413_img097', '190414_img097', '190415_img097', '190416_img097', '190417_img097', '190418_img097', '190419_img097'};
+
+days = {'190615_img098', '190617_img098', '190618_img098', '190619_img098', '190620_img098', '190621_img098', '190622_img098', '190623_img098', '190624_img098', '190625_img098', '190627_img098'};
+days = {'190615_img1030', '190617_img1030', '190618_img1030', '190619_img1030', '190620_img1030', '190622_img1030', '190623_img1030', '190624_img1030', '190625_img1030', '190627_img1030'};
+days = {'190615_img1032', '190617_img1032', '190618_img1032', '190619_img1032', '190620_img1032', '190621_img1032', '190622_img1032', '190623_img1032', '190624_img1032', '190625_img1032', '190627_img1032'};
 
 %check and make sure the figure destinations exist
 session_fig_dir = [CRP_fig_dir_base, days{1}(end-4:end), '_sessions\'];
@@ -140,6 +150,8 @@ for ii = 1:length(days)
     %identify reward omission trials and unexpected reward trials
     if b_data.rewardOmissionPercent == 0 %created this if statement because in 170417_img90 there were empty cells in b_data.rewardOmissionPercent which caused the script to fail
         reward_omit_inx = [];
+    elseif sum(cell2mat(b_data.tRewardOmissionTrial)) == 1
+         reward_omit_inx = [];
     elseif sum(cellfun(@isempty, b_data.tRewardOmissionTrial)) > 0
         b_data.tRewardOmissionTrial{find(cellfun(@isempty, b_data.tRewardOmissionTrial))} = int64(0);
         reward_omit_inx = find(cell2mat(b_data.tRewardOmissionTrial(1:end-1))); %exclude last trial in case it is incomplete
@@ -443,6 +455,7 @@ for ii = 1:length(days)
     iti_lick_window_avg = [iti_lick_window_avg , iti_lick_window_avg_this_session];
     iti_lick_rate_sem = [iti_lick_rate_sem , iti_lick_rate_sem_this_session];
 
+   
 end 
 
 %save the pre/post cue data to be use in across animals summary

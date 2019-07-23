@@ -99,6 +99,17 @@ resp_maxdir_ratio_fit = fitlm(resp_maxdir_all(good_ind_all,6), norm_maxdir_all(g
 [norm_maxVnext_h, norm_maxVnext_p] = ttest(norm_maxdir_all(:,1), norm_nextdir_all(:,1));
 [resp_maxVnext_h, resp_maxVnext_p] = ttest(resp_maxdir_all(:,6), resp_nextdir_all(:,6));
 
+nShuf = 1000;
+tau = zeros(1,nShuf);
+for i = 1:nShuf
+    ind_temp = good_ind_all(randsample(length(good_ind_all),length(good_ind_all),1));
+    [tau(1,i), A,sse,R_square] = SingleExponFit(off_all.*(1000/frameRateHz), mean(norm_all(ind_temp,:),1)');
+end
+tau_sort = sort(tau);
+tau_5 = tau_sort(round(0.025.*nShuf));
+tau_95 = tau_sort(round(0.975.*nShuf));
+
+
 edges = [0 0.05 0.15 0.3 0.8];
 [n,bin] = histc(resp_all(:,6),edges);
 figure;

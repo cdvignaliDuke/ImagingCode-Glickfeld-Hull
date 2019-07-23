@@ -10,15 +10,15 @@ clear;
  days_1 = {'170321_img86',   '170408_img88', '170513_img89', '170416_img90',  '170417_img91', '170420_img92', ... 
      '170510_img93', '170524_img94', '170605_img95', '170612_img96', '170628_img98', '170705_img99', '170921_img044', ...
      '171113_img050', '171227_img067', '180104_img070', '180322_img077', '180507_img081', '180425_img084', '180509_img085', ...
-     '181213_img087', '181214_img088', '181214_img089', '181213_img091'};  %'170408_img87' first day of imaging but animal quit licking part way through
+     '181213_img087', '181214_img088', '181214_img089', '181213_img091', '190213_img092', '190215_img093', '190310_img094'};  %'170408_img87' first day of imaging but animal quit licking part way through
  
  days_post = {'170325_img86', '170415_img88', '170519_img89', '170426_img90',  '170425_img91', '170428_img92', ... 
      '170518_img93', '170529_img94', '170614_img95', '170622_img96', '170704_img98', '170710_img99' '170926_img044', ...
     '171122_img050', '180104_img067', '180108_img070',  '180403_img077', '180518_img081', '180502_img084', '180517_img085', ...
-    '181217_img087', '181219_img088', '181218_img089', '181217_img091'}; %'170326_img86',  are also 10%omission post learning
+    '181217_img087', '181219_img088', '181218_img089', '181217_img091', '190217_img092', '190219_img093', '190315_img094'}; %'170326_img86',  are also 10%omission post learning
 
 days_UR = {'170506_img90', '170426_img91', '170429_img92', '170519_img93', '170522_img89', '170530_img94', '181218_img087', ...
-    '181219_img089', '181220_img091', '170327_img86', '170417_img88', '170623_img96', '170705_img98', '170711_img99'};
+    '181219_img089', '181220_img091', '170327_img86', '170417_img88', '170623_img96', '170705_img98', '170711_img99', '190218_img092', '190220_img093', '190316_img094'};
  
 data_dir = 'Y:\home\jake\Data\WidefieldImaging\GCaMP\behavior\';
 trial_num_1 = [];
@@ -96,6 +96,6 @@ disp('Training sessions only:')
 disp(['mean trial number = ', num2str(trials_per_sess_mean), ' +/- ', num2str(trials_per_sess_sem), ' trials per session'])
 
 [sess_dur_all_mean, sess_dur_all_sem] = get_mean_and_sem(sess_dur_all);
-disp(['mean trial number = ', num2str(sess_dur_all_mean), ' +/- ', num2str(sess_dur_all_sem), ' trials per session'])
+disp(['mean session duration = ', num2str(sess_dur_all_mean), ' +/- ', num2str(sess_dur_all_sem), ' trials per session'])
 
 

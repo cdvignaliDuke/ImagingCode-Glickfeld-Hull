@@ -33,7 +33,7 @@ for i = 1:length(area_list)
     axis square
 end
 suptitle('D1 vs D2 - pre reward response')
-savefig([share_out '\CC_summary\D1vsD2\D1vsD2_Area' area_list{i} '_Summary_preRewResp.fig'])
+savefig([share_out '\CC_summary\D1vsD2\D1vsD2_Summary_preRewResp.fig'])
 
 figure;
 for i = 1:length(area_list)
@@ -55,5 +55,5 @@ for i = 1:length(area_list)
     axis square
 end
 suptitle('D1 vs D2 - post reward response')
-savefig([share_out '\CC_summary\D1vsD2\D1vsD2_Area' area_list{i} '_Summary_postRewResp.fig'])
+savefig([share_out '\CC_summary\D1vsD2\D1vsD2_Area_Summary_postRewResp.fig'])
 
