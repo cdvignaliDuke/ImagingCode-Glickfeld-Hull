@@ -99,7 +99,7 @@ for sub = size(mouseID,2) %- 2
         %             ~] = CellsortPCA_2P(img_reg,[1 nf], nPCA,[], out_dir, img_fn, []);
         
         PCuse = 1:nPCA;
-        % to view PCs
+        % to manually choose PCs
         %  [PCuse] = CellsortChoosePCs(mixedfilters);
         
         %% Compute independent components

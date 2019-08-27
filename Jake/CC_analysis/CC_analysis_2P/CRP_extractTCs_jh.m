@@ -1,6 +1,6 @@
 clear all
 
-for id = [5]
+for id = [1]
     %hardcode the vector for exp_subset for each experiment type (id)
     if id==1  %LS
         exp_subset= [18:20]; %

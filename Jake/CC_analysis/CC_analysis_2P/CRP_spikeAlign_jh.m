@@ -58,6 +58,7 @@ for id = [1,2]%[1,2,3,5,6]
         elseif str2num(mouse)<100 | str2num(mouse) > 1000
             mouse_name = mouse;
         end
+        
         %% correct for skipped frames
         fns = dir(fullfile(behav_dir, ['data-i' mouse '-' date '*']));
         if length(fns)>1
