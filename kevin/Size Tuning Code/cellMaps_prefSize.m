@@ -8,7 +8,8 @@
 
 clear all; clc;
 %expfile = '\\CRASH.dhe.duke.edu\data\home\kevin\Code\Ai9x_experiment_list.txt';
-expfile = 'C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code\Ai9x_experiment_list.txt';
+%expfile = 'C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code\Ai9x_experiment_list.txt';
+expfile = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Code\Ai9x_experiment_list.txt';
 fID = fopen(expfile);
 head = textscan(fID,'%s%s%s%s%s',1,'delimiter',',');
 head = vertcat(head{:});
@@ -24,7 +25,7 @@ fprintf(['Cell maps, prefSize v Az analysis - by KM, Glickfeld Lab\nLoading ' nu
 %% load each exp individually
 
 close all
-for iExp = 39%1:nExp
+for iExp = 49%1:nExp
     date = expdata.date{iExp};
     mouse = expdata.mouse{iExp};
     ret_str = 'runs-002';
@@ -32,11 +33,11 @@ for iExp = 39%1:nExp
     fprintf('Experiment %d/%d: mouse %s date %s\n',iExp,nExp,mouse,date)
     
     % masks
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_mask_cell.mat']))
+    load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_mask_cell.mat']))
     fprintf('Loaded: cell masks')
     
     % lbub_fits (ret)
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']);
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' ret_str '_lbub_fits.mat'] ' not found! Please remove from list\n'])
     end
@@ -52,7 +53,7 @@ for iExp = 39%1:nExp
     fprintf(', lbub_fits(ret)')
     
     % cellDists
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeTuneData.mat']);
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeTuneData.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_sizeTuneData.mat'] ' not found! Please remove from list\n'])
     end
@@ -60,7 +61,7 @@ for iExp = 39%1:nExp
     fprintf(', cellDists')
     
     % sizeFitResults_SP
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeFitResults_SP.mat']);
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeFitResults_SP.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_sizeFitResults_SP.mat'] ' not found! Please remove from list\n'])
     end
@@ -68,7 +69,7 @@ for iExp = 39%1:nExp
     fprintf(', sizeFitResults_SP')
     
     % lbub_fits (size)
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_lbub_fits.mat'] ' not found! Please remove from list\n'])
     end
@@ -163,32 +164,39 @@ for iExp = 39%1:nExp
     close all
     %%
     figure(2)
-    imagesc(rot90(retMap_El),'AlphaData',rot90(imAlpha))
+    %imagesc(rot90(retMap_El),'AlphaData',rot90(imAlpha))
+    imagesc(retMap_El,'AlphaData',(imAlpha))
     colormap jet
+    colormap( flipud(oldmap) );
     h = colorbar;
     caxis([-15 15])
-    ylabel(h,'El (deg)','Rotation',270.0,'VerticalAlignment','bottom')
+    %ylabel(h,'El (deg)','Rotation',270.0,'VerticalAlignment','bottom')
+    h.Location = 'southoutside';
+    ylabel(h,'El (deg)')
     set(gca,'Color',0*[1 1 1]);
     set(gca,'XTickLabel',[]);
     set(gca,'YTickLabel',[]);
-    axis square
+    axis image
     set(gcf,'Color',[1 1 1]); set(gca,'Color',[0 0 0]); set(gcf,'InvertHardCopy','off');
     %addpath('K:\Code\export_fig\altmany-export_fig-412662f')
     %export_fig('K:\ppts\_paper figs\fig1_cellEl2.pdf','-a2');
     print('N:\home\kevin\ppts\_paper figs\fig1 subfigs\fig1_cellEl.pdf','-dpdf')
     
     figure(3)
-    imagesc(rot90(retMap_Az),'AlphaData',rot90(imAlpha))
+    %imagesc(rot90(retMap_Az),'AlphaData',rot90(imAlpha))
+    imagesc((retMap_Az),'AlphaData',(imAlpha))
     colormap jet
     oldmap = colormap;
     colormap( flipud(oldmap) );
     h = colorbar;
     caxis([-10 20])
-    ylabel(h,'Az (deg)','Rotation',270.0,'VerticalAlignment','bottom')
+    %ylabel(h,'Az (deg)','Rotation',270.0,'VerticalAlignment','bottom')
+    h.Location = 'southoutside';
+    ylabel(h,'Az (deg)','HorizontalAlignment','center')
     set(gca,'color',0*[1 1 1]);
     set(gca,'XTickLabel',[]);
     set(gca,'YTickLabel',[]);
-    axis square
+    axis image
     set(gcf,'Color',[1 1 1]); set(gca,'Color',[0 0 0]); set(gcf,'InvertHardCopy','off');
     print('K:\ppts\_paper figs\fig1_cellAz.pdf','-dpdf')
     

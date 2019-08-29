@@ -1,7 +1,7 @@
 % receptive field spread
 clear all; clc;
 %expfile = '\\CRASH.dhe.duke.edu\data\home\kevin\Code\Ai9x_experiment_list.txt';
-expfile = 'C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code\Ai9x_experiment_list.txt';
+expfile = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Code\Ai9x_experiment_list.txt';
 fID = fopen(expfile);
 head = textscan(fID,'%s%s%s%s%s',1,'delimiter',',');
 head = vertcat(head{:});
@@ -29,8 +29,8 @@ for i=1:nExp
     date = expdata.date{i};
     mouse = expdata.mouse{i};
     run_str = 'runs-002'; %expdata.run_str{i};
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOVs.mat']), 'Azs', 'Els')
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
+    load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOVs.mat']), 'Azs', 'Els')
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_lbub_fits.mat'] ' not found! Please remove from list\n'])
     end
@@ -85,8 +85,8 @@ fprintf(['Loading exp: ' num2str(iExp) '/' num2str(nExp) '...'])
 date = expdata.date{iExp};
 mouse = expdata.mouse{iExp};
 run_str = 'runs-002'; %expdata.run_str{i};
-load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOVs.mat']), 'Azs', 'Els')
-filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
+load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOVs.mat']), 'Azs', 'Els')
+filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
 if ~exist(filename, 'file')
     fprintf([[date '_' mouse '_' run_str '_lbub_fits.mat'] ' not found! Please remove from list\n'])
 end
@@ -137,7 +137,7 @@ fprintf('done\n')
 
 %% present two cells
 % load _Tuning.mat: 'tc_dfof', 'tuning_mat', 'Stims', 'Ind_struct'
-load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning.mat']))
+load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning.mat']))
 
 
 Azs00 = min(Azs):0.1:max(Azs);
@@ -153,29 +153,31 @@ subplot(2,2,1)
 ret_raw = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)])';
 dFoFmax = max(ret_raw(:));
 ret_norm = (ret_raw+min(ret_raw(:)))./(dFoFmax+min(ret_raw(:)));
-ret_red = cat(3,ret_norm,0*ret_norm,0*ret_norm);
+ret_red = ret_norm;%cat(3,ret_norm,0*ret_norm,0*ret_norm);
 imagesc(ret_red)
 title(['Max dF/F = ' num2str(dFoFmax,3)])
 axis equal
 xticks(1:7); xticklabels(Azs); yticks(1:7); yticklabels(Els)
-xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
+axis off
+%xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
 % fit
 subplot(2,2,2)
 fit_mat = Gauss2D_ellipseMA(lbub_fits(iCell,:,4),Stims00);%get gaussian as 25x1 vector
 ret_fit = reshape(fit_mat, [length(Azs00) length(Els00)]);
 dFoFmax = max(ret_fit(:));
 ret_norm = (ret_fit+min(ret_fit(:)))./(dFoFmax+min(ret_fit(:)));
-ret_red = cat(3,ret_norm,0*ret_norm,0*ret_norm);
+ret_red = ret_norm;%cat(3,ret_norm,0*ret_norm,0*ret_norm);
 imagesc(Azs00,Els00,ret_red)
 set(gca,'YDir','normal')
 hold on
-%plot(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'wx')
-errorbar(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4), lbub_fits(iCell,5,4)-lbub_fits(iCell,5,1), lbub_fits(iCell,5,2)-lbub_fits(iCell,5,4), lbub_fits(iCell,4,4)-lbub_fits(iCell,4,1), lbub_fits(iCell,4,2)-lbub_fits(iCell,4,4),'w')
+plot(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'w.')
+%errorbar(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4), lbub_fits(iCell,5,4)-lbub_fits(iCell,5,1), lbub_fits(iCell,5,2)-lbub_fits(iCell,5,4), lbub_fits(iCell,4,4)-lbub_fits(iCell,4,1), lbub_fits(iCell,4,2)-lbub_fits(iCell,4,4),'w')
 ellipse(sqrt(2*log(2))*lbub_fits(iCell,2,4), sqrt(2*log(2))*lbub_fits(iCell,3,4), 0, lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'w');
 colormap gray
-title(['2D Gaussian fit'])
+%title(['2D Gaussian fit'])
 axis equal
-xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
+axis off
+%xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
 xlim([min(Azs,[],2) max(Azs,[],2)]); ylim([min(Els,[],2) max(Els,[],2)])
 
 % second cell (254)
@@ -184,13 +186,14 @@ subplot(2,2,3)
 ret_raw = reshape(tuning_mat(:,1,iCell), [length(Azs) length(Els)])';
 dFoFmax = max(ret_raw(:));
 ret_norm = (ret_raw+min(ret_raw(:)))./(dFoFmax+min(ret_raw(:)));
-ret_blue = cat(3,0*ret_norm,0*ret_norm,ret_norm);
+ret_blue = ret_norm;%cat(3,0*ret_norm,0*ret_norm,ret_norm);
 imagesc(ret_blue)
 colormap gray
 title(['Max dF/F = ' num2str(dFoFmax,2)])
 axis equal
 xticks(1:7); xticklabels(Azs); yticks(1:7); yticklabels(Els)
-xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
+axis off
+%xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
 % fit
 subplot(2,2,4);cla;
 fit_mat = Gauss2D_ellipseMA(lbub_fits(iCell,:,4),Stims00);%get gaussian as 25x1 vector
@@ -198,17 +201,18 @@ ret_fit = reshape(fit_mat, [length(Azs00) length(Els00)]);
 ret_fit = ret_fit;
 dFoFmax = max(ret_fit(:));
 ret_norm = (ret_fit+min(ret_fit(:)))./(dFoFmax+min(ret_fit(:)));
-ret_blue = cat(3,0*ret_norm,0*ret_norm,ret_norm);
+ret_blue = ret_norm;%cat(3,0*ret_norm,0*ret_norm,ret_norm);
 imagesc(Azs00,Els00,ret_blue)
 set(gca,'YDir','normal')
 hold on
-%plot(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'wx')
-errorbar(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4), lbub_fits(iCell,5,4)-lbub_fits(iCell,5,1), lbub_fits(iCell,5,2)-lbub_fits(iCell,5,4), lbub_fits(iCell,4,4)-lbub_fits(iCell,4,1), lbub_fits(iCell,4,2)-lbub_fits(iCell,4,4),'w')
+plot(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'w.')
+%errorbar(lbub_fits(iCell,4,4), lbub_fits(iCell,5,4), lbub_fits(iCell,5,4)-lbub_fits(iCell,5,1), lbub_fits(iCell,5,2)-lbub_fits(iCell,5,4), lbub_fits(iCell,4,4)-lbub_fits(iCell,4,1), lbub_fits(iCell,4,2)-lbub_fits(iCell,4,4),'w')
 ellipse(sqrt(2*log(2))*lbub_fits(iCell,2,4), sqrt(2*log(2))*lbub_fits(iCell,3,4), 0, lbub_fits(iCell,4,4), lbub_fits(iCell,5,4),'w');
 colormap gray
-title(['2D Gaussian fit'])
+%title(['2D Gaussian fit'])
 axis equal
-xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
+axis off
+%xlabel('Azimuth (deg)'); ylabel('Elevation (deg)')
 xlim([min(Azs,[],2) max(Azs,[],2)]); ylim([min(Els,[],2) max(Els,[],2)])
 
 %% try to do timecourses?
@@ -223,21 +227,48 @@ time = [1:15]*1/15*1000
 for i=1:length(Stims)
     tc_cell1(:,i) = mean(tc_dfof(:,iCell1,[Ind_struct(i).all_trials]),3);
     tc_cell2(:,i) = mean(tc_dfof(:,iCell2,[Ind_struct(i).all_trials]),3);
+    sem1(:,i) = std(tc_dfof(:,iCell1,[Ind_struct(i).all_trials]),[],3)./length(Ind_struct(i).all_trials);
+    sem2(:,i) = std(tc_dfof(:,iCell2,[Ind_struct(i).all_trials]),[],3)./length(Ind_struct(i).all_trials);
     max_tc1 = max(max_tc1,max(tc_cell1(:,i)));
     max_tc2 = max(max_tc2,max(tc_cell2(:,i)));
 end
 % normalize
-tc_cell1 = tc_cell1./max_tc1;
-tc_cell2 = tc_cell2./max_tc2;
+%tc_cell1 = tc_cell1./max_tc1;
+%tc_cell2 = tc_cell2./max_tc2;
+time2 = [time fliplr(time)];
+figure(1);clf;figure(2);clf;
 for i=1:length(Stims)
+    figure(1)
     h(i)=subplot(7,7,i);
-    plot(time,tc_cell1(46:end,i),'r');
+    plot(time,tc_cell1(46:end,i),'k');
     hold on
-    plot(time,tc_cell2(46:end,i),'b');
+    upper = tc_cell1 + sem1;
+    lower = tc_cell1 - sem1;
+    border1 = [upper(46:end,i)' fliplr(lower(46:end,i)')];
+    fill(time2, border1,'k','EdgeColor','none','facealpha',0.2)
     set(gca,'box','off','TickDir','out')
     if i==22; ylabel('dF/F (norm)'); end
     if i==46; xlabel('Time (ms)'); end
+    axis off
+    if i==49; line([time(3) time(3)],[0 max_tc1],'Color','k'); end
+    figure(2)
+    h2(i)=subplot(7,7,i);
+    plot(time,tc_cell2(46:end,i),'k');
+    hold on
+    upper = tc_cell2 + sem2;
+    lower = tc_cell2 - sem2;
+    border2 = [upper(46:end,i)' fliplr(lower(46:end,i)')];
+    fill(time2, border2,'k','EdgeColor','none','facealpha',0.2)
+    set(gca,'box','off','TickDir','out')
+    if i==22; ylabel('dF/F (norm)'); end
+    if i==46; xlabel('Time (ms)'); end
+    axis off
 end
+%figure(1);suptitle('Cell 1');figure(2);suptitle('Cell 2');
+figure(1);
 linkaxes(h,'xy')
-max_tc = 1% max(max_tc1,max_tc2);
-ylim([-0.2*max_tc 1.2*max_tc])
+ylim([-0.2*max_tc1 1.2*max_tc1])
+figure(2);
+linkaxes(h2,'xy')
+ylim([-0.2*max_tc2 1.2*max_tc2])
+figure(1);suptitle('Cell 1');figure(2);suptitle('Cell 2');

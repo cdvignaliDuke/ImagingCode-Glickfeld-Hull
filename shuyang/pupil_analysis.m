@@ -1,3 +1,5 @@
+% save facial data as tiff
+
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES

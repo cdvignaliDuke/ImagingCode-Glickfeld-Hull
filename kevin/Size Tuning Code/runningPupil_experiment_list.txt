@@ -1,0 +1,4 @@
+date,mouse,ret_str,run_str,area,GECI
+190703,1103,runs-002,runs-003,PM,f
+190705,1303,runs-002,runs-004,PM,f
+190705,1304,runs-003,runs-004,PM,f

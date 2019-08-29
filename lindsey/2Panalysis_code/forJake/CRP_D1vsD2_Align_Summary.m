@@ -6,6 +6,8 @@ rew_all_d1 = [];
 rew_all_d2 = [];
 omit_all_d1 = [];
 omit_all_d2 = [];
+mouse_use = [];
+dend_num = [];
 lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
 share_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\public\ClassicConditioningPaper';
 for iexp = 1:nexp
@@ -40,10 +42,14 @@ for iexp = 1:nexp
                 ind1 = overlap_id(ind);
                 rew_all_d1 = [rew_all_d1 nanmean(targetAlign_events(:,ind1,ind_rew),3)];
                 omit_all_d1 = [omit_all_d1 nanmean(targetAlign_events(:,ind1,ind_omit),3)];
+                mouse_use = [mouse_use; mouse];
+                dend_num = [dend_num; length(ind1)];
             end
         end
     end
 end
+save([share_out '\CC_crossday\D1vD2_matchedCell_Summary.mat'], 'rew_all_d1','omit_all_d1', 'rew_all_d2','omit_all_d2', 'mouse_use')
+
 rewdelay_frames = round(0.6.*frameRateHz);
 pre_rew_win = cell(1,2);
 post_rew_win = cell(1,2);
@@ -68,7 +74,7 @@ base_d2_std = std(mean(rew_all_d2(ceil(prewin_frames./2):prewin_frames,:),2),[],
  
 nIC = size(rew_all_d1,2);
 figure;
-subplot(3,1,1)
+subplot(4,1,1)
 shadedErrorBar(tt, nanmean(rew_all_d1,2).*1000/frameRateHz, (nanstd(rew_all_d1,[],2)./sqrt(nIC)).*1000/frameRateHz,'k');
 hold on
 shadedErrorBar(tt, nanmean(rew_all_d2,2).*1000/frameRateHz, (nanstd(rew_all_d2,[],2)./sqrt(nIC)).*1000/frameRateHz,'b');
@@ -88,7 +94,7 @@ else
     vline(tt(prewin_frames+rewdelay_frames+postrew_max_ind_rew),'--r')
 end
 title('Reward')
-subplot(3,2,3)
+subplot(4,2,3)
 scatter(mean(rew_all_d1_sub(pre_rew_win{2}{3},:),1).*1000/frameRateHz,mean(rew_all_d2_sub(pre_rew_win{2}{3},:),1).*1000/frameRateHz,'ok')
 hold on
 errorbarxy(mean(mean(rew_all_d1_sub(pre_rew_win{2}{3},:),1),2).*1000/frameRateHz,mean(mean(rew_all_d2_sub(pre_rew_win{2}{3},:),1),2).*1000/frameRateHz,std(mean(rew_all_d1_sub(pre_rew_win{2}{3},:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),std(mean(rew_all_d2_sub(pre_rew_win{2}{3},:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),{'or','r','r'})
@@ -100,7 +106,7 @@ xlim([-1 4])
 refline(1,0)
 [h_pre p_pre] = ttest(mean(rew_all_d1_sub(pre_rew_win{2}{3},:),1).*1000/frameRateHz,mean(rew_all_d2_sub(pre_rew_win{2}{3},:),1).*1000/frameRateHz,'tail','both');
 title(['Pre reward - D2 peak- p = ' num2str(chop(p_pre,2))])
-subplot(3,2,4)
+subplot(4,2,4)
 scatter(mean(rew_all_d1_sub(post_rew_win{1}{3},:),1).*1000/frameRateHz,mean(rew_all_d2_sub(post_rew_win{1}{3},:),1).*1000/frameRateHz,'ok')
 hold on
 errorbarxy(mean(mean(rew_all_d1_sub(post_rew_win{1}{3},:),1),2).*1000/frameRateHz,mean(mean(rew_all_d2_sub(post_rew_win{1}{3},:),1),2).*1000/frameRateHz,std(mean(rew_all_d1_sub(post_rew_win{1}{3},:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),std(mean(rew_all_d2_sub(post_rew_win{1}{3},:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),{'or','r','r'})
@@ -115,7 +121,7 @@ title(['Post reward - D1 peak- p = ' num2str(chop(p_post,2))])
 
 preresp_rew_range = [prewin_frames+prerew_max_ind_rew-1:prewin_frames+prerew_max_ind_rew+1]; 
 postresp_rew_range = [prewin_frames+rewdelay_frames+postrew_max_ind_rew-1:prewin_frames+rewdelay_frames+postrew_max_ind_rew+1];
-subplot(3,2,5)
+subplot(4,2,5)
 scatter(mean(rew_all_d1_sub(preresp_rew_range,:),1).*1000/frameRateHz,mean(rew_all_d2_sub(preresp_rew_range,:),1).*1000/frameRateHz,'ok')
 hold on
 errorbarxy(mean(mean(rew_all_d1_sub(preresp_rew_range,:),1),2).*1000/frameRateHz,mean(mean(rew_all_d2_sub(preresp_rew_range,:),1),2).*1000/frameRateHz,std(mean(rew_all_d1_sub(preresp_rew_range,:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),std(mean(rew_all_d2_sub(preresp_rew_range,:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),{'or','r','r'})
@@ -126,8 +132,8 @@ ylim([-1 4])
 xlim([-1 4])
 refline(1,0)
 [h_pre p_pre2] = ttest(mean(rew_all_d1_sub(preresp_rew_range,:),1).*1000/frameRateHz,mean(rew_all_d2_sub(preresp_rew_range,:),1).*1000/frameRateHz);
-title(['Pre reward - D2 peak- p = ' num2str(chop(p_pre2,2))])
-subplot(3,2,6)
+title(['Pre reward - D1 peak- p = ' num2str(chop(p_pre2,2))])
+subplot(4,2,6)
 scatter(mean(rew_all_d1_sub(postresp_rew_range,:),1).*1000/frameRateHz,mean(rew_all_d2_sub(postresp_rew_range,:),1).*1000/frameRateHz,'ok')
 hold on
 errorbarxy(mean(mean(rew_all_d1_sub(postresp_rew_range,:),1),2).*1000/frameRateHz,mean(mean(rew_all_d2_sub(postresp_rew_range,:),1),2).*1000/frameRateHz,std(mean(rew_all_d1_sub(postresp_rew_range,:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),std(mean(rew_all_d2_sub(postresp_rew_range,:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),{'or','r','r'})
@@ -138,9 +144,22 @@ ylim([-1 4])
 xlim([-1 4])
 refline(1,0)
 [h_post p_post2] = ttest(mean(rew_all_d1_sub(postresp_rew_range,:),1).*1000/frameRateHz,mean(rew_all_d2_sub(postresp_rew_range,:),1).*1000/frameRateHz);
-title(['Post reward - D1 peak- p = ' num2str(chop(p_post2,2))])
+title(['Post reward - D2 peak- p = ' num2str(chop(p_post2,2))])
+subplot(4,2,7)
+scatter(mean(rew_all_d1_sub(postresp_rew_range,:),1).*1000/frameRateHz,mean(rew_all_d2_sub(preresp_rew_range,:),1).*1000/frameRateHz,'ok')
+hold on
+errorbarxy(mean(mean(rew_all_d1_sub(postresp_rew_range,:),1),2).*1000/frameRateHz,mean(mean(rew_all_d2_sub(preresp_rew_range,:),1),2).*1000/frameRateHz,std(mean(rew_all_d1_sub(postresp_rew_range,:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),std(mean(rew_all_d2_sub(postresp_rew_range,:),1),[],2).*1000/frameRateHz./sqrt(size(rew_all_d1,2)),{'or','r','r'})
+xlabel('D1- Post reward')
+ylabel('D2- Pre reward')
+axis square
+ylim([-1 4])
+xlim([-1 4])
+refline(1,0)
+[h_post p_post2] = ttest(mean(rew_all_d1_sub(postresp_rew_range,:),1).*1000/frameRateHz,mean(rew_all_d2_sub(preresp_rew_range,:),1).*1000/frameRateHz);
+title(['p = ' num2str(chop(p_post2,2))])
+
 suptitle(['Matched cells (n = ' num2str(nIC) ') - D1 (black) vs D2 (blue)'])
-print([share_out '\CC_crossday\D1vD2_matchedCell_Summary_new.pdf'],'-bestfit','-dpdf')
+savefig([share_out '\CC_crossday\D1vD2_matchedCell_Summary_new.fig'])
 
 figure;
 subplot(2,2,1)
