@@ -185,11 +185,15 @@ nCells_area = nExp_area;
 RFsize_avg_std_n = zeros(3,3);
 prefSize_avg_std_n = zeros(3,3);
 suppInd_avg_std_n = zeros(3,3);
+sizeMean_allAreas = [];
+sz_list = [];
+areas_list = [];
+
 m2_n = zeros(3,4);
     
 close all
 choosefig = [1:4];
-% choose figs: 1= RF size; 2=modelcounts; 3=averagecurves; 4=prefSize and suppInd
+% choose figs: 1= FWHM; 2=modelcounts; 3=averagecurves; 4=prefSize and suppInd
 retLegStrs = strings(1,length(areas));
 sizeLegStrs = strings(1,length(areas)); 
 for i = 1:length(areas)
@@ -203,18 +207,18 @@ for i = 1:length(areas)
     % try looking with different cutoffs
     switch areas(i)
         case 'V1'
-            cutoff = 10; %v1 cutoff at 10
+            cutoff = 6; %v1 cutoff at 10
             excells = [631 2128];
             % case {'LM','AL'}
             %     cutoff = 15; %alm cutoff at 15
         case 'LM'
-            cutoff = 10; %lm cutoff at 15
+            cutoff = 6; %lm cutoff at 15
             excells = [1861 1863];
         case 'AL'
-            cutoff = 10; %al cutoff at 15
+            cutoff = 6; %al cutoff at 15
             excells = [2395 1777];
         case 'PM'
-            cutoff = 10; %pm cutoff at 20
+            cutoff = 6; %pm cutoff at 20
             excells = [1952 2292];
     end
     ind_size = intersect(ind_size,find(cellDists_all<cutoff));
@@ -230,7 +234,7 @@ for i = 1:length(areas)
     
     sigmax = lbub_fits_ret_all(ind_ret,2,4);
     sigmay = lbub_fits_ret_all(ind_ret,3,4);
-    RFsize{i} = sqrt(2*log(2))*geo_mean([sigmax sigmay],2)';
+    RFsize{i} = 2.*sqrt(2*log(2))*geomean([sigmax sigmay],2)';
     
     sizeMean = sizeMean_all(:,ind_size);
     sizeSEM = sizeSEM_all(:,ind_size);    
@@ -279,22 +283,22 @@ for i = 1:length(areas)
             ax.YTickLabel = fliplr(areas);
             set(gca,'box','off','TickDir','out')
             ylabel('Area')
-            xlabel('RF size (deg)')
+            xlabel('FWHM (deg)')
             axis square
         end
         
 %         errorbar(i, mean(RFsize{i},2), std(RFsize{i},[],2),'o');%./length(ind_ret),'o');
         RFsize_all = [RFsize_all [RFsize{i}; i.*ones(size(RFsize{i}))]];
         RFsize_avg_std_n(i,:) = [mean(RFsize{i},2) std(RFsize{i},[],2) length(RFsize{i})];
-%         title('Average RF size')
-%         ylabel('RF size (deg)')
+%         title('Average FWHM')
+%         ylabel('FWHM (deg)')
 %         xlim([0 nArea+1])
 %         ylim([0 inf])
         hold on
         if i==nArea;legend(retLegStrs,'location','southeast');end %'location','southoutside','Orientation','horizontal' for bottom
         subplot(2,2,2)
         cdfplot(RFsize{i})
-        xlabel('RF size (deg)')
+        xlabel('FWHM (deg)')
         xlim([0 20])
         axis square
         hold on
@@ -327,6 +331,9 @@ for i = 1:length(areas)
             sizeMean_norm(:,iCell) = sizeMean(:,iCell)/norm; % normalize by this max for the individual cell
             sizeSEM_norm(:,iCell) = sizeSEM(:,iCell)/norm;
         end
+        sz_list = [sz_list reshape(repmat(1:size(sizeMean_norm,1),[1,nCells_Sizei]),[1 size(sizeMean_norm,1).*nCells_Sizei])];
+        sizeMean_allAreas = [sizeMean_allAreas reshape(sizeMean_norm,[1 size(sizeMean_norm,1).*nCells_Sizei])];
+        areas_list = [areas_list i.*ones(1, size(sizeMean_norm,1).*nCells_Sizei)];
 %         sizeMean_normall = mean(sizeMean_norm,2);
 %         norm = max(sizeMean_normall(:));
 %         sizeMean_normall = sizeMean_normall/norm;
@@ -443,6 +450,7 @@ if p_RFsize<0.05
     RFsize_out = multcompare(stats_RFsize,'Display','off');
 end
 title(['p = ' num2str(chop([p_RFsize RFsize_out(:,end)'],2))])
+xlim([0 40])
 print(fullfile(fout, 'axonRet_sizeSummary.pdf'),'-dpdf','-bestfit')
 figure(2)
 n1 = m2_n(1,1); N1 = m2_n(1,2); 
@@ -453,9 +461,9 @@ x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1); repm
 [tbl,chi2stat,pval] = crosstab(x1,x2);
 suptitle(['p = ' num2str(chop(pval,3))])
 
-print(fullfile(fout, 'axonSize_modelSummary.pdf'),'-dpdf','-bestfit')
+print(fullfile(fout, 'axonSize_modelSummary_6degcutoff.pdf'),'-dpdf','-bestfit')
 figure(3)
-print(fullfile(fout, 'axonSize_avgTuningSummary.pdf'),'-dpdf','-bestfit')
+print(fullfile(fout, 'axonSize_avgTuningSummary_6degcutoff.pdf'),'-dpdf','-bestfit')
 figure(4)
 [p_size t_size stats_size] = kruskalwallis(prefSize_all(1,:),prefSize_all(2,:),'off');
 subplot(2,2,1)
@@ -469,9 +477,13 @@ if p_supp<0.05
     supp_out = multcompare(stats_supp,'Display','off');
 end
 title(['p = ' num2str(chop([p_supp supp_out(:,end)'],2))])
-print(fullfile(fout, 'axonSize_SizeSuppSummary.pdf'),'-dpdf','-bestfit')
+print(fullfile(fout, 'axonSize_SizeSuppSummary_6degcutoff.pdf'),'-dpdf','-bestfit')
 
 x = find(prefSize_all(2,:)==2); y = find(prefSize_all(2,:)==3);
+
+[~,~,stats] = anovan(sizeMean_allAreas,{areas_list,sz_list},'model','interaction',...
+    'varnames',{'area','size'});
+results = multcompare(stats);
 
 %% normality tests
 for i = 1:3

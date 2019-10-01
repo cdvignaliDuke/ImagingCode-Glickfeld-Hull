@@ -8,8 +8,9 @@
 %% get path names
 clear all;clc;
 
-ds = 'szTuning_syt7_LM';
-iexp = 1;
+ds = 'szTuning_syt7_V1';
+iexp = 9;
+doSecondSizeTuning = 0;
 rc = behavConstsAV;
 eval(ds)
 
@@ -24,8 +25,13 @@ analyzer = 'lindsey';
 mouse = expt(iexp).mouse;
 subnum = mouse;
 expDate = expt(iexp).date;
-runs = expt(iexp).sizeTuningFolder;
-expTime = expt(iexp).sizeTuningTime;
+if ~doSecondSizeTuning
+    runs = expt(iexp).sizeTuningFolder;
+    expTime = expt(iexp).sizeTuningTime;
+else
+    runs = expt(iexp).secondSizeTuningFolder;
+    expTime = expt(iexp).secondSizeTuningTime;
+end
 nrun = length(runs);
 frame_rate = params.frameRate;
 
@@ -515,6 +521,7 @@ for iCell = 1:nCells
         plot(szs,ret_mat)
         hold on 
     end
+    title(num2str(cellDists(iCell)))
     start = start+1;
 end
 set(gcf, 'Position', [0 0 800 1000]);
@@ -686,7 +693,7 @@ fit_true_vec = NaN(nCells,10,nrun);
     %% plot cells with size tuning curve and shuffle results
     %chosen=[44 54]; %[31 41 45 46 52 64 67 71 72 73 75 77 79 83 89];
     %chosen = goodfit_ind_size;
-    chosen = [1:nCells];
+    chosen = [1:5];
     Npars = size(fit_shuf_vec,2);
     lbub_fits = NaN(nCells,Npars,5);
     alpha_bound = .025;
@@ -887,5 +894,5 @@ expLoc = expt(1).img_loc{1};
 expStrct = cell2mat(expt(1).img_strct);
 suptitle([mouse ' ' expDate ' ' expLoc ' ' expStrct])
 
-print(fullfile(fnout, dataFolder, [mouse '_' expDate '_avgTuning_goodfits.pdf']), '-dpdf','-bestfit')
+print(fullfile(fnout, dataFolder, [mouse '_' expDate '_avgTuning_goodfits_10deg.pdf']), '-dpdf','-bestfit')
 
