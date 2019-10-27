@@ -1,42 +1,19 @@
-%code which calculates and plots df/f and spike firing rate for a given day
-%of imaging. Can segregate according to lobule. 
-
 clear all
 plotDetect = 0;
 negAdjust = 0;
-for id = [1,2,4,6]%[1,2,3,5,6]
-    %close all
-    CRP_expt_list_Crus_jh;
-    %CRP_expt_list_LS_jh;
-    jake_out = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
-    behav_dir = 'Y:\home\jake\Data\WidefieldImaging\GCaMP\behavior';
-    nexp = size(expt(id).date,1);
-    
-    if id==1  %Crus
-        exp_subset= [10]; % Day1
-    elseif id==2
-        exp_subset = [11]; % PL OR
-    elseif id==3
-        exp_subset = [7,8]; % UR
-    elseif id==4
-        exp_subset = [5]; %  OT OR
-    elseif id==5
-        exp_subset = [1,2]; % OT UR
-    elseif id == 6
-        exp_subset = [3,4];
-    end
-     
-%     if id==1  %LS
-%         exp_subset=  [18:20]; %
-%     elseif id==2
-%         exp_subset = [19:20]; %
-%     elseif id==3
-%         exp_subset = [7:9]; %
-%     elseif id==5
-%         exp_subset = [3:5]; %
-%     elseif id==6
-%         exp_subset = [1:2]; %
-%     end    
+
+mike_out = 'H:\home\mike\Analysis\CC 2P';
+behav_dir = 'H:\home\jake\Data\WidefieldImaging\GCaMP\behavior';
+
+CRP_expt_list_LS_jh
+pairings = Load_CRP_List();
+
+for  j = 1:size(pairings,2)
+id = pairings{1,j};
+exp_subset = pairings{2,j};
+
+nexp = size(expt(id).date,1);
+   
     
     for iexp = exp_subset  %1:nexp
         mouse = strtrim(expt(id).mouse(iexp,:));
@@ -44,7 +21,7 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         run = expt(id).run(iexp,:);
         fprintf([date ' ' mouse '\n'])
         img_fn = [date '_' mouse];
-        load(fullfile(jake_out,img_fn, [img_fn '_ROI_TCs.mat']))
+        load(fullfile(mike_out,img_fn, [img_fn '_ROI_TCs.mat']))
         nIC = size(tc_avg,2);
 
         opt.thresh = 1.7;
@@ -141,11 +118,11 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         end
 
         %% detect events
-        
+
         tc_avg_temp = tc_avg;
         cTargetOn = celleqel2mat_padded(input.cTargetOn);
         if expt(id).ttl(iexp)
-            cd(fullfile('Y:\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
+            cd(fullfile('H:\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
             load(['img' mouse_name '_000_' run '_realtime.mat'])
             %if ttl_log is faulty then identify pockel transitions via changes in F
             if length(unique(ttl_log)) == 1 | sum(ttl_log) < 0.05*(length(ttl_log))
@@ -196,7 +173,7 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             end
             if plotDetect
                 if start>9
-                    savefig(fullfile(jake_out,img_fn, [img_fn '_Cell#' num2str(IC_list(1)) '-' num2str(IC_list(end)) '_diff_findSpikes.fig']))
+                    savefig(fullfile(mike_out,img_fn, [img_fn '_Cell#' num2str(IC_list(1)) '-' num2str(IC_list(end)) '_diff_findSpikes.fig']))
                     figure; start = 1;
                     IC_list = [];
                 end
@@ -211,7 +188,7 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             end
         end
         if plotDetect
-            savefig(fullfile(jake_out,img_fn, [img_fn '_Cell#' num2str(IC_list(1)) '-' num2str(IC_list(end)) '_diff_findSpikes.fig']))
+            savefig(fullfile(mike_out,img_fn, [img_fn '_Cell#' num2str(IC_list(1)) '-' num2str(IC_list(end)) '_diff_findSpikes.fig']))
         end
         if expt(id).ttl(iexp)
             all_events_temp = nan(size(tc_avg));
@@ -219,7 +196,7 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             all_events = all_events_temp;
         end
 
-        save(fullfile(jake_out,img_fn, [img_fn '_ROI_spikes.mat']), 'all_events', 'opt', 'tc_diff')
+        save(fullfile(mike_out,img_fn, [img_fn '_ROI_spikes.mat']), 'all_events', 'opt', 'tc_diff')
 
         if expt(id).ttl(iexp)
             nFrames = length(ind_tc);
@@ -231,7 +208,7 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         figure; hist(spikeRate)
         xlim([0 5]); xlabel('Spike rate'); ylabel('Cells'); 
         title([date ' ' mouse ' spike rates'])
-        savefig(fullfile(jake_out,img_fn, [img_fn '_spikeRate.fig']))
+        savefig(fullfile(mike_out,img_fn, [img_fn '_spikeRate.fig']))
 
         
         %% align events    
@@ -274,9 +251,6 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         delayTimeMs = reactTimesMs+rewardDelayDurationMs;
 
 
-        %% plotting 
-        
-        %df/f
         figure;
         subplot(3,1,1)
         shadedErrorBar(tt, nanmean(nanmean(targetAligndFoverF(:,:,ind_rew),3),2), nanstd(nanmean(targetAligndFoverF(:,:,ind_rew),3),[],2)./sqrt(nIC));
@@ -297,10 +271,9 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         ylabel('Avg dF/F')
         title('Unexpected reward')
         end
-        suptitle([date ' ' mouse])
-        savefig(fullfile(jake_out,img_fn, [img_fn '_cueAlign_dFoverF.fig']))
+        %suptitle([date ' ' mouse])
+        savefig(fullfile(mike_out,img_fn, [img_fn '_cueAlign_dFoverF.fig']))
 
-        %spike rate by trial outcome - collapsed across lobules
         figure;
         subplot(3,1,1)
         shadedErrorBar(tt, nanmean(nanmean(targetAlign_events(:,:,ind_rew),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew),3),[],2)./sqrt(nIC)).*(1000./frameRateHz));
@@ -321,10 +294,9 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         ylabel('Spike rate (Hz)')
         title('Unexpected reward')
         end    
-        suptitle([date ' ' mouse])
-        savefig(fullfile(jake_out,img_fn, [img_fn '_cueAlign_events_Hz.fig']))
+        %suptitle([date ' ' mouse])
+        savefig(fullfile(mike_out,img_fn, [img_fn '_cueAlign_events_Hz.fig']))
         
-        %compare spike rates based on interval since the previous omission
         if length(ind_omit>10)
             figure;
             subplot(2,1,1)
@@ -353,14 +325,13 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             ylabel('Spike rate (Hz)')
             title(['Reward trial pre (black n = ' num2str(length(ind_rew_preomit)) ') vs post (blue n = ' num2str(length(ind_rew_postomit)) ') omit trials'])
             %suptitle([date ' ' mouse])
-            savefig(fullfile(jake_out,img_fn, [img_fn '_omitByInterval.fig']))
+            savefig(fullfile(mike_out,img_fn, [img_fn '_omitByInterval.fig']))
         else
             ind_omit_short = [];
             ind_omit_long = [];
             ind_rew_preomit = [];
             ind_rew_postomit = [];
         end
-        %compare spike rates based on interval since the previous UR
         if length(ind_unexp>10)
             figure;
             thresh = mean(diff(ind_unexp));
@@ -372,13 +343,12 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             xlabel('Time from cue')
             ylabel('Spike rate (Hz)')
             title([date ' ' mouse '- Short (black n = ' num2str(length(ind_unexp_short)) ') vs long (blue n = ' num2str(length(ind_unexp_long)) ') interval between unexpected reward'])
-            savefig(fullfile(jake_out,img_fn, [img_fn '_unexpByInterval.fig']))
+            savefig(fullfile(mike_out,img_fn, [img_fn '_unexpByInterval.fig']))
         else
             ind_unexp_short = [];
             ind_unexp_long = [];
         end
         
-        %bin trials from early, mid, and late in session
         figure;
         n = floor(nTrials./3);
         start = 1;
@@ -405,11 +375,10 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             start = start+2;
         end
         %suptitle([date ' ' mouse '- Reward (black), Omit (red)'])
-        savefig(fullfile(jake_out,img_fn, [img_fn '_repsByTrial.fig']))
+        savefig(fullfile(mike_out,img_fn, [img_fn '_repsByTrial.fig']))
         
-        %plot spike rate for each lobule 
         if unique(expt(id).name == 'Crus')
-            load(fullfile(jake_out,img_fn, [img_fn '_splitImage.mat']))
+            load(fullfile(mike_out,img_fn, [img_fn '_splitImage.mat']))
             figure;
             indL = find(maskCat==1);
             indR = find(maskCat==2);
@@ -442,12 +411,12 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             title(['omit- Right side- n=' num2str(length(indR))])
             vline(600)
             %suptitle([date ' ' mouse '- Reward (black), Omit (red)'])
-            savefig(fullfile(jake_out,img_fn, [img_fn '_repsByCrus.fig']))
+            savefig(fullfile(mike_out,img_fn, [img_fn '_repsByCrus.fig']))
         end
 
         
-        save(fullfile(jake_out,img_fn, [img_fn '_targetAlign.mat']), 'ind_rew', 'ind_omit', 'ind_unexp', 'targetAlign_events', 'targetAligndFoverF', 'prewin_frames', 'postwin_frames', 'tt', 'frameRateHz', 'ind_omit_short','ind_omit_long','ind_unexp_short','ind_unexp_long','ind_rew_preomit','ind_rew_postomit')
-        save(fullfile(jake_out,img_fn, [img_fn '_input.mat']), 'input')
+        save(fullfile(mike_out,img_fn, [img_fn '_targetAlign.mat']), 'ind_rew', 'ind_omit', 'ind_unexp', 'targetAlign_events', 'targetAligndFoverF', 'prewin_frames', 'postwin_frames', 'tt', 'frameRateHz', 'ind_omit_short','ind_omit_long','ind_unexp_short','ind_unexp_long','ind_rew_preomit','ind_rew_postomit')
+        save(fullfile(mike_out,img_fn, [img_fn '_input.mat']), 'input')
         %close all
     end
 end
