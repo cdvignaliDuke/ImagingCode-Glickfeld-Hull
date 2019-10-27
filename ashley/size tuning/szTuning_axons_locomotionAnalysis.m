@@ -7,7 +7,7 @@ n_norun_ret_all = [];
 mouse_all = [];
 speed_cutoff = 2; 
 ticks = 32;
-wheel = 'r';
+wheel = 'red';
 for iarea = 1:size(area_list,2);
 ds = ['szTuning_axons_' area_list{iarea}];
 eval(ds)
@@ -22,93 +22,94 @@ n_norun_ret = nan(nexp,7,2);
 for iexp = 1:nexp
     mouse = expt(iexp).mouse;
     expDate = expt(iexp).date;
+    fprintf([mouse ' ' expDate '\n'])
     retRun = expt(iexp).retinotopyFolder;
     szRun = expt(iexp).sizeTuningFolder;
     fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
     run_resp_all{iarea} = [];
     norun_resp_all{iarea} = [];
         
-    if exist(fullfile(fnout, cell2mat(retRun), [mouse '_' expDate '_input.mat']))
-        load(fullfile(fnout, cell2mat(retRun), [mouse '_' expDate '_input.mat']))
-        if input.doWheelSpeed == 1
-            ntrials = length(input.tGratingDiameterDeg);
-            for itrial = 1:ntrials
-                if sum(input.wheelSpeedValues{itrial},2)>0
-                    wheel_ret(1,iexp) = 1;
-                    break
-                end
-            end
-        end
-    end
-
-    if wheel_ret(1,iexp)
-
-        mouse = expt(iexp).mouse;
-        expDate = expt(iexp).date;
-        retRun = expt(iexp).retinotopyFolder;
-        szRun = expt(iexp).sizeTuningFolder;
-        fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
-        load(fullfile(fnout, cell2mat(retRun), [mouse '_' expDate '_input.mat']))
-
-        [wheel_speed] = wheelSpeedCalc(input,ticks,wheel);
-        
-        ntrials = length(input.tGratingDirectionDeg);
-        nOn = input.nScansOn;
-        nOff = input.nScansOff;
-        wheel_speed_tr = nan(1,ntrials);
-        for itrial = 1:ntrials
-            fr_num_start = (itrial.*nOff) + ((itrial-1).*nOn);
-            fr_num_end = (itrial.*nOff) + (itrial.*nOn);
-            wheel_speed_tr(:,itrial) = mean(wheel_speed(:,fr_num_start:fr_num_end),2);
-        end
-
-        figure; 
-        subplot(3,1,1)
-        plot(wheel_speed_tr)
-        ylabel('Wheel speed')
-        xlabel('Trial')
-
-
-        run_ind = find(wheel_speed_tr>=speed_cutoff);
-        norun_ind = find(wheel_speed_tr<speed_cutoff);
-
-        az_mat = celleqel2mat_padded(input.tGratingAzimuthDeg);
-        azs = unique(az_mat);
-        nAz = length(azs);
-        for iaz = 1:nAz
-            n_run_ret(iexp,iaz,1) = length(find(az_mat(run_ind)==azs(iaz)));
-            n_norun_ret(iexp,iaz,1) = length(find(az_mat(norun_ind)==azs(iaz)));
-        end
-
-        subplot(3,1,2)
-        plot(azs,n_run_ret(iexp,:,1)./length(run_ind),'-o')
-        hold on
-        plot(azs,n_norun_ret(iexp,:,1)./length(norun_ind),'-o')
-        xlabel('Azimuth (deg)')
-        ylabel('Fract. Trials')
-        ylim([0 1])
-        legend(['Run- n = ' num2str(length(run_ind))], ['Stationary- n = ' num2str(length(norun_ind))])
-
-        el_mat = celleqel2mat_padded(input.tGratingElevationDeg);
-        els = unique(el_mat);
-        nEl = length(els);
-        for iel = 1:nEl
-            n_run_ret(iexp,iel,2) = length(find(el_mat(run_ind)==els(iel)));
-            n_norun_ret(iexp,iel,2) = length(find(el_mat(norun_ind)==els(iel)));
-        end
-
-        subplot(3,1,3)
-        plot(els,n_run_ret(iexp,:,2)./length(run_ind),'-o')
-        hold on
-        plot(els,n_norun_ret(iexp,:,2)./length(norun_ind),'-o')
-        xlabel('Elevation (deg)')
-        ylabel('Fract. Trials')
-        ylim([0 1])
-        legend(['Run- n = ' num2str(length(run_ind))], ['Stationary- n = ' num2str(length(norun_ind))])
-
-        suptitle([mouse ' ' expDate ' Ret'])
-        print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\SizeTuning\Locomotion', [mouse '_' expDate '_locomotionRet_2cps.pdf']),'-dpdf','-fillpage')
-    end
+%     if exist(fullfile(fnout, cell2mat(retRun), [mouse '_' expDate '_input.mat']))
+%         load(fullfile(fnout, cell2mat(retRun), [mouse '_' expDate '_input.mat']))
+%         if input.doWheelSpeed == 1
+%             ntrials = length(input.tGratingDiameterDeg);
+%             for itrial = 1:ntrials
+%                 if sum(input.wheelSpeedValues{itrial},2)>0
+%                     wheel_ret(1,iexp) = 1;
+%                     break
+%                 end
+%             end
+%         end
+%     end
+% 
+%     if wheel_ret(1,iexp)
+% 
+%         mouse = expt(iexp).mouse;
+%         expDate = expt(iexp).date;
+%         retRun = expt(iexp).retinotopyFolder;
+%         szRun = expt(iexp).sizeTuningFolder;
+%         fnout = fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',expDate);
+%         load(fullfile(fnout, cell2mat(retRun), [mouse '_' expDate '_input.mat']))
+% 
+%         [wheel_speed] = wheelSpeedCalc(input,ticks,wheel);
+%         
+%         ntrials = length(input.tGratingDirectionDeg);
+%         nOn = input.nScansOn;
+%         nOff = input.nScansOff;
+%         wheel_speed_tr = nan(1,ntrials);
+%         for itrial = 1:ntrials
+%             fr_num_start = (itrial.*nOff) + ((itrial-1).*nOn);
+%             fr_num_end = (itrial.*nOff) + (itrial.*nOn);
+%             wheel_speed_tr(:,itrial) = mean(wheel_speed(:,fr_num_start:fr_num_end),2);
+%         end
+% 
+%         figure; 
+%         subplot(3,1,1)
+%         plot(wheel_speed_tr)
+%         ylabel('Wheel speed')
+%         xlabel('Trial')
+% 
+% 
+%         run_ind = find(wheel_speed_tr>=speed_cutoff);
+%         norun_ind = find(wheel_speed_tr<speed_cutoff);
+% 
+%         az_mat = celleqel2mat_padded(input.tGratingAzimuthDeg);
+%         azs = unique(az_mat);
+%         nAz = length(azs);
+%         for iaz = 1:nAz
+%             n_run_ret(iexp,iaz,1) = length(find(az_mat(run_ind)==azs(iaz)));
+%             n_norun_ret(iexp,iaz,1) = length(find(az_mat(norun_ind)==azs(iaz)));
+%         end
+% 
+%         subplot(3,1,2)
+%         plot(azs,n_run_ret(iexp,:,1)./length(run_ind),'-o')
+%         hold on
+%         plot(azs,n_norun_ret(iexp,:,1)./length(norun_ind),'-o')
+%         xlabel('Azimuth (deg)')
+%         ylabel('Fract. Trials')
+%         ylim([0 1])
+%         legend(['Run- n = ' num2str(length(run_ind))], ['Stationary- n = ' num2str(length(norun_ind))])
+% 
+%         el_mat = celleqel2mat_padded(input.tGratingElevationDeg);
+%         els = unique(el_mat);
+%         nEl = length(els);
+%         for iel = 1:nEl
+%             n_run_ret(iexp,iel,2) = length(find(el_mat(run_ind)==els(iel)));
+%             n_norun_ret(iexp,iel,2) = length(find(el_mat(norun_ind)==els(iel)));
+%         end
+% 
+%         subplot(3,1,3)
+%         plot(els,n_run_ret(iexp,:,2)./length(run_ind),'-o')
+%         hold on
+%         plot(els,n_norun_ret(iexp,:,2)./length(norun_ind),'-o')
+%         xlabel('Elevation (deg)')
+%         ylabel('Fract. Trials')
+%         ylim([0 1])
+%         legend(['Run- n = ' num2str(length(run_ind))], ['Stationary- n = ' num2str(length(norun_ind))])
+% 
+%         suptitle([mouse ' ' expDate ' Ret'])
+%         print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\SizeTuning\Locomotion', [mouse '_' expDate '_locomotionRet_2cps.pdf']),'-dpdf','-fillpage')
+%     end
     
     if exist(fullfile(fnout, cell2mat(szRun), [mouse '_' expDate '_input.mat']))
         load(fullfile(fnout, cell2mat(szRun), [mouse '_' expDate '_input.mat']))
@@ -125,7 +126,7 @@ for iexp = 1:nexp
     
     if wheel_sz(1,iexp)
         
-        [wheel_speed] = wheelSpeedCalc(input,ticks,wheel);
+        wheel_speed = wheelSpeedCalc(input,ticks,wheel);
         
         ntrials = length(input.tGratingDirectionDeg);
         nOn = input.nScansOn;
@@ -137,11 +138,11 @@ for iexp = 1:nexp
             wheel_speed_tr(:,itrial) = mean(wheel_speed(:,fr_num_start:fr_num_end),2);
         end
 
-        figure; 
-        subplot(2,1,1)
-        plot(wheel_speed_tr)
-        ylabel('Wheel speed')
-        xlabel('Trial')
+%         figure; 
+%         subplot(2,1,1)
+%         plot(wheel_speed_tr)
+%         ylabel('Wheel speed')
+%         xlabel('Trial')
 
 
         run_ind = find(wheel_speed_tr>=speed_cutoff);
@@ -155,7 +156,7 @@ for iexp = 1:nexp
             n_norun_sz(iexp,isz) = length(find(sz_mat(norun_ind)==szs(isz)));
         end
         
-        if (length(run_ind)./length(wheel_speed))>0.1
+        if (length(run_ind)./length(wheel_speed_tr))>0.1
             load(fullfile(fnout, cell2mat(szRun), [mouse '_' expDate '_Tuning.mat']))
             nCells = size(sizeTune,2);
             run_resp = nan(nCells,nSize);
@@ -190,7 +191,7 @@ for iexp = 1:nexp
             legend('run', 'stationary')
             xlabel('Size (deg)')
             ylabel('dF/F')
-            title([mouse ' ' expDate])
+            title([mouse ' ' expDate '- ' area_list(iarea)])
             print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\SizeTuning\Locomotion', [mouse '_' expDate '_locomotionSzResp_2cps.pdf']),'-dpdf','-fillpage')
             
             
@@ -200,23 +201,23 @@ for iexp = 1:nexp
         end
             
             
-        subplot(2,1,2)
-        plot(szs,n_run_sz(iexp,:)./length(run_ind),'-o')
-        hold on
-        plot(szs,n_norun_sz(iexp,:)./length(norun_ind),'-o')
-        xlabel('Size (deg)')
-        ylabel('Fract. Trials')
-        ylim([0 1])
-        xlim([0 100])
-        legend(['Run- n = ' num2str(length(run_ind))], ['Stationary- n = ' num2str(length(norun_ind))])
-        suptitle([mouse ' ' expDate ' Size'])
-        print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\SizeTuning\Locomotion', [mouse '_' expDate '_locomotionSz_2cps.pdf']),'-dpdf','-fillpage')
+%         subplot(2,1,2)
+%         plot(szs,n_run_sz(iexp,:)./length(run_ind),'-o')
+%         hold on
+%         plot(szs,n_norun_sz(iexp,:)./length(norun_ind),'-o')
+%         xlabel('Size (deg)')
+%         ylabel('Fract. Trials')
+%         ylim([0 1])
+%         xlim([0 100])
+%         legend(['Run- n = ' num2str(length(run_ind))], ['Stationary- n = ' num2str(length(norun_ind))])
+%         suptitle([mouse ' ' expDate ' Size'])
+%         print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\SizeTuning\Locomotion', [mouse '_' expDate '_locomotionSz_2cps.pdf']),'-dpdf','-fillpage')
     end
 
     close all
     mouse_all = [mouse_all; mouse];
 end
-save(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\SizeTuning\Locomotion\','trialsPerCond_locomotion_' area_list{iarea} '_2cps.mat'],'n_run_sz', 'n_norun_sz', 'n_run_ret', 'n_norun_ret');
+% save(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\SizeTuning\Locomotion\','trialsPerCond_locomotion_' area_list{iarea} '_2cps.mat'],'n_run_sz', 'n_norun_sz', 'n_run_ret', 'n_norun_ret');
 n_run_sz_all = [n_run_sz_all; n_run_sz];
 n_norun_sz_all = [n_norun_sz_all; n_norun_sz];
 n_run_ret_all = [n_run_ret_all; n_run_ret];
@@ -231,10 +232,18 @@ fractrun_sz_sem = nanstd(fractrun_sz,[],1)./sqrt(sum(~isnan(fractrun_sz),1));
 
 fractrun_szs = n_run_sz_all./(n_run_sz_all + n_norun_sz_all);
 figure; 
+subplot(1,2,1)
+plot(ones(1,size(fractrun_sz,1)), fractrun_sz, 'oc')
+hold on
+errorbar(1, nanmean(fractrun_sz,1),nanstd(fractrun_sz,[],1)./sum(~isnan(fractrun_sz)),'ok')
+ylim([0 0.5])
+subplot(1,2,2)
 plot(szs', fractrun_szs', '-c')
 hold on
 errorbar(szs, nanmean(fractrun_szs,1), nanstd(fractrun_szs,[],1)./sqrt(sum(~isnan(fractrun_szs(:,1)),1)),'-ok')
-title(['Fraction Running trials for Size- n = ' num2str(sum(~isnan(fractrun_sz(:,1)),1))])
+ylim([0 0.5])
+[p tab] = anova1(fractrun_szs,[],'off');
+suptitle(['Fraction Running trials for Size- n = ' num2str(sum(~isnan(fractrun_sz(:,1)),1)) '; p = ' num2str(p)])
 print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\SizeTuning\Locomotion', 'locomotionSzSummary_2cps.pdf'),'-dpdf','-fillpage')
 
         
