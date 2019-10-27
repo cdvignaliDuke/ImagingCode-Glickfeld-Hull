@@ -197,16 +197,18 @@ for ii = 1:length(days)
         savefig([session_fig_dir, days{ii}, '_rew_lick_raster']);
     end
     
-    if exist([session_fig_dir, days{ii}, '_block2_lick_raster.fig'], 'file')==0;
-        %BLOCK2 trials lick raster plot
-        figure;
-        plotSpikeRaster(logical(licks_by_trial_block2), 'PlotType', 'vertline');
-        vline(time_before_ms+1, 'k');
-        vline(time_before_ms+1 + cue_rew_int, 'b');
-        ylabel('trial # (descending)');
-        xlabel('time (ms) black=cue blue=reward time (none)');
-        title(['CS- Trials: lick time raster img', this_mouse, ' ' this_date ' n=' num2str(size(licks_by_trial_block2,1))]);
-        savefig([session_fig_dir, days{ii}, '_block2_lick_raster']);
+    if b_data.doBlock2 == 1
+        if exist([session_fig_dir, days{ii}, '_block2_lick_raster.fig'], 'file')==0;
+            %BLOCK2 trials lick raster plot
+            figure;
+            plotSpikeRaster(logical(licks_by_trial_block2), 'PlotType', 'vertline');
+            vline(time_before_ms+1, 'k');
+            vline(time_before_ms+1 + cue_rew_int, 'b');
+            ylabel('trial # (descending)');
+            xlabel('time (ms) black=cue blue=reward time (none)');
+            title(['CS- Trials: lick time raster img', this_mouse, ' ' this_date ' n=' num2str(size(licks_by_trial_block2,1))]);
+            savefig([session_fig_dir, days{ii}, '_block2_lick_raster']);
+        end
     end
     
     %define the windows for summing licks before and after cue
@@ -256,11 +258,11 @@ for ii = 1:length(days)
         no_lick_trials_b2 = sum(isnan(RT_this_sesssion_block2));
         RT_this_sesssion_block2(find(isnan(RT_this_sesssion_block2))) = [];
         RT_this_session(block2_inx) = [];
-        no_lick_trials = sum(isnan(RT_this_session));
     end
+    no_lick_trials = sum(isnan(RT_this_session));
     RT_this_session(find(isnan(RT_this_session))) = [];
     
-    
+   
     %trim RT data to exclude misses and FAs  
     TFT_rate_this_session = length(find(RT_this_session<200))/(num_trials-1);
     TFT_rates = [TFT_rates, TFT_rate_this_session];
@@ -269,9 +271,10 @@ for ii = 1:length(days)
         TFT_rates_b2 = [TFT_rates_b2, TFT_rate_this_session_b2];
     end
     if b_data.RewardDelayDurationMs ==500 & b_data.rewardDelayPercent ==100;
-        miss_rate_this_session = (length(find(RT_this_session>1000))+no_lick_trials) / num_trials_b1;
+        miss_rate_this_session = (length(find(RT_this_session>1000))+no_lick_trials) / num_trials-1;
         RT_this_session = RT_this_session(find(RT_this_session>200 & RT_this_session<1000));
         if b_data.doBlock2 ==1
+            miss_rate_this_session = (length(find(RT_this_session>1000))+no_lick_trials) / num_trials_b1;
             miss_rate_this_session_b2 = (length(find(RT_this_sesssion_block2>1000))+no_lick_trials_b2) / num_trials_b2;
             RT_this_sesssion_block2 = RT_this_sesssion_block2(find(RT_this_sesssion_block2>200 & RT_this_sesssion_block2<1000));
         end
@@ -482,8 +485,8 @@ for ii = 1:length(days)
         end
     end
     %plot block2 trials
-    full_trial_licks_block2_bin = (full_trial_licks_block2_bin/size(full_trial_licks_block2,1))*(1000/bin_size); % convert to lick rate in Hz
     if b_data.doBlock2 > 0
+        full_trial_licks_block2_bin = (full_trial_licks_block2_bin/size(full_trial_licks_block2,1))*(1000/bin_size); % convert to lick rate in Hz
         if exist([session_fig_dir, days{ii}, '_block2_lick_hist.fig'], 'file')==0;
             figure; bar(x_axis_bin, full_trial_licks_block2_bin);
             title(['CS-: lick rate per ', num2str(bin_size), 'ms', this_date, ' img', this_mouse, 'n=', num2str(size(full_trial_licks_block2,1))]);

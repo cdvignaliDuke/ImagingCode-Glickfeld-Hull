@@ -1,3 +1,6 @@
+%code for matching individual neurons between day 1 and day N. Then
+%comparing neural responses between days. 
+
 clear all
 close all
 CRP_expt_list

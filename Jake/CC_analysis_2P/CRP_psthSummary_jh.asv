@@ -1,16 +1,14 @@
 % huge script for plotting summary psths 
-%need to run CRP_spikeAlign_jh and CRP_lickAlign_jh first? maybe others too
 
 clear all
 close all
-%CRP_expt_list_all
-CRP_OT_expt_list_Crus_jh
-plotAvg = 1;
+CRP_expt_list_all
+plotAvg = 0;
 area_list = {'C1','C2','LS'};
 share_out = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_OT_plots_and_outputs';
-jh_out =  'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
-for id =6  %experiment type
+for id =1:3  %experiment type
     fprintf(['Day: ' num2str(id) '\n'])
+    jh_out =  'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
     nexp = size(expt(id).date,1);
     
     %create variable names
@@ -113,7 +111,11 @@ for id =6  %experiment type
     %For each animal
     for iexp = 1:nexp  
         %deiine ID varibales 
-        mouse = strtrim(expt(id).mouse(iexp,:));
+        mouse = expt(id).mouse(iexp,:);
+        if find(mouse == ' ')
+            ind = find(mouse == ' ');
+            mouse(ind) = [];
+        end
         date = expt(id).date(iexp,:);
         run = expt(id).run(iexp,:);
         fprintf([date ' ' mouse '\n'])
@@ -201,18 +203,18 @@ for id =6  %experiment type
         earlytrial_unexp_avg = nanmean(targetAlign_events(:,:,ind_unexp(find(ind_unexp<floor(nTrials./2)))),3);
         latetrial_unexp_avg = nanmean(targetAlign_events(:,:,ind_unexp(find(ind_unexp>floor(nTrials./2)))),3);
         
-%         lowlick_rew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_rew)),3);
-%         highlick_rew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_rew)),3);
-%         lowlick_prerew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_prerew)),3);
-%         highlick_prerew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_prerew)),3);
-%         lowlick_postrew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_postrew)),3);
-%         highlick_postrew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_postrew)),3);
-%         lowlick_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_omit)),3);
-%         highlick_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_omit)),3);
-%         lowlick_preomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_preomit)),3);
-%         highlick_preomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_preomit)),3);
-%         lowlick_postomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_postomit)),3);
-%         highlick_postomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_postomit)),3);
+        lowlick_rew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_rew)),3);
+        highlick_rew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_rew)),3);
+        lowlick_prerew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_prerew)),3);
+        highlick_prerew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_prerew)),3);
+        lowlick_postrew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_postrew)),3);
+        highlick_postrew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_postrew)),3);
+        lowlick_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_omit)),3);
+        highlick_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_omit)),3);
+        lowlick_preomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_preomit)),3);
+        highlick_preomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_preomit)),3);
+        lowlick_postomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_postomit)),3);
+        highlick_postomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_postomit)),3);
         
         earlytrial_rew_avg_df = nanmean(targetAligndFoverF(:,:,ind_rew(find(ind_rew<floor(nTrials./2)))),3);
         latetrial_rew_avg_df = nanmean(targetAligndFoverF(:,:,ind_rew(find(ind_rew>floor(nTrials./2)))),3);
@@ -570,18 +572,18 @@ for id =6  %experiment type
         all_latetrial_omit_lick = [all_latetrial_omit_lick latetrial_omit_avg_lick];
         all_earlytrial_unexp_lick = [all_earlytrial_unexp_lick earlytrial_unexp_avg_lick];
         all_latetrial_unexp_lick = [all_latetrial_unexp_lick latetrial_unexp_avg_lick];
-%         all_lowlick_rew = [all_lowlick_rew lowlick_rew_avg];
-%         all_highlick_rew = [all_highlick_rew highlick_rew_avg];
-%         all_lowlick_prerew = [all_lowlick_prerew lowlick_prerew_avg];
-%         all_highlick_prerew = [all_highlick_prerew highlick_prerew_avg];
-%         all_lowlick_postrew = [all_lowlick_postrew lowlick_postrew_avg];
-%         all_highlick_postrew = [all_highlick_postrew highlick_postrew_avg];
-%         all_lowlick_omit = [all_lowlick_omit lowlick_omit_avg];
-%         all_highlick_omit = [all_highlick_omit highlick_omit_avg];
-%         all_lowlick_preomit = [all_lowlick_preomit lowlick_preomit_avg];
-%         all_highlick_preomit = [all_highlick_preomit highlick_preomit_avg];
-%         all_lowlick_postomit = [all_lowlick_postomit lowlick_postomit_avg];
-%         all_highlick_postomit = [all_highlick_postomit highlick_postomit_avg];
+        all_lowlick_rew = [all_lowlick_rew lowlick_rew_avg];
+        all_highlick_rew = [all_highlick_rew highlick_rew_avg];
+        all_lowlick_prerew = [all_lowlick_prerew lowlick_prerew_avg];
+        all_highlick_prerew = [all_highlick_prerew highlick_prerew_avg];
+        all_lowlick_postrew = [all_lowlick_postrew lowlick_postrew_avg];
+        all_highlick_postrew = [all_highlick_postrew highlick_postrew_avg];
+        all_lowlick_omit = [all_lowlick_omit lowlick_omit_avg];
+        all_highlick_omit = [all_highlick_omit highlick_omit_avg];
+        all_lowlick_preomit = [all_lowlick_preomit lowlick_preomit_avg];
+        all_highlick_preomit = [all_highlick_preomit highlick_preomit_avg];
+        all_lowlick_postomit = [all_lowlick_postomit lowlick_postomit_avg];
+        all_highlick_postomit = [all_highlick_postomit highlick_postomit_avg];
         all_short_omit = [all_short_omit short_omit_avg];
         all_long_omit = [all_long_omit long_omit_avg];
         all_short_unexp = [all_short_unexp short_unexp_avg];

@@ -1,21 +1,23 @@
 clear all
 
-for id = [5]
+for id = [2]
     %hardcode the vector for exp_subset for each experiment type (id)
-    if id==1  %LS
-        exp_subset= [18:20]; %
+    if id==1  
+        exp_subset= [10]; %
     elseif id==2
-        exp_subset = [19:20]; % 
+        exp_subset = [11]; % 
     elseif id==3
-        exp_subset = 9; %[7:9]; %
+        exp_subset = [8]; %[7:9]; %
+    elseif id==4
+        exp_subset = [5]; %over-trained
     elseif id==5
         exp_subset = [3:5]; %
     elseif id==6
-        exp_subset = [1:2]; %
+        exp_subset = [3:4]; %extinction
     end
 
-%CRP_expt_list_Crus_jh
-CRP_expt_list_LS_jh
+CRP_expt_list_Crus_jh
+%CRP_expt_list_LS_jh
 %id = 8;
 jake_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
 bx_source = 'Y:\home\jake\Data\WidefieldImaging\GCaMP\behavior\';
