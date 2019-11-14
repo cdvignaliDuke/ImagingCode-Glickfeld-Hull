@@ -5,7 +5,7 @@ expt(1).mouse = strvcat('092', '093', '094', '1502', '1503', '1504');
 expt(1).date = strvcat('190213', '190215', '190310', '190918', '191004', '191016');
 expt(1).run = strvcat('000', '000', '000', '000', '000', '000');
 %expt(1).time = strvcat('1725', '1915', '1918', '1713');
-expt(1).ttl = [1, 1, 1, 1, 1, 1, 1];
+expt(1).ttl = [1, 1, 1, 1, 1, 1];
 expt(1).areas{1} = {'C2', 'C1'};
 expt(1).areas{2} = {'C2', 'C1'};
 expt(1).areas{3} = {'C2', 'C1'};
@@ -62,24 +62,24 @@ expt(5).areas{2} = {'C2', 'C1'};
 expt(5).areas{3} = {'C2', 'C1'};
 
 expt(6).name= 'Crus';  %overtrained extinction
-expt(6).mouse = strvcat('1502', '1503');
-expt(6).date = strvcat('191004', '191017');
-expt(6).run = strvcat('000', '000');
+expt(6).mouse = strvcat('1502', '1503', '1504');
+expt(6).date = strvcat('191004', '191017', '191028');
+expt(6).run = strvcat('000', '000', '000');
 %expt(6).time = strvcat();
-expt(6).ttl = [1, 1];
+expt(6).ttl = [1, 1, 1];
 expt(6).areas{1} = {'C2', 'C1'};
 expt(6).areas{2} = {'C2', 'C1'};
+expt(6).areas{3} = {'C2', 'C1'};
 
 expt(7).name= 'Crus';  %overtrained extinction
-expt(7).mouse = strvcat('1503', '1503');
-expt(7).date = strvcat('191018', '191019');
-expt(7).run = strvcat('000', '000');
+expt(7).mouse = strvcat('1503', '1503', '1504');
+expt(7).date = strvcat('191018', '191019', '191030');
+expt(7).run = strvcat('000', '000', '000');
 %expt(6).time = strvcat();
-expt(7).ttl = [1, 1];
+expt(7).ttl = [1, 1, 1];
 expt(7).areas{1} = {'C2', 'C1'};
 expt(7).areas{2} = {'C2', 'C1'};
-
-
+expt(7).areas{3} = {'C2', 'C1'};
 
 
 

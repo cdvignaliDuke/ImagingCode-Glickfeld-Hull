@@ -4,28 +4,30 @@
 clear all
 plotDetect = 0;
 negAdjust = 0;
-for id = [1,2,4,6]%[1,2,3,5,6]
+for id = [3]
     %close all
-    CRP_expt_list_Crus_jh;
+%     CRP_expt_list_Crus_jh;
     %CRP_expt_list_LS_jh;
+     %CRP_OT_expt_list_LS_jh;
+     CRP_OT_expt_list_Crus_jh;
     jake_out = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
     behav_dir = 'Y:\home\jake\Data\WidefieldImaging\GCaMP\behavior';
     nexp = size(expt(id).date,1);
     
-    if id==1  %Crus
-        exp_subset= [10]; % Day1
-    elseif id==2
-        exp_subset = [11]; % PL OR
-    elseif id==3
-        exp_subset = [7,8]; % UR
-    elseif id==4
-        exp_subset = [5]; %  OT OR
-    elseif id==5
-        exp_subset = [1,2]; % OT UR
-    elseif id == 6
-        exp_subset = [3,4];
-    end
-     
+%     if id==1  %LS OT or Crus
+%          exp_subset= 1:size(expt(id).mouse,1); % Day1
+%     elseif id==2
+%         exp_subset = 1:size(expt(id).mouse,1); % PL OR
+%     elseif id==3
+%         exp_subset = 1:size(expt(id).mouse,1); % UR
+%     elseif id==4
+%         exp_subset = 1:size(expt(id).mouse,1); %  OT OR
+%     elseif id==5
+%         exp_subset = 1:size(expt(id).mouse,1); % OT UR
+%     elseif id == 6
+%         exp_subset = 1:size(expt(id).mouse,1); % extinction
+%     end
+%      
 %     if id==1  %LS
 %         exp_subset=  [18:20]; %
 %     elseif id==2
@@ -38,26 +40,21 @@ for id = [1,2,4,6]%[1,2,3,5,6]
 %         exp_subset = [1:2]; %
 %     end    
     
-    for iexp = exp_subset  %1:nexp
+    for iexp =  [4:5]; %1:nexp % exp_subset;
         mouse = strtrim(expt(id).mouse(iexp,:));
         date = expt(id).date(iexp,:);
         run = expt(id).run(iexp,:);
         fprintf([date ' ' mouse '\n'])
         img_fn = [date '_' mouse];
+        
         load(fullfile(jake_out,img_fn, [img_fn '_ROI_TCs.mat']))
         nIC = size(tc_avg,2);
-
+        
         opt.thresh = 1.7;
         opt.normalization = 1;
         opt.deconvtau = 0;
         opt.dt = 1;
-
-%         if str2num(mouse)>800
-%             mouse_name = mouse(2:3);
-%         else
-%             mouse_name = mouse;
-%         end
-%         
+        
         if str2num(mouse)>800 & str2num(mouse) < 1000
             mouse_name = mouse(2:3);
         elseif str2num(mouse)<100 | str2num(mouse) > 1000
@@ -139,9 +136,10 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         else
             fprintf(' corrected counter \n')
         end
-
+        
         %% detect events
         
+        %remove frames where laser power is down. Keep track of the frame numbers that are kept
         tc_avg_temp = tc_avg;
         cTargetOn = celleqel2mat_padded(input.cTargetOn);
         if expt(id).ttl(iexp)
@@ -163,8 +161,9 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             ind_tc = find(~isnan(tc_avg(:,1)));
             tc_avg_temp(find(isnan(tc_avg(:,1))),:) = [];
         end
-        range = 5501:5900;
         
+        %Extract calcium events and plot the calcium events over calcium traces for specific cells 
+        range = 5501:5900; %range of frame nums overwhich to plot in plotDetect
         tc_diff = diff(tc_avg_temp,[],1);
         all_events = zeros(size(tc_avg_temp));
         if plotDetect
@@ -172,7 +171,7 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             start = 1;
             IC_list = [];
         end
-        for ic = 1:nIC
+        for ic = 1:nIC %for each cell extract calcium events (complex spikes) from the timecourse (with laser off periods removed)
             [~, iti_ind, ~] = CellsortFindspikes(tc_diff(:,ic), opt.thresh, opt.dt, opt.deconvtau, opt.normalization);
             iti_ind(find(diff(iti_ind)==1)+1)=[];
             all_events(iti_ind+1,ic) = 1;
@@ -194,6 +193,7 @@ for id = [1,2,4,6]%[1,2,3,5,6]
                     end
                 end
             end
+            %Makes plots of    for the first 9 cells in a FOV
             if plotDetect
                 if start>9
                     savefig(fullfile(jake_out,img_fn, [img_fn '_Cell#' num2str(IC_list(1)) '-' num2str(IC_list(end)) '_diff_findSpikes.fig']))
@@ -201,9 +201,8 @@ for id = [1,2,4,6]%[1,2,3,5,6]
                     IC_list = [];
                 end
 
-                subplot(3,3,start)
-
-                plot((tc_avg_temp(range,ic)-nanmean(tc_avg_temp(range,ic),1))./max(tc_avg_temp(range,ic),[],1)); 
+                subplot(3,3,start);
+                plot(   (tc_avg_temp(range,ic)-nanmean(tc_avg_temp(range,ic),1))./max(tc_avg_temp(range,ic),[],1)   ); 
                 hold on; plot(all_events(range,ic));
                 title(['cell#' num2str(ic)])
                 start = start+1;
@@ -218,9 +217,9 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             all_events_temp(ind_tc,:) = all_events;
             all_events = all_events_temp;
         end
-
         save(fullfile(jake_out,img_fn, [img_fn '_ROI_spikes.mat']), 'all_events', 'opt', 'tc_diff')
 
+        %calculate and plot spike rate 
         if expt(id).ttl(iexp)
             nFrames = length(ind_tc);
         else
@@ -231,34 +230,14 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         figure; hist(spikeRate)
         xlim([0 5]); xlabel('Spike rate'); ylabel('Cells'); 
         title([date ' ' mouse ' spike rates'])
-        savefig(fullfile(jake_out,img_fn, [img_fn '_spikeRate.fig']))
-
+        savefig(fullfile(jake_out, img_fn, [img_fn '_spikeRate.fig']))
+%         save(fullfile(jake_out, '\spike rate and CV comparison\', [img_fn '_spikeInfo.mat']), 'spikeRate', '-append');
         
-        %% align events    
+        %% prepare variables for plotting and align events    
         
+        %calculate trial type indeces
         omitRewTrial = celleqel2mat_padded(input.tRewardOmissionTrial);
         unexpRewTrial = celleqel2mat_padded(input.tDoNoStimulusChange);
-        nTrials = length(cTargetOn);
-        prewin_frames = round(1500./frameRateHz);
-        postwin_frames = round(3000./frameRateHz);
-        targetAlign_tc = nan(prewin_frames+postwin_frames,nIC,nTrials);
-        targetAlign_events = nan(prewin_frames+postwin_frames,nIC,nTrials);
-        nFrames = size(tc_avg,1);
-        
-        for itrial = 1:nTrials
-            if cTargetOn(itrial)+postwin_frames-1 <= nFrames %& input.counterValues{itrial}(end)-cTargetOn(itrial) > postwin_frames
-                targetAlign_tc(:,:,itrial) = tc_avg(cTargetOn(itrial)-prewin_frames:cTargetOn(itrial)+postwin_frames-1,:);
-                targetAlign_events(:,:,itrial) = all_events(cTargetOn(itrial)-prewin_frames:cTargetOn(itrial)+postwin_frames-1,:);
-                if id == 2 & (iexp == 12 | iexp ==14)
-                    targetAlign_tc(prewin_frames+3:prewin_frames+5,:,itrial) = NaN;
-                    targetAlign_events(prewin_frames+3:prewin_frames+5,:,itrial) = NaN;
-                end
-            end
-        end
-
-        targetAlignF = nanmean(targetAlign_tc(1:prewin_frames,:,:),1);
-        targetAligndFoverF = (targetAlign_tc-repmat(targetAlignF, [size(targetAlign_tc,1),1,1])./repmat(targetAlignF, [size(targetAlign_tc,1),1,1]));
-
         ind_omit = find(omitRewTrial);
         ind_unexp = find(unexpRewTrial);
         ind_rew = intersect(find(omitRewTrial == 0),find(unexpRewTrial == 0));
@@ -268,12 +247,45 @@ for id = [1,2,4,6]%[1,2,3,5,6]
             x = ismember(ind_unexp,intersect(ind_omit, ind_unexp));
             ind_unexp(x) = [];
         end
+        
+        %calculate variables for plotting
+        nTrials = length(cTargetOn);
+        prewin_frames = round(1500./frameRateHz);
+        postwin_frames = round(3000./frameRateHz);
+        nFrames = size(tc_avg,1);
         tt = (-prewin_frames:postwin_frames-1).*(1000./frameRateHz);
         rewardDelayDurationMs = double(max(celleqel2mat_padded(input.tRewardDelayDurationMs),[],2));
         reactTimesMs = double(mean(celleqel2mat_padded(input.reactTimesMs),2));
         delayTimeMs = reactTimesMs+rewardDelayDurationMs;
-
-
+        
+        %extract trial aligned df/f and spike rates
+        targetAlign_tc = nan(prewin_frames+postwin_frames,nIC,nTrials);
+        targetAlign_events = nan(prewin_frames+postwin_frames,nIC,nTrials);
+        for itrial = 1:nTrials
+            if cTargetOn(itrial)+postwin_frames-1 <= nFrames %& input.counterValues{itrial}(end)-cTargetOn(itrial) > postwin_frames
+                targetAlign_tc(:,:,itrial) = tc_avg(cTargetOn(itrial)-prewin_frames:cTargetOn(itrial)+postwin_frames-1,:);
+                targetAlign_events(:,:,itrial) = all_events(cTargetOn(itrial)-prewin_frames:cTargetOn(itrial)+postwin_frames-1,:);
+                % correct for visual or reward artifacts in specific sessions
+                %if id == 2 & (iexp == 12 | iexp ==14)
+                if strcmp(img_fn, '190213_092') 
+                    targetAlign_tc([prewin_frames+3:prewin_frames+6],:,itrial) = NaN; %2nd : 5th frames after cue onset (prewin_frames+1)
+                    targetAlign_events([prewin_frames+3:prewin_frames+6],:,itrial) = NaN;
+                end
+                if  strcmp(img_fn, '190416_096') 
+                    targetAlign_tc([prewin_frames+20:prewin_frames+21],:,itrial) = NaN; % 19th : 20th frames after cue onset (prewin_frames+1)
+                    targetAlign_events([prewin_frames+20:prewin_frames+21],:,itrial) = NaN;
+                elseif strcmp(img_fn, '190321_095') | strcmp(img_fn, '190423_096')
+                    if ismember(itrial, ind_rew) %for reward artifact, only take out frames on rewarded trials. Not omission trials. 
+                        targetAlign_tc([prewin_frames+20:prewin_frames+22],:,itrial) = NaN; % 19th : 20th frames after cue onset (prewin_frames+1)
+                        targetAlign_events([prewin_frames+20:prewin_frames+22],:,itrial) = NaN;
+                    end
+                end
+            end
+        end
+        targetAlignF = nanmean(targetAlign_tc(1:prewin_frames,:,:),1);
+        targetAligndFoverF = (targetAlign_tc-targetAlignF)./targetAlignF;
+        %targetAligndFoverF = (targetAlign_tc-repmat(targetAlignF, [size(targetAlign_tc,1),1,1])./repmat(targetAlignF, [size(targetAlign_tc,1),1,1]));
+        
         %% plotting 
         
         %df/f
@@ -449,5 +461,7 @@ for id = [1,2,4,6]%[1,2,3,5,6]
         save(fullfile(jake_out,img_fn, [img_fn '_targetAlign.mat']), 'ind_rew', 'ind_omit', 'ind_unexp', 'targetAlign_events', 'targetAligndFoverF', 'prewin_frames', 'postwin_frames', 'tt', 'frameRateHz', 'ind_omit_short','ind_omit_long','ind_unexp_short','ind_unexp_long','ind_rew_preomit','ind_rew_postomit')
         save(fullfile(jake_out,img_fn, [img_fn '_input.mat']), 'input')
         %close all
+        
+        
     end
 end

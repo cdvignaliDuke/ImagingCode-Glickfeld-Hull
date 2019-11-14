@@ -4,111 +4,18 @@
 clear all
 close all
 %CRP_expt_list_all
-CRP_OT_expt_list_Crus_jh
+CRP_OT_expt_list_Crus_jh;
+%CRP_OT_expt_list_LS_jh
 plotAvg = 1;
 area_list = {'C1','C2','LS'};
 share_out = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_OT_plots_and_outputs';
 jh_out =  'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
-for id =6  %experiment type
+for id =[3]  %experiment type
     fprintf(['Day: ' num2str(id) '\n'])
     nexp = size(expt(id).date,1);
     
     %create variable names
-    all_trials = [];
-    all_rew = [];
-    all_omit = [];
-    all_unexp = [];
-    all_earlylick_rew = [];
-    all_latelick_rew = [];
-    all_earlylick_omit = [];
-    all_latelick_omit = [];
-    all_earlytrial_rew = [];
-    all_latetrial_rew = [];
-    all_earlytrial_omit = [];
-    all_latetrial_omit = [];
-    all_earlytrial_unexp = [];
-    all_latetrial_unexp = [];
-    all_earlytrial_rew_df = [];
-    all_latetrial_rew_df = [];
-    all_earlytrial_omit_df = [];
-    all_latetrial_omit_df = [];
-    all_earlytrial_unexp_df = [];
-    all_latetrial_unexp_df = [];
-    all_earlytrial_rew_lick = [];
-    all_latetrial_rew_lick = [];
-    all_earlytrial_omit_lick = [];
-    all_latetrial_omit_lick = [];
-    all_earlytrial_unexp_lick = [];
-    all_latetrial_unexp_lick = [];
-    all_short_omit = [];
-    all_long_omit = [];
-    all_short_unexp = [];
-    all_long_unexp = [];
-    all_preomit = [];
-    all_postomit = [];
-    all_early_rew_time = zeros(1,nexp);
-    all_late_rew_time = zeros(1,nexp);
-    all_early_omit_time = zeros(1,nexp);
-    all_late_omit_time = zeros(1,nexp);
-    all_rew_df = [];
-    all_omit_df = [];
-    all_unexp_df = [];
-    all_lick_rew = [];
-    all_lick_omit = [];
-    all_lick_unexp = [];
-    all_postrew_lick_rew = [];
-    all_postrew_lick_omit = [];
-    all_postrew_lick_unexp = [];
-    all_early_postrew_lick_rew = [];
-    all_late_postrew_lick_rew = [];
-    all_postrew_lick_rew_lick = [];
-    all_postrew_lick_omit_lick = [];
-    all_postrew_lick_unexp_lick = [];
-    all_early_postrew_lick_rew_lick = [];
-    all_late_postrew_lick_rew_lick = [];
-    all_precue_burst = [];
-    all_precue_single = [];
-    all_precue_burst_df = [];
-    all_precue_single_df = [];
-    all_precue_single_expt = [];
-    all_precue_burst_expt = [];
-    all_lastLick_preRew_omit = [];
-    all_firstLick_postRew_omit = [];
-    all_lastLick_preRew_rew = [];
-    all_firstLick_postRew_rew = [];
-    all_lastLick_preRew_unexp = [];
-    all_firstLick_postRew_unexp = [];
-    all_firstPostRewLickEvents = [];
-    all_expt_bin = [];
-    all_firstPostRewLickEvents_omit = [];
-    all_expt_omit_bin = [];
-    all_firstPostRewLickEvents_unexp = [];
-    all_expt_unexp_bin = [];
-    mouse_str = [];
-    all_area_id = [];
-    expt_areas = zeros(length(area_list),nexp);
-    expt_rew_peaks = cell(nexp,length(area_list));
-    expt_omit_peaks = cell(nexp,length(area_list));
-    expt_unexp_peaks = cell(nexp,length(area_list));
-    preresp_rew_range = cell(1,length(area_list));
-    postresp_rew_range = cell(1,length(area_list));
-    all_lowlick_rew = [];
-    all_highlick_rew = [];
-    all_lowlick_prerew = [];
-    all_highlick_prerew = [];
-    all_lowlick_postrew = [];
-    all_highlick_postrew = [];
-    all_lowlick_omit = [];
-    all_highlick_omit = [];
-    all_lowlick_preomit = [];
-    all_highlick_preomit = [];
-    all_lowlick_postomit = [];
-    all_highlick_postomit = [];
-    expNums(id).numDendrites = nan(nexp,length(area_list));
-    expNums(id).avgdFoverF_preRew = nan(nexp,length(area_list));
-    expNums(id).avgdFoverF_postRew = nan(nexp,length(area_list));
-    expNums(id).mouse_name = cell(nexp,1);
-    expNums(id).area_list = area_list;
+    CRP_psthSum_init_vars_1;
     
     %For each animal
     for iexp = 1:nexp  
@@ -201,18 +108,18 @@ for id =6  %experiment type
         earlytrial_unexp_avg = nanmean(targetAlign_events(:,:,ind_unexp(find(ind_unexp<floor(nTrials./2)))),3);
         latetrial_unexp_avg = nanmean(targetAlign_events(:,:,ind_unexp(find(ind_unexp>floor(nTrials./2)))),3);
         
-%         lowlick_rew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_rew)),3);
-%         highlick_rew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_rew)),3);
-%         lowlick_prerew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_prerew)),3);
-%         highlick_prerew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_prerew)),3);
-%         lowlick_postrew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_postrew)),3);
-%         highlick_postrew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_postrew)),3);
-%         lowlick_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_omit)),3);
-%         highlick_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_omit)),3);
-%         lowlick_preomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_preomit)),3);
-%         highlick_preomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_preomit)),3);
-%         lowlick_postomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_postomit)),3);
-%         highlick_postomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_postomit)),3);
+        lowlick_rew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_rew)),3);
+        highlick_rew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_rew)),3);
+        lowlick_prerew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_prerew)),3);
+        highlick_prerew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_prerew)),3);
+        lowlick_postrew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_low_postrew)),3);
+        highlick_postrew_avg = nanmean(targetAlign_events(:,:,ind_rew(ind_high_postrew)),3);
+        lowlick_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_omit)),3);
+        highlick_omit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_omit)),3);
+        lowlick_preomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_preomit)),3);
+        highlick_preomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_preomit)),3);
+        lowlick_postomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_low_postomit)),3);
+        highlick_postomit_avg = nanmean(targetAlign_events(:,:,ind_omit(ind_high_postomit)),3);
         
         earlytrial_rew_avg_df = nanmean(targetAligndFoverF(:,:,ind_rew(find(ind_rew<floor(nTrials./2)))),3);
         latetrial_rew_avg_df = nanmean(targetAligndFoverF(:,:,ind_rew(find(ind_rew>floor(nTrials./2)))),3);
@@ -544,193 +451,102 @@ for id =6  %experiment type
         end
         
         %store variables for this mouse
-        all_trials = [all_trials all_avg];
-        all_rew = [all_rew rew_avg];
-        all_omit = [all_omit omit_avg];
-        all_unexp = [all_unexp unexp_avg];
-        all_earlylick_rew = [all_earlylick_rew earlylick_rew_avg];
-        all_latelick_rew = [all_latelick_rew latelick_rew_avg];
-        all_earlylick_omit = [all_earlylick_omit earlylick_omit_avg];
-        all_latelick_omit = [all_latelick_omit latelick_omit_avg];
-        all_earlytrial_rew = [all_earlytrial_rew earlytrial_rew_avg];
-        all_latetrial_rew = [all_latetrial_rew latetrial_rew_avg];
-        all_earlytrial_omit = [all_earlytrial_omit earlytrial_omit_avg];
-        all_latetrial_omit = [all_latetrial_omit latetrial_omit_avg];
-        all_earlytrial_unexp = [all_earlytrial_unexp earlytrial_unexp_avg];
-        all_latetrial_unexp = [all_latetrial_unexp latetrial_unexp_avg];
-        all_earlytrial_rew_df = [all_earlytrial_rew_df earlytrial_rew_avg_df];
-        all_latetrial_rew_df = [all_latetrial_rew_df latetrial_rew_avg_df];
-        all_earlytrial_omit_df = [all_earlytrial_omit_df earlytrial_omit_avg_df];
-        all_latetrial_omit_df = [all_latetrial_omit_df latetrial_omit_avg_df];
-        all_earlytrial_unexp_df = [all_earlytrial_unexp_df earlytrial_unexp_avg_df];
-        all_latetrial_unexp_df = [all_latetrial_unexp_df latetrial_unexp_avg_df];
-        all_earlytrial_rew_lick = [all_earlytrial_rew_lick earlytrial_rew_avg_lick];
-        all_latetrial_rew_lick = [all_latetrial_rew_lick latetrial_rew_avg_lick];
-        all_earlytrial_omit_lick = [all_earlytrial_omit_lick earlytrial_omit_avg_lick];
-        all_latetrial_omit_lick = [all_latetrial_omit_lick latetrial_omit_avg_lick];
-        all_earlytrial_unexp_lick = [all_earlytrial_unexp_lick earlytrial_unexp_avg_lick];
-        all_latetrial_unexp_lick = [all_latetrial_unexp_lick latetrial_unexp_avg_lick];
-%         all_lowlick_rew = [all_lowlick_rew lowlick_rew_avg];
-%         all_highlick_rew = [all_highlick_rew highlick_rew_avg];
-%         all_lowlick_prerew = [all_lowlick_prerew lowlick_prerew_avg];
-%         all_highlick_prerew = [all_highlick_prerew highlick_prerew_avg];
-%         all_lowlick_postrew = [all_lowlick_postrew lowlick_postrew_avg];
-%         all_highlick_postrew = [all_highlick_postrew highlick_postrew_avg];
-%         all_lowlick_omit = [all_lowlick_omit lowlick_omit_avg];
-%         all_highlick_omit = [all_highlick_omit highlick_omit_avg];
-%         all_lowlick_preomit = [all_lowlick_preomit lowlick_preomit_avg];
-%         all_highlick_preomit = [all_highlick_preomit highlick_preomit_avg];
-%         all_lowlick_postomit = [all_lowlick_postomit lowlick_postomit_avg];
-%         all_highlick_postomit = [all_highlick_postomit highlick_postomit_avg];
-        all_short_omit = [all_short_omit short_omit_avg];
-        all_long_omit = [all_long_omit long_omit_avg];
-        all_short_unexp = [all_short_unexp short_unexp_avg];
-        all_long_unexp = [all_long_unexp long_unexp_avg];
-        all_preomit = [all_preomit preomit_avg];
-        all_postomit = [all_postomit postomit_avg];
-        all_rew_df = [all_rew_df rew_avg_df];
-        all_omit_df = [all_omit_df omit_avg_df];
-        all_unexp_df = [all_unexp_df unexp_avg_df];
-        all_lick_rew = [all_lick_rew lick_rew_avg];
-        all_lick_omit = [all_lick_omit lick_omit_avg];
-        all_lick_unexp = [all_lick_unexp lick_unexp_avg];
-        all_early_rew_time(:,iexp) = early_rew_time;
-        all_late_rew_time(:,iexp) = late_rew_time;
-        all_early_omit_time(:,iexp) = early_omit_time;
-        all_late_omit_time(:,iexp) = late_omit_time;
-        all_postrew_lick_rew = [all_postrew_lick_rew postrew_lick_rew_avg];
-        all_postrew_lick_omit = [all_postrew_lick_omit postrew_lick_omit_avg];
-        all_postrew_lick_unexp = [all_postrew_lick_unexp postrew_lick_unexp_avg];
-        all_early_postrew_lick_rew = [all_early_postrew_lick_rew postrew_early_lick_rew_avg];
-        all_late_postrew_lick_rew = [all_late_postrew_lick_rew postrew_late_lick_rew_avg];
-        all_postrew_lick_rew_lick = [all_postrew_lick_rew_lick postrew_lick_rew_lick_avg];
-        all_postrew_lick_omit_lick = [all_postrew_lick_omit_lick postrew_lick_omit_lick_avg];
-        all_postrew_lick_unexp_lick = [all_postrew_lick_unexp_lick postrew_lick_unexp_lick_avg];
-        all_early_postrew_lick_rew_lick = [all_early_postrew_lick_rew_lick postrew_early_lick_rew_lick_avg];
-        all_late_postrew_lick_rew_lick = [all_late_postrew_lick_rew_lick postrew_late_lick_rew_lick_avg];
-        all_precue_burst = [all_precue_burst precue_burst_avg];
-        all_precue_burst_df = [all_precue_burst_df precue_burst_df_avg];
-        all_precue_single = [all_precue_single precue_single_avg];
-        all_precue_single_df = [all_precue_single_df precue_single_df_avg];
-        all_precue_single_expt = [all_precue_single_expt precue_single_expt];
-        all_precue_burst_expt = [all_precue_burst_expt precue_burst_expt];
-        all_lastLick_preRew_omit = [all_lastLick_preRew_omit lastPreRewAvg_omit];
-        all_firstLick_postRew_omit = [all_firstLick_postRew_omit firstPostRewAvg_omit];
-        all_lastLick_preRew_rew = [all_lastLick_preRew_rew lastPreRewAvg_rew];
-        all_firstLick_postRew_rew = [all_firstLick_postRew_rew firstPostRewAvg_rew];
-        all_lastLick_preRew_unexp = [all_lastLick_preRew_unexp lastPreRewAvg_unexp];
-        all_firstLick_postRew_unexp = [all_firstLick_postRew_unexp firstPostRewAvg_unexp];
-        all_firstPostRewLickEvents = [all_firstPostRewLickEvents firstPostRewLickEvents];
-        all_expt_bin = [all_expt_bin; expt_bin];
-        all_firstPostRewLickEvents_omit = [all_firstPostRewLickEvents_omit firstPostRewLickEvents_omit];
-        all_expt_omit_bin = [all_expt_omit_bin; expt_omit_bin];
-        all_firstPostRewLickEvents_unexp = [all_firstPostRewLickEvents_unexp firstPostRewLickEvents_unexp];
-        all_expt_unexp_bin = [all_expt_unexp_bin; expt_unexp_bin];
-        all_HL_lickrate(iexp) = HL_lickrate;
+        CRP_psthSum_init_vars_2;
     end
 
-    %begin plotting across mice within a given experiment type
+    
+    
+    
+    %% begin plotting across mice within a given experiment type
     totIC = size(all_area_id,2);
     totExp = sum(expt_areas,2);
     all_HL_lickrate = concatenateStructuresLG(all_HL_lickrate);
-%     for i = find(sum(expt_areas,2)')
-%         ind = find(all_area_id==i);
-%         totIC_area = length(ind);
-%         figure;
-%         subplot(3,3,1)
-%         shadedErrorBar(tt, nanmean(all_rew_df(:,ind),2), (nanstd(all_rew_df(:,ind),[],2)./sqrt(totIC_area)),'k');
-%         xlabel('Time from cue')
-%         ylabel('dF/F')
-%         title('Reward')
-%         ylim([-.05 0.1])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
-%         subplot(3,3,2)
-%         shadedErrorBar(tt, nanmean(all_rew(:,ind),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
-%         xlabel('Time from cue')
-%         ylabel('Spike rate (Hz)')
-%         title('Reward')
-%         ylim([0 5])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
-%         subplot(3,3,3)
-%         shadedErrorBar(tt', nanmean(all_lick_rew(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_rew(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'k');
-%         xlabel('Time from cue')
-%         ylabel('Lick rate (Hz)')
-%         title('Reward')
-%         ylim([0 10])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
-%         subplot(3,3,4)
-%         shadedErrorBar(tt, nanmean(all_omit_df(:,ind),2), (nanstd(all_omit_df(:,ind),[],2)./sqrt(totIC_area)),'r');
-%         xlabel('Time from cue')
-%         ylabel('dF/F')
-%         title('Omission')
-%         ylim([-.05 0.1])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
-%         subplot(3,3,5)
-%         shadedErrorBar(tt, nanmean(all_omit(:,ind),2).*(1000./frameRateHz), (nanstd(all_omit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'r');
-%         xlabel('Time from cue')
-%         ylabel('Spike rate (Hz)')
-%         title('Omission')
-%         ylim([0 5])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
-%         subplot(3,3,6)
-%         shadedErrorBar(tt, nanmean(all_lick_omit(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_omit(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'r');
-%         xlabel('Time from cue')
-%         ylabel('Lick rate (Hz)')
-%         title('Omission')
-%         ylim([0 10])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
-%         subplot(3,3,7)
-%         shadedErrorBar(tt, nanmean(all_unexp_df(:,ind),2), (nanstd(all_unexp_df(:,ind),[],2)./sqrt(totIC_area)),'g');
-%         xlabel('Time from cue')
-%         ylabel('dF/F')
-%         title('Unexpected Reward')
-%         ylim([-.05 0.1])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         subplot(3,3,8)
-%         shadedErrorBar(tt, nanmean(all_unexp(:,ind),2).*(1000./frameRateHz), (nanstd(all_unexp(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'g');
-%         xlabel('Time from cue')
-%         ylabel('Spike rate (Hz)')
-%         title('Unexpected Reward')
-%         ylim([0 5])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         subplot(3,3,9)
-%         shadedErrorBar(tt, nanmean(all_lick_unexp(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_unexp(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'g');
-%         xlabel('Time from cue')
-%         ylabel('Lick rate (Hz)')
-%         title('Unexpected Reward')
-%         ylim([0 10])
-%         xlim([-500 2000])
-%         vline([600], 'b')
-%         suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites']);
-%         savefig([share_out '\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_' mouse_str '.fig'])    
-%     end
-%             
+    for i = find(sum(expt_areas,2)')
+        ind = find(all_area_id==i);
+        totIC_area = length(ind);
+        figure;
+        subplot(3,3,1)
+        shadedErrorBar(tt, nanmean(all_rew_df(:,ind),2), (nanstd(all_rew_df(:,ind),[],2)./sqrt(totIC_area)),'k');
+        xlabel('Time from cue')
+        ylabel('dF/F')
+        title('Reward')
+        ylim([-.05 0.1])
+        xlim([-500 2000])
+        vline([600], 'b')
+
+        subplot(3,3,2)
+        shadedErrorBar(tt, nanmean(all_rew(:,ind),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
+        xlabel('Time from cue')
+        ylabel('Spike rate (Hz)')
+        title('Reward')
+        ylim([0 5])
+        xlim([-500 2000])
+        vline([600], 'b')
+
+        subplot(3,3,3)
+        shadedErrorBar(tt', nanmean(all_lick_rew(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_rew(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'k');
+        xlabel('Time from cue')
+        ylabel('Lick rate (Hz)')
+        title('Reward')
+        ylim([0 10])
+        xlim([-500 2000])
+        vline([600], 'b')
+
+        subplot(3,3,4)
+        shadedErrorBar(tt, nanmean(all_omit_df(:,ind),2), (nanstd(all_omit_df(:,ind),[],2)./sqrt(totIC_area)),'r');
+        xlabel('Time from cue')
+        ylabel('dF/F')
+        title('Omission')
+        ylim([-.05 0.1])
+        xlim([-500 2000])
+        vline([600], 'b')
+
+        subplot(3,3,5)
+        shadedErrorBar(tt, nanmean(all_omit(:,ind),2).*(1000./frameRateHz), (nanstd(all_omit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'r');
+        xlabel('Time from cue')
+        ylabel('Spike rate (Hz)')
+        title('Omission')
+        ylim([0 5])
+        xlim([-500 2000])
+        vline([600], 'b')
+
+        subplot(3,3,6)
+        shadedErrorBar(tt, nanmean(all_lick_omit(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_omit(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'r');
+        xlabel('Time from cue')
+        ylabel('Lick rate (Hz)')
+        title('Omission')
+        ylim([0 10])
+        xlim([-500 2000])
+        vline([600], 'b')
+
+        subplot(3,3,7)
+        shadedErrorBar(tt, nanmean(all_unexp_df(:,ind),2), (nanstd(all_unexp_df(:,ind),[],2)./sqrt(totIC_area)),'g');
+        xlabel('Time from cue')
+        ylabel('dF/F')
+        title('Unexpected Reward')
+        ylim([-.05 0.1])
+        xlim([-500 2000])
+        vline([600], 'b')
+        subplot(3,3,8)
+        shadedErrorBar(tt, nanmean(all_unexp(:,ind),2).*(1000./frameRateHz), (nanstd(all_unexp(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'g');
+        xlabel('Time from cue')
+        ylabel('Spike rate (Hz)')
+        title('Unexpected Reward')
+        ylim([0 5])
+        xlim([-500 2000])
+        vline([600], 'b')
+        subplot(3,3,9)
+        shadedErrorBar(tt, nanmean(all_lick_unexp(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), (nanstd(all_lick_unexp(:,find(expt_areas(i,:))),[],2)./sqrt(totExp(i))).*(1000./frameRateHz),'g');
+        xlabel('Time from cue')
+        ylabel('Lick rate (Hz)')
+        title('Unexpected Reward')
+        ylim([0 10])
+        xlim([-500 2000])
+        vline([600], 'b')
+        suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites']);
+        savefig([share_out '\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_' mouse_str '.fig'])    
+    end
+           
 %     for i = find(sum(expt_areas,2)')
 %         ind = find(all_area_id==i);
 %         totIC_area = length(ind);
@@ -745,9 +561,7 @@ for id =6  %experiment type
 %         ylim([-.05 0.1])
 %         xlim([-500 2000])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         subplot(2,3,2)
 %         shadedErrorBar(tt, nanmean(all_earlytrial_rew(:,ind),2).*(1000./frameRateHz), (nanstd(all_earlytrial_rew(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
 %         hold on
@@ -758,9 +572,7 @@ for id =6  %experiment type
 %         ylim([0 6])
 %         xlim([-500 2000])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         subplot(2,3,3)
 %         plot(tt, nanmean(all_earlytrial_rew_lick(:,find(expt_areas(i,:))),2).*(1000./frameRateHz),'k');
 %         hold on
@@ -771,9 +583,7 @@ for id =6  %experiment type
 %         ylim([0 10])
 %         xlim([-500 2000])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         subplot(2,3,4)
 %         if id == 3
 %             shadedErrorBar(tt, nanmean(all_earlytrial_unexp_df(:,ind),2), (nanstd(all_earlytrial_unexp_df(:,ind),[],2)./sqrt(totIC_area)),'k');
@@ -791,9 +601,7 @@ for id =6  %experiment type
 %         ylim([-.05 0.1])
 %         xlim([-500 2000])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         subplot(2,3,5)
 %         if id == 3
 %             shadedErrorBar(tt, nanmean(all_earlytrial_unexp(:,ind),2).*(1000./frameRateHz), (nanstd(all_earlytrial_unexp(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
@@ -811,9 +619,7 @@ for id =6  %experiment type
 %         ylim([0 6])
 %         xlim([-500 2000])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         subplot(2,3,6)
 %         if id == 3
 %             plot(tt, nanmean(all_earlytrial_unexp_lick(:,find(expt_areas(i,:))),2).*(1000./frameRateHz), 'k');
@@ -831,9 +637,7 @@ for id =6  %experiment type
 %         ylim([0 10])
 %         xlim([-500 2000])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites- early (black) vs late (blue) trials']);
 %         savefig([share_out '\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_earlyVlateTrial_' mouse_str '.fig'])    
 %     end
@@ -852,9 +656,7 @@ for id =6  %experiment type
 %             ylim([-1 6])
 %             xlim([-500 2000])
 %             vline([600], 'b')
-%             if id == 4
-%                 vline([1100], 'c')
-%             end
+
 %             title('Omits after short (black) and long (blue) interval')
 %         end
 %         if size(all_short_unexp(:,ind),2)
@@ -867,9 +669,7 @@ for id =6  %experiment type
 %             ylim([-1 6])
 %             xlim([-500 2000])
 %             vline([600], 'b')
-%             if id == 4
-%                 vline([1100], 'c')
-%             end
+
 %             title('Unexpected reward after short (black) and long (blue) interval')
 %         end
 %         if size(all_preomit(:,ind),2)
@@ -882,14 +682,13 @@ for id =6  %experiment type
 %             ylim([-1 6])
 %             xlim([-500 2000])
 %             vline([600], 'b')
-%             if id == 4
-%                 vline([1100], 'c')
-%             end
+
 %             title('Reward before (black) and after (blue) omit trial')
 %         end
 %         suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites']);
 %         savefig([share_out '\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_Summary_trialByTrialAnalysis' mouse_str '.fig'])
 %     end
+
     %Single cell Latency analysis
     base_avg_all = mean(all_trials(1:prewin_frames,:),1);
     base_avg = mean(all_rew(1:prewin_frames,:),1);
@@ -1104,9 +903,6 @@ for id =6  %experiment type
         title(['Pre-reward responsive: n = ' num2str(length(ind_preresp))])
         ylim([-1 6])
         vline([600], 'b')
-        if id == 4
-            vline([1100], 'c')
-        end
         xlim([-500 2000])
         [postrew_max postrew_max_ind] = max(nanmean(all_rew(prewin_frames+rewdelay_frames:prewin_frames+rewdelay_frames+rewdelay_frames,ind_preresp),2),[],1);
         [base_max base_max_ind] = max(nanmean(all_rew(prewin_frames-rewdelay_frames-rewdelay_frames:prewin_frames,ind_preresp),2),[],1);
@@ -1128,9 +924,7 @@ for id =6  %experiment type
         ylim([-1 6])
         xlim([-500 2000])
         vline([600], 'b')
-        if id == 4
-            vline([1100], 'c')
-        end
+
         [postrew_max postrew_max_ind] = max(nanmean(all_rew(prewin_frames+rewdelay_frames:prewin_frames+rewdelay_frames+rewdelay_frames,ind_notpreresp),2),[],1);
         [base_max base_max_ind] = max(nanmean(all_rew(prewin_frames-rewdelay_frames-rewdelay_frames:prewin_frames,ind_notpreresp),2),[],1);
         postrew_avg = nanmean(all_rew(prewin_frames+rewdelay_frames-1+postrew_max_ind-1:prewin_frames+rewdelay_frames-1+postrew_max_ind+1,ind_notpreresp),1);
@@ -1156,9 +950,6 @@ for id =6  %experiment type
         title(['Post-reward responsive: n = ' num2str(length(ind_postresp))])
         ylim([-1 6])
         vline([600], 'b')
-        if id == 4
-            vline([1100], 'c')
-        end
         xlim([-500 2000])
         [prerew_max prerew_max_ind] = max(nanmean(all_rew(prewin_frames:prewin_frames+rewdelay_frames,ind_postresp),2),[],1);
         [base_max base_max_ind] = max(nanmean(all_rew(prewin_frames-rewdelay_frames-rewdelay_frames:prewin_frames,ind_postresp),2),[],1);
@@ -1180,9 +971,7 @@ for id =6  %experiment type
         ylim([-1 6])
         xlim([-500 2000])
         vline([600], 'b')
-        if id == 4
-            vline([1100], 'c')
-        end
+
         [prerew_max prerew_max_ind] = max(nanmean(all_rew(prewin_frames:prewin_frames+rewdelay_frames,ind_notpostresp),2),[],1);
         [base_max base_max_ind] = max(nanmean(all_rew(prewin_frames-rewdelay_frames-rewdelay_frames:prewin_frames,ind_notpostresp),2),[],1);
         prerew_avg = nanmean(all_rew(prewin_frames-1+prerew_max_ind-1:prewin_frames-1+prerew_max_ind+1,ind_notpostresp),1);
@@ -1203,9 +992,7 @@ for id =6  %experiment type
             title(['Post-omit responsive: n = ' num2str(length(ind_postomitresp))])
             ylim([-1 6])
             vline([600], 'b')
-            if id == 4
-                vline([1100], 'c')
-            end
+  
             xlim([-500 2000])
             subplot(3,2,6)
             shadedErrorBar(tt, nanmean(all_rew(:,ind_notpostomitresp),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind_notpostomitresp),[],2)./sqrt(length(ind_notpostomitresp))).*(1000./frameRateHz),'k');
@@ -1221,9 +1008,7 @@ for id =6  %experiment type
             ylim([-1 6])
             xlim([-500 2000])
             vline([600], 'b')
-            if id == 4
-                vline([1100], 'c')
-            end
+
         end
         if id == 3
             suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice- Reward (black); unexpected (green)'])
@@ -1297,9 +1082,7 @@ for id =6  %experiment type
 %         title(['Pre-reward suppressed: n = ' num2str(length(ind_presupp))])
 %         ylim([-1 6])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         xlim([-500 2000])
 %         subplot(3,2,2)
 %         shadedErrorBar(tt, nanmean(all_rew(:,ind_notpresupp),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind_notpresupp),[],2)./sqrt(length(ind_notpresupp))).*(1000./frameRateHz),'k');
@@ -1315,9 +1098,7 @@ for id =6  %experiment type
 %         ylim([-1 6])
 %         xlim([-500 2000])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         subplot(3,2,3)
 %         shadedErrorBar(tt, nanmean(all_rew(:,ind_postsupp),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind_postsupp),[],2)./sqrt(length(ind_postsupp))).*(1000./frameRateHz),'k');
 %         hold on
@@ -1331,9 +1112,7 @@ for id =6  %experiment type
 %         title(['Post-reward suppressed: n = ' num2str(length(ind_postsupp))])
 %         ylim([-1 6])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         xlim([-500 2000])
 %         subplot(3,2,4)
 %         shadedErrorBar(tt, nanmean(all_rew(:,ind_notpostsupp),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind_notpostsupp),[],2)./sqrt(length(ind_notpostsupp))).*(1000./frameRateHz),'k');
@@ -1349,9 +1128,7 @@ for id =6  %experiment type
 %         ylim([-1 6])
 %         xlim([-500 2000])
 %         vline([600], 'b')
-%         if id == 4
-%             vline([1100], 'c')
-%         end
+
 %         if id ~=3
 %             subplot(3,2,5)
 %             shadedErrorBar(tt, nanmean(all_rew(:,ind_postomitsupp),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind_postomitsupp),[],2)./sqrt(length(ind_postomitsupp))).*(1000./frameRateHz),'k');
@@ -1366,9 +1143,6 @@ for id =6  %experiment type
 %             title(['Post-omit suppressed: n = ' num2str(length(ind_postomitsupp))])
 %             ylim([-1 6])
 %             vline([600], 'b')
-%             if id == 4
-%                 vline([1100], 'c')
-%             end
 %             xlim([-500 2000])
 %             subplot(3,2,6)
 %             shadedErrorBar(tt, nanmean(all_rew(:,ind_notpostomitsupp),2).*(1000./frameRateHz), (nanstd(all_rew(:,ind_notpostomitsupp),[],2)./sqrt(length(ind_notpostomitsupp))).*(1000./frameRateHz),'k');
@@ -1384,9 +1158,6 @@ for id =6  %experiment type
 %             ylim([-1 6])
 %             xlim([-500 2000])
 %             vline([600], 'b')
-%             if id == 4
-%                 vline([1100], 'c')
-%             end
 %         end
 %         if id == 3
 %             suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice- Reward (black); unexpected (green)'])
@@ -1453,9 +1224,6 @@ for id =6  %experiment type
 %             vline([postrew_max_ind_rew_early+rewdelay_frames-1].*1000/frameRateHz,'--k')
 %             tit_str2 = 'k';
 %         end
-%         if id == 4
-%             vline([1100], 'c')
-%         end
 %         subplot(2,2,2)
 %         shadedErrorBar(tt, nanmean(all_earlylick_omit(:,ind),2).*(1000./frameRateHz), (nanstd(all_earlylick_omit(:,ind),[],2)./sqrt(totIC_area)).*(1000./frameRateHz),'k');
 %         hold on
@@ -1471,9 +1239,6 @@ for id =6  %experiment type
 %         title('Omission trials')
 %         ylim([-1 6])
 %         xlim([-500 2000])
-%         if id == 4
-%             vline([1100], 'c')
-%         end
 %         all_early_sub = (all_earlylick_rew-mean(all_earlylick_rew(1:prewin_frames,:),1)).*(1000/frameRateHz);
 %         all_late_sub = (all_latelick_rew-mean(all_latelick_rew(1:prewin_frames,:),1)).*(1000/frameRateHz);
 %         ind_prerew_rewresp = intersect(ind, find(all_rew(prerew_max_ind_rew,:) > base_avg+(base_std)));
@@ -1560,9 +1325,6 @@ for id =6  %experiment type
 %         title('Pre reward- Rew trials')
 %         ylim([-1 6])
 %         xlim([-500 2000])
-%         if id == 4
-%             vline([1100], 'c')
-%         end
 %         if prerew_max_rew > mean(base_avg(:,ind),2)+base_std_all.*thresh
 %             vline([prerew_max_ind_rew_high-1].*1000/frameRateHz,'k')
 %             tit_str2 = 'r';
@@ -1581,9 +1343,6 @@ for id =6  %experiment type
 %         text(1000,4.5, [num2str(chop(mean(all_HL_lickrate.high_postrew(:,find(expt_areas(i,:))),2),2)) ' +/- ' num2str(chop(std(all_HL_lickrate.high_postrew(:,find(expt_areas(i,:))),[],2)./length(all_HL_lickrate.high_postrew(:,find(expt_areas(i,:)))),2))],'Color','k')    
 %         ylim([-1 6])
 %         xlim([-500 2000])
-%         if id == 4
-%             vline([1100], 'c')
-%         end
 %         if postrew_max_rew > mean(base_avg(:,ind),2)+base_std_all.*thresh
 %             vline([postrew_max_ind_rew_high+rewdelay_frames-1].*1000/frameRateHz,'k')
 %             tit_str3 = 'r';
@@ -1675,7 +1434,6 @@ for id =6  %experiment type
 %         ylim([0 10])
 %         suptitle(['Day ' num2str(id) ' Area' area_list{i} ': n= ' num2str(totExp(i)) ' mice, ' num2str(totIC_area) ' dendrites- Low (blue) vs high (black) lick rate']);
 %         savefig([share_out '\CC_summary\Day' num2str(id) '\Day' num2str(id) '_Summary_Area' area_list{i} '_LowVsHighLickRate_' mouse_str '.fig'])     
-%     
 %     end
 % 
 %     thresh = 4;

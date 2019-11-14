@@ -1,12 +1,13 @@
 clear all
 close all
 %CRP_expt_list_all
-CRP_OT_expt_list_Crus_jh
+CRP_OT_expt_list_Crus_jh;
+%CRP_OT_expt_list_LS_jh
 lg_out = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
 
-for id = 2:6
+for id = [1]
     nexp = size(expt(id).date,1);
-    for iexp = 1:nexp
+    for iexp = nexp%:nexp
         mouse = strtrim(expt(id).mouse(iexp,:));
         date = expt(id).date(iexp,:);
         run = expt(id).run(iexp,:);

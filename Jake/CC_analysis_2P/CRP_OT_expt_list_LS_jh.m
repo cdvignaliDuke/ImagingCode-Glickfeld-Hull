@@ -9,6 +9,11 @@ expt(1).run = strvcat('000', '000', '000', '000', '000');
 expt(1).ttl =   [1, 1, 1, 1, 1];
 expt(1).noreg = [0, 0, 0, 0, 0];
 expt(1).imgreglaseron = [0, 0, 0, 0, 0];
+expt(1).areas{1} = {'LS'};
+expt(1).areas{2} = {'LS'};
+expt(1).areas{3} = {'LS'};
+expt(1).areas{4} = {'LS'};
+expt(1).areas{5} = {'LS'};
 
 expt(2).name= 'Simp'; %OR PL  
 expt(2).mouse = strvcat('095', '096', '098', '1032');
@@ -17,6 +22,10 @@ expt(2).run = strvcat('000', '000', '001', '000');
 expt(2).ttl = [1, 1, 1, 1];
 expt(2).noreg = [0, 0, 0, 0];
 expt(2).imgreglaseron = [0, 0, 0, 0];
+expt(2).areas{1} = {'LS'};
+expt(2).areas{2} = {'LS'};
+expt(2).areas{3} = {'LS'};
+expt(2).areas{4} = {'LS'};
 
 expt(3).name= 'Simp'; %UR   
 expt(3).mouse = strvcat('095', '096');
@@ -25,6 +34,8 @@ expt(3).run = strvcat('000', '000');
 expt(3).ttl = [1, 1];
 expt(3).noreg = [0, 0];
 expt(3).imgreglaseron = [0, 0];
+expt(3).areas{1} = {'LS'};
+expt(3).areas{2} = {'LS'};
 %exp 5: trial ended right after targetOn (5 frames) on one trial
 
 expt(4).name= 'Simp'; %Overtrained OR
@@ -34,6 +45,11 @@ expt(4).run = strvcat('000', '000', '000', '000', '000');
 expt(4).ttl = [1, 1, 1, 1, 1];
 expt(4).noreg = [0, 0, 0, 0, 0];
 expt(4).imgreglaseron = [0, 0, 0, 0, 0];
+expt(4).areas{1} = {'LS'};
+expt(4).areas{2} = {'LS'};
+expt(4).areas{3} = {'LS'};
+expt(4).areas{4} = {'LS'};
+expt(4).areas{5} = {'LS'};
 
 expt(5).name= 'Simp'; %Overtrained UR
 expt(5).mouse =strvcat('095', '096');
@@ -42,15 +58,11 @@ expt(5).run = strvcat('000', '000');
 expt(5).ttl = [1, 1];
 expt(5).noreg = [0, 0];
 expt(5).imgreglaseron = [0, 0];
+expt(5).areas{1} = {'LS'};
+expt(5).areas{2} = {'LS'};
+expt(5).areas{3} = {'LS'};
+expt(5).areas{4} = {'LS'};
+expt(5).areas{5} = {'LS'};
 
-%datasets w/o extractTC outputs
-
-%datasets w/o spikeAlign
-
-%datasets w/o lickAlign
-
-%%datasets w/o lickResp
-
-%datasets w/o lickResp_preCueOnly
 
 

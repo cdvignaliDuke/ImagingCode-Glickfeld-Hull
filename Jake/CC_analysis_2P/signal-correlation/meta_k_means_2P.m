@@ -1,5 +1,10 @@
 
-function [allclusters, centroidcorr, dendmem, dunnsinitial]=meta_k_means(eventsmat, distmetric);
+function [allclusters, centroidcorr, dendmem, dunnsinitial]=meta_k_means_2P(eventsmat, distmetric);
+%function to run meta-k-means clustering on calcium imaging data. 
+%adapted from Ozden et al. 2009 and the repo "signal-correlaction. 
+%eventsmat should be a binary matrix where dim1=dendrites and dim2=frames
+%distmetric is optional
+
 
 if nargin==1;
     distmetric='correlation';
