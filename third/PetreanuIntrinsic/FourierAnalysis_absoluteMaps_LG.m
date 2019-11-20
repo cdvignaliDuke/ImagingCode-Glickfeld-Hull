@@ -1,11 +1,11 @@
 close all
 clear all
+clc
 
 %%
 animalName = 'i1303';
-date = '191115';
-time = '0956';
-saveName = 'i1303';
+date = '191118';
+time = '1042';
 cond = {'VR', 'HD', 'VL', 'HU'};
 stim_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 database_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\Widefield_images';
@@ -31,7 +31,7 @@ fCamera = double(input.frameRateHz);
 cITIStart = celleqel2mat_padded(input.cITIStart);
 cStimOn = celleqel2mat_padded(input.cStimOn);
 
-roiDiskRadius_um=50;
+roiDiskRadius_um=100;
 radius=roiDiskRadius_um/(1000/scalePxPerMM);
 
 colormapRes = 128;
@@ -39,8 +39,6 @@ anglesMap = jet(colormapRes);
 
 fprintf(['Loaded stimulus data \n' ])
 %% Import section
-
-artificial_delay=pi/3;
 % filt_size =50;
 % filt_sigma = 1;
 %h = fspecial('gaussian', filt_size, filt_sigma);
@@ -48,25 +46,33 @@ h=fspecial('disk',radius);
 
 % Load files - output of FourierAnalysis_relativeMaps
 
-vessels = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{1} '.mat']),'vessels'); vessels = rot90(vessels.vessels,-1);
+vessels = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{1} '.mat']),'vessels'); vessels = rot90(vessels.vessels,-1);
 
-phaseRight = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{1} '.mat']),'phase');
-phaseRight = fliplr(phaseRight.phase);
-phaseLeft = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{3} '.mat']),'phase');
-phaseLeft = fliplr(phaseLeft.phase);
-phaseDown = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{2} '.mat']),'phase');
-phaseDown = fliplr(phaseDown.phase);
-phaseUp = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{4} '.mat']),'phase');
-phaseUp = fliplr(phaseUp.phase);
+phaseRight = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{1} '.mat']),'phase');
+%phaseRight = fliplr(phaseRight.phase);
+phaseRight = phaseRight.phase;
+phaseLeft = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{3} '.mat']),'phase');
+%phaseLeft = fliplr(phaseLeft.phase);
+phaseLeft = phaseLeft.phase;
+phaseDown = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{2} '.mat']),'phase');
+%phaseDown = fliplr(phaseDown.phase);
+phaseDown = phaseDown.phase;
+phaseUp = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{4} '.mat']),'phase');
+%phaseUp = fliplr(phaseUp.phase);
+phaseUp = phaseUp.phase;
 
-amplitudeRight = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{1} '.mat']),'amplitude');
-amplitudeRight = fliplr(amplitudeRight.amplitude);
-amplitudeLeft = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{3} '.mat']),'amplitude');
-amplitudeLeft = fliplr(amplitudeLeft.amplitude);
-amplitudeDown = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{2} '.mat']),'amplitude');
-amplitudeDown = fliplr(amplitudeDown.amplitude);
-amplitudeUp = load(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{4} '.mat']),'amplitude');
-amplitudeUp = fliplr(amplitudeUp.amplitude);
+amplitudeRight = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{1} '.mat']),'amplitude');
+%amplitudeRight = fliplr(amplitudeRight.amplitude);
+amplitudeRight = amplitudeRight.amplitude;
+amplitudeLeft = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{3} '.mat']),'amplitude');
+%amplitudeLeft = fliplr(amplitudeLeft.amplitude);
+amplitudeLeft = amplitudeLeft.amplitude;
+amplitudeDown = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{2} '.mat']),'amplitude');
+%amplitudeDown = fliplr(amplitudeDown.amplitude);
+amplitudeDown = amplitudeDown.amplitude;
+amplitudeUp = load(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{4} '.mat']),'amplitude');
+%amplitudeUp = fliplr(amplitudeUp.amplitude);
+amplitudeUp = amplitudeUp.amplitude;
 
 x_px=1:size(phaseRight,2);
 y_px=1:size(phaseRight,1);
@@ -94,19 +100,20 @@ for i=1:size(phaseRight,1)
 end
 
 cycDur = cITIStart(2)-cStimOn(1);
-framesPerBin = cycDur+fCamera;
+framesPerBin = cycDur+fCamera+fCamera;
 stimPeriod = framesPerBin./fCamera;
 T_right = stimPeriod;
 cycDur = cITIStart(3)-cStimOn(2);
-framesPerBin = cycDur+fCamera;
+framesPerBin = cycDur+fCamera+fCamera;
 stimPeriod = framesPerBin./fCamera;
 T_down = stimPeriod;
 azimuthRange = double(input.monitorXDeg.*2);
-elevationRange = double(input.monitorYDeg.*2);
+elevationRange = -1.*double(input.monitorYDeg.*2);
 
 fprintf(['Imported image data \n' ])
 
-%% correct for delays and make phase and sign maps
+%% introduce delay and unwrap
+artificial_delay= pi;
 
 % Introduce delay
 phaseRight=phaseRight+artificial_delay;
@@ -134,16 +141,17 @@ phaseUpFilt(phaseUpFilt>pi)=phaseUpFilt(phaseUpFilt>pi)-2*pi;
 
 fprintf(['Unwrapped \n' ])
 
+%% Calculate phase and sign maps
 % Calculates angles
 phaseAzimuth = (phaseLeft-phaseRight)/2;
 phaseElevation = (phaseDown-phaseUp)/2;
 angleAzimuth=(phaseAzimuth-(-pi))/(2*pi)*azimuthRange+azimuthBorders(1);
-angleElevation=(phaseElevation-(-pi))/(2*pi)*elevationRange+elevationBorders(1);
+angleElevation=(phaseElevation-(-pi))/(2*pi)*elevationRange+elevationBorders(2);
 
 phaseAzimuthFilt = (phaseLeftFilt-phaseRightFilt)/2;
 phaseElevationFilt = (phaseDownFilt-phaseUpFilt)/2;
 angleAzimuthFilt=(phaseAzimuthFilt-(-pi))/(2*pi)*azimuthRange+azimuthBorders(1);
-angleElevationFilt=(phaseElevationFilt-(-pi))/(2*pi)*elevationRange+elevationBorders(1);
+angleElevationFilt=(phaseElevationFilt-(-pi))/(2*pi)*elevationRange+elevationBorders(2);
 
 fprintf(['Calculated angles \n' ])
 % Calculates amplitude
@@ -160,12 +168,12 @@ fprintf(['Calculated amplitude \n' ])
 phaseAzimuthDelay = (phaseRight+phaseLeft)/2-2*artificial_delay;
 phaseElevationDelay = (phaseDown+phaseUp)/2;
 delayAzimuth = (phaseAzimuthDelay-(-pi))/(2*pi)*T_right;
-delayElevation = (phaseElevationDelay-(-pi))/(2*pi)*T_right;
+delayElevation = (phaseElevationDelay-(-pi))/(2*pi)*T_down;
 
 phaseAzimuthFiltDelay = (phaseRightFilt+phaseLeftFilt)/2-2*artificial_delay;
 phaseElevationFiltDelay = (phaseDownFilt+phaseUpFilt)/2;
 delayAzimuthFilt = (phaseAzimuthFiltDelay-(-pi))/(2*pi)*T_right;
-delayElevationFilt = (phaseElevationFiltDelay-(-pi))/(2*pi)*T_right;
+delayElevationFilt = (phaseElevationFiltDelay-(-pi))/(2*pi)*T_down;
 
 fprintf(['Calculated delay \n' ])
 
@@ -187,20 +195,21 @@ VFS = ifft2(fft2(VFS).*abs(fft2(hh)));
 
 fprintf(['Calculated sign map \n' ])
 %% Output section
+close all
+
 lambda=10;
 ampThrs=0.3;
 
 azimuthFigure = figure('Position',[100 100 800 800]);
-azimuthHandle = imagesc(angleAzimuth); colormap(anglesMap)
+azimuthHandle = imagesc(angleAzimuth); colormap(flipud(anglesMap))
 set(azimuthHandle,'AlphaData',(1./(1+exp(-lambda*(amplitudeAzimuthFilt-ampThrs)))));
-%set(azimuthHandle,'AlphaData',(1-exp(-amplitudeAzimuthFilt*lambda))/(1-exp(-lambda)));
 axis image
 colorbar
 caxis(azimuthBorders)
 title([animalName, ' - Azimuth'])
 
 elevationFigure = figure('Position',[100 100 800 800]);
-elevationHandle = imagesc(angleElevation); colormap(anglesMap)
+elevationHandle = imagesc(angleElevation); colormap(flipud(anglesMap))
 set(elevationHandle,'AlphaData',(1./(1+exp(-lambda*(amplitudeElevationFilt-ampThrs)))));
 alphamap('increase',1)
 axis image
@@ -209,7 +218,7 @@ caxis(elevationBorders)
 title([animalName, ' - Elevation'])
 
 azimuthFiltFigure=figure('Position',[100 100 800 800]);
-azimuthFiltHandle = imagesc(angleAzimuthFilt); colormap(anglesMap)
+azimuthFiltHandle = imagesc(angleAzimuthFilt); colormap(flipud(anglesMap))
 set(azimuthFiltHandle,'AlphaData',(1./(1+exp(-lambda*(amplitudeAzimuthFilt-ampThrs)))));
 axis image
 colorbar
@@ -217,7 +226,7 @@ caxis(azimuthBorders)
 title([animalName, ' - Azimuth'])
 
 elevationFiltFigure=figure('Position',[100 100 800 800]);
-elevationFiltHandle = imagesc(angleElevationFilt); colormap(anglesMap)
+elevationFiltHandle = imagesc(angleElevationFilt); colormap(flipud(anglesMap))
 set(elevationFiltHandle,'AlphaData',(1./(1+exp(-lambda*(amplitudeElevationFilt-ampThrs)))));
 alphamap('increase',1)
 axis image
@@ -240,31 +249,31 @@ title([animalName, ' - VSF'])
 
 if save_images
     figure(azimuthFigure)
-    saveas(gcf,fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_Azimuth']),'fig');
-    %screen2png(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_Azimuth']));
+    saveas(gcf,fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_Azimuth']),'fig');
+    print(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_Azimuth.pdf']),'-dpdf','-bestfit');
     
     figure(azimuthFiltFigure)
-    saveas(gcf,fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_AzimuthFilt']),'fig');
-    %screen2png(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_AzimuthFilt']));
-    
+    saveas(gcf,fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_AzimuthFilt']),'fig');
+    print(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_AzimuthFilt.pdf']),'-dpdf','-bestfit');
+
     figure(elevationFigure)
-    saveas(gcf,fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_Elevation']),'fig');
-    %screen2png(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_Elevation']));
+    saveas(gcf,fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_Elevation']),'fig');
+    print(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_Elevation.pdf']),'-dpdf','-bestfit');
     
     figure(elevationFiltFigure)
-    saveas(gcf,fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_ElevationFilt']),'fig');
-    %screen2png(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_ElevationFilt']));
+    saveas(gcf,fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_ElevationFilt']),'fig');
+    print(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_ElevationFilt.pdf']),'-dpdf','-bestfit');
     
     figure(vesselsFigure)
-    saveas(gcf,fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_Vessels']),'fig');
-    %screen2png(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_Vessels']));
+    saveas(gcf,fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_Vessels']),'fig');
+    print(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_Vessels.pdf']),'-dpdf','-bestfit');
     
     figure(VFSFigure)
-    saveas(gcf,fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_VFS']),'fig');
-    %screen2png(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_VFS']));
+    saveas(gcf,fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_VFS']),'fig');
+    print(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_VFS.pdf']),'-dpdf','-bestfit');
 end
 
 if save_maps
-    save(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_maps']), 'angleAzimuth','angleElevation',...
+    save(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_maps']), 'angleAzimuth','angleElevation',...
         'angleAzimuthFilt','angleElevationFilt','amplitudeAzimuthFilt','amplitudeElevationFilt','vessels','VFS');
 end

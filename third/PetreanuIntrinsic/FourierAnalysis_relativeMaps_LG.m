@@ -10,9 +10,8 @@ close all
 clc
 %
 animalName = 'i1303';
-date = '191115';
-time = '0956';
-saveName = 'i1303';
+date = '191118';
+time = '1042';
 cond = {'VR', 'HD', 'VL', 'HU'};
 stim_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 database_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\Widefield_images';
@@ -42,7 +41,7 @@ nCond = length(unique(celleqel2mat_padded(input.tStimulusNumber)));
 cITIStart = celleqel2mat_padded(input.cITIStart);
 cStimOn = celleqel2mat_padded(input.cStimOn);
 expt_fn = fullfile(database_fn,[date '_' animalName],[date '_' animalName '_movingBar_1'],[date '_' animalName '_movingBar_1_MMStack_Pos0.ome.tif']);
-data = readtiff(expt_fn);
+data = readtiff(expt_fn,'single');
 vessels = mean(data(:,:,1:100),3);
 
 fprintf(['Imported image data \n' ])
@@ -53,14 +52,14 @@ for iCond = 1:nCond
     fprintf(['Analyzing ' cond{iCond}  '\n' ])
     ind = find(stimNum == iCond-1);
     sz = size(data);
-    framesPerBin = cITIStart(iCond+1)-cStimOn(iCond)+ fCamera;
+    framesPerBin = cITIStart(iCond+1)-cStimOn(iCond)+ fCamera + fCamera;
     stimPeriod = framesPerBin./fCamera;
     rep_bin = zeros(sz(1),sz(2),stimPeriod.*fCamera,length(ind));
     for it = 1:length(ind)
         if ind(it)+1 <= length(cITIStart)
-            rep_bin(:,:,:,it) = data(:,:,cStimOn(ind(it)):cITIStart(ind(it)+1)-1+fCamera);
+            rep_bin(:,:,:,it) = data(:,:,cStimOn(ind(it))-fCamera:cITIStart(ind(it)+1)-1+fCamera);
         else
-            rep_bin(:,:,:,it) = data(:,:,cStimOn(ind(it)):input.counterValues{end}(end)-1+fCamera);
+            rep_bin(:,:,:,it) = data(:,:,cStimOn(ind(it))-fCamera:input.counterValues{end}(end)-1+fCamera);
         end
     end
     frame = reshape(rep_bin,[sz(1) sz(2) framesPerBin.*length(ind)]);
@@ -68,7 +67,7 @@ for iCond = 1:nCond
     framesTotal = size(frame,3);
 
 % Determines number of image splits
-    totalSize = framesTotal*size(frame,1)*size(frame,2)*8/1024/1024/1024;
+    totalSize = framesTotal*size(frame,1)*size(frame,2)*8/10^9;
     nSplit = ceil(totalSize/maxSize);
     xSplit = floor(size(frame,1)/nSplit);
 
@@ -149,10 +148,10 @@ for iCond = 1:nCond
 
     % Saving section
     input_sub = trialChopper(input,ind);
-    if ~exist(fullfile(fn_out, saveName, [date '_' animalName]))
-        mkdir(fullfile(fn_out, saveName, [date '_' animalName]))
+    if ~exist(fullfile(fn_out, animalName, [date '_' animalName]))
+        mkdir(fullfile(fn_out, animalName, [date '_' animalName]))
     end
     if save_flag
-        save(fullfile(fn_out, saveName, [date '_' animalName], [date '_' animalName '_relative_' cond{iCond} '.mat']), 'phase','amplitude','vessels','input_sub');
+        save(fullfile(fn_out, animalName, [date '_' animalName], [date '_' animalName '_relative_' cond{iCond} '.mat']), 'phase','amplitude','vessels','input_sub');
     end
 end
