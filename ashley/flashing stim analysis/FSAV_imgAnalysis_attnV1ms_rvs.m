@@ -1,11 +1,11 @@
 clear all
 close all
-ds = 'FSAV_attentionV1_noAttn'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
+ds = 'FSAV_attentionV1'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
 cellsOrDendrites = 1;
-doLoadPreviousAnalysis = true;
+doLoadPreviousAnalysis = false;
 %%
 rc = behavConstsAV;
-imgParams_FSAV
+imgParams_FSAV_temp
 bxParams_FSAV_attnV1ms
 
 eval(ds)
@@ -2534,7 +2534,7 @@ if strcmp(ds,'FSAV_attentionV1')
 end
 %% plot orientation analysis (Figure 3)
 if strcmp(ds,'FSAV_attentionV1')
-    minCellN_SIFRmatch = 41;
+    minCellN_SIFRmatch = 1;
 elseif strcmp(ds,'FSAV_V1_audControl')|strcmp(ds,'FSAV_V1_naive_GCaMP6m')
     minCellN_SIFRmatch = 1;
 else

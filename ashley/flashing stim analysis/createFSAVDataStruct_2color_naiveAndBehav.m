@@ -1,4 +1,4 @@
-function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
+function mouse = createFSAVDataStruct_2color_naiveAndBehav(datasetStr,cellsOrDendrites)
 %cellsOrDendrites: 1 == cells; 2 == dendrites
     % set analysis windows
     pre_event_time = 1000; %ms
@@ -33,7 +33,8 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
     
     %collect data from each experiment
     for iexp = 1:size(expt,2)
-        disp([num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum)])
+        fprintf('Expt %s/%s\n',num2str(iexp),num2str(size(expt,2)))
+        fprintf([num2str(expt(iexp).date) ' i' num2str(expt(iexp).SubNum) '\n'])
 
         nrun = size(expt(iexp).runs,1);
         
@@ -42,6 +43,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
         mouse(imouse).mouse_name = expt(iexp).SubNum;
         exptN(:,imouse) = exptN(:,imouse)+1;
         mouse(imouse).expt(exptN(:,imouse)).date = expt(iexp).date;
+        mouse(imouse).expt(exptN(:,imouse)).isBehav = expt(iexp).isBehav;
         mouse(imouse).expt(exptN(:,imouse)).attnTask = expt(iexp).attentionTask;
         mouse(imouse).expt(exptN(:,imouse)).hasAttn = expt(iexp).hasAttention;
         
@@ -71,6 +73,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
             expt(iexp).mouse,expt(iexp).folder, expt(iexp).date,'data processing');
         
         if cellsOrDendrites == 1
+            fprintf('Loading Imaging Data...\n')
             load(fullfile(fnTC,'timecourses_bx_cells.mat'))
             if isempty(expt(iexp).redChannelLabel)
                 dataTC_tag = data_bx_tc_subnp; 
@@ -83,6 +86,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
 
         % load and combine mworks data and timecourses
         input = [];
+        fprintf('Loading mWorks Data...\n')
         for irun = 1:nrun
             time = expt(iexp).time_mat(irun,:);
             fn_mworks = [rc.pathStr...
@@ -288,8 +292,13 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
 %         mouse(imouse).expt(exptN(:,imouse)).oriTuning.oriFit = vonMisesFitAllCells;
 %         mouse(imouse).expt(exptN(:,imouse)).oriTuning.oriFitReliability = ...
 %             fitReliability;
-        mouse(imouse).expt(exptN(:,imouse)).tag(1).name = [expt(iexp).redChannelLabel '-'];
-        mouse(imouse).expt(exptN(:,imouse)).tag(2).name = [expt(iexp).redChannelLabel '+'];
+        if isempty(expt(iexp).redChannelLabel)
+            mouse(imouse).expt(exptN(:,imouse)).tag(1).name = '';
+            mouse(imouse).expt(exptN(:,imouse)).tag(2).name = [expt(iexp).greenChannelLabel '+'];
+        else
+            mouse(imouse).expt(exptN(:,imouse)).tag(1).name = expt(iexp).greenChannelLabel;
+            mouse(imouse).expt(exptN(:,imouse)).tag(2).name = [expt(iexp).redChannelLabel '+'];
+        end
         for itag = 1:2
             mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(1).name = 'visual';
             mouse(imouse).expt(exptN(:,imouse)).tag(itag).av(2).name = 'auditory';
@@ -507,7 +516,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
         
         %% align to catch trials
         ialign = 5;
-        disp(expt(iexp).catch)
+%         disp(expt(iexp).catch)
         if expt(iexp).catch
             cInd = ~isnan(cCatchOn);
             cCatchOn = cCatchOn(cInd);
@@ -578,6 +587,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 %keep track of which mouse
                 mousePass(imouse).mouse_name = expt(iexp).SubNum;
                 mousePass(imouse).expt(exptN(:,imouse)).date = expt(iexp).date;
+                mousePass(imouse).expt(exptN(:,imouse)).passExptDone = true;
                 mousePass(imouse).expt(exptN(:,imouse)).attnTask = expt(iexp).attentionTask;
                 mousePass(imouse).expt(exptN(:,imouse)).hasAttn = expt(iexp).hasAttention;
 
@@ -797,8 +807,11 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
 
                 %identify trials with motion (large peaks in the derivative)
-                ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold;
-
+                if itag == 1
+                    ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold;
+                elseif itag == 2 && isempty(dataTC_notag)
+                    ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold;
+                end
 
                 if maxTrials > ntrials
                     exptCutoff = false(1,ntrials);
@@ -848,7 +861,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 end
                 DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
 
-                ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold;%identify trials with motion (large peaks in the derivative)
+%                 ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold;%identify trials with motion (large peaks in the derivative)
 
 
                 if maxTrials > ntrials
@@ -897,7 +910,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 end
                 DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
 
-                ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
+%                 ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
 
 
                 if maxTrials > ntrials
@@ -944,7 +957,7 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                 end
                 DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
 
-                ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
+%                 ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
 
                 if maxTrials > ntrials
                     exptCutoff = false(1,ntrials);
@@ -973,13 +986,13 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
 
                 %% align to catch trials
                 ialign = 5;
-                disp(expt(iexp).catch)
+%                 disp(expt(iexp).catch)
                 if expt(iexp).catch
                     cInd = ~isnan(cCatchOn);
                     cCatchOn = cCatchOn(cInd);
-                    if cCatchOn(end)+post_event_frames > size(dataTC,1)
-                        cInd = cInd(1:end-1);
+                    if (cCatchOn(end)+post_event_frames) > size(dataTC,1)
                         cCatchOn = cCatchOn(1:end-1);
+                        cInd(end) = 0;
                     end
                     catchOutcome = catchOutcome(cInd);
                     cCyc = cCyc(cInd);
@@ -999,9 +1012,9 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                     end
                     DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
 
-                    ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
+%                     ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
 
-                    removeTrials = ind_motion;
+                    removeTrials = ind_motion(cInd);
                     ind = ~removeTrials & ~strcmp(catchOutcome,'failure') & trType(cInd) == 1;
                     mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).respTC = DataDFoverF_bl(:,:,ind);
                     mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).outcome = catchOutcome(ind);
@@ -1026,14 +1039,23 @@ function mouse = createFSAVDataStruct_2color(datasetStr,cellsOrDendrites)
                     end
                     DataDFoverF_bl = DataDFoverF - mean(DataDFoverF(basewin,:,:),1);
 
-                    ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
-                    removeTrials = ind_motion;
+%                     ind_motion = max(diff(squeeze(mean(DataDFoverF,2)),1),[],1)>motionThreshold; %identify trials with motion (large peaks in the derivative)
+                    removeTrials = ind_motion(cInd);
                     ind = ~removeTrials & ~strcmp(catchOutcome,'failure') & trType(cInd) == 1;
                     mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).crRespTC = DataDFoverF_bl(:,:,ind);
                     mousePass(imouse).expt(exptN(:,imouse)).tag(itag).av(1).align(ialign).crNCycles = cCyc(ind)-2;
                 end
                 end
+            else
+                
+                mousePass(imouse).mouse_name = expt(iexp).SubNum;
+                mousePass(imouse).expt(exptN(:,imouse)).date = expt(iexp).date;
+                mousePass(imouse).expt(exptN(:,imouse)).passExptDone = false;
             end
+        else
+            mousePass(imouse).mouse_name = expt(iexp).SubNum;
+            mousePass(imouse).expt(exptN(:,imouse)).date = expt(iexp).date;
+            mousePass(imouse).expt(exptN(:,imouse)).passExptDone = false;
         end
     end
     if cellsOrDendrites == 1

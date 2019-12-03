@@ -19,7 +19,7 @@ nVisDelayFr_target = 2;
 
 %% testing
 eyeAlpha = 0.05;
-cellGroupsAlpha = 0.01;
+cellGroupsAlpha = 0.05/3;
 tuningReliabilityThresh = 30;
 tuningReliabilityThresh_decode = 11;
 minRespThreshold = 0.002;
@@ -67,9 +67,9 @@ preEventMs = 1000; %ms
 postEventMs = 4500; %ms
 longTrialLengthFr = 88;
 
-basewin = 1:34;
-basewin_0 = 32:34; % change to 29:31
-basewin_0_target = 31:33; % change to 29:31
+basewin = 1:30;
+basewin_0 = 28:30; % change to 29:31
+basewin_0_target = 28:30; % change to 29:31
 
     respwin = 36:38;
     respwin_target = 35:37;

@@ -28,8 +28,8 @@ end
 %%
 if nargin > 2
     [y_pix,x_pix] = size(img);
-    x_calib = x_um/x_pix;
-    y_calib = y_um/y_pix;
+    x_calib = x_pix/x_um;
+    y_calib = y_pix/y_um;
     x50um = x_calib*50;
     y5um = y_calib*5;
 

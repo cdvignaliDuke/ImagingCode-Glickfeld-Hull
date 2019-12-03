@@ -1,8 +1,8 @@
-function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
+function mouse = createFSAVDataStruct_audControl(datasetStr,cellsOrDendrites)
 %cellsOrDendrites: 1 == cells; 2 == dendrites
     % set analysis windows
     pre_event_time = 1000; %ms
-    post_event_time = 4500; %ms
+    post_event_time = 4000; %ms
     resp_win_time = 100; %ms
     pre_win_time = [-30 70];
     trans_win_time = [150 250]; %this is actually ~166-266 ms at 30 Hz
@@ -191,7 +191,7 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
             if isempty(expt(iexp).nframesPerRun)
                 nfr_run = nFramesSbxDataset(expt(iexp).mouse,expt(iexp).date,ImgFolder);
             else
-                nfr_run = expt(iexp).nframesPerRun{irun};
+                nfr_run = expt(iexp).nframesPerRun(irun);
             end
             offset = offset+nfr_run;
             if irun < nrun
@@ -221,9 +221,10 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
         
         
 
-        %previous trial info
         trType = double(cell2mat(input.tBlock2TrialNumber));
         trType = trType(tr);
+        
+        %previous trial info
         trType_shift = [NaN trType];
         prevTrType = num2cell(trType_shift(1:length(trType)));
         trType_shift = [NaN NaN trType];
