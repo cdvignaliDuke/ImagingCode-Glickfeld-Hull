@@ -1,11 +1,14 @@
 clear all
 close all
-ds = 'FSAV_attentionV1'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
+ds = 'FSAV_attentionV1_noAttn'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
 cellsOrDendrites = 1;
-doLoadPreviousAnalysis = false;
+doLoadPreviousAnalysis = true;
+analysisDate = '191211';
+attnAnalysisDate = '191211';
+doDecoding = true;
 %%
 rc = behavConstsAV;
-imgParams_FSAV_temp
+imgParams_FSAV
 bxParams_FSAV_attnV1ms
 
 eval(ds)
@@ -59,8 +62,9 @@ trOutType = {'h';'m';'fa';'cr'};
 trOutTypeName = {'H-All';'H-HT';'H-ET';'M-All';'M-HT';'M-ET';'FA';'CR'};
 %% pool experiment data
 if doLoadPreviousAnalysis
-    load([fnout 'imgAnalysisData'])
+    load([fnout(1:end-7) analysisDate '_imgAnalysisData'])
 else
+    rng(0)
     antiDataExpt = struct;
     oriTuningExpt = struct;
     targetDataExpt = struct;
@@ -243,6 +247,7 @@ else
                 end
             end
             antiDataExpt(exptN).exptName = [mouse(imouse).mouse_name '-' d.date];
+            antiDataExpt(exptN).mouse = mouse(imouse).mouse_name;
             antiDataExpt(exptN).exptCycLengthFr = cycLengthFr;
             antiDataExpt(exptN).longTC = longTC;
             antiDataExpt(exptN).cycTC = cycTC;
@@ -262,7 +267,12 @@ else
                 decodeDataExpt(exptN).av(visualTrials).catchStim = ...
                     d.av(visualTrials).align(5).ori;
             end
-                   
+            eaCycSI = cellfun(@(x,y) ...
+                getSelectivityIndex(squeeze(mean(x(respwin,:,:),1)-mean(x(basewin_0,:,:),1))',...
+                squeeze(mean(y(respwin,:,:),1)-mean(y(basewin_0,:,:),1))'),...
+                cycTC(visualTrials,:),...
+                cycTC(auditoryTrials,:),'unif',0);
+            antiDataExpt(exptN).eaCycSI = eaCycSI;
             
             do = d.oriTuning;
             if size(do.oriResp,2) == 8
@@ -288,13 +298,14 @@ else
     isShortCycExpt = [];
     respCellsExpt = struct;
     for iexp = 1:nexp
-        respCellsExpt(iexp).mouse = antiDataExpt(iexp).exptName(1:4);
+        respCellsExpt(iexp).mouse = antiDataExpt(iexp).mouse;
         firstTCAV = cat(3,antiDataExpt(iexp).cycTC{visualTrials,1},...
             antiDataExpt(iexp).cycTC{auditoryTrials,1});
+        fprintf('%s: %s first stim\n',antiDataExpt(iexp).exptName,num2str(size(firstTCAV,3)))
 
         lateTC_vis = [];
         lateTC_aud = [];
-        lateCycles = 5:size(antiDataExpt(iexp).cycTC,2);
+        lateCycles = lateCyclesMin:size(antiDataExpt(iexp).cycTC,2);
         for icyc = 1:length(lateCycles)
             lateTC_vis = cat(3,lateTC_vis,...
                 antiDataExpt(iexp).cycTC{visualTrials,lateCycles(icyc)});
@@ -302,26 +313,56 @@ else
                 antiDataExpt(iexp).cycTC{auditoryTrials,lateCycles(icyc)});
         end
         lateTCAV = cat(3,lateTC_vis,lateTC_aud);
-
+        fprintf('%s: %s late stim\n',antiDataExpt(iexp).exptName,num2str(size(lateTCAV,3)))
+        
         longTCAV = cat(3,antiDataExpt(iexp).longTC{visualTrials,1},...
             antiDataExpt(iexp).longTC{auditoryTrials,1});
-
-        firstRespCells = ttest(...
-            squeeze(mean(firstTCAV(respwin,:,:),1)),...
-            squeeze(mean(firstTCAV(basewin_0,:,:),1)),...
-            'dim',2,'tail','right','alpha',cellGroupsAlpha);
-        lateRespCells = ttest(...
-            squeeze(mean(longTCAV(lateWinFr,:,:),1)),...
-            squeeze(mean(longTCAV(basewin,:,:),1)),...
-            'dim',2,'tail','right','alpha',cellGroupsAlpha);
-        lateSuppCells = ttest(...
-            squeeze(mean(longTCAV(lateWinFr,:,:),1)),...
-            squeeze(mean(longTCAV(basewin,:,:),1)),...
-            'dim',2,'tail','left','alpha',cellGroupsAlpha);
-        lateCycRespCells = ttest(...
-            squeeze(mean(lateTCAV(respwin,:,:),1)),...
-            squeeze(mean(lateTCAV(basewin_0,:,:),1)),...
-            'dim',2,'tail','right','alpha',cellGroupsAlpha);
+        fprintf('%s: %s long trials\n',antiDataExpt(iexp).exptName,num2str(size(longTCAV,3)))
+        
+        % randomly select trials for responsive cells test so that each
+        % experiment test the same number of trials
+        rng(0)
+        if size(lateTCAV,3) > minTrN_lateresp
+            ind = randsample(size(firstTCAV,3),minTrN_firstresp);
+            firstRespCells = ttest(...
+                squeeze(mean(firstTCAV(respwin,:,ind),1)),...
+                squeeze(mean(firstTCAV(basewin_0,:,ind),1)),...
+                'dim',2,'tail','right','alpha',cellGroupsAlpha);
+            ind = randsample(size(lateTCAV,3),minTrN_lateresp);
+            lateCycRespCells = ttest(...
+                squeeze(mean(lateTCAV(respwin,:,ind),1)),...
+                squeeze(mean(lateTCAV(basewin_0,:,ind),1)),...
+                'dim',2,'tail','right','alpha',cellGroupsAlpha);
+        else
+            firstRespCells = ttest(...
+                squeeze(mean(firstTCAV(respwin,:,:),1)),...
+                squeeze(mean(firstTCAV(basewin_0,:,:),1)),...
+                'dim',2,'tail','right','alpha',cellGroupsAlpha);
+            lateCycRespCells = ttest(...
+                squeeze(mean(lateTCAV(respwin,:,:),1)),...
+                squeeze(mean(lateTCAV(basewin_0,:,:),1)),...
+                'dim',2,'tail','right','alpha',cellGroupsAlpha);
+        end        
+        if size(longTCAV,3) > minTrN_latewin
+            ind = randsample(size(longTCAV,3),minTrN_latewin);
+            lateRespCells = ttest(...
+                squeeze(mean(longTCAV(lateWinFr,:,ind),1)),...
+                squeeze(mean(longTCAV(basewin,:,ind),1)),...
+                'dim',2,'tail','right','alpha',cellGroupsAlpha);
+            lateSuppCells = ttest(...
+                squeeze(mean(longTCAV(lateWinFr,:,ind),1)),...
+                squeeze(mean(longTCAV(basewin,:,ind),1)),...
+                'dim',2,'tail','left','alpha',cellGroupsAlpha);
+        else
+            lateRespCells = ttest(...
+                squeeze(mean(longTCAV(lateWinFr,:,:),1)),...
+                squeeze(mean(longTCAV(basewin,:,:),1)),...
+                'dim',2,'tail','right','alpha',cellGroupsAlpha);
+            lateSuppCells = ttest(...
+                squeeze(mean(longTCAV(lateWinFr,:,:),1)),...
+                squeeze(mean(longTCAV(basewin,:,:),1)),...
+                'dim',2,'tail','left','alpha',cellGroupsAlpha);
+        end
 
         lateCycRespCutoffPass = mean(mean(lateTCAV(respwin,:,:),3),1) > minRespThreshold_decode;
 
@@ -364,7 +405,8 @@ else
         end
 
     end
-
+    
+if doDecoding
     if strcmp(ds,'FSAV_attentionV1') | strcmp(ds,'FSAV_attentionV1_noAttn')
 %         dcInfo = struct;
         decodeAnalysis = struct;
@@ -372,47 +414,72 @@ else
         decodeAnalysis.av(auditoryTrials).name = 'Auditory';
         for iexp = 1:nexp
             rng(0) % cells randomized and trials randomized
-            cellInd = respCellsExpt(iexp).decodeAnalysisCells & ...
-                oriTuningExpt(iexp).tuningReliability' <= tuningReliabilityThresh_decode;
+%             cellInd = respCellsExpt(iexp).decodeAnalysisCells & ...
+%                 oriTuningExpt(iexp).tuningReliability' <= tuningReliabilityThresh_decode;
+            cellInd = respCellsExpt(iexp).lateRespCells|...
+                respCellsExpt(iexp).lateSuppCells|...
+                respCellsExpt(iexp).lateCycRespCells|...
+                respCellsExpt(iexp).targetRespCells;
             decodeAnalysis(iexp).nCells = sum(cellInd);
-            if sum(cellInd) > maxCellN
-                ind = find(cellInd);
-                cellSampleID = randsample(ind,maxCellN);
-                cellInd = false(length(cellInd),1);
-                cellInd(cellSampleID) = true;
+            if sum(cellInd) > maxPCs
+                nPCs = maxPCs;
+            else
+                nPCs = sum(cellInd);
             end
+%             if sum(cellInd) > maxCellN
+%                 ind = find(cellInd);
+%                 cellSampleID = randsample(ind,maxCellN);
+%                 cellInd = false(length(cellInd),1);
+%                 cellInd(cellSampleID) = true;
+%             elseif sum(cellInd) < minCellN
+%                 cellInd = respCellsExpt(iexp).decodeAnalysisCells;
+%                 if sum(cellInd) > maxCellN
+%                 ind = find(cellInd);
+%                 cellSampleID = randsample(ind,maxCellN);
+%                 cellInd = false(length(cellInd),1);
+%                 cellInd(cellSampleID) = true;
+%                 end
+%             end
             decodeAnalysis(iexp).nCellsSelected = sum(cellInd);
             decodeAnalysis(iexp).cellInd = cellInd;
-%             dcInfo(iexp).cellInd = cellInd;
             respOther = cell(1,2);
             trOutOther = cell(1,2);
             trSampleIndOther = cell(1,2);
             detectGLMOther = cell(1,2);
             targetGLMOther = cell(1,2);
             if isfield(decodeDataExpt(iexp).av(visualTrials),'catchOutcome')
-                respAllCells_av_withInv = zscore(cat(2,...
-                    decodeDataExpt(iexp).av(visualTrials).resp,...
-                    decodeDataExpt(iexp).av(auditoryTrials).resp,...
-                    decodeDataExpt(iexp).av(visualTrials).catchResp)');
+                [coeffAllCells,scoresAllCells,latentAllCells] = pca(cat(2,...
+                    decodeDataExpt(iexp).av(visualTrials).resp(cellInd,:),...
+                    decodeDataExpt(iexp).av(auditoryTrials).resp(cellInd,:),...
+                    decodeDataExpt(iexp).av(visualTrials).catchResp(cellInd,:))');                
+                respAllCells_av_withInv = zscore(scoresAllCells);
                 nvis = size(decodeDataExpt(iexp).av(visualTrials).resp,2);
                 naud = size(decodeDataExpt(iexp).av(auditoryTrials).resp,2);
                 ninv = size(decodeDataExpt(iexp).av(visualTrials).catchResp,2);
                 respAllCells_vis = respAllCells_av_withInv(1:nvis,:);
                 respAllCells_aud = respAllCells_av_withInv((nvis+1):(nvis+naud),:);
                 catchResp = respAllCells_av_withInv((end-ninv+1):end,:);
+
+%                 [coeffAllCells_vis,scoresAllCells_vis,latentAllCells_vis] = pca(respAllCells_vis(:,cellInd));
+%                 [coeffAllCells_aud,scoresAllCells_aud,latentAllCells_aud] = pca(respAllCells_aud(:,cellInd));
+%                 [coeffAllCells_catch,scoresAllCells_catch,latentAllCells_catch] = pca(catchResp(:,cellInd));
+
             else
-                respAllCells_av_withInv = zscore(cat(2,...
-                    decodeDataExpt(iexp).av(visualTrials).resp,...
-                    decodeDataExpt(iexp).av(auditoryTrials).resp)');
+                [coeffAllCells,scoresAllCells,latentAllCells] = pca(cat(2,...
+                    decodeDataExpt(iexp).av(visualTrials).resp(cellInd,:),...
+                    decodeDataExpt(iexp).av(auditoryTrials).resp(cellInd,:))');
+                respAllCells_av_withInv = zscore(scoresAllCells);
                 nvis = size(decodeDataExpt(iexp).av(visualTrials).resp,2);
                 naud = size(decodeDataExpt(iexp).av(auditoryTrials).resp,2);
                 respAllCells_vis = respAllCells_av_withInv(1:nvis,:);
                 respAllCells_aud = respAllCells_av_withInv((nvis+1):end,:);
+
+%                 [coeffAllCells_vis,scoresAllCells_vis,latentAllCells_vis] = pca(respAllCells_vis(:,cellInd));
+%                 [coeffAllCells_aud,scoresAllCells_aud,latentAllCells_aud] = pca(respAllCells_aud(:,cellInd));
+
             end
             for iav = 1:2
                 trOut = decodeDataExpt(iexp).av(iav).outcome;
-%                 respAllCells = zscore(decodeDataExpt(iexp).av(iav).resp');
-                
 
                 if iav == 1
                     respAllCells = respAllCells_vis;
@@ -446,7 +513,8 @@ else
                             indSample = randsample(ind,minBinN);
                             matchTrialsInd = cat(2,matchTrialsInd,indSample);
                         end
-                        respStimSort{istim} = respAllCells(indSample,cellInd);
+%                         respStimSort{istim} = respAllCells(indSample,cellInd);
+                        respStimSort{istim} = respAllCells(indSample,1:nPCs);
                         trOutStimSort{istim} = trOut(indSample);
                     end
                 end
@@ -461,16 +529,10 @@ else
                     end
                 end
                 trSampleIndOther{iav} = matchTrialsInd;
-%                 dcInfo(iexp).av(iav).resp = respAllCells(matchTrialsInd,:);
-%                 dcInfo(iexp).av(iav).trOut = trOut(matchTrialsInd);
-        %         matchTrialsInd = 1:size(respAllCells,2);
-        %         resp = zscore(respAllCells(cellInd,matchTrialsInd)');
                 decodeAnalysis(iexp).av(iav).respAllCells = respAllCells(matchTrialsInd,:);
                 decodeAnalysis(iexp).av(iav).trOut = trOut(matchTrialsInd);
-                resp = respAllCells(matchTrialsInd,cellInd);
-        %         [c,score,latent] = pca(decodeDataExpt(iexp).av(iav).resp(:,matchTrialsInd)');
-        %         resp_pcs = zscore(score(:,1:10));
-        %         [detectTrIndAll, targetTrIndAll] = getStimAndBehaviorYs(trOut);
+                resp = respAllCells(matchTrialsInd,1:nPCs);
+%                 resp = respAllCells(matchTrialsInd,cellInd);
                 [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOut(matchTrialsInd));
 
                 detectCorr = corr(detectTrInd,resp);
@@ -520,8 +582,11 @@ else
                 pctCorrectTarget_train_respwin = nan(1,nwins);
                 pctCorrectTarget_ho_respwin = nan(1,nwins);
                 for iwin = 1:nwins
+%                     rAllCells = zscore(decodeDataExpt(iexp).av(iav).movWinResp(:,:,iwin)');
+%                     r = rAllCells(matchTrialsInd,cellInd);
                     rAllCells = zscore(decodeDataExpt(iexp).av(iav).movWinResp(:,:,iwin)');
-                    r = rAllCells(matchTrialsInd,cellInd);
+                    [~,sAllCells] = pca(rAllCells(:,cellInd));
+                    r = sAllCells(matchTrialsInd,1:nPCs);
                     [~,~,detectGLM_temp] = glmfit(r*C,detectTrInd,'binomial');
                     [~,~,targetGLM_temp] = glmfit(r*C,targetTrInd,'binomial');
 
@@ -542,7 +607,8 @@ else
                 distTrInd = trStimID==1;
                 [detectTrInd_dist, ~] = getStimAndBehaviorYs(trOut(distTrInd));
                 dv_detect_dist = mean(detectTrInd_dist);
-                resp_dist = respAllCells(distTrInd,cellInd);
+%                 resp_dist = respAllCells(distTrInd,cellInd);
+                resp_dist = respAllCells(distTrInd,1:nPCs);
                 respOther_dist{iav} = resp_dist;
 
                 detectCorr_dist = corr(detectTrInd_dist,resp_dist);
@@ -552,13 +618,17 @@ else
                 pctCorrectDetect_ho_dist = getPctCorr_hoData(resp_dist,detectTrInd_dist,dv_detect);
                 detectGLMOther_dist{iav} = detectGLM_dist;
                 trOutOther_dist{iav} = trOut(distTrInd);
+                
+                
+                detectWeight_cells = coeffAllCells(:,1:nPCs)*detectWeight;
+                targetWeight_cells = coeffAllCells(:,1:nPCs)*targetWeight;
 
                 decodeAnalysis(iexp).av(iav).dvDetect = dv_detect;
                 decodeAnalysis(iexp).av(iav).dvTarget = dv_target;
                 decodeAnalysis(iexp).av(iav).correlationDetect = detectCorr;
                 decodeAnalysis(iexp).av(iav).correlationTarget = targetCorr;
-                decodeAnalysis(iexp).av(iav).weightDetect = detectWeight;
-                decodeAnalysis(iexp).av(iav).weightTarget = targetWeight;
+                decodeAnalysis(iexp).av(iav).weightDetect = detectWeight_cells;
+                decodeAnalysis(iexp).av(iav).weightTarget = targetWeight_cells;
                 decodeAnalysis(iexp).av(iav).pctCorrectAllDetect_train = pctCorrectDetect_train;
                 decodeAnalysis(iexp).av(iav).pctCorrectAllDetect_holdout = pctCorrectDetect_ho;
                 decodeAnalysis(iexp).av(iav).pctCorrectAllTarget_train = pctCorrectTarget_train;
@@ -584,7 +654,8 @@ else
                         [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOutOther{otherAV});
                         [catchDetectInd,catchTargetInd] = getStimAndBehaviorYs(...
                             decodeDataExpt(iexp).av(iav).catchOutcome);
-                        catchTargetResp = catchResp(:,cellInd);
+%                         catchTargetResp = catchResp(:,cellInd);
+                        catchTargetResp = catchResp(:,1:nPCs);
                         nCatch = length(catchDetectInd);
                         catchDistRespAll = respOther{otherAV}(targetTrInd==0,:);
                         catchDistInd = randsample(sum(targetTrInd==0),nCatch);
@@ -772,8 +843,8 @@ else
                 targetTrInd,randInd{auditoryTrials},mean(targetTrInd));
             
             
-            decodeAnalysis(iexp).comboTrainWeightDetect = detectGLM.beta(2:end);
-            decodeAnalysis(iexp).comboTrainWeightTarget = targetGLM.beta(2:end);
+            decodeAnalysis(iexp).comboTrainWeightDetect = coeffAllCells(:,1:nPCs)*detectGLM.beta(2:end);
+            decodeAnalysis(iexp).comboTrainWeightTarget = coeffAllCells(:,1:nPCs)*targetGLM.beta(2:end);
             decodeAnalysis(iexp).av(visualTrials).pctCorrectDetect_comboTrain = pctCorrectDetect_combo_vis;
             decodeAnalysis(iexp).av(visualTrials).pctCorrectTarget_comboTrain = pctCorrectTarget_combo_vis;
             decodeAnalysis(iexp).av(auditoryTrials).pctCorrectDetect_comboTrain = pctCorrectDetect_combo_aud;
@@ -784,146 +855,146 @@ else
             decodeAnalysis(iexp).av(auditoryTrials).pctCorrectTarget_audTrainComboMatch = pctCorrectTarget_aud;
         end
 
-        nBoot = 1000;
-        dcBootstrap = struct;
-        mdlFail = cell(2,nexp);
-        w_detect_combo_boot = cell(1,nexp);
-        w_target_combo_boot = cell(1,nexp);
-        for iexp = 1:nexp
-            fprintf('Expt %s\n',num2str(iexp))
-            rng(0)
-            for iav = 1:2
-                trOut = decodeDataExpt(iexp).av(iav).outcome;
-                respAllCells = zscore(decodeDataExpt(iexp).av(iav).resp');
-
-                if iav == 1
-                    trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,oriBins);
-                elseif iav == 2
-                    trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
-                end
-                nStimPerBin = histcounts(trStimID);
-                minBinN = min(nStimPerBin(nStimPerBin >= minTrN_mdl));
-                for istim = 1:nStimBins
-                    ind = find(trStimID == istim);
-                    if length(ind) >= minTrN_mdl
-                        if istim == 1
-                            matchTrialsInd = [];
-                            if sum(nStimPerBin >= minTrN_mdl) == 2
-                                n = minBinN;
-                            elseif minBinN == nStimPerBin(istim)
-                                error('not enough FA/CR trials')
-                            else
-                                n = (nStimBins-1).*minBinN;
-                                if n > length(ind)
-                                    error('not enough FA/CR trials')
-                                end
-                            end
-                            indSample = randsample(ind,n);
-                            matchTrialsInd = cat(2,matchTrialsInd,indSample);
-                        else
-                            indSample = randsample(ind,minBinN);
-                            matchTrialsInd = cat(2,matchTrialsInd,indSample);
-                        end
-                    end
-                end
-                mdlFail{iav,iexp} = false(1,nBoot);
-                for iboot = 1:nBoot
-                    fprintf('.')
-
-                    nTotalCells = length(respCellsExpt(iexp).decodeAnalysisCells);
-                    cellInd = randsample(nTotalCells,maxCellN);
-
-                    resp = respAllCells(matchTrialsInd,cellInd);
-                    [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOut(matchTrialsInd));
-
-                    detectCorr = corr(detectTrInd,resp);
-                    targetCorr = corr(targetTrInd,resp);
-
-                    C = eye(size(resp,2));
-                    p=1;
-                    [~,~,detectGLM] = glmfit(resp*C,detectTrInd,'binomial');
-                    [~,~,targetGLM] = glmfit(resp*C,targetTrInd,'binomial');
-                    glmWarning = lastwarn;
-                    if ~isempty(glmWarning)
-                        mdlFail{iav,iexp}(iboot) = true;
-                    end
-                    glmWarning = [];
-                    lastwarn('')
-
-                    detectWeight = detectGLM.beta(2:end);
-                    targetWeight = targetGLM.beta(2:end);
-
-                    dcBootstrap(iexp).av(iav).cellInd{iboot} = cellInd;
-                    dcBootstrap(iexp).av(iav).targetCorrelation{iboot} = targetCorr;
-                    dcBootstrap(iexp).av(iav).detectCorrelation{iboot} = detectCorr;
-                    dcBootstrap(iexp).av(iav).targetWeight{iboot} = targetWeight;
-                    dcBootstrap(iexp).av(iav).detectWeight{iboot} = detectWeight;
-                end
-            end
-            dcBootstrap(iexp).nTotalCells = nTotalCells;
-            rng(0)
-            n = length(decodeAnalysis(iexp).cellInd);
-            wd = nan(n,nBoot);
-            wt = nan(n,nBoot);
-            [detectTrInd, targetTrInd] = getStimAndBehaviorYs(...
-                cat(2,decodeAnalysis(iexp).av(1).trOut,decodeAnalysis(iexp).av(2).trOut));
-            r = cat(1,decodeAnalysis(iexp).av(1).resp,decodeAnalysis(iexp).av(2).resp);
-            for iboot = 1:nBoot
-                cellInd = randsample(n,maxCellN);
-                resp = r(:,cellInd);
-
-                C = eye(size(resp,2));
-                p=1;
-                [~,~,detectGLM] = glmfit(resp*C,detectTrInd,'binomial');
-                [~,~,targetGLM] = glmfit(resp*C,targetTrInd,'binomial');
-                wd(cellInd,iboot) = detectGLM.beta(2:end);
-                wt(cellInd,iboot) = targetGLM.beta(2:end);
-            end
-            w_detect_combo_boot{iexp} = wd;
-            w_target_combo_boot{iexp} = wt;
-        end
-        
-        cellfun(@(x) sum(~isnan(x),2),w_detect_combo_boot)
-        
-        targetWeightBoot = cell(1,2);
-        detectWeightBoot = cell(1,2);
-        nWeights_target = cell(nexp,2);
-        nWeights_detect = cell(nexp,2);
-        for iexp = 1:nexp
-            n = dcBootstrap(iexp).nTotalCells;
-            for iav = 1:2
-                d = dcBootstrap(iexp).av(iav);
-                bootMatrix_w_target = nan(nBoot,n);
-                bootMatrix_w_detect = nan(nBoot,n);
-                for iboot = 1:nBoot
-                    if mdlFail{iav,iexp}(iboot)
-                        continue
-                    end
-                        ind = d.cellInd{iboot};
-                        bootMatrix_w_target(iboot,ind) = d.targetWeight{iboot};
-                        bootMatrix_w_detect(iboot,ind) = d.detectWeight{iboot};
-                end
-                targetWeightBoot{iav} = cat(2,targetWeightBoot{iav},nanmean(bootMatrix_w_target));
-                detectWeightBoot{iav} = cat(2,detectWeightBoot{iav},nanmean(bootMatrix_w_detect));
-                
-                nWeights_target{iexp,iav} = sum(~isnan(bootMatrix_w_target));
-                nWeights_detect{iexp,iav} = sum(~isnan(bootMatrix_w_detect));
-            end
-        end
-        
+%         nBoot = 1000;
+%         dcBootstrap = struct;
+%         mdlFail = cell(2,nexp);
+%         w_detect_combo_boot = cell(1,nexp);
+%         w_target_combo_boot = cell(1,nexp);
+%         for iexp = 1:nexp
+%             fprintf('Expt %s\n',num2str(iexp))
+%             rng(0)
+%             for iav = 1:2
+%                 trOut = decodeDataExpt(iexp).av(iav).outcome;
+%                 respAllCells = zscore(decodeDataExpt(iexp).av(iav).resp');
+% 
+%                 if iav == 1
+%                     trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,oriBins);
+%                 elseif iav == 2
+%                     trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
+%                 end
+%                 nStimPerBin = histcounts(trStimID);
+%                 minBinN = min(nStimPerBin(nStimPerBin >= minTrN_mdl));
+%                 for istim = 1:nStimBins
+%                     ind = find(trStimID == istim);
+%                     if length(ind) >= minTrN_mdl
+%                         if istim == 1
+%                             matchTrialsInd = [];
+%                             if sum(nStimPerBin >= minTrN_mdl) == 2
+%                                 n = minBinN;
+%                             elseif minBinN == nStimPerBin(istim)
+%                                 error('not enough FA/CR trials')
+%                             else
+%                                 n = (nStimBins-1).*minBinN;
+%                                 if n > length(ind)
+%                                     error('not enough FA/CR trials')
+%                                 end
+%                             end
+%                             indSample = randsample(ind,n);
+%                             matchTrialsInd = cat(2,matchTrialsInd,indSample);
+%                         else
+%                             indSample = randsample(ind,minBinN);
+%                             matchTrialsInd = cat(2,matchTrialsInd,indSample);
+%                         end
+%                     end
+%                 end
+%                 mdlFail{iav,iexp} = false(1,nBoot);
+%                 for iboot = 1:nBoot
+%                     fprintf('.')
+% 
+%                     nTotalCells = length(respCellsExpt(iexp).decodeAnalysisCells);
+%                     cellInd = randsample(nTotalCells,maxCellN);
+% 
+%                     resp = respAllCells(matchTrialsInd,cellInd);
+%                     [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOut(matchTrialsInd));
+% 
+%                     detectCorr = corr(detectTrInd,resp);
+%                     targetCorr = corr(targetTrInd,resp);
+% 
+%                     C = eye(size(resp,2));
+%                     p=1;
+%                     [~,~,detectGLM] = glmfit(resp*C,detectTrInd,'binomial');
+%                     [~,~,targetGLM] = glmfit(resp*C,targetTrInd,'binomial');
+%                     glmWarning = lastwarn;
+%                     if ~isempty(glmWarning)
+%                         mdlFail{iav,iexp}(iboot) = true;
+%                     end
+%                     glmWarning = [];
+%                     lastwarn('')
+% 
+%                     detectWeight = detectGLM.beta(2:end);
+%                     targetWeight = targetGLM.beta(2:end);
+% 
+%                     dcBootstrap(iexp).av(iav).cellInd{iboot} = cellInd;
+%                     dcBootstrap(iexp).av(iav).targetCorrelation{iboot} = targetCorr;
+%                     dcBootstrap(iexp).av(iav).detectCorrelation{iboot} = detectCorr;
+%                     dcBootstrap(iexp).av(iav).targetWeight{iboot} = targetWeight;
+%                     dcBootstrap(iexp).av(iav).detectWeight{iboot} = detectWeight;
+%                 end
+%             end
+%             dcBootstrap(iexp).nTotalCells = nTotalCells;
+%             rng(0)
+%             n = length(decodeAnalysis(iexp).cellInd);
+%             wd = nan(n,nBoot);
+%             wt = nan(n,nBoot);
+%             [detectTrInd, targetTrInd] = getStimAndBehaviorYs(...
+%                 cat(2,decodeAnalysis(iexp).av(1).trOut,decodeAnalysis(iexp).av(2).trOut));
+%             r = cat(1,decodeAnalysis(iexp).av(1).resp,decodeAnalysis(iexp).av(2).resp);
+%             for iboot = 1:nBoot
+%                 cellInd = randsample(n,maxCellN);
+%                 resp = r(:,cellInd);
+% 
+%                 C = eye(size(resp,2));
+%                 p=1;
+%                 [~,~,detectGLM] = glmfit(resp*C,detectTrInd,'binomial');
+%                 [~,~,targetGLM] = glmfit(resp*C,targetTrInd,'binomial');
+%                 wd(cellInd,iboot) = detectGLM.beta(2:end);
+%                 wt(cellInd,iboot) = targetGLM.beta(2:end);
+%             end
+%             w_detect_combo_boot{iexp} = wd;
+%             w_target_combo_boot{iexp} = wt;
+%         end
+%         
+%         cellfun(@(x) sum(~isnan(x),2),w_detect_combo_boot)
+%         
+%         targetWeightBoot = cell(1,2);
+%         detectWeightBoot = cell(1,2);
+%         nWeights_target = cell(nexp,2);
+%         nWeights_detect = cell(nexp,2);
+%         for iexp = 1:nexp
+%             n = dcBootstrap(iexp).nTotalCells;
+%             for iav = 1:2
+%                 d = dcBootstrap(iexp).av(iav);
+%                 bootMatrix_w_target = nan(nBoot,n);
+%                 bootMatrix_w_detect = nan(nBoot,n);
+%                 for iboot = 1:nBoot
+%                     if mdlFail{iav,iexp}(iboot)
+%                         continue
+%                     end
+%                         ind = d.cellInd{iboot};
+%                         bootMatrix_w_target(iboot,ind) = d.targetWeight{iboot};
+%                         bootMatrix_w_detect(iboot,ind) = d.detectWeight{iboot};
+%                 end
+%                 targetWeightBoot{iav} = cat(2,targetWeightBoot{iav},nanmean(bootMatrix_w_target));
+%                 detectWeightBoot{iav} = cat(2,detectWeightBoot{iav},nanmean(bootMatrix_w_detect));
+%                 
+%                 nWeights_target{iexp,iav} = sum(~isnan(bootMatrix_w_target));
+%                 nWeights_detect{iexp,iav} = sum(~isnan(bootMatrix_w_detect));
+%             end
+%         end
+%         
     nCellsSelected = cell2mat({decodeAnalysis.nCellsSelected});    
     fprintf('%s +/- %s (%s-%s) cells selected\n',num2str(mean(nCellsSelected)),...
         num2str(ste(nCellsSelected,2)),num2str(min(nCellsSelected)),num2str(max(nCellsSelected)))
-    fprintf('%s +/- %s (%s-%s) target weights from boot\n', ...
-        num2str(mean(cat(2,cell2mat(nWeights_target(:,1)'),cell2mat(nWeights_target(:,2)')))),...
-        num2str(ste(cat(2,cell2mat(nWeights_target(:,1)'),cell2mat(nWeights_target(:,2)')),2)),...
-        num2str(min(cat(2,cell2mat(nWeights_target(:,1)'),cell2mat(nWeights_target(:,2)')))),...
-        num2str(max(cat(2,cell2mat(nWeights_target(:,1)'),cell2mat(nWeights_target(:,2)')))))
-    fprintf('%s +/- %s (%s-%s) detect weights from boot\n', ...
-        num2str(mean(cat(2,cell2mat(nWeights_detect(:,1)'),cell2mat(nWeights_detect(:,2)')))),...
-        num2str(ste(cat(2,cell2mat(nWeights_detect(:,1)'),cell2mat(nWeights_detect(:,2)')),2)),...
-        num2str(min(cat(2,cell2mat(nWeights_detect(:,1)'),cell2mat(nWeights_detect(:,2)')))),...
-        num2str(max(cat(2,cell2mat(nWeights_detect(:,1)'),cell2mat(nWeights_detect(:,2)')))))
+%     fprintf('%s +/- %s (%s-%s) target weights from boot\n', ...
+%         num2str(mean(cat(2,cell2mat(nWeights_target(:,1)'),cell2mat(nWeights_target(:,2)')))),...
+%         num2str(ste(cat(2,cell2mat(nWeights_target(:,1)'),cell2mat(nWeights_target(:,2)')),2)),...
+%         num2str(min(cat(2,cell2mat(nWeights_target(:,1)'),cell2mat(nWeights_target(:,2)')))),...
+%         num2str(max(cat(2,cell2mat(nWeights_target(:,1)'),cell2mat(nWeights_target(:,2)')))))
+%     fprintf('%s +/- %s (%s-%s) detect weights from boot\n', ...
+%         num2str(mean(cat(2,cell2mat(nWeights_detect(:,1)'),cell2mat(nWeights_detect(:,2)')))),...
+%         num2str(ste(cat(2,cell2mat(nWeights_detect(:,1)'),cell2mat(nWeights_detect(:,2)')),2)),...
+%         num2str(min(cat(2,cell2mat(nWeights_detect(:,1)'),cell2mat(nWeights_detect(:,2)')))),...
+%         num2str(max(cat(2,cell2mat(nWeights_detect(:,1)'),cell2mat(nWeights_detect(:,2)')))))
     elseif strcmp(ds,'FSAV_V1_audControl')
         decodeAnalysis = struct;
         decodeAnalysis.av(visualTrials).name = 'Visual';
@@ -1125,7 +1196,7 @@ else
                         [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOutOther{otherAV});
                         [catchDetectInd,catchTargetInd] = getStimAndBehaviorYs(...
                             decodeDataExpt(iexp).av(iav).catchOutcome);
-                        catchTargetResp = catchResp(:,cellInd);
+                        catchTargetResp = catchResp(:,1:nPCs);
                         nCatch = length(catchDetectInd);
                         catchDistRespAll = respOther{otherAV}(targetTrInd==0,:);
                         catchDistInd = randsample(sum(targetTrInd==0),nCatch);
@@ -1544,113 +1615,114 @@ else
             end
         end
 
-        nBoot = 1000;
-        dcBootstrap = struct;
-        mdlFail = cell(2,nexp);
-        w_detect_combo_boot = cell(1,nexp);
-        w_target_combo_boot = cell(1,nexp);
-        for iexp = 1:nexp
-            fprintf('Expt %s\n',num2str(iexp))
-            rng(0)
-            nTotalCells = length(respCellsExpt(iexp).decodeAnalysisCells);
-            for iav = 1:2
-                if decodeAnalysis(iexp).nCellsSelected < minCellN
-                    dcBootstrap(iexp).av(iav).targetWeight = cell(1,nBoot);
-                else
-                    trOut = decodeDataExpt(iexp).av(iav).outcome;
-                    respAllCells = zscore(decodeDataExpt(iexp).av(iav).resp');
-
-                    if iav == 1
-                        trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,oriBins);
-                    elseif iav == 2
-                        trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
-                    end
-                    trOut(trStimID == 1) = {'cr'};
-                    trOut(trStimID ~= 1) = {'h'};
-                    nStimPerBin = histcounts(trStimID);
-                    minBinN = min(nStimPerBin(nStimPerBin >= minTrN_mdl));
-                    for istim = 1:nStimBins
-                        ind = find(trStimID == istim);
-                        if length(ind) >= minTrN_mdl
-                            if istim == 1
-                                matchTrialsInd = [];
-                                if sum(nStimPerBin >= minTrN_mdl) == 2
-                                    n = minBinN;
-                                elseif minBinN == nStimPerBin(istim)
-                                    error('not enough FA/CR trials')
-                                else
-                                    n = (nStimBins-1).*minBinN;
-                                    if n > length(ind)
-                                        error('not enough FA/CR trials')
-                                    end
-                                end
-                                indSample = randsample(ind,n);
-                                matchTrialsInd = cat(2,matchTrialsInd,indSample);
-                            else
-                                indSample = randsample(ind,minBinN);
-                                matchTrialsInd = cat(2,matchTrialsInd,indSample);
-                            end
-                        end
-                    end
-                    mdlFail{iav,iexp} = false(1,nBoot);
-                    for iboot = 1:nBoot
-                        fprintf('.')
-
-                        nTotalCells = length(respCellsExpt(iexp).decodeAnalysisCells);
-                        cellInd = randsample(nTotalCells,maxCellN);
-
-                        resp = respAllCells(matchTrialsInd,cellInd);
-                        [~, targetTrInd] = getStimAndBehaviorYs(trOut(matchTrialsInd));
-
-                        targetCorr = corr(targetTrInd,resp);
-
-                        C = eye(size(resp,2));
-                        p=1;
-                        [~,~,targetGLM] = glmfit(resp*C,targetTrInd,'binomial');
-                        glmWarning = lastwarn;
-                        if ~isempty(glmWarning)
-                            mdlFail{iav,iexp}(iboot) = true;
-                        end
-                        glmWarning = [];
-                        lastwarn('')
-
-                        targetWeight = targetGLM.beta(2:end);
-
-                        dcBootstrap(iexp).av(iav).cellInd{iboot} = cellInd;
-                        dcBootstrap(iexp).av(iav).targetCorrelation{iboot} = targetCorr;
-                        dcBootstrap(iexp).av(iav).detectCorrelation{iboot} = [];
-                        dcBootstrap(iexp).av(iav).targetWeight{iboot} = targetWeight;
-                        dcBootstrap(iexp).av(iav).detectWeight{iboot} = [];
-                    end
-                end
-            end
-            dcBootstrap(iexp).nTotalCells = nTotalCells;
-        end
-        
-        
-        
-        targetWeightBoot = cell(1,2);
-        for iexp = 1:nexp
-            n = dcBootstrap(iexp).nTotalCells;
-            for iav = 1:2
-                if decodeAnalysis(iexp).nCellsSelected < minCellN
-                    targetWeightBoot{iav} = cat(2,targetWeightBoot{iav},nan(1,dcBootstrap(iexp).nTotalCells));
-                else
-                    d = dcBootstrap(iexp).av(iav);
-                    bootMatrix_w_target = nan(nBoot,n);
-                    for iboot = 1:nBoot
-                        if mdlFail{iav,iexp}(iboot)
-                            continue
-                        end
-                            ind = d.cellInd{iboot};
-                            bootMatrix_w_target(iboot,ind) = d.targetWeight{iboot};
-                    end
-                    targetWeightBoot{iav} = cat(2,targetWeightBoot{iav},nanmean(bootMatrix_w_target));
-                end
-            end
-        end
+%         nBoot = 1000;
+%         dcBootstrap = struct;
+%         mdlFail = cell(2,nexp);
+%         w_detect_combo_boot = cell(1,nexp);
+%         w_target_combo_boot = cell(1,nexp);
+%         for iexp = 1:nexp
+%             fprintf('Expt %s\n',num2str(iexp))
+%             rng(0)
+%             nTotalCells = length(respCellsExpt(iexp).decodeAnalysisCells);
+%             for iav = 1:2
+%                 if decodeAnalysis(iexp).nCellsSelected < minCellN
+%                     dcBootstrap(iexp).av(iav).targetWeight = cell(1,nBoot);
+%                 else
+%                     trOut = decodeDataExpt(iexp).av(iav).outcome;
+%                     respAllCells = zscore(decodeDataExpt(iexp).av(iav).resp');
+% 
+%                     if iav == 1
+%                         trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,oriBins);
+%                     elseif iav == 2
+%                         trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
+%                     end
+%                     trOut(trStimID == 1) = {'cr'};
+%                     trOut(trStimID ~= 1) = {'h'};
+%                     nStimPerBin = histcounts(trStimID);
+%                     minBinN = min(nStimPerBin(nStimPerBin >= minTrN_mdl));
+%                     for istim = 1:nStimBins
+%                         ind = find(trStimID == istim);
+%                         if length(ind) >= minTrN_mdl
+%                             if istim == 1
+%                                 matchTrialsInd = [];
+%                                 if sum(nStimPerBin >= minTrN_mdl) == 2
+%                                     n = minBinN;
+%                                 elseif minBinN == nStimPerBin(istim)
+%                                     error('not enough FA/CR trials')
+%                                 else
+%                                     n = (nStimBins-1).*minBinN;
+%                                     if n > length(ind)
+%                                         error('not enough FA/CR trials')
+%                                     end
+%                                 end
+%                                 indSample = randsample(ind,n);
+%                                 matchTrialsInd = cat(2,matchTrialsInd,indSample);
+%                             else
+%                                 indSample = randsample(ind,minBinN);
+%                                 matchTrialsInd = cat(2,matchTrialsInd,indSample);
+%                             end
+%                         end
+%                     end
+%                     mdlFail{iav,iexp} = false(1,nBoot);
+%                     for iboot = 1:nBoot
+%                         fprintf('.')
+% 
+%                         nTotalCells = length(respCellsExpt(iexp).decodeAnalysisCells);
+%                         cellInd = randsample(nTotalCells,maxCellN);
+% 
+%                         resp = respAllCells(matchTrialsInd,cellInd);
+%                         [~, targetTrInd] = getStimAndBehaviorYs(trOut(matchTrialsInd));
+% 
+%                         targetCorr = corr(targetTrInd,resp);
+% 
+%                         C = eye(size(resp,2));
+%                         p=1;
+%                         [~,~,targetGLM] = glmfit(resp*C,targetTrInd,'binomial');
+%                         glmWarning = lastwarn;
+%                         if ~isempty(glmWarning)
+%                             mdlFail{iav,iexp}(iboot) = true;
+%                         end
+%                         glmWarning = [];
+%                         lastwarn('')
+% 
+%                         targetWeight = targetGLM.beta(2:end);
+% 
+%                         dcBootstrap(iexp).av(iav).cellInd{iboot} = cellInd;
+%                         dcBootstrap(iexp).av(iav).targetCorrelation{iboot} = targetCorr;
+%                         dcBootstrap(iexp).av(iav).detectCorrelation{iboot} = [];
+%                         dcBootstrap(iexp).av(iav).targetWeight{iboot} = targetWeight;
+%                         dcBootstrap(iexp).av(iav).detectWeight{iboot} = [];
+%                     end
+%                 end
+%             end
+%             dcBootstrap(iexp).nTotalCells = nTotalCells;
+%         end
+%         
+%         
+%         
+%         targetWeightBoot = cell(1,2);
+%         for iexp = 1:nexp
+%             n = dcBootstrap(iexp).nTotalCells;
+%             for iav = 1:2
+%                 if decodeAnalysis(iexp).nCellsSelected < minCellN
+%                     targetWeightBoot{iav} = cat(2,targetWeightBoot{iav},nan(1,dcBootstrap(iexp).nTotalCells));
+%                 else
+%                     d = dcBootstrap(iexp).av(iav);
+%                     bootMatrix_w_target = nan(nBoot,n);
+%                     for iboot = 1:nBoot
+%                         if mdlFail{iav,iexp}(iboot)
+%                             continue
+%                         end
+%                             ind = d.cellInd{iboot};
+%                             bootMatrix_w_target(iboot,ind) = d.targetWeight{iboot};
+%                     end
+%                     targetWeightBoot{iav} = cat(2,targetWeightBoot{iav},nanmean(bootMatrix_w_target));
+%                 end
+%             end
+%         end
 
     end
+end
 
     antiAnalysis = struct;
     antiAnalysis.longTC = cell(1,3);
@@ -1670,6 +1742,8 @@ else
     antiAnalysis.lateCycAVShuffTest = [];
     antiAnalysis.lateWinAVShuffTest = [];
     antiAnalysis.lateCycFracSI = [];
+    antiAnalysis.eaCycTC = cell(2,nCycles);
+    antiAnalysis.eaCycTest = cell(1,nCycles);
     targetAnalysis = struct;
     targetAnalysis.tc = cell(3,2);
     targetAnalysis.targets = cell(1,2);
@@ -1692,6 +1766,9 @@ else
     antiAnalysis.eaCycSI = cell(1,nCycles);
     antiAnalysis.eaCycAVauroc = cell(1,nCycles);
     antiAnalysis.eaCycResp = cell(2,nCycles);
+    antiAnalysis.earlyCycTC = cell(3,1);
+    antiAnalysis.earlyCycTCErr = cell(3,1);
+    antiAnalysis.earlyTest = [];
     for iexp = 1:nexp
         longTC_vis = antiDataExpt(iexp).longTC{visualTrials};
         longTC_aud = antiDataExpt(iexp).longTC{auditoryTrials};
@@ -1706,7 +1783,7 @@ else
 
         lateCycTC_vis = [];
         lateCycTC_aud = [];
-        lateCycles = 5:size(antiDataExpt(iexp).cycTC,2);
+        lateCycles = lateCyclesMin:size(antiDataExpt(iexp).cycTC,2);
         for icyc = 1:length(lateCycles)
             lateCycTC_vis = cat(3,lateCycTC_vis,...
                 cycTC_vis{lateCycles(icyc)} - mean(cycTC_vis{lateCycles(icyc)}(basewin_0,:,:),1));
@@ -1714,17 +1791,45 @@ else
                 cycTC_aud{lateCycles(icyc)} - mean(cycTC_aud{lateCycles(icyc)}(basewin_0,:,:),1));
         end
         
+        earlyCycTC_vis = [];
+        earlyCycTC_aud = [];
+        for icyc = 1:2
+            earlyCycTC_vis = cat(3,earlyCycTC_vis,...
+                cycTC_vis{icyc} - mean(cycTC_vis{icyc}(basewin_0,:,:),1));
+            earlyCycTC_aud = cat(3,earlyCycTC_aud,...
+                cycTC_aud{icyc} - mean(cycTC_aud{icyc}(basewin_0,:,:),1));
+        end
+        earlyTCAV = cat(3,earlyCycTC_vis,earlyCycTC_aud);
+        earlyTCTest = ttest(squeeze(mean(earlyTCAV(respwin,:,:))),...
+            squeeze(mean(earlyTCAV(basewin_0,:,:))),...
+            'dim',2,'tail','right','alpha',cellGroupsAlpha)';
+        
+        cycAV = cell(1,length(cycTC_vis));
+        for icyc = 1:length(cycTC_vis)
+            cycAV{icyc} = cat(3,cycTC_vis{icyc},cycTC_aud{icyc});
+        end
+        
         lastCycResp = cell(2,1);
+        lastCycTC = cell(2,1);
+        lastCycAV = [];
         for icyc = nCycles:length(cycTC_vis)
             for iav = 1:2
                 lastCycResp{iav} = cat(2,lastCycResp{iav}, cell2mat(cellfun(@(x) ...
                     squeeze(mean(x(respwin,:,:))) - squeeze(mean(x(basewin_0,:,:))),...
                     antiDataExpt(iexp).cycTC(iav,icyc),'unif',0)));
+                lastCycTC{iav} = cat(3,lastCycTC{iav}, cell2mat(cellfun(@(x) ...
+                    x - mean(x(basewin_0,:,:),1),...
+                    antiDataExpt(iexp).cycTC(iav,icyc),'unif',0)));
             end
+            lastCycAV = cat(3,lastCycAV,cycAV{icyc});
         end
         cycResp = cat(2,cellfun(@(x) ...
             squeeze(mean(x(respwin,:,:))) - squeeze(mean(x(basewin_0,:,:))),...
             antiDataExpt(iexp).cycTC(:,1:nCycles-1),'unif',0),lastCycResp);
+        cycBL = cellfun(@(x) x-mean(x(basewin_0,:,:)),antiDataExpt(iexp).cycTC,'unif',0);
+        cycTest = cellfun(@(x) ttest(squeeze(mean(x(respwin,:,:))),...
+            squeeze(mean(x(basewin_0,:,:))),'dim',2,'tail','right','alpha',0.05/(nCycles-1))',...
+            [cycAV(:,1:nCycles-1) {lastCycAV}],'unif',0);
         
         avAuroc = cell(1,nCycles);
         for icyc = 1:nCycles
@@ -1893,7 +1998,15 @@ else
         antiAnalysis.eaCycResp = cellfun(@(x,y) cat(1,x,y),antiAnalysis.eaCycResp,...
             cellfun(@(x)mean(x,2),cycResp,'unif',0),'unif',0);
         antiAnalysis.eaCycAVauroc = cellfun(@(x,y) cat(2,x,y),antiAnalysis.eaCycAVauroc,avAuroc,'unif',0);
-
+        antiAnalysis.eaCycTC = cellfun(@(x,y) cat(2,x,mean(y,3)),antiAnalysis.eaCycTC,...
+            [antiDataExpt(iexp).cycTC(:,1:nCycles-1) lastCycTC],'unif',0);
+        antiAnalysis.eaCycTest = cellfun(@(x,y) cat(2,x,y), antiAnalysis.eaCycTest,cycTest,'unif',0);
+        antiAnalysis.earlyCycTC = cellfun(@(x,y) cat(2,x,mean(y,3)),antiAnalysis.earlyCycTC,...
+            {earlyCycTC_vis;earlyCycTC_aud;earlyTCAV},'unif',0);
+        antiAnalysis.earlyCycTCErr = cellfun(@(x,y) cat(2,x,ste(y,3)),antiAnalysis.earlyCycTCErr,...
+            {earlyCycTC_vis;earlyCycTC_aud;earlyTCAV},'unif',0);
+        antiAnalysis.earlyTest = cat(2,antiAnalysis.earlyTest,earlyTCTest);
+        
         targetAnalysis.tc{1,visualTrials} = cat(2,targetAnalysis.tc{1,visualTrials},...
             mean(targetDataExpt(iexp).av(visualTrials).tc{1},3));
         targetAnalysis.tc{2,visualTrials} = cat(2,targetAnalysis.tc{2,visualTrials},...
@@ -2009,14 +2122,34 @@ else
     cellInfo.audLateStimAuROC = lateStimAuROC_aud;
     cellInfo.audFirstStimAuROCTest = firstStimAuROCTest_aud < 0.05;
     cellInfo.audLateStimAuROCTest = lateStimAuROCTest_aud < 0.05;
-    if strcmp(ds,'FSAV_attentionV1') | strcmp(ds,'FSAV_attentionV1_noAttn')
-        cellInfo.dcModelCells = logical(cell2mat({decodeAnalysis.cellInd}'));
-        cellInfo.targetWeight = targetWeightBoot;
-        cellInfo.detectWeight = detectWeightBoot;
-        cellInfo.targetComboWeight = nanmean(cell2mat(w_target_combo_boot'),2)';
-        cellInfo.detectComboWeight = nanmean(cell2mat(w_detect_combo_boot'),2)';
+    if strcmp(ds,'FSAV_attentionV1')|strcmp(ds,'FSAV_attentionV1_noAttn')
+        
+        cellInfo.targetComboWeight = [];
+        cellInfo.detectComboWeight = [];
+        cellInfo.targetComboWeight = [];
+        cellInfo.detectComboWeight = [];
+        cellInfo.av(visualTrials).targetWeight = [];
+        cellInfo.av(visualTrials).detectWeight = [];
+        cellInfo.av(auditoryTrials).targetWeight = [];
+        cellInfo.av(auditoryTrials).detectWeight = [];        
+        for iexp = 1:nexp
+            comboWeight_stim = nan(1,length(decodeAnalysis(iexp).cellInd));
+            comboWeight_ch = nan(1,length(decodeAnalysis(iexp).cellInd));
+            comboWeight_stim(decodeAnalysis(iexp).cellInd) = decodeAnalysis(iexp).comboTrainWeightTarget;
+            comboWeight_ch(decodeAnalysis(iexp).cellInd) = decodeAnalysis(iexp).comboTrainWeightDetect;
+            cellInfo.targetComboWeight = cat(2,cellInfo.targetComboWeight,comboWeight_stim);
+            cellInfo.detectComboWeight = cat(2,cellInfo.detectComboWeight,comboWeight_ch);
+            for iav = 1:2
+                w_stim = nan(1,length(decodeAnalysis(iexp).cellInd));
+                w_ch = nan(1,length(decodeAnalysis(iexp).cellInd));
+                w_stim(decodeAnalysis(iexp).cellInd) = decodeAnalysis(iexp).av(iav).weightTarget;
+                w_ch(decodeAnalysis(iexp).cellInd) = decodeAnalysis(iexp).av(iav).weightDetect;
+                cellInfo.av(iav).targetWeight = cat(2,cellInfo.av(iav).targetWeight,w_stim);
+                cellInfo.av(iav).detectWeight = cat(2,cellInfo.av(iav).detectWeight,w_ch);
+            end
+        end
         save([fnout 'imgAnalysisData'],...
-            'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo')
+            'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo','respCellsExpt','antiDataExpt','siPerExpt')
     elseif strcmp(ds,'FSAV_V1_audControl')
         cellInfo.targetWeight = nan(size(cellInfo.firstRespCells));
         cellInfo.dcModelCells = logical(cell2mat({decodeAnalysis.cellInd}'));
@@ -2025,11 +2158,12 @@ else
         cellInfo.dcModelCells = logical(cell2mat({decodeAnalysis.cellInd}'));
     end
     save([fnout 'imgAnalysisData'],...
-        'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo')
+        'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo','respCellsExpt','antiDataExpt','siPerExpt')
 end
 %% plotting params
 respTCLim = [-0.005 0.05];
 cycTCLim = [-0.005 0.015];
+eaCycTCLim = [-0.005 0.05];
 cycTCLim_minRespCells = [-0.005 0.025];
 scatLim_win = [-0.2 0.6];
 scatLim_cyc = [-0.035 0.085];
@@ -2054,7 +2188,7 @@ cellRespTCLim = [-0.05 0.15];
 exCellRespTCLim = [-0.1 0.1];
 siBinLim = [-4 4];
 stimRespLim = [-0.01 0.05];
-avName = {'Vis.','Aud'};
+avName = {'Vis','Aud'};
 
 tcStartFrame = 26;
 cycTCEndTimeMs = 350;
@@ -2136,13 +2270,13 @@ colormap(brewermap([],'*RdBu'));
 % subplot 121
 imagesc(hm(:,tcStartFrame:end))
 hold on
-if strcmp(ds,'FSAV_attentionV1')
-    exCellInd = [exampleCell_1,exampleCell_2,exampleCell_3];
-    exCellMat = zeros(1,length(cellInfo.firstRespCells));
-    exCellMat(exCellInd) = 1;
-    exCellSortInd = find(flip(exCellMat(lateWinSortInd)));
-    hline(exCellSortInd,'k-')
-end
+% if strcmp(ds,'FSAV_attentionV1')
+%     exCellInd = [exampleCell_1,exampleCell_2,exampleCell_3];
+%     exCellMat = zeros(1,length(cellInfo.firstRespCells));
+%     exCellMat(exCellInd) = 1;
+%     exCellSortInd = find(flip(exCellMat(lateWinSortInd)));
+%     hline(exCellSortInd,'k-')
+% end
 figXAxis([],'Time from Start (ms)',[],ttLabelFr_long,ttLabelFr_long)
 figYAxis([],'Cell #',[])
 figAxForm
@@ -2150,6 +2284,17 @@ colorbar
 caxis(hmLim)
 title('All Trials, All Cells')
 print([fnout 'heatmapAllTrialsAllCells'],'-dpdf','-fillpage')
+
+
+if strcmp(ds,'FSAV_attentionV1')
+    exCellInd = false(length(cellInfo.firstRespCells),1);
+    exCellInd([exampleCell_1,exampleCell_3]) = true;
+    exCellInd = flipud(exCellInd(lateWinSortInd));
+elseif strcmp(ds,'FSAV_attentionV1_noAttn')
+    exCellInd = false(length(cellInfo.firstRespCells),1);
+    exCellInd(exampleCell_2) = true;
+    exCellInd = flipud(exCellInd(lateWinSortInd));
+end
 
 figure
 colormap gray
@@ -2160,14 +2305,35 @@ imagesc(flipud(indBW(lateWinSortInd)))
 figYAxis([],'Cell #',[])
 figAxForm
 colorbar
-title('Anti. Resp. Cells')
+title('Anti. Resp. Cells (First, Late, Late Win.)')
 print([fnout 'cellIDforHeatmap'],'-dpdf','-fillpage')
+
+figure
+colormap gray
+subplot 121
+ind = antiAnalysis.earlyTest'==1 |cellInfo.lateCycRespCells==1;
+stimRespCellsBW = flipud(imcomplement(ind(lateWinSortInd)));
+imagesc(stimRespCellsBW)
+figYAxis([],'Cell #',[])
+figAxForm
+title('Resp. to any distractor')
+subplot 122
+ind = cellInfo.lateCycRespCells==1;
+lateStimRespCellsBW = flipud(imcomplement(ind(lateWinSortInd)));
+imagesc(lateStimRespCellsBW)
+figYAxis([],'Cell #',[])
+figAxForm
+title('Resp. to late distractor')
+print([fnout 'cellIDforHeatmap_cycResp'],'-dpdf','-fillpage')
+
+save([fnout '_heatmaps'],'stimRespCellsBW','lateStimRespCellsBW','hm','exCellInd')
 
 % time-courses and quantification scatters
 setFigParams4Print('portrait')
 figure
 subplot 311
-ind = cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells;
+ind = cellInfo.lateCycRespCells|antiAnalysis.earlyTest'| cellInfo.lateRespCells;
+% ind = cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells;
 for iav = 1:2
     y = mean(antiAnalysis.longTC{iav}...
         ((tcStartFrame:end),(ind) & ...
@@ -2184,7 +2350,7 @@ hline(0,'k:')
 figAxForm([],0)
 title(sprintf('First Stim Responsive Cells (%s/%s)',...
     num2str(sum((...
-    cellInfo.firstRespCells | cellInfo.lateRespCells | cellInfo.lateCycRespCells)...
+    ind)...
     & cellInfo.isShortCycExpt)),...
     num2str(sum(cellInfo.isShortCycExpt))))
 
@@ -2254,82 +2420,6 @@ title(sprintf('Late Cycles, Late Cyc. Resp. Cells (%s/%s), p = %s',...
 
 print([fnout 'tcLongTrialsAndLateCycWithQuant_LateCycRespCells'],'-dpdf','-fillpage')
 
-% example cells time-courses
-if strcmp(ds,'FSAV_attentionV1')
-    setFigParams4Print('landscape')
-    exCellInd = [exampleCell_1,exampleCell_2,exampleCell_3];
-    figure
-    for icell = 1:3
-        exampleCell = exCellInd(icell);
-        if icell == 1
-            plotOffset = 0;
-        else
-            plotOffset = plotOffset+4;
-        end
-        subplot(3,4,1+plotOffset)
-        y = antiAnalysis.longTC{allTrialsInd}(tcStartFrame:end,exampleCell);
-        yerr = antiAnalysis.longTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
-        shadedErrorBar_chooseColor(tt_longTC,y,yerr,[0 0 0]);
-        hold on
-        figXAxis([],'Time (ms)',[tt_longTC(1) tt_longTC(end)],ttLabel_long,ttLabel_long)
-        if icell == 3
-            figYAxis([],'dF/F',exCellTCLim-0.06)
-        else
-            figYAxis([],'dF/F',exCellTCLim)  
-        end
-        vline(lateWinTT,'k--')
-        hline(0,'k:')
-        figAxForm([],0)
-        title(sprintf('Example Cell #%s',num2str(exampleCell)))
-        
-        subplot(3,4,2+plotOffset)
-        y = antiAnalysis.firstCycTC{allTrialsInd}(tcStartFrame:end,exampleCell);
-        yerr = antiAnalysis.firstCycTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
-        shadedErrorBar_chooseColor(tt_cycTC,y,yerr,[0 0 0]);
-        hold on
-        figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
-        if icell == 3
-            figYAxis([],'dF/F',exCellTCLim-0.06)
-        else
-            figYAxis([],'dF/F',exCellTCLim)  
-        end
-        vline(lateWinTT,'k--')
-        hline(0,'k:')
-        figAxForm([],0)
-        title(sprintf('Example Cell #%s',num2str(exampleCell)))
-        
-        subplot(3,4,3+plotOffset)
-        y = antiAnalysis.lateCycTC{allTrialsInd}(tcStartFrame:end,exampleCell);
-        yerr = antiAnalysis.lateCycTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
-        shadedErrorBar_chooseColor(tt_cycTC,y,yerr,[0 0 0]);
-        hold on
-        figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
-        if icell == 3
-            figYAxis([],'dF/F',exCellTCLim-0.06)
-        else
-            figYAxis([],'dF/F',exCellTCLim)  
-        end
-        vline(lateWinTT,'k--')
-        hline(0,'k:')
-        figAxForm([],0)
-        title(sprintf('Example Cell #%s',num2str(exampleCell)))
-
-        subplot(3,4,4+plotOffset)
-        y = cellInfo.oriResp(exampleCell,:);
-        yerr = cellInfo.oriRespErr(exampleCell,:);
-        errorbar(orientations,y,yerr,'.')
-        hold on
-        x = 0:180;
-        y = cellInfo.oriFit(exampleCell,:);
-        plot(x,y,'-')
-        figXAxis([],'Orienation (deg)',[-10 190])
-        figYAxis([],'dF/F',oriRespLim)
-        figAxForm
-        title(sprintf('Passive Ori. Tuning, Cell #%s',num2str(exampleCell)));
-    end
-    print([fnout 'exampleCellsTCWithTuning'],'-dpdf','-fillpage')
-end
-
 % selectivity
 figure
 subplot 121
@@ -2360,22 +2450,299 @@ title(sprintf('mean=%s, ste=%s, ttest p=%s',...
 
 print([fnout 'selectivityCDF'],'-dpdf')
 
-% VA auROC
-figure
-subplot 121
-y = antiAnalysis.lateCycAVauROC(cellInfo.lateCycRespCells);
-h = cdfplot(y);
-hold on
-vline(mean(y),'k-')
-figXAxis([],'auROC_V_A',[0.3 0.7])
-figYAxis([],'Fraction of Cells',[0 1])
-figAxForm
-title(sprintf('Late Cyc. Resp. Cells, mean = %s, ste = %s',...
-    num2str(round(mean(y),2,'significant')),...
-    num2str(round(ste(y,2),2,'significant'))))
+% print([fnout 'VAauROCCDF'],'-dpdf')
 
-print([fnout 'VAauROCCDF'],'-dpdf')
+% selectivity for each mouse
+nMice = length(mice);
+meanSIPerExpt = cellfun(@(x,y) mean(x(y==1)),siPerExpt,{respCellsExpt.lateCycRespCells});
+nCellsPerExpt = cellfun(@(x) sum(x==1),{respCellsExpt.lateCycRespCells});
+nCellsNorm = nCellsPerExpt/30;
+nCellsNorm(nCellsPerExpt >=30) = 1;
+setFigParams4Print('landscape')
+figure
+if strcmp(ds,'FSAV_attentionV1')
+    colors = brewermap(nMice,'Set2');
+elseif strcmp(ds,'FSAV_attentionV1_noAttn')
+    colors = brewermap(nMice,'Dark2');
+else
+    colors = brewermap(nMice,'Set1');
+end
+subplot 221
+siPerMouse = nan(1,nMice);
+siPerMouse_err = nan(1,nMice);
+for im = 1:nMice
+    hold on
+    ind = strcmp({respCellsExpt.mouse},mice(im));
+    ind = ind & nCellsNorm ~= 0;
+    if sum(ind) ~= 0
+        h=scatter(ones(1,sum(ind))*im,meanSIPerExpt(ind),1000.*(nCellsNorm(ind)),'Marker','.');
+        h.MarkerFaceColor = colors(im,:);
+        h.MarkerEdgeColor = colors(im,:);
+        y = cellfun(@(x,y) x(y==1),siPerExpt(ind),{respCellsExpt(ind).lateCycRespCells},'unif',0);
+        siPerMouse(im) = nanmean(cell2mat(y));
+        siPerMouse_err(im) = ste(cell2mat(y),2);
+        if length(cell2mat(y)) < minCellN
+            continue
+        end
+        h=errorbar(im,mean(cell2mat(y)),ste(cell2mat(y),2),'.','MarkerSize',20);
+        h.Color = colors(im,:);
+    end
+end
+figXAxis([],'Mouse #',[0 nMice+1],1:nMice,mice)
+figYAxis([],'SI',[-2.5 2.5])
+figAxForm
+title({'Mean SI; single points are expts';...
+    'error points are pooled across expt';...
+    'size is n cells (max size is 30 cells)'})
+hline(0,'k:')
+hline(mean(antiAnalysis.lateCycSI(cellInfo.lateCycRespCells)),'r-')
+
+subplot 223
+for im = 1:nMice
+    hold on
+    h=errorbar(im,siPerMouse(im),siPerMouse_err(im),'.','MarkerSize',20);
+    h.Color = colors(im,:);
+end
+figXAxis([],'Mouse #',[0 nMice+1],1:nMice,mice)
+figYAxis([],'SI',[-2.5 2.5])
+figAxForm
+hline(0,'k:')
+hline(mean(antiAnalysis.lateCycSI(cellInfo.lateCycRespCells)),'r-')
+
+if strcmp(ds,'FSAV_attentionV1')||strcmp(ds,'FSAV_attentionV1_noAttn')
+    load(fullfile(rc.ashley, 'Manuscripts','Attention V1','Matlab Figs','bxStats.mat'))
+    subplot 222
+    ind = ismember(bxStats.mouseNames,mice);
+    [~, bxDataSortInd] = sort(bxStats.mouseNames(ind));
+    hrDiffAll = bxStats.av(visualTrials).matchedHRDiff(ind);
+    hrDiff = hrDiffAll(bxDataSortInd);
+    for im = 1:nMice
+        hold on
+        h=errorbar(hrDiff(im),siPerMouse(im),siPerMouse_err(im),'.','MarkerSize',20);
+        h.Color = colors(im,:);
+    end
+    figXAxis([],'Val - Inv Vis. HR (Training Data)',[-0.2 0.5])
+    figYAxis([],'SI',[-2.5 2.5])
+    figAxForm
+    title('Mean SI pooled across expt for late resp neurons')
+    hline(0,'k:')
+    vline(0,'k:')
+    hline(mean(antiAnalysis.lateCycSI(cellInfo.lateCycRespCells)),'r-')
+    
+    subplot 224
+    ind = ismember(bxStats.mouseNames,mice);
+    [~, bxDataSortInd] = sort(bxStats.mouseNames(ind));
+    hrDiffAll = bxStats.av(auditoryTrials).matchedHRDiff(ind);
+    hrDiff = hrDiffAll(bxDataSortInd);
+    for im = 1:nMice
+        hold on
+        h=errorbar(hrDiff(im),siPerMouse(im),siPerMouse_err(im),'.','MarkerSize',20);
+        h.Color = colors(im,:);
+    end
+    figXAxis([],'Val - Inv Aud. HR (Training Data)',[-0.2 0.5])
+    figYAxis([],'SI',[-2.5 2.5])
+    figAxForm
+    title('Mean SI pooled across expt for late resp neurons')
+    hline(0,'k:')
+    vline(0,'k:')
+    hline(mean(antiAnalysis.lateCycSI(cellInfo.lateCycRespCells)),'r-')
+end
+print([fnout 'perExptSI'],'-dpdf','-fillpage')
+
+%selectivity for each cycle
+figure
+subplot 221
+d = cellfun(@(x) x(cellInfo.lateCycRespCells),antiAnalysis.eaCycSI,'unif',0);
+p = anova1(cell2mat(d')',[],'off');
+y = cell2mat(cellfun(@(x) mean(x),d,'unif',0));
+yerr = cell2mat(cellfun(@(x) ste(x,2),d,'unif',0));
+hold on
+h=errorbar(1:nCycles,y,yerr,'k.','MarkerSize',10);
+figXAxis([],'Stim #',[0 nCycles+1],1:nCycles,...
+    cat(2,cellfun(@num2str,num2cell(1:nCycles-1),'unif',0),[num2str(nCycles) '+']))
+figYAxis([],'SI',[-1.5 1.5])  
+hline(0,'k:')
+figAxForm
+title({'mean across all late resp cells';sprintf('One-way ANOVA, p=%s',...
+    num2str(round(p,2,'significant')))})
+subplot 222
+siEaMs = nan(nCycles,nMice);
+L = [];
+for im = 1:nMice
+    hold on
+    ind = strcmp({respCellsExpt.mouse},mice(im));
+    ind = ind & nCellsNorm ~= 0;
+    sidata = cell(1,nCycles);
+    if sum(ind) ~= 0
+        for iexp = 1:nexp
+            if ind(iexp)
+                sidata = cellfun(@(z,a) cat(2,z,a),sidata,cellfun(@(x) x(respCellsExpt(iexp).lateCycRespCells==1), ...
+                    antiDataExpt(iexp).eaCycSI(1:nCycles),'unif',0),'unif',0);
+            end
+        end
+        h = shadedErrorBar_chooseColor(1:nCycles,...
+            cellfun(@(x) mean(x),sidata(1:nCycles)),...
+            cellfun(@(x) ste(x,2),sidata(1:nCycles)),colors(im,:));
+%         h.Color = colors(im,:);
+        L(im) = h.mainLine;
+    end
+    siEaMs(:,im) = cellfun(@(x) mean(x),sidata(1:nCycles));
+end
+figXAxis([],'Stim #',[0 nCycles+1],1:nCycles,...
+    cat(2,cellfun(@num2str,num2cell(1:nCycles-1),'unif',0),[num2str(nCycles) '+']))
+figYAxis([],'SI',[-3 3])  
+hline(0,'k:')
+figAxForm
+legend(L,mice)
+
+subplot 223
+ind = cellInfo.lateCycRespCells|antiAnalysis.earlyTest';
+d = cellfun(@(x,y) x(ind==1),antiAnalysis.eaCycSI,'unif',0);
+% d = cellfun(@(x,y) x(y==1),antiAnalysis.eaCycSI,antiAnalysis.eaCycTest,'unif',0);
+% p = anova1(cell2mat(d')',[],'off');
+y = cell2mat(cellfun(@(x) mean(x),d,'unif',0));
+yerr = cell2mat(cellfun(@(x) ste(x,2),d,'unif',0));
+hold on
+h=errorbar(1:nCycles,y,yerr,'k.','MarkerSize',10);
+figXAxis([],'Stim #',[0 nCycles+1],1:nCycles,...
+    cat(2,cellfun(@num2str,num2cell(1:nCycles-1),'unif',0),[num2str(nCycles) '+']))
+figYAxis([],'SI',[-1.5 1.5])  
+hline(0,'k:')
+figAxForm
+title(sprintf('early or late resp cells, n=%s',num2str(sum(ind))))
+
+subplot 224
+h=errorbar(1:nCycles,mean(siEaMs,2),ste(siEaMs,2),'k.','MarkerSize',10);
+figXAxis([],'Stim #',[0 nCycles+1],1:nCycles,...
+    cat(2,cellfun(@num2str,num2cell(1:nCycles-1),'unif',0),[num2str(nCycles) '+']))
+figYAxis([],'SI',[-1.5 1.5])  
+hline(0,'k:')
+figAxForm
+title('mean across mice')
+print([fnout 'perStimAttnEffect'],'-dpdf','-fillpage')
+
+figure
+suptitle('Cells Resp. to Ea. Stim')
+% ind = cellInfo.lateCycRespCells;
+% ind = sum(cell2mat(antiAnalysis.eaCycTest'),1)'>0;
+
+ind = cellInfo.lateCycRespCells|antiAnalysis.earlyTest';
+for icyc = 1:nCycles
+    subplot(2,4,icyc)
+    for iav = 1:2
+%         ind = antiAnalysis.eaCycTest{icyc}==1;
+        y = mean(antiAnalysis.eaCycTC{iav,icyc}(tcStartFrame:end,ind),2)-...
+            mean(mean(antiAnalysis.eaCycTC{iav,icyc}(basewin_0,ind),2));
+        yerr = ste(antiAnalysis.eaCycTC{iav}(tcStartFrame:end,ind),2);
+        hold on
+        shadedErrorBar_chooseColor(tt_cycTC,y,yerr,cueColor{iav});
+    end
+    figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+    figYAxis([],'dF/F',eaCycTCLim)  
+    hline(0,'k:')
+    vline(respWinTT,'k--')
+    figAxForm
+    title(sprintf('n=%s/%s',...
+        num2str(sum(ind)),...
+        num2str(length(ind))))
+end
+print([fnout 'perStimCycTC'],'-dpdf','-fillpage')
+
+figure
+ind = antiAnalysis.earlyTest'==1 &~cellInfo.lateCycRespCells==1;
+subplot 121
+for iav = 1:2
+%         ind = antiAnalysis.eaCycTest{icyc}==1;
+    y = mean(antiAnalysis.earlyCycTC{iav}(tcStartFrame:end,ind),2);
+    yerr = ste(antiAnalysis.earlyCycTC{iav}(tcStartFrame:end,ind),2);
+    hold on
+    shadedErrorBar_chooseColor(tt_cycTC,y,yerr,cueColor{iav});
+end
+[~,p] = ttest(mean(antiAnalysis.earlyCycTC{visualTrials}(respwin,ind),1),...
+    mean(antiAnalysis.earlyCycTC{auditoryTrials}(respwin,ind),1));
+figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+figYAxis([],'dF/F',eaCycTCLim)  
+hline(0,'k:')
+vline(respWinTT,'k--')
+figAxForm
+title(sprintf('Early Stim Resp.,n=%s/%s, p=%s',...
+    num2str(sum(ind)),...
+    num2str(length(ind)),num2str(round(p,2,'significant'))))
+subplot 122
+ind = cellInfo.lateCycRespCells==1;
+for iav = 1:2
+%         ind = antiAnalysis.eaCycTest{icyc}==1;
+    y = mean(antiAnalysis.lateCycTC{iav}(tcStartFrame:end,ind),2);
+    yerr = ste(antiAnalysis.lateCycTC{iav}(tcStartFrame:end,ind),2);
+    hold on
+    shadedErrorBar_chooseColor(tt_cycTC,y,yerr,cueColor{iav});
+end
+[~,p] = ttest(mean(antiAnalysis.lateCycTC{visualTrials}(respwin,ind),1),...
+    mean(antiAnalysis.lateCycTC{auditoryTrials}(respwin,ind),1));
+figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+figYAxis([],'dF/F',eaCycTCLim)  
+hline(0,'k:')
+vline(respWinTT,'k--')
+figAxForm
+title(sprintf('Late Stim Resp., n=%s/%s, p=%s',...
+    num2str(sum(ind)),...
+    num2str(length(ind)),num2str(round(p,2,'significant'))))
+print([fnout 'earlyLateStimCycTC'],'-dpdf','-fillpage')
+
+%% heatmap for all behavior experiments
+if strcmp(ds,'FSAV_attentionV1')
+    hm_noAttn = load(fullfile(rc.ashley, 'Manuscripts',...
+        'Attention V1','Matlab Figs',...
+        ['attentionV1_noAttn_' attnAnalysisDate '__heatmaps.mat']));
+    hm_attn = load(fullfile(rc.ashley, 'Manuscripts',...
+        'Attention V1','Matlab Figs',...
+        ['attentionV1_' attnAnalysisDate '__heatmaps.mat']));
+    
+    hmAll = cat(1,hm_attn.hm,hm_noAttn.hm);
+    [~,sortInd] = sort(mean(hmAll(:,lateWinFr),2));
+    stimRespInd = cat(1,hm_attn.stimRespCellsBW,hm_noAttn.stimRespCellsBW);
+    lateRespInd = cat(1,hm_attn.lateStimRespCellsBW,hm_noAttn.lateStimRespCellsBW);
+    exCellInd = cat(1,hm_attn.exCellInd,hm_noAttn.exCellInd);
+    
+    figure
+    colormap(brewermap([],'*RdBu'));
+    imagesc(flipud(hmAll(sortInd,tcStartFrame:end)))
+    hold on
+    figXAxis([],'Time from Start (ms)',[],ttLabelFr_long,ttLabelFr_long)
+    figYAxis([],'Cell #',[])
+    figAxForm
+    colorbar
+    caxis(hmLim)
+    hline(find(flipud(exCellInd(sortInd))),'k-')
+    title(sprintf('Total Cells=%s',num2str(length(sortInd))))
+    print([fnout 'heatmapAllTrialsAllCells_allBx'],'-dpdf','-fillpage')
+    
+    figure
+    colormap gray
+    subplot 121
+    imagesc(flipud(stimRespInd(sortInd)))
+    figYAxis([],'Cell #',[])
+    figAxForm
+    colorbar
+    title('Resp. to early or late distractor')
+    subplot 122
+    imagesc(flipud(lateRespInd(sortInd)))
+    figYAxis([],'Cell #',[])
+    figAxForm
+    colorbar
+    title('Resp. to late distractor')
+    print([fnout 'cellIDforHeatmap_allBx'],'-dpdf','-fillpage')
+end
 %% create a structure with stats from analyses
+
+if strcmp(ds,'FSAV_attentionV1')
+    load(fullfile(rc.ashley, 'Manuscripts',...
+        'Attention V1','Matlab Figs',...
+        ['attentionV1_noAttn_' attnAnalysisDate '_imgStats.mat']));
+    imgStats_noAttn = imgStats;
+%     imgStats_naive = load(['V1_100ms_naive_' analysisDate '_imgStats.mat']);
+end
+
 imgStats = struct;
 imgStats.nTrialsPerExpt = nTrialsPerExpt;
 fprintf('%s +/- %s (%s-%s) trials per experiment\n',num2str(mean(nTrialsPerExpt)),...
@@ -2463,74 +2830,250 @@ imgStats.respCellsSI = antiAnalysis.lateCycSI(cellInfo.lateCycRespCells);
 fprintf('SI Test, p=%s\n',...
     num2str(round(imgStats.respCellsSITest,2,'significant')))
 
-if strcmp(ds,'FSAV_attentionV1')
+imgStats.siPerMouse = siPerMouse;
+imgStats.mouseID = mice;
+
+% save([fnout 'imgStats'],'imgStats')
+
+if strcmp(ds,'FSAV_attentionV1')  
+    siAllBxMice = cat(2,imgStats.siPerMouse,imgStats_noAttn.siPerMouse);
+    allMiceID = cat(2,imgStats.mouseID,imgStats_noAttn.mouseID);
+    [~,siSortInd] = sort(allMiceID);
+    [~,bxSortInd] = sort(bxStats.mouseNames);
+    [bxSIcorr,p] = corr(siAllBxMice(siSortInd)',bxStats.allMatchedHRDiff(bxSortInd));
+    imgStats.bxVsSICorr = [bxSIcorr,p];
+    fprintf('SI vs. Val-Inv HR, r=%s, p=%s\n',...
+        num2str(round(imgStats.bxVsSICorr(1),2,'significant')),...
+        num2str(round(imgStats.bxVsSICorr(2),2,'significant')))
+    [visBxSIcorr,p] = corr(siAllBxMice(siSortInd)',...
+        bxStats.av(visualTrials).matchedHRDiff(bxSortInd));
+    imgStats.visBxVsSICorr = [visBxSIcorr,p];
+    fprintf('SI vs. Vis Only Val-Inv HR, r=%s, p=%s\n',...
+        num2str(round(imgStats.visBxVsSICorr(1),2,'significant')),...
+        num2str(round(imgStats.visBxVsSICorr(2),2,'significant')))
+    
+    [~,imgStats.respCellsSITestVsNoAttn] = kstest2(imgStats.respCellsSI, ...
+        imgStats_noAttn.respCellsSI,'tail','smaller');
+    fprintf('Kolmogorov-Smirnov Test SI, attention vs. no attention, p = %s\n',...
+        num2str(round(imgStats.respCellsSITestVsNaive,2,'significant')))
+    
     [~,imgStats.respCellsSITestVsNaive] = kstest2(imgStats.respCellsSI, ...
         imgStats_naive.respCellsSI,'tail','smaller');
-    fprintf('Kolmogorov-Smirnov Test SI, behavior vs. naive, p = %s\n',...
+    fprintf('Kolmogorov-Smirnov Test SI, attention vs. naive, p = %s\n',...
         num2str(round(imgStats.respCellsSITestVsNaive,2,'significant')))
 end
+save([fnout 'imgStats'],'imgStats')
 %% Figure 3 example cell responses   
+% if strcmp(ds,'FSAV_attentionV1')
+%     iexp=10;
+%     exCells = [13,17];
+%     dmat = antiDataExpt(iexp).cycTC(visualTrials,5:end);
+%     d_anti = [];
+%     for i = 1:length(dmat)
+%         d_anti = cat(3,d_anti,dmat{i} - mean(dmat{i}(basewin_0,:,:),1));
+%     end
+%     d_tar = targetDataExpt(iexp).av(visualTrials).tc;
+%     % ind = decodeAnalysis(iexp).cellInd;
+%     % trOut = dc.outcome;
+%     % stimID = discretize(dc.stim,oriBins);
+%     stimLabel = {'D','HT','ET'};
+%     figure
+%     suptitle(sprintf('%s, example cell stim resp',antiDataExpt(iexp).exptName))
+%     for icell = 1:2
+%         if icell == 1
+%             plotOffset = 0;
+%         else
+%             plotOffset = plotOffset+4;
+%         end 
+%         for istim = 1:3
+%             subplot(2,4,istim+plotOffset)
+%             if istim == 1
+%                 r = squeeze(d_anti(:,exCells(icell),:));
+%                 shadedErrorBar_chooseColor(tt_cycTC,mean(r(tcStartFrame:nFr_cyc,:),2),...
+%                     ste(r(tcStartFrame:nFr_cyc,:),2),[0 0 0]);
+%                 figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],[0,200],[0,200])
+%             else
+%                 r = squeeze(d_tar{istim-1}(:,exCells(icell),:));
+%                 shadedErrorBar_chooseColor(tt_targetTC((tcStartFrame:nFr_cyc)-1),mean(r(tcStartFrame:nFr_cyc,:),2),...
+%                     ste(r(tcStartFrame:nFr_cyc,:),2),[0 0 0]);
+%                 figXAxis([],'Time (ms)',[tt_targetTC(tcStartFrame-1) cycTCEndTimeMs],[0,200],[0,200])
+%             end
+%     %         trInd = stimID == istim;
+%     %         r = squeeze(d_anti(:,exCells(icell),:));
+%             figYAxis([],'dF/F',exCellRespTCLim)  
+%             hline(0,'r:')
+%             vline(respWinTT,'k--')
+%             figAxForm
+%             title(sprintf('Cell %s, %s Resp.',num2str(exCells(icell)),...
+%                 stimLabel{istim}))
+%         end
+%         subplot(2,4,4+plotOffset)
+%         x = orientations;
+%         y = oriTuningExpt(iexp).oriResp(exCells(icell),:);
+%         yerr = oriTuningExpt(iexp).oriRespErr(exCells(icell),:);
+%         errorbar(x,y,yerr,'.')
+%         hold on
+%         y = oriTuningExpt(iexp).fit(:,exCells(icell));
+%         plot(0:180,y,'-')
+%         title(sprintf('pref=%s, peak=%s, theta90=%s',...
+%             num2str(orientations(oriTuningExpt(iexp).oriPref(exCells(icell)))),...
+%             num2str(oriTuningExpt(iexp).fitPeak(exCells(icell))),...
+%             num2str(oriTuningExpt(iexp).tuningReliability(exCells(icell)))))
+%         figXAxis([],'Orientation',[-10 190],x,x)
+%         figYAxis([],'dF/F',[])
+%         figAxForm
+%     end
+%     print([fnout 'exCellResponses' decodeDataExpt(iexp).exptName],...
+%         '-dpdf','-fillpage')
+% end
+%%
+% example cells time-courses
 if strcmp(ds,'FSAV_attentionV1')
-    iexp=10;
-    exCells = [13,17];
-    dmat = antiDataExpt(iexp).cycTC(visualTrials,5:end);
-    d_anti = [];
-    for i = 1:length(dmat)
-        d_anti = cat(3,d_anti,dmat{i} - mean(dmat{i}(basewin_0,:,:),1));
-    end
-    d_tar = targetDataExpt(iexp).av(visualTrials).tc;
-    % ind = decodeAnalysis(iexp).cellInd;
-    % trOut = dc.outcome;
-    % stimID = discretize(dc.stim,oriBins);
-    stimLabel = {'D','HT','ET'};
+    setFigParams4Print('landscape')
+    exCellInd = [exampleCell_1,exampleCell_3];
     figure
-    suptitle(sprintf('%s, example cell stim resp',antiDataExpt(iexp).exptName))
-    for icell = 1:2
+    for icell = 1:length(exCellInd)
+        exampleCell = exCellInd(icell);
         if icell == 1
             plotOffset = 0;
         else
             plotOffset = plotOffset+4;
-        end 
-        for istim = 1:3
-            subplot(2,4,istim+plotOffset)
-            if istim == 1
-                r = squeeze(d_anti(:,exCells(icell),:));
-                shadedErrorBar_chooseColor(tt_cycTC,mean(r(tcStartFrame:nFr_cyc,:),2),...
-                    ste(r(tcStartFrame:nFr_cyc,:),2),[0 0 0]);
-                figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],[0,200],[0,200])
-            else
-                r = squeeze(d_tar{istim-1}(:,exCells(icell),:));
-                shadedErrorBar_chooseColor(tt_targetTC((tcStartFrame:nFr_cyc)-1),mean(r(tcStartFrame:nFr_cyc,:),2),...
-                    ste(r(tcStartFrame:nFr_cyc,:),2),[0 0 0]);
-                figXAxis([],'Time (ms)',[tt_targetTC(tcStartFrame-1) cycTCEndTimeMs],[0,200],[0,200])
-            end
-    %         trInd = stimID == istim;
-    %         r = squeeze(d_anti(:,exCells(icell),:));
-            figYAxis([],'dF/F',exCellRespTCLim)  
-            hline(0,'r:')
-            vline(respWinTT,'k--')
-            figAxForm
-            title(sprintf('Cell %s, %s Resp.',num2str(exCells(icell)),...
-                stimLabel{istim}))
         end
-        subplot(2,4,4+plotOffset)
-        x = orientations;
-        y = oriTuningExpt(iexp).oriResp(exCells(icell),:);
-        yerr = oriTuningExpt(iexp).oriRespErr(exCells(icell),:);
-        errorbar(x,y,yerr,'.')
+        subplot(3,4,1+plotOffset)
+        y = antiAnalysis.longTC{allTrialsInd}(tcStartFrame:end,exampleCell);
+        yerr = antiAnalysis.longTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
+        shadedErrorBar_chooseColor(tt_longTC,y,yerr,[0 0 0]);
         hold on
-        y = oriTuningExpt(iexp).fit(:,exCells(icell));
-        plot(0:180,y,'-')
-        title(sprintf('pref=%s, peak=%s, theta90=%s',...
-            num2str(orientations(oriTuningExpt(iexp).oriPref(exCells(icell)))),...
-            num2str(oriTuningExpt(iexp).fitPeak(exCells(icell))),...
-            num2str(oriTuningExpt(iexp).tuningReliability(exCells(icell)))))
-        figXAxis([],'Orientation',[-10 190],x,x)
-        figYAxis([],'dF/F',[])
+        figXAxis([],'Time (ms)',[tt_longTC(1) tt_longTC(end)],ttLabel_long,ttLabel_long)
+        if icell == 3
+            figYAxis([],'dF/F',exCellTCLim-0.06)
+        else
+            figYAxis([],'dF/F',exCellTCLim)  
+        end
+        vline(lateWinTT,'k--')
+        hline(0,'k:')
+        figAxForm([],0)
+        title(sprintf('Example Cell #%s',num2str(exampleCell)))
+        
+        subplot(3,4,2+plotOffset)
+        y = antiAnalysis.earlyCycTC{allTrialsInd}(tcStartFrame:end,exampleCell);
+        yerr = antiAnalysis.earlyCycTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
+        shadedErrorBar_chooseColor(tt_cycTC,y,yerr,[0 0 0]);
+        hold on
+        figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+        if icell == 3
+            figYAxis([],'dF/F',exCellTCLim-0.06)
+        else
+            figYAxis([],'dF/F',exCellTCLim)  
+        end
+        vline(lateWinTT,'k--')
+        hline(0,'k:')
+        figAxForm([],0)
+        title(sprintf('Example Cell #%s',num2str(exampleCell)))
+        
+        subplot(3,4,3+plotOffset)
+        y = antiAnalysis.lateCycTC{allTrialsInd}(tcStartFrame:end,exampleCell);
+        yerr = antiAnalysis.lateCycTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
+        shadedErrorBar_chooseColor(tt_cycTC,y,yerr,[0 0 0]);
+        hold on
+        figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+        if icell == 3
+            figYAxis([],'dF/F',exCellTCLim-0.06)
+        else
+            figYAxis([],'dF/F',exCellTCLim)  
+        end
+        vline(lateWinTT,'k--')
+        hline(0,'k:')
+        figAxForm([],0)
+        title(sprintf('Example Cell #%s',num2str(exampleCell)))
+
+        subplot(3,4,4+plotOffset)
+        y = cellInfo.oriResp(exampleCell,:);
+        yerr = cellInfo.oriRespErr(exampleCell,:);
+        errorbar(orientations,y,yerr,'.')
+        hold on
+        x = 0:180;
+        y = cellInfo.oriFit(exampleCell,:);
+        plot(x,y,'-')
+        figXAxis([],'Orienation (deg)',[-10 190])
+        figYAxis([],'dF/F',oriRespLim)
         figAxForm
+        title(sprintf('Passive Ori. Tuning, Cell #%s',num2str(exampleCell)));
     end
-    print([fnout 'exCellResponses' decodeDataExpt(iexp).exptName],...
-        '-dpdf','-fillpage')
+    print([fnout 'exampleCellsTCWithTuning'],'-dpdf','-fillpage')
+elseif strcmp(ds,'FSAV_attentionV1_noAttn')
+    setFigParams4Print('landscape')
+    exCellInd = [exampleCell_2];
+    figure
+    for icell = 1:length(exCellInd)
+        exampleCell = exCellInd(icell);
+        if icell == 1
+            plotOffset = 0;
+        else
+            plotOffset = plotOffset+4;
+        end
+        subplot(3,4,1+plotOffset)
+        y = antiAnalysis.longTC{allTrialsInd}(tcStartFrame:end,exampleCell);
+        yerr = antiAnalysis.longTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
+        shadedErrorBar_chooseColor(tt_longTC,y,yerr,[0 0 0]);
+        hold on
+        figXAxis([],'Time (ms)',[tt_longTC(1) tt_longTC(end)],ttLabel_long,ttLabel_long)
+        if icell == 3
+            figYAxis([],'dF/F',exCellTCLim-0.06)
+        else
+            figYAxis([],'dF/F',exCellTCLim)  
+        end
+        vline(lateWinTT,'k--')
+        hline(0,'k:')
+        figAxForm([],0)
+        title(sprintf('Example Cell #%s',num2str(exampleCell)))
+        
+        subplot(3,4,2+plotOffset)
+        y = antiAnalysis.earlyCycTC{allTrialsInd}(tcStartFrame:end,exampleCell);
+        yerr = antiAnalysis.earlyCycTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
+        shadedErrorBar_chooseColor(tt_cycTC,y,yerr,[0 0 0]);
+        hold on
+        figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+        if icell == 3
+            figYAxis([],'dF/F',exCellTCLim-0.06)
+        else
+            figYAxis([],'dF/F',exCellTCLim)  
+        end
+        vline(lateWinTT,'k--')
+        hline(0,'k:')
+        figAxForm([],0)
+        title(sprintf('Example Cell #%s',num2str(exampleCell)))
+        
+        subplot(3,4,3+plotOffset)
+        y = antiAnalysis.lateCycTC{allTrialsInd}(tcStartFrame:end,exampleCell);
+        yerr = antiAnalysis.lateCycTCErr{allTrialsInd}(tcStartFrame:end,exampleCell);
+        shadedErrorBar_chooseColor(tt_cycTC,y,yerr,[0 0 0]);
+        hold on
+        figXAxis([],'Time (ms)',[tt_cycTC(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+        if icell == 3
+            figYAxis([],'dF/F',exCellTCLim-0.06)
+        else
+            figYAxis([],'dF/F',exCellTCLim)  
+        end
+        vline(lateWinTT,'k--')
+        hline(0,'k:')
+        figAxForm([],0)
+        title(sprintf('Example Cell #%s',num2str(exampleCell)))
+
+        subplot(3,4,4+plotOffset)
+        y = cellInfo.oriResp(exampleCell,:);
+        yerr = cellInfo.oriRespErr(exampleCell,:);
+        errorbar(orientations,y,yerr,'.')
+        hold on
+        x = 0:180;
+        y = cellInfo.oriFit(exampleCell,:);
+        plot(x,y,'-')
+        figXAxis([],'Orienation (deg)',[-10 190])
+        figYAxis([],'dF/F',oriRespLim)
+        figAxForm
+        title(sprintf('Passive Ori. Tuning, Cell #%s',num2str(exampleCell)));
+    end
+    print([fnout 'exampleCellsTCWithTuning'],'-dpdf','-fillpage')
 end
 %% plot orientation analysis (Figure 3)
 if strcmp(ds,'FSAV_attentionV1')
