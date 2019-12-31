@@ -35,6 +35,8 @@ maxPCs = 20;
 minTrN_lateresp = 186;
 minTrN_firstresp = 110;
 minTrN_latewin = 24;
+
+pctCorrThresh = 0.55;
 %% colors
 cueColor = {[0 0 0];[.5 .5 1]};
 AVColor = {[0 0 0];[0.5 0.5 0.5]};
