@@ -1,6 +1,6 @@
-date = '190621';
+date = '190824';
 ImgFolder = strvcat('002');
-time = strvcat('1202');
+time = strvcat('1240');
 mouse = 'i1303';
 nrun = size(ImgFolder,1);
 frame_rate = 15;
@@ -53,7 +53,7 @@ for irun = 1:nrun
     data = cat(3,data,data_temp);
     trial_n = [trial_n nframes];
 end
-input = concatenateStructures(temp);
+input = concatenateStructuresLG(temp);
 clear data_temp
 clear temp
 toc
@@ -63,7 +63,7 @@ nep = floor(size(data,3)./10000);
 [n n2] = subplotn(nep);
 figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*10000):500+((i-1)*10000)),3)); title([num2str(1+((i-1)*10000)) '-' num2str(500+((i-1)*10000))]); colormap gray; clim([0 3000]); end
 
-data_avg = mean(data(:,:,40001:40500),3);
+data_avg = mean(data(:,:,50001:50500),3);
 %% Register data
 
 [out, data_reg] = stackRegister(data,data_avg);
@@ -132,7 +132,7 @@ data_adapt_dfof = (data_adapt-data_f)./data_f;
 data_test_dfof = (data_test-data_f)./data_f;
 
 data_adapt_avg = zeros(sz(1),sz(2),3);
-n = input.trialsPerAdaptBlock;
+n = unique(input.trialsPerAdaptBlock);
 for i = 1:3
     x = [];
     for ii = 1:20
@@ -142,7 +142,7 @@ for i = 1:3
     data_adapt_avg(:,:,i) = nanmean(data_adapt_dfof(:,:,ind),3);
 end
 
-nTest = input.testGratingContrastStepN.*input.maskGratingContrastStepN;
+nTest = unique(input.testGratingContrastStepN).*unique(input.maskGratingContrastStepN);
 data_test_avg = zeros(sz(1),sz(2),nTest);
 testCon = celleqel2mat_padded(input.tTestStimGratingContrast);
 maskCon = celleqel2mat_padded(input.tTestMaskGratingContrast);
@@ -185,7 +185,7 @@ mask_data = data_dfof;
 for iStim = 1:size(data_dfof,3)   
     mask_data_temp = mask_data(:,:,end+1-iStim);
     mask_data_temp(find(mask_exp >= 1)) = 0;
-    bwout = imCellEditInteractive(mask_data_temp);
+    bwout = imCellEditInteractiveLG(mask_data_temp);
     if doRedChannel & iStim==1
         red_mask = bwout;
     end
@@ -432,61 +432,64 @@ end
 figure;
 start = 1;
 contadapt_resp_cell = cell(nMask,nTest);
-prefTest_contadapt_resp = zeros(nMask,nTest,2);
-prefMask_contadapt_resp = zeros(nMask,nTest,2);
-for im = 1:nMask
-    ind_mask = find(maskCon == maskCons(im));
-    for it = 1:nTest
-        ind_test = find(testCon == testCons(it));
-        ind = intersect(ind_contadapt,intersect(ind_test,ind_mask));
-        subplot(nMask,nTest,start)
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,preftest_ind,ind),2),3))
-        hold on
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmask_ind,ind),2),3))
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaid_ind,ind),2),3))
-        contadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
-        prefTest_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(preftest_ind,:),1),2);
-        prefTest_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(preftest_ind,:),2),[],1)./sqrt(length(preftest_ind));
-        prefMask_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(prefmask_ind,:),1),2);
-        prefMask_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(prefmask_ind,:),2),[],1)./sqrt(length(prefmask_ind));
-        title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
-        ylim([-0.1 0.4])
-        xlabel('Time (s)')
-        start = start+1;
+prefTest_contadapt_resp = nan(nMask,nTest,2);
+prefMask_contadapt_resp = nan(nMask,nTest,2);
+if length(ind_contadapt)>0
+    for im = 1:nMask
+        ind_mask = find(maskCon == maskCons(im));
+        for it = 1:nTest
+            ind_test = find(testCon == testCons(it));
+            ind = intersect(ind_contadapt,intersect(ind_test,ind_mask));
+            subplot(nMask,nTest,start)
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,preftest_ind,ind),2),3))
+            hold on
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmask_ind,ind),2),3))
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaid_ind,ind),2),3))
+            contadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
+            prefTest_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(preftest_ind,:),1),2);
+            prefTest_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(preftest_ind,:),2),[],1)./sqrt(length(preftest_ind));
+            prefMask_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(prefmask_ind,:),1),2);
+            prefMask_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(prefmask_ind,:),2),[],1)./sqrt(length(prefmask_ind));
+            title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
+            ylim([-0.1 0.4])
+            xlabel('Time (s)')
+            start = start+1;
+        end
     end
+    suptitle(['Contingent adapt-  Blue Test Pref (n = ' num2str(length(preftest_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmask_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaid_ind)) ')'])
+    print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Contingent_TCs.pdf']),'-dpdf','-bestfit');
 end
-suptitle(['Contingent adapt-  Blue Test Pref (n = ' num2str(length(preftest_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmask_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaid_ind)) ')'])
-print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Contingent_TCs.pdf']),'-dpdf','-bestfit');
-
 
 figure;
 start = 1;
 asynadapt_resp_cell = cell(nMask,nTest);
-prefTest_asynadapt_resp = zeros(nMask,nTest,2);
-prefMask_asynadapt_resp = zeros(nMask,nTest,2);
-for im = 1:nMask
-    ind_mask = find(maskCon == maskCons(im));
-    for it = 1:nTest
-        ind_test = find(testCon == testCons(it));
-        ind = intersect(ind_asynadapt,intersect(ind_test,ind_mask));
-        subplot(nMask,nTest,start)
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,preftest_ind,ind),2),3))
-        hold on
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmask_ind,ind),2),3))
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaid_ind,ind),2),3))
-        asynadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
-        prefTest_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(preftest_ind,:),1),2);
-        prefTest_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(preftest_ind,:),2),[],1)./sqrt(length(preftest_ind));
-        prefMask_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(prefmask_ind,:),1),2);
-        prefMask_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(prefmask_ind,:),2),[],1)./sqrt(length(prefmask_ind));
-        title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
-        ylim([-0.1 0.4])
-        xlabel('Time (s)')
-        start = start+1;
+prefTest_asynadapt_resp = nan(nMask,nTest,2);
+prefMask_asynadapt_resp = nan(nMask,nTest,2);
+if length(ind_asynadapt)>0
+    for im = 1:nMask
+        ind_mask = find(maskCon == maskCons(im));
+        for it = 1:nTest
+            ind_test = find(testCon == testCons(it));
+            ind = intersect(ind_asynadapt,intersect(ind_test,ind_mask));
+            subplot(nMask,nTest,start)
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,preftest_ind,ind),2),3))
+            hold on
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmask_ind,ind),2),3))
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaid_ind,ind),2),3))
+            asynadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
+            prefTest_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(preftest_ind,:),1),2);
+            prefTest_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(preftest_ind,:),2),[],1)./sqrt(length(preftest_ind));
+            prefMask_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(prefmask_ind,:),1),2);
+            prefMask_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(prefmask_ind,:),2),[],1)./sqrt(length(prefmask_ind));
+            title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
+            ylim([-0.1 0.4])
+            xlabel('Time (s)')
+            start = start+1;
+        end
     end
+    suptitle(['Asynchronous adapt-  Blue Test Pref (n = ' num2str(length(preftest_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmask_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaid_ind)) ')'])
+    print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Asynchronous_TCs.pdf']),'-dpdf','-bestfit');
 end
-suptitle(['Asynchronous adapt-  Blue Test Pref (n = ' num2str(length(preftest_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmask_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaid_ind)) ')'])
-print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Asynchronous_TCs.pdf']),'-dpdf','-bestfit');
 
 figure;
 start = 1;
@@ -521,68 +524,70 @@ print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run
 figure;
 start = 1;
 contadapt_resp_cell = cell(nMask,nTest);
-prefTestOnly_contadapt_resp = zeros(nMask,nTest,2);
-prefMaskOnly_contadapt_resp = zeros(nMask,nTest,2);
-prefPlaidOnly_contadapt_resp = zeros(nMask,nTest,2);
-for im = 1:nMask
-    ind_mask = find(maskCon == maskCons(im));
-    for it = 1:nTest
-        ind_test = find(testCon == testCons(it));
-        ind = intersect(ind_contadapt,intersect(ind_test,ind_mask));
-        subplot(nMask,nTest,start)
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,preftestonly_ind,ind),2),3))
-        hold on
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmaskonly_ind,ind),2),3))
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaidonly_ind,ind),2),3))
-        contadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
-        prefTestOnly_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(preftestonly_ind,:),1),2);
-        prefTestOnly_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(preftestonly_ind,:),2),[],1)./sqrt(length(preftestonly_ind));
-        prefMaskOnly_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(prefmaskonly_ind,:),1),2);
-        prefMaskOnly_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(prefmaskonly_ind,:),2),[],1)./sqrt(length(prefmaskonly_ind));
-        prefPlaidOnly_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(prefplaidonly_ind,:),1),2);
-        prefPlaidOnly_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(prefplaidonly_ind,:),2),[],1)./sqrt(length(prefplaidonly_ind));
-        title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
-        ylim([-0.1 0.4])
-        xlabel('Time (s)')
-        start = start+1;
+prefTestOnly_contadapt_resp = nan(nMask,nTest,2);
+prefMaskOnly_contadapt_resp = nan(nMask,nTest,2);
+prefPlaidOnly_contadapt_resp = nan(nMask,nTest,2);
+if length(ind_contadapt)>0
+    for im = 1:nMask
+        ind_mask = find(maskCon == maskCons(im));
+        for it = 1:nTest
+            ind_test = find(testCon == testCons(it));
+            ind = intersect(ind_contadapt,intersect(ind_test,ind_mask));
+            subplot(nMask,nTest,start)
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,preftestonly_ind,ind),2),3))
+            hold on
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmaskonly_ind,ind),2),3))
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaidonly_ind,ind),2),3))
+            contadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
+            prefTestOnly_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(preftestonly_ind,:),1),2);
+            prefTestOnly_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(preftestonly_ind,:),2),[],1)./sqrt(length(preftestonly_ind));
+            prefMaskOnly_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(prefmaskonly_ind,:),1),2);
+            prefMaskOnly_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(prefmaskonly_ind,:),2),[],1)./sqrt(length(prefmaskonly_ind));
+            prefPlaidOnly_contadapt_resp(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(prefplaidonly_ind,:),1),2);
+            prefPlaidOnly_contadapt_resp(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(prefplaidonly_ind,:),2),[],1)./sqrt(length(prefplaidonly_ind));
+            title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
+            ylim([-0.1 0.4])
+            xlabel('Time (s)')
+            start = start+1;
+        end
     end
+    suptitle(['Contingent adapt-  Blue Test Pref (n = ' num2str(length(preftestonly_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmaskonly_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaidonly_ind)) ')'])
+    print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Contingent_TCs_only.pdf']),'-dpdf','-bestfit');
 end
-suptitle(['Contingent adapt-  Blue Test Pref (n = ' num2str(length(preftestonly_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmaskonly_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaidonly_ind)) ')'])
-print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Contingent_TCs_only.pdf']),'-dpdf','-bestfit');
-
 
 figure;
 start = 1;
 asynadapt_resp_cell = cell(nMask,nTest);
-prefTestOnly_asynadapt_resp = zeros(nMask,nTest,2);
-prefMaskOnly_asynadapt_resp = zeros(nMask,nTest,2);
-prefPlaidOnly_asynadapt_resp = zeros(nMask,nTest,2);
-for im = 1:nMask
-    ind_mask = find(maskCon == maskCons(im));
-    for it = 1:nTest
-        ind_test = find(testCon == testCons(it));
-        ind = intersect(ind_asynadapt,intersect(ind_test,ind_mask));
-        subplot(nMask,nTest,start)
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,preftestonly_ind,ind),2),3))
-        hold on
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmaskonly_ind,ind),2),3))
-        plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaidonly_ind,ind),2),3))
-        asynadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
-        prefTestOnly_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(preftestonly_ind,:),1),2);
-        prefTestOnly_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(preftestonly_ind,:),2),[],1)./sqrt(length(preftestonly_ind));
-        prefMaskOnly_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(prefmaskonly_ind,:),1),2);
-        prefMaskOnly_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(prefmaskonly_ind,:),2),[],1)./sqrt(length(prefmaskonly_ind));
-        prefPlaidOnly_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(prefplaidonly_ind,:),1),2);
-        prefPlaidOnly_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(prefplaidonly_ind,:),2),[],1)./sqrt(length(prefplaidonly_ind));
-        title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
-        ylim([-0.1 0.4])
-        xlabel('Time (s)')
-        start = start+1;
+prefTestOnly_asynadapt_resp = nan(nMask,nTest,2);
+prefMaskOnly_asynadapt_resp = nan(nMask,nTest,2);
+prefPlaidOnly_asynadapt_resp = nan(nMask,nTest,2);
+if length(ind_asynadapt)>0
+    for im = 1:nMask
+        ind_mask = find(maskCon == maskCons(im));
+        for it = 1:nTest
+            ind_test = find(testCon == testCons(it));
+            ind = intersect(ind_asynadapt,intersect(ind_test,ind_mask));
+            subplot(nMask,nTest,start)
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,preftestonly_ind,ind),2),3))
+            hold on
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmaskonly_ind,ind),2),3))
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaidonly_ind,ind),2),3))
+            asynadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
+            prefTestOnly_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(preftestonly_ind,:),1),2);
+            prefTestOnly_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(preftestonly_ind,:),2),[],1)./sqrt(length(preftestonly_ind));
+            prefMaskOnly_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(prefmaskonly_ind,:),1),2);
+            prefMaskOnly_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(prefmaskonly_ind,:),2),[],1)./sqrt(length(prefmaskonly_ind));
+            prefPlaidOnly_asynadapt_resp(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(prefplaidonly_ind,:),1),2);
+            prefPlaidOnly_asynadapt_resp(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(prefplaidonly_ind,:),2),[],1)./sqrt(length(prefplaidonly_ind));
+            title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
+            ylim([-0.1 0.4])
+            xlabel('Time (s)')
+            start = start+1;
+        end
     end
+    suptitle(['Asynchronous adapt-  Blue Test Pref (n = ' num2str(length(preftestonly_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmaskonly_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaidonly_ind)) ')'])
+    print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Asynchronous_TCs_only.pdf']),'-dpdf','-bestfit');
 end
-suptitle(['Asynchronous adapt-  Blue Test Pref (n = ' num2str(length(preftestonly_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmaskonly_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaidonly_ind)) ')'])
-print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Asynchronous_TCs_only.pdf']),'-dpdf','-bestfit');
-
 save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allCellResp.mat']),'noadapt_resp_cell','asynadapt_resp_cell', 'contadapt_resp_cell','preftestonly_ind','prefmaskonly_ind','prefplaidonly_ind','resptest_ind','respmask_ind','respplaid_ind');
 figure;
 subplot(1,3,1)
