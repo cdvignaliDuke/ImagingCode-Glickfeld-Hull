@@ -2,7 +2,7 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
 %cellsOrDendrites: 1 == cells; 2 == dendrites
     % set analysis windows
     pre_event_time = 1000; %ms
-    post_event_time = 2000; %ms
+    post_event_time = 4500; %ms
     resp_win_time = 100; %ms
     pre_win_time = [-30 70];
     trans_win_time = [150 250]; %this is actually ~166-266 ms at 30 Hz
@@ -188,7 +188,11 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
         offset = 0;
         for irun = 1:nrun
             ImgFolder = expt(iexp).runs(irun,:);
-            nfr_run = nFramesSbxDataset(expt(iexp).mouse,expt(iexp).date,ImgFolder);
+            if isempty(expt(iexp).nframesPerRun)
+                nfr_run = nFramesSbxDataset(expt(iexp).mouse,expt(iexp).date,ImgFolder);
+            else
+                nfr_run = expt(iexp).nframesPerRun{irun};
+            end
             offset = offset+nfr_run;
             if irun < nrun
                 startTrial = sum(run_trials(1, 1:irun),2)+1;
@@ -247,10 +251,10 @@ function mouse = createFSAVDataStruct2(datasetStr,cellsOrDendrites)
         
         if expt(iexp).catch
             isCatchTrial = logical(cell2mat(input.tShortCatchTrial));
+        isCatchTrial = isCatchTrial(tr);
         else
             isCatchTrial = false(1,ntrials);
         end
-        isCatchTrial = isCatchTrial(tr);
 
         tGratingDirectionDeg = chop(celleqel2mat_padded(input.tGratingDirectionDeg),4);
         tGratingDirectionDeg = tGratingDirectionDeg(tr);

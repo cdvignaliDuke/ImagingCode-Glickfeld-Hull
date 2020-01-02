@@ -1,10 +1,10 @@
 clear 
 clear global
 close all
-ds = 'FSAV_V1_SOM'; %dataset info
+ds = 'FSV_V1'; %dataset info
 rc = behavConstsAV; %directories
 eval(ds)
-slct_expt = 15; %which expt from ds to analyze
+slct_expt = 38; %which expt from ds to analyze
 doPreviousReg = false;
 doGreenOnly = false;
 nRedFrames = 20000;
@@ -121,15 +121,19 @@ end
 if doPreviousReg
     load([fnout '\regOuts&Img'])
     [~,data_bx_g_reg] = stackRegister_MA(data_bx_g,[],[],double(out_bx));
-    data_bx_r = data_bx_r(:,:,1:nRedFrames);
-    [~,data_bx_r_reg] = stackRegister_MA(data_bx_r,[],[],double(out_bx(1:nRedFrames,:)));   
-    clear data_bx_g 
+    if ~doGreenOnly
+        if expt(slct_expt).greenredsimultaneous == 1
+            data_bx_r = data_bx_r(:,:,1:nRedFrames);
+            [~,data_bx_r_reg] = stackRegister_MA(data_bx_r,[],[],double(out_bx(1:nRedFrames,:)));   
+        end
+    end
+    clear data_bx_g
 elseif expt(slct_expt).greenredsimultaneous == 0
     regImg = mean(data_bx_g(:,:,regImgStartFrame:(regImgStartFrame+99)),3);
     figure;imagesc(regImg);colormap gray
     [out_bx,data_bx_g_reg] = stackRegister(data_bx_g,regImg);
     clear data_bx_g
-    save([fnout 'regOuts&Img'],'out_bx','regImg')
+    save([fnout '\regOuts&Img'],'out_bx','regImg')
 else
     data_bx_r = data_bx_r(:,:,1:nRedFrames);
     regImg = mean(data_bx_g(:,:,regImgStartFrame:(regImgStartFrame+99)),3);
@@ -138,7 +142,7 @@ else
     [~,data_bx_r_reg] = stackRegister_MA(data_bx_r,[],[],out_bx(1:nRedFrames,:));
 %     [out_tun,data_tun_reg] = stackRegister(data_tun,regImg);
     clear data_bx_g data_bx_r
-    save([fnout 'regOuts&Img'],'out_bx','regImg')
+    save([fnout '\regOuts&Img'],'out_bx','regImg')
 end
 
 % save some F images as tifs
@@ -171,7 +175,7 @@ else
     writetiff(redChImg,fullfile(fnout,'redChannelRun'))
 end
 %% get task max dF/F for 1st resp, mid resp, and target resp
-
+data_bx_reg = data_bx_g_reg;
 getTaskMaxDFF
 
 close all
@@ -222,7 +226,7 @@ if doGreenOnly
     imagesc(green_mask_cell);
     title({sprintf('%s %s cells with behavior',...
         num2str(length(unique(green_mask_cell(:)))-1), ...
-        expt(slct_expt).redChannelLabel);[mouse '-' expDate]})
+        expt(slct_expt).greenChannelLabel);[mouse '-' expDate]})
     print(fullfile(fnout,'final_mask_cells'),'-dpdf')
     save(fullfile(fnout,'final_mask_cells.mat'),'green_mask_cell');
 else
@@ -233,7 +237,7 @@ else
     figure; setFigParams4Print('portrait')
     subplot 211
     imagesc(green_mask_cell);
-    title({sprintf('%s %s- cells with behavior',...
+    title({sprintf('%s %s+ cells with behavior',...
         num2str(length(unique(green_mask_cell(:)))-1), ...
         expt(slct_expt).redChannelLabel);[mouse '-' expDate]})
     subplot 212
@@ -270,6 +274,7 @@ else
 end
 clear data_bx_g_reg data_bx_r_reg
 %% register passive expt, get TCs
+load(fullfile(fnout,'final_mask_cells.mat'),'green_mask_cell','red_mask_cell');
 if isfield(expt,'passExpt') 
     if ~isnan(expt(slct_expt).passExpt)
         fName = [expt(slct_expt).passExpt '_000_000'];
@@ -278,8 +283,8 @@ if isfield(expt,'passExpt')
         nfr_pass = size(data_pass_g,3);
 
 %         [out_pass,data_pass_r_reg] = stackRegister(data_pass_r,regImg);
-        [~,data_pass_g_reg] = stackRegister(data_pass_g,regImg);
-        save(fullfile(fnout,'regOuts&Img_pass.mat'),'out_bx','out_pass','regImg')
+        [out_pass,data_pass_g_reg] = stackRegister(data_pass_g,regImg);
+        save(fullfile(fnout,'regOuts&Img_pass.mat'),'out_pass','regImg')
         clear data_pass_g data_pass_r
 
         frInterval_pass = 1:floor((nfr_pass-100)/nImg):nfr_pass-100;
