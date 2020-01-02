@@ -1,0 +1,47 @@
+params.frameRate = 15.49;
+params.nBaselineMs = 1000;
+params.nPostStimMs = 2000;
+params.nFramesVisDelay_VSR = 4;
+params.motionCutoff = 0.2;
+params.itiTimeS = 2;
+
+%% 1308 190827
+expt(1).mouse = '1308';
+expt(1).date = '190827';
+expt(1).img_loc  = {'PM';'L2/3'};
+expt(1).inj_loc = {'PM'};
+expt(1).z = -200;
+expt(1).img_strct  = {'cells'};
+expt(1).indicator = {'AAV';'GCaMP7f'};
+expt(1).label = {nan;nan};
+expt(1).labelFolder = nan;
+expt(1).matchExptDate = nan;
+expt(1).retinotopyFolder = {'002'};
+expt(1).retinotopyTime = {'1658'};
+expt(1).sizeTuningFolder = {'003'};
+expt(1).sizeTuningTime = {'1751'};
+expt(1).areaBorders = 0;
+expt(1).regImgStartFrame = '';
+expt(1).saveLoc = 'lindsey';
+expt(1).genotype = 'syt7KO';
+
+%% 1308 190913
+expt(2).mouse = '1308';
+expt(2).date = '190913';
+expt(2).img_loc  = {'PM';'L2/3'};
+expt(2).inj_loc = {'PM'};
+expt(2).z = -250;
+expt(2).img_strct  = {'cells'};
+expt(2).indicator = {'AAV';'GCaMP7f'};
+expt(2).label = {nan;nan};
+expt(2).labelFolder = nan;
+expt(2).matchExptDate = nan;
+expt(2).retinotopyFolder = {'002'};
+expt(2).retinotopyTime = {'1320'};
+expt(2).sizeTuningFolder = {'003'};
+expt(2).sizeTuningTime = {'1353'};
+expt(2).areaBorders = 0;
+expt(2).regImgStartFrame = '';
+expt(2).saveLoc = 'lindsey';
+expt(2).genotype = 'syt7KO';
+
