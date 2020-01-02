@@ -9,8 +9,8 @@
 clear all;clc;
 
 ds = 'szTuning_syt7_V1';
-iexp = 9;
-doSecondSizeTuning = 0;
+iexp = 11;
+doSecondSizeTuning = 1;
 rc = behavConstsAV;
 eval(ds)
 
@@ -693,7 +693,7 @@ fit_true_vec = NaN(nCells,10,nrun);
     %% plot cells with size tuning curve and shuffle results
     %chosen=[44 54]; %[31 41 45 46 52 64 67 71 72 73 75 77 79 83 89];
     %chosen = goodfit_ind_size;
-    chosen = [1:5];
+    chosen = [1:nCells];
     Npars = size(fit_shuf_vec,2);
     lbub_fits = NaN(nCells,Npars,5);
     alpha_bound = .025;
@@ -804,6 +804,7 @@ fit_true_vec = NaN(nCells,10,nrun);
                         ylim([0 Nshuf])
                         title(['Ftest shuffles cell #' num2str(iCell)])
                         xlabel('Ftest')
+                        suptitle(['Cell dist ' num2str(cellDists(iCell))])
                         pause
                 end
             end
@@ -839,7 +840,7 @@ for iCell = 1:nCells
 end
 
 % is model1 + is model2
-ism1 = intersect(goodfit_ind_size, find(~lbub_fits(:,8,4)));
+ism1 = intersect(goodfit_ind_size, find(lbub_fits(:,8,4)==0));
 ism2 = intersect(goodfit_ind_size, find(lbub_fits(:,8,4)));
 
 fprintf(['#Good cells = ' num2str(length(goodfit_ind_size)) '\nModel 1: ' num2str(length(ism1)) ', Model 2: ' num2str(length(ism2)) '\nSaving good fits\n'])
@@ -890,8 +891,8 @@ xlim([0 80])
 axis square
 xlabel('Pref size (deg)')
 ylabel('# neurons')
-expLoc = expt(1).img_loc{1};
-expStrct = cell2mat(expt(1).img_strct);
+expLoc = expt(iexp).img_loc{1};
+expStrct = cell2mat(expt(iexp).img_strct);
 suptitle([mouse ' ' expDate ' ' expLoc ' ' expStrct])
 
 print(fullfile(fnout, dataFolder, [mouse '_' expDate '_avgTuning_goodfits_10deg.pdf']), '-dpdf','-bestfit')
