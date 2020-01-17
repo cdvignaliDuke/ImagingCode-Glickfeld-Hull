@@ -22,7 +22,7 @@ expt(1).trial_range = 1:110;
 expt(1).attentionTask = true;
 expt(1).hasAttention = false;
 expt(1).label = nan;
-expt(1).eyeradrange = [4 40];
+expt(1).eyeradrange = nan;
 expt(1).nframesPerRun = [];
 %% AW70 170222
 expt(2).SubNum = '670';
@@ -48,6 +48,7 @@ expt(2).trial_range = [1:65,120:182];
 expt(2).attentionTask = true;
 expt(2).hasAttention = false;
 expt(2).label = nan;
+expt(2).eyeradrange = [4 40];
 
 %% AW72 170224
 expt(3).SubNum = '672';
@@ -73,7 +74,7 @@ expt(3).trial_range = nan;
 expt(3).attentionTask = true;
 expt(3).hasAttention = false;
 expt(3).label = nan;
-expt(3).eyeradrange = [4 40];
+expt(3).eyeradrange = [10 40];
 
 %% AW72 170227
 expt(4).SubNum = '672';
@@ -99,7 +100,7 @@ expt(4).trial_range = nan;
 expt(4).attentionTask = true;
 expt(4).hasAttention = false;
 expt(4).label = nan;
-expt(4).eyeradrange = [4 40];
+expt(4).eyeradrange = [10 40];
 
 %% AW72 170301
 expt(5).SubNum = '672';
@@ -125,7 +126,7 @@ expt(5).trial_range = 1:150;
 expt(5).attentionTask = true;
 expt(5).hasAttention = false;
 expt(5).label = nan;
-expt(5).eyeradrange = [4 40];
+expt(5).eyeradrange = [10 40];
 
 %% AW72 170303
 expt(6).SubNum = '672';
@@ -151,7 +152,7 @@ expt(6).trial_range = 1:150;
 expt(6).attentionTask = true;
 expt(6).hasAttention = false;
 expt(6).label = nan;
-expt(6).eyeradrange = [4 40];
+expt(6).eyeradrange = [10 40];
 
 % %% AW82 170830
 % expt(7).SubNum = '682';
@@ -203,7 +204,7 @@ expt(7).trial_range = nan;
 expt(7).attentionTask = true;
 expt(7).hasAttention = false;
 expt(7).label = nan;
-expt(7).eyeradrange = [4 40];
+expt(7).eyeradrange = [10 40];
 %% 750 180618
 expt(8).SubNum = '750';
 expt(8).mouse = '750';

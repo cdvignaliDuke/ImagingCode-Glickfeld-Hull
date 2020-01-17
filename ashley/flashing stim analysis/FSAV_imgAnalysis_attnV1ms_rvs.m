@@ -1,9 +1,9 @@
 clear all
 close all
-ds = 'FSAV_attentionV1'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
+ds = 'FSAV_V1_naive_GCaMP6m'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
 cellsOrDendrites = 1;
 doLoadPreviousAnalysis = true;
-analysisDate = '200108';
+analysisDate = '200113';
 attnAnalysisDate = '191211';
 doDecoding = false;
 %%
@@ -58,7 +58,7 @@ movWinLabelFr_target = 30:(30+nMovWin-1);
 
 % minCellN_SIFRmatch = 36;
 
-trOutType = {'h';'m';'fa';'cr'};
+trOutType = {'h';'m';'fa';'cr';'yes';'no'};
 % trOutTypeName = {'H-All';'H-HT';'H-ET';'M-All';'M-HT';'M-ET';'FA';'CR'};
 % trOutTypeName = {'H';'M';'FA';'CR'};
 %% pool experiment data
@@ -185,13 +185,16 @@ else
                 rng(0)
                 trOutTC = cell(1,length(trOutType));
                 
-                hitInd = strcmp(trOut,'h');
-                missInd = strcmp(trOut,'m');
-                matchInd = getMatchedOutcomeTrialIndex(...
-                    trOut,trStimID,minTrN);
-                
-                trOutTC = {trTC(:,:,matchInd & hitInd),trTC(:,:,matchInd & missInd),...
-                    trTC(:,:,strcmp(trOut,'fa')),trTC(:,:,strcmp(trOut,'cr'))};
+                if strcmp(ds,'FSAV_attentionV1') | strcmp(ds,'FSAV_attentionV1_noAttn')
+                    hitInd = strcmp(trOut,'h');
+                    missInd = strcmp(trOut,'m');
+                    matchInd = getMatchedOutcomeTrialIndex(...
+                        trOut,trStimID,minTrN);
+                    trOutTC = {trTC(:,:,matchInd & hitInd),trTC(:,:,matchInd & missInd),...
+                        trTC(:,:,strcmp(trOut,'fa')),trTC(:,:,strcmp(trOut,'cr')),...
+                        cat(3,trTC(:,:,matchInd & hitInd),trTC(:,:,strcmp(trOut,'fa'))),...
+                        cat(3,trTC(:,:,matchInd & missInd),trTC(:,:,strcmp(trOut,'cr')))};
+                end
                 targetDataExpt(exptN).av(iav).trOutTC = trOutTC;
 
                 de = d.av(iav).align(alignStart);
@@ -568,48 +571,6 @@ if doDecoding
                     respAllCells = respAllCells_aud;
 %                     trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
                 end
-%                 nStimPerBin = histcounts(trStimID);
-%                 minBinN = min(nStimPerBin(nStimPerBin >= minTrN_mdl));
-%                 respStimSort = cell(1,nStimBins);
-%                 trOutStimSort = cell(1,nStimBins);
-%                 for istim = 1:nStimBins
-%                     ind = find(trStimID == istim);
-%                     if length(ind) >= minTrN_mdl
-%                         if istim == 1
-%                             matchTrialsInd = [];
-%                             if sum(nStimPerBin >= minTrN_mdl) == 2
-%                                 n = minBinN;
-%                             elseif minBinN == nStimPerBin(istim)
-%                                 error('not enough FA/CR trials')
-%                             else
-%                                 n = (nStimBins-1).*minBinN;
-%                                 if n > length(ind)
-%                                     error('not enough FA/CR trials')
-%                                 end
-%                             end
-%                             indSample = randsample(ind,n);
-%                             matchTrialsInd = cat(2,matchTrialsInd,indSample);
-%                         else
-%                             indSample = randsample(ind,minBinN);
-%                             matchTrialsInd = cat(2,matchTrialsInd,indSample);
-%                         end
-%                         respStimSort{istim} = respAllCells(indSample,:);
-% %                         trOutStimSort{istim} = trOut(indSample);
-%                     end
-%                 end
-%                 nMatchedTrials = cumsum(cellfun(@length,trOutStimSort));
-%                 for istim = 1:nStimBins
-%                     if istim == 1
-%                         stimSortInd = cell(1,nStimBins);
-%                         stimSortInd{istim} = 1:nMatchedTrials;
-%                     else
-%                         stimSortInd{istim} = ...
-%                             (nMatchedTrials(istim-1)+1):nMatchedTrials(istim);
-%                     end
-%                 end
-%                 trSampleIndOther{iav} = matchTrialsInd;
-%                 decodeAnalysis(iexp).av(iav).respAllCells = respAllCells(matchTrialsInd,:);
-%                 decodeAnalysis(iexp).av(iav).trOut = trOut(matchTrialsInd);
                 
                 emptyInd = cellfun(@isempty,respStimSort);
                 respStimSort(~emptyInd) = cellfun(@(x) x(:,1:nPCs),...
@@ -716,6 +677,8 @@ if doDecoding
                 decodeAnalysis(iexp).av(iav).correlationTarget = targetCorr;
                 decodeAnalysis(iexp).av(iav).weightDetect = detectWeight_cells;
                 decodeAnalysis(iexp).av(iav).weightTarget = targetWeight_cells;
+                decodeAnalysis(iexp).av(iav).weightDetect_pcs = detectWeight;
+                decodeAnalysis(iexp).av(iav).weightTarget_pcs = targetWeight;
                 decodeAnalysis(iexp).av(iav).pctCorrectAllDetect_train = pctCorrectDetect_train;
                 decodeAnalysis(iexp).av(iav).pctCorrectAllDetect_holdout = pctCorrectDetect_ho;
                 decodeAnalysis(iexp).av(iav).pctCorrectAllTarget_train = pctCorrectTarget_train;
@@ -1589,13 +1552,14 @@ end
         targetAnalysis.tc{3,auditoryTrials} = cat(2,targetAnalysis.tc{3,auditoryTrials},...
             mean(cat(3,targetDataExpt(iexp).av(auditoryTrials).tc{1},...
             targetDataExpt(iexp).av(auditoryTrials).tc{2}),3));
-        targetAnalysis.trOutTC(:,visualTrials) = cellfun(@(x,y) cat(2,x,mean(y(1:(nBaselineFr*2),:,:),3)),...
-            targetAnalysis.trOutTC(:,visualTrials),...
-            targetDataExpt(iexp).av(visualTrials).trOutTC','unif',0);
-        targetAnalysis.trOutTC(:,auditoryTrials) = cellfun(@(x,y) cat(2,x,mean(y(1:(nBaselineFr*2),:,:),3)),...
-            targetAnalysis.trOutTC(:,auditoryTrials),...
-            targetDataExpt(iexp).av(auditoryTrials).trOutTC','unif',0);
-
+        if strcmp(ds,'FSAV_attentionV1') | strcmp(ds,'FSAV_attentionV1')
+            targetAnalysis.trOutTC(:,visualTrials) = cellfun(@(x,y) cat(2,x,mean(y(1:(nBaselineFr*2),:,:),3)),...
+                targetAnalysis.trOutTC(:,visualTrials),...
+                targetDataExpt(iexp).av(visualTrials).trOutTC','unif',0);
+            targetAnalysis.trOutTC(:,auditoryTrials) = cellfun(@(x,y) cat(2,x,mean(y(1:(nBaselineFr*2),:,:),3)),...
+                targetAnalysis.trOutTC(:,auditoryTrials),...
+                targetDataExpt(iexp).av(auditoryTrials).trOutTC','unif',0);
+        end
         targetAnalysis.targets{visualTrials} = cat(2,targetAnalysis.targets{visualTrials},...
             cat(1,ones(1,nCells).*mean(targetDataExpt(iexp).av(visualTrials).targets{1}),...
             ones(1,nCells).*mean(targetDataExpt(iexp).av(visualTrials).targets{2})));
@@ -3197,7 +3161,11 @@ end
 print([fnout 'tuningAnalysis_oriGroupsMatchedSIxFR'],'-dpdf','-fillpage')  
 
 %% noise correlations
-
+load(fullfile(rc.ashley, 'Manuscripts','Attention V1','Matlab Figs','bxStats.mat'))
+ind = ismember(bxStats.mouseNames,mice);
+[~, bxDataSortInd] = sort(bxStats.mouseNames(ind));
+hrDiffAll = bxStats.av(visualTrials).matchedHRDiff(ind);
+hrDiff = hrDiffAll(bxDataSortInd);
 % example expt
 if strcmp(ds,'FSAV_attentionV1')
     iexp = 5;
@@ -3226,10 +3194,10 @@ ind = cellInfo.lateCycRespCells;
 suptitle(sprintf('Late Resp. Neurons, n=%s',num2str(sum(ind))))
 colormap(brewermap([],'*RdBu'));
 for iav = 1:2
-    subplot(3,2,iav)
+    subplot(4,2,iav)
     imagesc(antiAnalysis.rsc{iav}(ind,ind));
     caxis([-1 1])
-    title(sprintf('Lated %s Trials',avName{iav}))
+    title(sprintf('%s Trials',avName{iav}))
     colorbar
     figXAxis([],'Cell #',[])
     figYAxis([],'Cell #',[])
@@ -3240,12 +3208,12 @@ end
 % cellfun(@(x,y) splitapply(@mean,x,findgroups(discretize(
 % gm = antiAnalysis.gm{3}(ind);
 
-subplot 323
+subplot 423
 for iav = 1:2    
     rsc = antiAnalysis.rsc{iav}(ind,ind);
     halfInd = tril(true(sum(ind)),-1) & ~isnan(rsc);
     rsc = rsc(halfInd);
-    gm = antiAnalysis.gm{3}(ind,ind);
+    gm = antiAnalysis.gm{iav}(ind,ind);
     gm = gm(halfInd);
     
     binEdges = [min(gm),quantile(gm,3),max(gm)];
@@ -3261,14 +3229,14 @@ for iav = 1:2
         gm_binned_err,gm_binned_err,'.-')
     
 end
-figXAxis([],'Geometric Mean dF/F (All Trials)',[])
+figXAxis([],'Geometric Mean dF/F (All Trials)',[0 0.02])
 %     ax = gca;
 %     ax.XScale = 'log';
-figYAxis([],'Mean Noise Corr.',[])
+figYAxis([],'Mean Noise Corr.',[0 0.2])
 figAxForm
-legend(avName)
+legend(avName,'location','northeastoutside')
 
-subplot 324
+subplot 426
 rsc = antiAnalysis.rsc{visualTrials}(ind,ind);
 halfInd = tril(true(sum(ind)),-1) & ~isnan(rsc);
 x = rsc(halfInd);
@@ -3286,7 +3254,7 @@ errorbar(mean(x),mean(y),ste(y,1),ste(y,1),ste(x,1),ste(x,1),'.','MarkerSize',20
 title(sprintf('Vis:%s, Aud:%s, p=%s',num2str(round(mean(x),2,'significant')),...
     num2str(round(mean(y),2,'significant')),num2str(round(p,2,'significant'))))
 
-subplot 325
+subplot 425
 rsc = antiAnalysis.rsc{3}(ind,ind);
 halfInd = tril(true(sum(ind)),-1) & ~isnan(rsc);
 x = rsc(halfInd);
@@ -3312,7 +3280,7 @@ for iav = 1:2
     end
 end
 
-subplot 326
+subplot 427
 hold on
 for iav = 1:2
     errorbar(1:nOri,rsc_ori(iav,:),rsc_ori_err(iav,:),'.','MarkerSize',20)
@@ -3320,6 +3288,69 @@ end
 figXAxis([],'Ori Pref',[0 nOri+1],1:nOri,cellfun(@num2str,num2cell(orientations),'unif',0))
 figYAxis([],'Mean Noise Corr.',[0 0.2])
 figAxForm
+
+subplot 428
+ind = cellInfo.lateCycRespCells & cellInfo.isTuned;
+oriPref = cellInfo.oriPref(ind);
+samePrefInd = (oriPref-oriPref')==0;
+hold on
+for iav = 1:2    
+    rsc = antiAnalysis.rsc{iav}(ind,ind);
+    halfInd = tril(true(sum(ind)),-1) & ~isnan(rsc);
+    
+    x = rsc(halfInd & samePrefInd);
+    y = rsc(halfInd & ~samePrefInd);
+    errorbar(1:2,[mean(x),mean(y)],[ste(x,1),ste(y,1)],'.-','MarkerSize',20)
+end
+figXAxis([],'Ori Prefs of Pair',[0 3],1:2,{'Same','Diff'})
+figYAxis([],'Mean Noise Corr',[0 0.1])
+figAxForm
+title('tuned neurons')
+
+subplot 424
+ind = cellInfo.lateCycRespCells & cellInfo.isTuned;
+oriPref = cellInfo.oriPref(ind);
+samePrefInd = (oriPref-oriPref')==0;
+hold on
+for iav = 1:2    
+    rsc = antiAnalysis.rsc{iav}(ind,ind);
+    halfInd = tril(true(sum(ind)),-1) & ~isnan(rsc);
+    rsc = rsc(halfInd & samePrefInd);
+    gm = antiAnalysis.gm{iav}(ind,ind);
+    gm = gm(halfInd & samePrefInd);
+    
+    binEdges = [min(gm),quantile(gm,3),max(gm)];
+    [~,~,binID] = histcounts(gm,binEdges);
+    gm_binned = splitapply(@mean,gm,binID);
+    rsc_binned = splitapply(@mean,rsc,binID);
+    gm_binned_err = splitapply(@(x) ste(x,1),gm,binID);
+    rsc_binned_err = splitapply(@(x) ste(x,1),rsc,binID);
+    hold on
+    errorbar(gm_binned,rsc_binned,rsc_binned_err,rsc_binned_err,...
+        gm_binned_err,gm_binned_err,'.-')
+    
+    rsc = antiAnalysis.rsc{iav}(ind,ind);
+    halfInd = tril(true(sum(ind)),-1) & ~isnan(rsc);
+    rsc = rsc(halfInd & ~samePrefInd);
+    gm = antiAnalysis.gm{iav}(ind,ind);
+    gm = gm(halfInd & ~samePrefInd);
+    
+    binEdges = [min(gm),quantile(gm,3),max(gm)];
+    [~,~,binID] = histcounts(gm,binEdges);
+    gm_binned = splitapply(@mean,gm,binID);
+    rsc_binned = splitapply(@mean,rsc,binID);
+    gm_binned_err = splitapply(@(x) ste(x,1),gm,binID);
+    rsc_binned_err = splitapply(@(x) ste(x,1),rsc,binID);
+    hold on
+    errorbar(gm_binned,rsc_binned,rsc_binned_err,rsc_binned_err,...
+        gm_binned_err,gm_binned_err,'.-')
+end
+figXAxis([],'Geometric Mean dF/F (All Trials)',[0 0.02])
+%     ax = gca;
+%     ax.XScale = 'log';
+figYAxis([],'Mean Noise Corr.',[0 0.2])
+figAxForm
+legend({'Vis-Same','Vis-Dif','Aud-Same','Aud-Diff'},'location','northeastoutside')
 
 print([fnout 'corrAnalysis'],'-dpdf','-fillpage')
 
@@ -3373,7 +3404,7 @@ for im = 1:nMice
         - rsc_eaMs(auditoryTrials,im),'.','MarkerSize',20);
     h.Color = colors(im,:);
 end
-figXAxis([],'HR Diff (Vis-Aud)',[-0.2 0.5])
+figXAxis([],'HR Diff (Val-Inv)',[-0.2 0.5])
 figYAxis([],'Noise Corr. (Vis-Aud)',[-0.05 0.02])
 figAxForm
 subplot 223
@@ -3382,7 +3413,7 @@ for im = 1:nMice
     h = plot(hrDiff(im),rsc_eaMs(visualTrials,im),'.','MarkerSize',20);
     h.Color = colors(im,:);
 end
-figXAxis([],'HR Diff (Vis-Aud)',[-0.2 0.5])
+figXAxis([],'HR Diff (Val-Inv)',[-0.2 0.5])
 figYAxis([],'Vis Noise Corr.',[-.1 0.2])
 figAxForm
 subplot 224
@@ -3391,7 +3422,7 @@ for im = 1:nMice
     h = plot(hrDiff(im),rsc_eaMs(auditoryTrials,im),'.','MarkerSize',20);
     h.Color = colors(im,:);
 end
-figXAxis([],'HR Diff (Vis-Aud)',[-0.2 0.5])
+figXAxis([],'HR Diff (Val-Inv)',[-0.2 0.5])
 figYAxis([],'Aud Noise Corr.',[-.1 0.2])
 figAxForm
 
@@ -3658,7 +3689,7 @@ save([fnout 'imgStats'],'imgStats')
 figure
 ind = cellInfo.lateCycRespCells==1;
 for iav = 1:2
-    subplot(2,2,iav)
+    subplot(3,2,iav)
     L = [];
     r = nan(sum(ind),2);
     for iout = 1:2
@@ -3677,7 +3708,7 @@ for iav = 1:2
     hline(0,'k:')
     vline(respWinTT,'k--')
     figAxForm
-    legend(L,trOutType(3:4),'location','northwest')
+    legend(L,trOutType(iout),'location','northwest')
     title(sprintf('%s Dist Resp Cells, n=%s,p=%s',avName{iav},...
         num2str(sum(ind)),num2str(round(p,2,'significant'))))
     if iav == 1
@@ -3687,11 +3718,11 @@ for iav = 1:2
     end
 end
 for iav = 1:2
-    subplot(2,2,iav+2)
+    subplot(3,2,iav+2)
     if iav == 1
-        ind = cellInfo.targetRespCells;
+        ind = cellInfo.lateCycRespCells | cellInfo.targetRespCells;
     else
-        ind = cellInfo.lateCycRespCells;
+        ind = cellInfo.lateCycRespCells | cellInfo.targetRespCells;
     end
     L = [];
     r = nan(sum(ind),2);
@@ -3712,7 +3743,7 @@ for iav = 1:2
     figAxForm
     legend(L,trOutType(1:2),'location','northwest')
     if iav == 1
-        title(sprintf('%s Target Resp Cells, n=%s,p=%s',avName{iav},...
+        title(sprintf('%s Target or Dist Resp Cells, n=%s,p=%s',avName{iav},...
             num2str(sum(ind)),num2str(round(p,2,'significant'))))
         vline(visRTwindow(1),'b--')
     else
@@ -3720,19 +3751,43 @@ for iav = 1:2
             num2str(sum(ind)),num2str(round(p,2,'significant'))))
         vline(audRTwindow(1),'b--')
     end
+    
+    subplot(3,2,iav+4)
+    hold on
+    ind = cellInfo.lateCycRespCells | cellInfo.targetRespCells;
+    L = [];
+    r = nan(sum(ind),2);
+    for iout = 1:2
+        x = targetAnalysis.trOutTC{iout+4,iav}(:,ind);
+        h = shadedErrorBar_chooseColor(tt_targetTC(tcStartFrame:end),...
+            nanmean(x(tcStartFrame:end,:)-mean(x(basewin_0_target,:),1),2),...
+            ste(x(tcStartFrame:end,:),2),trOutColor{iout});
+        L(iout) = h.mainLine;
+        r(:,iout) = mean(x(respwin_target,:),1)-mean(x(basewin_0_target,:),1);
+    end
+    [~,p] = ttest(r(:,1),r(:,2));
+    figXAxis([],'Time (ms)',[ttLabel_cyc(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+    figYAxis([],'dF/F',[-0.005 0.06]) 
+    hline(0,'k:')
+    vline(respWinTT_target,'k--')
+    figAxForm
+    legend(L,trOutType(5:6),'location','northwest')
+    title(sprintf('%s Target or Dist Resp Cells, n=%s,p=%s',avName{iav},...
+        num2str(sum(ind)),num2str(round(p,2,'significant'))))
+    vline(visRTwindow(1),'b--')
 end
 
-print([fnout 'choiceTC'],'-dpdf')
+print([fnout 'choiceTC'],'-dpdf','-fillpage')
 
 figure
 suptitle('Target Response')
 for iav = 1:2
     if iav == 1
-        ind = cellInfo.targetRespCells;
+        ind = cellInfo.lateCycRespCells | cellInfo.targetRespCells;
     else
-        ind = cellInfo.lateCycRespCells;
+        ind = cellInfo.lateCycRespCells | cellInfo.targetRespCells;
     end
-    subplot(1,3,iav+1)
+    subplot(2,2,iav+1)
     L = [];
     hold on
     for itar = 1:2
@@ -3764,12 +3819,12 @@ for iav = 1:2
     figAxForm
     if iav == 1
         legend(L,{'HT','ET','D'},'location','northwest')
-        title(sprintf('%s, Target Resp Cells, n=%s,',avName{iav},...
+        title(sprintf('%s, Target or Dist Resp Cells, n=%s,',avName{iav},...
             num2str(sum(ind))))
         vline(visRTwindow(1),'b--')
         
         ind = cellInfo.lateCycRespCells;
-        subplot(1,3,iav)
+        subplot(2,2,iav)
         L = [];
         for itar = 1:2
             hold on
@@ -3793,6 +3848,30 @@ for iav = 1:2
         title(sprintf('%s, Dist Resp Cells, n=%s,',avName{iav},...
             num2str(sum(ind))))
         vline(visRTwindow(1),'b--')
+        
+        subplot(2,2,4)
+        ind = cellInfo.lateCycRespCells| cellInfo.targetRespCells;
+        L = [];
+        hold on
+        x = targetAnalysis.tc{3,iav}(:,ind);
+        h = shadedErrorBar_chooseColor(tt_targetTC(tcStartFrame:end),...
+            nanmean(x(tcStartFrame:end,:)-mean(x(basewin_0_target,:),1),2),...
+            ste(x(tcStartFrame:end,:),2),hiLoColor{itar});
+        L = cat(2,L,h.mainLine);
+        x = circshift(antiAnalysis.lateCycTC{iav}(:,ind),-1);
+        h = shadedErrorBar_chooseColor(tt_targetTC(tcStartFrame:end),...
+            nanmean(x(tcStartFrame:end,:)-mean(x(basewin_0_target,:),1),2),...
+            ste(x(tcStartFrame:end,:),2),[0.75 0.75 0.75]);
+        L = cat(2,L,h.mainLine);
+        figXAxis([],'Time (ms)',[ttLabel_cyc(1) cycTCEndTimeMs],ttLabel_cyc,ttLabel_cyc)
+        figYAxis([],'dF/F',[-0.005 0.06]) 
+        hline(0,'k:')
+        vline(respWinTT_target,'k--')
+        figAxForm
+        legend(L,{'T','D'},'location','northwest')
+        title(sprintf('%s, Dist Resp Cells, n=%s,',avName{iav},...
+            num2str(sum(ind))))
+        vline(visRTwindow(1),'b--')
     else
         legend(L,{'T','D'},'location','northwest')
         title(sprintf('%s, Dist Resp Cells, n=%s',avName{iav},...
@@ -3800,7 +3879,7 @@ for iav = 1:2
         vline(audRTwindow(1),'b--')
     end
 end
-print([fnout 'targetTC'],'-dpdf')
+print([fnout 'targetTC'],'-dpdf','-fillpage')
 %% decoding analysis figures
 
 % setFigParams4Print('landscape')

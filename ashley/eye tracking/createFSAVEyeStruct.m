@@ -49,9 +49,9 @@ for iexp = 1:nExpt
             fn = fullfile(rc.ashleyAnalysis,ms,'two-photon imaging',dt,...
                 runFolders(irun,:));
             load(fullfile(fn,'eyeTC.mat'))
-            if ~isempty(expt(iexp).nFramesPerRun)
-                if ~isnan(expt(iexp).nFramesPerRun{irun})
-                    nFr = expt(iexp).nFramesPerRun{irun};
+            if ~isempty(expt(iexp).nframesPerRun)
+                if ~isnan(expt(iexp).nframesPerRun{irun})
+                    nFr = expt(iexp).nframesPerRun{irun};
                 else
                 load(fullfile(rc.ashleyData,ms,'two-photon imaging',dt,...
                     runFolders(irun,:),[runFolders(irun,:) '_000_000.mat']))
@@ -66,7 +66,12 @@ for iexp = 1:nExpt
             AreaAll = cat(1,AreaAll,Area(1:nFr,:));
             CentroidAll = cat(1,CentroidAll,Centroid(1:nFr,:));
             
-            mw = [mw loadMworksFile(subnum,dt,runTimes(irun,:))];
+            mw_temp = loadMworksFile(subnum,dt,runTimes(irun,:));
+            if ~any(strcmp(fieldnames(mw_temp),'catchTrialOutcomeCell'))
+                mw_temp.catchTrialOutcomeCell = cell(1,length(mw_temp.cLeverDown));
+            end
+            
+            mw = [mw mw_temp];
         end
         mw = concatenateDataBlocks(mw);
         if isnan(expt(iexp).trial_range)
