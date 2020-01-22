@@ -56,7 +56,7 @@ R2_ub = data(find(thetas == orthogtheta));
 u1_lb = maxtheta-(pi/ntheta);
 u1_ub = maxtheta+(pi/ntheta);
 
-options = optimset('MaxFunEvals',inf,'MaxIter',inf);
+options = optimset('MaxFunEvals',inf,'MaxIter',100000);
 [out,fval,success] = fminsearchbnd(@vonmises_sse, [b_guess, k1_guess,R1_guess,R2_guess,u1_guess],[b_lb,k1_lb, R1_lb, R2_lb, u1_lb],[b_ub,k1_ub, R1_ub, R2_ub, u1_ub],options);
 if success == 1
     b_hat=out(1);
@@ -74,6 +74,7 @@ else
     R1_hat=nan;
     R2_hat=nan;
     u1_hat=nan;
+    u2_hat=nan;
     sse=nan;
     sse_tot = nan;
     R_square = nan;    

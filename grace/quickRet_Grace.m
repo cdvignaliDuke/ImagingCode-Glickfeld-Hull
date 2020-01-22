@@ -1,10 +1,8 @@
-date = '190906';
-mouse = 'i1306';
-ImgFolder = '001';
-date = '190916';
-mouse = 'i1306';
+date = '200121';
+mouse = 'i1317';
 ImgFolder = '002';
-time = '1338';
+time = '1125';
+run = '000';
 doReg = 0;
 nrun = size(ImgFolder,1);
 
@@ -17,16 +15,16 @@ if nrun>1
 end
 
 if strcmp(tUsername(1:5),'grace')
-CD = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging\' date '_' mouse '\' ImgFolder];
+CD = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging\' mouse '\' date '_' mouse '\' ImgFolder];
 else
 error('Not Grace')    
 end
 cd(CD);
-imgMatFile = [ImgFolder '_000_000.mat'];
+imgMatFile = [ImgFolder '_000_' run '.mat'];
 load(imgMatFile);
 
 nframes = info.config.frames;
-data = sbxread([ImgFolder '_000_000'],0,nframes);
+data = sbxread([ImgFolder '_000_' run],0,nframes);
 fprintf(['Loaded ' num2str(nframes) ' frames \r\n'])
 
 %default is to use only green PMT if there are two
@@ -36,7 +34,6 @@ end
 data = squeeze(data);
    
 fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-' mouse '-' date '-' time '.mat'];
-
 load(fName);
 
 nOn = input.nScansOn;
@@ -95,7 +92,6 @@ for i = 1:nStim
 end
 if strcmp(tUsername(1:5),'grace')
     mkdir(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder]);
-    print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder '\' date '_' mouse '_' ImgFolder '_retinotopy.pdf'], '-dpdf','-bestfit')
     print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' ImgFolder '\' date '_' mouse '_' ImgFolder '_retinotopy.pdf'], '-dpdf','-bestfit')
 end
 

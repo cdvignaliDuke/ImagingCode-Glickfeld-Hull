@@ -414,6 +414,82 @@ save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_'
 save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'npSub_tc')
 save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 clear data_base data_base2 data_dfof data_targ data_base_dfof data_base2_dfof data_targ_dfof data_f data_dfof_dir data_reg
+    figure; 
+    Stims = Dirs;
+    nStim = length(Dirs);
+    [n n2] = subplotn(nDirs);
+    data_dfof_avg_ori = zeros(sz(1), sz(2), nDirs/2);
+    for i = 1:nStim 
+        subplot(n,n2,i); 
+        imagesc(data_dfof_avg_all(:,:,i));
+        clim([0 max(data_dfof_avg_all(:))])
+        title(num2str(Dirs(i)))
+        colormap(gray)
+        if i<(nDirs/2)+1
+            data_dfof_avg_ori(:,:,i) = mean(data_dfof_avg_all(:,:,[i i+nDirs/2]),3);
+        end
+        title(num2str(Dirs(i)))
+    end
+    figure;
+    [n n2] = subplotn(nDirs/2);
+    for i = 1:nStim/2
+        subplot(n,n2,i)
+        imagesc(data_dfof_avg_ori(:,:,i));
+        clim([0 max(data_dfof_avg_ori(:))])
+        title(num2str(Dirs(i)))
+    end
+
+end
+
+ save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg_all', 'nStim')
+% %% axon segmentation
+% max_interp = interp2(data_dfof_max);
+% f1 = fspecial('average');   
+% max_interp_sm = filter2(f1, max_interp);
+% sz2 = size(max_interp);
+% Xi = 1:2:sz2(1);
+% Yi = 1:2:sz2(2);
+% stack_max_interp_sm = interp2(max_interp_sm, Yi', Xi);
+% stack_max_sm_long = reshape(stack_max_interp_sm,[sz(1)*sz(2) 1]);
+% 
+% local_max = zeros(sz(1), sz(2));
+% mask = zeros(sz(1), sz(2));
+% yborder = 10;
+% xborder = 40;
+% rg = std(reshape(stack_max_interp_sm(yborder:(sz(1)-yborder),xborder:(sz(2)-xborder)), [1 length(yborder:(sz(1)-yborder)).*length(xborder:(sz(2)-xborder))]),[],2);
+% hb = zeros(size(local_max));
+% ht = zeros(size(local_max));
+% pb = zeros(size(local_max));
+% pt = zeros(size(local_max));
+% for iy = yborder:(sz(1)-yborder);
+%     for ix = xborder:(sz(2)-xborder);
+%         if stack_max_interp_sm(iy,ix)> (3.*rg)
+%             sub = stack_max_interp_sm(iy-2:iy+2,ix-2:ix+2);
+%             sub_long = reshape(sub, [1 25]);
+%             [sub_long_order ind_order] = sort(sub_long);
+%             if ind_order(end)==13
+%                 [hb(iy,ix) pb(iy,ix)] = ttest(mean(mean(data_base(iy-1:iy+1,ix-1:ix+1,:),1),2), mean(mean(data_f(iy-1:iy+1,ix-1:ix+1,:),1),2), 'tail', 'right');
+%                 [ht(iy,ix) pt(iy,ix)] = ttest(mean(mean(data_targ(iy-1:iy+1,ix-1:ix+1,:),1),2), mean(mean(data_f(iy-1:iy+1,ix-1:ix+1,:),1),2), 'tail', 'right');
+%                 if hb(iy,ix) + ht(iy,ix) > 0
+%                     local_max(iy,ix) = 1;
+%                     mask(iy-1:iy+1,ix-1:ix+1) = 1;
+%                 end
+%             end
+%         end
+%     end
+% end
+% n_pix = sum(sum(local_max));
+% [i, j] = find(local_max ==1); 
+% cell_mask = bwlabel(mask);
+% data_tc = stackGetTimeCourses(data_reg, cell_mask);
+% nCells = n_pix;
+% npSub_tc = data_tc;
+% 
+% save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_mask_cell.mat']), 'data_dfof_max', 'local_max', 'cell_mask', 'n_pix', 'i', 'j')
+% save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'npSub_tc')
+% save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+% clear data_base data_base2 data_dfof data_targ data_base_dfof data_base2_dfof data_targ_dfof data_f data_dfof_dir data_reg
+>>>>>>> Stashed changes
 %% cell segmentation 
 
 mask_all = zeros(sz(1), sz(2));
@@ -478,7 +554,11 @@ np_tc_down = zeros(floor(sz(3)./down), nCells);
 for i = 1:nCells
      np_tc(:,i) = stackGetTimeCourses(data_reg,mask_np(:,:,i));
      np_tc_down(:,i) = stackGetTimeCourses(data_reg_down,mask_np(:,:,i));
+<<<<<<< Updated upstream
      fprintf(['Cell #' num2str(i) '%s/n']) 
+=======
+     fprintf(['Cell #' num2str(i) ' /n']) 
+>>>>>>> Stashed changes
 end
 %get weights by maximizing skew
 ii= 0.01:0.01:1;
@@ -493,6 +573,7 @@ clear data_reg data_reg_down
 
 save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
 save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+<<<<<<< Updated upstream
 
 %% extract tuning
 if isfield(input, 'nScansOn');
@@ -2614,3 +2695,5 @@ for iCell = 1:nCells
 end
 print(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ann_run_str], [date '_' mouse '_' ann_run_str '_Tuning' num2str(f) '.pdf']), '-dpdf')
 save(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ann_run_str], [date '_' mouse '_' ann_run_str '_Tuning.mat']), 'data_dfof', 'tuning_mat', 'Stims')
+=======
+>>>>>>> Stashed changes
