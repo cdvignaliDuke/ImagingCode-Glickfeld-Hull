@@ -382,7 +382,7 @@ end
  save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg_all', 'nStim')
 
 %% cell segmentation 
-if ~alighToRef
+if ~alignToRef
     mask_all = zeros(sz(1), sz(2));
     %mask_data = squeeze(max(reshape(data_dfof_avg_all, [sz(1) sz(2) 2 nStim/2]),[],3));
     mask_data = data_dfof;
