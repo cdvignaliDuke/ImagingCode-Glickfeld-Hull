@@ -1,11 +1,11 @@
 clear all
 close all
-ds = 'FSAV_V1_naive_GCaMP6m'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
+ds = 'FSAV_attentionV1_noAttn'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
 cellsOrDendrites = 1;
-doLoadPreviousAnalysis = true;
-analysisDate = '200113';
+doLoadPreviousAnalysis = false;
+analysisDate = '200121';
 attnAnalysisDate = '191211';
-doDecoding = false;
+doDecoding = true;
 %%
 rc = behavConstsAV;
 imgParams_FSAV
@@ -606,7 +606,6 @@ if doDecoding
                 pctCorrTarget_xStim_train = nan(1,nStimBins);
                 pctCorrTarget_xStim_ho = nan(1,nStimBins);
                 for istim = 1:nStimBins
-                    if nStimPerBin(istim) >= minTrN_mdl
                         if isempty(trOutStimSort{istim})
                             continue
                         end
@@ -620,7 +619,6 @@ if doDecoding
                             targetGLM,respStimSort{istim},targetStimInd,dv_target);
                         pctCorrTarget_xStim_ho(istim) = getPctCorr_hoData_subGroup(...
                             resp,targetTrInd,stimSortInd{istim},dv_target);
-                    end
                 end
 
                 fprintf('Expt %s, starting resp win analysis\n',num2str(iexp))
@@ -707,69 +705,108 @@ if doDecoding
 %                         catchTargetResp = catchResp(:,cellInd);
                         catchTargetResp = catchResp(:,1:nPCs);
                         nCatch = length(catchDetectInd);
-                        catchDistRespAll = respOther{otherAV}(targetTrInd==0,1:nPCs);
-                        detectTrInd_distonly = detectTrInd(targetTrInd==0);
-                        targetTrInd_distonly = targetTrInd(targetTrInd==0);
-                        catchDistInd = randsample(sum(targetTrInd==0),nCatch);
-                        catchRespBalanced = cat(1,catchDistRespAll(catchDistInd,:),...
-                            catchTargetResp);
-                        catchDetectIndBalanced = cat(1,detectTrInd_distonly(catchDistInd),...
-                            catchDetectInd);
-                        catchTargetIndBalanced = cat(1,targetTrInd_distonly(catchDistInd),...
-                            catchTargetInd);
+%                         catchDistRespAll = respOther{otherAV}(targetTrInd==0,1:nPCs);
+%                         detectTrInd_distonly = detectTrInd(targetTrInd==0);
+%                         targetTrInd_distonly = targetTrInd(targetTrInd==0);
+%                         catchDistInd = randsample(sum(targetTrInd==0),nCatch);
+%                         catchRespBalanced = cat(1,catchDistRespAll(catchDistInd,:),...
+%                             catchTargetResp);
+%                         catchDetectIndBalanced = cat(1,detectTrInd_distonly(catchDistInd),...
+%                             catchDetectInd);
+%                         catchTargetIndBalanced = cat(1,targetTrInd_distonly(catchDistInd),...
+%                             catchTargetInd);
 
-                        catchPctCorrectDetect = getPctCorr_trainData(...
-                            detectGLMOther{iav},catchRespBalanced,catchDetectIndBalanced,...
-                            decodeAnalysis(iexp).av(iav).dvDetect);
-                        catchPctCorrectTarget = getPctCorr_trainData(...
-                            targetGLMOther{iav},catchRespBalanced,catchTargetIndBalanced,...
-                            decodeAnalysis(iexp).av(iav).dvTarget);
-                        catchPctCorrectDetect_audModel = getPctCorr_trainData(...
-                            detectGLMOther{auditoryTrials},catchRespBalanced,...
-                            catchDetectIndBalanced,...
-                            decodeAnalysis(iexp).av(auditoryTrials).dvDetect);            
-                        catchPctCorrectTarget_audModel = getPctCorr_trainData(...
-                            targetGLMOther{auditoryTrials},catchRespBalanced,...
-                            catchTargetIndBalanced,...
-                            decodeAnalysis(iexp).av(auditoryTrials).dvTarget);
+%                         if nCatch >= minTrN
+                            [catchPctCorrectDetect,catchCorrectTrialDetect] = getPctCorr_trainData(...
+                                detectGLMOther{iav},catchTargetResp,catchDetectInd,...
+                                decodeAnalysis(iexp).av(iav).dvDetect);
+                            [catchPctCorrectTarget,catchCorrectTrialTarget] = getPctCorr_trainData(...
+                                targetGLMOther{iav},catchTargetResp,catchTargetInd,...
+                                decodeAnalysis(iexp).av(iav).dvTarget);
+                            [catchPctCorrectDetect_aud,catchCorrectTrialDetect_aud] = getPctCorr_trainData(...
+                                detectGLMOther{auditoryTrials},catchTargetResp,...
+                                catchDetectInd,...
+                                decodeAnalysis(iexp).av(auditoryTrials).dvDetect);            
+                            [catchPctCorrectTarget_aud,catchCorrectTrialTarget_aud] = getPctCorr_trainData(...
+                                targetGLMOther{auditoryTrials},catchTargetResp,...
+                                catchTargetInd,...
+                                decodeAnalysis(iexp).av(auditoryTrials).dvTarget);
+%                             catchPctCorrectDetect = getPctCorr_trainData(...
+%                                 detectGLMOther{iav},catchRespBalanced,catchDetectIndBalanced,...
+%                                 decodeAnalysis(iexp).av(iav).dvDetect);
+%                             catchPctCorrectTarget = getPctCorr_trainData(...
+%                                 targetGLMOther{iav},catchRespBalanced,catchTargetIndBalanced,...
+%                                 decodeAnalysis(iexp).av(iav).dvTarget);
+%                             catchPctCorrectDetect_audModel = getPctCorr_trainData(...
+%                                 detectGLMOther{auditoryTrials},catchRespBalanced,...
+%                                 catchDetectIndBalanced,...
+%                                 decodeAnalysis(iexp).av(auditoryTrials).dvDetect);            
+%                             catchPctCorrectTarget_audModel = getPctCorr_trainData(...
+%                                 targetGLMOther{auditoryTrials},catchRespBalanced,...
+%                                 catchTargetIndBalanced,...
+%                                 decodeAnalysis(iexp).av(auditoryTrials).dvTarget);
+%                         else
+%                             catchPctCorrectDetect = nan;
+%                             catchCorrectTrialDetect = nan(0,1);
+%                             catchPctCorrectTarget = nan;
+%                             catchCorrectTrialTarget = nan(0,1);
+%                             catchPctCorrectDetect_audModel = nan;
+%                             catchCorrectTrialDetect_audModel = nan(0,1);        
+%                             catchPctCorrectTarget_audModel = nan;
+%                             catchCorrectTrialTarget_audModel = nan(0,1);  
+%                         end
                         
 
                         trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,oriBins);
                         matchedTrialsID = trStimID(trSampleIndOther{iav});
-                        catchStimID = cat(2,ones(1,nCatch),...
-                            discretize(decodeDataExpt(iexp).av(iav).catchStim,oriBins));
+                        resp_val = respOther{iav};
+%                         catchStimID = cat(2,ones(1,nCatch),...
+%                             discretize(decodeDataExpt(iexp).av(iav).catchStim,oriBins));
+                        catchStimID = discretize(decodeDataExpt(iexp).av(iav).catchStim,oriBins);
                         
                         [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOutOther{iav});
-                        catchMatchTrials = cell2mat(getMatchedValidTrialIndex(...
-                            matchedTrialsID,catchStimID)); 
-                        validCatchMatchDetect = getPctCorr_hoData_subGroup(...
-                            respOther{iav},detectTrInd,catchMatchTrials,decodeAnalysis(iexp).av(iav).dvDetect);  
-                        validCatchMatchTarget = getPctCorr_hoData_subGroup(...
-                            respOther{iav},targetTrInd,catchMatchTrials,decodeAnalysis(iexp).av(iav).dvTarget);
+                        if ~any(ismember(matchedTrialsID,unique(catchStimID)))
+                            catchMatchTrials = [];
+                        else
+                            catchMatchTrials = cell2mat(getMatchedValidTrialIndex(...
+                                matchedTrialsID,catchStimID)); 
+                        end
+                        [validCatchMatchDetect,validCatchCorrectTrialDetect] = getPctCorr_hoData_subGroup(...
+                            resp_val,detectTrInd,catchMatchTrials,decodeAnalysis(iexp).av(iav).dvDetect);  
+                        [validCatchMatchTarget,validCatchCorrectTrialTarget] = getPctCorr_hoData_subGroup(...
+                            resp_val,targetTrInd,catchMatchTrials,decodeAnalysis(iexp).av(iav).dvTarget);
                         
-                        trStimID = discretize(decodeDataExpt(iexp).av(auditoryTrials).stim,ampBins);
-                        matchedTrialsID = trStimID(trSampleIndOther{auditoryTrials});
-                        matchedTrialsID(matchedTrialsID > 1) = 2;
-                        catchStimID(catchStimID > 1) = 2;
-                        [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOutOther{auditoryTrials});
-                        catchMatchTrials = cell2mat(getMatchedValidTrialIndex(...
-                            matchedTrialsID,catchStimID));
-                        validCatchMatchDetect_aud = getPctCorr_hoData_subGroup(...
-                            respOther{auditoryTrials},detectTrInd,catchMatchTrials,...
-                            decodeAnalysis(iexp).av(auditoryTrials).dvDetect); 
-                        validCatchMatchTarget_aud = getPctCorr_hoData_subGroup(...
-                            respOther{auditoryTrials},targetTrInd,catchMatchTrials,...
-                            decodeAnalysis(iexp).av(auditoryTrials).dvTarget);  
+%                         trStimID = discretize(decodeDataExpt(iexp).av(auditoryTrials).stim,ampBins);
+%                         matchedTrialsID = trStimID(trSampleIndOther{auditoryTrials});
+%                         matchedTrialsID(matchedTrialsID > 1) = 2;
+%                         catchStimID(catchStimID > 1) = 2;
+%                         [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOutOther{auditoryTrials});
+%                         catchMatchTrials = cell2mat(getMatchedValidTrialIndex(...
+%                             matchedTrialsID,catchStimID));
+                        [validCatchMatchDetect_aud,validCatchCorrectTrialDetect_aud] = getPctCorr_trainData(...
+                            detectGLMOther{otherAV},resp_val(catchMatchTrials,:),...
+                            detectTrInd(catchMatchTrials),decodeAnalysis(iexp).av(otherAV).dvDetect);
+                        [validCatchMatchTarget_aud,validCatchCorrectTrialTarget_aud] = getPctCorr_trainData(...
+                            targetGLMOther{otherAV},resp_val(catchMatchTrials,:),...
+                            targetTrInd(catchMatchTrials),decodeAnalysis(iexp).av(otherAV).dvTarget); 
                        
                     else
                         validCatchMatchDetect = [];
+                        validCatchCorrectTrialDetect = [];
                         validCatchMatchTarget = [];
+                        validCatchCorrectTrialTarget = [];
                         validCatchMatchDetect_aud = [];
+                        validCatchCorrectTrialDetect_aud = [];
                         validCatchMatchTarget_aud = [];
+                        validCatchCorrectTrialTarget_aud = [];
                         catchPctCorrectDetect = [];
                         catchPctCorrectTarget = [];
-                        catchPctCorrectDetect_audModel = [];
-                        catchPctCorrectTarget_audModel = [];
+                        catchPctCorrectDetect_aud = [];
+                        catchPctCorrectTarget_aud = [];
+                        catchCorrectTrialDetect = [];
+                        catchCorrectTrialTarget = [];
+                        catchCorrectTrialDetect_aud = [];
+                        catchCorrectTrialTarget_aud = [];
                         
                     end
                 elseif iav == 2
@@ -780,8 +817,8 @@ if doDecoding
                     validCatchMatchTarget_aud = [];
                     catchPctCorrectDetect = [];
                     catchPctCorrectTarget = [];
-                    catchPctCorrectDetect_audModel = [];
-                    catchPctCorrectTarget_audModel = [];
+                    catchPctCorrectDetect_aud = [];
+                    catchPctCorrectTarget_aud = [];
                 end
                 resp = respOther{otherAV};
                 [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOutOther{otherAV});
@@ -824,10 +861,19 @@ if doDecoding
                 decodeAnalysis(iexp).av(iav).validMatchedPctCorrectTarget_holdout = validCatchMatchTarget;
                 decodeAnalysis(iexp).av(iav).invalidPctCorrectDetect = catchPctCorrectDetect;
                 decodeAnalysis(iexp).av(iav).invalidPctCorrectTarget = catchPctCorrectTarget;
-                decodeAnalysis(iexp).av(iav).invalidPctCorrectDetect_testAudModel = catchPctCorrectDetect_audModel;
-                decodeAnalysis(iexp).av(iav).invalidPctCorrectTarget_testAudModel = catchPctCorrectTarget_audModel;
+                decodeAnalysis(iexp).av(iav).invalidPctCorrectDetect_testAudModel = catchPctCorrectDetect_aud;
+                decodeAnalysis(iexp).av(iav).invalidPctCorrectTarget_testAudModel = catchPctCorrectTarget_aud;
                 decodeAnalysis(iexp).av(iav).validMatchedPctCorrectDetect_testAudModel = validCatchMatchDetect_aud;
                 decodeAnalysis(iexp).av(iav).validMatchedPctCorrectTarget_testAudModel = validCatchMatchTarget_aud;
+                
+                decodeAnalysis(iexp).av(iav).validMatchedCorrectTrialsDetect = validCatchCorrectTrialDetect;
+                decodeAnalysis(iexp).av(iav).validMatchedCorrectTrialsTarget = validCatchCorrectTrialTarget;
+                decodeAnalysis(iexp).av(iav).invalidCorrectTrialsDetect = catchCorrectTrialDetect;
+                decodeAnalysis(iexp).av(iav).invalidCorrectTrialsTarget = catchCorrectTrialTarget;
+                decodeAnalysis(iexp).av(iav).invalidCorrectTrialsDetect_testAud = catchCorrectTrialDetect_aud;
+                decodeAnalysis(iexp).av(iav).invalidCorrectTrialsTarget_testAud = catchCorrectTrialTarget_aud;
+                decodeAnalysis(iexp).av(iav).validMatchedCorrectTrialsDetect_testAud = validCatchCorrectTrialDetect_aud;
+                decodeAnalysis(iexp).av(iav).validMatchedCorrectTrialsTarget_testAud = validCatchCorrectTrialTarget_aud;
                 
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_distOnly_otherAV = pctCorrectDetect_dist;
             end
