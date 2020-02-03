@@ -3,7 +3,7 @@ close all
 ds = 'FSAV_attentionV1_noAttn'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
 cellsOrDendrites = 1;
 doLoadPreviousAnalysis = false;
-analysisDate = '200121';
+analysisDate = '200131';
 attnAnalysisDate = '191211';
 doDecoding = true;
 %%
@@ -456,10 +456,12 @@ if doDecoding
             detectGLMOther = cell(1,2);
             targetGLMOther = cell(1,2);
             if isfield(decodeDataExpt(iexp).av(visualTrials),'catchOutcome')
-                [coeffAllCells,scoresAllCells,latentAllCells] = pca(cat(2,...
+                data = cat(2,...
                     decodeDataExpt(iexp).av(visualTrials).resp(cellInd,:),...
                     decodeDataExpt(iexp).av(auditoryTrials).resp(cellInd,:),...
-                    decodeDataExpt(iexp).av(visualTrials).catchResp(cellInd,:))');                
+                    decodeDataExpt(iexp).av(visualTrials).catchResp(cellInd,:))';
+                
+                [coeffAllCells,scoresAllCells,latentAllCells] = pca(data);                
                 respAllCells_av_withInv = zscore(scoresAllCells);
                 nvis = size(decodeDataExpt(iexp).av(visualTrials).resp,2);
                 naud = size(decodeDataExpt(iexp).av(auditoryTrials).resp,2);
@@ -467,26 +469,36 @@ if doDecoding
                 respAllCells_vis = respAllCells_av_withInv(1:nvis,:);
                 respAllCells_aud = respAllCells_av_withInv((nvis+1):(nvis+naud),:);
                 catchResp = respAllCells_av_withInv((end-ninv+1):end,:);
+                
+                data4Shuff = cell(1,2);
+                data4Shuff{visualTrials} = data(1:nvis,:);
+                data4Shuff{auditoryTrials} = data((nvis+1):(nvis+naud),:);
 
 %                 [coeffAllCells_vis,scoresAllCells_vis,latentAllCells_vis] = pca(respAllCells_vis(:,cellInd));
 %                 [coeffAllCells_aud,scoresAllCells_aud,latentAllCells_aud] = pca(respAllCells_aud(:,cellInd));
 %                 [coeffAllCells_catch,scoresAllCells_catch,latentAllCells_catch] = pca(catchResp(:,cellInd));
 
             else
-                [coeffAllCells,scoresAllCells,latentAllCells] = pca(cat(2,...
+                data = cat(2,...
                     decodeDataExpt(iexp).av(visualTrials).resp(cellInd,:),...
-                    decodeDataExpt(iexp).av(auditoryTrials).resp(cellInd,:))');
+                    decodeDataExpt(iexp).av(auditoryTrials).resp(cellInd,:))';
+                
+                [coeffAllCells,scoresAllCells,latentAllCells] = pca(data);
                 respAllCells_av_withInv = zscore(scoresAllCells);
                 nvis = size(decodeDataExpt(iexp).av(visualTrials).resp,2);
                 naud = size(decodeDataExpt(iexp).av(auditoryTrials).resp,2);
                 respAllCells_vis = respAllCells_av_withInv(1:nvis,:);
                 respAllCells_aud = respAllCells_av_withInv((nvis+1):end,:);
 
+                
+                data4Shuff = cell(1,2);
+                data4Shuff{visualTrials} = data(1:nvis,:);
+                data4Shuff{auditoryTrials} = data((nvis+1):(nvis+naud),:);
 %                 [coeffAllCells_vis,scoresAllCells_vis,latentAllCells_vis] = pca(respAllCells_vis(:,cellInd));
 %                 [coeffAllCells_aud,scoresAllCells_aud,latentAllCells_aud] = pca(respAllCells_aud(:,cellInd));
 
             end
-            
+            rng(0)
             for iav = 1:2
                 trOut = decodeDataExpt(iexp).av(iav).outcome;
 
@@ -545,7 +557,28 @@ if doDecoding
                 stimSortInd_av{iav} = stimSortInd;
                 matchTrialsInd_av{iav} = matchTrialsInd;
             end
-                        
+            
+            data4Shuff_matched = cellfun(@(x,y) x(y,:),data4Shuff,matchTrialsInd_av,'unif',0);
+            trOut_matched = cellfun(@(x,y) x(y),...
+                {decodeDataExpt(iexp).av(visualTrials).outcome,...
+                decodeDataExpt(iexp).av(auditoryTrials).outcome},matchTrialsInd_av,'unif',0);
+            [detectTrInd,targetTrInd] = cellfun(@(x) getStimAndBehaviorYs(x),...
+                trOut_matched,'unif',0);
+            dataShuff_detect = cellfun(@(x,y) shuffWithinCats(x,y),data4Shuff_matched,...
+                detectTrInd,'unif',0);
+            dataShuff_target = cellfun(@(x,y) shuffWithinCats(x,y),data4Shuff_matched,...
+                targetTrInd,'unif',0);
+            
+            n = cellfun(@(x) size(x,1),data4Shuff_matched);
+            d = cell2mat(cellfun(@(x) cell2mat(x'),dataShuff_detect,'unif',0)');
+            [~,scoresAllCells] = pca(d);
+            pcaShuff_zscore = zscore(scoresAllCells);
+            pcaShuff_detect_matched = {pcaShuff_zscore(1:n(1),:),pcaShuff_zscore((n(1)+1):end,:)};
+            d = cell2mat(cellfun(@(x) cell2mat(x'),dataShuff_target,'unif',0)');
+            [~,scoresAllCells] = pca(d);
+            pcaShuff_zscore = zscore(scoresAllCells);
+            pcaShuff_target_matched = {pcaShuff_zscore(1:n(1),:),pcaShuff_zscore((n(1)+1):end,:)};
+            
             nTrials = min(cellfun(@length,matchTrialsInd_av));
             if round(nTrials.*fracPCsUsed) > maxPCs
                 nPCs = maxPCs;
@@ -647,23 +680,74 @@ if doDecoding
                 respOther{iav} = resp;
                 trOutOther{iav} = trOut(matchTrialsInd);
                 detectGLMOther{iav} = detectGLM;
-                targetGLMOther{iav} = targetGLM;        
+                targetGLMOther{iav} = targetGLM;     
                 
-                % train detect model with distractor choices only
-                distTrInd = trStimID==1;
-                [detectTrInd_dist, ~] = getStimAndBehaviorYs(trOut(distTrInd));
-                dv_detect_dist = mean(detectTrInd_dist);
-%                 resp_dist = respAllCells(distTrInd,cellInd);
-                resp_dist = respAllCells(distTrInd,1:nPCs);
-                respOther_dist{iav} = resp_dist;
+                % train trial shuffle model
+                detectTrInd_shuff = cat(1,zeros(length(detectTrInd)-sum(detectTrInd),1),...
+                    ones(sum(detectTrInd),1));
+                targetTrInd_shuff = cat(1,zeros(length(targetTrInd)-sum(targetTrInd),1),...
+                    ones(sum(targetTrInd),1));
+                resp_detect_shuff = pcaShuff_detect_matched{iav}(:,1:nPCs);
+                resp_target_shuff = pcaShuff_target_matched{iav}(:,1:nPCs);
+                
+                detectCorr_shuff = corr(detectTrInd_shuff,resp_detect_shuff);
+                targetCorr_shuff = corr(targetTrInd_shuff,resp_target_shuff);
 
-                detectCorr_dist = corr(detectTrInd_dist,resp_dist);
-                C = eye(size(resp,2));
+                C = eye(size(resp_detect_shuff,2));
+                p=1;
+                [~,~,detectGLM_shuff] = glmfit(resp_detect_shuff*C,detectTrInd,'binomial');
+                [~,~,targetGLM_shuff] = glmfit(resp_target_shuff*C,targetTrInd,'binomial');
+                                
+                detectWeight_shuff = detectGLM_shuff.beta(2:end);
+                targetWeight_shuff = targetGLM_shuff.beta(2:end);
+
+                dv_detect_shuff = mean(detectTrInd_shuff);
+                dv_target_shuff = mean(targetTrInd_shuff);
+                
+                fprintf('Expt %s, trial shuffle analysis\n',num2str(iexp))
+                pctCorrectDetect_train_shuff = getPctCorr_trainData(detectGLM_shuff,...
+                    resp_detect_shuff,detectTrInd_shuff,dv_detect_shuff);
+                pctCorrectDetect_ho_shuff = getPctCorr_hoData(resp_detect_shuff,...
+                    detectTrInd_shuff,dv_detect_shuff);
+                pctCorrectTarget_train_shuff = getPctCorr_trainData(targetGLM_shuff,...
+                    resp_target_shuff,targetTrInd_shuff,dv_target_shuff);
+                pctCorrectTarget_ho_shuff = getPctCorr_hoData(resp_target_shuff,...
+                    targetTrInd_shuff,dv_target_shuff);
+                                
+                respOther_shuff{iav} = {resp_detect_shuff,resp_target_shuff};
+                trOutInd_shuff{iav} = {detectTrInd_shuff,targetTrInd_shuff};
+                detectGLMOther_shuff{iav} = detectGLM_shuff;
+                targetGLMOther_shuff{iav} = targetGLM_shuff;  
+                
+                
+%                 % train detect model with distractor choices only
+%                 distTrInd = strcmp(trOut(matchTrialsInd),'cr')|strcmp(trOut(matchTrialsInd),'fa');
+%                 trOut_dist = trOutOther{iav}(distTrInd);
+%                 [detectTrInd_dist, ~] = getStimAndBehaviorYs(trOut_dist);
+%                 dv_detect_dist = mean(detectTrInd_dist);
+%                 resp_dist = respOther{iav}(distTrInd,:);
+%                 respOther_dist{iav} = resp_dist;
+% 
+%                 detectCorr_dist = corr(detectTrInd_dist,resp_dist);
+%                 C = eye(size(resp,2));
+%                 p=1;
+%                 [~,~,detectGLM_dist] = glmfit(resp_dist*C,detectTrInd_dist,'binomial');
+%                 pctCorrectDetect_ho_dist = getPctCorr_hoData(resp_dist,detectTrInd_dist,dv_detect_dist);
+%                 detectGLMOther_dist{iav} = detectGLM_dist;
+%                 trOutOther_dist{iav} = trOut_dist;
+                
+                distInd = strcmp(trOut,'fa')|strcmp(trOut,'cr');
+                trOut_dist = trOut(distInd);
+                [detectTrInd_dist, ~] = getStimAndBehaviorYs(trOut_dist);
+                dv_detect_dist = mean(detectTrInd_dist);
+                resp_dist = respAllCells(distInd,:);
+                C = eye(size(resp_dist,2));
                 p=1;
                 [~,~,detectGLM_dist] = glmfit(resp_dist*C,detectTrInd_dist,'binomial');
-                pctCorrectDetect_ho_dist = getPctCorr_hoData(resp_dist,detectTrInd_dist,dv_detect);
+                pctCorrectDetect_ho_dist = getPctCorr_hoData(resp_dist,detectTrInd_dist,dv_detect_dist);
+                respOther_dist{iav} = resp_dist;
                 detectGLMOther_dist{iav} = detectGLM_dist;
-                trOutOther_dist{iav} = trOut(distTrInd);
+                trOutOther_dist{iav} = trOut_dist;
                 
                 
                 detectWeight_cells = coeffAllCells(:,1:nPCs)*detectWeight;
@@ -691,6 +775,8 @@ if doDecoding
                 decodeAnalysis(iexp).av(iav).pctCorrectTargetMovRespWin_holdout = pctCorrectTarget_ho_respwin;
                 
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_distOnly_holdout = pctCorrectDetect_ho_dist;
+                decodeAnalysis(iexp).av(iav).pctCorrectDetect_shuff_holdout = pctCorrectDetect_ho_shuff;
+                decodeAnalysis(iexp).av(iav).pctCorrectTarget_shuff_holdout = pctCorrectTarget_ho_shuff;
 %                 decodeAnalysis(iexp).av(iav).validMatchedPctCorrectDetect_holdout = validCatchMatchDetect;
 %                 decodeAnalysis(iexp).av(iav).validMatchedPctCorrectTarget_holdout = validCatchMatchTarget;
             end
@@ -823,9 +909,12 @@ if doDecoding
                 resp = respOther{otherAV};
                 [detectTrInd, targetTrInd] = getStimAndBehaviorYs(trOutOther{otherAV});
 
-                dv_detect = mean(detectTrInd);
-                dv_target = mean(targetTrInd);
-
+%                 dv_detect = mean(detectTrInd);
+%                 dv_target = mean(targetTrInd);
+                [detecttrind4model,targettrind4model] = getStimAndBehaviorYs(trOutOther{iav});
+                dv_detect = mean(detecttrind4model);
+                dv_target = mean(targettrind4model);
+                
                 pctCorrectDetect = getPctCorr_trainData(detectGLMOther{iav},resp,detectTrInd,dv_detect);
                 pctCorrectTarget = getPctCorr_trainData(targetGLMOther{iav},resp,targetTrInd,dv_target);
                 
@@ -848,9 +937,18 @@ if doDecoding
                 % test other distractor only model
                 resp = respOther_dist{otherAV};
                 [detectTrInd, ~] = getStimAndBehaviorYs(trOutOther_dist{otherAV});
-
-                dv_detect = mean(detectTrInd);
+                dv_detect = mean(getStimAndBehaviorYs(trOutOther_dist{iav}));
                 pctCorrectDetect_dist = getPctCorr_trainData(detectGLMOther_dist{iav},resp,detectTrInd,dv_detect);
+                
+                % test other shuffled model
+                [resp_detect,resp_target] = deal(respOther_shuff{otherAV}{:});
+                [detectTrInd,targetTrInd] = deal(trOutInd_shuff{otherAV}{:});
+                dv_detect = mean(trOutInd_shuff{iav}{1});
+                dv_target = mean(trOutInd_shuff{iav}{2});    
+                pctCorrectDetect_shuff = getPctCorr_trainData(...
+                    detectGLMOther_shuff{iav},resp_detect,detectTrInd,dv_detect);
+                pctCorrectTarget_shuff = getPctCorr_trainData(...
+                    targetGLMOther_shuff{iav},resp_target,detectTrInd,dv_target);
                 
                 
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_otherAV = pctCorrectDetect;
@@ -876,6 +974,8 @@ if doDecoding
                 decodeAnalysis(iexp).av(iav).validMatchedCorrectTrialsTarget_testAud = validCatchCorrectTrialTarget_aud;
                 
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_distOnly_otherAV = pctCorrectDetect_dist;
+                decodeAnalysis(iexp).av(iav).pctCorrectDetect_shuff_otherAV = pctCorrectDetect_shuff;
+                decodeAnalysis(iexp).av(iav).pctCorrectTarget_shuff_otherAV = pctCorrectTarget_shuff;
             end
             rng(0)
             randInd = cellfun(@(x) randsample(length(x),floor(length(x)/2)),...
