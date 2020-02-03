@@ -1,9 +1,9 @@
 %% get path names
-date = '200120';
+date = '200201';
 ImgFolder = strvcat('002');
-time = strvcat('1445');
-mouse = 'i1313';
-alignToRef = 0;
+time = strvcat('1353');
+mouse = 'i1312';
+alignToRef = 1;
 ref_date = '200118';
 ref_run = strvcat('002');
 nrun = size(ImgFolder,1);
@@ -78,7 +78,7 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*nframes):
 
 %% Register data
 
-data_avg = mean(data(:,:,6001:6500),3);
+data_avg = mean(data(:,:,8001:8500),3);
 
 if exist(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str]))
     load(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
@@ -99,7 +99,7 @@ if exist(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str]))
 %     save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 else
     [out, data_reg] = stackRegister(data,data_avg);
-    data_reg_avg = mean(data_reg(:,:,1:10000),3);
+    data_reg_avg = mean(data_reg,3);
     mkdir(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str]))
     save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'data_reg_avg', 'out', 'data_avg')
     save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
@@ -397,7 +397,7 @@ if ~alignToRef
     for iStim = 1:size(data_dfof,3)    
         mask_data_temp = mask_data(:,:,iStim);
         mask_data_temp(find(mask_all >= 1)) = 0;
-        bwout = imCellEditInteractive(mask_data_temp);
+        bwout = imCellEditInteractiveLG(mask_data_temp);
         mask_2 = bwlabel(bwout);
         mask_all = mask_all+mask_2;
         close all
@@ -460,10 +460,10 @@ else
     figure; imagesc(rgb_reg2ref_dfof)
     print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_registered_dfof_overlay.pdf']), '-dpdf','-bestfit')
     
-    for i = 1:nframes
+    for i = 1:size(data_reg,3)
         data_reg(:,:,i) = imtransform(double(data_reg(:,:,i)),mytform,'XData',[1 sz_target(2)],'YData',[1 sz_target(1)]);
         if rem(i,50) == 0
-            fprintf([num2str(i) '/n'])
+            fprintf([num2str(i) '\n'])
         end
     end
     
@@ -634,7 +634,7 @@ tuningDownSampFactor = down;
     getOriTuningLG(data_tc_down,input,tuningDownSampFactor);
     vonMisesFitAllCells = squeeze(vonMisesFitAllCellsAllBoots(:,1,:));
 
-save(fullfile([LG_base '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' dir_str], [date '_' mouse '_' dir_str '_oriTuningAndFits.mat']),...
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningAndFits.mat']),...
             'avgResponseEaOri','semResponseEaOri','vonMisesFitAllCellsAllBoots','fitReliability','R_square', 'tuningTC')
 
 %%
@@ -688,5 +688,5 @@ for i = 1:length(bin)
     tunedCells{i} = intersect(find(ind_bin==i),ind_theta90);
 end
 
-save(fullfile([LG_base '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' dir_str], [date '_' mouse '_' dir_str '_oriTuningInfo.mat']),...
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningInfo.mat']),...
     'prefOri', 'prefOri_bootdiff', 'ind_theta90', 'tunedCells');
