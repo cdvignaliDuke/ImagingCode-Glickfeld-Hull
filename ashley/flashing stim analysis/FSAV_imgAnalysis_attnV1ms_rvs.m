@@ -443,8 +443,7 @@ if doDecoding
             rng(0) % cells randomized and trials randomized
 %             cellInd = respCellsExpt(iexp).decodeAnalysisCells & ...
 %                 oriTuningExpt(iexp).tuningReliability' <= tuningReliabilityThresh_decode;
-            cellInd = respCellsExpt(iexp).lateRespCells|...
-                respCellsExpt(iexp).lateCycRespCells|...
+            cellInd = respCellsExpt(iexp).lateCycRespCells|...
                 respCellsExpt(iexp).targetRespCells;
             decodeAnalysis(iexp).nCells = sum(cellInd);            
             
@@ -581,7 +580,11 @@ if doDecoding
             
             nTrials = min(cellfun(@length,matchTrialsInd_av));
             if round(nTrials.*fracPCsUsed) > maxPCs
-                nPCs = maxPCs;
+                if round(nTrials.*fracPCsUsed) > sum(cellInd)
+                    nPCs = sum(cellInd);
+                else
+                    nPCs = maxPCs;
+                end
             elseif sum(cellInd) < round(nTrials.*fracPCsUsed)
                 nPCs = sum(cellInd);
             else
@@ -720,27 +723,19 @@ if doDecoding
                 targetGLMOther_shuff{iav} = targetGLM_shuff;  
                 
                 
-%                 % train detect model with distractor choices only
-%                 distTrInd = strcmp(trOut(matchTrialsInd),'cr')|strcmp(trOut(matchTrialsInd),'fa');
-%                 trOut_dist = trOutOther{iav}(distTrInd);
-%                 [detectTrInd_dist, ~] = getStimAndBehaviorYs(trOut_dist);
-%                 dv_detect_dist = mean(detectTrInd_dist);
-%                 resp_dist = respOther{iav}(distTrInd,:);
-%                 respOther_dist{iav} = resp_dist;
-% 
-%                 detectCorr_dist = corr(detectTrInd_dist,resp_dist);
-%                 C = eye(size(resp,2));
-%                 p=1;
-%                 [~,~,detectGLM_dist] = glmfit(resp_dist*C,detectTrInd_dist,'binomial');
-%                 pctCorrectDetect_ho_dist = getPctCorr_hoData(resp_dist,detectTrInd_dist,dv_detect_dist);
-%                 detectGLMOther_dist{iav} = detectGLM_dist;
-%                 trOutOther_dist{iav} = trOut_dist;
-                
+                % train detect model with distractor or target choices only
+                if iav == 1
+                    trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,oriBins);
+                elseif iav == 2
+                    trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
+                end
+%                 trOut_matched = trOut(matchTrialsInd);
                 distInd = strcmp(trOut,'fa')|strcmp(trOut,'cr');
                 trOut_dist = trOut(distInd);
+                resp_dist = respAllCells(distInd,1:nPCs);
+                
                 [detectTrInd_dist, ~] = getStimAndBehaviorYs(trOut_dist);
                 dv_detect_dist = mean(detectTrInd_dist);
-                resp_dist = respAllCells(distInd,:);
                 C = eye(size(resp_dist,2));
                 p=1;
                 [~,~,detectGLM_dist] = glmfit(resp_dist*C,detectTrInd_dist,'binomial');
@@ -748,6 +743,22 @@ if doDecoding
                 respOther_dist{iav} = resp_dist;
                 detectGLMOther_dist{iav} = detectGLM_dist;
                 trOutOther_dist{iav} = trOut_dist;
+                detectWeight_cells_distOnly = coeffAllCells(:,1:nPCs)*detectGLM_dist.beta(2:end);
+                
+                tarInd = strcmp(trOut,'h')|strcmp(trOut,'m');
+                trOut_tar = trOut(tarInd);
+                resp_tar = respAllCells(tarInd,1:nPCs);
+                
+                [detectTrInd_tar, ~] = getStimAndBehaviorYs(trOut_tar);
+                dv_detect_tar = mean(detectTrInd_tar);
+                C = eye(size(resp_tar,2));
+                p=1;
+                [~,~,detectGLM_tar] = glmfit(resp_tar*C,detectTrInd_tar,'binomial');
+                pctCorrectDetect_ho_tar = getPctCorr_hoData(resp_tar,detectTrInd_tar,dv_detect_tar);
+                respOther_tar{iav} = resp_tar;
+                detectGLMOther_tar{iav} = detectGLM_tar;
+                trOutOther_tar{iav} = trOut_tar;
+                detectWeight_cells_tarOnly = coeffAllCells(:,1:nPCs)*detectGLM_tar.beta(2:end);
                 
                 
                 detectWeight_cells = coeffAllCells(:,1:nPCs)*detectWeight;
@@ -775,6 +786,9 @@ if doDecoding
                 decodeAnalysis(iexp).av(iav).pctCorrectTargetMovRespWin_holdout = pctCorrectTarget_ho_respwin;
                 
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_distOnly_holdout = pctCorrectDetect_ho_dist;
+                decodeAnalysis(iexp).av(iav).weightDetect_distOnly = detectWeight_cells_distOnly;
+                decodeAnalysis(iexp).av(iav).pctCorrectDetect_tarOnly_holdout = pctCorrectDetect_ho_tar;
+                decodeAnalysis(iexp).av(iav).weightDetect_tarOnly = detectWeight_cells_tarOnly;
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_shuff_holdout = pctCorrectDetect_ho_shuff;
                 decodeAnalysis(iexp).av(iav).pctCorrectTarget_shuff_holdout = pctCorrectTarget_ho_shuff;
 %                 decodeAnalysis(iexp).av(iav).validMatchedPctCorrectDetect_holdout = validCatchMatchDetect;
@@ -934,11 +948,16 @@ if doDecoding
                     targetGLMOther{iav},resp(~stimIndTarget,:),...
                     targetTrInd(~stimIndTarget),dv_target);
                 
-                % test other distractor only model
+                % test other distractor only detect model
                 resp = respOther_dist{otherAV};
                 [detectTrInd, ~] = getStimAndBehaviorYs(trOutOther_dist{otherAV});
                 dv_detect = mean(getStimAndBehaviorYs(trOutOther_dist{iav}));
                 pctCorrectDetect_dist = getPctCorr_trainData(detectGLMOther_dist{iav},resp,detectTrInd,dv_detect);
+                % test other target only detect model
+                resp = respOther_tar{otherAV};
+                [detectTrInd, ~] = getStimAndBehaviorYs(trOutOther_tar{otherAV});
+                dv_detect = mean(getStimAndBehaviorYs(trOutOther_tar{iav}));
+                pctCorrectDetect_tar = getPctCorr_trainData(detectGLMOther_tar{iav},resp,detectTrInd,dv_detect);
                 
                 % test other shuffled model
                 [resp_detect,resp_target] = deal(respOther_shuff{otherAV}{:});
@@ -948,7 +967,7 @@ if doDecoding
                 pctCorrectDetect_shuff = getPctCorr_trainData(...
                     detectGLMOther_shuff{iav},resp_detect,detectTrInd,dv_detect);
                 pctCorrectTarget_shuff = getPctCorr_trainData(...
-                    targetGLMOther_shuff{iav},resp_target,detectTrInd,dv_target);
+                    targetGLMOther_shuff{iav},resp_target,targetTrInd,dv_target);
                 
                 
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_otherAV = pctCorrectDetect;
@@ -974,6 +993,7 @@ if doDecoding
                 decodeAnalysis(iexp).av(iav).validMatchedCorrectTrialsTarget_testAud = validCatchCorrectTrialTarget_aud;
                 
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_distOnly_otherAV = pctCorrectDetect_dist;
+                decodeAnalysis(iexp).av(iav).pctCorrectDetect_tarOnly_otherAV = pctCorrectDetect_tar;
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_shuff_otherAV = pctCorrectDetect_shuff;
                 decodeAnalysis(iexp).av(iav).pctCorrectTarget_shuff_otherAV = pctCorrectTarget_shuff;
             end
@@ -1065,8 +1085,7 @@ if doDecoding
         decodeAnalysis.av(auditoryTrials).name = 'Auditory';
         for iexp = 1:nexp
             rng(0) % cells randomized and trials randomized
-            cellInd = respCellsExpt(iexp).lateRespCells|...
-                respCellsExpt(iexp).lateCycRespCells|...
+            cellInd = respCellsExpt(iexp).lateCycRespCells|...
                 respCellsExpt(iexp).targetRespCells;
             decodeAnalysis(iexp).nCells = sum(cellInd);            
             
@@ -1828,7 +1847,7 @@ end
             end
         end
         save([fnout 'imgAnalysisData'],...
-            'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo','respCellsExpt','antiDataExpt','siPerExpt')
+            'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo','respCellsExpt','antiDataExpt','siPerExpt','oriTuningExpt')
     elseif strcmp(ds,'FSAV_V1_audControl')
         cellInfo.targetWeight = nan(size(cellInfo.firstRespCells));
         cellInfo.dcModelCells = logical(cell2mat({decodeAnalysis.cellInd}'));
@@ -1837,7 +1856,7 @@ end
 %         cellInfo.dcModelCells = logical(cell2mat({decodeAnalysis.cellInd}'));
     end
     save([fnout 'imgAnalysisData'],...
-        'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo','respCellsExpt','antiDataExpt','siPerExpt')
+        'decodeAnalysis','antiAnalysis','targetAnalysis','cellInfo','respCellsExpt','antiDataExpt','siPerExpt','oriTuningExpt')
 end
 %% plotting params
 respTCLim = [-0.005 0.05];
