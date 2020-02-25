@@ -1,11 +1,11 @@
 clear all
 close all
-ds = 'FSAV_attentionV1_noAttn'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
+ds = 'FSAV_attentionV1'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
 cellsOrDendrites = 1;
-doLoadPreviousAnalysis = false;
-analysisDate = '200131';
+doLoadPreviousAnalysis = true;
+analysisDate = '200210';
 attnAnalysisDate = '191211';
-doDecoding = true;
+doDecoding = false;
 %%
 rc = behavConstsAV;
 imgParams_FSAV
@@ -1955,6 +1955,7 @@ Tr_vis = cellfun(@(x) mean(x(respwin_target,:),1),targetAnalysis.tc(:,visualTria
 Tr_aud = cellfun(@(x) mean(x(respwin_target,:),1),targetAnalysis.tc(:,auditoryTrials),'unif',0);
 
 nMice = length(mice);
+
 %% plot anticipation analysis (Figure 2)
 
 setFigParams4Print('landscape')
@@ -3226,6 +3227,72 @@ legend({'-SI','+SI'},...
 
 print([fnout 'tuningAnalysis_oriGroupsSIBinning'],'-dpdf','-fillpage') 
 
+%% alternate selectivity index
+resp_v = mean(antiAnalysis.lateCycTC{visualTrials}(respwin,:),1);
+resp_a = mean(antiAnalysis.lateCycTC{auditoryTrials}(respwin,:),1);
+si_alt = (resp_v-resp_a)./(resp_v+resp_a);
+
+ind = cellInfo.lateCycRespCells;
+y = antiAnalysis.lateCycSI(ind);
+x = si_alt(ind);
+
+figure
+subplot 231
+plot(x,y,'.')
+figXAxis([],'(V-A)./(V+A)',[-7 12])
+figYAxis([],'(V-A)./stdpool(V,A)',[-7 12])
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title(sprintf('r=%s',sigfigString(corr(x',y'))))
+subplot 234
+plot(x,y,'.')
+figXAxis([],'(V-A)./(V+A)',[-2 2])
+figYAxis([],'(V-A)./stdpool(V,A)',[-4 4])
+figAxForm
+hline(0,'k:')
+vline(0,'k:')
+title('zoomed in')
+subplot 232
+h1 = cdfplot(x);
+vline(mean(x),'b')
+figYAxis([],'fraction of cells',[0 1])
+figXAxis([],'selectivity index',[-2 2])
+figAxForm
+title('(V-A)./(V+A)')
+subplot 235
+h2 = cdfplot(y);
+vline(mean(y),'r')
+figXAxis([],'selectivity index',siLim)
+figYAxis([],'fraction of cells',[0 1])
+figAxForm
+title('(V-A)./stdpool(V,A)')
+
+si_alt_ori = cell(1,nOri);
+si_norm_ori = cell(1,nOri);
+for iori = 1:nOri
+    ind = cellInfo.lateCycRespCells & cellInfo.isTuned & cellInfo.oriPref == iori;
+    si_alt_ori{iori} = si_alt(ind);
+    si_norm_ori{iori} = antiAnalysis.lateCycSI(ind);
+end
+
+subplot 233
+y = cellfun(@mean,si_alt_ori);
+yerr = cellfun(@(x) ste(x,2),si_alt_ori);
+errorbar(1:nOri,y,yerr,'.')
+figXAxis([],'Pref. Ori. (deg)',[0 nOri+1],[1:nOri],orientations)
+figYAxis([],'Selectivity',[])
+figAxForm
+title('SI = (V-A)./(V+A)')
+subplot 236
+y = cellfun(@mean,si_norm_ori);
+yerr = cellfun(@(x) ste(x,2),si_norm_ori);
+errorbar(1:nOri,y,yerr,'.')
+figXAxis([],'Pref. Ori. (deg)',[0 nOri+1],[1:nOri],orientations)
+figYAxis([],'Selectivity',[])
+figAxForm
+title('SI = (V-A)./stdpool(V,A)')
+print([fnout 'alternateSelectivityAnalysis'],'-dpdf','-fillpage')
 %% SI x tuning reliability
 bins_rb = [0:5:30,100];
 figure
