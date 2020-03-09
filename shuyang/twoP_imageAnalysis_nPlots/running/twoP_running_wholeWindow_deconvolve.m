@@ -5,12 +5,12 @@
 
 %% assign document paths and experimental sessions
 clear;
-sessions = '190509_img1026'; 
+sessions = '190603_img1025'; 
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 
 % behavior analysis results 
-days = '1026-190509_1';
+days = '1025-190603_1';
 behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
 
@@ -26,7 +26,7 @@ time = 30;%1s
 frm_bfrun = zeros(size(frames_run_cell,2),time);
 frm_aftrun = zeros(size(frames_run_cell,2),time);
 for t = 1: size(frames_run_cell,2) %for each trial
-    frm_bfrun(t,:)= (frames_run_cell{t}(1)-30:frames_run_cell{t}(1)-1);
+    frm_bfrun(t,:)= (frames_run_cell{t}(1)-time:frames_run_cell{t}(1)-1);
     frm_aftrun(t,:) = (frames_run_cell{t}(end)+1:frames_run_cell{t}(end)+time);
 end
 % write frames_run_cell into a matrix, can't use findFrames_run_2P function
@@ -87,20 +87,26 @@ ste_speed_wholeWindow = [ste_speed_bfRun,ste_speed_run,ste_speed_aftRun];
 
 %------------------------------------------------------------------------------------------------------------------------------------
 % plot
-x = (1:length(mean_speed_wholeWindow));
+x = (1:length(mean_speed_wholeWindow))/30;
 run_wholetime_dfOvF = figure;
 subplot(2,1,1);
 shadedErrorBar(x,mean_dfOvF_wholeWindow,ste_dfOvF_wholeWindow);
-ylabel ('df/f');vline(time+1,'r'); vline(length(mean_dfOvF_wholeWindow)-time+1,'r');
-xlim([0,length(mean_dfOvF_wholeWindow)+5]);
-ylim([min(mean_dfOvF_wholeWindow)-0.05, max(mean_dfOvF_wholeWindow)+0.05]);
+ylabel ('df/f');vline(time/30,'r'); 
+vline((length(mean_dfOvF_wholeWindow)-time)/30,'r');
+%xlim([0,length(mean_dfOvF_wholeWindow)+5]);
+%xlim([7.33,10.33]);
+%ylim([-0.3 0.1]);
+%ylim([min(mean_dfOvF_wholeWindow)-0.05, max(mean_dfOvF_wholeWindow)+0.05]);
 title(['df/f before, during, and after running' sessions]);
 
 subplot(2,1,2);
-shadedErrorBar(x,mean_speed_wholeWindow,ste_speed_wholeWindow);
-ylabel ('speed');vline(time+1,'r'); vline(length(mean_dfOvF_wholeWindow)-time+1,'r');
-xlim([0,length(mean_speed_wholeWindow)+5]);
-ylim([min(mean_speed_wholeWindow)-5,max(mean_speed_wholeWindow)+5]);
+shadedErrorBar(x,mean_speed_wholeWindow*2*3.1415926*7.5/128,ste_speed_wholeWindow*2*3.1415926*7.5/128);
+ylabel ('speed(cm/s)');vline(time/30,'r'); 
+vline((length(mean_dfOvF_wholeWindow)-time)/30,'r');
+xlabel('time(s)');
+%xlim([0,length(mean_speed_wholeWindow)+5]);
+%xlim([7.33,10.33]); ylim([-50,50]);
+%ylim([min(mean_speed_wholeWindow)-5,max(mean_speed_wholeWindow)+5]);
 saveas(run_wholetime_dfOvF, [image_analysis_dest sessions, '_dfOvF_run_allWindows']);
 
 save([image_analysis_dest sessions '_dfOvF.mat'],'mean_dfOvF_wholeWindow','ste_dfOvF_wholeWindow','mean_speed_wholeWindow','ste_speed_wholeWindow','-append');
@@ -109,7 +115,7 @@ save([image_analysis_dest sessions '_dfOvF.mat'],'mean_dfOvF_wholeWindow','ste_d
 %% firng rate 
 %CAUTION: right now this session has to be run after the above session,
 %because the code for generating the matrix of the frames and calculating mean speed are not re-written here.
-threshold = -3;
+threshold = -4;
 spk_deconv_output = load([image_analysis_dest sessions,'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
 spk_bi_cellmat = spk_deconv_output.spk_logic;
 ave_spk_prob = mean(spk_bi_cellmat,2);
@@ -140,20 +146,21 @@ ste_aveFR_wholeWindow = [ste_aveFR_bfRun,ste_aveFR_run,ste_aveFR_aftRun];
 
 %------------------------------------------------------------------------------------------------------------------------------------
 % plot
-x = (1: length(mean_aveFR_wholeWindow));
+x = (1: length(mean_aveFR_wholeWindow))/30;
 run_wholetime_FR = figure;
 subplot(2,1,1);
 shadedErrorBar(x,mean_aveFR_wholeWindow,ste_aveFR_wholeWindow);
-ylabel ('firing rate');vline(time+1,'r'); vline(length(mean_aveFR_wholeWindow)-time+1,'r');
-xlim([0,length(mean_aveFR_wholeWindow)+5]);
-ylim([min(mean_aveFR_wholeWindow)-0.3,max(mean_aveFR_wholeWindow)+0.3]);
+ylabel ('firing rate');vline(time/30,'r'); vline((length(mean_aveFR_wholeWindow)-time)/30,'r');
+%xlim([0,length(mean_aveFR_wholeWindow)+5]);
+%ylim([min(mean_aveFR_wholeWindow)-0.3,max(mean_aveFR_wholeWindow)+0.3]);
 title(['firing rate before, during, and after running deconvolve' sessions]);
 
 subplot(2,1,2);
-shadedErrorBar(x,mean_speed_wholeWindow,ste_speed_wholeWindow);
-ylabel ('speed');vline(time+1,'r'); vline(length(mean_aveFR_wholeWindow)-time+1,'r');
-xlim([0,length(mean_speed_wholeWindow)+5]);
-ylim([min(mean_speed_wholeWindow)-5,max(mean_speed_wholeWindow)+5]);
+shadedErrorBar(x,mean_speed_wholeWindow*2*3.1415926*7.5/128,ste_speed_wholeWindow*2*3.1415926*7.5/128);
+ylabel ('speed(cm/s)');vline(time/30,'r'); vline((length(mean_aveFR_wholeWindow)-time)/30,'r');
+xlabel('time(s)');
+%xlim([0,length(mean_speed_wholeWindow)+5]);
+%ylim([min(mean_speed_wholeWindow)-5,max(mean_speed_wholeWindow)+5]);
 saveas(run_wholetime_FR, [image_analysis_dest sessions, '_FR_run_allWindows_deconvolve' num2str(threshold)]);
 
 save([image_analysis_dest sessions '_spk_deconvolve_threshold' num2str(threshold) '.mat'],'mean_aveFR_wholeWindow','ste_aveFR_wholeWindow','mean_speed_wholeWindow','ste_speed_wholeWindow','-append');
@@ -202,23 +209,27 @@ dfOvF_ste_topo_wholeWindow = [ste_dfOvF_bfRun,ste_dfOvF_topo, ste_dfOvF_aftRun];
 speed_topo_wholeWindow = [mean_speed_bfRun, speed_topo, mean_speed_aftRun];
 speed_ste_topo_wholeWindow = [ste_speed_bfRun, ste_speed_topo, ste_speed_aftRun];
 
-
-
 % plot
 x = [(1:1:time),linspace(1+time,time+length(mean_speed_run),resolution_ratio),(length(mean_speed_wholeWindow)-29:1:length(mean_speed_wholeWindow))];
+x = x/30;
 run_wholetime_dfOvF_topo = figure;
 subplot(2,1,1);
 shadedErrorBar(x,dfOvF_topo_wholeWindow,dfOvF_ste_topo_wholeWindow);
-ylabel ('df/f');vline(time+1,'r'); vline(length(mean_speed_wholeWindow)-time+1,'r');
-xlim([0,length(mean_speed_wholeWindow)+5]);
-ylim([min(dfOvF_topo_wholeWindow)-0.05,max(dfOvF_topo_wholeWindow)+0.05]);
+ylabel ('df/f');vline(time/30,'r'); vline((length(mean_speed_wholeWindow)-time)/30,'r');
+%xlim([0,length(mean_speed_wholeWindow)+5]);
+xlim([0 10.33]); 
+ylim([-0.2 0.1]);
+%ylim([min(dfOvF_topo_wholeWindow)-0.05,max(dfOvF_topo_wholeWindow)+0.05]);
 title(['df/f topologized before, during, and after running' sessions]);
 
 subplot(2,1,2);
-shadedErrorBar(x,speed_topo_wholeWindow,speed_ste_topo_wholeWindow);
-ylabel ('speed');vline(time+1,'r'); vline(length(mean_speed_wholeWindow)-time+1,'r');
-xlim([0,length(mean_speed_wholeWindow)+5]);
-ylim([min(speed_topo_wholeWindow)-5,max(speed_topo_wholeWindow)+5]);
+shadedErrorBar(x,speed_topo_wholeWindow*2*3.1415926*7.5/128,speed_ste_topo_wholeWindow*2*3.1415926*7.5/128);
+ylabel ('speed(cm/s)');vline(time/30,'r'); vline((length(mean_speed_wholeWindow)-time)/30,'r');
+xlabel('time(s)');
+%xlim([0,length(mean_speed_wholeWindow)+5]);
+xlim([0 10.33]); 
+ylim([-5 20]);
+%ylim([min(speed_topo_wholeWindow)-5,max(speed_topo_wholeWindow)+5]);
 saveas(run_wholetime_dfOvF_topo, [image_analysis_dest sessions, '_dfOvF_run_allWindows_topo']);
 
 save([image_analysis_dest sessions '_dfOvF.mat'],'dfOvF_topo_wholeWindow','dfOvF_ste_topo_wholeWindow','speed_topo_wholeWindow','speed_ste_topo_wholeWindow','-append');
@@ -251,16 +262,19 @@ steFR_topo_wholeWindow = [ste_aveFR_bfRun,ste_aveFR_topo, ste_aveFR_aftRun];
 run_wholetime_aveFR_topo = figure;
 subplot(2,1,1);
 shadedErrorBar(x,aveFR_topo_wholeWindow,steFR_topo_wholeWindow);
-ylabel ('firing rate');vline(time+1,'r'); vline(length(mean_speed_wholeWindow)-time+1,'r');
-xlim([0,length(mean_speed_wholeWindow)+5]);
-ylim([min(aveFR_topo_wholeWindow)-0.3,max(aveFR_topo_wholeWindow)+0.3]);
+ylabel ('firing rate');vline(time/30,'r'); vline((length(mean_speed_wholeWindow)-time)/30,'r');
+xlim([0 10.33]); ylim([0 2]);
+%xlim([0,length(mean_speed_wholeWindow)+5]);
+%ylim([min(aveFR_topo_wholeWindow)-0.3,max(aveFR_topo_wholeWindow)+0.3]);
 title(['FR topologized before, during, and after running deconvolve' sessions]);
 
 subplot(2,1,2);
-shadedErrorBar(x,speed_topo_wholeWindow,speed_ste_topo_wholeWindow);
-ylabel ('speed');vline(time+1,'r'); vline(length(mean_speed_wholeWindow)-time+1,'r');
-xlim([0,length(mean_speed_wholeWindow)+5]);
-ylim([min(speed_topo_wholeWindow)-5,max(speed_topo_wholeWindow)+5]);
+shadedErrorBar(x,speed_topo_wholeWindow*2*3.1415926*7.5/128,speed_ste_topo_wholeWindow*2*3.1415926*7.5/128);
+ylabel ('speed (cm/s)');vline(time/30,'r'); vline((length(mean_speed_wholeWindow)-time)/30,'r');
+xlim([0 10.33]); ylim([-5 20]);
+xlabel('time(s)');
+%xlim([0,length(mean_speed_wholeWindow)+5]);
+%ylim([min(speed_topo_wholeWindow)-5,max(speed_topo_wholeWindow)+5]);
 saveas(run_wholetime_aveFR_topo, [image_analysis_dest sessions, '_FR_run_allWindows_topo_deconvolve' num2str(threshold)]);
 
 save([image_analysis_dest sessions '_spk_deconvolve_threshold' num2str(threshold) '.mat'],'aveFR_topo_wholeWindow','steFR_topo_wholeWindow','speed_topo_wholeWindow','speed_ste_topo_wholeWindow','-append');

@@ -1,7 +1,7 @@
 %find frames for running, stationary, back and forth, 
 %used in behav_analysis_movingDots_2P
 
-function[frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed)
+function[frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd)
 
 frames = 1: length(speed);
 
@@ -57,7 +57,7 @@ frames_bf_cell = {};
 frames_run_cell = {};
 
 for m = 1: size(frames_move_cell,2)
-    bf = find(max(speed(frames_move_cell{m})) <= 31);
+    bf = find(max(speed(frames_move_cell{m})) <= smallestspd);
     if ~isempty(bf) &&  min(speed(frames_move_cell{m})) < 0
         frames_bf_cell = cat(2, frames_bf_cell, frames_move_cell{m});
     else

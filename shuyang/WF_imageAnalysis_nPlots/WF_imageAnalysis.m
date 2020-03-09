@@ -4,8 +4,10 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'190618_img1029_1'}; 
-days = {'1029-190618_1'};
+sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
+    '190617_img1027_2','190618_img1025_1','190618_img1029_1'}; 
+days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
+    '1027-190617_1','1025-190618_1','1029-190618_1'};
 bx_source = 'Z:\Data\Behv_MovingDots\behavior_raw';
 image_source_base  = 'Z:\Data\WF imaging\'; %location of permanently stored image files for retreiving meta data
 image_dest_base    = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
@@ -67,19 +69,33 @@ for ii = 1: length(sessions)
    save([image_dest,'_dfOvF_staybase'],'dfOvF_staybase');
 end
 
-% if F is the mean of the whole session
-%for ii = 1: length(sessions)
- %   image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
-  %  raw_F = load([image_dest, '_raw_F.mat']);
-   % data_tc = raw_F.data_tc;
-    %data_tc is the fluorescence data for this session, and it will be a
-    %n*num of frames double, n=number of ROIs.
-    %for n = 1:size(data_tc,1)
-     %   F_allbase = mean(data_tc(n,:));
-      %  dfOvF_allbase = (data_tc - F_allbase)/F_allbase;
-    %end
-  % save([image_dest,'_dfOvF_allbase'],'dfOvF_allbase');
-%end
+%% use bottom 10% as F
+for ii = 1: length(sessions)
+    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
+    raw_F = load([image_dest, '_raw_F.mat']);
+    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
+    behav_output = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
+    frm_run_cell = behav_output.frames_run_cell;
+    frm_run = cell2mat(frm_run_cell);
+    data_tc = raw_F.data_tc;
+    F_btm = zeros(1,size(data_tc,1));
+    dfOvF_btmbase = zeros(size(data_tc));
+    frames = 1:size(data_tc,2);
+    for n = 1:size(data_tc,1)
+        data_tc_sort = sort(data_tc(n,:),'ascend');
+        btm = data_tc_sort(1:floor(length(data_tc_sort)*0.1));
+        % test if btm always belongs to running
+        data_tc_n = data_tc(n,:);
+        btm_inx = frames(ismember(data_tc_n,btm));
+        NbtmInRun = sum((ismember(frm_run,btm_inx))==1);
+        % test if btm always belongs to running
+        %         btm_inx = frames(ismember(TCave_cl(:,n),btm));
+        %         NbtmInRun = sum((ismember(frm_run,btm_inx))==1);
+        F_btm(n) = mean(btm);
+        dfOvF_btmbase(n,:) = (data_tc(n,:) - F_btm(n))/F_btm(n);
+    end
+    save([image_dest,'_dfOvF_btmbaseline'],'dfOvF_btmbase');
+end
 
 %%  SECTION VI - draw heatmap for ROI
 for ii = 1: length(sessions)

@@ -9,13 +9,14 @@
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'190618_img1029_1'};
-days = {'1029-190618_1'};
-sessionID = {'1029-190618'};
+sessions = {'190617_img1021_1'};%,'190617_img1023_1','190617_img1024_1',...
+   % '190617_img1027_2','190618_img1025_1'};
+days = {'1021-190617_1'};%,'1023-190617_1','1024-190617_1',...
+    %'1027-190617_1','1025-190618_1'};
 %there might be more than 1 sessions on a single subject on the same day
 %bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
 %image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
-image_dest_base    = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the movingDots analysis folder
+image_dest_base    = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
 color_code = {'c','r','y','g'};
 
@@ -24,15 +25,159 @@ color_code = {'c','r','y','g'};
 for ii = 1: length(sessions)
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
     behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
-    dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_strct.dfOvF_staybase;
+    dfOvF_strct = load([image_dest, '_dfOvF_btmbaseline.mat']);
+    dfOvF = dfOvF_strct.dfOvF_btmbase;
     behav_struct = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
     frames_run_cell = behav_struct.frames_run_cell;
     speed = behav_struct.speed;
-    [frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,frames_run_mat] = findFrames_runWindows (speed,frames_run_cell);
+    [frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,frames_runoff_mat,frames_run_mat] = findFrames_runWindows (speed,frames_run_cell);
     
-     save([behav_dest '\' sessionID{ii} '_1_behavAnalysis.mat' ],...
-        'frames_befo_run_cell','frames_aft_run_cell','frames_runTrigger_mat','frames_run_mat', '-append');
+    save([behav_dest '\' days{ii} '_behavAnalysis.mat' ],...
+        'frames_befo_run_cell','frames_aft_run_cell','frames_runTrigger_mat','frames_runoff_mat','frames_run_mat', '-append');
+end
+
+
+%%  SECTION IV: run trigger ave
+for ii = 1: length(sessions)
+    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
+    behav_struct = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
+    speed = behav_struct.speed; speed = double(speed);
+    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
+    dfOvF_strct = load([image_dest, '_dfOvF_btmbaseline.mat']);
+    dfOvF = dfOvF_strct.dfOvF_btmbase;
+    frames_runTrigger_mat = behav_struct.frames_runTrigger_mat;
+
+    runTrigSpeed = (speed(frames_runTrigger_mat))';
+    ave_speed_runTrigger = mean(runTrigSpeed);
+    ste_speed_runTrigger = std(runTrigSpeed,0,1)/sqrt(size(runTrigSpeed,1));
+    
+    % generate matrixes for df/f and plot----------------------------------
+    dfOvF_runTrigger = zeros(size(frames_runTrigger_mat,2),size(frames_runTrigger_mat,1),size(dfOvF,1));
+    for n = 1:size(dfOvF,1)
+        temp = dfOvF(n,:);
+        dfOvF_runTrigger(:,:,n) = (temp(frames_runTrigger_mat))'; %trials*frames*ROIs
+%         set(0,'DefaultFigureVisible','off'); %doesn't show figures for the single sessions on the screen
+%         windows_fig(n) = figure; 
+%         %make every line start at the same height
+%         startMean = mean(dfOvF_runTrigger(:,1,n));
+%         diff = dfOvF_runTrigger(:,1,n)-startMean;
+%         diff_array = repmat(diff,1, size(dfOvF_runTrigger,2));
+%         dfOvF_runTrigger_plot = dfOvF_runTrigger(:,:,n) - diff_array;
+%         dfOvF_runTrigger_plot = dfOvF_runTrigger_plot';
+%         plot(x,dfOvF_runTrigger_plot);
+%         xlabel('frames');
+%         ylabel('df/f');
+%         set(gca,'XTick',x);
+%         vline(-1, 'k','running start');
+%         title(['df/f for each running window ROI' num2str(n)]); 
+%         saveas(windows_fig(n), [image_dest '_runTrigSessions_ROI' num2str(n)]);
+    end
+    
+    ave_dfOvF_runTrigger = squeeze(mean(dfOvF_runTrigger,1)); %average across trials
+    ste_dfOvF_runTrigger = squeeze(std(dfOvF_runTrigger,0,1)/sqrt(size(dfOvF_runTrigger,1)));
+    
+    ave_dfOvF_runTrigger = ave_dfOvF_runTrigger';
+    ste_dfOvF_runTrigger = ste_dfOvF_runTrigger';
+    
+    set(0,'DefaultFigureVisible','on'); 
+    x = (0:length(ave_dfOvF_runTrigger)-1)/10;
+    if size(ave_dfOvF_runTrigger,2)>1
+        xplot = repmat(x,size(ave_dfOvF_runTrigger,1),1);
+    else
+        xplot = x;
+    end
+    mean_fig = figure; 
+    subplot(2,1,1);hold on;
+    errorbar(xplot',ave_dfOvF_runTrigger',ste_dfOvF_runTrigger','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
+    %xlim([-5 10]);
+    ylim([-0.1 0.45]);
+    vline(1, 'r','running start');
+    ylabel('df/f'); legend('ROI1','ROI2','ROI3','ROI4');
+    
+    subplot(2,1,2);hold on;
+    errorbar(x,ave_speed_runTrigger*2*3.1415926*7.5/128,ste_speed_runTrigger*2*3.1415926*7.5/128,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
+    xlabel('time(s)');
+    ylabel('speed(cm/s)');
+    vline(1, 'r','running start');
+    %xlim([-5 10]);
+    
+    supertitle(['run triggered average',sessions{ii}] );
+    saveas(mean_fig, [image_dest '_runTrigAve']);
+    save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_runTrigger', 'ave_speed_runTrigger', '-append');
+    
+end
+
+
+%%  SECTION V: run offset ave
+for ii = 1: length(sessions)
+    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
+    behav_struct = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
+    speed = behav_struct.speed; speed = double(speed);
+    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
+    dfOvF_strct = load([image_dest, '_dfOvF_btmbaseline.mat']);
+    dfOvF = dfOvF_strct.dfOvF_btmbase;
+    frames_runoff_mat = behav_struct.frames_runoff_mat;
+
+    runOffSpeed = (speed(frames_runoff_mat))';
+    ave_speed_runoff = mean(runOffSpeed);
+    ste_speed_runoff = std(runOffSpeed,0,1)/sqrt(size(runOffSpeed,1));
+    
+    % generate matrixes for df/f and plot----------------------------------
+    dfOvF_runOff = zeros(size(frames_runoff_mat,2),size(frames_runoff_mat,1),size(dfOvF,1));%trials*frames*ROIs
+    %x = -5:runTriggerDura-6;
+    for n = 1:size(dfOvF,1)
+        temp = dfOvF(n,:);
+        dfOvF_runOff(:,:,n) = (temp(frames_runoff_mat))';
+%         set(0,'DefaultFigureVisible','off'); %doesn't show figures for the single sessions on the screen
+%         windows_fig(n) = figure; 
+%         %make every line start at the same height
+%         startMean = mean(dfOvF_runOff(:,1,n));
+%         diff = dfOvF_runOff(:,1,n)-startMean;
+%         diff_array = repmat(diff,1, size(dfOvF_runOff,2));
+%         dfOvF_runOff_plot = dfOvF_runOff(:,:,n) - diff_array;
+%         plot(x,dfOvF_runOff_plot');
+%         xlabel('frames');
+%         ylabel('df/f');
+%         set(gca,'XTick',x);
+%         vline(-1, 'k','running start');
+%         title(['df/f for each running window ROI' num2str(n)]); 
+%         saveas(windows_fig(n), [image_dest '_runTrigSessions_ROI' num2str(n)]);
+    end
+    
+    ave_dfOvF_runOff = squeeze(mean(dfOvF_runOff,1));
+    ste_dfOvF_runOff = squeeze(std(dfOvF_runOff,0,1)/sqrt(size(dfOvF_runOff,1)));
+    
+    ave_dfOvF_runOff = ave_dfOvF_runOff';
+    ste_dfOvF_runOff = ste_dfOvF_runOff';
+    
+    set(0,'DefaultFigureVisible','on');
+    x = (0:length(ave_dfOvF_runOff)-1)/10;
+    if size(ave_dfOvF_runOff,2)>1
+        xplot = repmat(x,size(ave_dfOvF_runOff,1),1);
+    else
+        xplot = x;
+    end
+    
+    x = (0:length(ave_dfOvF_runOff)-1)/10;
+    mean_fig = figure; 
+    subplot(2,1,1);hold on;
+    errorbar(xplot',ave_dfOvF_runOff',ste_dfOvF_runOff','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
+    %xlim([-5 10]);
+    ylim([-0.1 0.45]);
+    vline(1, 'r','running end');
+    ylabel('df/f'); legend('ROI1','ROI2','ROI3','ROI4');
+    
+    subplot(2,1,2);hold on;
+    errorbar(x,ave_speed_runoff*2*3.1415926*7.5/128,ste_speed_runoff*2*3.1415926*7.5/128,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
+    xlabel('time(s)');
+    ylabel('speed(cm/s)');
+    vline(1, 'r','running end');
+    %xlim([-5 10]);
+    
+    supertitle(['run offset average',sessions{ii}] );
+    saveas(mean_fig, [image_dest '_runoffAve']);
+    save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_runOff', 'ave_speed_runoff', '-append');
+    
 end
 
 
@@ -40,8 +185,8 @@ end
 for ii = 1:length(sessions)
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
     behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
-    dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_strct.dfOvF_staybase;
+    dfOvF_strct = load([image_dest, '_dfOvF_btmbaseline.mat']);
+    dfOvF = dfOvF_strct.dfOvF_btmbase;
     behav_struct = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
     frames_run_cell = behav_struct.frames_run_cell; 
     frames_run = cell2mat(frames_run_cell);
@@ -89,12 +234,12 @@ for ii = 1:length(sessions)
     x1= [1,2,3];
     set(gca,'XTick',x1,'XTicklabel',{'right before','run','right after'});
     ylabel('df/f');
-    title(['df/f right before and after running',sessions{ii}]);
+    title(['df/f right before and after running',sessions{ii}]); axis square;
     saveas(dfOvF_run_buffer, [image_dest '_dfOvF_runVsSurround']);
-    save([behav_dest '\' sessionID{ii} '_1_behavAnalysis.mat' ],...
+    save([behav_dest '\' days{ii} '_behavAnalysis.mat' ],...
         'ave_dfOvF_befoRun','ave_dfOvF_aftRun','ste_dfOvF_befoRun','ste_dfOvF_aftRun',...
         'ave_speed_befoRun','ste_speed_befoRun','ave_speed_aftRun','ste_speed_aftRun','-append');
-    save([image_dest '_imgAnalysis.mat' ],'ave_befoRunaft');
+    save([image_dest '_imgAnalysis.mat' ],'ave_befoRunaft','-append');
 end
 
 %% SECTION III: df/f before, after and during running, every 300ms.
@@ -103,8 +248,8 @@ for ii = 1: length(sessions)
     behav_struct = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
     speed = behav_struct.speed; speed = double(speed);
     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
-    dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_strct.dfOvF_staybase;
+    dfOvF_strct = load([image_dest, '_dfOvF_btmbaseline.mat']);
+    dfOvF = dfOvF_strct.dfOvF_btmbase;
     frames_run_mat = behav_struct.frames_run_mat;
     
     %frames_run_buffer_mat = behav_output.frames_run_buffer_mat;
@@ -197,66 +342,3 @@ for ii = 1: length(sessions)
 
 end
 
-
-%%  SECTION IV: run trigger ave
-runTriggerDura = 15;
-for ii = 1: length(sessions)
-    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
-    behav_struct = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
-    speed = behav_struct.speed; speed = double(speed);
-    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
-    dfOvF_strct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_strct.dfOvF_staybase;
-    frames_runTrigger_mat = behav_struct.frames_runTrigger_mat;
-
-    runTrigSpeed = (speed(frames_runTrigger_mat))';
-    ave_speed_runTrigger = mean(runTrigSpeed);
-    ste_speed_runTrigger = std(runTrigSpeed,0,1)/sqrt(size(runTrigSpeed,1));
-    
-    % generate matrixes for df/f and plot----------------------------------
-    dfOvF_runTrigger = zeros(size(frames_runTrigger_mat,2),size(frames_runTrigger_mat,1),size(dfOvF,1));
-    x = -5:runTriggerDura-6;
-    for n = 1:size(dfOvF,1)
-        temp = dfOvF(n,:);
-        dfOvF_runTrigger(:,:,n) = (temp(frames_runTrigger_mat))';
-        set(0,'DefaultFigureVisible','off'); %doesn't show figures for the single sessions on the screen
-        windows_fig(n) = figure; 
-        %make every line start at the same height
-        startMean = mean(dfOvF_runTrigger(:,1,n));
-        diff = dfOvF_runTrigger(:,1,n)-startMean;
-        diff_array = repmat(diff,1, size(dfOvF_runTrigger,2));
-        dfOvF_runTrigger_plot = dfOvF_runTrigger(:,:,n) - diff_array;
-        dfOvF_runTrigger_plot = dfOvF_runTrigger_plot';
-        plot(x,dfOvF_runTrigger_plot);
-        xlabel('frames');
-        ylabel('df/f');
-        set(gca,'XTick',x);
-        vline(-1, 'k','running start');
-        title(['df/f for each running window ROI' num2str(n)]); 
-        saveas(windows_fig(n), [image_dest '_runTrigSessions_ROI' num2str(n)]);
-    end
-    
-    ave_dfOvF_runTrigger = squeeze(mean(dfOvF_runTrigger,1));
-    ste_dfOvF_runTrigger = squeeze(std(dfOvF_runTrigger,0,1)/sqrt(size(dfOvF_runTrigger,1)));
-    
-    set(0,'DefaultFigureVisible','on'); 
-    mean_fig = figure; 
-    subplot(2,1,1);hold on;
-    errorbar(ave_dfOvF_runTrigger,ste_dfOvF_runTrigger,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
-    %xlim([-5 10]);
-    %ylim([-0.05 0.05]);
-    vline(6, 'r','running start');
-    ylabel('df/f'); legend;
-    
-    subplot(2,1,2);hold on;
-    errorbar(ave_speed_runTrigger,ste_speed_runTrigger,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
-    xlabel('frames');
-    ylabel('speed');
-    vline(6, 'r','running start');
-    %xlim([-5 10]);
-    
-    supertitle(['run triggered average',sessions{ii}] );
-    saveas(mean_fig, [image_dest '_runTrigAve']);
-    save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_runTrigger', 'ave_speed_runTrigger', '-append');
-    
-end

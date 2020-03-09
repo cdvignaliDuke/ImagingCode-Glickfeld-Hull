@@ -45,9 +45,9 @@ colord=[         0         0    1.0000
         %     if ismember(i, [5,10,15,20,25,30,35,40,45,50])
         %         hline(shift);
         %     end
-        shift = shift+10000;  %10000 for 2P
+        shift = shift+4500;  %10000 for 2P
     end
-    set(gca,'YTick',10000:10000:shift);
+    set(gca,'YTick',4500:4500:shift);
     set(gca,'YTicklabel',(ICuse));
     %saveas(fig, [out_dir, 'TC.fig']);
    % print([out_dir, 'TC.eps'],'-depsc')

@@ -6,29 +6,29 @@
 
 %% assign document paths and experimental sessions
 clear;
-sessions = '190509_img1026'; 
+sessions = '191206_img1038'; 
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 
 % behavior analysis results 
-days = '1026-190509_1';
+days = '1038-191206_1';
 behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
 
 %% SECTION IV FR RUNNING VS. STAYTIONARY
 behav_output = load([behav_dest days '_behavAnalysis.mat']);
-threshold = -3;% the threshold you used in deconvolveCa function
+threshold = -4;% the threshold you used in deconvolveCa function
 spk_deconv_output = load([image_analysis_dest sessions,'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
-spk_inx = spk_deconv_output.spk_inx;
-FRstay_cell = spk_deconv_output.FRstay_cell;
+spk_inx = spk_deconv_output.spk_inx_cl;
+FRstay_cell = spk_deconv_output.FRstay_cell_cl;
 frm_run_cell = behav_output.frames_run_cell;
 frm_run = cell2mat(frm_run_cell);
 spkrun = zeros(1,size(spk_inx,2));
 for i = 1: size(spk_inx,2) %for each cell
-%count how many spikes are in the running periods: get the intersection
-%of indices of peaks above the threshold and indices of frames for running
-spkrun(i) = length(intersect(spk_inx{i},frm_run));
-end 
+    %count how many spikes are in the running periods: get the intersection
+    %of indices of peaks above the threshold and indices of frames for running
+    spkrun(i) = length(intersect(spk_inx{i},frm_run));
+end
 t_run = length(frm_run)/30;
 FRrun_cells = spkrun/t_run;
 aveFR_run = mean(FRrun_cells);
@@ -37,7 +37,7 @@ figure;
 scatter(FRstay_cell,FRrun_cells,'filled','r'); hold on;
 scatter(aveFR_stay, aveFR_run,'filled','k');hold on;
 xlabel('stationary'); ylabel('running');
-xlim([0,2.5]); ylim([0,2.5]);
+xlim([0,1.5]); ylim([0,1.5]);
 refline(1,0);
 title([sessions 'mean firing rate per second']);
 savefig([image_analysis_dest sessions '_meanFRstayVSrun_deconvolve' num2str(threshold)]);
@@ -46,9 +46,9 @@ savefig([image_analysis_dest sessions '_meanFRstayVSrun_deconvolve' num2str(thre
 behav_output = load([behav_dest days '_behavAnalysis.mat']);
 frames_run_cell = behav_output.frames_run_cell;
 speed = double(behav_output.speed);
-threshold = -3;
+threshold = -4;
 spk_deconv_output = load([image_analysis_dest sessions,'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
-spk_bi_cellmat = spk_deconv_output.spk_logic;
+spk_bi_cellmat = spk_deconv_output.spk_logic_cl;
 
 period = 9; % # of frames before and after running
 befoRunStay = 30; %1s, # of frames that speed =0 before running
@@ -80,8 +80,9 @@ shadedErrorBar(x,spk_runtrig_grand,ste_runtrig);hold on;
 vline(31,'r'); ylabel('average firing rate'); xlabel('frame');
 title([sessions ' aligned to running onset-deconvolution']);
 subplot(2,1,2);%plot(speed_runtrig);
-shadedErrorBar(x,aveSpd_runtrig, steSpd_runtrig);hold on;
-vline(31,'r'); ylabel('speed'); xlabel('frame');
+shadedErrorBar(x,aveSpd_runtrig*2*3.1415926*7.5/128, steSpd_runtrig*2*3.1415926*7.5/128);hold on;
+vline(31,'r'); ylabel('speed(cm/s)'); xlabel('frame');
+text(0.1,min(aveSpd_runtrig*2*3.1415926*7.5/128)+2,['n = ' num2str(size(frms_runTrig_mat,2))]);
 %title([sessions ' running triggered average speed']);
 savefig([image_analysis_dest sessions '_runTrigAve_FRwSpeed_deconvolve' num2str(threshold)]);
 
@@ -111,9 +112,9 @@ vline(31,'r'); ylabel('average firing rate');xlabel('frame');
 title([sessions ' aligned to running offset-deconvolution']);
 
 subplot(2,1,2);%plot(speed_runoff);
-shadedErrorBar(x,aveSpd_runoff, steSpd_runoff);hold on;
-vline(31,'r'); ylabel('speed');xlabel('frame');%title([sessions ' running triggered average speed']);
-
+shadedErrorBar(x,aveSpd_runoff*2*3.1415926*7.5/128, steSpd_runoff*2*3.1415926*7.5/128);hold on;
+text(1.8,min(aveSpd_runtrig*2*3.1415926*7.5/128)+2,['n = ' num2str(size(frms_runoff_mat,2))]);
+vline(31,'r'); ylabel('speed(cm/s)');xlabel('frame');%title([sessions ' running triggered average speed']);
 savefig([image_analysis_dest sessions '_runOffAve_FRwSpeed' num2str(threshold)]);
 
 
@@ -122,7 +123,7 @@ savefig([image_analysis_dest sessions '_runOffAve_FRwSpeed' num2str(threshold)])
 behav_output = load([behav_dest days '_behavAnalysis.mat']);
 frames_run_cell = behav_output.frames_run_cell;
 speed = double(behav_output.speed);
-threshold = -3;
+threshold = -4;
 spk_deconv_output = load([image_analysis_dest sessions,'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
 spk_bi_cellmat = spk_deconv_output.spk_logic;
 
@@ -156,8 +157,9 @@ shadedErrorBar(x,spk_runtrig_NC_grand,ste_runtrig_NC);hold on;
 vline(31,'r'); ylabel('average firing rate'); xlabel('frame');
 title([sessions ' aligned to running onset INCLUSIVE-deconvolve']);
 subplot(2,1,2);%plot(speed_runtrig);
-shadedErrorBar(x,aveSpd_runtrig_NC, steSpd_runtrig_NC);hold on;
-vline(31,'r'); ylabel('speed'); xlabel('frame');
+shadedErrorBar(x,aveSpd_runtrig_NC*2*3.1415926*7.5/128, steSpd_runtrig_NC*2*3.1415926*7.5/128);hold on;
+vline(31,'r'); ylabel('speed(cm/s)'); xlabel('frame');
+text(1.8,min(aveSpd_runtrig_NC*2*3.1415926*7.5/128)+2,['n = ' num2str(size(frms_runTrig_NC_mat,2))]);
 savefig([image_analysis_dest sessions '_runTrigAve_FRwSpeed_INCLUSIVE_deconvolve' num2str(threshold)]);
 
 
@@ -186,9 +188,9 @@ vline(31,'r'); ylabel('average firing rate');xlabel('frame');
 title([sessions ' aligned to running offset INCLUSIEVE-deconvolve']);
 
 subplot(2,1,2);%plot(speed_runoff);
-shadedErrorBar(x,aveSpd_runoff_NC, steSpd_runoff_NC);hold on;
-vline(31,'r'); ylabel('speed');xlabel('frame');%title([sessions ' running triggered average speed']);
-
+shadedErrorBar(x,aveSpd_runoff_NC*2*3.1415926*7.5/128, steSpd_runoff_NC*2*3.1415926*7.5/128);hold on;
+text(1.8,min(aveSpd_runoff_NC*2*3.1415926*7.5/128)+2,['n = ' num2str(size(frms_runoff_NC_mat,2))]);
+vline(31,'r'); ylabel('speed(cm/s)');xlabel('frame');%title([sessions ' running triggered average speed']);
 savefig([image_analysis_dest sessions '_runOffAve_FRwSpeed_INCLUSIVE_deconvolve' num2str(threshold)]);
 
 

@@ -5,12 +5,12 @@
 % and first derivatives.
 %% assign document paths and experimental sessions
 clear;
-sessions = '190705_img1034_vermisVI'; 
+sessions = '190505_img1024'; 
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 
 % behavior analysis results 
-days = '1034-190705_2';
+days = '1024-190505_1';
 behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
 

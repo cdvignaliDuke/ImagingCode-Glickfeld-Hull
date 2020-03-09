@@ -1,4 +1,4 @@
-%This script is to analyze the RAW behavior data of movingDots stimulus/running behavior during side field imaging
+%This script is to analyze the RAW behavior data of movingDots stimulus/running behavior during two photon imaging
 %The analysis will calculate average running speed, average duration of
 %running periods, and average duration of stationary periods.
 %This analysis will also graph speed across time, and make histograms of durations of each behavioral state.
@@ -7,12 +7,11 @@
 %% Section I: set paths and create analysis folders for each session
 %define the directory and files
 clear;
-folder = 'Z:\Data\Behv_MovingDots\behavior_raw_WF\';
-sessionID = '1029-190618';% this  variable name is confusing, this session ID is just tha date and the subject#, 
-%there might be more than 1 sessions on a single subject on the same day
+folder = 'Z:\Data\Behv_MovingDots\behavior_raw_2P\';
+sessionID = '1042-191220';% if there're more than 1 sessions on a single subject on the same day, put the time in here after the date
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)
-    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
+    behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
     if ~exist(behav_dest)
         mkdir(behav_dest);
     end
@@ -25,9 +24,15 @@ for i = 1:size(filename,1)
     % later analysis will need to know if this session is a reverse session, and if yes, the frames of the reverse stimuli. 
     cReverse = input.cReverse;
     cReverse_vec = [cReverse{:}];
-    speed = calculate_speed(input);
+    lenframe = 33.3333;
+    speed = calculate_speed_2P(input,lenframe);
+   
+    % this gives you the average for each frame (ave speed in number of units during that 33.3333ms)
+    speed = double(speed);
+    %speed = speed(1:30028);
     % find relative behavioral states and save to behavior analysis file
-    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates(speed);
+    smallestspd = ceil(1/lenframe*1000);
+    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd);
     save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
         'cReverse_vec','speed','frames','frames_stay_cell','frames_bf_cell',...
         'frames_run_cell','frames_move_cell');
@@ -37,7 +42,7 @@ for i = 1:size(filename,1)
     if isempty(cReverse_vec) == 0
     vline(cReverse_vec, 'r');
     end
-    title (['average speed every frame(100ms)', '  ', sessionID '-' num2str(i)]);
+    title (['average speed every frame(30ms)', '  ', sessionID '-' num2str(i)]);
     xlabel ('frames');
     ylabel ('speed(pulses/s)');
     saveas(fig_speedtc,[behav_dest '\' sessionID '_' num2str(i) '_speed']);
@@ -45,7 +50,7 @@ end
 % check if found frames are what I want to find
 figure;plot(speed);
 hold on;
-plot(cell2mat(frames_bf_cell), 10*ones(1,length(cell2mat(frames_bf_cell))),'r.');
+plot(cell2mat(frames_bf_cell), smallestspd*ones(1,length(cell2mat(frames_bf_cell))),'r.');
 
 %% draw distribution of running duration
 %num_frames_run_all = {};

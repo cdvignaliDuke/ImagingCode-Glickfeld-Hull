@@ -6,14 +6,14 @@
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'190618_img1029_1'};
-days = {'1029-190618_1'};
-sessionID = {'1029-190618'};
-% this  variable name is confusing, this session ID is just tha date and the subject#, 
+%sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
+%    '190617_img1027_2','190618_img1025_1','190618_img1029_1'};
+%days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
+%   '1027-190617_1','1025-190618_1','1029-190618_1'};
+sessions = {'190617_img1021_1'};
+days = {'1021-190617_1'};
 %there might be more than 1 sessions on a single subject on the same day
-%bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
-%image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
-image_dest_base = ['Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\']; %stores the data on crash in the movingDots analysis folder
+image_dest_base = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
 color_code = {'r','g','m','y','b'};
 
@@ -34,8 +34,8 @@ for i = 1:length(sessions)
     behav_struct = load([behav_dest '\' days{i} '_behavAnalysis.mat']);
     speed = behav_struct.speed;
     cReverse_vec = behav_struct.cReverse_vec;
-    dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_struct.dfOvF_staybase;
+    dfOvF_struct = load([image_dest, '_dfOvF_btmbaseline.mat']);
+    dfOvF = dfOvF_struct.dfOvF_btmbase;
     
     dfOvF_speed_fig = figure;
     for n = 1:size(dfOvF,1)
@@ -43,22 +43,29 @@ for i = 1:length(sessions)
         time = (0:(length(speed)-1));
         hold on;
         %plot only part of the session so that the plot is not too crowded
-        %[hAx,hline1,hline2(n)] = plotyy(time(2000:2500),speed(2000:2500),time(2000:2500),dfOvF_plot(2000:2500));
-        [hAx,hline1,hline2(n)] = plotyy(time,speed,time,dfOvF_plot);
-        set(hline1,'color', 'b'); 
+        n1 = 1;
+        n2 = 9000;
+        x = (1:(n2-n1+1))/10;
+        [hAx,hline1,hline2(n)] = plotyy(x,speed(n1:n2)*2*3.1415926*7.5/128,x,dfOvF_plot(n1:n2));
+        %[hAx,hline1,hline2(n)] = plotyy(time,speed,time,dfOvF_plot);
+        set(hline1,'color', 'b');
         set(hline2(n),'color',color_code{n});
-        %legend;%('speed','ROI1','ROI2','Location','northeast');
-        %ylim(hAx(2),[-1.5 0.5]);
-    end 
+        %legend('speed',['ROI ' num2str(n)],'Location','northeast');hold on;
+        %ylim(hAx(2),[0 0.5]);  
+    end
+    
     if isempty(cReverse_vec) == 0
     vline(cReverse_vec, 'r');
     end
-    xlabel ('frames');
-    ylabel(hAx(1),'speed');
+    xlabel ('time(s)');
+    ylabel(hAx(1),'speed(cm/s)');
     ylabel(hAx(2),'df/f');
-    ylim(hAx(1),[min(speed),max(speed)]);
-    ylim(hAx(2),[-0.6,0.7]);
-    title(['df/f and speed',sessions{i}])
+    %xlim([0 max(x)]);
+    %ylim(hAx(2),[0,0.5]);
+    %ylim(hAx(1),[-10 25]);
+    %ylim(hAx(1),[min(speed),max(speed)]);
+    title(['df/f and speed',sessions{i}]);
+    % legend('speed','ROI1','ROI2','ROI3','ROI4');
     saveas(dfOvF_speed_fig, [image_dest, '_dfOvF_and_speed']);
     
 end
@@ -70,25 +77,25 @@ for i = 1: length(sessions)
     behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{i}];
     behav_struct = load([behav_dest '\' days{i} '_behavAnalysis.mat']);
     speed = behav_struct.speed;
-    cReverse_vec = behav_struct.cReverse_vec;
-    dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_struct.dfOvF_staybase;
+    dfOvF_struct = load([image_dest, '_dfOvF_btmbaseline.mat']);
+    dfOvF = dfOvF_struct.dfOvF_btmbase;
     
     isp = unique(speed);
     dfOvF_spd = []; dfOvF_spdmean = []; dfOvF_spdste = [];
     for k = 1:length(isp)
         dfOvF_spd = dfOvF(:,speed==isp(k));
-        dfOvF_spdmean(:,k)  = mean(dfOvF_spd,2);
+        dfOvF_spdmean(:,k)  = mean(dfOvF_spd,2); % average across frames, ROI*number of unique speeds
         dfOvF_spdste(:,k) = std(dfOvF_spd,[],2)/sqrt(length(dfOvF_spd));
     end
     isp_plot =  repmat(isp,size(dfOvF_spdmean,1),1);
     dfOvF_ave_vs_spd = figure;
-    errorbar(isp_plot',dfOvF_spdmean',dfOvF_spdste','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);
+    errorbar(isp_plot'*2*3.1415926*7.5/128,dfOvF_spdmean',dfOvF_spdste','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);
     legend('ROI1','ROI2','ROI3','ROI4','ROI5'); hold on;
     %if do errorbar(y,ste y), it can do multiple lines at once. But if do
     %errorbar(x,y,ste y), size of x and y must match(if your y contains n lines, even though the x for all lines are the same, x must have n lines too. 
-    xlabel ('speed');
+    xlabel ('speed(cm/s)');
     ylabel('ave df/f');
+    xlim([0 max(isp)*2*3.1415926*7.5/128]);
     title(['df/f vs. speed',sessions{i}]); 
     saveas(dfOvF_ave_vs_spd, [image_dest, '_dfOvf_vs_speed']);
     save([image_dest '_imgAnalysis.mat' ],'isp', 'dfOvF_spdmean');
@@ -102,8 +109,8 @@ for ii = 1: length(sessions)
     behav_struct = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
     speed = behav_struct.speed;
     cReverse_vec = behav_struct.cReverse_vec;
-    dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
-    dfOvF = dfOvF_struct.dfOvF_staybase;
+    dfOvF_struct = load([image_dest, '_dfOvF_btmbaseline.mat']);
+    dfOvF = dfOvF_struct.dfOvF_btmbase;
     
     %data_tc is the fluorescence data for this session, and it will be a
     %n*num of frames double, n=number of ROIs.
@@ -131,11 +138,11 @@ for ii = 1: length(sessions)
     x = [1,2]; x_plot = repmat(x,size(dfOvF,1),1);
     dfOvF_behavStates = figure;
     errorbar(x_plot',ave_dfOvF_behav',ste_dfOvF_behav','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);
-    xlabel ('behavioral state');xlim([0.5 2.5]);
+    xlabel ('behavioral state');xlim([0.5 2.5]); axis square;
     set(gca,'XTick',x,'XTicklabel',{'stationary','run'});
     ylabel('df/f');
     title(['df/f for each beahvioral state',sessions{ii}]); legend('ROI1','ROI2','ROI3','ROI4','ROI5');
-    saveas(dfOvF_behavStates, [image_dest '_dfOvF_behavStates_2']);
+    saveas(dfOvF_behavStates, [image_dest '_dfOvF_behavStates']);
     save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_behav', '-append');
 end
 

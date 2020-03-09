@@ -1,6 +1,6 @@
 %calculate speed for 2p experiments, used in behav_analysis_movingDots_2P
 
-function speed = calculate_speed_2P(input)
+function speed = calculate_speed_2P(input,lenframe)
 % before ziye updated the coding, qudrature times and value are only
 % reported when there's move. so can't use qudrature times and values 
 % to calculate speed, can only use wheelspeed values.
@@ -17,7 +17,7 @@ if sum(cellfun(@isempty, input.quadratureTimesUs))== 0
     nStart = find(countValue == 1, 1, 'last');
     for n = nStart:length(countTime)
         if countValue(n) == 1
-            this_frame_quad_inx = find(quadTime > countTime (n) - 33.3333*1000 & quadTime <= countTime(n));
+            this_frame_quad_inx = find(quadTime > countTime (n) - lenframe*1000 & quadTime <= countTime(n));
         else
             this_frame_quad_inx = find(quadTime > countTime(n-1) & quadTime <= countTime(n));
         end

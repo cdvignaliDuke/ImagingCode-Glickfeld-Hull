@@ -7,11 +7,11 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = '200305_img1049'; 
+sessions = '200227_img1049'; 
 %ID = '1016';
 image_source_base  = 'Z:\Data\2photon\'; %location of permanently stored image files for retreiving meta data
 %image_analysis_base    = 'Z:\Analysis\Airpuff_analysis\imaging_analysis\'; 
-image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\airpuff\imaging_analysis\'; 
+image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\imaging_analysis\'; 
 %image_source = [image_source_base, sessions,'\',ID,'\'];
 image_source = [image_source_base, sessions,'\'];
 image_analysis_dest = [image_analysis_base, sessions, '\' 'getTC\'];
@@ -31,7 +31,7 @@ file = [sessions '_000_' order];
 %new 2P is half black, so read it from the second frame
 %!!!!!!!make sure you delete the speed of the first frame in behavior
 frame_start = 1; 
-nframes = 39999;%total frame number - frame_start
+nframes = 29999;%total frame number - frame_start
 imgread = squeeze(sbxread(file,frame_start,nframes));
 f1 = 2;
 f2 = 1000;
@@ -198,7 +198,7 @@ savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_process.fig']);
 
 % combine highly correlated ICs to one
-threshold = 0.7; %got the same thing when threshold = 0.8 and 0.9, tried different values, doesn't seem to change things
+threshold = 0.8; %got the same thing when threshold = 0.8 and 0.9, tried different values, doesn't seem to change things
 [ ~, mask3D, ~] = finalMask_Jin(img_rgs, mask_final, threshold);
 %figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_jpeg.jpg']); hold on;
 figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_1_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
@@ -219,7 +219,7 @@ save([image_analysis_dest sessions '_' order, '_nPCA', ...
 
 
 %% look at the masks, mananully delete the ones that don't look like dendrites
-mask3D(:,:,[34]) = [];
+mask3D(:,:,[41,38,37]) = [];
 %figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_jpeg.jpg']); hold on;
 figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_1_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
 for i  = 1:size(mask3D,3)
