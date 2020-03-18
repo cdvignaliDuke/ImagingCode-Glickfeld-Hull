@@ -1,8 +1,8 @@
 %% get path names
-date = '200120';
+date = '200201';
 ImgFolder = strvcat('002');
-time = strvcat('1445');
-mouse = 'i1313';
+time = strvcat('1353');
+mouse = 'i1312';
 alignToRef = 1;
 ref_date = '200118';
 ref_run = strvcat('002');
@@ -78,7 +78,7 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*nframes):
 
 %% Register data
 
-data_avg = mean(data(:,:,6001:6500),3);
+data_avg = mean(data(:,:,8001:8500),3);
 
 if exist(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str]))
     load(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
@@ -460,7 +460,7 @@ else
     figure; imagesc(rgb_reg2ref_dfof)
     print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_registered_dfof_overlay.pdf']), '-dpdf','-bestfit')
     
-    for i = 1:nframes
+    for i = 1:size(data_reg,3)
         data_reg(:,:,i) = imtransform(double(data_reg(:,:,i)),mytform,'XData',[1 sz_target(2)],'YData',[1 sz_target(1)]);
         if rem(i,50) == 0
             fprintf([num2str(i) '\n'])
