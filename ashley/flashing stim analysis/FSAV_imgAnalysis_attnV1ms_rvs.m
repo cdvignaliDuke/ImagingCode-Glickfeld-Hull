@@ -1,11 +1,11 @@
 clear all
 close all
-ds = 'FSAV_attentionV1'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
+ds = 'FSAV_attentionV1_noAttn'; % 'FSAV_V1_100ms_naive'  'FSAV_V1_naive_GCaMP6m'  'FSAV_attentionV1'   'FSAV_attentionV1_noAttn'
 cellsOrDendrites = 1;
-doLoadPreviousAnalysis = true;
+doLoadPreviousAnalysis = false;
 analysisDate = '200210';
 attnAnalysisDate = '191211';
-doDecoding = false;
+doDecoding = true;
 %%
 rc = behavConstsAV;
 imgParams_FSAV
@@ -683,7 +683,49 @@ if doDecoding
                 respOther{iav} = resp;
                 trOutOther{iav} = trOut(matchTrialsInd);
                 detectGLMOther{iav} = detectGLM;
-                targetGLMOther{iav} = targetGLM;     
+                targetGLMOther{iav} = targetGLM;  
+                
+                % train the model with stim or choices as predictors
+                resp_withStim = cat(2,resp,targetTrInd);
+                resp_withChoice = cat(2,resp,detectTrInd);
+                C = eye(size(resp_withStim,2));
+                [~,~,detectGLM_withStim] = glmfit(resp_withStim*C,detectTrInd,'binomial');
+                pctCorrectDetect_ho_withStim = getPctCorr_hoData(resp_withStim,detectTrInd,dv_detect);
+                C = eye(size(resp_withChoice,2));
+                [~,~,targetGLM_withChoice] = glmfit(resp_withChoice*C,targetTrInd,'binomial');
+                pctCorrectTarget_ho_withChoice = getPctCorr_hoData(resp_withChoice,targetTrInd,dv_target);
+                
+                detectWeight_cells_withStim = coeffAllCells(:,1:nPCs)*detectGLM_withStim.beta(2:(nPCs+1));
+                targetWeight_cells_withChoice = coeffAllCells(:,1:nPCs)*targetGLM_withChoice.beta(2:(nPCs+1));
+                modeledStimWeight = detectGLM_withStim.beta(nPCs+2);
+                modeledChoiceWeight = targetGLM_withChoice.beta(nPCs+2);
+                
+%                 pctCorrectDetect_ho_withStim_pcsOnly = getPctCorr_hoData_choosePCs(...
+%                     resp_withStim,detectTrInd,dv_detect,1:nPCs);
+%                 pctCorrectTarget_ho_withChoice_pcsOnly = getPctCorr_hoData_choosePCs(...
+%                     resp_withChoice,targetTrInd,dv_target,1:nPCs);
+                
+                
+                % train the model with fixed stim or choice predictors
+                weight_choice = glmfit(detectTrInd,targetTrInd,'binomial');
+                weight_stim = glmfit(targetTrInd,detectTrInd,'binomial');
+                
+                dv_choiceEaTrial = glmval(weight_choice,detectTrInd,'logit');
+                dv_stimEaTrial = glmval(weight_stim,targetTrInd,'logit');
+                
+                resp_withFixedChoice = cat(2,resp,dv_choiceEaTrial);
+                resp_withFixedStim = cat(2,resp,dv_stimEaTrial);
+                
+                C = eye(size(resp_withFixedChoice,2));
+                [~,~,targetGLM_withFixedChoice] = glmfit(resp_withFixedChoice*C,targetTrInd,'binomial');
+                pctCorrectTarget_ho_withFixedChoice = getPctCorr_hoData(resp_withFixedChoice,targetTrInd,dv_target);
+                C = eye(size(resp_withFixedStim,2));
+                [~,~,detectGLM_withFixedStim] = glmfit(resp_withFixedStim*C,detectTrInd,'binomial');
+                pctCorrectDetect_ho_withFixedStim = getPctCorr_hoData(resp_withFixedStim,detectTrInd,dv_detect);
+                
+                detectGLMOther_withStim{iav} = detectGLM_withFixedStim;
+                targetGLMOther_withChoice{iav} = targetGLM_withFixedChoice; 
+                
                 
                 % train trial shuffle model
                 detectTrInd_shuff = cat(1,zeros(length(detectTrInd)-sum(detectTrInd),1),...
@@ -730,10 +772,10 @@ if doDecoding
                     trStimID = discretize(decodeDataExpt(iexp).av(iav).stim,ampBins);
                 end
 %                 trOut_matched = trOut(matchTrialsInd);
+                % distractors
                 distInd = strcmp(trOut,'fa')|strcmp(trOut,'cr');
                 trOut_dist = trOut(distInd);
                 resp_dist = respAllCells(distInd,1:nPCs);
-                
                 [detectTrInd_dist, ~] = getStimAndBehaviorYs(trOut_dist);
                 dv_detect_dist = mean(detectTrInd_dist);
                 C = eye(size(resp_dist,2));
@@ -745,6 +787,7 @@ if doDecoding
                 trOutOther_dist{iav} = trOut_dist;
                 detectWeight_cells_distOnly = coeffAllCells(:,1:nPCs)*detectGLM_dist.beta(2:end);
                 
+                % targets
                 tarInd = strcmp(trOut,'h')|strcmp(trOut,'m');
                 trOut_tar = trOut(tarInd);
                 resp_tar = respAllCells(tarInd,1:nPCs);
@@ -791,6 +834,27 @@ if doDecoding
                 decodeAnalysis(iexp).av(iav).weightDetect_tarOnly = detectWeight_cells_tarOnly;
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_shuff_holdout = pctCorrectDetect_ho_shuff;
                 decodeAnalysis(iexp).av(iav).pctCorrectTarget_shuff_holdout = pctCorrectTarget_ho_shuff;
+                
+                decodeAnalysis(iexp).av(iav).pctCorrectDetect_withStim_holdout = pctCorrectDetect_ho_withStim;
+                decodeAnalysis(iexp).av(iav).weightDetect_withStim = detectWeight_cells_withStim;
+                decodeAnalysis(iexp).av(iav).modeledStimWeight = modeledStimWeight;
+%                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_withStim_holdout_pcsOnly = ...
+%                     pctCorrectDetect_ho_withStim_pcsOnly;
+                decodeAnalysis(iexp).av(iav).pctCorrectTarget_withChoice_holdout = pctCorrectTarget_ho_withChoice;
+                decodeAnalysis(iexp).av(iav).weightTarget_withChoice = targetWeight_cells_withChoice;
+                decodeAnalysis(iexp).av(iav).modeledChoiceWeight = modeledChoiceWeight;
+%                 decodeAnalysis(iexp).av(iav).pctCorrectTarget_withChoice_holdout_pcsOnly = ...
+%                     pctCorrectTarget_ho_withChoice_pcsOnly;
+                
+                decodeAnalysis(iexp).av(iav).pctCorrectDetect_withFixedStim_holdout = pctCorrectDetect_ho_withFixedStim;
+                decodeAnalysis(iexp).av(iav).weights_fixedStimGivenChoice_DT = [min(dv_stimEaTrial) max(dv_stimEaTrial)];
+                decodeAnalysis(iexp).av(iav).weightDetect_withFixedStim = coeffAllCells(:,1:nPCs)*detectGLM_withFixedStim.beta(2:end-1);
+                decodeAnalysis(iexp).av(iav).modeledStimWeight_fixed = detectGLM_withFixedStim.beta(end);
+                decodeAnalysis(iexp).av(iav).pctCorrectTarget_withFixedChoice_holdout = pctCorrectTarget_ho_withFixedChoice;
+                decodeAnalysis(iexp).av(iav).weights_fixedChoiceGivenStim_NY = [min(dv_choiceEaTrial) max(dv_choiceEaTrial)];
+                decodeAnalysis(iexp).av(iav).weightTarget_withFixedChoice = coeffAllCells(:,1:nPCs)*targetGLM_withFixedChoice.beta(2:end-1);
+                decodeAnalysis(iexp).av(iav).modeledChoiceWeight_fixed = targetGLM_withFixedChoice.beta(end);
+                
 %                 decodeAnalysis(iexp).av(iav).validMatchedPctCorrectDetect_holdout = validCatchMatchDetect;
 %                 decodeAnalysis(iexp).av(iav).validMatchedPctCorrectTarget_holdout = validCatchMatchTarget;
             end
@@ -805,18 +869,7 @@ if doDecoding
 %                         catchTargetResp = catchResp(:,cellInd);
                         catchTargetResp = catchResp(:,1:nPCs);
                         nCatch = length(catchDetectInd);
-%                         catchDistRespAll = respOther{otherAV}(targetTrInd==0,1:nPCs);
-%                         detectTrInd_distonly = detectTrInd(targetTrInd==0);
-%                         targetTrInd_distonly = targetTrInd(targetTrInd==0);
-%                         catchDistInd = randsample(sum(targetTrInd==0),nCatch);
-%                         catchRespBalanced = cat(1,catchDistRespAll(catchDistInd,:),...
-%                             catchTargetResp);
-%                         catchDetectIndBalanced = cat(1,detectTrInd_distonly(catchDistInd),...
-%                             catchDetectInd);
-%                         catchTargetIndBalanced = cat(1,targetTrInd_distonly(catchDistInd),...
-%                             catchTargetInd);
 
-%                         if nCatch >= minTrN
                             [catchPctCorrectDetect,catchCorrectTrialDetect] = getPctCorr_trainData(...
                                 detectGLMOther{iav},catchTargetResp,catchDetectInd,...
                                 decodeAnalysis(iexp).av(iav).dvDetect);
@@ -948,6 +1001,14 @@ if doDecoding
                     targetGLMOther{iav},resp(~stimIndTarget,:),...
                     targetTrInd(~stimIndTarget),dv_target);
                 
+                % test other model with fixedstim/choice predictors
+                pctCorrectDetect_withStim = getPctCorr_weightsOnly(...
+                    detectGLMOther_withStim{iav}.beta(1:(nPCs+1)),resp,...
+                    detectTrInd,dv_detect);
+                pctCorrectTarget_withChoice = getPctCorr_weightsOnly(...
+                    targetGLMOther_withChoice{iav}.beta(1:(nPCs+1)),resp,...
+                    targetTrInd,dv_target);
+                
                 % test other distractor only detect model
                 resp = respOther_dist{otherAV};
                 [detectTrInd, ~] = getStimAndBehaviorYs(trOutOther_dist{otherAV});
@@ -996,6 +1057,11 @@ if doDecoding
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_tarOnly_otherAV = pctCorrectDetect_tar;
                 decodeAnalysis(iexp).av(iav).pctCorrectDetect_shuff_otherAV = pctCorrectDetect_shuff;
                 decodeAnalysis(iexp).av(iav).pctCorrectTarget_shuff_otherAV = pctCorrectTarget_shuff;
+                
+                decodeAnalysis(iexp).av(iav).pctCorrectDetect_withStim_otherAV = ...
+                    pctCorrectDetect_withStim;
+                decodeAnalysis(iexp).av(iav).pctCorrectTarget_withChoice_otherAV = ...
+                    pctCorrectTarget_withChoice;
             end
             rng(0)
             randInd = cellfun(@(x) randsample(length(x),floor(length(x)/2)),...
@@ -1336,6 +1402,8 @@ if doDecoding
                 pctCorrectTargetxStim(2) = getPctCorr_trainData(...
                     targetGLMOther{iav},resp(~stimIndTarget,:),...
                     targetTrInd(~stimIndTarget),dv_target);
+                
+                
                 
                 decodeAnalysis(iexp).av(iav).pctCorrectTarget_otherAV = pctCorrectTarget;
                 decodeAnalysis(iexp).av(iav).pctCorrectTargetxStim_otherAV = pctCorrectTargetxStim;
