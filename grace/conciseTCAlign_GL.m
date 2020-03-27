@@ -12,8 +12,9 @@ nrun = size(ImgFolder,1);
 frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
-gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
+% Type in your own stuff here:
+% gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
+% fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 behav_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 %% load and register
 data = [];
@@ -197,4 +198,35 @@ else
     load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_mask_cell.mat']))
     save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_mask_cell.mat']), 'mask_cell', 'mask_np')
 end
+
+%% neuropil subtraction
+data_tc = stackGetTimeCourses(data_reg, mask_cell);
+data_tc_down = stackGetTimeCourses(stackGroupProject(data_reg,5), mask_cell);
+nCells = size(data_tc,2);
+%np_tc = stackGetTimeCourses(data_reg,mask_np);
+clear np_tc np_tc_down
+sz = size(data_reg);
+down = 5;
+data_reg_down  = stackGroupProject(data_reg,down);
+np_tc = zeros(sz(3),nCells);
+np_tc_down = zeros(floor(sz(3)./down), nCells);
+for i = 1:nCells
+     np_tc(:,i) = stackGetTimeCourses(data_reg,mask_np(:,:,i));
+     np_tc_down(:,i) = stackGetTimeCourses(data_reg_down,mask_np(:,:,i));
+     fprintf(['Cell #' num2str(i) '%s/n']) 
+end
+%get weights by maximizing skew
+ii= 0.01:0.01:1;
+x = zeros(length(ii), nCells);
+for i = 1:100
+    x(i,:) = skewness(data_tc_down-tcRemoveDC(np_tc_down*ii(i)));
+end
+[max_skew ind] =  max(x,[],1);
+np_w = 0.01*ind;
+npSub_tc = data_tc-bsxfun(@times,tcRemoveDC(np_tc),np_w);
+clear data_reg data_reg_down
+
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+
 

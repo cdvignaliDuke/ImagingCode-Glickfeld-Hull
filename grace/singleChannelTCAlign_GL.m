@@ -1,17 +1,19 @@
+clear all
+clear global
 %% get path names
-date = '200120';
-ImgFolder = strvcat('002');
-time = strvcat('1445');
-mouse = 'i1313';
-alignToRef = 0;
-ref_date = '200118';
-ref_run = strvcat('002');
+date = '200108';
+ImgFolder = strvcat('003');
+time = strvcat('1158');
+mouse = 'i1316';
+alignToRef = 1;
+ref_date = '200106';
+ref_run = strvcat('003');
 nrun = size(ImgFolder,1);
 frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
-lg_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\2P_images';
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
+gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 behav_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 %% load and register
 data = [];
@@ -19,7 +21,7 @@ clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = fullfile(lg_fn, mouse, date, ImgFolder(irun,:));
+    CD = fullfile(gl_fn, [mouse '\' date '_' mouse '\' ImgFolder(irun,:)]);
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
@@ -71,10 +73,10 @@ clear data_temp
 clear temp
 
 %% Choose register interval
-nframes = 2000;
-nep = floor(size(data,3)./nframes);
+t = 2000;
+nep = floor(size(data,3)./t);
 [n n2] = subplotn(nep);
-figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*nframes):500+((i-1)*nframes)),3)); title([num2str(1+((i-1)*nframes)) '-' num2str(500+((i-1)*nframes))]); end
+figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*t):500+((i-1)*t)),3)); title([num2str(1+((i-1)*t)) '-' num2str(500+((i-1)*t))]); end
 
 %% Register data
 
@@ -107,7 +109,7 @@ end
 clear data
 
 %% test stability
-figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data_reg(:,:,1+((i-1)*nframes):500+((i-1)*nframes)),3)); title([num2str(1+((i-1)*nframes)) '-' num2str(500+((i-1)*nframes))]); end
+% figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data_reg(:,:,1+((i-1)*nframes):500+((i-1)*nframes)),3)); title([num2str(1+((i-1)*nframes)) '-' num2str(500+((i-1)*nframes))]); end
 figure; imagesq(data_reg_avg); truesize;
 print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.pdf']),'-dpdf','-bestfit')
 %% find activated cells
@@ -137,196 +139,7 @@ if isfield(input, 'nScansOn')
     end
 end
 
-if isfield(input,'tCyclesOn')
-    tCyc = cell2mat(input.tCyclesOn);
-    cStart = cell2mat(input.cFirstStim);
-    cStim = cell2mat(input.cStimOn);
-    cTarget = celleqel2mat_padded(input.cTargetOn);
-    nTrials = length(tCyc);
-    sz = size(data_reg);
-    data_f = zeros(sz(1),sz(2),nTrials);
-    data_base = zeros(sz(1),sz(2),nTrials);
-    data_base2 = zeros(sz(1),sz(2),nTrials);
-    data_targ = zeros(sz(1),sz(2),nTrials);
-    for itrial = 1:nTrials
-        data_f(:,:,itrial) = mean(data_reg(:,:,cStart(itrial)-20:cStart(itrial)-1),3);
-        data_base(:,:,itrial) = mean(data_reg(:,:,cStart(itrial)+9:cStart(itrial)+19),3);
-        if cStim(itrial) > cStart(itrial)
-            data_base2(:,:,itrial) = mean(data_reg(:,:,cStim(itrial)+9:cStim(itrial)+19),3);
-        else
-            data_base2(:,:,itrial) = nan(sz(1),sz(2));
-        end
-        if ~isnan(cTarget(itrial))
-            data_targ(:,:,itrial) = mean(data_reg(:,:,cTarget(itrial)+9:cTarget(itrial)+19),3);
-        else
-            data_targ(:,:,itrial) = nan(sz(1),sz(2));
-        end
-    end
-    data_base_dfof = (data_base-data_f)./data_f;
-    data_base2_dfof = (data_base2-data_f)./data_f;
-    data_targ_dfof = (data_targ-data_f)./data_f;
-    baseDir = celleqel2mat_padded(input.tBaseGratingDirectionDeg);
-    dirs = unique(baseDir);
-    ndir = length(dirs);
-    targetDelta = round(celleqel2mat_padded(input.tGratingDirectionDeg),0)-baseDir;
-    deltas = unique(targetDelta);
-    nDelta = length(deltas);
-    data_dfof_dir = zeros(sz(1),sz(2),ndir);
-    data_dfof2_dir = zeros(sz(1),sz(2),ndir);
-    [n n2] = subplotn(ndir);
-    figure;
-    for idir = 1:ndir
-        ind = find(baseDir == dirs(idir));
-        data_dfof_dir(:,:,idir) = mean(data_base_dfof(:,:,ind),3);
-        data_dfof2_dir(:,:,idir) = nanmean(data_base2_dfof(:,:,ind),3);
-        subplot(n,n2,idir)
-        imagesc(data_dfof_dir(:,:,idir))
-        title(dirs(idir))
-    end
-    data_dfof_dir_all = cat(3, data_dfof_dir, data_dfof2_dir);
-    data_dfof_targ = zeros(sz(1),sz(2),nDelta);
-    [n n2] = subplotn(nDelta);
-    figure;
-    for idir = 1:nDelta
-        ind = find(targetDelta == deltas(idir));
-        data_dfof_targ(:,:,idir) = nanmean(data_targ_dfof(:,:,ind),3);
-        subplot(n,n2,idir)
-        imagesc(data_dfof_targ(:,:,idir))
-        title(deltas(idir))
-    end
-    data_dfof = cat(3,data_dfof_dir_all,data_dfof_targ);
-    myfilter = fspecial('gaussian',[20 20], 0.5);
-    data_dfof_max = max(imfilter(data_dfof,myfilter),[],3);
-    figure;
-    imagesc(data_dfof_max)
-end
-
-if isfield(input,'tLeftTrial')
-    tLeftTrial = celleqel2mat_padded(input.tLeftTrial);
-    tGratingContrast = celleqel2mat_padded(input.tGratingContrast);
-    cStimOn = celleqel2mat_padded(input.cStimOn);
-    cDecision = celleqel2mat_padded(input.cDecision);
-    SIx = strcmp(input.trialOutcomeCell, 'success');
-    nTrials = length(tLeftTrial);
-    sz = size(data_reg);
-    data_f = nan(sz(1),sz(2),nTrials);
-    data_targ = nan(sz(1),sz(2),nTrials);
-    data_resp = nan(sz(1),sz(2),nTrials);
-    for itrial = 1:nTrials
-        data_f(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)-20:cStimOn(itrial)-1),3);
-        data_targ(:,:,itrial) = mean(data_reg(:,:,cStimOn(itrial)+5:cStimOn(itrial)+25),3);
-        if cDecision+25<nframes
-            data_resp(:,:,itrial) = mean(data_reg(:,:,cDecision(itrial)+5:cDecision(itrial)+25),3);
-        end
-    end
-    data_targ_dfof = (data_targ-data_f)./data_f;
-    data_resp_dfof = (data_resp-data_f)./data_f;
-    indL = find(tLeftTrial);
-    data_dfof_L = mean(data_targ_dfof(:,:,indL),3);
-    indR = intersect(find(tGratingContrast==1),find(~tLeftTrial));
-    data_dfof_R = mean(data_targ_dfof(:,:,indR),3);
-    data_dfof_resp = mean(data_resp_dfof(:,:,find(SIx)),3);
-    figure;
-    subplot(2,2,1)
-    imagesc(data_dfof_L)
-    title('Left Stim')
-    subplot(2,2,2)
-    imagesc(data_dfof_R)
-    title('Right Stim')
-    subplot(2,2,3)
-    imagesc(data_dfof_resp)
-    title('Decision')
-    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_dFoF.pdf']), '-dpdf')
-    data_dfof = cat(3, data_dfof_resp, cat(3,data_dfof_L,data_dfof_R));
-    data_dfof_max = max(data_dfof,[],3);
-    figure; imagesc(data_dfof_max)
-end
-
-if input.doRetStim
-    Az = celleqel2mat_padded(input.tGratingAzimuthDeg);
-    El = celleqel2mat_padded(input.tGratingElevationDeg);
-    Azs = unique(Az);
-    Els = unique(El);
-    if min(Els,[],2)<0
-        Els = fliplr(Els);
-    end
-    nStim = length(Azs).*length(Els);
-    Stims = [];
-    data_dfof_avg = zeros(sz(1), sz(2), nOn+nOff, length(Azs).*length(Els));
-    start = 1;
-    for iEl = 1:length(Els)
-        ind1 = find(El == Els(iEl));
-        for iAz = 1:length(Azs)
-            Stims = [Stims; Els(iEl) Azs(iAz)];
-            ind2 = find(Az == Azs(iAz));
-            ind = intersect(ind1,ind2);
-            data_dfof_avg(:,:,:,start) = mean(data_dfof(:,:,:,ind),4);
-            start = start +1;
-        end
-    end
-    clear data_dfof
-    myfilter = fspecial('gaussian',[20 20], 0.5);
-    data_dfof_avg_all = squeeze(mean(imfilter(data_dfof_avg(:,:,nOff:nOff+nOn,:),myfilter),3));
-
-    figure; 
-    for i = 1:nStim; 
-        subplot(length(Els),length(Azs),i); 
-        imagesc(data_dfof_avg_all(:,:,i)); 
-        colormap(gray)
-        title(num2str(Stims(i,:)))
-        clim([0 max(data_dfof_avg_all(:))])
-    end
-        print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_resp.pdf']), '-dpdf')
-
-elseif input.doSizeStim
-    sz_mat = celleqel2mat_padded(input.tGratingDiameterDeg);
-    szs = unique(sz_mat);
-    nStim = length(szs);
-    Stims = szs;
-    for isz = 1:nStim
-        ind = find(sz_mat == szs(isz));
-        data_dfof_avg(:,:,:,isz) = mean(data_dfof(:,:,:,ind),4);
-    end
-    clear data_dfof
-    myfilter = fspecial('gaussian',[20 20], 0.5);
-    data_dfof_avg_all = squeeze(mean(imfilter(data_dfof_avg(:,:,nOff:nOff+nOn,:),myfilter),3));
-    clear data_dfof_avg
-
-    figure; 
-    [n n2] = subplotn(nStim);
-    for i = 1:nStim; 
-        subplot(n,n2,i); 
-        imagesc(data_dfof_avg_all(:,:,i)); 
-        title([num2str(szs(i)) ' deg'])
-        clim([0 max(data_dfof_avg_all(:))])
-        colormap(gray)
-    end
-    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_resp.pdf']), '-dpdf')
-elseif input.doTFStim & ~input.doMatrix
-    TF = cell2mat(input.tGratingTemporalFreqCPS);
-    TFs = unique(TF);
-    SF = cell2mat(input.tGratingSpatialFreqCPD);
-    nStim = length(TFs);
-    Stims = TFs;
-    for iTF = 1:nStim
-        ind = find(TF == TFs(iTF));
-        data_dfof_avg(:,:,:,iTF) = mean(data_dfof(:,:,:,ind),4);
-        SFs(iTF) = SF(ind(1));
-    end
-    clear data_dfof
-    myfilter = fspecial('gaussian',[20 20], 0.5);
-    data_dfof_avg_all = squeeze(mean(imfilter(data_dfof_avg(:,:,nOff:nOff+nOn,:),myfilter),3));
-
-    figure; 
-    [n n2] = subplotn(nStim);
-    for i = 1:nStim; 
-        subplot(n,n2,i); 
-        imagesc(data_dfof_avg_all(:,:,i)); 
-        title([num2str(TFs(i)./SFs(i)) ' deg/s'])
-        clim([0 max(data_dfof_avg_all(:))])
-        colormap(gray)
-    end
-elseif input.doDirStim
+if input.doDirStim
     Dir = cell2mat(input.tGratingDirectionDeg);
     Dirs = unique(Dir);
     data_dfof_avg = zeros(sz(1),sz(2),length(Dirs));
@@ -363,6 +176,9 @@ elseif input.doDirStim
             data_dfof_avg_ori(:,:,i) = mean(data_dfof_avg_all(:,:,[i i+nDirs/2]),3);
         end
     end
+    print(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_16Stim.pdf']), '-dpdf')
+
+    
     figure;
     [n n2] = subplotn(nDirs/2);
     for i = 1:nStim/2
@@ -374,13 +190,23 @@ elseif input.doDirStim
     end
     subplot(n,n2,i+1)
     imagesc(max(data_dfof_avg_ori,[],3))
-    title('Max')
+    title('dfof Max')
     axis off
     data_dfof = cat(3,data_dfof_avg_ori,max(data_dfof_avg_ori,[],3));
+    print(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_activeCells.pdf']), '-dpdf')
+
+    figure;
+    imagesc(max(data_dfof_avg_ori,[],3))
+    title('dfof Max')
+    axis off
+    print(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofMax.pdf']), '-dpdf')
 end
 
  save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg_all', 'nStim')
 
+%% histogram data_reg_avg
+figure;histogram(data_reg_avg(:),10,'BinLimits',[0,2000])
+figure;histogram(data_dfof_max(:),10,'BinLimits',[0,2000])
 %% cell segmentation 
 if ~alignToRef
     mask_all = zeros(sz(1), sz(2));
@@ -429,21 +255,29 @@ if ~alignToRef
 else
     data_dfof_max_reg = data_dfof_max;
     data_avg_reg = data_reg_avg;
+    
     load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_stimActFOV.mat']))
     load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_reg_shifts.mat']))
     data_dfof_max_ref = data_dfof_max;
     data_avg_ref = data_reg_avg;
     
+%     data_reg_avg_thresh = data_reg_avg;
+%     data_reg_avg_thresh(find(data_reg_avg>600)) = 0;
+    
     reg = data_avg_reg;
     ref = data_avg_ref;
-    reg(find(reg>1e5)) = 0;
+    reg(find(reg>6000)) = 0;
     reg = (reg./max(max(abs(reg))));
-    ref(find(ref>1e5)) = 0;
+%     reg = imadjust(reg);
+    ref(find(ref>6000)) = 0;
     ref = (ref./max(max(abs(ref)))); 
+%     ref = imadjust(ref);
     
-    figure; imagesc(reg); title('reg')
-    figure; imagesc(ref); title('ref')
-    
+    figure; 
+    subplot(2,1,1);imagesc(reg); axis off; axis equal; title('data avg FOV day 2')
+    subplot(2,1,2);imagesc(ref); axis off; axis equal; title('data avg FOV day 1')
+    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays'], [date '_' mouse '_' run_str '_data_avg_FOVs.pdf']), '-dpdf','-bestfit')
+
     sz_target  = size(reg);
     [input_points, base_points] = cpselect(double(reg),double(ref),'Wait', true);
     mytform = maketform('affine',input_points(1:3,:), base_points(1:3,:));
@@ -456,9 +290,27 @@ else
     rgb_reg2ref(:,:,2) = reg2ref;
     rgb_reg2ref_dfof(:,:,1) = data_dfof_max_ref;
     rgb_reg2ref_dfof(:,:,2) = reg2ref_dfof;
-    figure; imagesc(rgb_reg2ref)
-    figure; imagesc(rgb_reg2ref_dfof)
-    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_registered_dfof_overlay.pdf']), '-dpdf','-bestfit')
+    figure; imagesc(rgb_reg2ref); title(['day 2 on day 1, data reg rgb overlay'])
+    mkdir(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays']))
+    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays'], [date '_' mouse '_' run_str '_registered_reg2ref_overlay.pdf']), '-dpdf','-bestfit')
+    figure; imagesc(rgb_reg2ref_dfof); title(['day 2 on day 1, dfof rgb overlay'])
+    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays'], [date '_' mouse '_' run_str '_registered_dfof_overlay.pdf']), '-dpdf','-bestfit')
+    
+    figure; 
+    subplot(2,3,1); imagesc(ref); axis off; axis equal; title('day 1 data avg')
+    subplot(2,3,2); imagesc(reg); axis off; axis equal; title('day 2 data avg')
+    subplot(2,3,3); imagesc(reg2ref); axis off; axis equal; title('registered day 2 data avg')
+    subplot(2,3,4); imagesc(rgb_reg2ref_dfof(:,:,1)); axis off; axis equal; title('day 1 data dfof')
+    subplot(2,3,5); imagesc(data_dfof_max_reg); axis off; axis equal; title('day 2 data dfof')
+    subplot(2,3,6); imagesc(rgb_reg2ref_dfof(:,:,2)); axis off; axis equal; title('registered day 2 data dfof')
+    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays'], [date '_' mouse '_' run_str '_rgb_individuals.pdf']), '-dpdf','-bestfit')
+
+    figure;
+    subplot(2,1,1); imagesc(data_dfof_max_reg); axis off; axis equal; title('day 2 before registration')
+    subplot(2,1,2); imagesc(reg2ref_dfof); axis off; axis equal; title('day 2 after registration')
+    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays'], [date '_' mouse '_' run_str '_before_and_after_reg.pdf']), '-dpdf','-bestfit')
+
+
     
     for i = 1:nframes
         data_reg(:,:,i) = imtransform(double(data_reg(:,:,i)),mytform,'XData',[1 sz_target(2)],'YData',[1 sz_target(1)]);
@@ -634,7 +486,7 @@ tuningDownSampFactor = down;
     getOriTuningLG(data_tc_down,input,tuningDownSampFactor);
     vonMisesFitAllCells = squeeze(vonMisesFitAllCellsAllBoots(:,1,:));
 
-save(fullfile([LG_base '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' dir_str], [date '_' mouse '_' dir_str '_oriTuningAndFits.mat']),...
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningAndFits.mat']),...
             'avgResponseEaOri','semResponseEaOri','vonMisesFitAllCellsAllBoots','fitReliability','R_square', 'tuningTC')
 
 %%
@@ -688,5 +540,5 @@ for i = 1:length(bin)
     tunedCells{i} = intersect(find(ind_bin==i),ind_theta90);
 end
 
-save(fullfile([LG_base '\Analysis\2P'], [date '_' mouse], [date '_' mouse '_' dir_str], [date '_' mouse '_' dir_str '_oriTuningInfo.mat']),...
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningInfo.mat']),...
     'prefOri', 'prefOri_bootdiff', 'ind_theta90', 'tunedCells');

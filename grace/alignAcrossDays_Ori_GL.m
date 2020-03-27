@@ -278,6 +278,10 @@ h_4 = h4';
 h4sum_dirs = zeros(1,nDir4);
 h4sum_dirs = sum(h_4(:,:));
 
+intersect1 = intersect(sig_resp_cells1,sig_resp_cells2);
+intersect2 = intersect(intersect1, sig_resp_cells3);
+all_sig_cells = intersect(intersect2, sig_resp_cells4);
+
 figure; 
 x = [1 2 3 4];
 y = [sig_resp_cells1 sig_resp_cells2 sig_resp_cells3 sig_resp_cells4];
@@ -348,6 +352,37 @@ ylabel('Significantly Responsive Cells')
 legend({'Day 1', 'Day 2', 'Day 3', 'Day 4'},'Location','northeast')
 print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\sig_resp_16dir'],'-dpdf') 
 
+%% Preferred Direction Plots
+% with goodfit cells
+prefOri_D21 = find(((prefOri_D2(goodfit3))<(prefOri_D1(goodfit3)+10)) & ((prefOri_D2(goodfit3))> (prefOri_D1(goodfit3)-10)));
+prefOri_D31 = find(((prefOri_D3(goodfit3))<(prefOri_D1(goodfit3)+10)) & ((prefOri_D3(goodfit3))> (prefOri_D1(goodfit3)-10)));
+prefOri_D41 = find(((prefOri_D4(goodfit3))<(prefOri_D1(goodfit3)+10)) & ((prefOri_D4(goodfit3))> (prefOri_D1(goodfit3)-10)));
+
+% with all cells
+prefOri_D2_1 = find(((prefOri_D2)<(prefOri_D1+10)) & ((prefOri_D2)> (prefOri_D1-10)));
+prefOri_D3_1 = find(((prefOri_D3)<(prefOri_D1+10)) & ((prefOri_D3)> (prefOri_D1-10)));
+prefOri_D4_1 = find(((prefOri_D4)<(prefOri_D1+10)) & ((prefOri_D4)> (prefOri_D1-10)));
+
+figure;
+subplot(1,2,1); 
+x = [1 2 3];
+y = [size(prefOri_D21,2)/size(goodfit3,2) size(prefOri_D31,2)/size(goodfit3,2) size(prefOri_D41,2)/size(goodfit3,2)]; 
+bar(x,y,'facecolor',[0 0.3906 0]);
+cellnames = {'Day 2';'Day 3';'Day 4'};
+set(gca,'xticklabel',cellnames)
+ylabel({'fraction of reliably fit cells';'maintaining their initial tuning'})
+axis square
+subplot(1,2,2); 
+x = [1 2 3];
+y = [size(prefOri_D2_1,2)/nCells1 size(prefOri_D3_1,2)/nCells1 size(prefOri_D4_1,2)/nCells1]; 
+bar(x,y,'facecolor',[0.0900 0.0977 0.5]);
+cellnames = {'Day 2';'Day 3';'Day 4'};
+set(gca,'xticklabel',cellnames)
+ylabel({'fraction of all cells maintaining'; 'their initial tuning'})
+ylim([0 max(y)+0.1])
+axis square
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\maintained_tuning'],'-dpdf') 
+
 %% dfof traces
 % trace max dfof of each cell over 4 days
 figure;
@@ -402,22 +437,40 @@ off_only1 = [ ];
 for iTrial = 1:nTrials1
     off_only1 = [off_only1; squeeze(trial_tc1(nOff1/2:nOff1,iTrial,:))];
 end
-
 meanf1 = mean(off_only1,1);
 stdf1 = std(off_only1,[],1);
 SNR1 = meanf1./stdf1;
+save(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], [ref_Date '_' mouse '_' run_str '_off_only.mat']), 'off_only1')
 
 off_only2 = [ ];
 for iTrial = 1:nTrials2
     off_only2 = [off_only2; squeeze(trial_tc2(nOff2/2:nOff2,iTrial,:))];
 end
-
 meanf2 = mean(off_only2,1);
 stdf2 = std(off_only2,[],1);
 SNR2 = meanf2./stdf2;
+save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_off_only.mat']), 'off_only2')
+
+off_only3 = [ ];
+for iTrial = 1:nTrials3
+    off_only3 = [off_only3; squeeze(trial_tc3(nOff3/2:nOff3,iTrial,:))];
+end
+meanf3 = mean(off_only3,1);
+stdf3 = std(off_only3,[],1);
+SNR3 = meanf3./stdf3;
+save(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_off_only.mat']), 'off_only3')
+
+off_only4 = [ ];
+for iTrial = 1:nTrials4
+    off_only4 = [off_only4; squeeze(trial_tc4(nOff4/2:nOff4,iTrial,:))];
+end
+meanf4 = mean(off_only4,1);
+stdf4 = std(off_only4,[],1);
+SNR4 = meanf4./stdf4;
+save(fullfile(fnout, [day4 '_' mouse], [day4 '_' mouse '_' run_str], [day4 '_' mouse '_' run_str '_off_only.mat']), 'off_only4')
 
 figure;
-% c = [0.3320 0.4180 0.1836];
+subplot(1,3,1);
 scatter(SNR1,SNR2);
 axis square
 xlim([0 max(SNR1)+1])
@@ -430,25 +483,114 @@ disp(R(1,2));
 str = ['    r = ',num2str(R(1,2))];
 T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
 set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+
+subplot(1,3,2)
+scatter(SNR1,SNR3);
+axis square
+xlim([0 max(SNR1)+1])
+ylim([0 max(SNR3)+1])
+refline(1,0)
+xlabel('SNR Day 1')
+ylabel('SNR Day 3')
+R = corrcoef(SNR1,SNR3);
+disp(R(1,2));
+str = ['    r = ',num2str(R(1,2))];
+T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
+set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+
+subplot(1,3,3)
+scatter(SNR1,SNR4);
+axis square
+xlim([0 max(SNR1)+1])
+ylim([0 max(SNR4)+1])
+refline(1,0)
+xlabel('SNR Day 1')
+ylabel('SNR Day 4')
+R = corrcoef(SNR1,SNR4);
+disp(R(1,2));
+str = ['    r = ',num2str(R(1,2))];
+T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
+set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], [ref_date '_' mouse '_' ref_str '_SNR1-2.pdf']),'-dpdf', '-bestfit')
 
 avgSNR1 = mean(SNR1);
 avgSNR2 = mean(SNR2);
+avgSNR3 = mean(SNR3);
+avgSNR4 = mean(SNR4);
 stdSNR1 = std(SNR1);
 stdSNR2 = std(SNR2);
+stdSNR3 = std(SNR3);
+stdSNR4 = std(SNR4);
 figure;
-x = [1 2];
-y = [avgSNR1 avgSNR2];
-err = [stdSNR1/sqrt(nCells1) stdSNR2/sqrt(nCells1)];
+x = [1 2 3 4];
+y = [avgSNR1 avgSNR2 avgSNR3 avgSNR4];
+err = [stdSNR1/sqrt(nCells1) stdSNR2/sqrt(nCells1) stdSNR3/sqrt(nCells1) stdSNR4/sqrt(nCells1)];
 bar(x,y);
 hold on
 er = errorbar(x,y,err);
 er.Color = [0 0 0];
 er.LineStyle = 'none';
-cellnames = {'Day1'; 'Day2'};
+cellnames = {'Day1'; 'Day2'; 'Day3'; 'Day4'};
 set(gca, 'xticklabel', cellnames)
 ylabel('average SNR')
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], [ref_date '_' mouse '_' ref_str '_avgSNR.pdf']),'-dpdf', '-bestfit')
+
+days = {ref_date; day2; day3; day4};
+sz = size(off_only1);
+% off_only = nan(sz(1),sz(2),length(days));
+% off_only_mean = nan(sz(1),sz(2),length(days));
+off_only_df = nan(sz(1),sz(2),length(days));
+for iday = 1:length(days)
+    iDay = cell2mat(days(iday));
+    off_only = load(fullfile(fnout, [iDay '_' mouse], [iDay '_' mouse '_' run_str], [iDay '_' mouse '_' run_str '_off_only.mat']));
+    off_only = struct2array(off_only);
+    off_only_mean = mean(off_only,1);
+    off_only_prctile = prctile(off_only,10,1);
+    sz = size(off_only,1);
+    off_only_df(1:sz,:,iday) = (off_only - off_only_prctile)./off_only_mean;
+end
+
+[n, n2] = subplotn(length(goodfit3));
+start = 1;
+figure;
+for iC = 1:length(goodfit3)
+    iCell = goodfit3(iC);
+    subplot(n,n2,start)
+    tcOffsetPlot(squeeze(off_only_df(:,iCell,:)));
+    xlim([2500 3500])
+    title(iCell)
+    start = start + 1;
+end
+[hleg, hobj, hout, mout] = legend({'Day 1', 'Day 2', 'Day 3', 'Day 4'},'Position',[0.6 0.9 0.2 0.1],'Orientation','horizontal');
+set(hobj,'linewidth',1.5);
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], [ref_date '_' mouse '_' ref_str '_TCoffset-mean3.pdf']),'-dpdf', '-bestfit')
+
+off_only_df1 = off_only1 - prctile(off_only1,10,1);
+snr1 = mean(off_only_df1,1)./std(off_only_df1,[],1);
+off_only_df2 = off_only2 - prctile(off_only2,10,1);
+snr2 = mean(off_only_df2,1)./std(off_only_df2,[],1);
+off_only_df3 = off_only3 - prctile(off_only3,10,1);
+snr3 = mean(off_only_df3,1)./std(off_only_df3,[],1);
+off_only_df4 = off_only4 - prctile(off_only4,10,1);
+snr4 = mean(off_only_df4,1)./std(off_only_df4,[],1);
+
+[n, n2] = subplotn(length(goodfit3));
+start = 1;
+figure;
+for iC = 1:length(goodfit3)
+    iCell = goodfit3(iC);
+    subplot(n,n2,start)
+    x = [1 2 3 4];
+    y = [snr1(:,iCell) snr2(:,iCell) snr3(:,iCell) snr4(:,iCell)];
+%     err = [stdSNR1/sqrt(nCells1) stdSNR2/sqrt(nCells1) stdSNR3/sqrt(nCells1) stdSNR4/sqrt(nCells1)];
+    bar(x,y);
+    cellnames = {'Day1'; 'Day2'; 'Day3'; 'Day4'};
+    set(gca, 'xticklabel', cellnames)
+    ylabel('SNR')
+    title(iCell)
+    start = start + 1;
+end
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], [ref_date '_' mouse '_' ref_str '_goodfitSNR-allDays2.pdf']),'-dpdf', '-bestfit')
 
 %% baseline dfof within session
 f_base1 = squeeze(mean(trial_tc1(base_wind1,:,:),1));
@@ -488,6 +630,105 @@ plot(xx,dfof_base_4')
 xlabel('nTrials')
 ylabel('avg baseline dfof')
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], [ref_date '_' mouse '_' ref_str '_Ftraces.pdf']),'-dpdf', '-bestfit')
+
+%% Cell Maps
+maskD1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], [ref_date '_' mouse '_' run_str '_mask_cell.mat']));
+mask_cell = maskD1.mask_cell;
+data_dfof_max = maskD1.data_dfof_max;
+reg_shifts = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], [ref_date '_' mouse '_' run_str '_reg_shifts.mat']));
+reg = reg_shifts.data_reg_avg;
+reg(find(reg>7000)) = 0;
+reg = (reg./max(max(abs(reg))));
+cell_list = intersect(1:nCells1, unique(mask_cell));
+cell_stats = regionprops(mask_cell);
+
+figure;
+imagesc(reg); hold on;
+bound = cell2mat(bwboundaries(mask_cell(:,:,1)));
+plot(bound(:,2),bound(:,1),'.','color','r','MarkerSize',0.5); hold on;
+for iC = 1:length(cell_list)
+    iCell = cell_list(iC);
+    if length(find(mask_cell == iCell))
+        text(cell_stats(iCell).Centroid(1), cell_stats(iCell).Centroid(2), num2str(iCell), 'Color', 'white',...
+            'Fontsize', 6, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle') 
+        hold on
+    else
+        cell_list(iC) = NaN;
+    end
+    width = 30; height = 30;
+    xCenter = cell_stats(iCell).Centroid(1);
+    yCenter = cell_stats(iCell).Centroid(2);
+    xLeft = xCenter - width/2;
+    yBottom = yCenter - height/2;
+    rectangle('Position', [xLeft, yBottom, width, height], 'EdgeColor', 'y', 'LineWidth', .8);
+end
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_' ref_str '_boxedCellsReg.pdf']),'-dpdf', '-bestfit')
+
+figure;
+imagesc(data_dfof_max); hold on;
+bound = cell2mat(bwboundaries(mask_cell(:,:,1)));
+plot(bound(:,2),bound(:,1),'.','color','r','MarkerSize',0.5); hold on;
+for iC = 1:length(cell_list)
+    iCell = cell_list(iC);
+    if length(find(mask_cell == iCell))
+        text(cell_stats(iCell).Centroid(1), cell_stats(iCell).Centroid(2), num2str(iCell), 'Color', 'white',...
+            'Fontsize', 6, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle') 
+        hold on
+    else
+        cell_list(iC) = NaN;
+    end
+    width = 30; height = 30;
+    xCenter = cell_stats(iCell).Centroid(1);
+    yCenter = cell_stats(iCell).Centroid(2);
+    xLeft = xCenter - width/2;
+    yBottom = yCenter - height/2;
+    rectangle('Position', [xLeft, yBottom, width, height], 'EdgeColor', 'y', 'LineWidth', .8);
+end
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_' ref_str '_boxedCellsDfof.pdf']),'-dpdf', '-bestfit')
+
+figure;
+for iC = 1:length(cell_list)
+    subplot(nCells1,1,iC)
+    iCell = cell_list(iC);    
+    width = 30; height = 30;
+    xCenter = cell_stats(iCell).Centroid(2);
+    yCenter = cell_stats(iCell).Centroid(1);
+    xLeft = round(xCenter - width/2);
+    yBottom = round(yCenter - height/2);
+    imagesc(reg(xLeft:round(xLeft+width),yBottom:round(height+yBottom)))  
+    axis square
+    axis off
+end
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_' ref_str '_structureMapReg.pdf']),'-dpdf', '-bestfit')
+
+figure;
+for iC = 1:length(cell_list)
+    subplot(nCells1,1,iC)
+    iCell = cell_list(iC);    
+    width = 30; height = 30;
+    xCenter = cell_stats(iCell).Centroid(2);
+    yCenter = cell_stats(iCell).Centroid(1);
+    xLeft = round(xCenter - width/2);
+    yBottom = round(yCenter - height/2);
+    imagesc(data_dfof_max(xLeft:round(xLeft+width),yBottom:round(height+yBottom)))  
+    axis square
+    axis off
+end
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_' ref_str '_structureMapDfof.pdf']),'-dpdf', '-bestfit')
+
+% figure;
+% imagesc(reg);
+% for iC = 1:length(cell_list)
+%     iCell = cell_list(iC);
+%     if length(find(mask_cell == iCell))
+%         text(cell_stats(iCell).Centroid(1), cell_stats(iCell).Centroid(2), num2str(iCell), 'Color', 'white',...
+%             'Fontsize', 6, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle') 
+%         hold on
+%     else
+%         cell_list(iC) = NaN;
+%     end
+% end
+
 
 %%
 transformD2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_transform.mat']));
