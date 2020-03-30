@@ -4,6 +4,8 @@ date = '200108';
 ImgFolder = strvcat('003');
 time = strvcat('1158');
 mouse = 'i1316';
+% set align to 1 if aligning any day to day 1. set to 0 if you are just
+% working with day 1
 alignToRef = 1;
 % ref_date is day1
 ref_date = '200106';
