@@ -18,16 +18,27 @@ if doFromRef
     if size(ref_run,1)>1
         ref_str = [ref_str '-' ref_run(size(ref_run,1),:)];
     end
-stimActFOVref = load(fullfile('Z:\All_staff\home\grace\Analysis\2P', [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_stimActFOV.mat']));
-stimActFOVreg = load(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfof_max.mat']));
-data_dfof_max_ref = stimActFOVref.data_dfof_max;
-data_dfof_max_reg = stimActFOVreg.dfof_reg2ref;
-data_dfof_avg_all = stimActFOVref.data_dfof_avg_all;
-sz = size(data_dfof_avg_all);
+refData = load(fullfile('Z:\All_staff\home\grace\Analysis\2P', [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_stimActFOV.mat']));
+regData = load(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_RegData.mat']));
+reg = regData.reg;
+ref = regData.ref;
+data_reg_to_ref = regData.data_reg_to_ref;
+data_dfof_max_reg = regData.dfof_reg2ref;
+data_dfof_max_ref = refData.data_dfof_max;
+sz = size(reg);
 rgb = zeros(sz(1),sz(2),3);
+
 rgb(:,:,1) = data_dfof_max_ref;
 rgb(:,:,2) = data_dfof_max_reg;
 figure; image(rgb)
-title([mouse ' ' date ' on ' ref_date ' RGB overlay'])
-print(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_RegOnRefFOV.pdf']), '-dpdf')
+title([mouse ' ' date ' on ' ref_date ' RGB dfof overlay'])
+print(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Reg2Ref_dfof.pdf']), '-dpdf')
+
+rgb2 = zeros(sz(1),sz(2),3);
+rgb2(:,:,1) = ref;
+rgb2(:,:,2) = data_reg_to_ref;
+figure; image(rgb)
+title([mouse ' ' date ' on ' ref_date ' RGB data_reg overlay'])
+print(fullfile('Z:\All_staff\home\grace\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Reg2Ref_datareg.pdf']), '-dpdf')
+
 end

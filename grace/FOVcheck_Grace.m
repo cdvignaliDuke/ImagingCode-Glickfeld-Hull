@@ -2,7 +2,7 @@
 clear all
 clear global
 %% 
-date = '200109';
+date = '200106';
 mouse = 'i1316';
 ImgFolder = '001';
 run = '000';

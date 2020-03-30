@@ -60,7 +60,7 @@ nep = floor(size(data,3)./t);
 figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*t):500+((i-1)*t)),3)); title([num2str(1+((i-1)*t)) '-' num2str(500+((i-1)*t))]); end
 
 %% Register data
-% these are the 500 frames that you select to register the entire
+% these are the 500 frames that you s to register the entire
 % dataset to
 data_avg = mean(data(:,:,6001:6500),3);
 

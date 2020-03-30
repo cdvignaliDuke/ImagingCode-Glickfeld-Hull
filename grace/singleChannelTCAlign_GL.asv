@@ -206,7 +206,7 @@ end
 
 %% histogram data_reg_avg
 figure;histogram(data_reg_avg(:),10,'BinLimits',[0,2000])
-
+figure;histogram(data_dfof_max(:),10,'BinLimits',[0,2000])
 %% cell segmentation 
 if ~alignToRef
     mask_all = zeros(sz(1), sz(2));
@@ -266,10 +266,10 @@ else
     
     reg = data_avg_reg;
     ref = data_avg_ref;
-    reg(find(reg>2000)) = 0;
+    reg(find(reg>6000)) = 0;
     reg = (reg./max(max(abs(reg))));
 %     reg = imadjust(reg);
-    ref(find(ref>2000)) = 0;
+    ref(find(ref>6000)) = 0;
     ref = (ref./max(max(abs(ref)))); 
 %     ref = imadjust(ref);
     
@@ -290,10 +290,10 @@ else
     rgb_reg2ref(:,:,2) = reg2ref;
     rgb_reg2ref_dfof(:,:,1) = data_dfof_max_ref;
     rgb_reg2ref_dfof(:,:,2) = reg2ref_dfof;
-    figure; imagesc(rgb_reg2ref); title([date ' on ' ref_date ' data reg rgb overlay'])
+    figure; imagesc(rgb_reg2ref); title(['day 2 on day 1, data reg rgb overlay'])
     mkdir(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays']))
     print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays'], [date '_' mouse '_' run_str '_registered_reg2ref_overlay.pdf']), '-dpdf','-bestfit')
-    figure; imagesc(rgb_reg2ref_dfof); title([date ' on ' ref_date ' dfof rgb overlay'])
+    figure; imagesc(rgb_reg2ref_dfof); title(['day 2 on day 1, dfof rgb overlay'])
     print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], ['RGB Overlays'], [date '_' mouse '_' run_str '_registered_dfof_overlay.pdf']), '-dpdf','-bestfit')
     
     figure; 
@@ -319,9 +319,9 @@ else
         end
     end
     
-%     save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_transform.mat']), 'input_points', 'base_points', 'mytform', 'data_dfof_max_ref', 'ref', 'reg2ref', 'reg2ref_dfof');
-%     load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_mask_cell.mat']))
-%     save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_mask_cell.mat']), 'mask_cell', 'mask_np')
+    save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_transform.mat']), 'input_points', 'base_points', 'mytform', 'data_dfof_max_ref', 'ref', 'reg2ref', 'reg2ref_dfof');
+    load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_mask_cell.mat']))
+    save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_mask_cell.mat']), 'mask_cell', 'mask_np')
 end
 
 %% neuropil subtraction
