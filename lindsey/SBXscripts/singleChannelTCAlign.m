@@ -1,8 +1,8 @@
 %% get path names
-date = '200201';
+date = '200120';
 ImgFolder = strvcat('002');
-time = strvcat('1353');
-mouse = 'i1312';
+time = strvcat('1445');
+mouse = 'i1313';
 alignToRef = 1;
 ref_date = '200118';
 ref_run = strvcat('002');
@@ -486,7 +486,7 @@ np_tc_down = zeros(floor(sz(3)./down), nCells);
 for i = 1:nCells
      np_tc(:,i) = stackGetTimeCourses(data_reg,mask_np(:,:,i));
      np_tc_down(:,i) = stackGetTimeCourses(data_reg_down,mask_np(:,:,i));
-     fprintf(['Cell #' num2str(i) '%s/n']) 
+     fprintf(['Cell #' num2str(i) '%s\n']) 
 end
 %get weights by maximizing skew
 ii= 0.01:0.01:1;
