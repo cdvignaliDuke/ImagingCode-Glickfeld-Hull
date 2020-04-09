@@ -1,12 +1,12 @@
 %% get path names
 % date is day2
-date = '200108'; 
+date = '200106'; 
 ImgFolder = strvcat('003');
-time = strvcat('1158');
+time = strvcat('1251');
 mouse = 'i1316';
 % set align to 1 if aligning any day to day 1. set to 0 if you are just
 % working with day 1
-alignToRef = 1;
+alignToRef = 0;
 % ref_date is day1
 ref_date = '200106';
 ref_run = strvcat('003');
@@ -15,7 +15,7 @@ frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
 % Type in your own stuff here:
-% gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
+gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jerry\2P_Imaging_Grace';
 % fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 behav_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 %% load and register
@@ -119,6 +119,43 @@ if input.doDirStim
 %     here is the data_dfof_max that we will use later
     data_dfof_avg_all = imfilter(data_dfof_avg,myfilter);
     data_dfof_max = max(data_dfof_avg_all,[],3);
+    
+    figure; 
+    Stims = Dirs;
+    nStim = length(Dirs);
+    [n n2] = subplotn(nDirs);
+    data_dfof_avg_ori = zeros(sz(1), sz(2), nDirs/2);
+    for i = 1:nStim 
+        subplot(n,n2,i); 
+        imagesc(data_dfof_avg_all(:,:,i));
+        clim([0 max(data_dfof_avg_all(:))])
+        title(num2str(Dirs(i)))
+        colormap(gray)
+        if i<(nDirs/2)+1
+            data_dfof_avg_ori(:,:,i) = mean(data_dfof_avg_all(:,:,[i i+nDirs/2]),3);
+        end
+    end
+    
+    figure;
+    [n n2] = subplotn(nDirs/2);
+    for i = 1:nStim/2
+        subplot(n,n2,i)
+        imagesc(data_dfof_avg_ori(:,:,i));
+        clim([0 max(data_dfof_avg_ori(:))])
+        title(num2str(Dirs(i)))
+        axis off
+    end
+    subplot(n,n2,i+1)
+    imagesc(max(data_dfof_avg_ori,[],3))
+    title('dfof Max')
+    axis off
+    data_dfof = cat(3,data_dfof_avg_ori,max(data_dfof_avg_ori,[],3));
+    
+    figure;
+    imagesc(max(data_dfof_avg_ori,[],3))
+    title('dfof Max')
+    axis off
+end   
     
  save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg_all', 'nStim')
 

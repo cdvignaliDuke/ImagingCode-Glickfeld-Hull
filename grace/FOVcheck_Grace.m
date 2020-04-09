@@ -2,8 +2,8 @@
 clear all
 clear global
 %% 
-date = '200106';
-mouse = 'i1316';
+date = '200114';
+mouse = 'i1314';
 ImgFolder = '001';
 run = '000';
 doReg = 0;
@@ -34,18 +34,18 @@ data_reg_avg = mean(data_reg,3);
 %Making the Figure
 figure;  imagesc(data_reg_avg);
 axis off
-title([date ' zoom' zoom ' ' mod ' ' mouse ' 920 Green Channel'])
+% title([date ' zoom' zoom ' ' mod ' ' mouse ' 920 Green Channel'])
 truesize
 
-if exist(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check']);
-    print(['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\'  date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_FOVgreen.pdf'], '-dpdf','-bestfit')
-    save(['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.mat'],'data_reg_avg')
-    writetiff(data_reg_avg, ['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.tiff'])
-    
-else mkdir(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check']);
-    print(['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\'  date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_FOVgreen.pdf'], '-dpdf','-bestfit')
-    save(['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.mat'],'data_reg_avg')
-    writetiff(data_reg_avg, ['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.tiff'])
-end
-
-
+% if exist(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check']);
+%     print(['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\'  date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_FOVgreen.pdf'], '-dpdf','-bestfit')
+%     save(['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.mat'],'data_reg_avg')
+%     writetiff(data_reg_avg, ['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.tiff'])
+%     
+% else mkdir(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check']);
+%     print(['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\'  date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_FOVgreen.pdf'], '-dpdf','-bestfit')
+%     save(['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.mat'],'data_reg_avg')
+%     writetiff(data_reg_avg, ['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.tiff'])
+% end
+% 
+% 

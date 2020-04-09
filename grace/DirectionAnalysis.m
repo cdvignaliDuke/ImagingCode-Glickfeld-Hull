@@ -119,7 +119,8 @@ for i_cell = 1:length(idx)
     plot(1:360, y_fit(iCell,:),'r')
     xlabel('Direction (deg)')
     ylabel('dF/F')
-    suptitle(['Cell #' num2str(iCell)])
+%     suptitle(['Cell #' num2str(iCell)])
+    saveas(
     print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' run_str '\directionAnalysis\vonmises' num2str(iCell)],'-dpdf')
 %     figure;
 %     if min(dfof_dir(:,iCell,1)) < 0

@@ -1,18 +1,18 @@
 clear all
 clear global
 %% get path names
-date = '200108';
+date = '200106';
 ImgFolder = strvcat('003');
-time = strvcat('1158');
+time = strvcat('1251');
 mouse = 'i1316';
-alignToRef = 1;
-ref_date = '200106';
+alignToRef = 0;
+ref_date = '200114';
 ref_run = strvcat('003');
 nrun = size(ImgFolder,1);
 frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
-gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
+gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jerry\2P_Imaging_Grace';
 fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 behav_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 %% load and register
@@ -47,23 +47,8 @@ for irun = 1:nrun
         end
     end
     
-    
-    if isfield(input, 'cLeverUp') 
-        if irun>1
-            ntrials = size(input.trialOutcomeCell,2);
-            for itrial = 1:ntrials
-                temp(irun).cLeverDown{itrial} = temp(irun).cLeverDown{itrial}+offset;
-                temp(irun).cFirstStim{itrial} = temp(irun).cFirstStim{itrial}+offset;
-                temp(irun).cLeverUp{itrial} = temp(irun).cLeverUp{itrial}+offset;
-                temp(irun).cStimOn{itrial} = temp(irun).cStimOn{itrial}+offset;
-                temp(irun).cTargetOn{itrial} = temp(irun).cTargetOn{itrial}+offset;
-            end
-        end
-    end
     offset = offset+nframes;
-    
-    
-        
+
     data_temp = squeeze(data_temp);
     data = cat(3,data,data_temp);
     trial_n = [trial_n nframes];
@@ -80,7 +65,7 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*t):500+((
 
 %% Register data
 
-data_avg = mean(data(:,:,6001:6500),3);
+data_avg = mean(data(:,:,8001:8500),3);
 
 if exist(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str]))
     load(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
@@ -111,6 +96,8 @@ clear data
 %% test stability
 % figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data_reg(:,:,1+((i-1)*nframes):500+((i-1)*nframes)),3)); title([num2str(1+((i-1)*nframes)) '-' num2str(500+((i-1)*nframes))]); end
 figure; imagesq(data_reg_avg); truesize;
+% writetiff(data_reg_avg, ['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.tiff'])
+
 print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.pdf']),'-dpdf','-bestfit')
 %% find activated cells
     

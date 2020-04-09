@@ -1,12 +1,12 @@
 clear all
 clear global
 %% get path names
-date = '200108';
+date = '200106';
 ImgFolder = strvcat('003');
-time = strvcat('1158');
-mouse = 'i1316';
-alignToRef = 1;
-ref_date = '200106';
+time = strvcat('1258');
+mouse = 'i1314';
+alignToRef = 0;
+ref_date = '200114';
 ref_run = strvcat('003');
 nrun = size(ImgFolder,1);
 frame_rate = 15.5;
@@ -80,7 +80,7 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*t):500+((
 
 %% Register data
 
-data_avg = mean(data(:,:,6001:6500),3);
+data_avg = mean(data(:,:,8001:8500),3);
 
 if exist(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str]))
     load(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
@@ -111,6 +111,8 @@ clear data
 %% test stability
 % figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data_reg(:,:,1+((i-1)*nframes):500+((i-1)*nframes)),3)); title([num2str(1+((i-1)*nframes)) '-' num2str(500+((i-1)*nframes))]); end
 figure; imagesq(data_reg_avg); truesize;
+% writetiff(data_reg_avg, ['Z:\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_FOV_Check\' date '_' mouse '_run' run '_zoom' zoom '_' mod '_avgFOVgreen.tiff'])
+
 print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.pdf']),'-dpdf','-bestfit')
 %% find activated cells
     
