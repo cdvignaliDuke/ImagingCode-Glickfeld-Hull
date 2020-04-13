@@ -1,53 +1,54 @@
 clear all
 clear global
 %% 
-mouse = 'i1313';
-day2 = '200120';
-day3 = '200201';
+mouse = 'i1316';
+day2 = '200108';
+day3 = '200109';
 day4 = '200110';
-ImgFolder = strvcat('002');
-ImgFolder2 = strvcat('002');
-ref_date = '200118';
-ref_run = strvcat('002');
+ImgFolder = strvcat('003');
+ImgFolder2 = strvcat('003');
+ref_date = '200106';
+ref_run = strvcat('003');
 nrun = size(ImgFolder,1);
 nrun2 = size(ImgFolder2,1);
 frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
 run_str2 = catRunName(ImgFolder2, nrun2);
+run_str3 = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 
 %% load data
 oriTuning_D1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_oriTuningAndFits.mat']));
 oriTuning_D2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_oriTuningAndFits.mat']));
 oriTuning_D3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_oriTuningAndFits.mat']));
-% oriTuning_D4 = load(fullfile(fnout, [day4 '_' mouse], [day4 '_' mouse '_' run_str], [day4 '_' mouse '_' run_str '_oriTuningAndFits.mat']));
+oriTuning_D4 = load(fullfile(fnout, [day4 '_' mouse], [day4 '_' mouse '_' run_str], [day4 '_' mouse '_' run_str '_oriTuningAndFits.mat']));
 
 TCs_D1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_TCs.mat']));
 TCs_D2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_TCs.mat']));
 TCs_D3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_TCs.mat']));
-% TCs_D4 = load(fullfile(fnout, [day4 '_' mouse], [day4 '_' mouse '_' run_str], [day4 '_' mouse '_' run_str '_TCs.mat']));
+TCs_D4 = load(fullfile(fnout, [day4 '_' mouse], [day4 '_' mouse '_' run_str], [day4 '_' mouse '_' run_str '_TCs.mat']));
 
 %% define variables
 goodfit_D1 = find(oriTuning_D1.fitReliability<22.5);
 goodfit_D2 = find(oriTuning_D2.fitReliability<22.5);
 goodfit_D3 = find(oriTuning_D3.fitReliability<22.5);
-% goodfit_D4 = find(oriTuning_D4.fitReliability<22.5);
+goodfit_D4 = find(oriTuning_D4.fitReliability<22.5);
 gdft_D1 = length(goodfit_D1);
 gdft_D2 = length(goodfit_D2);
 gdft_D3 = length(goodfit_D3);
-% gdft_D4 = length(goodfit_D4);
+gdft_D4 = length(goodfit_D4);
 goodfit = intersect(goodfit_D1,goodfit_D2);
 goodfit2 = intersect(goodfit, goodfit_D3);
-% goodfit3 = intersect(goodfit2, goodfit_D4);
+goodfit3 = intersect(goodfit2, goodfit_D4);
 goodfit3to1 = intersect(goodfit_D1, goodfit_D3);
-% goodfit4to1 = intersect(goodfit_D1, goodfit_D4);
+goodfit4to1 = intersect(goodfit_D1, goodfit_D4);
 nCells = size(goodfit,2);
 
 [maxResp_D1 prefOri_D1] = max(squeeze(oriTuning_D1.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 [maxResp_D2 prefOri_D2] = max(squeeze(oriTuning_D2.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 [maxResp_D3 prefOri_D3] = max(squeeze(oriTuning_D3.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
-% [maxResp_D4 prefOri_D4] = max(squeeze(oriTuning_D4.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
+[maxResp_D4 prefOri_D4] = max(squeeze(oriTuning_D4.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 
 % day 1
 load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_input.mat']));
@@ -445,6 +446,7 @@ meanf1 = mean(off_only1,1);
 stdf1 = std(off_only1,[],1);
 SNR1 = meanf1./stdf1;
 save(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], [ref_date '_' mouse '_' run_str '_off_only.mat']), 'off_only1')
+skew1 = skewness(off_only1);
 
 off_only2 = [ ];
 for iTrial = 1:nTrials2
@@ -455,6 +457,7 @@ stdf2 = std(off_only2,[],1);
 SNR2 = meanf2./stdf2;
 SNR2(isnan(SNR2)) = 0;
 save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_off_only.mat']), 'off_only2')
+skew2 = skewness(off_only2);
 
 off_only3 = [ ];
 for iTrial = 1:nTrials3
@@ -464,6 +467,7 @@ meanf3 = mean(off_only3,1);
 stdf3 = std(off_only3,[],1);
 SNR3 = meanf3./stdf3;
 save(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_off_only.mat']), 'off_only3')
+skew3 = skewness(off_only3);
 
 off_only4 = [ ];
 for iTrial = 1:nTrials4
@@ -473,9 +477,10 @@ meanf4 = mean(off_only4,1);
 stdf4 = std(off_only4,[],1);
 SNR4 = meanf4./stdf4;
 save(fullfile(fnout, [day4 '_' mouse], [day4 '_' mouse '_' run_str], [day4 '_' mouse '_' run_str '_off_only.mat']), 'off_only4')
+skew4 = skewness(off_only4);
 
 figure;
-subplot(1,2,1);
+subplot(1,3,1);
 scatter(SNR1,SNR2);
 axis square
 xlim([0 max(SNR1)+1])
@@ -489,7 +494,7 @@ str = ['    r = ',num2str(R(1,2))];
 T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
 set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
 
-subplot(1,2,2)
+subplot(1,3,2)
 scatter(SNR1,SNR3);
 axis square
 xlim([0 max(SNR1)+1])
@@ -503,7 +508,7 @@ str = ['    r = ',num2str(R(1,2))];
 T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
 set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
 
-subplot(1,2,3)
+subplot(1,3,3)
 scatter(SNR1,SNR4);
 axis square
 xlim([0 max(SNR1)+1])
@@ -540,35 +545,37 @@ set(gca, 'xticklabel', cellnames)
 ylabel('average SNR')
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['SNR'], [ref_date '_' mouse '_' ref_str '_avgSNR.pdf']),'-dpdf', '-bestfit')
 
-days = {ref_date; day2; day3;};
+days = {ref_date; day2; day3; day4};
 sz = size(off_only1);
 % off_only = nan(sz(1),sz(2),length(days));
 % off_only_mean = nan(sz(1),sz(2),length(days));
 off_only_df = nan(sz(1),sz(2),length(days));
+run_strs = strvcat(run_str, run_str2, run_str3, run_str);
 for iday = 1:length(days)
     iDay = cell2mat(days(iday));
+    run_str = run_strs(iday,:);
     off_only = load(fullfile(fnout, [iDay '_' mouse], [iDay '_' mouse '_' run_str], [iDay '_' mouse '_' run_str '_off_only.mat']));
     off_only = struct2array(off_only);
     off_only_mean = mean(off_only,1);
     off_only_prctile = prctile(off_only,10,1);
     sz = size(off_only,1);
-    off_only_df(1:sz,:,iday) = (off_only - off_only_prctile)./off_only_mean;
+    off_only_df(1:sz,:,iday) = (off_only - off_only_prctile);
 end
 
-[n, n2] = subplotn(length(goodfit2));
+[n, n2] = subplotn(length(goodfit3));
 start = 1;
 figure;
-for iC = 1:12
-    iCell = goodfit2(iC);
+for iC = 1:length(goodfit3)
+    iCell = goodfit3(iC);
     subplot(n,n2,start)
     tcOffsetPlot(squeeze(off_only_df(:,iCell,:)));
     xlim([2500 3500])
-    title(iCell)
+    title()
     start = start + 1;
 end
 % [hleg, hobj, hout, mout] = legend({'Day 1', 'Day 2', 'Day 3', 'Day 4'},'Position',[0.5 0.9 0.2 0.1],'Orientation','horizontal');
 % set(hobj,'linewidth',1.5);
-print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['SNR'], [ref_date '_' mouse '_' ref_str '_TCoffset-mean_short.pdf']),'-dpdf', '-bestfit')
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['SNR'], [ref_date '_' mouse '_' ref_str '_TCoffset-mean.pdf']),'-dpdf', '-bestfit')
 
 off_only_df1 = off_only1 - prctile(off_only1,10,1);
 snr1 = mean(off_only_df1,1)./std(off_only_df1,[],1);
@@ -582,9 +589,9 @@ snr4 = mean(off_only_df4,1)./std(off_only_df4,[],1);
 [n, n2] = subplotn(length(goodfit2));
 start = 1;
 figure;
-for iC = 1:12
+for iC = 1:length(goodfit2)
     iCell = goodfit2(iC);
-    subplot(4,3,start)
+    subplot(n,n2,start)
     x = [1 2 3];
     y = [snr1(:,iCell) snr2(:,iCell) snr3(:,iCell)];
 %     err = [stdSNR1/sqrt(nCells1) stdSNR2/sqrt(nCells1) stdSNR3/sqrt(nCells1) stdSNR4/sqrt(nCells1)];
@@ -596,46 +603,71 @@ for iC = 1:12
     title(iCell)
     start = start + 1;
 end
-print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['SNR'], [ref_date '_' mouse '_' ref_str '_goodfitSNR-allDays_short.pdf']),'-dpdf', '-bestfit')
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['SNR'], [ref_date '_' mouse '_' ref_str '_goodfitSNR-allDays.pdf']),'-dpdf', '-bestfit')
 
-%% baseline dfof within session
-f_base1 = squeeze(mean(trial_tc1(base_wind1,:,:),1));
-f_base_1 = mean(f_base1,2);
-f_base2 = squeeze(mean(trial_tc2(base_wind2,:,:),1));
-f_base_2 = mean(f_base2,2);
-f_base3 = squeeze(mean(trial_tc3(base_wind3,:,:),1));
-f_base_3 = mean(f_base3,2);
-f_base4 = squeeze(mean(trial_tc4(base_wind4,:,:),1));
-f_base_4 = mean(f_base4,2);
-dfof_base_1 = mean(dfof_base1,2);
-dfof_base_2 = mean(dfof_base2,2);
-dfof_base_3 = mean(dfof_base3,2);
-dfof_base_4 = mean(dfof_base4,2);
+%% Skewness
 figure;
-subplot(2,1,1)
-xx = [1:nTrials1];
-plot(xx,f_base_1')
-hold on
-plot(xx,f_base_2')
-hold on
-plot(xx,f_base_3')
-hold on
-plot(xx,f_base_4')
-xlabel('nTrials')
-ylabel('avg baseline f')
-title(mouse)
-legend({'Day 1', 'Day 2', 'Day 3', 'Day 4'},'Location','northwest','Orientation','horizontal')
-subplot(2,1,2)
-plot(xx,dfof_base_1')
-hold on
-plot(xx,dfof_base_2')
-hold on
-plot(xx,dfof_base_3')
-hold on
-plot(xx,dfof_base_4')
-xlabel('nTrials')
-ylabel('avg baseline dfof')
-print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], [ref_date '_' mouse '_' ref_str '_Ftraces.pdf']),'-dpdf', '-bestfit')
+subplot(1,3,1);
+scatter(skew1,skew2);
+axis square
+xlim([0 max(skew1)+.25])
+ylim([0 max(skew2)+.25])
+refline(1,0)
+xlabel('Skew Day 1')
+ylabel('Skew Day 2')
+R = corrcoef(skew1,skew2);
+disp(R(1,2));
+str = ['    r = ',num2str(R(1,2))];
+T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
+set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+
+subplot(1,3,2)
+scatter(skew1,skew3);
+axis square
+xlim([0 max(skew1)+.25])
+ylim([0 max(skew3)+.25])
+refline(1,0)
+xlabel('Skew Day 1')
+ylabel('Skew Day 3')
+R = corrcoef(skew1,skew3);
+disp(R(1,2));
+str = ['    r = ',num2str(R(1,2))];
+T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
+set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+
+subplot(1,3,3)
+scatter(skew1,skew4);
+axis square
+xlim([0 max(skew1)+.25])
+ylim([0 max(skew4)+.25])
+refline(1,0)
+xlabel('Skew Day 1')
+ylabel('Skew Day 4')
+R = corrcoef(skew1,skew4);
+disp(R(1,2));
+str = ['    r = ',num2str(R(1,2))];
+T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
+set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['SNR'], [ref_date '_' mouse '_' ref_str '_skewScatter.pdf']),'-dpdf', '-bestfit')
+
+[n, n2] = subplotn(length(goodfit3));
+start = 1;
+figure;
+for iC = 1:length(goodfit3)
+    iCell = goodfit3(iC);
+    subplot(n,n2,start)
+    x = [1 2 3 4];
+    y = [skew1(:,iCell) skew2(:,iCell) skew3(:,iCell) skew4(:,iCell)];
+%     err = [stdSNR1/sqrt(nCells1) stdSNR2/sqrt(nCells1) stdSNR3/sqrt(nCells1) stdSNR4/sqrt(nCells1)];
+    bar(x,y);
+    cellnames = {'Day1'; 'Day2'; 'Day3'; 'Day4'};
+    set(gca, 'xticklabel', cellnames)
+    ylabel('Skew')
+    ylim([0 max(y)+.1])
+    title(iCell)
+    start = start + 1;
+end
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['SNR'], [ref_date '_' mouse '_' ref_str '_goodfitSkew.pdf']),'-dpdf', '-bestfit')
 
 %% Cell Maps
 % loading data
@@ -727,20 +759,22 @@ print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['
 
 % just day 1
 for iC = 1:15
-    subplot(15,1,iC)
     iCell = cell_list(iC);    
-    width = 18; width = 18;
+    width = 24; height = 24;
     xCenter = round(cell_stats(iCell).Centroid(2));
     yCenter = round(cell_stats(iCell).Centroid(1));
     xLeft = xCenter - width/2;
     yBottom = yCenter - height/2;
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,1,iCell)
     imagesc(reg1(xLeft:xLeft+width,yBottom:height+yBottom));
     pos = get(gca, 'Position');
-    pos(1) = 0;
+    pos(1) = .1;
     pos(3) = 0.02;
     set(gca, 'Position', pos)
     axis square
     axis off
+    end
 end
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_' ref_str '_structureMapReg.pdf']),'-dpdf', '-bestfit')
 
@@ -777,13 +811,13 @@ print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['
 figure;
 start = 1;
 for iCell = 1:15
-    if xCenter 
-    width = 19; height = 19;
-    subplot(15,27,start)   
+    width = 24; height = 24;
     xCenter = round(cell_stats(iCell).Centroid(2));
     yCenter = round(cell_stats(iCell).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,24,start)
     imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
     pos = get(gca, 'Position');
     pos(1) = 0.025;
@@ -791,11 +825,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+1)
+    end
     xCenter2 = round(cell_stats2(iCell).Centroid(2));
     yCenter2 = round(cell_stats2(iCell).Centroid(1));
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
+    if xLeft2 > 12 && xLeft2 < 488 && yBottom2 > 12 && yBottom2 < 772
+    subplot(15,24,start+1)
     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
     pos = get(gca, 'Position');
     pos(1) = 0.05;
@@ -803,11 +839,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+2)
+    end
     xCenter3 = round(cell_stats3(iCell).Centroid(2));
     yCenter3 = round(cell_stats3(iCell).Centroid(1));
     xLeft3 = (xCenter3 - width/2);
     yBottom3 = (yCenter3 - height/2);
+    if xLeft3 > 12 && xLeft3 < 488 && yBottom3 > 12 && yBottom3 < 772
+    subplot(15,24,start+2)
     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
     pos = get(gca, 'Position');
     pos(1) = 0.075;
@@ -815,24 +853,28 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis square
     axis off
+    end
     
-    subplot(15,27,start+3)
-    xCenter1 = round(cell_stats(iCell+15).Centroid(2));
-    yCenter1 = round(cell_stats(iCell+15).Centroid(1));
-    xLeft1 = round(xCenter1 - width/2);
-    yBottom1 = round(yCenter1 - height/2);
-    imagesc(reg1(xLeft1:(xLeft1+width),yBottom1:(height+yBottom1)))  
-    axis square
-    axis off
+    xCenter = round(cell_stats(iCell+15).Centroid(2));
+    yCenter = round(cell_stats(iCell+15).Centroid(1));
+    xLeft = (xCenter - width/2);
+    yBottom = (yCenter - height/2);
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,24,start+3)
+    imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
     pos = get(gca, 'Position');
     pos(1) = 0.125;
     pos(3) = 0.02;
     set(gca, 'Position', pos)
-    subplot(15,27,start+4)
+    axis off
+    axis square
+    end
     xCenter2 = round(cell_stats2(iCell+15).Centroid(2));
     yCenter2 = round(cell_stats2(iCell+15).Centroid(1));
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
+    if xLeft2 > 12 && xLeft2 < 488 && yBottom2 > 12 && yBottom2 < 772
+    subplot(15,24,start+4)
     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
     pos = get(gca, 'Position');
     pos(1) = 0.15;
@@ -840,11 +882,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+5)
+    end
     xCenter3 = round(cell_stats3(iCell+15).Centroid(2));
     yCenter3 = round(cell_stats3(iCell+15).Centroid(1));
     xLeft3 = (xCenter3 - width/2);
     yBottom3 = (yCenter3 - height/2);
+    if xLeft3 > 12 && xLeft3 < 488 && yBottom3 > 12 && yBottom3 < 772
+    subplot(15,24,start+5)
     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
     pos = get(gca, 'Position');
     pos(1) = 0.175;
@@ -852,12 +896,14 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis square
     axis off
+    end
     
-    subplot(15,27,start+6)  
     xCenter = round(cell_stats(iCell+30).Centroid(2));
     yCenter = round(cell_stats(iCell+30).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,24,start+6)
     imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
     pos = get(gca, 'Position');
     pos(1) = 0.225;
@@ -865,11 +911,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+7)
+    end
     xCenter2 = round(cell_stats2(iCell+30).Centroid(2));
     yCenter2 = round(cell_stats2(iCell+30).Centroid(1));
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
+    if xLeft2 > 12 && xLeft2 < 488 && yBottom2 > 12 && yBottom2 < 772
+    subplot(15,24,start+7)
     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
     pos = get(gca, 'Position');
     pos(1) = 0.25;
@@ -877,11 +925,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+8)
+    end
     xCenter3 = round(cell_stats3(iCell+30).Centroid(2));
     yCenter3 = round(cell_stats3(iCell+30).Centroid(1));
     xLeft3 = (xCenter3 - width/2);
     yBottom3 = (yCenter3 - height/2);
+    if xLeft3 > 12 && xLeft3 < 488 && yBottom3 > 12 && yBottom3 < 772
+    subplot(15,24,start+8)
     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
     pos = get(gca, 'Position');
     pos(1) = 0.275;
@@ -889,12 +939,14 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis square
     axis off
+    end
     
-    subplot(15,27,start+9)  
     xCenter = round(cell_stats(iCell+45).Centroid(2));
     yCenter = round(cell_stats(iCell+45).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,24,start+9)
     imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
     pos = get(gca, 'Position');
     pos(1) = 0.325;
@@ -902,11 +954,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+10)
+    end
     xCenter2 = round(cell_stats2(iCell+45).Centroid(2));
     yCenter2 = round(cell_stats2(iCell+45).Centroid(1));
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
+    if xLeft2 > 12 && xLeft2 < 488 && yBottom2 > 12 && yBottom2 < 772
+    subplot(15,24,start+10)
     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
     pos = get(gca, 'Position');
     pos(1) = 0.35;
@@ -914,11 +968,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+11)
+    end
     xCenter3 = round(cell_stats3(iCell+45).Centroid(2));
     yCenter3 = round(cell_stats3(iCell+45).Centroid(1));
     xLeft3 = (xCenter3 - width/2);
     yBottom3 = (yCenter3 - height/2);
+    if xLeft3 > 12 && xLeft3 < 488 && yBottom3 > 12 && yBottom3 < 772
+    subplot(15,24,start+11)
     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
     pos = get(gca, 'Position');
     pos(1) = 0.375;
@@ -926,12 +982,14 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis square
     axis off
+    end
     
-    subplot(15,27,start+12)   
     xCenter = round(cell_stats(iCell+60).Centroid(2));
     yCenter = round(cell_stats(iCell+60).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,24,start+12)
     imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
     pos = get(gca, 'Position');
     pos(1) = 0.425;
@@ -939,11 +997,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+13)
+    end
     xCenter2 = round(cell_stats2(iCell+60).Centroid(2));
     yCenter2 = round(cell_stats2(iCell+60).Centroid(1));
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
+    if xLeft2 > 12 && xLeft2 < 488 && yBottom2 > 12 && yBottom2 < 772
+    subplot(15,24,start+13)
     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
     pos = get(gca, 'Position');
     pos(1) = 0.45;
@@ -951,11 +1011,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+14)
+    end
     xCenter3 = round(cell_stats3(iCell+60).Centroid(2));
     yCenter3 = round(cell_stats3(iCell+60).Centroid(1));
     xLeft3 = (xCenter3 - width/2);
     yBottom3 = (yCenter3 - height/2);
+    if xLeft3 > 12 && xLeft3 < 488 && yBottom3 > 12 && yBottom3 < 772
+    subplot(15,24,start+14)
     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
     pos = get(gca, 'Position');
     pos(1) = 0.475;
@@ -963,12 +1025,14 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis square
     axis off
+    end
        
-    subplot(15,27,start+15)   
     xCenter = round(cell_stats(iCell+75).Centroid(2));
     yCenter = round(cell_stats(iCell+75).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,24,start+15)
     imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
     pos = get(gca, 'Position');
     pos(1) = 0.525;
@@ -976,11 +1040,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+16)
+    end
     xCenter2 = round(cell_stats2(iCell+75).Centroid(2));
     yCenter2 = round(cell_stats2(iCell+75).Centroid(1));
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
+    if xLeft2 > 12 && xLeft2 < 488 && yBottom2 > 12 && yBottom2 < 772
+    subplot(15,24,start+16)
     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
     pos = get(gca, 'Position');
     pos(1) = 0.55;
@@ -988,11 +1054,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+17)
+    end
     xCenter3 = round(cell_stats3(iCell+75).Centroid(2));
     yCenter3 = round(cell_stats3(iCell+75).Centroid(1));
     xLeft3 = (xCenter3 - width/2);
     yBottom3 = (yCenter3 - height/2);
+    if xLeft3 > 12 && xLeft3 < 488 && yBottom3 > 12 && yBottom3 < 772
+    subplot(15,24,start+17)
     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
     pos = get(gca, 'Position');
     pos(1) = 0.575;
@@ -1000,12 +1068,14 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis square
     axis off
+    end
        
-    subplot(15,27,start+18)   
     xCenter = round(cell_stats(iCell+90).Centroid(2));
     yCenter = round(cell_stats(iCell+90).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,24,start+18)
     imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
     pos = get(gca, 'Position');
     pos(1) = 0.625;
@@ -1013,11 +1083,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+19)
+    end
     xCenter2 = round(cell_stats2(iCell+90).Centroid(2));
     yCenter2 = round(cell_stats2(iCell+90).Centroid(1));
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
+    if xLeft2 > 12 && xLeft2 < 488 && yBottom2 > 12 && yBottom2 < 772
+    subplot(15,24,start+19)
     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
     pos = get(gca, 'Position');
     pos(1) = 0.65;
@@ -1025,11 +1097,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+20)
+    end
     xCenter3 = round(cell_stats3(iCell+90).Centroid(2));
     yCenter3 = round(cell_stats3(iCell+90).Centroid(1));
     xLeft3 = (xCenter3 - width/2);
     yBottom3 = (yCenter3 - height/2);
+    if xLeft3 > 12 && xLeft3 < 488 && yBottom3 > 12 && yBottom3 < 772
+    subplot(15,24,start+20)
     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
     pos = get(gca, 'Position');
     pos(1) = 0.675;
@@ -1037,12 +1111,14 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis square
     axis off
-       
-    subplot(15,27,start+21)   
+    end
+    
     xCenter = round(cell_stats(iCell+105).Centroid(2));
     yCenter = round(cell_stats(iCell+105).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
+    if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+    subplot(15,24,start+21)
     imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
     pos = get(gca, 'Position');
     pos(1) = 0.725;
@@ -1050,11 +1126,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+22)
+    end
     xCenter2 = round(cell_stats2(iCell+105).Centroid(2));
     yCenter2 = round(cell_stats2(iCell+105).Centroid(1));
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
+    if xLeft2 > 12 && xLeft2 < 488 && yBottom2 > 12 && yBottom2 < 772
+    subplot(15,24,start+22)
     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
     pos = get(gca, 'Position');
     pos(1) = 0.75;
@@ -1062,11 +1140,13 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis off
     axis square
-    subplot(15,27,start+23)
+    end
     xCenter3 = round(cell_stats3(iCell+105).Centroid(2));
     yCenter3 = round(cell_stats3(iCell+105).Centroid(1));
     xLeft3 = (xCenter3 - width/2);
     yBottom3 = (yCenter3 - height/2);
+    if xLeft3 > 12 && xLeft3 < 488 && yBottom3 > 12 && yBottom3 < 772
+    subplot(15,24,start+23)
     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
     pos = get(gca, 'Position');
     pos(1) = 0.775;
@@ -1074,45 +1154,46 @@ for iCell = 1:15
     set(gca, 'Position', pos)
     axis square
     axis off
-       
-    subplot(15,27,start+24)   
-    xCenter = round(cell_stats(iCell+120).Centroid(2));
-    yCenter = round(cell_stats(iCell+120).Centroid(1));
-    xLeft = (xCenter - width/2);
-    yBottom = (yCenter - height/2);
-    imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
-    pos = get(gca, 'Position');
-    pos(1) = 0.825;
-    pos(3) = 0.02;
-    set(gca, 'Position', pos)
-    axis off
-    axis square
-    subplot(15,27,start+25)
-    xCenter2 = round(cell_stats2(iCell+120).Centroid(2));
-    yCenter2 = round(cell_stats2(iCell+120).Centroid(1));
-    xLeft2 = (xCenter2 - width/2);
-    yBottom2 = (yCenter2 - height/2);
-    imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
-    pos = get(gca, 'Position');
-    pos(1) = 0.85;
-    pos(3) = 0.02;
-    set(gca, 'Position', pos)
-    axis off
-    axis square
-    subplot(15,27,start+26)
-    xCenter3 = round(cell_stats3(iCell+120).Centroid(2));
-    yCenter3 = round(cell_stats3(iCell+120).Centroid(1));
-    xLeft3 = (xCenter3 - width/2);
-    yBottom3 = (yCenter3 - height/2);
-    imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
-    pos = get(gca, 'Position');
-    pos(1) = 0.875;
-    pos(3) = 0.02;
-    set(gca, 'Position', pos)
-    axis square
-    axis off
+    end
     
-    start = start+27;
+%     subplot(15,27,start+24)   
+%     xCenter = round(cell_stats(iCell+120).Centroid(2));
+%     yCenter = round(cell_stats(iCell+120).Centroid(1));
+%     xLeft = (xCenter - width/2);
+%     yBottom = (yCenter - height/2);
+%     imagesc(reg1(xLeft:(xLeft+width),yBottom:(height+yBottom))) 
+%     pos = get(gca, 'Position');
+%     pos(1) = 0.825;
+%     pos(3) = 0.02;
+%     set(gca, 'Position', pos)
+%     axis off
+%     axis square
+%     subplot(15,27,start+25)
+%     xCenter2 = round(cell_stats2(iCell+120).Centroid(2));
+%     yCenter2 = round(cell_stats2(iCell+120).Centroid(1));
+%     xLeft2 = (xCenter2 - width/2);
+%     yBottom2 = (yCenter2 - height/2);
+%     imagesc(reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2))) 
+%     pos = get(gca, 'Position');
+%     pos(1) = 0.85;
+%     pos(3) = 0.02;
+%     set(gca, 'Position', pos)
+%     axis off
+%     axis square
+%     subplot(15,27,start+26)
+%     xCenter3 = round(cell_stats3(iCell+120).Centroid(2));
+%     yCenter3 = round(cell_stats3(iCell+120).Centroid(1));
+%     xLeft3 = (xCenter3 - width/2);
+%     yBottom3 = (yCenter3 - height/2);
+%     imagesc(reg3(xLeft3:(xLeft3+width),yBottom3:(height+yBottom3)))
+%     pos = get(gca, 'Position');
+%     pos(1) = 0.875;
+%     pos(3) = 0.02;
+%     set(gca, 'Position', pos)
+%     axis square
+%     axis off
+    
+    start = start+24;
 end
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_' ref_str '_MapReg1-145.pdf']),'-dpdf', '-bestfit')
 

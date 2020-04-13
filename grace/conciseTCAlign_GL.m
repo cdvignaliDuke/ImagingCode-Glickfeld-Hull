@@ -91,12 +91,24 @@ if isfield(input, 'nScansOn')
     ntrials = size(input.tGratingDirectionDeg,2);
 %         calculating dfof and formatting it as a four dim array
 %         (sz1,sz1,frames,trails)
-    sz = size(data_reg);
-    data_tr = reshape(data_reg,[sz(1), sz(2), nOn+nOff, ntrials]);
-    data_f = mean(data_tr(:,:,nOff/2:nOff,:),3);
-    data_df = bsxfun(@minus, double(data_tr), data_f); 
-    data_dfof = bsxfun(@rdivide,data_df, data_f); 
-    clear data_f data_df data_tr
+    if nOn>29
+        sz = size(data_reg);
+        data_tr = reshape(data_reg,[sz(1), sz(2), nOn+nOff, ntrials]);
+        data_f = mean(data_tr(:,:,nOff/2:nOff,:),3);
+        data_df = bsxfun(@minus, double(data_tr), data_f); 
+        data_dfof = bsxfun(@rdivide,data_df, data_f); 
+        clear data_f data_df data_tr
+    else
+        sz = size(data_reg);
+        data_tr = zeros(sz(1),sz(2), 100, ntrials-1);
+        for itrial = 1:ntrials-1
+            data_tr(:,:,:,itrial) = data_reg(:,:,((itrial-1)*(nOn+nOff))+71:170+((itrial-1)*(nOn+nOff)));
+        end
+        data_f = mean(data_tr(:,:,1:50,:),3);
+        data_df = bsxfun(@minus, double(data_tr), data_f); 
+        data_dfof = bsxfun(@rdivide,data_df, data_f); 
+        clear data_f data_df data_tr
+    end
 end
 
 if input.doDirStim
