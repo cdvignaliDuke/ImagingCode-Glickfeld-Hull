@@ -37,18 +37,11 @@ for irun = 1:nrun
     
 %     defining the frames that are presenting stimuli (On) and those that
 %     are not (off)
-     temp(irun) = input;
+    temp(irun) = input;
     if isfield(input, 'nScansOn')
         nOn = temp(irun).nScansOn;
         nOff = temp(irun).nScansOff;
         ntrials = size(temp(irun).tGratingDirectionDeg,2);
-% this is the trial chopper to make sure you have 160 trials
-        data_temp = squeeze(data_temp);
-        if nframes>ntrials*(nOn+nOff)
-            data_temp = data_temp(:,:,1:ntrials*(nOn+nOff));
-        elseif nframes<ntrials*(nOn+nOff)
-            temp(irun) = trialChopper(temp(irun),1:ceil(nframes./(nOn+nOff)));
-        end
     end
 
 %     defining the unregistered data

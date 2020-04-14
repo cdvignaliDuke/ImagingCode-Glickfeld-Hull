@@ -1,7 +1,7 @@
 clear all
 clear global
 %% get path names
-date = '200106';
+date = '200108';
 ImgFolder = strvcat('003');
 time = strvcat('1251');
 mouse = 'i1316';
