@@ -200,6 +200,9 @@ if ~alignToRef
 
     clear data_dfof data_dfof_avg max_dfof mask_data mask_all mask_2 data_base data_base_dfof data_targ data_targ_dfof data_f data_base2 data_base2_dfof data_dfof_dir_all data_dfof_max data_dfof_targ data_avg data_dfof2_dir data_dfof_dir 
 else
+%     loading data_dfof_max and data_reg_avg from day 1 (_reg)
+    load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_stimActFOV.mat']))
+    load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_reg_shifts.mat']))
     data_dfof_max_reg = data_dfof_max;
     data_avg_reg = data_reg_avg;
 %     loading data_dfof_max and data_reg_avg from day 1 (_ref)

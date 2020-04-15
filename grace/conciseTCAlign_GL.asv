@@ -37,11 +37,18 @@ for irun = 1:nrun
     
 %     defining the frames that are presenting stimuli (On) and those that
 %     are not (off)
-    temp(irun) = input;
+     temp(irun) = input;
     if isfield(input, 'nScansOn')
         nOn = temp(irun).nScansOn;
         nOff = temp(irun).nScansOff;
         ntrials = size(temp(irun).tGratingDirectionDeg,2);
+% this is the trial chopper to make sure you have 160 trials
+        data_temp = squeeze(data_temp);
+        if nframes>ntrials*(nOn+nOff)
+            data_temp = data_temp(:,:,1:ntrials*(nOn+nOff));
+        elseif nframes<ntrials*(nOn+nOff)
+            temp(irun) = trialChopper(temp(irun),1:ceil(nframes./(nOn+nOff)));
+        end
     end
 
 %     defining the unregistered data
@@ -193,6 +200,9 @@ if ~alignToRef
 
     clear data_dfof data_dfof_avg max_dfof mask_data mask_all mask_2 data_base data_base_dfof data_targ data_targ_dfof data_f data_base2 data_base2_dfof data_dfof_dir_all data_dfof_max data_dfof_targ data_avg data_dfof2_dir data_dfof_dir 
 else
+    load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_stimActFOV.mat']))
+    load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_reg_shifts.mat']))
+    
     data_dfof_max_reg = data_dfof_max;
     data_avg_reg = data_reg_avg;
 %     loading data_dfof_max and data_reg_avg from day 1 (_ref)
