@@ -1,7 +1,10 @@
-date = '200121';
-mouse = 'i1317';
+clear all
+clear global
+%% 
+date = '200212';
+mouse = 'i1315';
 ImgFolder = '002';
-time = '1125';
+time = '1413';
 run = '000';
 doReg = 0;
 nrun = size(ImgFolder,1);
