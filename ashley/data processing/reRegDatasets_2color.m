@@ -68,7 +68,7 @@ for irun = 1:expt(slct_expt).nrun
         end
         input_bx = input;
     else
-        data_bx_g = cat(3,data_bx_r,data_temp_g);
+        data_bx_g = cat(3,data_bx_g,data_temp_g);
         if expt(slct_expt).greenredsimultaneous == 1
             data_bx_r = cat(3,data_bx_r,data_temp_r);
         end
@@ -190,7 +190,7 @@ bx_img = max(dFF_bxMax,[],3);
 figure;colormap gray; imagesc(bx_img)
 %**enter vals here***
 xcrop = [1:20 780:xpix];
-ycrop = [1:10 260:ypix];
+ycrop = [1:10 250:ypix];
 
 % tun_crop = tun_img;
 % tun_crop(:,xcrop) = 0;
@@ -304,5 +304,8 @@ if isfield(expt,'passExpt')
         save(fullfile(fnout,'timecourses_pass_cells.mat'),...
             'data_pass_g_tc_subnp','data_pass_g_tc',...
             'data_pass_r_tc_subnp','data_pass_r_tc','buf','np')
+        
+        save(fullfile(fnout,'timecourses_pass_cells.mat'),...
+            'data_pass_g_tc_subnp','data_pass_g_tc','buf','np')
     end
 end
