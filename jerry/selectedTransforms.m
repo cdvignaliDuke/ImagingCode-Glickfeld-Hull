@@ -56,7 +56,7 @@ offset = 0;
     save('day2Inputs.mat','input_points'); % saving input points
     save('day2Base.mat','base_points'); % saving base points
     %input_points = load('day2Inputs.mat'); %load presaved input coordinates
-    %base_points = loadi('day2Base.mat'); %load presaved base coordinates
+    %base_points = load('day2Base.mat'); %load presaved base coordinates
     
     %% maketform + imtransform (original)
     mytform = maketform('affine',input_points(1:3,:), base_points(1:3,:));
