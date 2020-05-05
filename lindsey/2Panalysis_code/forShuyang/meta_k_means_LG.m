@@ -1,8 +1,10 @@
 
-function [allclusters, allclusters_init, centroidcorr, dendmem, dunnsinitial]=meta_k_means(eventsmat, distmetric,sc)
+function [allclusters, allclusters_init, centroidcorr, dendmem, dunnsinitial]=meta_k_means(eventsmat, distmetric,sc,nclust)
 
 if nargin==1;
     distmetric='correlation';
+    sc = 0;
+    nclust = 5;
 end
 
 expr = eventsmat;
@@ -14,7 +16,7 @@ centroidmat = [];
 
 % k clusters
 if sc==0
-    n =5;
+    n =nclust;
 else
     n=size(sc,1);
 end

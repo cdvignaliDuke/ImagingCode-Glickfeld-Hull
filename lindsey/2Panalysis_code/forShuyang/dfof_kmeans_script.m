@@ -68,8 +68,11 @@ for iexp = 1
     
     print(fullfile(outbase, days{iexp}, [days{iexp} '_sortMatrix.pdf']),'-dpdf', '-bestfit')
     
+    % number of clusters
+    n = 5;
+    
     % run meta k means
-    [allclusters, allclusters_init, centroidcorr, dendmem, dunnsinitial]=meta_k_means_LG(df_f_norm', 'correlation', sc);
+    [allclusters, allclusters_init, centroidcorr, dendmem, dunnsinitial]=meta_k_means_LG(df_f_norm', 'correlation', sc, n);
     
     
     %plot output of meta k means
