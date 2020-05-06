@@ -1,8 +1,13 @@
 %contingent adaptation experiments
+%250 ms adapt stim
 mouse_mat = strvcat('i1303','i1103','i1304','i1303','i1304','i1103','i1303');
 date_mat = strvcat('190501','190508','190508','190619','190619','190621','190621');
 run_mat = strvcat('002','002','002','003','003','002','002');
 
+%1s adapt stim
+% mouse_mat = strvcat('i1303','i1304','i1103','i1303');
+% date_mat = strvcat('190810','190817','190824','190824');
+% run_mat = strvcat('002','002','002','002');
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
 nexp = size(mouse_mat,1);
 
@@ -17,7 +22,6 @@ respplaid_ind_all = [];
 noadapt_resp_cell_all= cell(5,5);
 asynadapt_resp_cell_all= cell(5,5);
 contadapt_resp_cell_all= cell(5,5);
-
 for iexp = 1:nexp
     mouse = mouse_mat(iexp,:);
     date = date_mat(iexp,:);
@@ -25,6 +29,7 @@ for iexp = 1:nexp
     
     fn = fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]);
     load(fullfile(fn,[date '_' mouse '_' run_str '_allCellResp.mat']));
+    %load(fullfile(fn,[date '_' mouse '_' run_str '_allCellRespLate.mat']));
     load(fullfile(fn,[date '_' mouse '_' run_str '_dataStim.mat']));
     nMask = length(maskCons);
     nTest = length(testCons);
@@ -44,6 +49,7 @@ for iexp = 1:nexp
     respplaid_ind_all = [respplaid_ind_all; respplaid_ind+totCells];
     
     totCells = totCells+size(noadapt_resp_cell{1,1},1);
+    fprintf([num2str(length(preftestonly_ind)) ' ' num2str(length(prefmaskonly_ind)) ' ' num2str(length(prefplaidonly_ind)) '\n'])
 end
 
 %% 
@@ -67,6 +73,8 @@ prefTestOrMask_asynadapt_resp = zeros(nMask,nTest,2);
 
 prefTestInd = intersect(preftestonly_ind_all,resptest_ind_all);
 prefMaskInd = intersect(prefmaskonly_ind_all,respmask_ind_all);
+%prefTestInd = intersect(find(noadapt_resp_cell_all{1,5}>noadapt_resp_cell_all{5,1}),resptest_ind_all);
+%prefMaskInd = intersect(find(noadapt_resp_cell_all{1,5}<noadapt_resp_cell_all{5,1}),respmask_ind_all);
 prefPlaidInd = intersect(prefplaidonly_ind_all,respplaid_ind_all);
 
 for im = 1:nMask
@@ -132,7 +140,7 @@ xlabel('Test Contrast')
 ylim([-0.1 0.5])
 legend(num2str(maskCons'))
 suptitle(['Test preferring cells- n = ' num2str(length(prefTestInd))])
-print(fullfile(fnout, 'adaptSummary_testPrefOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_testPrefAll_250ms.pdf'),'-dpdf','-bestfit');
 
 %Mask Only
 figure;
@@ -165,7 +173,7 @@ xlabel('Test Contrast')
 ylim([-0.1 0.5])
 legend(num2str(testCons'))
 suptitle(['Mask preferring cells- n = ' num2str(length(prefMaskInd))])
-print(fullfile(fnout, 'adaptSummary_maskPrefOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_maskPrefAll_250ms.pdf'),'-dpdf','-bestfit');
 
 % Plaid Only
 figure;
@@ -198,7 +206,7 @@ xlabel('Test Contrast')
 ylim([-0.1 0.5])
 legend(num2str(maskCons'))
 suptitle(['Plaid preferring cells- n = ' num2str(length(prefPlaidInd))])
-print(fullfile(fnout, 'adaptSummary_plaidPrefOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_plaidPrefOnly_250ms.pdf'),'-dpdf','-bestfit');
 
 %Test or Mask
 figure;
@@ -231,7 +239,7 @@ xlabel('Test Contrast')
 ylim([-0.1 0.5])
 legend(num2str(maskCons'))
 suptitle(['Test or Mask preferring cells- n = ' num2str(length([prefTestInd; prefMaskInd]))])
-print(fullfile(fnout, 'adaptSummary_prefTestOrMask.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_prefTestOrMaskAll_250ms.pdf'),'-dpdf','-bestfit');
 
 %by mask
 figure;
@@ -248,7 +256,7 @@ for im = 1:nMask
 end
 legend('No adapt', 'Contingent', 'Asynchronous');
 suptitle(['Test or Mask preferring cells- n = ' num2str(length([prefTestInd; prefMaskInd]))])
-print(fullfile(fnout, 'adaptSummary_byMask_prefTestOrMask.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_byMask_prefTestOrMaskAll_250ms.pdf'),'-dpdf','-bestfit');
 
 figure;
 for im = 1:nMask
@@ -264,7 +272,7 @@ for im = 1:nMask
 end
 legend('No adapt', 'Contingent', 'Asynchronous');
 suptitle(['Test only preferring cells- n = ' num2str(length([prefTestInd]))])
-print(fullfile(fnout, 'adaptSummary_byMask_prefTestOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_byMask_prefTestAll_250ms.pdf'),'-dpdf','-bestfit');
 
 
 figure;
@@ -281,7 +289,7 @@ for im = 1:nMask
 end
 legend('No adapt', 'Contingent', 'Asynchronous');
 suptitle(['Mask only preferring cells- n = ' num2str(length([prefMaskInd]))])
-print(fullfile(fnout, 'adaptSummary_byMask_prefMaskOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_byMask_prefMaskAll_250ms.pdf'),'-dpdf','-bestfit');
 
 figure;
 for im = 1:nMask
@@ -297,7 +305,7 @@ for im = 1:nMask
 end
 legend('No adapt', 'Contingent', 'Asynchronous');
 suptitle(['Plaid only preferring cells- n = ' num2str(length([prefPlaidInd]))])
-print(fullfile(fnout, 'adaptSummary_byMask_prefPlaidOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_byMask_prefPlaidOnly_250ms.pdf'),'-dpdf','-bestfit');
 
 %%
 prefTestOnly_noadapt_respCells = zeros(length(prefTestInd),nMask,nTest);
@@ -330,6 +338,86 @@ for im = 1:nMask
     end
 end
 
+figure; 
+subplot(1,2,1)
+imagesc(squeeze(mean(prefTestOrMask_contadapt_respCells,1)))
+title('Contingent')
+colormap redblue
+clim([-0.2 0.2])
+axis square
+xlabel('Test Contrast')
+xticklabels(chop(testCons,2))
+ylabel('Mask Contrast')
+yticklabels(chop(maskCons,2))
+colorbar
+subplot(1,2,2)
+imagesc(squeeze(mean(prefTestOrMask_asynadapt_respCells,1)))
+title('Asynchronous')
+colormap redblue
+clim([-0.2 0.2])
+axis square
+xlabel('Test Contrast')
+xticklabels(chop(testCons,2))
+ylabel('Mask Contrast')
+yticklabels(chop(maskCons,2))
+colorbar
+suptitle(['Test or Mask preferring cells- n = ' num2str(length([prefTestInd; prefMaskInd]))])
+print(fullfile(fnout, 'adaptSummary_avgRespHeatmap_prefTestOrMaskAll_250ms.pdf'),'-dpdf','-bestfit');
+
+% %subtract minimum (instead of no stim condition)
+% for i = 1:size(prefTestOnly_noadapt_respCells,1)
+%     prefTestOnly_noadapt_respCells(i,:,:) = prefTestOnly_noadapt_respCells(i,:,:)-min(min(prefTestOnly_noadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefMaskOnly_noadapt_respCells,1)
+%     prefMaskOnly_noadapt_respCells(i,:,:) = prefMaskOnly_noadapt_respCells(i,:,:)-min(min(prefMaskOnly_noadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefPlaidOnly_noadapt_respCells,1)
+%     prefPlaidOnly_noadapt_respCells(i,:,:) = prefPlaidOnly_noadapt_respCells(i,:,:)-min(min(prefPlaidOnly_noadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefTestOnly_contadapt_respCells,1)
+%     prefTestOnly_contadapt_respCells(i,:,:) = prefTestOnly_contadapt_respCells(i,:,:)-min(min(prefTestOnly_contadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefMaskOnly_contadapt_respCells,1)
+%     prefMaskOnly_contadapt_respCells(i,:,:) = prefMaskOnly_contadapt_respCells(i,:,:)-min(min(prefMaskOnly_contadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefPlaidOnly_contadapt_respCells,1)
+%     prefPlaidOnly_contadapt_respCells(i,:,:) = prefPlaidOnly_contadapt_respCells(i,:,:)-min(min(prefPlaidOnly_contadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefTestOnly_asynadapt_respCells,1)
+%     prefTestOnly_asynadapt_respCells(i,:,:) = prefTestOnly_asynadapt_respCells(i,:,:)-min(min(prefTestOnly_asynadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefMaskOnly_asynadapt_respCells,1)
+%     prefMaskOnly_asynadapt_respCells(i,:,:) = prefMaskOnly_asynadapt_respCells(i,:,:)-min(min(prefMaskOnly_asynadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefPlaidOnly_asynadapt_respCells,1)
+%     prefPlaidOnly_asynadapt_respCells(i,:,:) = prefPlaidOnly_asynadapt_respCells(i,:,:)-min(min(prefPlaidOnly_asynadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefTestOrMask_noadapt_respCells,1)
+%     prefTestOrMask_noadapt_respCells(i,:,:) = prefTestOrMask_noadapt_respCells(i,:,:)-min(min(prefTestOrMask_noadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefTestOrMask_contadapt_respCells,1)
+%     prefTestOrMask_contadapt_respCells(i,:,:) = prefTestOrMask_contadapt_respCells(i,:,:)-min(min(prefTestOrMask_contadapt_respCells(i,:,:)));
+% end
+% for i = 1:size(prefTestOrMask_asynadapt_respCells,1)
+%     prefTestOrMask_asynadapt_respCells(i,:,:) = prefTestOrMask_asynadapt_respCells(i,:,:)-min(min(prefTestOrMask_asynadapt_respCells(i,:,:)));
+% end
+
+% %subtract mask-alone response
+% for im = 1:nMask
+%     prefTestOnly_noadapt_respCells(:,im,:) = prefTestOnly_noadapt_respCells(:,im,:)-prefTestOnly_noadapt_respCells(:,im,1);
+%     prefMaskOnly_noadapt_respCells(:,im,:) = prefMaskOnly_noadapt_respCells(:,im,:)-prefMaskOnly_noadapt_respCells(:,im,1);
+%     prefPlaidOnly_noadapt_respCells(:,im,:) =  prefPlaidOnly_noadapt_respCells(:,im,:)-prefPlaidOnly_noadapt_respCells(:,im,1);
+%     prefTestOnly_contadapt_respCells(:,im,:) = prefTestOnly_contadapt_respCells(:,im,:)-prefTestOnly_contadapt_respCells(:,im,1);
+%     prefMaskOnly_contadapt_respCells(:,im,:) =  prefMaskOnly_contadapt_respCells(:,im,:)- prefMaskOnly_contadapt_respCells(:,im,1);
+%     prefPlaidOnly_contadapt_respCells(:,im,:) = prefPlaidOnly_contadapt_respCells(:,im,:)-prefPlaidOnly_contadapt_respCells(:,im,1);
+%     prefTestOnly_asynadapt_respCells(:,im,:) = prefTestOnly_asynadapt_respCells(:,im,:)-prefTestOnly_asynadapt_respCells(:,im,1);
+%     prefMaskOnly_asynadapt_respCells(:,im,:) =  prefMaskOnly_asynadapt_respCells(:,im,:)- prefMaskOnly_asynadapt_respCells(:,im,1);
+%     prefPlaidOnly_asynadapt_respCells(:,im,:) = prefPlaidOnly_asynadapt_respCells(:,im,:)-prefPlaidOnly_asynadapt_respCells(:,im,1);
+%     prefTestOrMask_noadapt_respCells(:,im,:) = prefTestOrMask_noadapt_respCells(:,im,:)-prefTestOrMask_noadapt_respCells(:,im,1);
+%     prefTestOrMask_contadapt_respCells(:,im,:) = prefTestOrMask_contadapt_respCells(:,im,:)-prefTestOrMask_contadapt_respCells(:,im,1);
+%     prefTestOrMask_asynadapt_respCells(:,im,:) = prefTestOrMask_asynadapt_respCells(:,im,:)-prefTestOrMask_asynadapt_respCells(:,im,1);
+% end
+
 %set negative values to 0
 prefTestOnly_noadapt_respCells(find(prefTestOnly_noadapt_respCells<0)) = 0;
 prefMaskOnly_noadapt_respCells(find(prefMaskOnly_noadapt_respCells<0)) = 0;
@@ -343,6 +431,8 @@ prefPlaidOnly_asynadapt_respCells(find(prefPlaidOnly_asynadapt_respCells<0)) = 0
 prefTestOrMask_noadapt_respCells(find(prefTestOrMask_noadapt_respCells<0)) = 0;
 prefTestOrMask_contadapt_respCells(find(prefTestOrMask_contadapt_respCells<0)) = 0;
 prefTestOrMask_asynadapt_respCells(find(prefTestOrMask_asynadapt_respCells<0)) = 0;
+
+
 
         
 prefTestOnly_noadapt_MI = zeros(length(prefTestInd),nTest,nMask-1);
@@ -417,7 +507,7 @@ ylabel('MI (post-pre)')
 ylim([-1 1])
 legend({'No adapt', 'Asynchronous', 'Contingent'})
 suptitle(['Test Pref- n = ' num2str(min(n_asynadapt,[],1))])
-print(fullfile(fnout, 'adaptSummary_MI_prefTestOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_MI_prefTestAll_250ms.pdf'),'-dpdf','-bestfit');
 %Mask pref
 figure;
 for it = 2:nMask
@@ -459,7 +549,7 @@ ylabel('MI (post-pre)')
 ylim([-1 1])
 legend({'No adapt', 'Asynchronous', 'Contingent'})
 suptitle(['Mask Pref- n = ' num2str(min(n_asynadapt,[],1))])
-print(fullfile(fnout, 'adaptSummary_MI_prefMaskOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_MI_prefMaskAll_250ms.pdf'),'-dpdf','-bestfit');
 
 %Test or Mask pref
 figure;
@@ -502,7 +592,7 @@ ylabel('MI (post-pre)')
 ylim([-1 1])
 legend({'No adapt', 'Asynchronous', 'Contingent'})
 suptitle(['Test or Mask Pref- n = ' num2str(min(n_asynadapt,[],1))])
-print(fullfile(fnout, 'adaptSummary_MI_prefTestOrMask.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_MI_prefTestOrMaskAll_250ms.pdf'),'-dpdf','-bestfit');
 
 figure;
 for it = 2:nMask
@@ -544,7 +634,7 @@ ylabel('MI (post-pre)')
 ylim([-1 1])
 legend({'No adapt', 'Asynchronous', 'Contingent'})
 suptitle(['Plaid Pref- n = ' num2str(min(n_asynadapt,[],1))])
-print(fullfile(fnout, 'adaptSummary_MI_prefPlaidOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout, 'adaptSummary_MI_prefPlaidOnly_250ms.pdf'),'-dpdf','-bestfit');
 
 %%
 prefTestOrMask_noadapt_respdiag = zeros(nTest,2);
@@ -606,5 +696,65 @@ xlabel('Test Contrast')
 ylim([-0.1 0.5])
 legend({'Test/Mask- diag','Test/Mask- TestOnly','Plaid- diag', 'Plaid- Test Only'})
 suptitle(['Diagonal vs TestOnly stim'])
-print(fullfile(fnout,'Summary_DaigvTestOnly.pdf'),'-dpdf','-bestfit');
+print(fullfile(fnout,'Summary_DaigvTestAll_250ms.pdf'),'-dpdf','-bestfit');
 
+%% ori tuning and supp index
+resp_single = unique([resptest_ind_all; respmask_ind_all]);
+resp_any = unique([resptest_ind_all; respmask_ind_all; respplaid_ind_all]);
+resp_plaid_only = setdiff(respplaid_ind_all,resp_single);
+noadapt_rect_resp = noadapt_resp_cell_all;
+for im = 1:nMask
+    for it = 1:nTest
+        noadapt_rect_resp{im,it}(find(noadapt_rect_resp{im,it}<0)) = 0;
+    end
+end
+resp_all = [noadapt_rect_resp{1,5} noadapt_rect_resp{5,1} noadapt_rect_resp{5,5}];
+ind0 = find(noadapt_rect_resp{1,5}+noadapt_rect_resp{5,1}==0);
+resp_single = setdiff(resp_single,ind0);
+sum_all = noadapt_rect_resp{1,5}+noadapt_rect_resp{5,1};
+osi_all = abs(noadapt_rect_resp{1,5}-noadapt_rect_resp{5,1})./(noadapt_rect_resp{1,5}+noadapt_rect_resp{5,1});
+osi_all(ind0) = 0;
+supp_all = noadapt_rect_resp{5,5}./(noadapt_rect_resp{1,5}+noadapt_rect_resp{5,1});
+resp_thresh_ind = unique([find(noadapt_rect_resp{1,5}>0.05); find(noadapt_rect_resp{5,5}>0.05); find(noadapt_rect_resp{5,1}>0.05)]);
+
+ind_facil = find(supp_all(resp_single)>1);
+ind_supp = find(supp_all(resp_single)<=1);
+figure; 
+subplot(2,2,1)
+scatter(osi_all(resp_single(ind_supp)), supp_all(resp_single(ind_supp)));
+xlabel('OSI')
+ylabel('SI')
+title(['SI <= 1 - n = ' num2str(length(ind_supp))])
+subplot(2,2,2)
+scatter(osi_all(resp_single(ind_facil)), supp_all(resp_single(ind_facil)));
+set(gca, 'yscale','log')
+xlabel('OSI')
+ylabel('SI')
+title(['SI > 1 - n = ' num2str(length(ind_facil))])
+[n bin] = histc(osi_all,[0:0.15:1.2]);
+
+for i = 1:length(n)
+    ind = intersect(resp_single(ind_supp),find(bin==i));
+    subplot(2,2,3)
+    errorbarxy(mean(osi_all(ind),1), mean(supp_all(ind),1), std(osi_all(ind),[],1)./sqrt(length(ind)), std(supp_all(ind),[],1)./sqrt(length(ind)));
+    hold on
+    ind = intersect(resp_single(ind_facil),find(bin==i));    
+    subplot(2,2,4)
+    errorbarxy(mean(osi_all(ind),1), geomean(supp_all(ind),1), std(osi_all(ind),[],1)./sqrt(length(ind)), std(supp_all(ind),[],1)./sqrt(length(ind)));
+    hold on
+end
+subplot(2,2,3)
+xlabel('OSI')
+ylabel('SI (mean)')
+ylim([0 1])
+xlim([0 1])
+subplot(2,2,4)
+xlabel('OSI')
+ylabel('SI (geomean)')
+xlim([0 1])
+suptitle(['Single grating responsive cells- n = ' num2str(length(resp_single))]) 
+print(fullfile(fnout,'Summary_NoAdapt_OSIvSI.pdf'),'-dpdf','-bestfit');
+
+ind_facil_osi = intersect(find(supp_all(resp_single)>1), find(osi_all>0.7));
+ind_supp_osi = intersect(find(supp_all(resp_single)<=1), find(osi_all>0.7));
+rat = length(ind_facil_osi)./(length(ind_facil_osi)+length(ind_supp_osi));

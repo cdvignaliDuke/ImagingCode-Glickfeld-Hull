@@ -6,7 +6,7 @@ params.motionCutoff = 0.2;
 params.itiTimeS = 2;
 
 %% 1300 181231
-expt(1).mouse = '1300';
+expt(1).mouse = '1308';
 expt(1).date = '181231';
 expt(1).img_loc  = {'LM';'L2/3'};
 expt(1).inj_loc = {'LM'};

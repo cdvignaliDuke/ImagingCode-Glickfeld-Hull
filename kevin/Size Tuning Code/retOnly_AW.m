@@ -327,7 +327,7 @@ data_dfof_max = max(data_dfof_avg,[],3);
 figure(10);clf;
 imagesc(data_dfof_max)
 clim([0 max(data_dfof_max(:))])
-title('Maximum dF/F across all stimuli')
+%title('Maximum dF/F across all stimuli')
 % add scale bar
 xrng = 1030; %um
 yrng = 581; %um
@@ -336,10 +336,11 @@ ypix = yrng/size(data_dfof_max,1);
 xscale=100;
 yscale=100;
 hold on
-plot([14,20+xscale/xpix],[492 492],'Color','w','LineWidth',5);
-text(10+0.5*xscale/xpix,5, '100 um','Color',[1 1 0.99],'FontSize',12,'HorizontalAlignment','center');
-plot([ 20],[492,492-yscale/ypix],'Color','w','LineWidth',5);
-text(5,10+0.5*yscale/ypix, '100 um','Color',[1 1 0.99],'FontSize',12,'Rotation',90,'VerticalAlignment','middle');
+plot([38,40+xscale/xpix],[472 472],'Color','w','LineWidth',3);
+text(40+0.5*xscale/xpix,482, '100 um','Color',[1 1 0.99],'FontSize',10,'HorizontalAlignment','center');
+plot([40 40],[472,472-yscale/ypix],'Color','w','LineWidth',3);
+text(20,472-0.5*yscale/ypix, '100 um','Color',[1 1 0.99],'FontSize',10,'Rotation',90,'HorizontalAlignment','center');
+set(gca,'XTick',[],'YTick',[])
 %%
 % save stimActFOV.mat containing: data_dfof_max, data_dfof_avg, nStim
 save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg', 'nStim')

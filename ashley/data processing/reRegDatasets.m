@@ -1,9 +1,9 @@
 clear all
 close all
-ds = 'ConAV_V1_naive';
+ds = 'FSAV_attentionV1_noAttn';
 rc = behavConstsAV;
 eval(ds)
-slct_expt = 1;
+slct_expt = 8;
 doPreviousReg = false;
 %%
 iexp = slct_expt
@@ -120,6 +120,12 @@ data_sub = data_tun_down-min(min(min(data_tun_down,[],1),[],2),[],3);
 data_tun = data_sub;
 clear data_sub
 
+if ~doPreviousReg
+    regImgStartFrame = compareRegImg_2color(rc,ds,SubNum,expDate,data_bx);
+else
+    regImgStartFrame = expt(iexp).regImgStartFrame;
+end
+
 % register 
 if doPreviousReg
     load(fullfile(fnout,'regOuts&Img.mat'))
@@ -129,7 +135,7 @@ if doPreviousReg
     [~,data_tun_reg] = stackRegister_MA(data_tun,[],[],out_tun);
     clear data_bx data_tun
 else
-    regImg = mean(data_bx(:,:,expt(iexp).regImgStartFrame:(expt(iexp).regImgStartFrame+99)),3);
+    regImg = mean(data_bx(:,:,regImgStartFrame:(regImgStartFrame+99)),3);
     figure;imagesc(regImg);colormap gray
     [out_bx,data_bx_reg] = stackRegister(data_bx,regImg);
     [out_tun,data_tun_reg] = stackRegister(data_tun,regImg);
@@ -163,8 +169,8 @@ bx_img = max(dFF_bxMax,[],3);
 figure;colormap gray; imagesc(tun_img)
 
 %**enter vals here***
-xcrop = [1:20 790:xpix];
-ycrop = [1:30 260:ypix];
+xcrop = [1:31 790:xpix];
+ycrop = [1:10 260:ypix];
 
 tun_crop = tun_img;
 tun_crop(:,xcrop) = 0;
@@ -231,10 +237,12 @@ data_bx_den_tc_subnp = getWeightedNeuropilTimeCourse(data_bx_reg,data_bx_den_tc,
 
 data_tun_den_tc = stackGetTimeCourses(data_tun_reg,mask_den);
 data_tun_den_tc_subnp = getWeightedNeuropilTimeCourse(data_tun_reg,data_tun_den_tc,mask_den,buf,np);
+
 if ~exist(fullfile(fn,dirFolder),'dir')
     mkdir(fntun,dirFolder)
 end
 save(fullfile(fnout,'timecourses_bx_cells.mat'),'data_bx_tc_subnp','data_bx_tc','buf','np')
 save(fullfile(fntun,'timecourses_tun_cells.mat'),'data_tun_tc_subnp','data_tun_tc')
+
 save(fullfile(fnout,'timecourses_bx_dendrites.mat'),'data_bx_den_tc_subnp','data_bx_den_tc','buf','np')
 save(fullfile(fntun,'timecourses_tun_dendrites.mat'),'data_tun_den_tc_subnp','data_tun_den_tc')

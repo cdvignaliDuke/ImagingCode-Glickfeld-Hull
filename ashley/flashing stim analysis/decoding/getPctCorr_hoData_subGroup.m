@@ -1,4 +1,4 @@
-function pctCorr = getPctCorr_hoData_subGroup(X_all,Y_all,groupIndNumber,dv)
+function [pctCorr,isCorrect] = getPctCorr_hoData_subGroup(X_all,Y_all,groupIndNumber,dv)
 
 X_subgroup = X_all(groupIndNumber,:);
 Y_subgroup = Y_all(groupIndNumber);
@@ -15,6 +15,7 @@ for i = 1:nt_group
     [~,~,othersGLM] = glmfit(X_all(othersInd,:),Y_all(othersInd),'binomial');
     yhat(i) = glmval(othersGLM.beta,X_holdout,'logit') > dv;
 end
-pctCorr = mean((Y_subgroup-yhat) == 0);
+isCorrect = (Y_subgroup-yhat) == 0;
+pctCorr = mean(isCorrect);
 
 end

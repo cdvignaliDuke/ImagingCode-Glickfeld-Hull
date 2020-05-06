@@ -46,7 +46,8 @@ for i=1:nExp
     date = expdata.date{i};
     mouse = expdata.mouse{i};
     run_str = expdata.run_str{i};
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeTuneData.mat']);
+    %filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeTuneData.mat']);
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeTuneData.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_sizeTuneData.mat'] ' not found! Please remove from list\n'])
     end
@@ -73,7 +74,8 @@ for i=1:nExp
     date = expdata.date{i};
     mouse = expdata.mouse{i};
     run_str = expdata.run_str{i};
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeFitResults_SP.mat']);
+    %filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeFitResults_SP.mat']);
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeFitResults_SP.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_sizeFitResults_SP.mat'] ' not found! Please remove from list\n'])
     end
@@ -87,22 +89,26 @@ for i=1:nExp
     fprintf('done\n')
 end
 
-% % Fit_struct - need this?
-% fprintf('Loading Fit_struct (highest con, with shuffling)\n')
-% Fit_struct_all = struct;
-% for i=1:nExp
-%     fprintf(['Exp: ' num2str(i) '/' num2str(nExp) '...'])
-%     date = expdata.date{i};
-%     mouse = expdata.mouse{i};
-%     run_str = expdata.run_str{i};
-%     filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Fit_struct.mat']);
-%     if ~exist(filename, 'file')
-%         fprintf([[date '_' mouse '_' run_str '_Fit_struct.mat'] ' not found! Please remove from list\n'])
-%     end
-%     load(filename, 'Fit_struct')
-%     Fit_struct_all = cat(1,Fit_struct_all,Fit_struct);
-%     fprintf('done\n')
-% end
+% lbub_fits
+fprintf('Loading good fit inds (ret)\n')
+goodfit_ind_all = [];
+nCellsExpRet = zeros(1,nExp);
+for i=1:nExp
+    fprintf(['Exp: ' num2str(i) '/' num2str(nExp) '...'])
+    date = expdata.date{i};
+    mouse = expdata.mouse{i};
+    run_str = 'runs-002'; %expdata.run_str{i};
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
+    if ~exist(filename, 'file')
+        fprintf([[date '_' mouse '_' run_str '_lbub_fits.mat'] ' not found! Please remove from list\n'])
+    end
+    load(filename, 'lbub_fits', 'goodfit_ind')
+    nCellsExpRet(i) = size(lbub_fits,1);
+    tempinds = sum(nCellsExpRet(1:i-1)) + goodfit_ind; % offset by # cells in previous exps
+    goodfit_ind_all = [goodfit_ind_all tempinds];
+    
+    fprintf('done\n')
+end
 
 % lbub_fits
 fprintf('Loading lbub_fits\n')
@@ -113,7 +119,8 @@ for i=1:nExp
     date = expdata.date{i};
     mouse = expdata.mouse{i};
     run_str = expdata.run_str{i};
-    filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
+    %filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
+    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
     if ~exist(filename, 'file')
         fprintf([[date '_' mouse '_' run_str '_lbub_fits.mat'] ' not found! Please remove from list\n'])
     end
@@ -138,8 +145,11 @@ szs = 5*1.5.^[0:7]; nSize = length(szs);
 szRng = linspace(0,max(szs));
 
 %% con resp for all cells
-override = 0;
+override = 1;
+saveflag = 0;
 conModelH = @(coefs,cdata) coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
+conModelNB = @(coefs,cdata) 0*coefs(1) + coefs(2)*(cdata.^coefs(4))./(cdata.^coefs(4)+coefs(3).^coefs(4));
+conModelH=conModelNB; %use NB model (No B: without baseline)
 conRng = 0.001:0.001:1;
 opts = optimoptions('lsqcurvefit','Display','off'); %,'Algorithm','levenberg-marquardt'
 if exist(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', 'conStruct_4con.mat'),'file') && ~override
@@ -171,7 +181,7 @@ else
                 conStruct_all(iCell).resp20(iCon) = sizeFits_all(iCell,iCon).fitout2(ind20);
             else
                 conStruct_all(iCell).resp(iCon) = sizeFits_all(iCell,iCon).fitout1(pSind);
-                conStruct_all(iCell).resp20(iCon) = sizeFits_all(iCell,iCon).fitout2(ind20);
+                conStruct_all(iCell).resp20(iCon) = sizeFits_all(iCell,iCon).fitout1(ind20);
             end
         end
         cRi = conStruct_all(iCell).resp;
@@ -231,9 +241,13 @@ else
         conStruct_all(iCell).C50r20 = C50;
         %fprintf('Cell %d/%d fit: BL=%.3f Rmax=%.3f C50=%.3f n=%.2f : Rsq=%.3f C50r=%.3f\n',iCell,nCellsTot,cF(1),cF(2),cF(3),cF(4),R2,C50)
     end
-    fprintf('Done, saving...\n')
-    filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', 'conStruct_4con.mat');
-    save(filename,'conStruct_all');
+    if saveflag == 1
+        fprintf('Done, saving...\n')
+        filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', 'conStruct_4con.mat');
+        save(filename,'conStruct_all');
+    else
+        fprintf('Done, not saving.\n')
+    end
 end
 
 %% present each exp to examine cells+fits and choose example cells
@@ -303,6 +317,8 @@ for i = 1:length(areas)
     expIndi = find(cellfun(@(x) strcmp(x,areas(i)), expdata.area, 'UniformOutput', 1));
     % find cells with correct exp inds, take only good fit cells
     ind = intersect(find(ismember(expInd,expIndi)),goodfit_ind_size_all);
+    
+    fprintf([char(areas(i)) ' cells: ' num2str(length(ind)) '/' num2str(length(find(ismember(expInd,expIndi)))) '\n']) 
     switch areas(i)
         case 'V1'
             sizeFits_V1 = sizeFits_all(ind,:);
@@ -356,7 +372,7 @@ nCells_area = nExp_area;
 
 %close all
 
-choosefig = [5 8];%[3 5 8 9 10 11];
+choosefig = [5 6 8];%[3 5 8 9 10 11];
 % choose figs: 1=modelcounts; 2=averagecurves; 3=prefSize; 4=suppInd;
 % 5=conresp; 6=ex.cells; 7=C50f vs C50r; 8=conresp matched size @20deg,
 % 9=prefSize but PS within 10-30, 10=conresp but PS within 10-30
@@ -440,14 +456,14 @@ for i = 1:length(areas)
         for iCell = 1:nCellsi
             dum = sizeMean(:,:,iCell); % take all sizeMean values for cell
             %dum = sizeMean(:,nCon,iCell); % only at highest con
-            norm = max(dum(:)); % take max of all dF/F's including all cons
-            sizeMean_norm(:,:,iCell) = sizeMean(:,:,iCell)/norm; % normalize by this max for the individual cell
-            sizeSEM_norm(:,:,iCell) = sizeSEM(:,:,iCell)/norm;
+            norm_max = max(dum(:)); % take max of all dF/F's including all cons
+            sizeMean_norm(:,:,iCell) = sizeMean(:,:,iCell)/norm_max; % normalize by this max for the individual cell
+            sizeSEM_norm(:,:,iCell) = sizeSEM(:,:,iCell)/norm_max;
         end
         sizeMean_normall = mean(sizeMean_norm,3);
-        norm = max(sizeMean_normall(:,nCon));
-        sizeMean_normall = sizeMean_normall/norm;
-        sizeSEM_normall = geomean(sizeSEM_norm,3)/norm;
+        norm_max = max(sizeMean_normall(:,nCon));
+        sizeMean_normall = sizeMean_normall/norm_max;
+        sizeSEM_normall = geomean(sizeSEM_norm,3)/norm_max;
         % split by model
         %subplot(4,3,3*(i-1)+1)
         %subplot(2,4,2*(i-1)+1)
@@ -616,9 +632,9 @@ for i = 1:length(areas)
         subplot(2,4,2*(i-1)+1)
         dum = sizeMean_all(:,:,excells(1)); % take all sizeMean values for cell
         %dum = sizeMean(:,nCon,iCell); % only at highest con
-        norm = max(dum(:)); % take max of all dF/F's including all cons
-        sizeMean_norm = sizeMean_all(:,:,excells(1))/norm; % normalize by this max for the individual cell
-        sizeSEM_norm = sizeSEM_all(:,:,excells(1))/norm;
+        norm_max = max(dum(:)); % take max of all dF/F's including all cons
+        sizeMean_norm = sizeMean_all(:,:,excells(1))/norm_max; % normalize by this max for the individual cell
+        sizeSEM_norm = sizeSEM_all(:,:,excells(1))/norm_max;
         for iCon = 1:nCon
             errorbar(szs,sizeMean_norm(:,iCon),sizeSEM_norm(:,iCon))
             hold on
@@ -630,9 +646,9 @@ for i = 1:length(areas)
         subplot(2,4,2*(i-1)+2)
         dum = sizeMean_all(:,:,excells(2)); % take all sizeMean values for cell
         %dum = sizeMean(:,nCon,iCell); % only at highest con
-        norm = max(dum(:)); % take max of all dF/F's including all cons
-        sizeMean_norm = sizeMean_all(:,:,excells(2))/norm; % normalize by this max for the individual cell
-        sizeSEM_norm = sizeSEM_all(:,:,excells(2))/norm;
+        norm_max = max(dum(:)); % take max of all dF/F's including all cons
+        sizeMean_norm = sizeMean_all(:,:,excells(2))/norm_max; % normalize by this max for the individual cell
+        sizeSEM_norm = sizeSEM_all(:,:,excells(2))/norm_max;
         for iCon = 1:nCon
             errorbar(szs,sizeMean_norm(:,iCon),sizeSEM_norm(:,iCon))
             hold on
@@ -846,12 +862,39 @@ end
 %% stats on pref size and SI
 % at highest contrast condition
 
-[p,~,statPS] = anova1(yPS,x)
+%[p,~,statPS] = anova1(yPS,x)
+[p,tbl,statPS]=kruskalwallis(yPS,x)
 [results, means] = multcompare(statPS,'CType','hsd')
-[p,~,statSI] = anova1(ySI,x)
+
+%[p,~,statSI] = anova1(ySI,x)
+[p,tbl,statSI]=kruskalwallis(ySI,x)
 [results, means] = multcompare(statSI,'CType','hsd')
+
+[p,~,statSI] = anova1(ySI_matched,x_matched)
+[p,tbl,statSI]=kruskalwallis(ySI_matched,x_matched)
+[results, means] = multcompare(statSI,'CType','hsd')
+
 [tbl,chi2stat,pval] = crosstab(x,ySS) % chi square on SS designation
 
+%% two way anova for size x area
+xSz = []; gSz = []; gAr = [];
+for iCell=1:size(sizeTune_all,3)
+    if ~sum(iCell==goodfit_ind_size_all)
+        continue
+    end
+    for iSz = 1:length(szs)
+        dum = cell2mat(sizeTune_all(iSz, nCon, iCell))';
+        xSz = [xSz dum];
+        gSz = [gSz iSz+0*dum];
+        ar = cell2mat(expdata.area(expInd(goodfit_ind_all(iCell))));
+        gAr = [gAr find(strcmp(ar,areas))+0*dum];
+    end
+end
+% 2 way anova with grouping by size and area
+[p tbl stats terms] = anovan(xSz,{gSz gAr},'model','full','varnames',["size","area"])
+% [p tbl stats terms] = anovan(xSz,{gSz gAr},'model','linear','varnames',["size","area"]) % for no interaction term
+% test for homogeneity (swap gSz with gAr for area)
+vartestn(xSz',gSz','TestType','BrownForsythe')
 %% fig x - contrast response on 8 random example cells
 while 0 %collapse
     fprintf('Contrast-response in 8 random examples\n')
@@ -891,9 +934,9 @@ while 0 %collapse
         for iCell = 1:nCellsi
             dum = sizeMean(:,:,iCell); % take all sizeMean values for cell
             %dum = sizeMean(:,nCon,iCell); % only at highest con
-            norm = max(dum(:)); % take max of all dF/F's including all cons
-            sizeMean_norm(:,:,iCell) = sizeMean(:,:,iCell)/norm; % normalize by this max for the individual cell
-            sizeSEM_norm(:,:,iCell) = sizeSEM(:,:,iCell)/norm;
+            norm_max = max(dum(:)); % take max of all dF/F's including all cons
+            sizeMean_norm(:,:,iCell) = sizeMean(:,:,iCell)/norm_max; % normalize by this max for the individual cell
+            sizeSEM_norm(:,:,iCell) = sizeSEM(:,:,iCell)/norm_max;
         end
         % contrast dependence at prefSize(0.8)
         % first plot example cells (random 16 from each area)
@@ -1165,14 +1208,14 @@ for i = 1:length(areas)
     for iCell = 1:nCellsi
         dum = sizeMean(:,:,iCell); % take all sizeMean values for cell
         %dum = sizeMean(:,nCon,iCell); % only at highest con
-        norm = max(dum(:)); % take max of all dF/F's including all cons
-        sizeMean_norm(:,:,iCell) = sizeMean(:,:,iCell)/norm; % normalize by this max for the individual cell
-        sizeSEM_norm(:,:,iCell) = sizeSEM(:,:,iCell)/norm;
+        norm_max = max(dum(:)); % take max of all dF/F's including all cons
+        sizeMean_norm(:,:,iCell) = sizeMean(:,:,iCell)/norm_max; % normalize by this max for the individual cell
+        sizeSEM_norm(:,:,iCell) = sizeSEM(:,:,iCell)/norm_max;
     end
     sizeMean_normall = mean(sizeMean_norm,3);
-    norm = max(sizeMean_normall(:,nCon));
-    sizeMean_normall = sizeMean_normall/norm;
-    sizeSEM_normall = geomean(sizeSEM_norm,3)/norm;
+    norm_max = max(sizeMean_normall(:,nCon));
+    sizeMean_normall = sizeMean_normall/norm_max;
+    sizeSEM_normall = geomean(sizeSEM_norm,3)/norm_max;
     
     cellFit = sizeFits_all(exCell,:);
     subplot(4,4,1+(i-1)*4) % plot example cell

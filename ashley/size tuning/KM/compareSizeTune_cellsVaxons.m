@@ -10,38 +10,39 @@ fout = fullfile(rc.ashleyAnalysis, 'SizeTuning');
 %% Load files
 fprintf('Loading cell and axon data')
 load(fullfile(cell_path, 'allcells_goodfits.mat'))
+load(fullfile(cell_path, 'cellBody_SI_prefSize.mat'))
 load(fullfile(fout, 'axonSizeSummary.mat'))
 
 %% Sort cell groups
-RFsize_V1 = RFsize_all(intersect(goodfit_ind_all, find(areaInd==1)),:);
-RFsize_LM = RFsize_all(intersect(goodfit_ind_all, find(areaInd==2)),:);
-RFsize_AL = RFsize_all(intersect(goodfit_ind_all, find(areaInd==3)),:);
-RFsize_PM = RFsize_all(intersect(goodfit_ind_all, find(areaInd==4)),:);
+RFsize_V1 = RFsize_all(intersect(goodfit_ind_all, find(areaInd==1)),:).*2;
+RFsize_LM = RFsize_all(intersect(goodfit_ind_all, find(areaInd==2)),:).*2;
+RFsize_AL = RFsize_all(intersect(goodfit_ind_all, find(areaInd==3)),:).*2;
+RFsize_PM = RFsize_all(intersect(goodfit_ind_all, find(areaInd==4)),:).*2;
 
-V1_ind= find(areaInd(goodfit_ind_all)==1);
-LM_ind= find(areaInd(goodfit_ind_all)==2);
-AL_ind= find(areaInd(goodfit_ind_all)==3);
-PM_ind= find(areaInd(goodfit_ind_all)==4);
+% V1_ind= find(areaInd(goodfit_ind_all)==1);
+% LM_ind= find(areaInd(goodfit_ind_all)==2);
+% AL_ind= find(areaInd(goodfit_ind_all)==3);
+% PM_ind= find(areaInd(goodfit_ind_all)==4);
+% 
+% prefSize = zeros(1,length(goodfit_ind_all));
+% for i = 1: length(goodfit_ind_all)
+%     prefSize(1,i) = sizeFits_all(i,4).prefSize;
+% end
 
-prefSize = zeros(1,length(goodfit_ind_all));
-for i = 1: length(goodfit_ind_all)
-    prefSize(1,i) = sizeFits_all(i,4).prefSize;
-end
+prefSize_V1 = yPS(find(x==1))';
+prefSize_LM = yPS(find(x==2))';
+prefSize_AL = yPS(find(x==3))';
+prefSize_PM = yPS(find(x==4))';
 
-prefSize_V1 = prefSize(:,intersect(goodfit_ind_size_all,V1_ind));
-prefSize_LM = prefSize(:,intersect(goodfit_ind_size_all,LM_ind));
-prefSize_AL = prefSize(:,intersect(goodfit_ind_size_all,AL_ind));
-prefSize_PM = prefSize(:,intersect(goodfit_ind_size_all,PM_ind));
+% suppInd = zeros(1,length(goodfit_ind_all));
+% for i = 1: length(goodfit_ind_all)
+%     suppInd(1,i) = sizeFits_all(i,4).suppInd;
+% end
 
-suppInd = zeros(1,length(goodfit_ind_all));
-for i = 1: length(goodfit_ind_all)
-    suppInd(1,i) = sizeFits_all(i,4).suppInd;
-end
-
-suppInd_V1 = suppInd(:,intersect(goodfit_ind_size_all,V1_ind));
-suppInd_LM = suppInd(:,intersect(goodfit_ind_size_all,LM_ind));
-suppInd_AL = suppInd(:,intersect(goodfit_ind_size_all,AL_ind));
-suppInd_PM = suppInd(:,intersect(goodfit_ind_size_all,PM_ind));
+suppInd_V1 = ySI(find(x==1))';
+suppInd_LM = ySI(find(x==2))';
+suppInd_AL = ySI(find(x==3))';
+suppInd_PM = ySI(find(x==4))';
 
 
 %% Compare V1 neurons vs axons
@@ -69,6 +70,31 @@ x1 = [repmat('a',N1,1); repmat('b',N2,1); repmat('c',N3,1); repmat('d',N4,1)];
 x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1); repmat(1,n3,1); repmat(2,N3-n3,1); repmat(1,n4,1); repmat(2,N4-n4,1)];
 [tbl,chi2stat,pval] = crosstab(x1,x2);
 
+n1 = length(find(suppInd_V1==0)); N1 = length(suppInd_V1);
+n2 = length(find(suppInd_axons_LM==0)); N2 =length(suppInd_axons_LM);
+x1 = [repmat('a',N1,1); repmat('b',N2,1)];
+x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
+[tbl,chi2stat,pval_V1vsLM] = crosstab(x1,x2);
+
+n1 = length(find(suppInd_V1==0)); N1 = length(suppInd_V1);
+n2 = length(find(suppInd_axons_AL==0)); N2 =length(suppInd_axons_AL);
+x1 = [repmat('a',N1,1); repmat('b',N2,1)];
+x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
+[tbl,chi2stat,pval_V1vsAL] = crosstab(x1,x2);
+
+n1 = length(find(suppInd_V1==0)); N1 = length(suppInd_V1);
+n2 = length(find(suppInd_axons_PM==0)); N2 =length(suppInd_axons_PM);
+x1 = [repmat('a',N1,1); repmat('b',N2,1)];
+x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
+[tbl,chi2stat,pval_V1vsPM] = crosstab(x1,x2);
+
+n1 = length(find(suppInd_V1==0)); N1 = length(suppInd_V1);
+n2 = length(find(suppInd_axons_PM==0))+length(find(suppInd_axons_AL==0))+length(find(suppInd_axons_LM==0)); N2 =length(suppInd_axons_PM)+length(suppInd_axons_AL)+length(suppInd_axons_LM);
+x1 = [repmat('a',N1,1); repmat('b',N2,1)];
+x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
+[tbl,chi2stat,pval_all] = crosstab(x1,x2);
+
+
 figure;
 subplot(3,1,1)
 errorbar([1:4], [mean(RFsize_V1',2) mean(RFsize_axons_LM,2) mean(RFsize_axons_AL,2) mean(RFsize_axons_PM,2)],[std(RFsize_V1',[],2) std(RFsize_axons_LM,[],2) std(RFsize_axons_AL,[],2) std(RFsize_axons_PM,[],2)],'o')
@@ -76,7 +102,7 @@ ylabel('RF size (deg)')
 xticks([1:4])
 xticklabels({'V1 cells','V1->LM','V1->AL','V1->PM'})
 xlim([0 5])
-ylim([0 20])
+ylim([0 30])
 title(['p = ' num2str(chop([p_RFsize_anova c_RFsize(1:3,6)'],2))])
 
 subplot(3,1,2)
@@ -156,7 +182,7 @@ x1 = [repmat('a',N1,1); repmat('b',N2,1)];
 x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
 [tbl,chi2stat,pval_LM] = crosstab(x1,x2);
 
-n1 = length(find(suppInd_LM==0)); N1 = length(suppInd_AL);
+n1 = length(find(suppInd_AL==0)); N1 = length(suppInd_AL);
 n2 = length(find(suppInd_axons_AL==0)); N2 =length(suppInd_axons_AL);
 x1 = [repmat('a',N1,1); repmat('b',N2,1)];
 x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];

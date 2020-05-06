@@ -7,15 +7,15 @@
 %% get path names
 clear all;clc;
 
-mouse = 'i880';
-date = '180706';
-ImgFolder = char('003');
-time = char('1805');
+mouse = '1304';
+date = '190705';
+ImgFolder = char('004');
+time = char('1842');
 
-RetImgFolder = char('002');
+RetImgFolder = char('003');
 
 doFromRef = 1;
-ref = char('002');
+ref = char('003');
 
 nrun = size(ImgFolder,1);
 frame_rate = 15;
@@ -34,15 +34,17 @@ trial_n = zeros(1,nrun);
 fprintf(['\nBegin reading ' num2str(nrun) ' runs...'])
 for irun = 1:nrun
     % load 2p imaging data
-    CD = ['H:\home\kevin\Data\2P\' date '_' mouse '\' ImgFolder(irun,:)];
-    %CD = ['H:\home\valerie\Data\2p\' date '_' mouse '\' ImgFolder(irun,:)];
-    %CD = ['H:\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
+    %CD = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Data\2P\' date '_' mouse '\' ImgFolder(irun,:)];
+    CD = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder(irun,:)];
+
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
     
     % load behavior/experimental data
-    fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
+    %fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
+    % for mouse names without 'i' prefix but have 'i' in behavior
+    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\Behavior\Data\data-i' mouse '-' date '-' time(irun,:) '.mat'];
     load(fName);
     
     % read in frames with sbxread
@@ -109,12 +111,12 @@ end
 chooseInt = 2; %nep/2
 
 fprintf('\nBegin registering...\n')
-if exist(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]), 'dir')
+if exist(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]), 'dir')
     % checks if analysis already present
     % load reg_shifts.mat (out, data_avg) and save the current input file
     fprintf('Found previous analysis! Loading...\n')
     
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
+    load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
     
     % register
     fprintf('stackRegister_MA, using shifts from previous registration\n')
@@ -123,7 +125,7 @@ if exist(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' 
     fprintf('Previous registration loaded...\n')
     
     % save new input
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+    save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
     
 elseif doFromRef
     % if doFromRef specified, along with ref (ref needs to exist, no error catch)
@@ -144,8 +146,8 @@ elseif doFromRef
     
     % load from folder specified by ref_str
     fprintf(['Loading from folder: ' ref_str '\n'])
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_reg_shifts.mat']))
-    load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_mask_cell.mat']))
+    load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_reg_shifts.mat']))
+    load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_mask_cell.mat']))
     %load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ref_str], [date '_' mouse '_' ref_str '_trialData.mat']))
     
     % register
@@ -154,9 +156,9 @@ elseif doFromRef
     
     % save
     fprintf('Registration complete, now saving...\n')
-    mkdir(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+    mkdir(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
+    save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
+    save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 else
     % else means no previous analysis present
     % use data_avg selected above (could move here?)
@@ -173,9 +175,9 @@ else
     
     % save
     fprintf('Registration complete, now saving...\n')
-    mkdir(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
-    save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+    mkdir(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str]))
+    save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']), 'out', 'data_avg')
+    save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 end
 clear data % depending on memory
 
@@ -200,7 +202,7 @@ end
 truesize;
 % print to file
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.pdf']))
+print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_avg.pdf']))
 
 
 %% find activated cells
@@ -294,7 +296,7 @@ elseif input.doSizeStim
         title(['Size: ' num2str(szs(i)) ' deg'])
     end
     % print to pdf
-    print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_resp_Size.pdf']), '-dpdf')
+    print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_resp_Size.pdf']), '-dpdf')
     
 elseif input.doTFStim && ~input.doMatrix
     % doTFStim + !doMatrix -> temporal frequency?
@@ -324,7 +326,7 @@ end
 title('Maximum dF/F across all stimuli')
 
 % save stimActFOV.mat containing: data_dfof_max, data_dfof_avg, nStim
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg', 'nStim')
+save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimActFOV.mat']), 'data_dfof_max', 'data_dfof_avg', 'nStim')
 
 
 %% load cell masks from retinotopy runs
@@ -335,7 +337,7 @@ ret_str = catRunName(RetImgFolder, nret);
 fprintf(['Loading masks from retinotopy runs: ' ret_str '\n'])
 
 % loads 'mask_cell', 'mask_np'
-load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_mask_cell.mat']))
+load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_mask_cell.mat']))
 fprintf('Cell and neuropil masks loaded\n')
 
 % translate if necessary (should not be necessary after register with ref)
@@ -409,8 +411,8 @@ clear data_reg_down
 
 fprintf('Neuropil subtraction complete, saving data...\n')
 
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
+save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
+save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 
 fprintf('Calculating dF/F...\n')
 %get dF/F
@@ -428,7 +430,7 @@ fprintf('Time course extraction complete.\n')
 
 
 %% plot tuning
-load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']));
+load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']));
 
 tuning_mat = zeros(nStim, 2, nCells);
 Ind_struct = [];
@@ -447,7 +449,7 @@ for iCell = 1:nCells
     end
     if start >36
         set(gcf, 'Position', [0 0 800 1000]);
-        print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs' num2str(f) '.pdf']), '-dpdf')
+        print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs' num2str(f) '.pdf']), '-dpdf')
         start = 1;
         f= f+1;
         figure;
@@ -467,7 +469,7 @@ for iCell = 1:nCells
     start = start + 1;
 end
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs' num2str(f) '.pdf']), '-dpdf')
+print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs' num2str(f) '.pdf']), '-dpdf')
 
 figure;
 start = 1;
@@ -478,7 +480,7 @@ for iCell = 1:nCells
     end
     if start >36
         set(gcf, 'Position', [0 0 800 1000]);
-        print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning' num2str(f) '.pdf']), '-dpdf')
+        print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning' num2str(f) '.pdf']), '-dpdf')
         start = 1;
         f= f+1;
         figure;
@@ -494,8 +496,8 @@ for iCell = 1:nCells
     start = start+1;
 end
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning' num2str(f) '.pdf']), '-dpdf')
-save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'szs', 'Ind_struct')
+print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning' num2str(f) '.pdf']), '-dpdf')
+save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning.mat']), 'tc_dfof', 'tuning_mat', 'szs', 'Ind_struct')
 
 %% present selected cells
 
@@ -506,7 +508,7 @@ fprintf(['Stimulus at: El ' num2str(stimEl) ', Az ' num2str(stimAz) '\n'])
 
 % load ret fits - loads 'lbub_fits', 'lbub_diff', 'goodfit_ind', 'resp_ind'
 fprintf(['Loading fits from retinotopy runs: ' ret_str '\n'])
-fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']);
+fn_out = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']);
 load(fn_out);
 cellAz = lbub_fits(:,4,4);
 cellEl = lbub_fits(:,5,4);
@@ -516,7 +518,7 @@ fprintf('Calculating cell RF distances to stimulus...\n')
 cellDists = sqrt((cellAz-stimAz).^2+(cellEl-stimEl).^2);
 
 % compare distance to select cells
-cutOffRadius = 10;
+cutOffRadius = 20;
 fprintf(['Isolating cells with RF centers within ' num2str(cutOffRadius) ' degrees\n'])
 
 cutCells = find(cellDists < cutOffRadius)';
@@ -540,13 +542,13 @@ sizeSEM = sizeTune;
 figure;
 start = 1;
 f = 1;
-suptitle(['Size Tuning Curves for cells within ' num2str(cutOffRadius) ' deg of stim'])
+%suptitle(['Size Tuning Curves for cells within ' num2str(cutOffRadius) ' deg of stim'])
 for i = 1:nCutCells
     iCell = goodCutCells(i);
     
     if start >36
         set(gcf, 'Position', [0 0 800 1000]);
-        print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning_in' num2str(cutOffRadius) 'deg' num2str(f) '.pdf']), '-dpdf')
+        print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning_in' num2str(cutOffRadius) 'deg' num2str(f) '.pdf']), '-dpdf')
         start = 1;
         f= f+1;
         figure;
@@ -603,7 +605,7 @@ set(hL, 'Position', newPosition, 'Units', newUnits);
 
 
 set(gcf, 'Position', [0 0 800 1000]);
-print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning_in' num2str(cutOffRadius) 'deg' num2str(f) '.pdf']), '-dpdf')
+print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning_in' num2str(cutOffRadius) 'deg' num2str(f) '.pdf']), '-dpdf')
 
 fprintf('\ndone\n')
 return
@@ -638,7 +640,7 @@ if input.doConStim && input.doSizeStim && input.doMatrix
             legend('Location','best')
             legend('boxoff')
             set(gcf, 'Position', [0 0 800 1000]);
-            print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeByConTuning' num2str(f) '.pdf']), '-dpdf')
+            print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeByConTuning' num2str(f) '.pdf']), '-dpdf')
             figure;
             f = 1+f;
             start = 1;
@@ -664,7 +666,7 @@ if input.doConStim && input.doSizeStim && input.doMatrix
     legend('Location','best')
     legend('boxoff')
     set(gcf, 'Position', [0 0 800 1000]);
-    print(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeByConTuning' num2str(f) '.pdf']), '-dpdf')
+    print(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeByConTuning' num2str(f) '.pdf']), '-dpdf')
 end
 
-%save(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning.mat']), 'data_dfof', 'tuning_mat', 'Stims')
+%save(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning.mat']), 'data_dfof', 'tuning_mat', 'Stims')

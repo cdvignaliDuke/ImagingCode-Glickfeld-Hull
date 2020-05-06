@@ -1,8 +1,8 @@
 clear all
 close all
-ds = 'FSAV_attentionV1';
+ds = 'FSAV_attentionV1_noAttn';
 eval(ds)
-slct_exp = 8:9;
+slct_exp = 7;
 %%
 calib = 1/26.6; %mm per pixel
 
@@ -64,6 +64,12 @@ if ~any(isnan(expt(iexp).eyeradrange))
         rad_range = expt(iexp).eyeradrange;
         if strcmp(subnum,'668')
             data = double(data(yc-W:yc+W,20:(W*2+20),:));
+        elseif strcmp(subnum,'670')
+            data = double(data(end-(2*W):end,end-(2*W):end,:));
+        elseif strcmp(subnum,'672') && strcmp(expDate,'170224')
+            data = double(data(1:(2*W),xc-W:xc+W,:));
+        elseif strcmp(subnum,'672') && strcmp(expDate,'170227')
+            data = double(data(end-(2*W):end,1:(2*W),:));
         else
             data = double(data(yc-W:yc+W,xc-W:xc+W,:));
         end

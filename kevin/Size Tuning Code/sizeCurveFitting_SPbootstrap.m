@@ -31,12 +31,12 @@
 
 clear all;clc;
 %i840 %180505 %2002
-mouse = 'i880';
-date = '180706';
-ImgFolder = char('003');
-time = char('1805');
+mouse = '1304';
+date = '190705';
+ImgFolder = char('004');
+time = char('1842');
 
-RetImgFolder = char('002');
+RetImgFolder = char('003');
 override_all = 1; % override_all to set override for each section (0=load previous, 1=write over)
 
 nrun = size(ImgFolder,1);
@@ -47,10 +47,12 @@ for irun=1:nrun
     fprintf([ImgFolder(irun,:) ' - ' time(irun,:) '\n'])
 end
 
-% load behavior/experimental data input
-fprintf(['Loading input from size tuning runs: ' run_str '\n'])
-fName = ['\\CRASH.dhe.duke.edu\data\home\andrew\Behavior\Data\data-' mouse '-' date '-' time(1,:) '.mat'];
+% load behavior/experimental data
+%fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
+% for mouse names without 'i' prefix but have 'i' in behavior
+fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\Behavior\Data\data-i' mouse '-' date '-' time(irun,:) '.mat'];
 load(fName);
+
 for i=1:length(input.tGratingContrast) % replace int64(con=1) with double
     if ~(class(input.tGratingContrast{i})=="double")
         input.tGratingContrast{i} = double(input.tGratingContrast{i});
@@ -63,7 +65,7 @@ end
 % szs is list of size conditions
 % Ind_struct is 1xlength(szs) struct with trial indices for each size condition
 fprintf(['Loading timecourses from size tuning runs: ' run_str '\n'])
-load(fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning.mat']))
+load(fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Tuning.mat']))
 
 % load experimental conditions from input
 % trial variables
@@ -89,7 +91,7 @@ ret_str = catRunName(RetImgFolder, nret);
 % lbub_fits contains RF fit data, extract RF centers from here
 % goodfit_ind
 fprintf(['Loading fits from retinotopy runs: ' ret_str '\n'])
-fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']);
+fn_out = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' ret_str], [date '_' mouse '_' ret_str '_lbub_fits.mat']);
 load(fn_out);
 cellAz = lbub_fits(goodfit_ind,4,4);
 cellEl = lbub_fits(goodfit_ind,5,4);
@@ -159,7 +161,7 @@ uistack(h1,'bottom')
 %% extract size tuning responses
 override = override_all; % over-ride for creating new data (1=override, 0=skip if exist)
 
-filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeTuneData.mat']);
+filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeTuneData.mat']);
 if exist(filename, 'file') && ~override
     fprintf('Found sizeTuneData.mat, loading previous data...\n')
     load(filename, 'sizeTune', 'sizeMean', 'sizeSEM', 'cellDists')
@@ -230,10 +232,10 @@ for iSz = 1:nSize
     end
 end
 
-cd('K:\Code')
+cd('C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code')
 opts = optimset('Display','off');
     
-filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeFitResults_SP.mat']);
+filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_sizeFitResults_SP.mat']);
 if exist(filename, 'file') && ~override
     fprintf('Found sizeFitResults_SP.mat, loading previous results...\n')
     load(filename, 'sizeFits')
@@ -450,7 +452,7 @@ end
 close all;
 override = override_all;
 
-filename = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Fit_struct.mat']);
+filename = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Fit_struct.mat']);
 if exist(filename, 'file') && ~override
     fprintf('Found Fit_struct.mat, loading previous results...\n')
     load(filename, 'Fit_struct')
@@ -469,7 +471,8 @@ else
     fprintf(['Sizes: ' num2str(szs) '\n# trials: ' num2str(nTr(:,nCon)')])
     shuf_ind = cell(nSize,1);
     
-    cd('K:\Code')
+    %cd('K:\Code')
+    cd('C:\Users\kevin\Documents\Repositories\ImagingCode-Glickfeld-Hull\kevin\Size Tuning Code')
     opts = optimset('Display','off');
     
     fprintf('\nBegin shuffling...\n')
@@ -517,7 +520,7 @@ else
         end
         if count_shuf == 0
             set(gcf, 'Position', [0 0 800 1000]);
-            fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeTuneFits' num2str(ifig) '.pdf']);
+            fn_out = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_SizeTuneFits' num2str(ifig) '.pdf']);
             print(fn_out,'-dpdf')
         end
     end
@@ -727,7 +730,7 @@ ism2 = intersect(goodfit_ind_size,find(lbub_fits(:,8,4)));
 
 fprintf(['#Good cells = ' num2str(length(goodfit_ind_size)) '\nModel 1: ' num2str(length(ism1)) ', Model 2: ' num2str(length(ism2)) '\nSaving good fits\n'])
 
-fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
+fn_out = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_lbub_fits.mat']);
 save(fn_out, 'lbub_fits', 'goodfit_ind_size')
 
 %% BOOTSTRAP plots
@@ -849,7 +852,7 @@ legend('Model1','Model2','location','best')
 
 % to print
 % set(gcf, 'Position', [0 0 800 1000]);
-% fn_out = fullfile('\\CRASH.dhe.duke.edu\data\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_RFs.pdf']);
+% fn_out = fullfile('\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\kevin\Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_RFs.pdf']);
 % print(fn_out,'-dpdf')
 
 %% ALL CONS FITTING PLOTS examine parameters

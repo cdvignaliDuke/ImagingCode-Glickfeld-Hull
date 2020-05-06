@@ -1,20 +1,17 @@
 
 clear all; clear global; clear cd;
-subjNum = '077';
-session_date = '180322';
+subjNum = '1504';
+session_date = '191016';
 file_num = '_000_000';
-frame_rate = '30Hz ';
-frame_start = 9; % 1386:1639
-num_frames = 1000;
-cd('Y:\home\elizabeth\2Pdata\190622_19_1uMDART\x19');
-%cd(['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
+frame_rate = '15Hz ';
+frame_start = 0; % 1386:1639
+num_frames = 700;
+%cd('Y:\home\elizabeth\2Pdata\190622_19_1uMDART\x19');
+cd(['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum '\img', subjNum]);
 %cd(['Y:\home\jake\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum '\img', subjNum]);
-%cd('Z:\Data\2P_imaging\171121_img050\img050');
-%cd('Z:\Data\2P_imaging\img040\170912_img039\img039');
-%cd('Z:\Data\2P_imaging\180507_img085\img085');
-%cd('Y:\home\jake\Data\2P_imaging\WindowOutcomes\img098\190612\img098');
+%cd('Y:\home\jake\Data\2P_imaging\WindowOutcomes\EF_X_G7\EF_X');
 fname = ['img', subjNum, file_num];
-fname= ['x19_000_1008'];
+%fname = ['EF_X_000_000'];
 data = squeeze(sbxread(fname,frame_start,num_frames, '.sbx'));
 %data = squeeze(sbxread('img036_000_000',0,15, '.sbx'));
 load([fname, '.mat']);
@@ -29,12 +26,11 @@ end
 data_max= max(data,[],3);
 % figure; imagesc(data_avg); colormap gray; %truesize;
 % title([frame_rate, subjNum, ' ', session_date, ' recon avg frames ', num2str(frame_start), ':', num2str(num_frames), ' ', file_num]);
-%writetiff(data, ['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
+writetiff(data, ['Y:\home\jake\Data\2P_imaging\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
 %writetiff(data, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\', session_date, '_img', subjNum, '\img', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames),]);
 %writetiff(data, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\img098\190612\', subjNum, '_tiff_', num2str(frame_start), '_', num2str(num_frames)]);
+%writetiff(data, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\EF_96_G7\EF_X_tiff_', num2str(frame_start), '_', num2str(num_frames)]);
 
-writetiff(data, ['Y:\home\jake\Misc\EF_GRC_movie\PC_movie']);
-writetiff(data2, ['Y:\home\jake\Misc\EF_GRC_movie\GC_movie']);
 
 %% write a tiff movie to analyze diff. in sessions
 % 
@@ -57,7 +53,7 @@ writetiff(data2, ['Y:\home\jake\Misc\EF_GRC_movie\GC_movie']);
 
 %% motion registration 
 
-%determine frame nums to use for selecting stable frame
+% %determine frame nums to use for selecting stable frame
 % sz = size(data); 
 % laser_on_ind = [1:sz(3)];
 % frame_nums_for_ref30 = laser_on_ind(randi([1,size(laser_on_ind,2)],1,30));
@@ -75,16 +71,37 @@ writetiff(data2, ['Y:\home\jake\Misc\EF_GRC_movie\GC_movie']);
 % end
 % 
 % %pick the frame which had the lowest dshift and motion register full movie to that frame
+% img_ref = mean(data(:,:,[500:617]),3);
 % min_f = find(dshift == min(dshift));
 % if length(min_f) > 1
 %     min_f = min_f(1,1);
 % end
 % img_ref = ref30(:,:,min_f);
-
+% 
 % img_ref = mean(data(:,:,175:210),3);
 % [reg_out, img_reg] = stackRegister(data, img_ref);
 % %img_reg = img_reg(:,:,[1:3:end])
-% writetiff(img_reg, 'Y:\home\jake\Data\2P_imaging\180322_img077\img077_tiff_motion_reg_4886');
+% %writetiff(img_reg, 'Y:\home\jake\Data\2P_imaging\180322_img077\img077_tiff_motion_reg_4886');
+% writetiff(img_reg, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\EF_96_G7\EF_X_tiff_motion_reg']);
+% 
+% %average every third frame to denoise
+% img_reg_proj = stackGroupProject(img_reg, 3);
+% writetiff(img_reg_proj, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\EF_96_G7\EF_X_tiff_motion_reg_3rd_avg']);
+% 
+% 
+% % apply a gaussian filter to denoise the data
+% img_reg_filter = stackFilter(img_reg); % filter IC with gaussian filter
+% writetiff(img_reg_proj, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\EF_X_G7\EF_X_tiff_motion_reg_gauss_filt']);
+% 
+% %calculate df/f 
+% avg_f = mean(img_reg(:,:,[2:100]),3);
+% diff_f = bsxfun(@minus, double(img_reg), avg_f);   
+% dfof = bsxfun(@rdivide, diff_f, avg_f); 
+% writetiff(dfof, ['Y:\home\jake\Data\2P_imaging\WindowOutcomes\EF_X_G7\EF_X_tiff_motion_reg_dfof']);
+% 
+% 
+% 
+% 
 
 
 

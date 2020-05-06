@@ -7,7 +7,7 @@ nexp = size(expt(id).date,1);
 fprintf(['Day ' num2str(id) '\n'])
 disp('Draw line from top right to bottom left by clicking points in the FoV');
 disp('Points will not appear in FoV');
-    for iexp = 6%:nexp
+    for iexp = 11%:nexp
         mouse = expt(id).mouse(iexp,:);
         date = expt(id).date(iexp,:);
         run = expt(id).run(iexp,:);

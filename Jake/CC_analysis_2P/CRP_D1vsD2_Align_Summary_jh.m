@@ -1,3 +1,6 @@
+%Code for making summary plots of cell-matched comparisons across days
+%to be run after CRP_D1vD2align_jh
+
 clear all
 close all
 CRP_expt_list

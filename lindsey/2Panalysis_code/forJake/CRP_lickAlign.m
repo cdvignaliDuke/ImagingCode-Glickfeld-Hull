@@ -245,7 +245,7 @@ fprintf(['Day ' num2str(id) '\n'])
         hold on
         shadedErrorBar(tl, nanmean(postRew_lickAlign(:,ind_rew(ind_prerew_late_rew)),2).*(1000./frameRateHz), (nanstd(postRew_lickAlign(:,ind_rew(ind_prerew_late_rew)),[],2).*(1000./frameRateHz))./sqrt(length(ind_rew(ind_prerew_late_rew))),'b');
         xlabel('Time from lick')
-        ylabel('Lick rate (Hz)')
+        ylabel('Lick rate (Hz)') 
         ylim([0 inf])
         if id == 3
             subplot(2,3,3)

@@ -4,9 +4,9 @@ CRP_expt_list_all
 
 lg_out = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P\Jake';
 
-for id = 1
+for id = 1:5
     nexp = size(expt(id).date,1);
-    for iexp = 1
+    for iexp = 1:nexp
         mouse = expt(id).mouse(iexp,:);
         date = expt(id).date(iexp,:);
         run = expt(id).run(iexp,:);

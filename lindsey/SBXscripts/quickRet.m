@@ -1,10 +1,11 @@
-date = '181228';
-mouse = 'i1300';
-ImgFolder = '002';
-time = '1144';
+date = '191201';
+mouse = '774';
+ImgFolder = '004';
+time = '1617';
 doReg = 0;
 nrun = size(ImgFolder,1);
 rc = behavConstsAV;
+subnum = mouse;
 
 run_str = ['runs-' ImgFolder(1,:)];
 if nrun>1
@@ -15,7 +16,7 @@ data = [];
 clear temp
 for irun = 1:nrun
     if strcmp(rc.name,'ashle')
-    CD = ['X:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder(irun,:)];
+    CD = ['Z:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder(irun,:)];
     else
     CD = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
     end
@@ -33,7 +34,7 @@ for irun = 1:nrun
     
     
     if strcmp(rc.name,'ashle')        
-    fName = ['duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-i' subnum '-' date '-' time(irun,:) '.mat'];
+    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-i' subnum '-' date '-' time(irun,:) '.mat'];
     else
     fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
     end
@@ -44,6 +45,7 @@ for irun = 1:nrun
     nOn = temp(irun).nScansOn;
     nOff = temp(irun).nScansOff;
     ntrials = size(temp(irun).tGratingDirectionDeg,2);
+    
     
     if size(data_temp,1) == 2
         data_temp = data_temp(1,:,:,:);
@@ -67,7 +69,6 @@ expt_input = concatenateDataBlocks(temp);
     nOn = expt_input.nScansOn;
     nOff = expt_input.nScansOff;
     ntrials = size(expt_input.tGratingDirectionDeg,2);
-
     
    %use if pmt 2 was saved
 %     data = squeeze(data(1,:,:,:));
@@ -79,17 +80,24 @@ expt_input = concatenateDataBlocks(temp);
     clear data_reg
     end
     
-    sz = size(data);
-    data = data(:,:,1:(nOn+nOff)*ntrials);
-    if size(data,3) < 5000
+%     sz = size(data);
+%     data = data(:,:,1:(nOn+nOff)*ntrials);
+    if size(data,3) < 30000
+        Az = celleqel2mat_padded(expt_input.tGratingAzimuthDeg);
+        El = celleqel2mat_padded(expt_input.tGratingElevationDeg);
+        if (nOn+nOff)*ntrials > size(data,3)
+            ntrials = floor(size(data,3)/((nOn+nOff)));    
+            Az = Az(1:ntrials);
+            El = El(1:ntrials);
+        end
+        data = data(:,:,1:(nOn+nOff)*ntrials);
+        sz = size(data);
         data_tr = reshape(data,[sz(1), sz(2), nOn+nOff, ntrials]);
         data_f = mean(data_tr(:,:,nOff/2:nOff,:),3);
         data_df = bsxfun(@minus, double(permute(data_tr,[1 2 4 3])), squeeze(data_f)); 
         data_dfof = permute(bsxfun(@rdivide,data_df, squeeze(data_f)),[1 2 4 3]); 
         clear data_f data_df data_tr
 
-        Az = celleqel2mat_padded(expt_input.tGratingAzimuthDeg);
-        El = celleqel2mat_padded(expt_input.tGratingElevationDeg);
         Azs = unique(Az);
         Els = unique(El);
         if min(Els,[],2)<0
@@ -113,14 +121,14 @@ expt_input = concatenateDataBlocks(temp);
         myfilter = fspecial('gaussian',[20 20], 0.5);
         data_dfof_avg_all = squeeze(mean(imfilter(data_dfof_avg(:,:,nOff:nOff+nOn,:),myfilter),3));
 
-        img_avg_resp = zeros(1,nStim);
+%         img_avg_resp = zeros(1,nStim);
         figure; 
         for i = 1:nStim
             subplot(length(Els),length(Azs),i); 
             imagesc(data_dfof_avg_all(:,:,i)); 
             colormap(gray)
             title(num2str(Stims(i,:)))
-            img_avg_resp(i) = mean(mean(mean(data_dfof_avg_all(:,:,i),3),2),1);
+%             img_avg_resp(i) = mean(mean(mean(data_dfof_avg_all(:,:,i),3),2),1);
             %clim([0 max(data_dfof_avg_all(:))./2])
         end
         if strcmp(rc.name,'linds')
@@ -137,6 +145,14 @@ expt_input = concatenateDataBlocks(temp);
             end
             print(fullfile(rc.ashleyAnalysis,mouse,'two-photon imaging',date,ImgFolder,'quickRet.pdf'),'-dpdf','-fillpage')
         end
+        pixThreshold = 0.2*max(data_dfof_avg_all(:));
+        img_avg_resp = zeros(1,nStim);
+        for i = 1:nStim 
+            img = data_dfof_avg_all(:,:,i);
+            img_thresh = zeros(size(img));
+            img_thresh(img>pixThreshold) = img(img>pixThreshold);
+            img_avg_resp(i) = mean(img(img(:)>pixThreshold));
+        end
         figure
         heatmap = imagesc(fliplr(rot90(reshape(img_avg_resp,length(Els),length(Azs)),3)));
         heatmap.Parent.YTick = 1:length(Els);
@@ -146,6 +162,7 @@ expt_input = concatenateDataBlocks(temp);
         xlabel('Azimuth');
         ylabel('Elevation');
         colorbar
+        caxis([0 pixThreshold/.4])
         caxis([-0.1 0.1])
     
     else

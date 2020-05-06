@@ -26,9 +26,9 @@ else
         else
             ind = h | m;
         end
-        matchTrialInd{i} = ind;
+        matchTrialInd = ind;
     end
-    matchTrialInd = sum(cell2mat(matchTrialInd(~isempty(matchTrialInd))'));
+%     matchTrialInd = sum(cell2mat(matchTrialInd(~isempty(matchTrialInd))'));
 end
 end
 
