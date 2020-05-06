@@ -9,9 +9,11 @@
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
 sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
-    '190617_img1027_2','190618_img1025_1'}; 
+    '190617_img1027_2','190618_img1025_1','200321_img1042_1','200321_img1049_1',...
+    '200321_img1063_1','200321_img1064_1'}; 
 days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
-    '1027-190617_1','1025-190618_1'};
+    '1027-190617_1','1025-190618_1','1042-200321_1','1049-200321_1',...
+    '1063-200321_1','1064-200321_1'};
 image_dest_base  = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
 color_code = {'b','r','k'};
@@ -30,15 +32,15 @@ ste_dfOvF_states_allsessions = std(ave_dfOvF_states_all)/sqrt(size(ave_dfOvF_sta
 
 x = [1,2]; x_plot = repmat(x,size(ave_dfOvF_states_all,1),1);
 dfOvF_behavStates = figure;
-plot(x_plot',ave_dfOvF_states_all','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
+plot(x_plot',ave_dfOvF_states_all','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20,'color',[0.5294 0.5294 0.5294]);hold on;
 errorbar(x,ave_dfOvF_states_allsessions,ste_dfOvF_states_allsessions,'.','LineStyle','-',...
-    'linewidth', 1.25,'Color','k','MarkerSize',25,'MarkerEdgeColor','black','MarkerFaceColor','black');
+    'linewidth', 1.25,'Color',[0.7922 0 0.1255],'MarkerSize',25,'MarkerEdgeColor',[0.7922 0 0.1255],'MarkerFaceColor',[0.7922 0 0.1255]);
 xlabel ('behavioral state');xlim([0.5 2.5]); axis square;
 set(gca,'XTick',x,'XTicklabel',{'stationary','run'});
 ylabel('df/f');
 title('df/f for each beahvioral state all sessions'); %legend('ROI1','ROI2','ROI3','ROI4','ROI5');
-saveas(dfOvF_behavStates, [ACS_dest 'dfOvF_behavStates_20200212']);
-save([ACS_dest 'ACSanalysis_20200212.mat'],'ave_dfOvF_states_all',...
+saveas(dfOvF_behavStates, [ACS_dest 'dfOvF_behavStates_20200416']);
+save([ACS_dest 'ACSanalysis_20200416.mat'],'ave_dfOvF_states_all',...
     'ave_dfOvF_states_allsessions','ste_dfOvF_states_allsessions');
 
 
@@ -81,8 +83,8 @@ vline(1, 'r','running start');
 %xlim([-5 10]);
 
 supertitle('run triggered average across sessions'); 
-saveas(dfOvF_runTrigger_ACS, [ ACS_dest 'dfOvF_runTrigger_ACS_20200212']);
-save([ ACS_dest 'ACSanalysis_201906.mat' ],'ave_dfOvF_runTrigger_ACS','ste_dfOvF_runTrigger_ACS',...
+saveas(dfOvF_runTrigger_ACS, [ ACS_dest 'dfOvF_runTrigger_ACS_20200416']);
+save([ ACS_dest 'ACSanalysis_20200416.mat' ],'ave_dfOvF_runTrigger_ACS','ste_dfOvF_runTrigger_ACS',...
    'ave_speed_runTrigger_ACS','ste_speed_runTrigger_ACS', '-append' );
 
 
@@ -125,8 +127,8 @@ vline(1, 'r','running end');
 %xlim([-5 10]);
 
 supertitle('run offset average across sessions'); 
-saveas(dfOvF_runOff_ACS, [ ACS_dest 'dfOvF_runOff_ACS_20200212']);
-save([ ACS_dest 'ACSanalysis_201906.mat' ],'ave_dfOvF_runOff_ACS','ste_dfOvF_runOff_ACS',...
+saveas(dfOvF_runOff_ACS, [ ACS_dest 'dfOvF_runOff_ACS_20200416']);
+save([ ACS_dest 'ACSanalysis_20200416.mat' ],'ave_dfOvF_runOff_ACS','ste_dfOvF_runOff_ACS',...
    'ave_speed_runOff_ACS','ste_speed_runOff_ACS', '-append' );
 
 
@@ -187,7 +189,7 @@ xlabel ('speed(cm/s)');
 ylabel('ave df/f');
 xlim([0 35]);
 title('df/f vs. speed across sessions'); 
-saveas(dfOvF_vs_spd_ACS, [ ACS_dest 'dfOvF_vs_spd_ACS_201906']);
+saveas(dfOvF_vs_spd_ACS, [ ACS_dest 'dfOvF_vs_spd_ACS_20200416']);
 save([ ACS_dest 'ACSanalysis_201906.mat' ],'spd_all_plotx','dfOvF_all_ploty','dfOvF_errbar','-append');
 
 % bin speeds and draw scatter plot---------------------------------------------------
@@ -195,7 +197,7 @@ save([ ACS_dest 'ACSanalysis_201906.mat' ],'spd_all_plotx','dfOvF_all_ploty','df
 ncategory = 6;
 dfOvF_catSpeed = zeros(1,ncategory);
 stedfOvF_catSpeed = zeros(1,ncategory);
-across_anal = load([ACS_dest 'ACSanalysis_20200212.mat']);
+across_anal = load([ACS_dest 'ACSanalysis_20200416.mat']);
 ave_dfOvF_states_allsessions = across_anal.ave_dfOvF_states_allsessions;
 ste_dfOvF_states_allsessions = across_anal.ste_dfOvF_states_allsessions;
 s1 = 0;
@@ -222,10 +224,10 @@ errorbar(x,dfOvF_catSpeed,stedfOvF_catSpeed,'.','Color',[0.3216 0.3216 0.3216],.
     'MarkerSize',25,'MarkerEdgeColor',[0.3216 0.3216 0.3216],'MarkerFaceColor',[0.3216 0.3216 0.3216]);
 xlabel ('speed(cm/s)');xlim([0.5 6.5]); axis square;
 set(gca,'XTick',x,'XTicklabel',{'< 0','0','0-10','10-20','20-30','> 30'});
-ylabel('df/f');ylim([0 0.2]);
+ylabel('df/f');ylim([0 0.3]);xlim([0.5 5.5]);
 title('df/f vs. speed all sessions'); 
-saveas(dfOvF_speed_category, [ACS_dest 'dfOvF_vs_spdCategory_20200212']);
-save([ACS_dest 'ACSanalysis_20200212.mat'],'dfOvF_catSpeed','stedfOvF_catSpeed','-append');
+saveas(dfOvF_speed_category, [ACS_dest 'dfOvF_vs_spdCategory_20200416']);
+save([ACS_dest 'ACSanalysis_20200416.mat'],'dfOvF_catSpeed','stedfOvF_catSpeed','-append');
 
 
 %% SECTION III - df/f for beforeRunAfter across sessions 
@@ -250,10 +252,12 @@ xlabel ('behavioral state');xlim([0.5 3.5]);
 set(gca,'XTick',x,'XTicklabel',{'before','run','after'});
 ylabel('df/f');
 title('df/f around running across sessions'); 
-saveas(dfOvF_befoRunAft_ACS, [ ACS_dest 'dfOvF_befoRunAft_ACS_201906']);
-save([ ACS_dest 'ACSanalysis_201906.mat' ],'ave_dfOvF_befoRunAft_ACS','ste_dfOvF_befoRunAft_ACS','-append' );
+saveas(dfOvF_befoRunAft_ACS, [ ACS_dest 'dfOvF_befoRunAft_ACS_20200416']);
+save([ ACS_dest 'ACSanalysis_20200416.mat' ],'ave_dfOvF_befoRunAft_ACS','ste_dfOvF_befoRunAft_ACS','-append' );
 
 
+
+%{
 %% SECTION IV - df/f and speed 300ms across sessions
 dfOvF_bl300ms_all = []; speed_bl300ms_all = [];
 ACS_dest = [image_dest_base 'acrossSessions\'];
@@ -298,5 +302,5 @@ supertitle(['run 300ms average across sessions']);
 saveas(dfOvF_run300ms_ACS, [ ACS_dest 'dfOvF_run300ms_ACS']);
 save([ ACS_dest 'ACSanalysis.mat' ],'ave_dfOvF_bl300ms','ave_speed_bl300ms',...
    'ste_dfOvF_bl300ms','ste_speed_bl300ms', '-append' );
-
+%}
 

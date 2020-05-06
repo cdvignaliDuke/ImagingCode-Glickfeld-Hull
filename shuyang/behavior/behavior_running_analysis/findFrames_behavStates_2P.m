@@ -1,7 +1,7 @@
 %find frames for running, stationary, back and forth, 
 %used in behav_analysis_movingDots_2P
 
-function[frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd)
+function[frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd,frm_maxGap)
 
 frames = 1: length(speed);
 
@@ -17,7 +17,7 @@ for j = 1:length(bound_stay)
     end
 end
 % delete the parts that are too short
-transient_stay = 15;
+transient_stay = 15; %500ms
 for k = 1: size(frames_stay_cell,2)
     if length(frames_stay_cell{k}) <= transient_stay
         frames_stay_cell{k} = [];
@@ -30,8 +30,7 @@ frames_stay_cell(empties) = [];
 %% find frames for move
 frames_move = frames(speed ~= 0);
 diff_frames_move = diff(frames_move);
-gap = 6; % if the animal is still for less than 200ms during running, the running before and after the short still should still be counted as one part
-bound_move = find(diff_frames_move>gap);
+bound_move = find(diff_frames_move>frm_maxGap);
 % put continuous frames together, generate a cell for all running parts
 frames_move_cell ={};
 for j = 1:length(bound_move)
@@ -43,9 +42,9 @@ for j = 1:length(bound_move)
 end
 
 %delete the parts that are too short
-framesMinDura = 6;
+frames_minDura = 6;
 for k = 1: size(frames_move_cell,2)
-    if length(frames_move_cell{k}) <= framesMinDura
+    if length(frames_move_cell{k}) <= frames_minDura
         frames_move_cell{k} = [];
     end
 end

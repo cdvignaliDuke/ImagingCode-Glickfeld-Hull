@@ -43,6 +43,7 @@ days = {'1021-190617_1','1023-190617_1','1024-190617_1','1025-190617_1',...
 {'190429_img1027','190430_img1023','190505_img1024'};
 {'190507_img1024','190520_img1021','190603_img1027','190603_img1025'};
 {'190607_img1025'};
+%1027 has peak after running and the place is slightly different
 
 
 % behavior/days----------------------------------------------------------------------------
@@ -66,4 +67,23 @@ days = {'1021-190617_1','1023-190617_1','1024-190617_1','1025-190617_1',...
 
 {'1020-190205_1','1020-190207_1','1019-190207_1','1018-190207_1','1019-190216_1'};
 {'J89-190314_1'};
+
+%airpuff
+sessions = {'191114_img1040','191115_img1039','191115_img1041','191115_img1042','200316_img1064_airpuff_2'};
+days = {'1040-191114_1','1039-191115_1','1041-191115_1','1042-191115_1','1064-200316_2'};
+image_analysis_base = 'Z:\Analysis\Airpuff_analysis\imaging_analysis\';
+
+%motorized running
+sessions = {'200116_img1041','200214_img1042','200217_img1061','200225_img1049','200319_img1064','200319_img1064_2'};
+days = {'1041-200116_1','1042-200214_1','1061-200217_1','1049-200225_1','1064-200319_1','1064-200319_2'};
+image_analysis_base = 'Z:\Analysis\motorizedWheel_Analysis\running\imaging_analysis\'; 
+behav_dest = ['Z:\Analysis\motorizedWheel_Analysis\running\behavioral_analysis\' days '\'];
+
+%motorized airpuff
+sessions = {'200305_img1049','200319_img1064_airpuff','200319_img1064_airpuff_2'};
+image_analysis_base = 'Z:\Analysis\motorizedWheel_Analysis\airpuff\imaging_analysis\';
+% behavior analysis results
+days = {'1049-200305_1','1064-200319_1','1064-200319_2'};
+
+
 

@@ -4,10 +4,12 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
-    '190617_img1027_2','190618_img1025_1','190618_img1029_1'}; 
-days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
-    '1027-190617_1','1025-190618_1','1029-190618_1'};
+%sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
+%    '190617_img1027_2','190618_img1025_1','190618_img1029_1'}; 
+%days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
+%    '1027-190617_1','1025-190618_1','1029-190618_1'};
+sessions = {'200321_img1064_1'};
+days = {'1064-200321_1'};
 bx_source = 'Z:\Data\Behv_MovingDots\behavior_raw';
 image_source_base  = 'Z:\Data\WF imaging\'; %location of permanently stored image files for retreiving meta data
 image_dest_base    = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
@@ -19,13 +21,13 @@ for ii = 1:length(sessions)
     if exist([image_dest_base sessions{ii}], 'file') ~= 7
         mkdir(image_dest_base, sessions{ii});
     end
-    WF_draw_ROIs_for_movingDots(sessions{ii}, image_source, image_dest); %automatically saves the ROIs
+    WF_draw_ROIs_for_movingDots_Jin(sessions{ii}, image_source, image_dest); %automatically saves the ROIs
 end
 
 %% SECTION THREE - find/save frame times and meta data collected from the tiff files 
 for ii = 1:length(sessions)
     image_source = [image_source_base, sessions{ii}];
-    [all_files, meta_data, meta_data2] = obtain_tif_meta_data(image_source);
+    [all_files, meta_data, meta_data2] = obtain_tif_meta_data_Jin(image_source);
     frame_times = get_frame_time_by_movie_info(meta_data);
     dest =  [image_dest_base sessions{ii} '\' sessions{ii}];
     if exist([image_dest_base sessions{ii}], 'file') ~= 7
@@ -46,28 +48,28 @@ for ii = 1:length(sessions)
 end
 
 %% SECTION FIVE - calculate df/f
-% if F is the mean of the stationary states
-for ii = 1: length(sessions)
-    image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
-    behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
-    raw_F = load([image_dest, '_raw_F.mat']);
-    data_tc = raw_F.data_tc;
-    %data_tc is the fluorescence data for this session, and it will be a
-    %n*num of frames double, n=number of ROIs.
-    behav_output = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
-    stay = behav_output.frames_stay_cell;
-    data_tc_stay = []; F_staybase = []; dfOvF_staybase = []; ave_stay_F = [];
-    for n = 1:size(data_tc,1)
-        data_tc_stay = data_tc(n,cell2mat(stay));
-        F_staybase = mean(data_tc_stay);
-        dfOvF_staybase(n,:) = (data_tc(n,:) - F_staybase)/F_staybase;
-        %mean df/f of stationary should be 0
-        stay_F = dfOvF_staybase(n,cell2mat(stay));
-        ave_stay_F = [ave_stay_F mean(stay_F)];
-        
-    end
-   save([image_dest,'_dfOvF_staybase'],'dfOvF_staybase');
-end
+% % if F is the mean of the stationary states
+% for ii = 1: length(sessions)
+%     image_dest = [image_dest_base sessions{ii} '\' sessions{ii}];
+%     behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
+%     raw_F = load([image_dest, '_raw_F.mat']);
+%     data_tc = raw_F.data_tc;
+%     %data_tc is the fluorescence data for this session, and it will be a
+%     %n*num of frames double, n=number of ROIs.
+%     behav_output = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
+%     stay = behav_output.frames_stay_cell;
+%     data_tc_stay = []; F_staybase = []; dfOvF_staybase = []; ave_stay_F = [];
+%     for n = 1:size(data_tc,1)
+%         data_tc_stay = data_tc(n,cell2mat(stay));
+%         F_staybase = mean(data_tc_stay);
+%         dfOvF_staybase(n,:) = (data_tc(n,:) - F_staybase)/F_staybase;
+%         %mean df/f of stationary should be 0
+%         stay_F = dfOvF_staybase(n,cell2mat(stay));
+%         ave_stay_F = [ave_stay_F mean(stay_F)];
+%         
+%     end
+%    save([image_dest,'_dfOvF_staybase'],'dfOvF_staybase');
+% end
 
 %% use bottom 10% as F
 for ii = 1: length(sessions)

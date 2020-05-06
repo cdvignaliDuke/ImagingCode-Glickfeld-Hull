@@ -16,7 +16,7 @@ if params.shaded
     h.mainLine.Color = params.color;
     h.patch.FaceColor = params.color;
 else
-    h = errorbar(xvals,nanmean(data,trialDim),nanstd(data,[],trialDim)/sqrt(size(data,trialDim)),'o-','LineWidth',1.5);
+    h = errorbar(xvals,nanmean(data,trialDim),nanstd(data,[],trialDim)/sqrt(size(data,trialDim)),'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);
     if ~isempty(params.color)
         h.Color = params.color;
     end

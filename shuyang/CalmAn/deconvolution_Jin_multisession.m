@@ -7,10 +7,8 @@
 
 %% paths
 clear;
-%sessions = {'190924_img1023'}; 
-sessions = {'200116_img1041'}; 
-%days = {'1023-190924_1'};
-days = {'1041-200116_1'};
+sessions = {'190429_img1021'}; 
+days = {'1021-190429_1'};
 %image_analysis_base    = 'Z:\Analysis\Airpuff_analysis\imaging_analysis\';%stores the data on crash in the movingDots analysis folder
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\';%stores the data on isilon in the movingDots analysis folder
 color_code = {'b','r','k','c'};

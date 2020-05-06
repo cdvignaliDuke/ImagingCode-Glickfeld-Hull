@@ -8,7 +8,7 @@
 %define the directory and files
 clear;
 folder = 'Z:\Data\Behv_MovingDots\behavior_raw_2P\';
-sessionID = '1042-191220';% if there're more than 1 sessions on a single subject on the same day, put the time in here after the date
+sessionID = '1064-200316';% if there're more than 1 sessions on a single subject on the same day, put the time in here after the date
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)
     behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
@@ -21,21 +21,24 @@ end
 for i = 1:size(filename,1)
     file = [folder, filename(i).name];
     load(file);
+    behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
     % later analysis will need to know if this session is a reverse session, and if yes, the frames of the reverse stimuli. 
     cReverse = input.cReverse;
     cReverse_vec = [cReverse{:}];
-    lenframe = 33.3333;
+    lenframe = 33.3333;% in milisecond
     speed = calculate_speed_2P(input,lenframe);
    
     % this gives you the average for each frame (ave speed in number of units during that 33.3333ms)
     speed = double(speed);
     %speed = speed(1:30028);
     % find relative behavioral states and save to behavior analysis file
-    smallestspd = ceil(1/lenframe*1000);
-    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd);
+    smallestspd = ceil(1/lenframe*1000);%smallestspd in unit/second, quadrature taken every 1ms
+    frm_maxGap = 9; % if the animal is still for less than 270ms during running, the running before and after the short still should still be counted as one part
+    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, ...
+        frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd,frm_maxGap);
     save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
         'cReverse_vec','speed','frames','frames_stay_cell','frames_bf_cell',...
-        'frames_run_cell','frames_move_cell');
+        'frames_run_cell','frames_move_cell','frm_maxGap');
     % plot speed and save figure
     fig_speedtc = figure;
     plot(frames, speed); hold on;
@@ -56,6 +59,7 @@ plot(cell2mat(frames_bf_cell), smallestspd*ones(1,length(cell2mat(frames_bf_cell
 %num_frames_run_all = {};
 num_frames_run = [];
 for i =  1:size(filename,1)
+    behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
     for n = 1:size(frames_run_cell,2)
     num_frames_run = [num_frames_run size(frames_run_cell{n},2)];
     end
@@ -79,6 +83,7 @@ end
 %% Section IV: Calculate average stationary duration:
 num_frames_stay = [];
 for i = 1:size(filename,1)
+    behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
     for k = 1: size(frames_stay_cell,2)
         num_frames_stay = [num_frames_stay size(frames_stay_cell{k},2)];
     end
@@ -103,6 +108,7 @@ end
 %% Section V: calculate average speed and ave&median duration of running above the runThreshold(mean)
 % calculate the average speed to get running threshold
 for i = 1:size(filename,1)
+    behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
     frames_run = frames(cell2mat(frames_run_cell));
     speed_run = speed(frames_run);
     aveRunSpeed = mean(speed_run);

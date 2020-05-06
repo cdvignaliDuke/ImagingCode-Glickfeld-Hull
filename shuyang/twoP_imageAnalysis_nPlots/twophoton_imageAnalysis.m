@@ -7,11 +7,15 @@
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = '200305_img1049'; 
+sessions = '200320_img1063_tone'; 
 %ID = '1016';
 image_source_base  = 'Z:\Data\2photon\'; %location of permanently stored image files for retreiving meta data
 %image_analysis_base    = 'Z:\Analysis\Airpuff_analysis\imaging_analysis\'; 
-image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\airpuff\imaging_analysis\'; 
+image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\tone\imaging_analysis\'; 
+%image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; 
+%image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\running\imaging_analysis\'; 
+%image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\airpuff\imaging_analysis\'; 
+
 %image_source = [image_source_base, sessions,'\',ID,'\'];
 image_source = [image_source_base, sessions,'\'];
 image_analysis_dest = [image_analysis_base, sessions, '\' 'getTC\'];
@@ -31,7 +35,7 @@ file = [sessions '_000_' order];
 %new 2P is half black, so read it from the second frame
 %!!!!!!!make sure you delete the speed of the first frame in behavior
 frame_start = 1; 
-nframes = 39999;%total frame number - frame_start
+nframes = 29999;%total frame number - frame_start
 imgread = squeeze(sbxread(file,frame_start,nframes));
 f1 = 2;
 f2 = 1000;
@@ -71,6 +75,7 @@ gap = 50;
 idx = (1:gap:nframes);
 writetiff(img_rgs(:,:,idx),[image_analysis_dest sessions '_'...
     order '_rgstr_tiff_', num2str(frame_start), '_', num2str(nframes) '_',num2str(gap) '_ref' num2str(ref_frame)]);
+
 save([image_analysis_dest sessions '_' order '_img_rgs_ref' num2str(ref_frame) '.mat'], 'img_rgs', 'rgs_out', 'img_ref','-append');
 %another way to look at the registered movies: wirte an index(e.g.: all running onsets), and draw 100
 %frames around each element, average each of those 100 frames and write a movie
@@ -151,7 +156,7 @@ icasig_filt = stackFilter(icasig);
 
 %set threshold a threshold for which pixels to include in a given dendrite's mask.
 nIC = size(icasig_filt, 3);
-cluster_threshold = 97; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
+cluster_threshold = 96.5; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
 %tried lower values for the threshold and turns out to have some wierd
 %masks
 mask_cell = zeros(size(icasig_filt));
@@ -198,7 +203,7 @@ savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_process.fig']);
 
 % combine highly correlated ICs to one
-threshold = 0.7; %got the same thing when threshold = 0.8 and 0.9, tried different values, doesn't seem to change things
+threshold = 0.8; %got the same thing when threshold = 0.8 and 0.9, tried different values, doesn't seem to change things
 [ ~, mask3D, ~] = finalMask_Jin(img_rgs, mask_final, threshold);
 %figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_jpeg.jpg']); hold on;
 figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_1_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
@@ -219,7 +224,7 @@ save([image_analysis_dest sessions '_' order, '_nPCA', ...
 
 
 %% look at the masks, mananully delete the ones that don't look like dendrites
-mask3D(:,:,[34]) = [];
+mask3D(:,:,[]) = [];
 %figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_jpeg.jpg']); hold on;
 figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_1_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
 for i  = 1:size(mask3D,3)

@@ -8,13 +8,13 @@
 %define the directory and files
 clear;
 folder = 'Z:\Data\behavior\airpuff\';
-sessionID = '1042-191115';% this  variable name is confusing, this session ID is just tha date and the subject#, 
+sessionID = '1064-200316';% this  variable name is confusing, this session ID is just tha date and the subject#, 
 %there might be more than 1 sessions on a single subject on the same day
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)
-    behav_dest = ['Z:\Analysis\Airpuff_analysis\behavioral_analysis\' sessionID '_' num2str(i)];
-    if ~exist(behav_dest)
-        mkdir(behav_dest);
+    behav_dest{i} = ['Z:\Analysis\Airpuff_analysis\behavioral_analysis\' sessionID '_' num2str(i)];
+    if ~exist(behav_dest{i})
+        mkdir(behav_dest{i});
     end
 end
 
@@ -35,10 +35,24 @@ for i = 1:size(filename,1)
     speed = speed(2:end);
     % find relative behavioral states and save to behavior analysis file
     smallestspd = ceil(1/lenframe*1000);% possible smallest speed: if the mice only moves 1unit during a frame, average speed of that frame is  (1/framelength) *1000
-    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd);
-    save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
+    frm_maxGap = 9; % if the animal is still for less than 270ms during running, the running before and after the short still should still be counted as one part
+    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd,frm_maxGap);
+    airpuff_period = [];
+    for a = 1:length(airpuffon1)
+        airpuff_period = cat(2,airpuff_period,airpuffon1(a):airpuffon1(a)+9);%300ms after airpuff onset is 10ish frames
+    end
+      
+    % 1.stationary without airpuff 
+    frm_stay = cell2mat(frames_stay_cell); 
+    stay_noairpuff = setdiff(frm_stay,airpuff_period);% find the frames in frame_stay but not in airpuff_period
+    %2.running without airpuff
+    frm_run = cell2mat(frames_run_cell);
+    run_noairpuff = setdiff(frm_run,airpuff_period);
+    
+    save([behav_dest{i} '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
         'airpuffon','speed','frames','frames_stay_cell','frames_bf_cell',...
-        'frames_run_cell','frames_move_cell','airpuffon1');
+        'frames_run_cell','frames_move_cell','airpuffon1','frm_stay','stay_noairpuff',...
+        'airpuff_period','frm_run','run_noairpuff');
     % plot speed and save figure
     fig_speedtc = figure;
     plot(frames, speed); hold on;
@@ -49,7 +63,7 @@ for i = 1:size(filename,1)
     xlabel ('frames');
     ylabel ('speed(pulses/s)');
     text(10,-20,['airpuff length ' num2str(lenairpuff) 's']);
-    saveas(fig_speedtc,[behav_dest '\' sessionID '_' num2str(i) '_speed']);
+    saveas(fig_speedtc,[behav_dest{i} '\' sessionID '_' num2str(i) '_speed']);
 end
 % check if found frames are what I want to find
 figure;plot(speed);
@@ -73,7 +87,7 @@ for i =  1:size(filename,1)
     medianDura_run = medianDura_runFrames/imgfreq;
     stdDura_run = stdDura_runFrames/imgfreq;
     
-    save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
+    save([behav_dest{i} '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
         'aveDuration_runFrames', 'medianDura_runFrames','stdDura_runFrames', ...
         'aveDura_run','medianDura_run','stdDura_run','-append');
     % plot distribution of all running windows' duration
@@ -84,7 +98,7 @@ for i =  1:size(filename,1)
     xlabel ('time length (seconds)');
     ylabel ('frequency');
     vline(medianDura_runFrames/imgfreq, 'r');
-    saveas(fig_runDuradist,[behav_dest '\' sessionID '_' num2str(i) '_runDuraDist']);
+    saveas(fig_runDuradist,[behav_dest{i} '\' sessionID '_' num2str(i) '_runDuraDist']);
 end
 
 
@@ -104,7 +118,7 @@ for i = 1:size(filename,1)
     medianDura_stay = medianDura_stayFrames/imgfreq;
     stdDura_stay = stdDura_stayFrames/imgfreq;
     
-    save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
+    save([behav_dest{i} '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
         'aveDuration_stayFrames', 'medianDura_stayFrames','stdDura_stayFrames',...
         'aveDura_stay','medianDura_stay','stdDura_stay','-append');
     %plot distribution of number of frames in each stationary state
@@ -116,7 +130,7 @@ for i = 1:size(filename,1)
     xlim([1 500]);
     ylabel ('frequency');
     vline(medianDura_stay, 'r');
-    saveas(fig_staydist,[behav_dest '\' sessionID '_' num2str(i) '_stayDistribution' ]);
+    saveas(fig_staydist,[behav_dest{i} '\' sessionID '_' num2str(i) '_stayDistribution' ]);
 end
 
 
@@ -140,7 +154,7 @@ for i = 1:size(filename,1)
     aveDura_runAbvThre = mean(dura_runAbvThre)/imgfreq;
     medianDura_runAbvThre = median(dura_runAbvThre)/imgfreq;
     stdDura_runAbvThre = std(dura_runAbvThre)/imgfreq;
-    save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
+    save([behav_dest{i} '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
         'runThreshold', 'aveDura_runAbvThre','medianDura_runAbvThre','stdDura_runAbvThre', '-append');
     %plot distribution of number of frames in each stationary state
     fig_ABTspeeddist = figure;
@@ -150,6 +164,6 @@ for i = 1:size(filename,1)
     xlabel ('time length (seconds)');
     ylabel ('frequency');
     vline(medianDura_runAbvThre, 'r');
-    saveas(fig_ABTspeeddist,[behav_dest '\' sessionID '_' num2str(i) '_ATR Distribution' ]);
+    saveas(fig_ABTspeeddist,[behav_dest{i} '\' sessionID '_' num2str(i) '_ATR Distribution' ]);
 end
 

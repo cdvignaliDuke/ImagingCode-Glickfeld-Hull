@@ -53,7 +53,7 @@ writetiff(ave_img_run,[dest '_runtrigave_stayzero']);
 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = '190602_imgJ89'; 
+sessions = '200316_img1064'; 
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 %image_source = [image_source_base, sessions,'\',ID,'\'];
 image_analysis_dest = [image_analysis_base, sessions, '\' 'getTC\'];

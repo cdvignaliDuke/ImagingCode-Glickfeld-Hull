@@ -8,14 +8,14 @@
 
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
-%NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = {'190617_img1021_1'};%,'190617_img1023_1','190617_img1024_1',...
-   % '190617_img1027_2','190618_img1025_1'};
-days = {'1021-190617_1'};%,'1023-190617_1','1024-190617_1',...
-    %'1027-190617_1','1025-190618_1'};
-%there might be more than 1 sessions on a single subject on the same day
-%bx_source     = ['Z:\Data\Behv_MovingDots\behavior_raw'];
-%image_source_base  = ['Z:\Data\WF imaging\']; %location of permanently stored image files for retreiving meta data
+%sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
+%    '190617_img1027_2','190618_img1025_1','200321_img1042_1','200321_img1049_1',...
+%    '200321_img1063_1','200321_img1064_1'}; 
+%days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
+%    '1027-190617_1','1025-190618_1','1042-200321_1','1049-200321_1',...
+%    '1063-200321_1','1064-200321_1'};
+sessions = {'190618_img1025_1'};
+days = {'1025-190618_1'};
 image_dest_base    = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
 color_code = {'c','r','y','g'};
@@ -30,10 +30,12 @@ for ii = 1: length(sessions)
     behav_struct = load([behav_dest '\' days{ii} '_behavAnalysis.mat']);
     frames_run_cell = behav_struct.frames_run_cell;
     speed = behav_struct.speed;
-    [frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,frames_runoff_mat,frames_run_mat] = findFrames_runWindows (speed,frames_run_cell);
+    [frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,...
+    frames_runoff_include,frames_runoff_mat,frames_run_mat] = findFrames_runWindows (speed,frames_run_cell);
     
     save([behav_dest '\' days{ii} '_behavAnalysis.mat' ],...
-        'frames_befo_run_cell','frames_aft_run_cell','frames_runTrigger_mat','frames_runoff_mat','frames_run_mat', '-append');
+        'frames_befo_run_cell','frames_aft_run_cell','frames_runTrigger_mat',...
+        'frames_runoff_mat','frames_run_mat', 'frames_runoff_include','-append');
 end
 
 
@@ -144,7 +146,7 @@ for ii = 1: length(sessions)
 %         saveas(windows_fig(n), [image_dest '_runTrigSessions_ROI' num2str(n)]);
     end
     
-    ave_dfOvF_runOff = squeeze(mean(dfOvF_runOff,1));
+    ave_dfOvF_runOff = squeeze(mean(dfOvF_runOff,1)); %average across trials
     ste_dfOvF_runOff = squeeze(std(dfOvF_runOff,0,1)/sqrt(size(dfOvF_runOff,1)));
     
     ave_dfOvF_runOff = ave_dfOvF_runOff';
@@ -242,6 +244,7 @@ for ii = 1:length(sessions)
     save([image_dest '_imgAnalysis.mat' ],'ave_befoRunaft','-append');
 end
 
+%{
 %% SECTION III: df/f before, after and during running, every 300ms.
 for ii = 1: length(sessions)
     behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' days{ii}];
@@ -341,4 +344,5 @@ for ii = 1: length(sessions)
     save([image_dest '_imgAnalysis.mat' ],'dfOvF_plot300ms', 'speed_plot300ms', '-append');
 
 end
+%}
 

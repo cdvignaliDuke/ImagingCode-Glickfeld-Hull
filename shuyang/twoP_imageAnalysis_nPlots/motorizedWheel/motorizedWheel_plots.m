@@ -8,13 +8,13 @@
 
 %% assign document paths and experimental sessions
 clear;
-sessions = '200225_img1049'; 
-image_analysis_base = 'Z:\Analysis\motorizedWheel_Analysis\imaging_analysis\'; 
+sessions = '200319_img1064_2'; 
+image_analysis_base = 'Z:\Analysis\motorizedWheel_Analysis\running\imaging_analysis\'; 
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 
 % behavior analysis results 
-days = '1049-200225_1';
-behav_dest = ['Z:\Analysis\motorizedWheel_Analysis\behavioral_analysis\' days '\'];
+days = '1064-200319_2';
+behav_dest = ['Z:\Analysis\motorizedWheel_Analysis\running\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
 
 %% load data
@@ -34,7 +34,7 @@ runoff_mat = behav_output.runoff_mat;
 threshold = -4;% the threshold you used in deconvolveCa function for deconvolution
 spk_deconv_output = load([image_analysis_dest sessions,'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
 dfOvF = load([image_analysis_dest sessions '_dfOvF.mat']);
-dfOvF = dfOvF.dfOvF_btm;
+dfOvF = dfOvF.dfOvF_btm_cl;
 
 %% df/F scatter plot during slow, fast, and stationary
 dfOvF_fast = zeros(size(run_fast_mat,1),size(run_fast_mat,2),size(dfOvF,2)); %trial*frame*cell
@@ -84,10 +84,10 @@ title(sessions);
 savefig([image_analysis_dest sessions '_dfOvF_scatter.fig']);
 
 %% FR scatter plot
-%spk_logic = spk_deconv_output.spk_logic_cl;
+spk_logic = spk_deconv_output.spk_logic_cl;
 
 %if using all cells
-spk_logic = spk_deconv_output.spk_logic;
+%spk_logic = spk_deconv_output.spk_logic;
 
 spk_fast = zeros(size(run_fast_mat,1),size(run_fast_mat,2),size(spk_logic,2)); %trial*frame*cell
 spk_slow = zeros(size(run_slow_mat,1),size(run_slow_mat,2),size(spk_logic,2));
@@ -202,30 +202,30 @@ dfOvF_trig = figure;
 x = (1:length(dfOvF_runoff_fast_session))/30;
 subplot(2,3,1);
 shadedErrorBar(x,dfOvF_runtrig_slow_session,ste_runtrig_slow_cells,{'color',[0.1373 0.5451 0.2706]});
-ylabel('df/f'); ylim([0.05 1.05]); xlim([0 2.5]);
+ylabel('df/f'); ylim([0 1.3]); xlim([0 2.5]);
 vline(1,'k');
 title('stay-slow speed');
 %xlim([0,1]);
 subplot(2,3,4);
 shadedErrorBar(x,dfOvF_runoff_slow_session,ste_runoff_slow_cells,{'color',[0.1373 0.5451 0.2706]});
-ylabel('df/f'); ylim([0.05 1.05]);xlim([0 2.5]);
+ylabel('df/f'); ylim([0.0 1.3]);xlim([0 2.5]);
 vline(1,'k');
 title('slow speed-stay');
 subplot(2,3,2);
 shadedErrorBar(x,dfOvF_runtrig_fast_session,ste_runtrig_fast_cells,{'color',[0.1373 0.5451 0.2706]});
-ylim([0.05 1.05]); vline(1,'k'); xlabel('time(s)');xlim([0 2.5]);
+ylim([0 1.3]); vline(1,'k'); xlabel('time(s)');xlim([0 2.5]);
 title('stay-fast speed');
 subplot(2,3,5);
 shadedErrorBar(x,dfOvF_runoff_fast_session,ste_runoff_fast_cells,{'color',[0.1373 0.5451 0.2706]});
-ylim([0.05 1.05]); vline(1,'k'); xlabel('time(s)');xlim([0 2.5]);
+ylim([0 1.3]); vline(1,'k'); xlabel('time(s)');xlim([0 2.5]);
 title('fast speed-stay');
 subplot(2,3,3);
 shadedErrorBar(x,dfOvF_spd_decrease_session,ste_spd_decrease_cells,{'color',[0.1373 0.5451 0.2706]});
-ylim([0.05 1.05]); xlim([0 2.5]);vline(1,'k');
+ylim([0 1.3]); xlim([0 2.5]);vline(1,'k');
 title('speed decrease');
 subplot(2,3,6);
 shadedErrorBar(x,dfOvF_spd_increase_session,ste_spd_increase_cells,{'color',[0.1373 0.5451 0.2706]});
-xlim([0 2.5]); ylim([0.05 1.05]); vline(1,'k');
+xlim([0 2.5]); ylim([0 1.3]); vline(1,'k');
 title('speed increase');
 supertitle(['dfOvF' sessions]);
 
@@ -233,8 +233,8 @@ savefig([image_analysis_dest sessions '_dfOvF_state_transit.fig']);
 
 
 %% FR run trig ave and runoff ave
-%spk_logic = spk_deconv_output.spk_logic_cl;
-spk_logic = spk_deconv_output.spk_logic;
+spk_logic = spk_deconv_output.spk_logic_cl;
+%spk_logic = spk_deconv_output.spk_logic;
 spk_runoff_fast = zeros(size(runoff_fast_mat,1),size(runoff_fast_mat,2),size(spk_logic,2)); %trial*frame*cell
 spk_runoff_slow = zeros(size(runoff_slow_mat,1),size(runoff_slow_mat,2),size(spk_logic,2));
 spk_runtrig_fast = zeros(size(runtrig_fast_mat,1),size(runtrig_fast_mat,2),size(spk_logic,2));
@@ -296,29 +296,29 @@ x = (1:length(FR_runoff_fast_session))/30;
 subplot(2,3,1);
 shadedErrorBar(x,FR_runtrig_slow_session,steFR_runtrig_slow_cells,{'color',[0.1373 0.5451 0.2706]});
 ylabel('firing rate'); 
-xlim([0 2.5]); ylim([0-0.05 2.5]);vline(1,'k');
+xlim([0 2.5]); ylim([-0.05 4.5]);vline(1,'k');
 title('stay-slow speed');
 %xlim([0,1]);
 subplot(2,3,4);
 shadedErrorBar(x,FR_runoff_slow_session,steFR_runoff_slow_cells,{'color',[0.1373 0.5451 0.2706]});
-xlim([0 2.5]); ylim([0-0.05 2.5]);ylabel('firing rate'); 
+xlim([0 2.5]); ylim([-0.05 4.5]);ylabel('firing rate'); 
 vline(1,'k');
 title('slow speed-stay');
 subplot(2,3,2);
 shadedErrorBar(x,FR_runtrig_fast_session,steFR_runtrig_fast_cells,{'color',[0.1373 0.5451 0.2706]});
-xlabel('time(s)');xlim([0 2.5]); ylim([0-0.05 2.5]); vline(1,'k');
+xlabel('time(s)');xlim([0 2.5]); ylim([-0.05 4.5]); vline(1,'k');
 title('stay-fast speed');
 subplot(2,3,5);
 shadedErrorBar(x,FR_runoff_fast_session,steFR_runoff_fast_cells,{'color',[0.1373 0.5451 0.2706]});
-xlabel('time(s)');xlim([0 2.5]); ylim([0-0.05 2.5]); vline(1,'k');
+xlabel('time(s)');xlim([0 2.5]); ylim([-0.05 4.5]); vline(1,'k');
 title('fast speed-stay');
 subplot(2,3,3);
 shadedErrorBar(x,FR_spd_decrease_session,steFR_spd_decrease_cells,{'color',[0.1373 0.5451 0.2706]});
-xlim([0 2.5]); ylim([0-0.05 2.5]); vline(1,'k');
+xlim([0 2.5]); ylim([-0.05 4.5]); vline(1,'k');
 title('speed decrease');
 subplot(2,3,6);
 shadedErrorBar(x,FR_spd_increase_session,steFR_spd_increase_cells,{'color',[0.1373 0.5451 0.2706]});
-xlim([0 2.5]); ylim([0-0.05 2.5]); vline(1,'k');
+xlim([0 2.5]); ylim([-0.05 4.5]); vline(1,'k');
 title('speed increase');
 supertitle(['Firing rate' sessions]);
 

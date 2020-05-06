@@ -7,25 +7,18 @@
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
 %sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
-%    '190617_img1027_2','190618_img1025_1','190618_img1029_1'};
+%    '190617_img1027_2','190618_img1025_1','200321_img1042_1','200321_img1049_1',...
+%    '200321_img1063_1','200321_img1064_1'}; 
 %days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
-%   '1027-190617_1','1025-190618_1','1029-190618_1'};
-sessions = {'190617_img1021_1'};
-days = {'1021-190617_1'};
+%    '1027-190617_1','1025-190618_1','1042-200321_1','1049-200321_1',...
+%    '1063-200321_1','1064-200321_1'};
+sessions = {'190618_img1025_1'};
+days = {'1025-190618_1'};
 %there might be more than 1 sessions on a single subject on the same day
 image_dest_base = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
 color_code = {'r','g','m','y','b'};
 
-%% load variables
-%for i = 1:length(sessions)
-   % image_dest = [image_dest_base sessions{i} '\' sessions{i}];
-   % behav_struct = load([behav_dest '\' days '_behavAnalysis.mat']);
-   % speed = behav_struct.speed;
-   % cReverse_vec = behav_struct.cReverse_vec;
-   % dfOvF_struct = load([image_dest, '_dfOvF_staybase.mat']);
-   % dfOvF = dfOvF_struct.dfOvF_staybase; 
-%end
 
 %% SECTION I: draw df/f &. speed
 for i = 1:length(sessions)
@@ -38,19 +31,19 @@ for i = 1:length(sessions)
     dfOvF = dfOvF_struct.dfOvF_btmbase;
     
     dfOvF_speed_fig = figure;
-    for n = 1:size(dfOvF,1)
+    for n = 1:4 %size(dfOvF,1)
         dfOvF_plot = dfOvF(n,1:length(speed));
         time = (0:(length(speed)-1));
         hold on;
         %plot only part of the session so that the plot is not too crowded
-        n1 = 1;
-        n2 = 9000;
-        x = (1:(n2-n1+1))/10;
+        n1 = 1100;
+        n2 = 1200;
+        x = (n1:n2);
+        %x = (1:(n2-n1+1))/10; %make x axis to second instead of frame
         [hAx,hline1,hline2(n)] = plotyy(x,speed(n1:n2)*2*3.1415926*7.5/128,x,dfOvF_plot(n1:n2));
         %[hAx,hline1,hline2(n)] = plotyy(time,speed,time,dfOvF_plot);
-        set(hline1,'color', 'b');
+        set(hline1,'color', 'k');
         set(hline2(n),'color',color_code{n});
-        %legend('speed',['ROI ' num2str(n)],'Location','northeast');hold on;
         %ylim(hAx(2),[0 0.5]);  
     end
     

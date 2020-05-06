@@ -2,7 +2,8 @@
 %generate cell for all windows right before and after running (300ms)
 % matrix for run triggered average (500ms before run and 1s from running onset)
 % matrix for running windows w/ 300ms before and after
-function[frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,frames_runoff_mat,frames_run_mat]= findFrames_runWindows (speed,frames_run_cell)
+function[frames_befo_run_cell,frames_aft_run_cell,frames_runTrigger_mat,...
+    frames_runoff_include,frames_runoff_mat,frames_run_mat]= findFrames_runWindows (speed,frames_run_cell)
 
 frames = 1: length(speed);
 
@@ -19,10 +20,11 @@ frames_befo_run_cell = {};
 frames_aft_run_cell = {}; 
 frames_runTrigger_mat = []; % frames_runTrigger is for run triggered average analysis. contain 500ms still before run and the first 1s of each running window
 frames_runoff_mat = []; 
-for m = 1: size(frames_run_cell,2)
-        if (frames_run_cell{m}(1)-period < 1) || (frames_run_cell{end}(end)+ period > frames(end))
+frames_runoff_include = {}; n = 0;
+for m = 1: size(frames_run_cell,2)-1
+        if (frames_run_cell{m}(1)-period < 1) || (frames_run_cell{m}(end)+ period > frames(end))
             continue
-        elseif (frames_run_cell{m}(1)-befoRunStay <1) || (frames_run_cell{end}(end)+ befoRunStay > frames(end))
+        elseif (frames_run_cell{m}(1)-befoRunStay <1) || (frames_run_cell{m}(end)+ afterRunStay > frames(end))
             continue
         else
             frames_befo_run_cell = cat(2, frames_befo_run_cell, frames_run_cell{m}(1)-period:frames_run_cell{m}(1)-1);
@@ -35,6 +37,8 @@ for m = 1: size(frames_run_cell,2)
             frames_runoff_temp = frames_run_cell{m}(1) : frames_run_cell{m}(end)+afterRunStay;
             if length(frames_runoff_temp) >= runoffDura && sum(speed(frames_runoff_temp(end-15:end)) == 0) >=14
                 frames_runoff_mat = cat(2, frames_runoff_mat, frames_runoff_temp(end-25:end));
+                n = n+1;
+                frames_runoff_include{n} = frames_run_cell{m};
             end
             
         end

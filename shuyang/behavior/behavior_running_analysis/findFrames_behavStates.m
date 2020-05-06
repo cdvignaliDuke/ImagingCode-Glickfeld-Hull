@@ -3,7 +3,7 @@
 %generate cell for stationary windows, running windows, and moving windows
 %(running+back and forth)
 
-function[frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates(speed)
+function[frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates(speed,frm_maxGap)
 
 frames = 1: length(speed);
 
@@ -32,8 +32,7 @@ frames_stay_cell(empties) = [];
 %% find frames for move
 frames_move = frames(speed ~= 0);
 diff_frames_move = diff(frames_move);
-gap = 2; % if the animal is still for less than 200ms during running, the running before and after the short still should still be counted as one part
-bound_move = find(diff_frames_move>gap);
+bound_move = find(diff_frames_move>frm_maxGap);
 % put continuous frames together, generate a cell for all running parts
 frames_move_cell ={};
 for j = 1:length(bound_move)

@@ -10,7 +10,7 @@ days = {'1023-190903_1'};
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
 color_code = {'b','r','k','c'};
 
-%% SECTION I df/f
+%% SECTION I df/f and speed
 for i = 1:size(sessions,2)
     image_analysis_dest = [image_analysis_base, sessions{i}, '\'];
     behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days{i} '\'];
@@ -48,33 +48,6 @@ for i = 1:size(sessions,2)
     
 end
 
-%% df/f stationary vs. running -------probably NOT USEFUL
-% the df/f during stationary will always be very close to 0 (10 to the -16), and the df/f
-% during running will be a number at a level of 10 to the -2, so it will look wierd anyway when you plot it.
-for i = 1: size(sessions,2)
-    image_analysis_dest = [image_analysis_base, sessions{i}, '\'];
-    behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days{i} '\'];
-    behav_output = load([behav_dest days{i} '_behavAnalysis.mat']);
-    frm_run_cell = behav_output.frames_run_cell;
-    frm_run = cell2mat(frm_run_cell);
-    frm_stay_cell = behav_output.frames_stay_cell;
-    frm_stay = cell2mat(frm_stay_cell);
-    dfOvF_output = load([image_analysis_dest sessions{i} '_dfOvF.mat']);
-    dfOvF = dfOvF_output.dfOvF;
-    avedfOvFrun = mean(dfOvF(frm_run,:));
-    avedfOvFstay = mean(dfOvF(frm_stay,:));
-    grand_dfOvFrun = mean (avedfOvFrun);
-    grand_dfOvFstay = mean (avedfOvFstay);
-    figure;
-    scatter(avedfOvFstay,avedfOvFrun,'filled','r'); hold on;
-    scatter(grand_dfOvFstay, grand_dfOvFrun,'filled','k');hold on;
-    xlabel('stationary'); ylabel('running');
-    xlim([-0.1,0.5]); ylim([min(avedfOvFstay),max(avedfOvFstay)]);
-    refline(1,0);
-    title('mean df/f for each cell');
-    savefig([image_analysis_dest sessions{i} '_meandfOvFstayVSrun']);
-end
-
 
 %% SECTION II run triggered ave and run offset ave --- df/f
 for i = 1: size(sessions,2)
@@ -86,8 +59,9 @@ for i = 1: size(sessions,2)
     frames_run_cell = behav_output.frames_run_cell;
     speed = double(behav_output.speed);
     
-    period = 9; % # of frames before and after running
-    befoRunStay = 30; %1s, # of frames that speed =0 before running
+    period = 9; % # of frames right before and right after running -- not useful for this section but the find frames function needs this
+    befoRun = 30; %1s before running onset
+    befoRunStay = 25; %1s, # of frames that speed has to be 0 before running
     totalT = 60; %2s # of frmaes before running onset + # of frames following running onset/ # of frames before running offset + # of frames after running offset
     aftRunOff = 30; %1s,# of frames that speed = 0 after running
     [~,~,frms_runTrig_mat,frms_runoff_mat,~]= findFrames_runWindows_2P(speed,...
@@ -218,3 +192,32 @@ for i = 1:size(sessions,2)
    
     %pause;
 end
+
+
+%% df/f stationary vs. running -------probably NOT USEFUL
+% % the df/f during stationary will always be very close to 0 (10 to the -16), and the df/f
+% % during running will be a number at a level of 10 to the -2, so it will look wierd anyway when you plot it.
+% for i = 1: size(sessions,2)
+%     image_analysis_dest = [image_analysis_base, sessions{i}, '\'];
+%     behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days{i} '\'];
+%     behav_output = load([behav_dest days{i} '_behavAnalysis.mat']);
+%     frm_run_cell = behav_output.frames_run_cell;
+%     frm_run = cell2mat(frm_run_cell);
+%     frm_stay_cell = behav_output.frames_stay_cell;
+%     frm_stay = cell2mat(frm_stay_cell);
+%     dfOvF_output = load([image_analysis_dest sessions{i} '_dfOvF.mat']);
+%     dfOvF = dfOvF_output.dfOvF;
+%     avedfOvFrun = mean(dfOvF(frm_run,:));
+%     avedfOvFstay = mean(dfOvF(frm_stay,:));
+%     grand_dfOvFrun = mean (avedfOvFrun);
+%     grand_dfOvFstay = mean (avedfOvFstay);
+%     figure;
+%     scatter(avedfOvFstay,avedfOvFrun,'filled','r'); hold on;
+%     scatter(grand_dfOvFstay, grand_dfOvFrun,'filled','k');hold on;
+%     xlabel('stationary'); ylabel('running');
+%     xlim([-0.1,0.5]); ylim([min(avedfOvFstay),max(avedfOvFstay)]);
+%     refline(1,0);
+%     title('mean df/f for each cell');
+%     savefig([image_analysis_dest sessions{i} '_meandfOvFstayVSrun']);
+% end
+
