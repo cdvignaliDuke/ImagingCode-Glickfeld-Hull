@@ -18,12 +18,11 @@ for i = 1:length(range);
         start = start+1;
     end
 end
-        
 [r_max r_ind] = max(r,[],2);
 if r_max>orig_r
     reg = reg_temp(:,:,r_ind);
     shift = out_grid(r_ind,:);
 else
     reg = data;
-    shift = out_grid(61,:);
+    shift = zeros(1,4);
 end
