@@ -15,8 +15,8 @@ frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
 % Type in your own stuff here:
-gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jerry\2P_Imaging_Grace';
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\jerry\Analysis\2P';
+gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 behav_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 
 %% load and register
@@ -24,7 +24,7 @@ data = [];
 clear temp
 trial_n = [];
 offset = 0;
-%     loading data_dfof_max and data_reg_avg from day 1 (_reg)
+%     loading data_dfof_max and data_reg_avg from day 2 (_reg)
     load(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimActFOV.mat']))
     load(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
     data_dfof_max_reg = data_dfof_max;
@@ -40,9 +40,9 @@ offset = 0;
 %     points of the image
     reg = data_avg_reg;
     ref = data_avg_ref;
-    reg(find(reg>2000)) = 0;
+    reg(find(reg>7000)) = 0;
     reg = (reg./max(max(abs(reg))));
-    ref(find(ref>2000)) = 0;
+    ref(find(ref>7000)) = 0;
     ref = (ref./max(max(abs(ref)))); 
     sz_target  = size(reg); % i moved this from the select points section below (line 52)
     figure(1);clf;imshowpair(reg, ref, 'montage'); %displays reg and ref images side by side
@@ -70,17 +70,17 @@ offset = 0;
     saveas(2, 'dfofOriginal.png'); %save figure 2
     
     %% fitgeotrans affine
-    fitGeoTForm = fitgeotrans(input_points(:,:), base_points(:,:),'affine'); %creating transformation
-    reg2ref = imwarp(double(reg),fitGeoTForm, 'OutputView', imref2d(size(reg))); %applying transformation on reg
-    reg2ref_dfof = imwarp(double(data_dfof_max_reg),fitGeoTForm, 'OutputView', imref2d(size(reg))); %applying transformation on data_dfof_max_reg
+    fitGeoTAf = fitgeotrans(input_points(:,:), base_points(:,:),'affine'); %creating transformation
+    r2rFGTA = imwarp(double(pix),fitGeoTAf, 'OutputView', imref2d(size(reg))); %applying transformation on reg
+    r2rFGTA_dfof = imwarp(double(data_dfof_max_reg),fitGeoTAf, 'OutputView', imref2d(size(reg))); %applying transformation on data_dfof_max_reg
     [rgb_reg2ref, rgb_reg2ref_dfof, yellowTotal] = createRGB(ref, reg2ref, reg2ref_dfof, data_dfof_max_ref, sz_target);
     saveas(1, 'r2rFitGeoAffine.png'); %saving figure 1
     saveas(2, 'dfofFitGeoAffine.png'); %saving figure 2
     
     %% fitgeotrans nonreflective similarity
-    fitGeoTForm = fitgeotrans(input_points(:,:), base_points(:,:),'nonreflectivesimilarity'); %creating transformation
-    reg2ref = imwarp(double(reg),fitGeoTForm, 'OutputView', imref2d(size(reg))); %applying transformation on reg
-    reg2ref_dfof = imwarp(double(data_dfof_max_reg),fitGeoTForm, 'OutputView', imref2d(size(reg))); %applying transformation on data_dfof_max_reg
+    fitGeoTNr = fitgeotrans(input_points(:,:), base_points(:,:),'nonreflectivesimilarity'); %creating transformation
+    r2rFGTN = imwarp(double(reg),fitGeoTNr, 'OutputView', imref2d(size(reg))); %applying transformation on reg
+    r2rFGTN_dfof = imwarp(double(data_dfof_max_reg),fitGeoTNr, 'OutputView', imref2d(size(reg))); %applying transformation on data_dfof_max_reg
     [rgb_reg2ref, rgb_reg2ref_dfof, yellowTotal] = createRGB(ref, reg2ref, reg2ref_dfof, data_dfof_max_ref, sz_target); %performing create RBG section below (line 114)
     saveas(1, 'r2rFitGeoNonReflSim.png'); %saving figure 1
     saveas(2, 'dfofFitGeoNonReflSim.png'); %saving figure 2
@@ -102,8 +102,8 @@ offset = 0;
     %% imregtform Similarity
     [optimizer, metric] = imregconfig('Monomodal'); %creating optimizer and metric for transformation
     imRegisTForm = imregtform(double(reg), double(ref), 'similarity', optimizer, metric); %creating transformation with imregtform on images of input_points and base_points
-    reg2ref = imwarp(double(reg),imRegisTForm, 'OutputView', imref2d(size(reg))); %applying transformation on reg
-    reg2ref_dfof = imwarp(double(data_dfof_max_reg),imRegisTForm, 'OutputView', imref2d(size(reg))); %applying transformation on data_dfof_max_reg
+    r2rIMRT = imwarp(double(reg),imRegisTForm, 'OutputView', imref2d(size(reg))); %applying transformation on reg
+    r2rIMRT_dfof = imwarp(double(data_dfof_max_reg),imRegisTForm, 'OutputView', imref2d(size(reg))); %applying transformation on data_dfof_max_reg
     [rgb_reg2ref, rgb_reg2ref_dfof, yellowTotal] = createRGB(ref, reg2ref, reg2ref_dfof, data_dfof_max_ref, sz_target);
     saveas(1, 'r2rImRegisSim.png'); %saving figure 1
     saveas(2, 'dfofImRegisSim.png'); %saving figure 2
