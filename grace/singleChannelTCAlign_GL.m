@@ -1,9 +1,9 @@
 clear all
 clear global
 %% get path names
-date = '200106';
+date = '200108';
 ImgFolder = strvcat('003');
-time = strvcat('1251');
+time = strvcat('1158');
 mouse = 'i1316';
 alignToRef = 0;
 ref_date = '200106';
@@ -375,6 +375,9 @@ save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' m
 save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 
 %% extract tuning
+Dir = cell2mat(input.tGratingDirectionDeg);
+Dirs = unique(Dir);
+
 if isfield(input, 'nScansOn');
     nOn = input.nScansOn;
     nOff = input.nScansOff;
