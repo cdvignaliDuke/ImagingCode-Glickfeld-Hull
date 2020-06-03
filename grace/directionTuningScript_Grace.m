@@ -1,5 +1,5 @@
 %get path names
-date = '191120';
+date = '191106';
 ImgFolder = strvcat('003');
 run = strvcat('000');
 mouse = 'i1306';
