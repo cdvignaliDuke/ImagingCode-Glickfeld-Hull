@@ -377,6 +377,38 @@ save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' m
 save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
 
 %% extract tuning
+data = [];
+clear temp
+trial_n = [];
+offset = 0;
+for irun = 1:nrun  
+    CD = fullfile(gl_fn, [mouse '\' date '\' ImgFolder(irun,:)]);
+    cd(CD);
+    imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
+    load(imgMatFile);
+    fName = fullfile(behav_fn, ['data-' mouse '-' date '-' time(irun,:) '.mat']);
+    load(fName);
+
+    nframes = info.config.frames;
+    fprintf(['Reading run ' num2str(irun) '- ' num2str(nframes) ' frames \r\n'])
+    data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
+    
+    temp(irun) = input;
+    if isfield(input, 'nScansOn')
+        nOn = temp(irun).nScansOn;
+        nOff = temp(irun).nScansOff;
+        ntrials = size(temp(irun).tGratingDirectionDeg,2);
+
+        data_temp = squeeze(data_temp);
+        if nframes>ntrials*(nOn+nOff)
+            data_temp = data_temp(:,:,1:ntrials*(nOn+nOff));
+        elseif nframes<ntrials*(nOn+nOff)
+            temp(irun) = trialChopper(temp(irun),1:ceil(nframes./(nOn+nOff)));
+        end
+    end
+end
+input = concatenateDataBlocks(temp);
+
  Dir = cell2mat(input.tGratingDirectionDeg);
     Dirs = unique(Dir);
     data_dfof_avg = zeros(sz(1),sz(2),length(Dirs));
@@ -509,7 +541,7 @@ data_tc_down = squeeze(mean(reshape(npSub_tc, [down,nframes,nCells]),1));
 
 tuningDownSampFactor = down;
 [avgResponseEaOri,semResponseEaOri,vonMisesFitAllCellsAllBoots,fitReliability,R_square,tuningTC] = ...
-    getOriTuningLG(data_tc_down(:,cells),input,tuningDownSampFactor);
+    getOriTuningLG(data_tc_down(:,cells_all),input,tuningDownSampFactor);
     vonMisesFitAllCells = squeeze(vonMisesFitAllCellsAllBoots(:,1,:));
 
 save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningAndFits.mat']),...
@@ -528,7 +560,8 @@ else
 end
 start = 1;
 x = 0;
-for ic = 1:nCells
+for icell = 1:length(cells_all)
+    ic = cells_all(icell);
     if start > 49
         suptitle([mouse ' ' date ' n = ' num2str(length(find(fitReliability<22.5))) '/' num2str(nCells) '- well-fit'])
         print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningFits_cells' num2str(start-49) '-' num2str(start-1) '.pdf']),'-dpdf','-fillpage')
@@ -536,7 +569,7 @@ for ic = 1:nCells
         x = x+1;
         figure;
     end
-    subplot(n,n2,ic-(x.*49))
+    subplot(n,n2,icell-(x.*49))
     errorbar(oris,avgResponseEaOri(ic,:), semResponseEaOri(ic,:),'-o')
     hold on
     plot(0:180,vonMisesFitAllCellsAllBoots(:,1,ic));
@@ -547,7 +580,7 @@ for ic = 1:nCells
     title(tit_str)
     start = start+1;
 end
-suptitle([mouse ' ' date ' n = ' num2str(length(find(fitReliability<22.5))) '/' num2str(nCells) '- well-fit'])
+suptitle([mouse ' ' date ' n = ' num2str(length(find(fitReliability<22.5))) '/' num2str(length(cells_all)) '- well-fit'])
 print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningFits' num2str(start-49) '-' num2str(start-1) '.pdf']),'-dpdf','-fillpage')
 
 [max_resp prefOri] = max(vonMisesFitAllCellsAllBoots,[],1);

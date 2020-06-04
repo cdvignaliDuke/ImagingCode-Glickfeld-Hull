@@ -195,7 +195,7 @@ data_reg_avg2 = transD2.r2rFGTA;
 % data_reg_avg without FGTA transformation
 reg2 = transD2.reg;
 pixD2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_pixel.mat']));
-pix_fgta2 = pixD2.pix;
+pix_fgta2 = pixD2.pix_fgta;
 maskD2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_mask_cell.mat']));
 mask_cell2 = maskD2.mask_cell;
 mask_np2 = maskD2.mask_np;
@@ -278,7 +278,7 @@ ii= 0.01:0.01:1;
 r = zeros(length(cells),1);
 p = zeros(length(cells),1);
 npSub_tc = zeros(length(cells),sz(3));
-for iC = 1:15
+for iC = 1:length(cells)
     iCell = cells(iC);
     xCenter = round(cell_stats(iCell).Centroid(2));
     yCenter = round(cell_stats(iCell).Centroid(1));
@@ -329,7 +329,7 @@ cells3 = find(r>0.4&p>.6);
 cells4 = [cells2;cells3];
 cells_all = reshape(cells4,[],1);
 npSub_tc = npSub_tc';
-% save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
+save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
 % save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_input.mat']), 'input')
 
 %% mask images
