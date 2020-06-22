@@ -1,13 +1,13 @@
 clear all
 clear global
 %% 
-mouse = 'i1316';
-day2 = '200108';
-day3 = '200109';
-ImgFolder = strvcat('003');
-ImgFolder2 = strvcat('003');
-ref_date = '200106';
-ref_run = strvcat('003');
+mouse = 'i1313';
+day2 = '200120';
+day3 = '200201';
+ImgFolder = strvcat('002');
+ImgFolder2 = strvcat('002');
+ref_date = '200118';
+ref_run = strvcat('002');
 nrun = size(ImgFolder,1);
 nrun2 = size(ImgFolder2,1);
 frame_rate = 15.5;
@@ -15,7 +15,7 @@ run_str = catRunName(ImgFolder, nrun);
 run_str2 = catRunName(ImgFolder2, nrun2);
 run_str3 = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
 
 % oriTuning_D1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_oriTuningAndFits.mat']));
 % oriTuning_D2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_oriTuningAndFits.mat']));
@@ -1516,10 +1516,10 @@ print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['
 %% Pixel Correlation
 
 load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_pixel.mat']));
-pix_3hz1 = pix_3hz;
+pix_3hz1 = pix;
 pix_3hz1(isnan(pix_3hz1))=0;
-load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_pixel.mat']));
-load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_transform.mat']));
+load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_pixel.mat']));
+load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_transform.mat']));
 pix_fgta2 = pix_fgta;
 r2r_fgta2 = r2rFGTA;
 load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_pixel.mat']));
@@ -1561,6 +1561,8 @@ r2 = zeros(nCells1,1);
 r3 = zeros(nCells1,1);
 r4 = zeros(nCells1,1);
 r5 = zeros(nCells1,1);
+r6 = zeros(nCells1,1);
+r7 = zeros(nCells1,1);
 a = zeros(nCells1,1);
 x = zeros(nCells1,1);
 y = zeros(nCells1,1);
@@ -1569,33 +1571,42 @@ regr2r = zeros(nCells1,1);
 for iCell = 1:nCells1
     xCenter = round(cell_stats(iCell).Centroid(2));
     yCenter = round(cell_stats(iCell).Centroid(1));
-    xCenter2 = round(cell_stats2(iCell).Centroid(2));
-    yCenter2 = round(cell_stats2(iCell).Centroid(1));
-%     xCenter3 = round(cell_stats3(iCell).Centroid(2));
-%     yCenter3 = round(cell_stats3(iCell).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
-    xLeft2 = (xCenter2 - width/2);
-    yBottom2 = (yCenter2 - height/2);
-%     xLeft3 = (xCenter3 - width/2);
-%     yBottom3 = (yCenter3 - height/2);
  if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
     a = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
     a1 = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-    x = pix_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
+    x = pix_fgta2(xLeft:(xLeft+width),yBottom:(height+yBottom));
     [reg shift] = shift_opt(x,a,4);
     regpix = reg;
-    y = r2r_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
+    y = r2r_fgta2(xLeft:(xLeft+width),yBottom:(height+yBottom));
     [reg shift] = shift_opt(y,a1,4);
     regr2r = reg;
 %     y = pix_fgtn2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-%     z = pix_imrt2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
+%    z = pix_imrt2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
+     z = pix_fgta3(xLeft:(xLeft+width),yBottom:(height+yBottom));
+     h = r2r_fgta3(xLeft:(xLeft+width),yBottom:(height+yBottom));
     r2(iCell) = triu2vec(corrcoef(a(:),x(:)));
     r3(iCell) = triu2vec(corrcoef(a(:),regpix(:)));
     r4(iCell) = triu2vec(corrcoef(a1(:),y(:)));
     r5(iCell) = triu2vec(corrcoef(a1(:),regr2r(:)));
+    r6(iCell) = triu2vec(corrcoef(a(:),z(:)));
+    r7(iCell) = triu2vec(corrcoef(a1(:),h(:)));
  end
 end
+
+% pixel corr scatter plot
+figure;
+scatter(r2,r6)
+xlabel('pixel correlation D1 and D2')
+ylabel('pixel correlation D1 and D3')
+refline(1,0)
+R = corrcoef(r2,r6);
+disp(R(1,2));
+str = ['    r = ',num2str(R(1,2))];
+T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
+set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+
 % comparing squares post fine registartion (day 1 vs fitgeo affine)
 figure;
 start = 1;
@@ -1790,18 +1801,18 @@ print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['
 
 start = 1;
 height = 24; width = 24;
-mat = [r6_3(1:3) r6_5(1:3) r7_3(1:3) r7_5(1:3)];
+mat = [r6_3(1:15) r6_5(1:15) r8_3(1:15) r8_5(1:15)];
 mat = reshape(mat,[],1);
 figure;
-suptitle('re-registered pixel corr and re-registered data reg avg, 0.6 and 0.7 corr coefs')
-for iC = 1:3
+% suptitle('re-registered pixel corr and re-registered data reg avg, 0.6 and 0.8 corr coefs')
+for iC = 1:15
 iCell = mat(iC);
 xCenter = round(cell_stats(iCell).Centroid(2));
 yCenter = round(cell_stats(iCell).Centroid(1));
 xLeft = (xCenter - width/2);
 yBottom = (yCenter - height/2);
 x = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(8,8,start)
+subplot(15,8,start)
 imagesc(x)
 pos = get(gca, 'Position');
 pos(1) = 0.1;
@@ -1815,7 +1826,7 @@ xLeft2 = (xCenter2 - width/2);
 yBottom2 = (yCenter2 - height/2);
 y = pix_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
 [reg shift] = shift_opt(y,x,4);
-subplot(8,8,start+1)
+subplot(15,8,start+1)
 imagesc(reg)
 pos = get(gca, 'Position');
 pos(1) = .18;
@@ -1833,7 +1844,7 @@ yCenter = round(cell_stats(iCell).Centroid(1));
 xLeft = (xCenter - width/2);
 yBottom = (yCenter - height/2);
 x = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(8,8,start+2)
+subplot(15,8,start+2)
 imagesc(x)
 pos = get(gca, 'Position');
 pos(1) = 0.3;
@@ -1847,7 +1858,7 @@ xLeft2 = (xCenter2 - width/2);
 yBottom2 = (yCenter2 - height/2);
 y = r2r_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
 [reg shift] = shift_opt(y,x,4);
-subplot(8,8,start+3)
+subplot(15,8,start+3)
 imagesc(reg)
 pos = get(gca, 'Position');
 pos(1) = 0.38;
@@ -1865,7 +1876,7 @@ yCenter = round(cell_stats(iCell).Centroid(1));
 xLeft = (xCenter - width/2);
 yBottom = (yCenter - height/2);
 x = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(8,8,start+4)
+subplot(15,8,start+4)
 imagesc(x)
 pos = get(gca, 'Position');
 pos(1) = 0.5;
@@ -1879,7 +1890,7 @@ xLeft2 = (xCenter2 - width/2);
 yBottom2 = (yCenter2 - height/2);
 y = pix_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
 [reg shift] = shift_opt(y,x,4);
-subplot(8,8,start+5)
+subplot(15,8,start+5)
 imagesc(reg)
 pos = get(gca, 'Position');
 pos(1) = 0.58;
@@ -1897,7 +1908,7 @@ yCenter = round(cell_stats(iCell).Centroid(1));
 xLeft = (xCenter - width/2);
 yBottom = (yCenter - height/2);
 x = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(8,8,start+6)
+subplot(15,8,start+6)
 imagesc(x)
 pos = get(gca, 'Position');
 pos(1) = 0.7;
@@ -1910,7 +1921,7 @@ yCenter2 = round(cell_stats2(iCell).Centroid(1));
 xLeft2 = (xCenter2 - width/2);
 yBottom2 = (yCenter2 - height/2);
 y = r2r_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-subplot(8,8,start+7)
+subplot(15,8,start+7)
 [reg shift] = shift_opt(y,x,4);
 imagesc(reg)
 pos = get(gca, 'Position');

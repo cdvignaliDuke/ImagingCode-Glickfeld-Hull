@@ -31,17 +31,15 @@ TCs_D3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [d
 
 %% define variables
 cells_all2 = TCs_D2.cells_all;
-goodfit_d1 = find(oriTuning_D1.fitReliability<22.5);
-goodfit_D1 = intersect(goodfit_d1,cells_all2);
-goodfit_d2 = find(oriTuning_D2.fitReliability<22.5);
-goodfit_D2 = cells_all(goodfit_d2);
+goodfit_D1 = find(oriTuning_D1.fitReliability<22.5);
+goodfit_D2 = find(oriTuning_D2.fitReliability<22.5);
 goodfit_D3 = find(oriTuning_D3.fitReliability<22.5);
 % goodfit_D4 = find(oriTuning_D4.fitReliability<22.5);
 gdft_D1 = length(goodfit_D1);
 gdft_D2 = length(goodfit_D2);
 gdft_D3 = length(goodfit_D3);
 % gdft_D4 = length(goodfit_D4);
-goodfit = intersect(goodfit_D1,goodfit_D2);
+goodfit = intersect(goodfit_D1(cells_all2),goodfit_D2);
 goodfit2 = intersect(goodfit, goodfit_D3);
 % goodfit3 = intersect(goodfit2, goodfit_D4);
 goodfit3to1 = intersect(goodfit_D1, goodfit_D3);
@@ -52,10 +50,6 @@ nCells = size(goodfit,2);
 [maxResp_D2 prefOri_D2] = max(squeeze(oriTuning_D2.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 [maxResp_D3 prefOri_D3] = max(squeeze(oriTuning_D3.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 % [maxResp_D4 prefOri_D4] = max(squeeze(oriTuning_D4.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
-
-prefOri2_temp = nan(1,nCells1);
-prefOri2_temp(cells_all2) = prefOri_D2;
-prefOri_D2 = prefOri2_temp;
 
 % day 1
 load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_input.mat']));
@@ -82,6 +76,7 @@ nOn2 = input.nScansOn;
 nOff2 = input.nScansOff;
 nFrames2 = nOn2+nOff2;
 npSub_tc2 = TCs_D2.npSub_tc;
+npSub_tc2 = npSub_tc2';
 nCells2 = size(npSub_tc2,2);
 nTrials2 = size(tGratingDir2,2);
 
@@ -124,7 +119,7 @@ trial_dfof3 = (trial_tc3-trial_f3)./trial_f3;
 %% original plots 
 figure; 
 subplot(2,2,1)
-scatter(prefOri_D1(goodfit_D2),prefOri_D2(goodfit_d2))
+scatter(prefOri_D1(goodfit),prefOri_D2(goodfit))
 % scatter(maxResp_D1(goodfit),maxResp_D2(goodfit))
 axis square
 % xlim([0 max(max(maxResp_D1(goodfit),maxResp_D2(goodfit)))+0.05])
@@ -133,7 +128,7 @@ refline(1,0)
 xlabel('D1 Preferred Ori (deg)')
 ylabel('D2 Preferred Ori (deg)')
 
-prefOri_diff = abs(prefOri_D1(goodfit_D1)-prefOri_D2(goodfit1_d2));
+prefOri_diff = abs(prefOri_D1(goodfit)-prefOri_D2(goodfit));
 prefOri_diff(find(prefOri_diff>90)) = 180-prefOri_diff(find(prefOri_diff>90));
 subplot(2,2,2)
 hist(prefOri_diff)
@@ -146,16 +141,16 @@ xlabel('Day 1 peak dF/F')
 ylabel('D1 vs D2 Pref ori')
 axis square
 
-maxResp_diff = abs((maxResp_D1(goodfit)-maxResp_D2(goodfit1))./(maxResp_D1(goodfit)+maxResp_D2(goodfit1)));
+maxResp_diff = abs((maxResp_D1(goodfit)-maxResp_D2(goodfit))./(maxResp_D1(goodfit)+maxResp_D2(goodfit)));
 subplot(2,2,4)
 scatter(maxResp_diff,prefOri_diff)
 xlabel('D1 vs D2 peak dF/F')
 ylabel('D1 vs D2 Pref ori')
 axis square
 
-% suptitle([mouse ' ' ref_date ' vs ' day2 '- n = ' num2str(length(goodfit)) ' cells'])
-% print(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_compAcrossDaysTuning.pdf']),'-dpdf', '-bestfit')
-% save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_compAcrossDaysTuning.mat']), 'goodfit', 'prefOri_D1', 'maxResp_D1', 'prefOri_D2', 'maxResp_D2', 'prefOri_diff', 'maxResp_diff');
+suptitle([mouse ' ' ref_date ' vs ' day2 '- n = ' num2str(length(goodfit)) ' cells'])
+print(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_compAcrossDaysTuning.pdf']),'-dpdf', '-bestfit')
+save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_compAcrossDaysTuning.mat']), 'goodfit', 'prefOri_D1', 'maxResp_D1', 'prefOri_D2', 'maxResp_D2', 'prefOri_diff', 'maxResp_diff');
 
 %% Identify cells that are significantly responsive to at least 1 direction
 
