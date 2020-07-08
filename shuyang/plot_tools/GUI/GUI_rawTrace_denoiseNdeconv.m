@@ -33,7 +33,7 @@ plot_component(1)
         subplot(2,1,1)
         plot(TCave(:,k)); hold on;
 %         plot(plotred,'ro','MarkerSize',8); ylabel('TCave');
-        xlim([1,5000]);
+        xlim([0,500]);
         lims = ylim;
         text(10,lims(2)-20,['cell' num2str(k)]);
         ylabel('rawF');
@@ -41,7 +41,8 @@ plot_component(1)
 
         subplot(2,1,2)
         plot(kernel(:,k)); hold on; plot(spk(:,k));
-        xlim([1,5000]);ylabel('denoised(blue) and deconvolved(red) signal');
+        xlim([0,500]);ylim([0, mean(kernel(:,k))*15]);
+        ylabel('denoised(blue) and deconvolved(red) signal');
         xlabel('frame');
         drawnow; hold off
         
