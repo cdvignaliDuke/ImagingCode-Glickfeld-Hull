@@ -13,11 +13,11 @@ centroidmat = [];
 
 
 % k clusters
-for k = 5%size(sc,1);%4
+for k = 6 %size(sc,1);%4
     
     % repeat t times
     for t = 1:100
-        
+        t
         
 %         if t == 1
 %         pool = parpool;                      % Invokes workers
@@ -114,7 +114,7 @@ for k = 5%size(sc,1);%4
                 
                 break;
             end
-            if ~isempty(combineclusters);
+            if ~isempty(combineclusters)
                 [allclusters, dunnsinitial, centroidcorr, dendmem]=ioclustervalidity2(allclusters, expr, [combineclusters(1) combineclusters(2)]);
             else
                 endclustering=1;

@@ -8,8 +8,8 @@ clear;
 %    '190617_img1027_2','190618_img1025_1','190618_img1029_1'}; 
 %days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
 %    '1027-190617_1','1025-190618_1','1029-190618_1'};
-sessions = {'200321_img1064_1'};
-days = {'1064-200321_1'};
+sessions = {'190617_img1021_1'};
+days = {'1021-190617_1'};
 bx_source = 'Z:\Data\Behv_MovingDots\behavior_raw';
 image_source_base  = 'Z:\Data\WF imaging\'; %location of permanently stored image files for retreiving meta data
 image_dest_base    = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
@@ -110,12 +110,17 @@ for ii = 1: length(sessions)
     imagesc(avg_img);
     shading flat; hold on;
     for i=1:cluster.num_cluster
-        line(cluster.roi_position{i}(:,1),   cluster.roi_position{i}(:,2) ,'color', 'k', 'linewidth', 1)
+        line(cluster.roi_position{i}(:,1), cluster.roi_position{i}(:,2),'Color','k','LineWidth', 1.15);
         text(mean(cluster.roi_position{i}(:,1)),mean(cluster.roi_position{i}(:,2)), ...
-            num2str(i), 'color', 'k', 'FontSize', 8);
+            num2str(i), 'color', 'k', 'FontSize', 18, 'Color','k');
     end
-    title(['selected ROIs ',sessions{ii}]); colormap jet; %colomap jet makes the image brighter
-    saveas(ROI_fig, [image_dest, '_ROIplot'])
+    %title(['selected ROIs ',sessions{ii}]); 
+    colormap jet; %colomap jet makes the image brighter
+    %saveas(ROI_fig, [image_dest, '_ROIplot'])
+    fig_name = ['eg_session_ROI_',sessions{ii}];
+    path = 'Z:\Analysis\figures\figure1_WF\';
+    print(ROI_fig,[path,fig_name],'-r600','-dpdf');
+    
 end
 
 

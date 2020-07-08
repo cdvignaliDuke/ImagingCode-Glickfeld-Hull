@@ -8,8 +8,12 @@
 %define the directory and files
 clear;
 folder = 'Z:\Data\Behv_MovingDots\behavior_raw_WF\';
-sessionID =  '1025-190618';% this  variable name is confusing, this session ID is just tha date and the subject#, 
-%there might be more than 1 sessions on a single subject on the same day
+
+% days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
+%     '1025-190618_1','1042-200321_1','1049-200321_1',...
+%     '1064-200321_1'};
+
+sessionID = '1064-200321';% this  variable name is confusing, this session ID is just tha date and the subject#, there might be more than 1 sessions on a single subject on the same day
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)
     behav_dest = ['Z:\Analysis\WF_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
@@ -27,11 +31,11 @@ for i = 1:size(filename,1)
     cReverse_vec = [cReverse{:}];
     speed = calculate_speed(input);
     % find relative behavioral states and save to behavior analysis file
-    frm_maxGap = 9;
+    frm_maxGap = 3; %300ms in between
     [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates(speed,frm_maxGap);
     save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
         'cReverse_vec','speed','frames','frames_stay_cell','frames_bf_cell',...
-        'frames_run_cell','frames_move_cell');
+        'frames_run_cell','frames_move_cell','frm_maxGap');
     % plot speed and save figure
     fig_speedtc = figure;
     plot(frames, speed); hold on;

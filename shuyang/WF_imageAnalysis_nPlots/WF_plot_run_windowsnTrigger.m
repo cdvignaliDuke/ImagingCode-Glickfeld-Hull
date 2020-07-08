@@ -1,21 +1,22 @@
-% plotting fluroscence data for wide field imaging, moving dot/running experiments
-% need: df/f,output from behav_analysis_movingDots_WF .
+% plotting fluroscence data for wide field imaging, self-paced running experiments
+% need: df/f and output from behav_analysis_movingDots_WF .
 % generate cells for before and after running windows, 
 % matrix for run trigger average and running windows, using findFrames_runWindows
+% plot df/f and speed align to running onset and offset
 % scatter plot for ave df/f before, during, and after running
 % plot df/f from 300ms before running to 300ms after running, each point is the ave for 300ms
-% plot run triggered average
 
 %% SECTION - assign pathnames and datasets to be analyzed/written. 
 clear;
-%sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
-%    '190617_img1027_2','190618_img1025_1','200321_img1042_1','200321_img1049_1',...
-%    '200321_img1063_1','200321_img1064_1'}; 
-%days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
-%    '1027-190617_1','1025-190618_1','1042-200321_1','1049-200321_1',...
-%    '1063-200321_1','1064-200321_1'};
-sessions = {'190618_img1025_1'};
-days = {'1025-190618_1'};
+% sessions = {'190617_img1021_1','190617_img1023_1','190617_img1024_1',...
+%     '190618_img1025_1','200321_img1042_1','200321_img1049_1',...
+%     '200321_img1064_1'}; 
+% days = {'1021-190617_1','1023-190617_1','1024-190617_1',...
+%     '1025-190618_1','1042-200321_1','1049-200321_1',...
+%     '1064-200321_1'};
+
+sessions = {'190617_img1021_1'};
+days = {'1021-190617_1'};
 image_dest_base    = 'Z:\Analysis\WF_MovingDots_Analysis\BxAndAnalysisOutputs\'; %stores the data on crash in the movingDots analysis folder
 % behavior analysis results 
 color_code = {'c','r','y','g'};
@@ -82,30 +83,49 @@ for ii = 1: length(sessions)
     ste_dfOvF_runTrigger = ste_dfOvF_runTrigger';
     
     set(0,'DefaultFigureVisible','on'); 
-    x = (0:length(ave_dfOvF_runTrigger)-1)/10;
+    x = ((0:length(ave_dfOvF_runTrigger)-1)/10)-1;
     if size(ave_dfOvF_runTrigger,2)>1
         xplot = repmat(x,size(ave_dfOvF_runTrigger,1),1);
     else
         xplot = x;
     end
-    mean_fig = figure; 
+    colorcode = {[0.4000 0.7608 0.6471],[0.9882 0.5529 0.3843],[0.5529 0.6275 0.7961],[0.9059 0.5412 0.7647]};%,[0.6510 0.8471 0.3294]}; %brewermap set2
+    eg_runonset = figure; 
+    %shadedErrorBar(x,dfOvF_runtrig_slow_session,ste_runtrig_slow_cells,{'color',[0.1373
+    %0.5451 0.2706]}); it's ugly use shadederrorbar and need a for loop, shadederrobar only takes vector
     subplot(2,1,1);hold on;
-    errorbar(xplot',ave_dfOvF_runTrigger',ste_dfOvF_runTrigger','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
-    %xlim([-5 10]);
+    for r = 1:size(ave_dfOvF_runTrigger,1)
+        errorbar(xplot(r,:),ave_dfOvF_runTrigger(r,:),ste_dfOvF_runTrigger(r,:),...
+            '.','LineStyle','-','linewidth', 1,'MarkerSize',4,'Color',colorcode{r});hold on;
+    end
+    xlim([-1.1 1.6]);
     ylim([-0.1 0.45]);
-    vline(1, 'r','running start');
-    ylabel('df/f'); legend('ROI1','ROI2','ROI3','ROI4');
+    vline(0,'k');
+    %legend('ROI1','ROI2','ROI3','ROI4');legend('boxoff'); 
+    ylabel('df/F');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',7);
     
     subplot(2,1,2);hold on;
-    errorbar(x,ave_speed_runTrigger*2*3.1415926*7.5/128,ste_speed_runTrigger*2*3.1415926*7.5/128,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
-    xlabel('time(s)');
+    errorbar(x,ave_speed_runTrigger*2*3.1415926*7.5/128,ste_speed_runTrigger*2*3.1415926*7.5/128,...
+        '.','LineStyle','-','linewidth', 1,'MarkerSize',4,'Color',[0.4500 0.4500 0.4500]);hold on;
+    xlim([-1.1 1.6]);
+    xlabel('time from running onset(s)');
     ylabel('speed(cm/s)');
-    vline(1, 'r','running start');
-    %xlim([-5 10]);
-    
-    supertitle(['run triggered average',sessions{ii}] );
-    saveas(mean_fig, [image_dest '_runTrigAve']);
-    save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_runTrigger', 'ave_speed_runTrigger', '-append');
+    vline(0, 'k');
+    ylim([0 20]);
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',7);
+    %supertitle(['run triggered average',sessions{ii}] );
+    %saveas(mean_fig, [image_dest '_runTrigAve']);
+    eg_runonset.Units = 'centimeters';
+    eg_runonset.Position = [3 3 5.5 5];
+    fig_name = ['eg_session_runonset_',sessions{ii}];
+    path = 'Z:\Analysis\figures\figure1_WF\';
+    orient(eg_runonset,'landscape')
+    print(eg_runonset,[path,fig_name],'-r600','-depsc');
+    %saveas(eg_runonset, [image_dest '_runoffAve']);
+    %save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_runTrigger', 'ave_speed_runTrigger', '-append');
     
 end
 
@@ -153,32 +173,56 @@ for ii = 1: length(sessions)
     ste_dfOvF_runOff = ste_dfOvF_runOff';
     
     set(0,'DefaultFigureVisible','on');
-    x = (0:length(ave_dfOvF_runOff)-1)/10;
+    x = ((0:length(ave_dfOvF_runOff)-1)/10)-1;
     if size(ave_dfOvF_runOff,2)>1
         xplot = repmat(x,size(ave_dfOvF_runOff,1),1);
     else
         xplot = x;
     end
     
-    x = (0:length(ave_dfOvF_runOff)-1)/10;
+    x = ((0:length(ave_dfOvF_runOff)-1)/10)-1;
     mean_fig = figure; 
     subplot(2,1,1);hold on;
-    errorbar(xplot',ave_dfOvF_runOff',ste_dfOvF_runOff','.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
-    %xlim([-5 10]);
+    for r = 1:size(ave_dfOvF_runOff,1)
+        errorbar(xplot(r,:),ave_dfOvF_runOff(r,:),ste_dfOvF_runOff(r,:),...
+            '.','LineStyle','-','linewidth', 1,'MarkerSize',4,'Color',colorcode{r});hold on;
+    end
+    xlim([-1.1 1.6]);
     ylim([-0.1 0.45]);
-    vline(1, 'r','running end');
-    ylabel('df/f'); legend('ROI1','ROI2','ROI3','ROI4');
+    %legend({'ROI1','ROI2','ROI3','ROI4'},'FontSize',10,'location','southeast');legend('boxoff');
+    vline(0,'k');
+    ylabel('df/F');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',7);
+    %ax = gca;
+    %ax.LabelFontSizeMultiplier = 1.25;
     
     subplot(2,1,2);hold on;
-    errorbar(x,ave_speed_runoff*2*3.1415926*7.5/128,ste_speed_runoff*2*3.1415926*7.5/128,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
-    xlabel('time(s)');
+    errorbar(x,ave_speed_runoff*2*3.1415926*7.5/128,ste_speed_runoff*2*3.1415926*7.5/128,...
+        '.','LineStyle','-','linewidth', 1,'MarkerSize',4,'Color',[0.45 0.45 0.45]);hold on;
+    xlabel('time from running offset(s)');
     ylabel('speed(cm/s)');
-    vline(1, 'r','running end');
-    %xlim([-5 10]);
+    xlim([-1.1 1.6]);
+    ylim([0 20]);
+    vline(0, 'k');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',7);
+    %ax = gca;
+    %ax.LabelFontSizeMultiplier = 1.25;
     
-    supertitle(['run offset average',sessions{ii}] );
-    saveas(mean_fig, [image_dest '_runoffAve']);
-    save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_runOff', 'ave_speed_runoff', '-append');
+    %supertitle(['run triggered average',sessions{ii}] );
+    %saveas(mean_fig, [image_dest '_runTrigAve']);
+    mean_fig.Units = 'centimeters';
+    mean_fig.Position = [1 1 5.5 5];
+    fig_name = ['eg_session_runoffset_',sessions{ii}];
+    path = 'Z:\Analysis\figures\figure1_WF\';
+    orient(mean_fig,'landscape');
+    print(mean_fig,[path,fig_name],'-r600','-depsc');
+   
+    %supertitle(['run offset average',sessions{ii}] );
+%     saveas(mean_fig, [image_dest '_runoffAve']);
+%     save([image_dest '_imgAnalysis.mat' ],'ave_dfOvF_runOff', 'ave_speed_runoff', '-append');
+
     
 end
 

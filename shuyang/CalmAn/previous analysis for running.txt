@@ -1,0 +1,2 @@
+the * spk_deconvolve_threshold-4 file only contains "good cells" using the old criteria.
+Need to redo deconvolution if want to use the new criteria after 200311.

@@ -6,9 +6,11 @@
 
 %% Section I: set paths and create analysis folders for each session
 %define the directory and files
+%days = {'1021-190429_1','1023-190430_1','1024-190507_1','1025-190603_1'};
+
 clear;
 folder = 'Z:\Data\Behv_MovingDots\behavior_raw_2P\';
-sessionID = '1064-200316';% if there're more than 1 sessions on a single subject on the same day, put the time in here after the date
+sessionID = '1025-190603';% if there're more than 1 sessions on a single subject on the same day, put the time in here after the date
 filename = dir([folder 'data-i' '*' sessionID  '*' ]);
 for i = 1: size(filename,1)
     behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' sessionID '_' num2str(i)];
@@ -33,7 +35,7 @@ for i = 1:size(filename,1)
     %speed = speed(1:30028);
     % find relative behavioral states and save to behavior analysis file
     smallestspd = ceil(1/lenframe*1000);%smallestspd in unit/second, quadrature taken every 1ms
-    frm_maxGap = 9; % if the animal is still for less than 270ms during running, the running before and after the short still should still be counted as one part
+    frm_maxGap = 10; % if the animal is still for less than 270ms during running, the running before and after the short still should still be counted as one part
     [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, ...
         frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd,frm_maxGap);
     save([behav_dest '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...

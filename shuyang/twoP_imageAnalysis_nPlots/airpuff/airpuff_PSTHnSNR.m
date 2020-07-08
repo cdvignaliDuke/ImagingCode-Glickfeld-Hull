@@ -21,7 +21,7 @@ for ii = 1: length(sessions)
     threshold = -4;
     spk_deconv_output = load([image_analysis_dest sessions{ii},'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
     FR_airstimAve_stay = spk_deconv_output.FR_airstimAve_stay;
-    FR_airstimAve_run = spk_deconv_output.FR_airstimAve_run;
+    FR_airstimAve_run = spk_deconv_output.FR_airstimAve_allrun;
     % bin every 3 frames -> 0.1s, calculate average FR during every 0.1s
     n = 3;% number of frames want to bin together
     vecEnd = n*floor(length(FR_airstimAve_run)/n);% vector length can't be divided by 3, floor to the nearest number that can be divided by 3.

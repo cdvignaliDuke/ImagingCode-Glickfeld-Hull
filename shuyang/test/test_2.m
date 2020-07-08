@@ -1,16 +1,32 @@
-rshiftdfOvF_run_last1s = zeros(size(pairs,1),size(dfOvF_run_last1s,2)*(size(dfOvF_run_last1s,2)-1));
-pshift_dfOvF_run_last1s = zeros(size(pairs,1),size(dfOvF_run_last1s,2)*(size(dfOvF_run_last1s,2)-1));%pairs*trials combinations, combinations = ntrials*ntrials-1 (C ntrial,2)
-%shift predictor
-for p = 1:size(pairs,1)
-    a = 0;
-    p
-    for t1 = 1:size(dfOvF_run_last1s,2)
-        for t2 = 1:size(dfOvF_run_last1s,2)
-            if t1~=t2 %for cellA trial1, corr with cellB trial2-N
-                a = a+1;
-                a
-                [rshiftdfOvF_run_last1s(p,a),pshift_dfOvF_run_last1s(p,a)] = corr(dfOvF_run_last1s(:,t1,pairs(p,1)),dfOvF_run_last1s(:,t2,pairs(p,2)));
-            end
-        end
-    end
+%% outputs:
+%   c: T x 1 vector, denoised trace
+%   s: T x 1 vector, deconvolved signal
+%   b: fluorescence baseline
+%   kernel: struct variable containing the parameters for the selected
+%       convolution model
+%   lambda: Optimal Lagrange multiplier for noise constraint under L1 penalty
+%     """olves the noise constrained sparse nonnegat
+
+%%
+c = [];
+s = [];
+threshold_stay = -4;
+for i = 12
+    [c, s, options] = deconvolveCa(TCave(:,i), 'optimize_pars', true, ...
+        'optimize_b', true, 'method','foopsi', 'smin', threshold_stay);
+    %[kernel_stay(:,c), spk_stay(:,c), options] = deconvolveCa();
 end
+
+figure;
+subplot(3,1,1);
+plot(TCave(:,12));
+ylabel('rawF');
+subplot(3,1,2);
+plot(c); hold on; plot(s);
+ylabel('denoised signal overlay with deconvolved signal');
+
+
+subplot(3,1,3);
+plot(s);
+ylabel('deconvolved signal');
+xlabel('frames');

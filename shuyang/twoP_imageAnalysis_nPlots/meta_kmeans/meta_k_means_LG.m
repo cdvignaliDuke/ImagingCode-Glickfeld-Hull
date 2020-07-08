@@ -1,8 +1,10 @@
 
-function [allclusters, centroidcorr, dendmem, dunnsinitial]=meta_k_means_Jin(eventsmat, distmetric,sc)
+function [allclusters, allclusters_init, centroidcorr, dendmem, dunnsinitial]=meta_k_means(eventsmat, distmetric,sc,nclust)
 
-if nargin==1
+if nargin==1;
     distmetric='correlation';
+    sc = 0;
+    nclust = 5;
 end
 
 expr = eventsmat;
@@ -13,11 +15,18 @@ centroidmat = [];
 
 
 % k clusters
-for k = 6 %size(sc,1);%4
+if sc==0
+    n =nclust;
+else
+    n=size(sc,1);
+end
+for k = n;%4
     
     % repeat t times
-    for t = 1:100
-        t
+    for t = 1:1000
+        if rem(t,100) == 0
+            fprintf([num2str(t) '\n'])
+        end
         
 %         if t == 1
 %         pool = parpool;                      % Invokes workers
@@ -25,9 +34,13 @@ for k = 6 %size(sc,1);%4
 %         options = statset('UseParallel',1,'UseSubstreams',1,...
 %             'Streams',stream);
 %         end
-%                            [IDX, ~, ~, ~] = kmeans(expr, k, 'Distance', distmetric, 'Start', sc);
+        if sc == 0
+            [IDX, ~, ~, ~] = kmeans(expr, k,  'Distance', distmetric);
+        else
+            [IDX, ~, ~, ~] = kmeans(expr, k, 'Distance', distmetric, 'Start', sc);
+        end
 %         [IDX, ~, ~, ~] = kmeans(expr, k, 'Options', options, 'Distance', distmetric);
-        [IDX, ~, ~, ~] = kmeans(expr, k,  'Distance', distmetric);
+        
         % update counts
         % returns a matrix showing the number of times each pair of
         % dendrites were clustered together
@@ -38,7 +51,7 @@ for k = 6 %size(sc,1);%4
         
     end
     
-    if ~isempty(IDX)
+    if ~isempty(IDX);
         
         thr = 0.8; % 800 out of 1000 times
         
@@ -72,7 +85,7 @@ for k = 6 %size(sc,1);%4
         end
         
         
-        
+        allclusters_init = allclusters;
         % vector of average point to centroid distances for each cluster
 %         numvect = [];
         
@@ -86,40 +99,37 @@ for k = 6 %size(sc,1);%4
         endclustering=0;
         
         flag = 0;
-        while endclustering==0
-            numclusters=size(allclusters,1);
+        rep = 1;
+        
+        while endclustering==0;
             combineclusters=[];
+            numclusters=size(allclusters,1);
+            fprintf(['Combine rep = ' num2str(rep) '- dunnsinitial = ' num2str(dunnsinitial) '- ' num2str(numclusters) 'clusters \n'])
             for i=1:numclusters-1
-                i
-                if numclusters == k || size(allclusters,1) == k
-                    flag = 1;
-                    break
-                end
-                for j=(i+1):numclusters
+                for j=(i+1):numclusters;
                     if j > size(allclusters,1)
-                        combineclusters = [];
+%                         combineclusters = [];
                         break
                     end
-                    [newclusters, dunns, centroidcorr, dendmem]=ioclustervalidity2(allclusters, expr, [i j]);
-                    if dunns >= dunnsinitial
+                    [dunns]=ioclustervalidity2_min(allclusters, expr, [i j]);
+                    
+                    if dunns >= dunnsinitial;
                         combineclusters=[i j];
                         dunnsinitial=dunns;
-                        allclusters = newclusters;
-                        
+                        fprintf(['[' num2str(i) ' ' num2str(j) '] - dunnsinitial = ' num2str(dunnsinitial) '\n'])
                     end
                 end
                 
             end
-            if flag == 1
-                
-                break;
-            end
-            if ~isempty(combineclusters)
+            rep = rep+1;
+            if ~isempty(combineclusters);
                 [allclusters, dunnsinitial, centroidcorr, dendmem]=ioclustervalidity2(allclusters, expr, [combineclusters(1) combineclusters(2)]);
             else
                 endclustering=1;
             end
-            
+            if numclusters <= k || size(allclusters,1) <= k;
+                endclustering=1;
+            end
         end
         
         %             numclusters=size(allclusters,1);

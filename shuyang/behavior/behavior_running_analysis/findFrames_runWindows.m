@@ -10,8 +10,8 @@ frames = 1: length(speed);
 %% generate frames_befo/aft run, and runTriggers
 
 period = 3;
-befoRunStay = 11;
-afterRunStay = 16;
+befoRunStay = 11; %1s
+afterRunStay = 16; % 1.5s
 runTriggerDura = 26;
 runoffDura = 26;
 frames_befo_run_cell = {};
