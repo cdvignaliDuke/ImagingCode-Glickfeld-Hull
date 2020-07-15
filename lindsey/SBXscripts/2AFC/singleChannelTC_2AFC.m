@@ -184,7 +184,7 @@ mask_data = data_dfof;
 for iStim = 1:size(data_dfof,3)
     mask_data_temp = mask_data(:,:,iStim);
     mask_data_temp(find(mask_exp >= 1)) = 0;
-    bwout = imCellEditInteractive(mask_data_temp);
+    bwout = imCellEditInteractiveLG(mask_data_temp);
     mask_all = mask_all+bwout;
     mask_exp = imCellBuffer(mask_all,3)+mask_all;
     close all

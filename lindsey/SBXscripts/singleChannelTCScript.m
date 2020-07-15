@@ -427,15 +427,15 @@ mask_data = data_dfof;
 %     imagesc(mask_data(:,:,iStim))
 %     colormap gray
 % end
-
 for iStim = 1:size(data_dfof,3)    
     mask_data_temp = mask_data(:,:,iStim);
-    mask_data_temp(find(mask_all >= 1)) = 0;
-    bwout = imCellEditInteractive(mask_data_temp);
-    mask_2 = bwlabel(bwout);
-    mask_all = mask_all+mask_2;
+    mask_data_temp(find(mask_exp >= 1)) = 0; %blacks out old cells
+    bwout = imCellEditInteractiveLG(mask_data_temp); %selection GUI
+    mask_all = mask_all+bwout; %adds new cells to old cells
+    mask_exp = imCellBuffer(mask_all,3)+mask_all; %creates buffer around cells to avoid fusing
     close all
 end
+
 mask_cell = bwlabel(mask_all);
 
 mask_data_temp = data_dfof_max;

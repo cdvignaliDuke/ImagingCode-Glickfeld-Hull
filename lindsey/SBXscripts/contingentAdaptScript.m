@@ -1,16 +1,28 @@
-date = '190824';
-ImgFolder = strvcat('002');
-time = strvcat('1240');
-mouse = 'i1303';
-nrun = size(ImgFolder,1);
-frame_rate = 15;
-run_str = catRunName(ImgFolder, nrun);
-
+clc; clear all; close all;
 doRedChannel = 0;
-ImgFolderRed = strvcat('005');
+ds = 'CrossOriSingleStimAdapt_ExptList';
+iexp = 5; 
+rc = behavConstsAV;
+eval(ds)
+
+frame_rate = 15;
+
+%%
+mouse = expt(iexp).mouse;
+date = expt(iexp).date;
+area = expt(iexp).img_loc{1};
+ImgFolder = expt(iexp).coFolder;
+time = expt(iexp).coTime;
+nrun = length(ImgFolder);
+run_str = catRunName(cell2mat(ImgFolder), nrun);
 
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
 %LG_base = '\\CRASH.dhe.duke.edu\data\home\lindsey';
+
+fprintf(['2P imaging retinotopy analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
+for irun=1:nrun
+    fprintf([ImgFolder{irun} ' - ' time{irun} '\n'])
+end
 
 %% load and register
 tic
@@ -19,14 +31,14 @@ clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = [LG_base '\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
+    CD = [LG_base '\Data\2P_images\' mouse '\' date '\' ImgFolder{irun}];
     %CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\AW68\two-photon imaging\' date '\' ImgFolder(irun,:)];
     %CD = [LG_base '\Data\2P_images\' mouse '-KM' '\' date '_' mouse '\' ImgFolder(irun,:)];
     %CD = ['\\CRASH.dhe.duke.edu\data\home\kevin\Data\2P\' date '_' mouse '\' ImgFolder(irun,:)];
     cd(CD);
-    imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
+    imgMatFile = [ImgFolder{irun} '_000_000.mat'];
     load(imgMatFile);
-    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\Behavior\Data\data-' mouse '-' date '-' time(irun,:) '.mat'];
+    fName = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\Behavior\Data\data-' mouse '-' date '-' time{irun} '.mat'];
     load(fName);
     
     temp(irun) = input;
@@ -59,9 +71,10 @@ clear temp
 toc
 
 %% Choose register interval
-nep = floor(size(data,3)./10000);
+step = 10000;
+nep = floor(size(data,3)./step);
 [n n2] = subplotn(nep);
-figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*10000):500+((i-1)*10000)),3)); title([num2str(1+((i-1)*10000)) '-' num2str(500+((i-1)*10000))]); colormap gray; clim([0 3000]); end
+figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*step):500+((i-1)*step)),3)); title([num2str(1+((i-1)*step)) '-' num2str(500+((i-1)*step))]); colormap gray; clim([0 3000]); end
 
 data_avg = mean(data(:,:,50001:50500),3);
 %% Register data
@@ -74,7 +87,7 @@ save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_
 clear data out
 
 %% test stability
-figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data_reg(:,:,1+((i-1)*10000):500+((i-1)*10000)),3)); title([num2str(1+((i-1)*10000)) '-' num2str(500+((i-1)*10000))]); end
+figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data_reg(:,:,1+((i-1)*step):500+((i-1)*step)),3)); title([num2str(1+((i-1)*step)) '-' num2str(500+((i-1)*step))]); end
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_FOV_byFrame.pdf']),'-dpdf', '-bestfit')
 
 figure; imagesq(mean(data_reg(:,:,1:10000),3)); truesize;
@@ -102,10 +115,8 @@ if doRedChannel
 end
 
 %% find activated cells
-cITI = celleqel2mat_padded(input.cItiStart);
 cAdapt= celleqel2mat_padded(input.cAdaptStart);
 cTest = celleqel2mat_padded(input.cTestOn);
-cTestOff = celleqel2mat_padded(input.cTestOff);
 nTrials = length(cTest);
 sz = size(data_reg);
 
@@ -113,9 +124,14 @@ data_adapt = nan(sz(1),sz(2),nTrials);
 data_test = nan(sz(1),sz(2),nTrials);
 data_f = nan(sz(1),sz(2),nTrials);
 
-ind_contadapt = find(celleqel2mat_padded(input.tDoAsynchronousAdapt)==0 &celleqel2mat_padded(input.tDoContingentAdapt)==1);
-ind_asynadapt = find(celleqel2mat_padded(input.tDoAsynchronousAdapt)==1 &celleqel2mat_padded(input.tDoContingentAdapt)==0);
-ind_noadapt = find(celleqel2mat_padded(input.tDoAsynchronousAdapt)==0 &celleqel2mat_padded(input.tDoContingentAdapt)==0);
+ind_contadapt = find(celleqel2mat_padded(input.tDoAsynchronousAdapt)==0 &celleqel2mat_padded(input.tDoContingentAdapt)==1 ...
+    & celleqel2mat_padded(input.tDoSingleStimAdapt)==0);
+ind_asynadapt = find(celleqel2mat_padded(input.tDoAsynchronousAdapt)==1 &celleqel2mat_padded(input.tDoContingentAdapt)==0 ...
+    & celleqel2mat_padded(input.tDoSingleStimAdapt)==0);
+ind_singadapt = find(celleqel2mat_padded(input.tDoAsynchronousAdapt)==0 &celleqel2mat_padded(input.tDoContingentAdapt)==0 ...
+    & celleqel2mat_padded(input.tDoSingleStimAdapt)==1);
+ind_noadapt = find(celleqel2mat_padded(input.tDoAsynchronousAdapt)==0 &celleqel2mat_padded(input.tDoContingentAdapt)==0 ...
+    & celleqel2mat_padded(input.tDoSingleStimAdapt)==0);
 ind_noadapt_start = intersect(ind_noadapt, find(celleqel2mat_padded(input.tAdaptTimeMs) ==40000));
 
 for itrial = 1:nTrials
@@ -160,6 +176,7 @@ for it = 1:nTest
         data_test_temp(:,:,1) = nanmean(data_adapt_dfof(:,:,intersect(ind_noadapt, intersect(ind_test,ind_mask))),3);
         data_test_temp(:,:,2) = nanmean(data_adapt_dfof(:,:,intersect(ind_contadapt, intersect(ind_test,ind_mask))),3);
         data_test_temp(:,:,3) = nanmean(data_adapt_dfof(:,:,intersect(ind_asynadapt, intersect(ind_test,ind_mask))),3);
+        data_test_temp(:,:,4) = nanmean(data_adapt_dfof(:,:,intersect(ind_singadapt, intersect(ind_test,ind_mask))),3);
         data_test_avg(:,:,start) = max(data_test_temp,[],3);
         start = start+1;
     end
@@ -175,7 +192,7 @@ if doRedChannel
     data_dfof = cat(3,data_dfof,data_red_avg);
 end
 
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dataStim.mat']), 'cAdapt', 'cITI', 'cTest', 'cTestOff', 'maskCon', 'testCon', 'testCons', 'maskCons', 'frame_rate', 'nTest', 'nTrials', 'ind_noadapt','ind_asynadapt','ind_contadapt')
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dataStim.mat']), 'cTest', 'maskCon', 'testCon', 'testCons', 'maskCons', 'frame_rate', 'nTest', 'nTrials', 'ind_noadapt','ind_asynadapt','ind_contadapt')
 
 %% cell segmentation 
 mask_exp = zeros(sz(1),sz(2));
@@ -374,7 +391,7 @@ for im = 1:nMask
         prefMask_noadapt_resp(im,it,1) = nanmean(nanmean(noadapt_resp_cell{im,it}(prefmask_ind,:),1),2);
         prefMask_noadapt_resp(im,it,2) = nanstd(nanmean(noadapt_resp_cell{im,it}(prefmask_ind,:),2),[],1)./sqrt(length(prefmask_ind));
         title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
-        ylim([-0.1 .4])
+        ylim([-0.1 1])
         xlabel('Time (s)')
         start = start+1;
     end
@@ -429,12 +446,15 @@ if doRedChannel
     suptitle(['No adapt- Only red cells- Blue Test Pref (n = ' num2str(length(intersect(preftest_ind,red_cells))) ') ; Red Mask Pref (n = ' num2str(length(intersect(prefmask_ind,red_cells))) '); Yellow Plaid Pref (n = ' num2str(length(intersect(prefplaid_ind,red_cells))) ')'])
     print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_noAdapt_TCs_groups_redOnly.pdf']),'-dpdf','-bestfit');
 end
-figure;
+
+%%
+close all
 start = 1;
 contadapt_resp_cell = cell(nMask,nTest);
 prefTest_contadapt_resp = nan(nMask,nTest,2);
 prefMask_contadapt_resp = nan(nMask,nTest,2);
 if length(ind_contadapt)>0
+    figure;
     for im = 1:nMask
         ind_mask = find(maskCon == maskCons(im));
         for it = 1:nTest
@@ -460,12 +480,13 @@ if length(ind_contadapt)>0
     print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Contingent_TCs.pdf']),'-dpdf','-bestfit');
 end
 
-figure;
+
 start = 1;
 asynadapt_resp_cell = cell(nMask,nTest);
 prefTest_asynadapt_resp = nan(nMask,nTest,2);
 prefMask_asynadapt_resp = nan(nMask,nTest,2);
 if length(ind_asynadapt)>0
+    figure;
     for im = 1:nMask
         ind_mask = find(maskCon == maskCons(im));
         for it = 1:nTest
@@ -489,6 +510,38 @@ if length(ind_asynadapt)>0
     end
     suptitle(['Asynchronous adapt-  Blue Test Pref (n = ' num2str(length(preftest_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmask_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaid_ind)) ')'])
     print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Asynchronous_TCs.pdf']),'-dpdf','-bestfit');
+end
+
+
+start = 1;
+singadapt_resp_cell = cell(nMask,nTest);
+prefTest_singadapt_resp = nan(nMask,nTest,2);
+prefMask_singadapt_resp = nan(nMask,nTest,2);
+if length(ind_singadapt)>0
+    figure;
+    for im = 1:nMask
+        ind_mask = find(maskCon == maskCons(im));
+        for it = 1:nTest
+            ind_test = find(testCon == testCons(it));
+            ind = intersect(ind_singadapt,intersect(ind_test,ind_mask));
+            subplot(nMask,nTest,start)
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,preftest_ind,ind),2),3))
+            hold on
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmask_ind,ind),2),3))
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaid_ind,ind),2),3))
+            singadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
+            prefTest_singadapt_resp(im,it,1) = nanmean(nanmean(singadapt_resp_cell{im,it}(preftest_ind,:),1),2);
+            prefTest_singadapt_resp(im,it,2) = nanstd(nanmean(singadapt_resp_cell{im,it}(preftest_ind,:),2),[],1)./sqrt(length(preftest_ind));
+            prefMask_singadapt_resp(im,it,1) = nanmean(nanmean(singadapt_resp_cell{im,it}(prefmask_ind,:),1),2);
+            prefMask_singadapt_resp(im,it,2) = nanstd(nanmean(singadapt_resp_cell{im,it}(prefmask_ind,:),2),[],1)./sqrt(length(prefmask_ind));
+            title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
+            ylim([-0.1 0.4])
+            xlabel('Time (s)')
+            start = start+1;
+        end
+    end
+    suptitle(['Single adapt-  Blue Test Pref (n = ' num2str(length(preftest_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmask_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaid_ind)) ')'])
+    print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Single_TCs.pdf']),'-dpdf','-bestfit');
 end
 
 figure;
@@ -521,13 +574,15 @@ end
 suptitle(['No adapt- Blue Test Pref (n = ' num2str(length(preftestonly_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmaskonly_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaidonly_ind)) ')'])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_noAdapt_TCs_onlygroups.pdf']),'-dpdf','-bestfit');
 
-figure;
+%%
+
 start = 1;
 contadapt_resp_cell = cell(nMask,nTest);
 prefTestOnly_contadapt_resp = nan(nMask,nTest,2);
 prefMaskOnly_contadapt_resp = nan(nMask,nTest,2);
 prefPlaidOnly_contadapt_resp = nan(nMask,nTest,2);
 if length(ind_contadapt)>0
+    figure;
     for im = 1:nMask
         ind_mask = find(maskCon == maskCons(im));
         for it = 1:nTest
@@ -555,13 +610,14 @@ if length(ind_contadapt)>0
     print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Contingent_TCs_only.pdf']),'-dpdf','-bestfit');
 end
 
-figure;
+
 start = 1;
 asynadapt_resp_cell = cell(nMask,nTest);
 prefTestOnly_asynadapt_resp = nan(nMask,nTest,2);
 prefMaskOnly_asynadapt_resp = nan(nMask,nTest,2);
 prefPlaidOnly_asynadapt_resp = nan(nMask,nTest,2);
 if length(ind_asynadapt)>0
+    figure;
     for im = 1:nMask
         ind_mask = find(maskCon == maskCons(im));
         for it = 1:nTest
@@ -588,9 +644,48 @@ if length(ind_asynadapt)>0
     suptitle(['Asynchronous adapt-  Blue Test Pref (n = ' num2str(length(preftestonly_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmaskonly_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaidonly_ind)) ')'])
     print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Asynchronous_TCs_only.pdf']),'-dpdf','-bestfit');
 end
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allCellResp.mat']),'noadapt_resp_cell','asynadapt_resp_cell', 'contadapt_resp_cell','preftestonly_ind','prefmaskonly_ind','prefplaidonly_ind','resptest_ind','respmask_ind','respplaid_ind');
+
+start = 1;
+singadapt_resp_cell = cell(nMask,nTest);
+prefTestOnly_singadapt_resp = nan(nMask,nTest,2);
+prefMaskOnly_singadapt_resp = nan(nMask,nTest,2);
+prefPlaidOnly_singadapt_resp = nan(nMask,nTest,2);
+if length(ind_singadapt)>0
+    figure;
+    for im = 1:nMask
+        ind_mask = find(maskCon == maskCons(im));
+        for it = 1:nTest
+            ind_test = find(testCon == testCons(it));
+            ind = intersect(ind_singadapt,intersect(ind_test,ind_mask));
+            subplot(nMask,nTest,start)
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,preftestonly_ind,ind),2),3))
+            hold on
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefmaskonly_ind,ind),2),3))
+            plot(tt,nanmean(nanmean(data_dfof_tc(:,prefplaidonly_ind,ind),2),3))
+            singadapt_resp_cell{im,it} = squeeze(mean(data_dfof_tc(prewin_frames+6:prewin_frames+21,:,ind),1));
+            prefTestOnly_singadapt_resp(im,it,1) = nanmean(nanmean(singadapt_resp_cell{im,it}(preftestonly_ind,:),1),2);
+            prefTestOnly_singadapt_resp(im,it,2) = nanstd(nanmean(singadapt_resp_cell{im,it}(preftestonly_ind,:),2),[],1)./sqrt(length(preftestonly_ind));
+            prefMaskOnly_singadapt_resp(im,it,1) = nanmean(nanmean(singadapt_resp_cell{im,it}(prefmaskonly_ind,:),1),2);
+            prefMaskOnly_singadapt_resp(im,it,2) = nanstd(nanmean(singadapt_resp_cell{im,it}(prefmaskonly_ind,:),2),[],1)./sqrt(length(prefmaskonly_ind));
+            prefPlaidOnly_singadapt_resp(im,it,1) = nanmean(nanmean(singadapt_resp_cell{im,it}(prefplaidonly_ind,:),1),2);
+            prefPlaidOnly_singadapt_resp(im,it,2) = nanstd(nanmean(singadapt_resp_cell{im,it}(prefplaidonly_ind,:),2),[],1)./sqrt(length(prefplaidonly_ind));
+            title(['T: ' num2str(testCons(it)) '; M: ' num2str(maskCons(im))])
+            ylim([-0.1 0.4])
+            xlabel('Time (s)')
+            start = start+1;
+        end
+    end
+    suptitle(['Single adapt-  Blue Test Pref (n = ' num2str(length(preftestonly_ind)) ') ; Red Mask Pref (n = ' num2str(length(prefmaskonly_ind)) '); Yellow Plaid Pref (n = ' num2str(length(prefplaidonly_ind)) ')'])
+    print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_Single_TCs_only.pdf']),'-dpdf','-bestfit');
+end
+
+
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allCellResp.mat']),'noadapt_resp_cell','asynadapt_resp_cell','singadapt_resp_cell', 'contadapt_resp_cell','preftestonly_ind','prefmaskonly_ind','prefplaidonly_ind','resptest_ind','respmask_ind','respplaid_ind');
+
+
+%%
 figure;
-subplot(1,3,1)
+subplot(2,2,1)
 for im = 1:nMask
     errorbar(testCons, prefTestOnly_noadapt_resp(im,:,1),prefTestOnly_noadapt_resp(im,:,2),'-o')
     hold on
@@ -598,8 +693,8 @@ end
 title('No adapt')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,2)
+ylim([-0.1 1])
+subplot(2,2,2)
 for im = 1:nMask
     errorbar(testCons, prefTestOnly_contadapt_resp(im,:,1),prefTestOnly_contadapt_resp(im,:,2),'-o')
     hold on
@@ -607,8 +702,8 @@ end
 title('Contingent')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,3)
+ylim([-0.1 1])
+subplot(2,2,3)
 for im = 1:nMask
     errorbar(testCons, prefTestOnly_asynadapt_resp(im,:,1),prefTestOnly_asynadapt_resp(im,:,2),'-o')
     hold on
@@ -616,14 +711,23 @@ end
 title('Asynchronous')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
+ylim([-0.1 1])
+subplot(2,2,4)
+for im = 1:nMask
+    errorbar(testCons, prefTestOnly_singadapt_resp(im,:,1),prefTestOnly_singadapt_resp(im,:,2),'-o')
+    hold on
+end
+title('Single')
+ylabel('dF/F')
+xlabel('Test Contrast')
+ylim([-0.1 1])
 legend(num2str(maskCons'))
 suptitle(['Test preferring cells- n = ' num2str(length(preftestonly_ind))])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allContrastResponse_TestPrefOnly.pdf']),'-dpdf','-bestfit');
 
 
 figure;
-subplot(1,3,1)
+subplot(2,2,1)
 for it = 1:nTest
     errorbar(maskCons, prefMaskOnly_noadapt_resp(:,it,1),prefMaskOnly_noadapt_resp(:,it,2),'-o')
     hold on
@@ -631,8 +735,8 @@ end
 title('No adapt')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,2)
+ylim([-0.1 1])
+subplot(2,2,2)
 for it = 1:nTest
     errorbar(maskCons, prefMaskOnly_contadapt_resp(:,it,1),prefMaskOnly_contadapt_resp(:,it,2),'-o')
     hold on
@@ -640,8 +744,8 @@ end
 title('Contingent')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,3)
+ylim([-0.1 1])
+subplot(2,2,3)
 for it = 1:nTest
     errorbar(maskCons, prefMaskOnly_asynadapt_resp(:,it,1),prefMaskOnly_asynadapt_resp(:,it,2),'-o')
     hold on
@@ -649,13 +753,22 @@ end
 title('Asynchronous')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
+ylim([-0.1 1])
+subplot(2,2,4)
+for it = 1:nTest
+    errorbar(maskCons, prefMaskOnly_singadapt_resp(:,it,1),prefMaskOnly_singadapt_resp(:,it,2),'-o')
+    hold on
+end
+title('Single')
+ylabel('dF/F')
+xlabel('Test Contrast')
+ylim([-0.1 1])
 legend(num2str(testCons'))
 suptitle(['Mask preferring cells- n = ' num2str(length(prefmaskonly_ind))])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allContrastResponse_MaskPrefOnly.pdf']),'-dpdf','-bestfit');
 
 figure;
-subplot(1,3,1)
+subplot(2,2,1)
 for it = 1:nTest
     errorbar(maskCons, prefPlaidOnly_noadapt_resp(:,it,1),prefPlaidOnly_noadapt_resp(:,it,2),'-o')
     hold on
@@ -663,8 +776,8 @@ end
 title('No adapt')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,2)
+ylim([-0.1 1])
+subplot(2,2,2)
 for it = 1:nTest
     errorbar(maskCons, prefPlaidOnly_contadapt_resp(:,it,1),prefPlaidOnly_contadapt_resp(:,it,2),'-o')
     hold on
@@ -672,8 +785,8 @@ end
 title('Contingent')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,3)
+ylim([-0.1 1])
+subplot(2,2,3)
 for it = 1:nTest
     errorbar(maskCons, prefPlaidOnly_asynadapt_resp(:,it,1),prefPlaidOnly_asynadapt_resp(:,it,2),'-o')
     hold on
@@ -681,10 +794,43 @@ end
 title('Asynchronous')
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
+ylim([-0.1 1])
+subplot(2,2,4)
+for it = 1:nTest
+    errorbar(maskCons, prefPlaidOnly_singadapt_resp(:,it,1),prefPlaidOnly_singadapt_resp(:,it,2),'-o')
+    hold on
+end
+title('Single')
+ylabel('dF/F')
+xlabel('Test Contrast')
+ylim([-0.1 1])
 legend(num2str(testCons'))
 suptitle(['Plaid preferring cells- n = ' num2str(length(prefplaidonly_ind))])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allContrastResponse_PlaidPrefOnly.pdf']),'-dpdf','-bestfit');
+
+%%
+figure;
+subplot(1,2,1)
+for im = 1:nMask
+    errorbar(testCons, prefTestOnly_noadapt_resp(im,:,1),prefTestOnly_noadapt_resp(im,:,2),'-o')
+    hold on
+end
+title('Test Preferring')
+ylabel('dF/F')
+xlabel('Test Contrast')
+ylim([-0.1 0.7])
+
+subplot(1,2,2)
+for it = 1:nTest
+    errorbar(maskCons, prefMaskOnly_noadapt_resp(:,it,1),prefMaskOnly_noadapt_resp(:,it,2),'-o')
+    hold on
+end
+title('Mask Preferring')
+ylabel('dF/F')
+xlabel('Test Contrast')
+ylim([-0.1 .7])
+
+print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allContrastResponse_NoAdapt.pdf']),'-dpdf','-bestfit');
 
 %%
 
@@ -806,6 +952,9 @@ print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run
 [h_asyn_testresp p_asyn_testresp] = ttest2(asynadapt_resp_cell{1,nTest},asynadapt_resp_cell{1,1},'dim',2,'tail','right');
 [h_asyn_maskresp p_asyn_maskresp] = ttest2(asynadapt_resp_cell{nMask,1},asynadapt_resp_cell{1,1},'dim',2,'tail','right');
 [h_asyn_plaidresp p_asyn_plaidresp] = ttest2(asynadapt_resp_cell{nMask,nTest},asynadapt_resp_cell{1,1},'dim',2,'tail','right');
+[h_sing_testresp p_sing_testresp] = ttest2(singadapt_resp_cell{1,nTest},singadapt_resp_cell{1,1},'dim',2,'tail','right');
+[h_sing_maskresp p_sing_maskresp] = ttest2(singadapt_resp_cell{nMask,1},singadapt_resp_cell{1,1},'dim',2,'tail','right');
+[h_sing_plaidresp p_sing_plaidresp] = ttest2(singadapt_resp_cell{nMask,nTest},singadapt_resp_cell{1,1},'dim',2,'tail','right');
 [h_cont_testresp p_cont_testresp] = ttest2(contadapt_resp_cell{1,nTest},contadapt_resp_cell{1,1},'dim',2,'tail','right');
 [h_cont_maskresp p_cont_maskresp] = ttest2(contadapt_resp_cell{nMask,1},contadapt_resp_cell{1,1},'dim',2,'tail','right');
 [h_cont_plaidresp p_cont_plaidresp] = ttest2(contadapt_resp_cell{nMask,nTest},contadapt_resp_cell{1,1},'dim',2,'tail','right');
@@ -816,6 +965,9 @@ prefplaid_noadaptresp_ind = intersect(prefplaid_ind, find(h_no_plaidresp));
 preftest_asynresp_ind = intersect(preftest_ind, find(h_asyn_testresp));
 prefmask_asynresp_ind = intersect(prefmask_ind, find(h_asyn_maskresp));
 prefplaid_asynresp_ind = intersect(prefplaid_ind, find(h_asyn_plaidresp));
+preftest_singresp_ind = intersect(preftest_ind, find(h_sing_testresp));
+prefmask_singresp_ind = intersect(prefmask_ind, find(h_sing_maskresp));
+prefplaid_singresp_ind = intersect(prefplaid_ind, find(h_sing_plaidresp));
 preftest_contresp_ind = intersect(preftest_ind, find(h_cont_testresp));
 prefmask_contresp_ind = intersect(prefmask_ind, find(h_cont_maskresp));
 prefplaid_contresp_ind = intersect(prefplaid_ind, find(h_cont_plaidresp));
@@ -826,6 +978,9 @@ prefPlaid_noadapt_respcells = zeros(nMask,nTest,2);
 prefTest_asynadapt_respcells = zeros(nMask,nTest,2);
 prefMask_asynadapt_respcells = zeros(nMask,nTest,2);
 prefPlaid_asynadapt_respcells = zeros(nMask,nTest,2);
+prefTest_singadapt_respcells = zeros(nMask,nTest,2);
+prefMask_singadapt_respcells = zeros(nMask,nTest,2);
+prefPlaid_singadapt_respcells = zeros(nMask,nTest,2);
 prefTest_contadapt_respcells = zeros(nMask,nTest,2);
 prefMask_contadapt_respcells = zeros(nMask,nTest,2);
 prefPlaid_contadapt_respcells = zeros(nMask,nTest,2);
@@ -844,6 +999,12 @@ for im = 1:nMask
         prefMask_asynadapt_respcells(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(prefmask_asynresp_ind,:),2),[],1)./sqrt(length(prefmask_asynresp_ind));
         prefPlaid_asynadapt_respcells(im,it,1) = nanmean(nanmean(asynadapt_resp_cell{im,it}(prefplaid_asynresp_ind,:),1),2);
         prefPlaid_asynadapt_respcells(im,it,2) = nanstd(nanmean(asynadapt_resp_cell{im,it}(prefplaid_asynresp_ind,:),2),[],1)./sqrt(length(prefplaid_asynresp_ind));
+        prefTest_singadapt_respcells(im,it,1) = nanmean(nanmean(singadapt_resp_cell{im,it}(preftest_singresp_ind,:),1),2);
+        prefTest_singadapt_respcells(im,it,2) = nanstd(nanmean(singadapt_resp_cell{im,it}(preftest_singresp_ind,:),2),[],1)./sqrt(length(preftest_singresp_ind));
+        prefMask_singadapt_respcells(im,it,1) = nanmean(nanmean(singadapt_resp_cell{im,it}(prefmask_singresp_ind,:),1),2);
+        prefMask_singadapt_respcells(im,it,2) = nanstd(nanmean(singadapt_resp_cell{im,it}(prefmask_singresp_ind,:),2),[],1)./sqrt(length(prefmask_singresp_ind));
+        prefPlaid_singadapt_respcells(im,it,1) = nanmean(nanmean(singadapt_resp_cell{im,it}(prefplaid_singresp_ind,:),1),2);
+        prefPlaid_singadapt_respcells(im,it,2) = nanstd(nanmean(singadapt_resp_cell{im,it}(prefplaid_singresp_ind,:),2),[],1)./sqrt(length(prefplaid_singresp_ind));
         prefTest_contadapt_respcells(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(preftest_contresp_ind,:),1),2);
         prefTest_contadapt_respcells(im,it,2) = nanstd(nanmean(contadapt_resp_cell{im,it}(preftest_contresp_ind,:),2),[],1)./sqrt(length(preftest_contresp_ind));
         prefMask_contadapt_respcells(im,it,1) = nanmean(nanmean(contadapt_resp_cell{im,it}(prefmask_contresp_ind,:),1),2);
@@ -854,7 +1015,7 @@ for im = 1:nMask
 end
 
 figure;
-subplot(1,3,1)
+subplot(2,2,1)
 for im = 1:nMask
     errorbar(testCons, prefTest_noadapt_respcells(im,:,1),prefTest_noadapt_respcells(im,:,2),'-o')
     hold on
@@ -862,8 +1023,8 @@ end
 title(['No adapt- n = ' num2str(length(preftest_noadaptresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,2)
+ylim([-0.1 1])
+subplot(2,2,2)
 for im = 1:nMask
     errorbar(testCons, prefTest_contadapt_respcells(im,:,1),prefTest_contadapt_respcells(im,:,2),'-o')
     hold on
@@ -871,8 +1032,8 @@ end
 title(['Contingent- n = ' num2str(length(preftest_contresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,3)
+ylim([-0.1 1])
+subplot(2,2,3)
 for im = 1:nMask
     errorbar(testCons, prefTest_asynadapt_respcells(im,:,1),prefTest_asynadapt_respcells(im,:,2),'-o')
     hold on
@@ -880,14 +1041,23 @@ end
 title(['Asynchronous- n = ' num2str(length(preftest_asynresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
+ylim([-0.1 1])
+subplot(2,2,4)
+for im = 1:nMask
+    errorbar(testCons, prefTest_singadapt_respcells(im,:,1),prefTest_singadapt_respcells(im,:,2),'-o')
+    hold on
+end
+title(['Single- n = ' num2str(length(preftest_singresp_ind))])
+ylabel('dF/F')
+xlabel('Test Contrast')
+ylim([-0.1 1])
 legend(num2str(maskCons'))
 suptitle(['Test preferring (n = ' num2str(length(preftest_ind)) ') and responsive cells'])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allContrastResponse_TestPref_RespCells.pdf']),'-dpdf','-bestfit');
 
 
 figure;
-subplot(1,3,1)
+subplot(2,2,1)
 for it = 1:nTest
     errorbar(maskCons, prefMask_noadapt_respcells(:,it,1),prefMask_noadapt_respcells(:,it,2),'-o')
     hold on
@@ -895,8 +1065,8 @@ end
 title(['No adapt- n = ' num2str(length(prefmask_noadaptresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,2)
+ylim([-0.1 1])
+subplot(2,2,2)
 for it = 1:nTest
     errorbar(maskCons, prefMask_contadapt_respcells(:,it,1),prefMask_contadapt_respcells(:,it,2),'-o')
     hold on
@@ -904,8 +1074,8 @@ end
 title(['Contingent- n = ' num2str(length(prefmask_contresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,3)
+ylim([-0.1 1])
+subplot(2,2,3)
 for it = 1:nTest
     errorbar(maskCons, prefMask_asynadapt_respcells(:,it,1),prefMask_asynadapt_respcells(:,it,2),'-o')
     hold on
@@ -913,13 +1083,22 @@ end
 title(['Asynchronous- n = ' num2str(length(prefmask_asynresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
+ylim([-0.1 1])
+subplot(2,2,4)
+for it = 1:nTest
+    errorbar(maskCons, prefMask_singadapt_respcells(:,it,1),prefMask_singadapt_respcells(:,it,2),'-o')
+    hold on
+end
+title(['Single- n = ' num2str(length(prefmask_singresp_ind))])
+ylabel('dF/F')
+xlabel('Test Contrast')
+ylim([-0.1 1])
 legend(num2str(testCons'))
 suptitle(['Mask preferring (n = ' num2str(length(prefmask_ind)) ') and responsive cells'])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allContrastResponse_MaskPref_RespCells.pdf']),'-dpdf','-bestfit');
 
 figure;
-subplot(1,3,1)
+subplot(2,2,1)
 for im = 1:nMask
     errorbar(testCons, prefPlaid_noadapt_respcells(im,:,1),prefPlaid_noadapt_respcells(im,:,2),'-o')
     hold on
@@ -927,8 +1106,8 @@ end
 title(['No adapt- n = ' num2str(length(prefplaid_noadaptresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,2)
+ylim([-0.1 1])
+subplot(2,2,2)
 for im = 1:nMask
     errorbar(testCons, prefPlaid_contadapt_respcells(im,:,1),prefPlaid_contadapt_respcells(im,:,2),'-o')
     hold on
@@ -936,8 +1115,8 @@ end
 title(['Contingent- n = ' num2str(length(prefplaid_contresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
-subplot(1,3,3)
+ylim([-0.1 1])
+subplot(2,2,3)
 for im = 1:nMask
     errorbar(testCons, prefPlaid_asynadapt_respcells(im,:,1),prefPlaid_asynadapt_respcells(im,:,2),'-o')
     hold on
@@ -945,7 +1124,16 @@ end
 title(['Asynchronous- n = ' num2str(length(prefplaid_asynresp_ind))])
 ylabel('dF/F')
 xlabel('Test Contrast')
-ylim([-0.1 0.5])
+ylim([-0.1 1])
+subplot(2,2,4)
+for im = 1:nMask
+    errorbar(testCons, prefPlaid_singadapt_respcells(im,:,1),prefPlaid_singadapt_respcells(im,:,2),'-o')
+    hold on
+end
+title(['Single- n = ' num2str(length(prefplaid_singresp_ind))])
+ylabel('dF/F')
+xlabel('Test Contrast')
+ylim([-0.1 1])
 legend(num2str(maskCons'))
 suptitle(['Plaid preferring (n = ' num2str(length(prefplaid_ind)) ') and responsive cells'])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_allContrastResponse_PlaidPref_RespCells.pdf']),'-dpdf','-bestfit');
