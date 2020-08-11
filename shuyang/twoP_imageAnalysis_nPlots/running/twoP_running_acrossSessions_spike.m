@@ -9,7 +9,44 @@ image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\';
 days = {'1021-190429_1','1023-190430_1','1024-190507_1','1025-190603_1'};
 color_code = {'b','r','k','c'};
 
-%% 
+
+%% spike rates for each cell, running vs. stationary
+FRstay_cell_all = [];
+FRrun_cell_all = [];
+for ii = 1: length(sessions)
+    image_analysis_dest = [image_analysis_base, sessions{ii}, '\'];
+    threshold = -4;% the threshold you used in deconvolveCa function
+    spk_deconv_output = load([image_analysis_dest sessions{ii},'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
+    FRstay_cell_cl = spk_deconv_output.FRstay_cell_cl;
+    FRrun_cell = spk_deconv_output.FRrun_cells;
+    FRstay_cell_all = cat(2,FRstay_cell_all,FRstay_cell_cl);
+    FRrun_cell_all = cat(2,FRrun_cell_all,FRrun_cell);
+end
+aveFR_run_all = mean(FRrun_cell_all);
+aveFR_stay_all = mean(FRstay_cell_all);
+
+across_stayvsRun = figure;
+scatter(FRstay_cell_all,FRrun_cell_all,8,'filled','MarkerEdgeColor',[0.45 0.45 0.45],'MarkerFaceColor',[0.45 0.45 0.45]); hold on;
+scatter(aveFR_stay_all, aveFR_run_all,8,'filled','MarkerEdgeColor',[0.8431 0.0980 0.1098],'MarkerFaceColor',[0.8431 0.0980 0.1098]);hold on;
+xlabel('stationary'); ylabel('running');
+xlim([0,2]); ylim([0,2]);
+line = refline(1,0);
+line.Color = 'r';
+line.LineWidth = 1;
+axis square;
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontSize',7);
+across_stayvsRun.Units = 'centimeters';
+across_stayvsRun.Position = [1 1 5 5];
+fig_name = 'across_scatter_stayVsrun';
+path = 'Z:\Analysis\figures\figure3_2Prun_spike\';
+orient(across_stayvsRun,'landscape');
+print(across_stayvsRun,[path,fig_name],'-r600','-depsc');
+
+% title('mean firing rate per second');
+% savefig(['Z:\Analysis\2P_MovingDots_Analysis\across_sessions\' 'across_sessions_meanFRstayVSrun_deconvolve']);
+
+%% runtrig ave and runoff ave
 ave_spike_runtrig_allsession = [];% frames*total number of cells in all sessions
 ave_spike_runoff_allsession = [];
 aveSpd_runtrig_100ms_all_session = [];% frames*total number of sessions that have runtrig
@@ -27,8 +64,8 @@ for ii = 1:length(sessions)
     
     behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days{ii} '\'];
     behav_output = load([behav_dest days{ii} '_behavAnalysis.mat']);
-    mean_runtrig_every100ms = behav_output.mean_runtrig_every100ms;
-    mean_runoff_every100ms = behav_output.mean_runoff_every100ms;
+    spd_runtrig_every100ms = behav_output.speed_runtrig_100ms; %frames*trials
+    spd_runoff_every100ms = behav_output.speed_runoff_100ms;
     
 %     aveSpd_runtrig = spike_output.speed_runtrig; %frames*1
 %     aveSpd_runoff = spike_output.speed_runoff; %frames*1
@@ -45,8 +82,8 @@ for ii = 1:length(sessions)
     
     ave_spike_runtrig_allsession = cat(1,ave_spike_runtrig_allsession,mean_spike_runtrig');%when cat matrix, the matrix with NaN will be cat. And you have matrix with NaN because for some sessions there's no running trials fullfill the runtrig/runoff criteria
     ave_spike_runoff_allsession = cat(1,ave_spike_runoff_allsession,mean_spike_runoff');
-    aveSpd_runtrig_100ms_all_session = cat(1,aveSpd_runtrig_100ms_all_session,mean_runtrig_every100ms);%when cat vectors, the empty vectors won't be cat
-    aveSpd_runoff_100ms_all_session = cat(1,aveSpd_runoff_100ms_all_session,mean_runoff_every100ms);
+    aveSpd_runtrig_100ms_all_session = cat(2,aveSpd_runtrig_100ms_all_session,spd_runtrig_every100ms);%when cat vectors, the empty vectors won't be cat
+    aveSpd_runoff_100ms_all_session = cat(2,aveSpd_runoff_100ms_all_session,spd_runoff_every100ms);
     
 %     aveSpd_runtrig_all_session = cat(2,aveSpd_runtrig_all_session,aveSpd_runtrig);%when cat vectors, the empty vectors won't be cat
 %     aveSpd_runoff_all_session = cat(2,aveSpd_runoff_all_session,aveSpd_runoff);
@@ -61,10 +98,10 @@ ste_spike_runtrig_acrossessions = std(ave_spike_runtrig_allsession)*30/sqrt(size
 ave_spike_runoff_acrossessions = mean(ave_spike_runoff_allsession)*30;
 ste_spike_runoff_acrossessions = std(ave_spike_runoff_allsession)*30/sqrt(size(ave_spike_runoff_allsession,1));
 
-aveSpd_runtrig_100ms_acrossessions = mean(aveSpd_runtrig_100ms_all_session,1);
-steSpd_runtrig_100ms_acrossessions = std(aveSpd_runtrig_100ms_all_session,0,1)/sqrt(size(aveSpd_runtrig_100ms_all_session,1));
-aveSpd_runoff_100ms_acrossessions = mean(aveSpd_runoff_100ms_all_session,1);
-steSpd_runoff_100ms_acrossessions = std(aveSpd_runoff_100ms_all_session,0,1)/sqrt(size(aveSpd_runoff_100ms_all_session,1));
+aveSpd_runtrig_100ms_acrossessions = mean(aveSpd_runtrig_100ms_all_session,2);
+steSpd_runtrig_100ms_acrossessions = std(aveSpd_runtrig_100ms_all_session,0,2)/sqrt(size(aveSpd_runtrig_100ms_all_session,2));
+aveSpd_runoff_100ms_acrossessions = mean(aveSpd_runoff_100ms_all_session,2);
+steSpd_runoff_100ms_acrossessions = std(aveSpd_runoff_100ms_all_session,0,2)/sqrt(size(aveSpd_runoff_100ms_all_session,2));
 
 % aveSpd_runtrig_acrossessions = mean(aveSpd_runtrig_all_session,2);
 % steSpd_runtrig_acrossessions = std(aveSpd_runtrig_all_session,0,2)/sqrt(size(aveSpd_runtrig_all_session,2));
@@ -73,33 +110,54 @@ steSpd_runoff_100ms_acrossessions = std(aveSpd_runoff_100ms_all_session,0,1)/sqr
 
 %%
 %plot
-x = (1:length(ave_spike_runtrig_acrossessions))/30;
-figure; subplot(2,1,1);
-shadedErrorBar(x,ave_spike_runtrig_acrossessions,ste_spike_runtrig_acrossessions,{'color',[0.1922 0.6392 0.3294]});hold on;
-ylabel('firing rate');
-ylim([0 2.5]);
-vline(1,'r');
-title(' Firing rate and speed aligned with running onset across all sessions');
-subplot(2,1,2); 
+
+x = (1:length(ave_spike_runtrig_acrossessions))/30-1;
+FR_Onset_fig = figure; 
+subplot(2,1,1);
+shadedErrorBar(x,ave_spike_runtrig_acrossessions,ste_spike_runtrig_acrossessions,{'color',[0.1922 0.6392 0.3294]},{'Linewidth',1});hold on;
+xlim([-1.1 1.6]);ylim([0 2.6]);
+vline(0,'k'); ylabel('firing rate(Hz)');
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontSize',7);
+%title([sessions ' running triggered average']);
+subplot(2,1,2); %plot(speed_runtrig);
 %convert speed to cm/s: each unit = 2pai*r/128 (there're 128 pulses in total for each circle)
 shadedErrorBar(x,aveSpd_runtrig_100ms_acrossessions*2*3.1415926*7.5/128, ...
-    steSpd_runtrig_100ms_acrossessions*2*3.1415926*7.5/128,{'color',[0.0196 0.4392 0.6902]});hold on;
-ylabel('speed(cm/s)');xlabel('time(s)');
+    steSpd_runtrig_100ms_acrossessions*2*3.1415926*7.5/128,{'color',[0 0 0]},{'Linewidth',1});hold on;
+xlim([-1.1 1.6]); ylim([0 12]);
+vline(0,'k');ylabel('speed(cm/s)');xlabel('time from running onset(s)');
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontSize',7);
 %text(0.1,min(aveSpd_runtrig*2*3.1415926*7.5/128)+2,['n = ' num2str(size(frms_runTrig_mat,2))]);
-ylim([-5 10]);
-vline(1,'r');
+FR_Onset_fig.Units = 'centimeters';
+FR_Onset_fig.Position = [1 1 5.5 5];
+fig_name = 'across_session_runonset_spike';
+path = 'Z:\Analysis\figures\figure3_2Prun_spike\';
+orient(FR_Onset_fig,'landscape');
+print(FR_Onset_fig,[path,fig_name],'-r600','-depsc');
 
-x = (1:length(ave_spike_runtrig_acrossessions))/30;
-figure; subplot(2,1,1);
-shadedErrorBar(x,ave_spike_runoff_acrossessions,ste_spike_runoff_acrossessions,{'color',[0.1922 0.6392 0.3294]});hold on;
-ylabel('firing rate');
-ylim([0 2.5]);
-vline(1,'r'); 
-title('Firing rate and speed aligned with running offset across all sessions');
-subplot(2,1,2); 
+FR_Offset_fig = figure; 
+subplot(2,1,1);
+shadedErrorBar(x,ave_spike_runoff_acrossessions,ste_spike_runoff_acrossessions,{'color',[0.1922 0.6392 0.3294]},{'Linewidth',1});hold on;
+xlim([-1.1 1.6]);ylim([0 2.6]);
+vline(0,'k'); ylabel('firing rate(Hz)');
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontSize',7);
+%title([sessions ' running triggered average']);
+subplot(2,1,2); %plot(speed_runtrig);
 %convert speed to cm/s: each unit = 2pai*r/128 (there're 128 pulses in total for each circle)
 shadedErrorBar(x,aveSpd_runoff_100ms_acrossessions*2*3.1415926*7.5/128, ...
-    steSpd_runoff_100ms_acrossessions*2*3.1415926*7.5/128,{'color',[0.0196 0.4392 0.6902]});hold on;
-ylabel('speed(cm/s)');xlabel('time(s)');
-ylim([-5 10]);vline(1,'r');
+    steSpd_runoff_100ms_acrossessions*2*3.1415926*7.5/128,{'color',[0 0 0]},{'Linewidth',1});hold on;
+xlim([-1.1 1.6]); ylim([0 12]);
+vline(0,'k');ylabel('speed(cm/s)');xlabel('time from running offset(s)');
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontSize',7);
+%text(0.1,min(aveSpd_runtrig*2*3.1415926*7.5/128)+2,['n = ' num2str(size(frms_runTrig_mat,2))]);
+FR_Offset_fig.Units = 'centimeters';
+FR_Offset_fig.Position = [1 1 5.5 5];
+fig_name = 'across_session_runoffset_spike';
+path = 'Z:\Analysis\figures\figure3_2Prun_spike\';
+orient(FR_Offset_fig,'landscape');
+print(FR_Offset_fig,[path,fig_name],'-r600','-depsc');
+
 

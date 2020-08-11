@@ -53,15 +53,39 @@ ste_dfOvF_btm_staypuff_iso_across = std(dfOvF_btm_staypuff_isoevents_neurons_all
 % ntotalevents_run = sum(nevents_run_Allsessions);
 ntotalPCs = sum(nPCs_Allsessions);
 x = (1:30)/30;
-figure;
-%haven't figured out how to use RGB colors in errorbar
-errorbar(x,ave_dfOvF_btm_stay_iso_across,ste_dfOvF_btm_stay_iso_across,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
-errorbar(x,ave_dfOvF_btm_run_iso_across,ste_dfOvF_btm_run_iso_across,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
-errorbar(x,ave_dfOvF_btm_staypuff_iso_across,ste_dfOvF_btm_staypuff_iso_across,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+% figure;
+% %haven't figured out how to use RGB colors in errorbar
+% errorbar(x,ave_dfOvF_btm_stay_iso_across,ste_dfOvF_btm_stay_iso_across,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+% errorbar(x,ave_dfOvF_btm_run_iso_across,ste_dfOvF_btm_run_iso_across,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+% errorbar(x,ave_dfOvF_btm_staypuff_iso_across,ste_dfOvF_btm_staypuff_iso_across,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
+% %legend(['stationary nevents=' num2str(ntotalevents_stay)],['running nevents=' num2str(ntotalevents_run)]);
+% legend('stationary', 'running','airpuff response during stationary');
+% text(0.75,0.7, ['n total PCs=' num2str(ntotalPCs)]);
+% %ylim([0 0.6]);
+% xlabel('time(s)'); ylabel('df/f');
+% savefig(['Z:\Analysis\motorizedWheel_Analysis\airpuff\across_sessions\' 'across_sessions_CaAmpRunvsStayVsAirpuff.fig']);
+
+%plot start with same y
+diff1 = ave_dfOvF_btm_run_iso_across(1) - ave_dfOvF_btm_staypuff_iso_across(1);
+diff2 = ave_dfOvF_btm_stay_iso_across(1) - ave_dfOvF_btm_staypuff_iso_across(1);
+ave_dfOvF_btm_run_iso_across_plot = ave_dfOvF_btm_run_iso_across - diff1;
+ave_dfOvF_btm_stay_iso_across_plot = ave_dfOvF_btm_stay_iso_across - diff2;
+CaAmp_dfOvF = figure;
+errorbar(x,ave_dfOvF_btm_stay_iso_across_plot,ste_dfOvF_btm_stay_iso_across,'.','LineStyle','-','linewidth', 1,'MarkerSize',4,'color',[0, 0.4470, 0.7410]); hold on;
+errorbar(x,ave_dfOvF_btm_run_iso_across_plot,ste_dfOvF_btm_run_iso_across,'.','LineStyle','-','linewidth', 1,'MarkerSize',4,'color',[0.8500, 0.3250, 0.0980]); hold on;
+errorbar(x,ave_dfOvF_btm_staypuff_iso_across,ste_dfOvF_btm_staypuff_iso_across,'.','LineStyle','-','linewidth', 1,'MarkerSize',4,'color','k'); hold on;
 %legend(['stationary nevents=' num2str(ntotalevents_stay)],['running nevents=' num2str(ntotalevents_run)]);
-legend('stationary', 'running','airpuff response during stationary');
-text(0.75,0.7, ['n total PCs=' num2str(ntotalPCs)]);
-%ylim([0 0.6]);
-xlabel('time(s)'); ylabel('df/f');
-savefig(['Z:\Analysis\motorizedWheel_Analysis\running\across_sessions' 'across_sessions_CaAmpRunvsStayVsAirpuff.fig']);
+legend('stationary', 'running','airpuff response'); legend boxoff;
+%text(0.75,0.7, ['n total PCs=' num2str(ntotalPCs)]);
+ylim([0 1.2]);xlim([0 1.1])
+xlabel('time(s)'); ylabel('df/F');
+CaAmp_dfOvF.Units = 'centimeters';
+CaAmp_dfOvF.Position = [3 3 5 5];
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontSize',7);
+fig_name = 'across_session_CaAmp_motorized_airpuff';
+path = 'Z:\Analysis\figures\figure7_motorized_airpuff\';
+%orient(CaAmp_dfOvF,'landscape')
+print(CaAmp_dfOvF,[path,fig_name],'-r600','-depsc');
+%savefig(['Z:\Analysis\motorizedWheel_Analysis\airpuff\across_sessions\' 'across_sessions_CaAmpRunvsStayVsAirpuff.fig']);
 

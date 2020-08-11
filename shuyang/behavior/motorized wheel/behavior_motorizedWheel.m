@@ -64,7 +64,7 @@ for t = 1:ntrials
     if     commandVolt(t) == 2
         t1 = t1 + 1;
         run_slow_mat(t1,:) = countValue{t}(31:end); % each row is a trial
-        run_slow_vec = cat(2,run_slow_vec,countValue{t});
+        run_slow_vec = cat(2,run_slow_vec,countValue{t}); % if the length of trials are changed in the middle of the experiment, the mat won't work but vector will. 
         runslow_start(t1) = countValue{t}(1);
     elseif commandVolt(t) == 3
         t2 = t2 + 1;

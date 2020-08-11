@@ -196,27 +196,21 @@ end
 
 
 %% cell segmentation 
-
+data_dfof = cat(3,data_dfof_max, data_dfof_avg_all);
+mask_exp = zeros(sz(1),sz(2));
 mask_all = zeros(sz(1), sz(2));
 mask_data = data_dfof;
 
-for iStim = 1:size(data_dfof,3)    
+for iStim = 1:size(data_dfof,3)
     mask_data_temp = mask_data(:,:,iStim);
-    mask_data_temp(find(mask_all >= 1)) = 0;
-    bwout = imCellEditInteractive(mask_data_temp);
-    mask_2 = bwlabel(bwout);
-    mask_all = mask_all+mask_2;
+    mask_data_temp(find(mask_exp >= 1)) = 0;
+    bwout = imCellEditInteractiveLG(mask_data_temp);
+    mask_all = mask_all+bwout;
+    mask_exp = imCellBuffer(mask_all,3)+mask_all;
     close all
 end
 mask_cell = bwlabel(mask_all);
-
-mask_data_temp = data_dfof_max;
-mask_data_temp(find(mask_cell >= 1)) = 0;
-figure; imagesc(mask_data_temp)
-
-
-bwout = imCellEditInteractive(data_dfof_max);
-mask_cell1 = bwlabel(bwout);
+figure; imagesc(mask_cell)
 
 
 figure; 
@@ -241,3 +235,32 @@ save(fullfile('\\CRASH.dhe.duke.edu\data\home\lindsey\Analysis\2P', [date '_' mo
 
 clear data_dfof data_dfof_avg max_dfof mask_data mask_all mask_2 data_base data_base_dfof data_targ data_targ_dfof data_f data_base2 data_base2_dfof data_dfof_dir_all data_dfof_max data_dfof_targ data_avg data_dfof2_dir data_dfof_dir 
 
+%% neuropil subtraction
+data_tc = stackGetTimeCourses(data_reg, mask_cell);
+data_tc_down = stackGetTimeCourses(stackGroupProject(data_reg,5), mask_cell);
+nCells = size(data_tc,2);
+%np_tc = stackGetTimeCourses(data_reg,mask_np);
+clear np_tc np_tc_down
+sz = size(data_reg);
+down = 5;
+data_reg_down  = stackGroupProject(data_reg,down);
+np_tc = zeros(sz(3),nCells);
+np_tc_down = zeros(floor(sz(3)./down), nCells);
+for i = 1:nCells
+     np_tc(:,i) = stackGetTimeCourses(data_reg,mask_np(:,:,i));
+     np_tc_down(:,i) = stackGetTimeCourses(data_reg_down,mask_np(:,:,i));
+     fprintf(['Cell #' num2str(i) '%s\n']) 
+end
+%get weights by maximizing skew
+ii= 0.01:0.01:1;
+x = zeros(length(ii), nCells);
+for i = 1:100
+    x(i,:) = skewness(data_tc_down-tcRemoveDC(np_tc_down*ii(i)));
+end
+[max_skew ind] =  max(x,[],1);
+np_w = 0.01*ind;
+npSub_tc = data_tc-bsxfun(@times,tcRemoveDC(np_tc),np_w);
+clear data_reg data_reg_down
+
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc')
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')

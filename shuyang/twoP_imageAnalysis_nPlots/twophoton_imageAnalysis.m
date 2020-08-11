@@ -1,8 +1,7 @@
 %Analyze raw 2P data
 %motion correction; PCA, ICA
 %smooth and threshold mask, seperate overlaps and combine the one have a high correlation
-%get TCs
-
+%get TCs and plot masks
 
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;

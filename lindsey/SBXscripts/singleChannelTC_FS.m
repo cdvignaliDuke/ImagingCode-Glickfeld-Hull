@@ -1,12 +1,12 @@
 %% get path names
-date = '190515';
-ImgFolder = strvcat('002');
-time = strvcat('1007');
-mouse = 'i1304';
+date = '200629';
+ImgFolder = strvcat('003');
+time = strvcat('1616');
+mouse = 'i1312';
 doFromRef = 0;
 ref = strvcat('002');
 nrun = size(ImgFolder,1);
-frame_rate = 15.5;
+frame_rate = 30;
 run_str = catRunName(ImgFolder, nrun);
 
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
@@ -19,10 +19,8 @@ clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = [LG_base '\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
-    %CD = ['\\CRASH.dhe.duke.edu\data\home\ashley\data\AW68\two-photon imaging\' date '\' ImgFolder(irun,:)];
-    %CD = [LG_base '\Data\2P_images\' mouse '-KM' '\' date '_' mouse '\' ImgFolder(irun,:)];
-    %CD = ['\\CRASH.dhe.duke.edu\data\home\kevin\Data\2P\' date '_' mouse '\' ImgFolder(irun,:)];
+    CD = [LG_base '\Data\2P_images\' mouse '\' date '\' ImgFolder(irun,:)];
+    %CD = [LG_base '\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
@@ -31,6 +29,7 @@ for irun = 1:nrun
     
     temp(irun) = input;
     nframes = [temp(irun).counterValues{end}(end) info.config.frames];
+
     
     fprintf(['Reading run ' num2str(irun) '- ' num2str(min(nframes)) ' frames \r\n'])
     data_temp = sbxread(imgMatFile(1,1:11),0,min(nframes));
@@ -268,19 +267,16 @@ if iscell(input.nFramesOn)
 else
     nOn = input.nFramesOn;
 end
-
+prewin_frames = 30;
+postwin_frames = 90;
 tCyc = cell2mat(input.tCyclesOn);
 cStart = celleqel2mat_padded(input.cFirstStim);
 cTarget = celleqel2mat_padded(input.cTargetOn);
 nTrials = length(tCyc);
 nCells = size(npSub_tc,2);
 maxCyc = max(tCyc,[],2);
-data_trial = nan(120,nCells,maxCyc+1,nTrials);
-if iscell(input.nFramesOff)
-    data_notarg = nan((nOn+max(celleqel2mat_padded(input.nFramesOff),[],2))*maxCyc,nCells,nTrials);
-else
-    data_notarg = nan((nOn+input.nFramesOff)*maxCyc,nCells,nTrials);
-end
+data_trial = nan(prewin_frames+postwin_frames,nCells,maxCyc+1,nTrials);
+
 tFramesOff = nan(nTrials,maxCyc);
 SIx = strcmp(input.trialOutcomeCell, 'success');
 MIx = strcmp(input.trialOutcomeCell, 'ignore');
@@ -311,25 +307,19 @@ for itrial = 1:nTrials
             else
                 cyc_add = 0;
             end
-            if cStart(itrial)+99+cyc_add <= size(npSub_tc,1)
-                data_trial(:,:,icyc,itrial) = npSub_tc(cStart(itrial)-20+cyc_add:cStart(itrial)+99+cyc_add,:);
+            if cStart(itrial)+postwin_frames-1+cyc_add <= size(npSub_tc,1)
+                data_trial(:,:,icyc,itrial) = npSub_tc(cStart(itrial)-prewin_frames+cyc_add:cStart(itrial)+postwin_frames+cyc_add-1,:);
             else
-                data_trial(:,:,icyc,itrial) = NaN(120,nCells);
+                data_trial(:,:,icyc,itrial) = NaN(prewin_frames+postwin_frames,nCells);
             end 
-            if icyc == nCyc(itrial)
-                if cStart(itrial)+99+cyc_add <= size(npSub_tc,1)
-                    temp  = npSub_tc(cStart(itrial)-20:cStart(itrial)+cyc_add-1,:);
-                    data_notarg(1:size(temp,1),:,itrial) = temp;
-                end
-            end
         end
     else
-        data_trial(:,:,icyc,itrial) = NaN(120,nCells);
+        data_trial(:,:,icyc,itrial) = NaN(prewin_frames+postwin_frames,nCells);
     end
 end
-data_f = nanmean(data_trial(1:20,:,1,:),1);
+data_f = nanmean(data_trial(1:prewin_frames,:,1,:),1);
 data_dfof = bsxfun(@rdivide,bsxfun(@minus,data_trial,data_f),data_f);
-data_notarg_dfof = bsxfun(@rdivide,bsxfun(@minus,data_notarg,mean(data_notarg(1:20,:,:),1)),mean(data_notarg(1:20,:,:),1));
+
 targCon = celleqel2mat_padded(input.tGratingContrast);
 if isfield(input,'doRandCon') & input.doRandCon
 	baseCon = nan(maxCyc,nTrials);
@@ -356,49 +346,49 @@ offs = unique(tFramesOff(:,1));
 noff = length(offs);
 frameRateHz = input.frameRateHz;
 
-base_win =19:21;
-resp_win =25:29; 
+base_win =33:35;
+resp_win =39:41; 
 
-figure;
-if nCells<25
-    ii = nCells;
-else
-    ii = 25;
-end
-for i = 1:ii
-    subplot(5,5,i)
-if length(ind_con)>10
-    plot(squeeze(nanmean(mean(data_dfof(20:50,i,2,ind_con),2),4)))
-elseif noff>1
-    ind = find(tFramesOff(:,1) == offs(noff));
-    plot(squeeze(nanmean(mean(data_dfof(20:50,i,1,:),2),4)))
-else
-    plot(squeeze(nanmean(mean(data_dfof(20:50,i,1,:),2),4)))
-end
-vline(base_win-19)
-vline(resp_win-19)
-end
+% figure;
+% if nCells<25
+%     ii = nCells;
+% else
+%     ii = 25;
+% end
+% for i = 1:ii
+%     subplot(5,5,i)
+% if length(ind_con)>10
+%     plot(squeeze(nanmean(mean(data_dfof(20:50,i,2,ind_con),2),4)))
+% elseif noff>1
+%     ind = find(tFramesOff(:,1) == offs(noff));
+%     plot(squeeze(nanmean(mean(data_dfof(20:50,i,1,:),2),4)))
+% else
+%     plot(squeeze(nanmean(mean(data_dfof(20:50,i,1,:),2),4)))
+% end
+% vline(base_win-19)
+% vline(resp_win-19)
+% end
 
 figure;
 subplot(2,1,1)
 plot(squeeze(nanmean(mean(data_dfof(:,:,1,:),2),4)));
-vline(base_win)
-vline(resp_win)
+vline(base_win,'k:')
+vline(resp_win,'r:')
 title('Baseline')
 subplot(2,1,2)
 sz = size(data_dfof);
 data_targ = zeros(sz(1),sz(2),length([find(SIx)]));
 for itrial = 1:sz(4);
-    if find([find(SIx)] == itrial)
+    %if find([find(SIx)] == itrial)
         data_targ(:,:,itrial) = data_dfof(:,:,nCyc(itrial),itrial);
-    end
+    %end
 end
 plot(squeeze(nanmean(mean(data_targ,2),3)));
 title('Target')
-vline(base_win)
-vline(resp_win)
+vline(base_win,'k:')
+vline(resp_win,'r:')
 
 %%
 
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']), 'data_dfof', 'data_notarg_dfof')
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']),'baseDir', 'dirs', 'ndir', 'tFramesOff', 'offs', 'noff', 'baseCon', 'ind_con', 'tGratingDir', 'targetDelta', 'deltas', 'nDelta', 'tCyc', 'nCyc', 'maxCyc', 'nCells', 'frameRateHz', 'nTrials', 'SIx', 'MIx', 'FIx', 'cTarget', 'cStart', 'base_win','resp_win')
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dfofData.mat']), 'data_dfof', 'prewin_frames', 'postwin_frames', 'base_win','resp_win')
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']),'prewin_frames','baseDir', 'dirs', 'ndir', 'tFramesOff', 'offs', 'noff', 'baseCon', 'ind_con', 'tGratingDir', 'targetDelta', 'deltas', 'nDelta', 'tCyc', 'nCyc', 'maxCyc', 'nCells', 'frameRateHz', 'nTrials', 'SIx', 'MIx', 'FIx', 'cTarget', 'cStart', 'base_win','resp_win')

@@ -24,14 +24,14 @@ elevationBorders = double([-input.monitorYDeg input.monitorYDeg]);
 azimuthBorders = double([-input.monitorXDeg input.monitorXDeg]);
 azimuthOffset=0;
 elevationOffset=0;
-save_images=1;
-save_maps=1;
+save_images=0;
+save_maps=0;
 
 fCamera = double(input.frameRateHz);
 cITIStart = celleqel2mat_padded(input.cITIStart);
 cStimOn = celleqel2mat_padded(input.cStimOn);
 
-roiDiskRadius_um=100;
+roiDiskRadius_um=300;
 radius=roiDiskRadius_um/(1000/scalePxPerMM);
 
 colormapRes = 128;

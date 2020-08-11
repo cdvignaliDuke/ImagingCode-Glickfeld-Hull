@@ -40,7 +40,7 @@ for m = 1: size(frames_run_cell,2)
                 frames_runoff_include = cat(2,frames_runoff_include,frames_run_cell{m});
             end
          
-            % frames_runTrigger is the vectors contain 500ms still before run and the first 1s of each running window
+            % frames_runTrigger_mat is the vectors contain 500ms still before run and the first 1s of each running window
         end
 end
 

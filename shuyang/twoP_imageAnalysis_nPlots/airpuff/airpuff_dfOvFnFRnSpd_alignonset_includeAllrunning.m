@@ -36,7 +36,7 @@ for ii = 1: length(sessions)
     
     % generate frame matrixes:how does neural activity change with airpuff delivery when the behvaior is the same?
     % frms_airstim_stay: 15 frames (0.5s)stationary before and after stim onset(the mice has to be stationary all the time!)
-    % frms_airstim_run: !!13!! frames (0.43s)running before and after stim onset(the mice has to be running all the time!)
+    % frms_airstim_allrun: !!9!! frames (0.43s)running before stim onset
     
     frms_airstim_stay = [];
     frms_airstim_allrun = [];
@@ -71,10 +71,10 @@ for ii = 1: length(sessions)
     spd_airstimAve_stay = mean(spd_airstim_stay);
     spd_airstimAveSte_stay = std(spd_airstim_stay)/sqrt(size(spd_airstim_stay,1));
     
-    save([behav_dest '\' days{ii} '_behavAnalysis.mat' ],...
-        'frms_airstim_allrun','frms_airstim_stay','spd_airstim_allrun',...
-        'spd_airstim_stay','spd_airstimAve_allrun','spd_airstimAve_stay',...
-        'spd_airstimAveSte_allrun','spd_airstimAveSte_stay','-append');
+%     save([behav_dest '\' days{ii} '_behavAnalysis.mat' ],...
+%         'frms_airstim_allrun','frms_airstim_stay','spd_airstim_allrun',...
+%         'spd_airstim_stay','spd_airstimAve_allrun','spd_airstimAve_stay',...
+%         'spd_airstimAveSte_allrun','spd_airstimAveSte_stay','-append');
     
     %% spikes -- firing rate
     threshold = -4;
@@ -110,10 +110,10 @@ for ii = 1: length(sessions)
     FR_airstimAve_stay = mean(spk_airpuff_stay_cells,2)*30; %firing rate = spike probablity*imaging rate
     FR_airstimAveSte_stay = std(spk_airpuff_stay_cells,0,2)*30/sqrt(size(spk_airpuff_stay_cells,2)); % cell by cell variation
     
-    save([image_analysis_dest '\' sessions{ii}, '_spk_deconvolve_threshold' num2str(threshold) '.mat' ],...
-        'spk_airpuff_allrun_mat','spk_airpuff_stay_mat','FR_airstimAve_allrun',...
-        'FR_airstimAveSte_allrun','FR_airstimAve_stay','FR_airstimAveSte_stay',...
-        'spk_airpuff_allrun_cells','spk_airpuff_stay_cells','-append');
+%     save([image_analysis_dest '\' sessions{ii}, '_spk_deconvolve_threshold' num2str(threshold) '.mat' ],...
+%         'spk_airpuff_allrun_mat','spk_airpuff_stay_mat','FR_airstimAve_allrun',...
+%         'FR_airstimAveSte_allrun','FR_airstimAve_stay','FR_airstimAveSte_stay',...
+%         'spk_airpuff_allrun_cells','spk_airpuff_stay_cells','-append');
  %{   
 % plot only spike rate and speed
     % figure
@@ -227,11 +227,11 @@ for ii = 1: length(sessions)
 %     dfOvFstay_airstimAve_stay = mean(dfOvFstay_airpuff_stay_cells,2)*30; %firing rate = spike probablity*imaging rate
 %     dfOvFstay_airstimAveSte_stay = std(dfOvFstay_airpuff_stay_cells,0,2)*30/sqrt(size(dfOvFstay_airpuff_stay_cells,2)); % cell by cell variation
 %     
-    save([image_analysis_dest '\' sessions{ii} '_dfOvF.mat' ],...
-        'dfOvFbtm_airpuff_allrun_mat','dfOvFbtm_airpuff_stay_mat',...
-        'dfOvFbtm_airpuff_allrun_cells','dfOvFbtm_airstimAve_allrun','dfOvFbtm_airstimAveSte_allrun',...
-        'dfOvFbtm_airpuff_stay_cells','dfOvFbtm_airstimAve_stay','dfOvFbtm_airstimAveSte_stay',...
-        '-append');
+%     save([image_analysis_dest '\' sessions{ii} '_dfOvF.mat' ],...
+%         'dfOvFbtm_airpuff_allrun_mat','dfOvFbtm_airpuff_stay_mat',...
+%         'dfOvFbtm_airpuff_allrun_cells','dfOvFbtm_airstimAve_allrun','dfOvFbtm_airstimAveSte_allrun',...
+%         'dfOvFbtm_airpuff_stay_cells','dfOvFbtm_airstimAve_stay','dfOvFbtm_airstimAveSte_stay',...
+%         '-append');
     % ------------------------------------------------------------------------------------------------------------------------------------------------------
    %{
     %plot
@@ -273,45 +273,69 @@ end
 
     %% plot
     % figure
-    fig = figure;
+    airpff_eg_fig = figure;
     % if there's only one trial for running or stationary, plot that single
     % trial
     
-    x = (1: length(spd_airstimAve_stay))/30;
+    x = (1: length(spd_airstimAve_stay))/30 - 0.5-(1/30);
     subplot(3,2,1);
-    shadedErrorBar(x,dfOvFbtm_airstimAve_allrun,dfOvFbtm_airstimAveSte_allrun,{'color',[0.1373 0.5451 0.2706]});
-    title('airpuff stim running'); ylabel('df/f');
-    xlim([0,1]);ylim([0,0.6]);
-    vline(period/30,'k');
+    shadedErrorBar(x,dfOvFbtm_airstimAve_allrun,dfOvFbtm_airstimAveSte_allrun,{'color',[0.8431 0.0980 0.1098]});
+    %title('airpuff stim running'); 
+    ylabel('df/f');
+    xlim([-0.5,0.5]);ylim([0,0.6]);
+    vline((period+1)/30 - 0.5-(1/30),'k');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',8);
     subplot(3,2,3);
-    shadedErrorBar(x,FR_airstimAve_allrun,FR_airstimAveSte_allrun,{'color',[0.1373 0.5451 0.2706]});
-    ylabel('firing rate');
-    xlim([0,1]); ylim([0 5]);
-    vline(period/30,'k');
+    shadedErrorBar(x,FR_airstimAve_allrun,FR_airstimAveSte_allrun,{'color',[0.1922 0.6392 0.3294]});
+    ylabel('firing rate(Hz)');
+    xlim([-0.5,0.5]); ylim([0 6]);
+    vline((period+1)/30 - 0.5-(1/30),'k');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',8);
     subplot(3,2,5);
-    shadedErrorBar(x,spd_airstimAve_allrun*2*3.1415926*7.5/128,spd_airstimAveSte_allrun*2*3.1415926*7.5/128,{'color',[0.1373 0.5451 0.2706]});
-    xlabel('time(s)'); ylabel('speed(cm/s)');
-    text(0.1,min(spd_airstimAve_allrun+10),['n = ' num2str(size(frms_airstim_allrun,1))]);
-    xlim([0,1]);ylim([-0.5 30]);
-    vline(period/30,'k');
+    shadedErrorBar(x,spd_airstimAve_allrun*2*3.1415926*7.5/128,spd_airstimAveSte_allrun*2*3.1415926*7.5/128,{'color','k'});
+    xlabel('time from airpuff(s)'); ylabel('speed(cm/s)');
+    %text(0.1,min(spd_airstimAve_allrun+10),['n = ' num2str(size(frms_airstim_allrun,1))]);
+    xlim([-0.5,0.5]);ylim([-0.5 20]);
+    vline((period+1)/30 - 0.5-(1/30),'k');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',8);
      
     subplot(3,2,2);
-    shadedErrorBar(x,dfOvFbtm_airstimAve_stay,dfOvFbtm_airstimAveSte_stay,{'color',[0.1373 0.5451 0.2706]});
-    title('airpuff stim stay'); %ylabel('df/f');
-    xlim([0,1]);ylim([0,0.6]);
-    vline(period/30,'k');
+    shadedErrorBar(x,dfOvFbtm_airstimAve_stay,dfOvFbtm_airstimAveSte_stay,{'color',[0.8431 0.0980 0.1098]});
+    %title('airpuff stim stay'); 
+    %ylabel('df/f');
+    xlim([-0.5,0.5]);ylim([0,0.6]);
+    vline((period+1)/30 - 0.5-(1/30),'k');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',8);
     subplot(3,2,4);
-    shadedErrorBar(x,FR_airstimAve_stay,FR_airstimAveSte_stay,{'color',[0.1373 0.5451 0.2706]});
+    shadedErrorBar(x,FR_airstimAve_stay,FR_airstimAveSte_stay,{'color',[0.1922 0.6392 0.3294]});
     %ylabel('firing rate');
-    xlim([0,1]); ylim([0 5]);
-    vline(period/30,'k');
+    xlim([-0.5,0.5]); ylim([0 6]);
+    vline((period+1)/30 - 0.5-(1/30),'k');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',8);
     subplot(3,2,6);
-    shadedErrorBar(x,spd_airstimAve_stay*2*3.1415926*7.5/128,spd_airstimAveSte_stay*2*3.1415926*7.5/128,{'color',[0.1373 0.5451 0.2706]});
-    xlabel('time(s)'); %ylabel('speed(cm/s)'); 
-    text(0.1,5,['n = ' num2str(size(frms_airstim_stay,1))]);
-    xlim([0,1]);ylim([-0.5 30]); vline(period/30,'k');
+    shadedErrorBar(x,spd_airstimAve_stay*2*3.1415926*7.5/128,spd_airstimAveSte_stay*2*3.1415926*7.5/128,{'color','k'});
+     %ylabel('speed(cm/s)');
+    %text(0.1,5,['n = ' num2str(size(frms_airstim_stay,1))]);
+    xlim([-0.5,0.5]);ylim([-0.5 20]);
+    vline((period+1)/30 - 0.5-(1/30),'k');
+    xlabel('time from airpuff(s)');
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',8);
+    
+    airpff_eg_fig.Units = 'centimeters';
+    airpff_eg_fig.Position = [3 3 11 10];
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',8);
+    fig_name = 'eg_191115_img1041_airpuff';
+    path = 'Z:\Analysis\figures\figure4_airpuff_selfpace\';
+    print(airpff_eg_fig,[path,fig_name],'-r600','-depsc');
     
     %suptitle(sessions{ii});
     
-    saveas(fig, [image_analysis_dest '\' sessions{ii} '_airpuffTrigAve_allrun']);
+    %saveas(airpff_eg_fig, [image_analysis_dest '\' sessions{ii} '_airpuffTrigAve_allrun']);
     

@@ -383,26 +383,20 @@ end
 
 %% cell segmentation 
 if ~alignToRef
+    mask_exp = zeros(sz(1),sz(2));
     mask_all = zeros(sz(1), sz(2));
-    %mask_data = squeeze(max(reshape(data_dfof_avg_all, [sz(1) sz(2) 2 nStim/2]),[],3));
     mask_data = data_dfof;
-    % figure;
-    % [n, n2] = subplotn(size(mask_data,3));
-    % for iStim = 1:nStim
-    %     subplot(n, n2, iStim)
-    %     imagesc(mask_data(:,:,iStim))
-    %     colormap gray
-    % end
 
-    for iStim = 1:size(data_dfof,3)    
+    for iStim = 1:size(data_dfof,3)
         mask_data_temp = mask_data(:,:,iStim);
-        mask_data_temp(find(mask_all >= 1)) = 0;
+        mask_data_temp(find(mask_exp >= 1)) = 0;
         bwout = imCellEditInteractiveLG(mask_data_temp);
-        mask_2 = bwlabel(bwout);
-        mask_all = mask_all+mask_2;
+        mask_all = mask_all+bwout;
+        mask_exp = imCellBuffer(mask_all,3)+mask_all;
         close all
     end
     mask_cell = bwlabel(mask_all);
+    figure; imagesc(mask_cell)
 
 
     figure; 

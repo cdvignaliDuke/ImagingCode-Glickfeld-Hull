@@ -7,8 +7,8 @@
 % 
 %% assign document paths and experimental sessions
 clear;
-sessions = '200319_img1064'; 
-days = '1064-200319_1';
+sessions = '190603_img1025'; 
+days = '1025-190603_1';
 image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\';%stores the data on crash in the movingDots analysis folder
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 % behavior analysis results
@@ -132,7 +132,6 @@ kernel_cl = kernel; kernel_cl(:,badPCs) = [];
 spk_peak_cl = spk_peak; spk_peak_cl(badPCs) = [];
 spk_inx_cl = spk_inx; spk_inx_cl(badPCs) = [];
 
-
 % make sure you save everything you want to save
 save([image_analysis_dest sessions '_deconvolution_thresh', num2str(threshold), '_TCave_cl.mat'],...
     'TCave_cl','threshold','badPCs','nobase_cell','low_Fcell','nobase_thres','baseline_thres');
@@ -151,7 +150,7 @@ allcells = 1:size(TCave,2);
 goodcells = setdiff(allcells,badPCs);
 figure; 
 %needs to modify the line below due to different file names
-imshow([image_analysis_dest 'getTC\' 'AVG_' sessions '_000_rgstr_tiff_1_29999_50_ref40_' 'jpeg.jpg']); hold on;
+imshow([image_analysis_dest 'getTC\' 'AVG_' sessions '_000_rgstr_tiff_0_60000_50_ref42_' 'jpeg.jpg']); hold on;
 for m  = 1:length(goodcells)
     bound = cell2mat(bwboundaries(mask3D(:,:,goodcells(m))));
     randcolor = rand(1,4);

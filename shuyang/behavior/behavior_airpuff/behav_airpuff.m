@@ -6,6 +6,8 @@
 
 %% Section I: set paths and create analysis folders for each session
 %define the directory and files
+
+%days = {'1040-191114_1','1039-191115_1','1041-191115_1','1042-191115_1','1064-200316_2'};
 clear;
 folder = 'Z:\Data\behavior\airpuff\';
 sessionID = '1064-200316';% this  variable name is confusing, this session ID is just tha date and the subject#, 
@@ -20,55 +22,57 @@ end
 
 %% Section II : calculate for each frame,find relative frames for each behaviroal state and plot speed.
 for i = 1:size(filename,1)
-    file = [folder, filename(i).name];
-    load(file);
-    % later analysis will need to know if this session is a reverse session, and if yes, the frames of the reverse stimuli. 
-    airpuffon = input.cTactileStimTurnedOn;
-    airpuffon1 = airpuffon(~cellfun('isempty',airpuffon)); %it seems the airpuff sometimes is skipped, and the cell is empty so just extract the nonempty cells
-    airpuffon1 = double(cell2mat(airpuffon1));
-    lenairpuff = double(input.tactileStimulusDurationUs);
-    lenairpuff = lenairpuff/1000000;
-    lenframe = 33.3333;
-    speed = calculate_speed_2P(input,lenframe);
-    speed = double(speed);
-    % delete the first frame because the first frame of imaging data is half black
-    speed = speed(2:end);
-    % find relative behavioral states and save to behavior analysis file
-    smallestspd = ceil(1/lenframe*1000);% possible smallest speed: if the mice only moves 1unit during a frame, average speed of that frame is  (1/framelength) *1000
-    frm_maxGap = 9; % if the animal is still for less than 270ms during running, the running before and after the short still should still be counted as one part
-    [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd,frm_maxGap);
-    airpuff_period = [];
-    for a = 1:length(airpuffon1)
-        airpuff_period = cat(2,airpuff_period,airpuffon1(a):airpuffon1(a)+9);%300ms after airpuff onset is 10ish frames
-    end
-      
-    % 1.stationary without airpuff 
-    frm_stay = cell2mat(frames_stay_cell); 
-    stay_noairpuff = setdiff(frm_stay,airpuff_period);% find the frames in frame_stay but not in airpuff_period
-    %2.running without airpuff
-    frm_run = cell2mat(frames_run_cell);
-    run_noairpuff = setdiff(frm_run,airpuff_period);
+%     file = [folder, filename(i).name];
+%     load(file);
+%     % later analysis will need to know if this session is a reverse session, and if yes, the frames of the reverse stimuli. 
+%     airpuffon = input.cTactileStimTurnedOn;
+%     airpuffon1 = airpuffon(~cellfun('isempty',airpuffon)); %it seems the airpuff sometimes is skipped, and the cell is empty so just extract the nonempty cells
+%     airpuffon1 = double(cell2mat(airpuffon1));
+%     lenairpuff = double(input.tactileStimulusDurationUs);
+%     lenairpuff = lenairpuff/1000000;
+%     lenframe = 33.3333;
+%     speed = calculate_speed_2P(input,lenframe);
+%     speed = double(speed);
+%     % delete the first frame because the first frame of imaging data is half black
+%     speed = speed(2:end);
+%     % find relative behavioral states and save to behavior analysis file
+%     smallestspd = ceil(1/lenframe*1000);% possible smallest speed: if the mice only moves 1unit during a frame, average speed of that frame is  (1/framelength) *1000
+     frm_maxGap = 9; % if the animal is still for less than 270ms during running, the running before and after the short still should still be counted as one part
+%     [frames,frames_stay_cell, frames_bf_cell, frames_run_cell, frames_move_cell] = findFrames_behavStates_2P(speed,smallestspd,frm_maxGap);
+%     airpuff_period = [];
+%     for a = 1:length(airpuffon1)
+%         airpuff_period = cat(2,airpuff_period,airpuffon1(a):airpuffon1(a)+9);%300ms after airpuff onset is 10ish frames
+%     end
+%       
+%     % 1.stationary without airpuff 
+%     frm_stay = cell2mat(frames_stay_cell); 
+%     stay_noairpuff = setdiff(frm_stay,airpuff_period);% find the frames in frame_stay but not in airpuff_period
+%     %2.running without airpuff
+%     frm_run = cell2mat(frames_run_cell);
+%     run_noairpuff = setdiff(frm_run,airpuff_period);
     
+%     save([behav_dest{i} '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
+%         'airpuffon','speed','frames','frames_stay_cell','frames_bf_cell',...
+%         'frames_run_cell','frames_move_cell','airpuffon1','frm_stay','stay_noairpuff',...
+%         'airpuff_period','frm_run','run_noairpuff','frm_maxGap','-append');
     save([behav_dest{i} '\' sessionID '_' num2str(i) '_behavAnalysis.mat' ],...
-        'airpuffon','speed','frames','frames_stay_cell','frames_bf_cell',...
-        'frames_run_cell','frames_move_cell','airpuffon1','frm_stay','stay_noairpuff',...
-        'airpuff_period','frm_run','run_noairpuff');
-    % plot speed and save figure
-    fig_speedtc = figure;
-    plot(frames, speed); hold on;
-    if isempty(airpuffon1) == 0
-    vline(airpuffon1, 'r');
-    end
-    title (['average speed every frame(33ms)', '  ', sessionID '-' num2str(i)]);
-    xlabel ('frames');
-    ylabel ('speed(pulses/s)');
-    text(10,-20,['airpuff length ' num2str(lenairpuff) 's']);
-    saveas(fig_speedtc,[behav_dest{i} '\' sessionID '_' num2str(i) '_speed']);
+        'frm_maxGap','-append');
+%     % plot speed and save figure
+%     fig_speedtc = figure;
+%     plot(frames, speed); hold on;
+%     if isempty(airpuffon1) == 0
+%     vline(airpuffon1, 'r');
+%     end
+%     title (['average speed every frame(33ms)', '  ', sessionID '-' num2str(i)]);
+%     xlabel ('frames');
+%     ylabel ('speed(pulses/s)');
+%     text(10,-20,['airpuff length ' num2str(lenairpuff) 's']);
+%     saveas(fig_speedtc,[behav_dest{i} '\' sessionID '_' num2str(i) '_speed']);
 end
 % check if found frames are what I want to find
-figure;plot(speed);
-hold on;
-plot(cell2mat(frames_bf_cell), smallestspd*ones(1,length(cell2mat(frames_bf_cell))),'r.');
+% figure;plot(speed);
+% hold on;
+% plot(cell2mat(frames_bf_cell), smallestspd*ones(1,length(cell2mat(frames_bf_cell))),'r.');
 
 
 %% SECTION III: draw distribution of running duration

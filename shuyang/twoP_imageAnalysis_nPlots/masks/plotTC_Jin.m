@@ -41,7 +41,7 @@ colord=[         0         0    1.0000
     shift  = 0;
     fig = figure;
     for i = ICuse
-        plot(tc_avg(:,i)+shift,'Color',colord(mod(i-1,size(colord,1))+1,:)); hold on
+        plot(tc_avg(:,i)+shift,'Color',colord(mod(i-1,size(colord,1))+1,:)); hold on;
         %     if ismember(i, [5,10,15,20,25,30,35,40,45,50])
         %         hline(shift);
         %     end
@@ -49,9 +49,7 @@ colord=[         0         0    1.0000
     end
     set(gca,'YTick',4500:4500:shift);
     set(gca,'YTicklabel',(ICuse));
-    %saveas(fig, [out_dir, 'TC.fig']);
-   % print([out_dir, 'TC.eps'],'-depsc')
+   
     
-    % ylim([-delta 25]);
-    % xlim([0 100]);
+    
 end

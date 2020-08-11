@@ -8,12 +8,12 @@
 
 %% assign document paths and experimental sessions
 clear;
-sessions = '200305_img1049'; 
+sessions = '200319_img1064_airpuff_2'; 
 image_analysis_base = 'Z:\Analysis\motorizedWheel_Analysis\airpuff\imaging_analysis\'; 
 image_analysis_dest = [image_analysis_base, sessions, '\'];
 
 % behavior analysis results 
-days = '1049-200305_1';
+days = '1064-200319_2';
 behav_dest = ['Z:\Analysis\motorizedWheel_Analysis\airpuff\behavioral_analysis\' days '\'];
 color_code = {'b','r','k','c'};
 
@@ -239,8 +239,12 @@ dfOvF_airpuff_fast_cells = squeeze(mean(dfOvF_airpuff_fast,1)); %frame*cell
 dfOvF_airpuff_slow_cells = squeeze(mean(dfOvF_airpuff_slow,1));
 dfOvF_airpuff_stay_cells = squeeze(mean(dfOvF_airpuff_stay,1));
 
+%combine matrix of 2 running speeds
+dfOvF_airpuff_run = cat(1,dfOvF_airpuff_fast,dfOvF_airpuff_slow);
+
 save([image_analysis_dest sessions '_dfOvF.mat'],'dfOvF_airpuff_fast_cells',...
-    'dfOvF_airpuff_slow_cells','dfOvF_airpuff_stay_cells','-append');
+    'dfOvF_airpuff_slow_cells','dfOvF_airpuff_stay_cells',...
+    'dfOvF_airpuff_run','dfOvF_airpuff_stay','-append');
 
 %average across cells
 dfOvF_airpuff_fast_session = mean(dfOvF_airpuff_fast_cells,2);

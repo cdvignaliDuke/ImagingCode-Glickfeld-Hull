@@ -1,7 +1,10 @@
-date = '191201';
-mouse = '774';
-ImgFolder = '004';
-time = '1617';
+clear all
+close all
+
+date = '200715';
+mouse = 'i1324';
+ImgFolder = '001';
+time = '1015';
 doReg = 0;
 nrun = size(ImgFolder,1);
 rc = behavConstsAV;
@@ -18,13 +21,15 @@ for irun = 1:nrun
     if strcmp(rc.name,'ashle')
     CD = ['Z:\home\ashley\data\' mouse '\two-photon imaging\' date '\' ImgFolder(irun,:)];
     else
-    CD = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\2P_images\' date '_' mouse '\' ImgFolder(irun,:)];
+    CD = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\2P_images\' mouse '\' date '\' ImgFolder(irun,:)];
+    %CD = ['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\2P_images\' [date '_' mouse] '\' ImgFolder(irun,:)];
     end
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
 
     nframes = info.config.frames;
+    nframes = 4050;
     data_temp = sbxread([ImgFolder(irun,:) '_000_000'],0,nframes);
     fprintf(['Loaded ' num2str(nframes) ' frames \r\n'])
 

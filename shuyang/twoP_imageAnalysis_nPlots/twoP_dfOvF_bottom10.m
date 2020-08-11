@@ -1,5 +1,5 @@
 %% 2 photon: dfOvF
-% have to plot these after deconvolution. Because deconvolution tells you
+% have to run this script after deconvolution. Because deconvolution tells you
 % which cells are bad, and you don't look at the fluorescence of those cells (in section one, it's TCave_cl instead of TCave).
 % using bottom 10% of fluorescence values as baseline
 

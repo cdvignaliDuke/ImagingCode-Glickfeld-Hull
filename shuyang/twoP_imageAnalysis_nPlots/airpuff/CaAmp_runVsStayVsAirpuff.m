@@ -33,12 +33,14 @@ for ii = 1: length(sessions)
     behav_output = load([behav_dest days{ii} '_behavAnalysis.mat']);
     %behav_output = load([behav_dest days{i} '_first18000frames_behavAnalysis.mat']);
     frm_stay = behav_output.frm_stay;
+    frm_run = behav_output.frm_run;
     airpuff_period = behav_output.airpuff_period;
     run_noairpuff = behav_output.run_noairpuff;
     stay_noairpuff = behav_output.stay_noairpuff;
     puffresp_stay = intersect(airpuff_period,frm_stay);
+    puffresp_run = intersect(airpuff_period,frm_run);
     
-    % for each cell,find isolated events in running and stationary (no event within 650ms before that event)
+    % for each cell,find isolated events in running and stationary (no event within 600ms before that event)
     threshold = -4;
     spk_deconv_output = load([image_analysis_dest sessions{ii},'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
     spk_inx_neurons = spk_deconv_output.spk_inx_cl;
@@ -60,21 +62,26 @@ for ii = 1: length(sessions)
     spk_iso_stay_neurons = cell(1,size(spk_inx_neurons,2));% index of isolated event peaks during stationary, 1*# of neurons, each cell element is a vector
     spk_iso_run_neurons = cell(1,size(spk_inx_neurons,2));
     spk_iso_airpuff_stay_neurons = cell(1,size(spk_inx_neurons,2));
+    spk_iso_airpuff_run_neurons = cell(1,size(spk_inx_neurons,2));
     isoevent_stay_neurons = cell(1, size(spk_inx_neurons,2));% index of whole isolated event(1s) during stationary, 1*#of neurons, each cell element is a matrix(event*frames)
     isoevent_run_neurons = cell(1, size(spk_inx_neurons,2));
     isoevent_airpuff_stay_neurons = cell(1, size(spk_inx_neurons,2));
+    isoevent_airpuff_run_neurons = cell(1, size(spk_inx_neurons,2));
     dfOvF_btm_stay_isoevents = cell(1, size(spk_inx_neurons,2)); %df/f of whole isolated event(1s) during stationary, 1*#of neurons, each cell element is a matrix(event*frames)
     dfOvF_btm_run_isoevents = cell(1, size(spk_inx_neurons,2));
     dfOvF_btm_airpuff_stay_isoevents = cell(1, size(spk_inx_neurons,2));
+    dfOvF_btm_airpuff_run_isoevents = cell(1, size(spk_inx_neurons,2));
     dfOvF_btm_stay_isoevents_neurons = zeros(size(spk_inx_neurons,2),30);% average df/f of isolated event of each cell, averaged across events, neurons*frames
     dfOvF_btm_run_isoevents_neurons = zeros(size(spk_inx_neurons,2),30);
     dfOvF_btm_airpuff_stay_isoevents_neurons = zeros(size(spk_inx_neurons,2),30);
+    dfOvF_btm_airpuff_run_isoevents_neurons = zeros(size(spk_inx_neurons,2),30);
     
     dfOvF_btm_stay_rand_isoevents = [];
     dfOvF_btm_run_rand_isoevents = [];
     nevent_stay = [];
     nevent_run = [];
-    nevent = zeros(1,size(spk_inx_neurons,2));
+    ninclude_run = zeros(1,size(spk_inx_neurons,2));
+    ninclude_stay = zeros(1,size(spk_inx_neurons,2));
     % write spike event into matrices after getting index of spike peak, each event is 30 frames
     for c = 1: size(spk_inx_neurons,2)
         %stationary
@@ -100,6 +107,7 @@ for ii = 1: length(sessions)
         end
         %airpuff
         spk_iso_airpuff_stay_neurons{c} = intersect(puffresp_stay,isolated_inx_neurons{c});
+        spk_iso_airpuff_run_neurons{c} = intersect(puffresp_run,isolated_inx_neurons{c});
         %isolated event matrices, each event: 400ms (12 frames) before the peak and 600ms(18 frames) after the peak
         isoevent_airpuff_stay_neurons{c} = zeros(length(spk_iso_airpuff_stay_neurons{c}),30);
         dfOvF_btm_airpuff_stay_isoevents{c} =  zeros(length(spk_iso_airpuff_stay_neurons{c}),30); %each row is a spike, each column is a frame
@@ -108,28 +116,54 @@ for ii = 1: length(sessions)
             dfOvF_btm_airpuff_stay_isoevents{c}(s,:) = dfOvF_c(isoevent_airpuff_stay_neurons{c}(s,:));
         end
         
-        % draw same number of events from stationary and running and airpuff response then do average
-        if isempty(dfOvF_btm_run_isoevents) == 0 % for each cell, if there is isolated spike during running
-            nevent_stay = size(dfOvF_btm_stay_isoevents{c},1);
-            nevent_run = size(dfOvF_btm_run_isoevents{c},1);
-            nevent_puff_stay = size(dfOvF_btm_airpuff_stay_isoevents{c},1);
-            nevent(c) = min([nevent_stay,nevent_run,nevent_puff_stay]);
-            rand_stay = randperm(nevent_stay,nevent(c));
-            rand_run = randperm(nevent_run,nevent(c));
-            rand_puff_stay = randperm(nevent_puff_stay,nevent(c));
-            dfOvF_btm_stay_rand_isoevents = dfOvF_btm_stay_isoevents{c}(rand_stay,:);     
-            dfOvF_btm_stay_isoevents_neurons(c,:) = mean(dfOvF_btm_stay_rand_isoevents); % average across trials
-            dfOvF_btm_run_rand_isoevents = dfOvF_btm_run_isoevents{c}(rand_run,:);
-            dfOvF_btm_run_isoevents_neurons(c,:) = mean(dfOvF_btm_run_rand_isoevents);
-            dfOvF_btm_puff_stay_rand_isoevents = dfOvF_btm_airpuff_stay_isoevents{c}(rand_puff_stay,:);
-            dfOvF_btm_airpuff_stay_isoevents_neurons(c,:) = mean(dfOvF_btm_puff_stay_rand_isoevents);
+        isoevent_airpuff_run_neurons{c} = zeros(length(spk_iso_airpuff_run_neurons{c}),30);
+        dfOvF_btm_airpuff_run_isoevents{c} =  zeros(length(spk_iso_airpuff_run_neurons{c}),30); %each row is a spike, each column is a frame
+        for s = 1:length(spk_iso_airpuff_run_neurons{c})
+            isoevent_airpuff_run_neurons{c}(s,:) =  spk_iso_airpuff_run_neurons{c}(s)-11:spk_iso_airpuff_run_neurons{c}(s)+18;
+            dfOvF_btm_airpuff_run_isoevents{c}(s,:) = dfOvF_c(isoevent_airpuff_run_neurons{c}(s,:));
         end
+        
+        % draw same number of events from stationary and airpuff response during stationary; running and airpuff response during running then do average
+        % i.e.: you'll have same # of cells for stay and stay airpuff, and
+        % then same # of cells for running and running airpuff
+        % for each cell, if there is not an isolated spike during running
+        % or airpuff response window of running window, ninclude_run will
+        % be zero, and dfOvF_btm_run_rand_isoevents will be [],
+        % dfOvF_btm_run_isoevents_neurons(c,:) will be a line of Nans.
+        % You'll remove these lines below so don't need to write a if loop
+        % here. might not be the smartest way but it's accurate
+        nevent_run = size(dfOvF_btm_run_isoevents{c},1);
+        nevent_puff_run = size(dfOvF_btm_airpuff_run_isoevents{c},1);
+        %nevent_puff_run = size(dfOvF_btm_airpuff_run_isoevents{c},1);
+        ninclude_run(c) = min([nevent_run,nevent_puff_run]);
+        rand_run = randperm(nevent_run,ninclude_run(c));
+        rand_puff_run = randperm(nevent_puff_run,ninclude_run(c));
+        dfOvF_btm_run_rand_isoevents = dfOvF_btm_run_isoevents{c}(rand_run,:);
+        dfOvF_btm_run_isoevents_neurons(c,:) = mean(dfOvF_btm_run_rand_isoevents);% average across trials
+        dfOvF_btm_puff_run_rand_isoevents = dfOvF_btm_airpuff_run_isoevents{c}(rand_puff_run,:);
+        dfOvF_btm_airpuff_run_isoevents_neurons(c,:) = mean(dfOvF_btm_puff_run_rand_isoevents);
+        
+        
+        nevent_stay = size(dfOvF_btm_stay_isoevents{c},1);
+        nevent_puff_stay = size(dfOvF_btm_airpuff_stay_isoevents{c},1);
+        %nevent_puff_run = size(dfOvF_btm_airpuff_run_isoevents{c},1);
+        ninclude_stay(c) = min([nevent_stay,nevent_puff_stay]);
+        rand_stay = randperm(nevent_stay,ninclude_stay(c));
+        rand_puff_stay = randperm(nevent_puff_stay,ninclude_stay(c));
+        dfOvF_btm_stay_rand_isoevents = dfOvF_btm_stay_isoevents{c}(rand_stay,:);
+        dfOvF_btm_stay_isoevents_neurons(c,:) = mean(dfOvF_btm_stay_rand_isoevents); % average across trials
+        dfOvF_btm_puff_stay_rand_isoevents = dfOvF_btm_airpuff_stay_isoevents{c}(rand_puff_stay,:);
+        dfOvF_btm_airpuff_stay_isoevents_neurons(c,:) = mean(dfOvF_btm_puff_stay_rand_isoevents);
     end
            
-    % if there's a cell that doesn't spike during running,there will be a line of NaNs in dfOvF_btm_run/stay_isoevents_neurons, need to delete this Nan line before doing average
+    % if there's a cell that doesn't have well isolated spikes during running AND stationary,there will be a line of NaNs in dfOvF_btm_run/stay_isoevents_neurons, need to delete this Nan line before doing average
     dfOvF_btm_run_isoevents_neurons = dfOvF_btm_run_isoevents_neurons(all(~isnan(dfOvF_btm_run_isoevents_neurons),2),:);
     ave_dfOvF_btm_run_iso_session = mean(dfOvF_btm_run_isoevents_neurons);% average across cells
     ste_dfOvF_btm_run_iso_session = std(dfOvF_btm_run_isoevents_neurons,0,1)/sqrt(size(dfOvF_btm_run_isoevents_neurons,1)); % ste
+    
+    dfOvF_btm_airpuff_run_isoevents_neurons = dfOvF_btm_airpuff_run_isoevents_neurons(all(~isnan(dfOvF_btm_airpuff_run_isoevents_neurons),2),:);
+    ave_dfOvF_btm_airpuff_run_iso_session = mean(dfOvF_btm_airpuff_run_isoevents_neurons);
+    ste_dfOvF_btm_airpuff_run_iso_session = std(dfOvF_btm_airpuff_run_isoevents_neurons,0,1)/sqrt(size(dfOvF_btm_airpuff_run_isoevents_neurons,1));
     
     dfOvF_btm_stay_isoevents_neurons = dfOvF_btm_stay_isoevents_neurons(all(~isnan(dfOvF_btm_stay_isoevents_neurons),2),:);
     ave_dfOvF_btm_stay_iso_session = mean(dfOvF_btm_stay_isoevents_neurons);
@@ -148,15 +182,18 @@ for ii = 1: length(sessions)
     x = (1:30)/30;
     Caevent = figure;
     errorbar(x,ave_dfOvF_btm_stay_iso_session,ste_dfOvF_btm_stay_iso_session,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
-    errorbar(x,ave_dfOvF_btm_run_iso_session,ste_dfOvF_btm_run_iso_session,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); hold on;
-    errorbar(x,ave_dfOvF_btm_airpuff_stay_iso_session,ste_dfOvF_btm_airpuff_stay_iso_session,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);hold on;
+    errorbar(x,ave_dfOvF_btm_run_iso_session,ste_dfOvF_btm_run_iso_session,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20); 
+    errorbar(x,ave_dfOvF_btm_airpuff_stay_iso_session,ste_dfOvF_btm_airpuff_stay_iso_session,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);
+    errorbar(x,ave_dfOvF_btm_airpuff_run_iso_session,ste_dfOvF_btm_airpuff_run_iso_session,'.','LineStyle','-','linewidth', 1.25,'MarkerSize',20);
     % number of calcium events is wrong in the current legend
-    legend('stationary', 'running','airpuff response_stationary');
+    legend('stationary', 'running','airpuff response stationary','airpuff response run');
     ylabel('df/f');
     xlabel('time(s)');
     title(sessions(ii));
-    text(0.75,0.45, ['nevents = ' num2str(sum(nevent))]);
-    text(0.75,0.4, ['nPCs = ' num2str(size(dfOvF_btm_stay_isoevents_neurons,1))]);
+    text(0.75,0.6, ['nrunevents = ' num2str(sum(ninclude_run))]);
+    text(0.75,0.55,['nstayevents = ' num2str(sum(ninclude_stay))]);
+    text(0.75,0.5, ['nPCs stay = ' num2str(size(dfOvF_btm_stay_isoevents_neurons,1))]);
+    text(0.75,0.45,['nPCs run = ' num2str(size(dfOvF_btm_run_isoevents_neurons,1))]);
     saveas(Caevent,[image_analysis_dest '\' days{ii} '_CaAmp_runVsStayVsAirpuff']);
     % save variables
     
@@ -166,9 +203,11 @@ for ii = 1: length(sessions)
         'isoevent_stay_neurons','isoevent_run_neurons','dfOvF_btm_stay_isoevents','dfOvF_btm_run_isoevents',...
         'dfOvF_btm_stay_isoevents_neurons','dfOvF_btm_run_isoevents_neurons',...
         'ave_dfOvF_btm_stay_iso_session','ste_dfOvF_btm_stay_iso_session',...
-        'ave_dfOvF_btm_run_iso_session','ste_dfOvF_btm_run_iso_session','nevent',...
-        'dfOvF_btm_airpuff_stay_isoevents_neurons','ave_dfOvF_btm_airpuff_stay_iso_session','ste_dfOvF_btm_airpuff_stay_iso_session',...
-        'dfOvF_btm_airpuff_stay_isoevents');
+        'ave_dfOvF_btm_run_iso_session','ste_dfOvF_btm_run_iso_session','ninclude_run','ninclude_stay',...
+        'dfOvF_btm_airpuff_stay_isoevents_neurons','ave_dfOvF_btm_airpuff_stay_iso_session',...
+        'ste_dfOvF_btm_airpuff_stay_iso_session','dfOvF_btm_airpuff_stay_isoevents',...
+        'dfOvF_btm_airpuff_run_isoevents_neurons','ave_dfOvF_btm_airpuff_run_iso_session',...
+        'ste_dfOvF_btm_airpuff_run_iso_session','dfOvF_btm_airpuff_run_isoevents');
     % else
 %     fprintf(['no running trials longer than 2s in this session ' sessions{ii}]);
 %     save([image_analysis_dest sessions{ii} '_isoCaEvent.mat'],'frm_stay_midpart',...

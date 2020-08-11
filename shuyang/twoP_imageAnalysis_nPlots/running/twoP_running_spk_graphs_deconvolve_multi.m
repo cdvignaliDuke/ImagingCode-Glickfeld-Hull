@@ -1,7 +1,7 @@
 % same thing as twoP_running_spk_graphs, !!! but using result of spike
 % identification by doing deconvolution
 % 2 photon: RUNNING ---- spikes
-%plot average spike rate for all cells in one trial, aligned with running onset and offset
+%plot average spike rate for all cells across trials, aligned with running onset and offset
 %scatter plot running vs. still (each dot should be a cell)
 
 %% assign document paths and experimental sessions
@@ -12,7 +12,7 @@ image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\';
 color_code = {'b','r','k','c'};
 
 %% SECTION IV FR RUNNING VS. STAYTIONARY
-for i = 1: size(sessions,2)
+for i = 4
     image_analysis_dest = [image_analysis_base, sessions{i}, '\'];
     behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days{i} '\'];
     behav_output = load([behav_dest days{i} '_behavAnalysis.mat']);
@@ -32,21 +32,37 @@ for i = 1: size(sessions,2)
     FRrun_cells = spkrun/t_run;
     aveFR_run = mean(FRrun_cells);
     aveFR_stay = mean(FRstay_cell_cl);
-    figure;
-    scatter(FRstay_cell_cl,FRrun_cells,70,'filled','r'); hold on;
-    scatter(aveFR_stay, aveFR_run,70,'filled','k');hold on;
+    
+    eg_stayvsRun = figure;
+    scatter(FRstay_cell_cl,FRrun_cells,15,'filled','MarkerEdgeColor',[0.45 0.45 0.45],'MarkerFaceColor',[0.45 0.45 0.45]); hold on;
+    scatter(aveFR_stay, aveFR_run,15,'filled','MarkerEdgeColor',[0.8431 0.0980 0.1098],'MarkerFaceColor',[0.8431 0.0980 0.1098]);hold on;
     xlabel('stationary'); ylabel('running');
-    xlim([0,1.5]); ylim([0,1.5]);
-    refline(1,0); axis square;
-    title([sessions{i} 'mean firing rate per second']);
-    savefig([image_analysis_dest sessions{i} '_meanFRstayVSrun_deconvolve' num2str(threshold)]);
+    xlim([0,1.6]); ylim([0,1.6]);
+    line = refline(1,0);
+    line.Color = 'r';
+    line.LineWidth = 1;
+    axis square;
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontSize',7);
+    eg_stayvsRun.Units = 'centimeters';
+    eg_stayvsRun.Position = [1 1 4 4];
+    fig_name = 'eg_scatter_stayVsrun_190603_img1025';
+    path = 'Z:\Analysis\figures\figure3_2Prun_spike\';
+    orient(eg_stayvsRun,'landscape');
+    print(eg_stayvsRun,[path,fig_name],'-r600','-depsc');
+    
+    
+%     title([sessions{i} 'mean firing rate per second']);
+%     savefig([image_analysis_dest sessions{i} '_meanFRstayVSrun_deconvolve' num2str(threshold)]);
+%     save([image_analysis_dest sessions{i},'_spk_deconvolve_threshold' num2str(threshold) '.mat'],...
+%         'FRrun_cells','aveFR_stay','aveFR_run','-append');
     
     %pause;
 end
 
 %finish
 %% SECTION V : run trigger average and run offset average--- spikes rates
-for i = 1: size(sessions,2)
+for i = 4
     image_analysis_dest = [image_analysis_base, sessions{i}, '\'];
     behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days{i} '\'];
     behav_output = load([behav_dest days{i} '_behavAnalysis.mat']);
@@ -54,10 +70,10 @@ for i = 1: size(sessions,2)
     speed = double(behav_output.speed);
     frms_runTrig_mat = behav_output.frms_runTrig_mat;
     frms_runoff_mat = behav_output.frms_runoff_mat;
-    mean_runtrig_every100ms = behav_output.mean_runtrig_every100ms;
-    mean_runoff_every100ms = behav_output.mean_runoff_every100ms;
-    ste_runtrig_every100ms = behav_output.ste_runtrig_every100ms;
-    ste_runoff_every100ms = behav_output.ste_runoff_every100ms;
+    avespd_runtrig_100ms = behav_output.avespd_runtrig_100ms;
+    avespd_runoff_100ms = behav_output.avespd_runoff_100ms;
+    stespd_runtrig_100ms = behav_output.stespd_runtrig_100ms;
+    stespd_runoff_100ms = behav_output.stespd_runoff_100ms;
     
     threshold = -4;
     spk_deconv_output = load([image_analysis_dest sessions{i},'_spk_deconvolve_threshold' num2str(threshold) '.mat']);
@@ -95,18 +111,30 @@ for i = 1: size(sessions,2)
         disp('!!There is only one or no running trig window in fullfills the criteria, not plotting!!');
         disp(sessions{i});
     else
-        x = (1:size(frms_runTrig_mat,1))/30;
-        figure; subplot(2,1,1);
+        x = (1:size(frms_runTrig_mat,1))/30-1;
+        eg_spk_runtrig = figure; subplot(2,1,1);
+        %shadedErrorBar(x,spk_runtrig_grand,ste_runtrig,{'color',[0.4660, 0.6740, 0.1880]}); % matlab default green
         shadedErrorBar(x,spk_runtrig_grand,ste_runtrig,{'color',[0.1922 0.6392 0.3294]});hold on;
-        ylim([-0.1,3.5]); hold on;
-        vline(1,'r'); ylabel('average firing rate'); 
-        title([sessions{i} ' aligned to running onset-deconvolution']);
+        ylim([-0.1,2.6]); xlim([-1.1 1.6]);hold on;
+        vline(0,'k'); ylabel('firing rate(Hz)'); 
+        a = get(gca,'XTickLabel');
+        set(gca,'XTickLabel',a,'FontSize',7);
+        %title([sessions{i} ' aligned to running onset-deconvolution']);
         subplot(2,1,2);%plot(speed_runtrig);
-        shadedErrorBar(x,mean_runtrig_every100ms*2*3.1415926*7.5/128, ste_runtrig_every100ms*2*3.1415926*7.5/128,{'color',[0.0196 0.4392 0.6902]});hold on;
-        vline(1,'r'); ylabel('speed(cm/s)'); xlabel('time(s)');
-        ylim([-5 20]);
+        shadedErrorBar(x,avespd_runtrig_100ms*2*3.1415926*7.5/128, stespd_runtrig_100ms*2*3.1415926*7.5/128,{'color','k'});hold on;
+        ylabel('speed(cm/s)'); xlabel('time from running onset(s)');
+        ylim([0 15]);xlim([-1.1 1.6]);
+        vline(0,'k'); 
+        a = get(gca,'XTickLabel');
+        set(gca,'XTickLabel',a,'FontSize',7);
+        eg_spk_runtrig.Units = 'centimeters';
+        eg_spk_runtrig.Position = [1 1 5.5 5];
+        fig_name = 'eg_spk_runtrig_190603_img1025';
+        path = 'Z:\Analysis\figures\figure3_2Prun_spike\';
+        orient(eg_spk_runtrig,'landscape');
+        print(eg_spk_runtrig,[path,fig_name],'-r600','-depsc');
         %title([sessions ' running triggered average speed']);
-        savefig([image_analysis_dest sessions{i} '_runTrigAve_FRwSpeed_deconvolve' num2str(threshold)]);
+        %savefig([image_analysis_dest sessions{i} '_runTrigAve_FRwSpeed_deconvolve' num2str(threshold)]);
     end
     
     % aligned with running offset ------------------------------------------------------------------------------
@@ -130,22 +158,32 @@ for i = 1: size(sessions,2)
         disp('!!There is only one or no running off window in fullfills the criteria, not plotting!!');
         disp(sessions{i});
     else
-        x = (1:size(frms_runoff_mat,1))/30;
-        figure; subplot(2,1,1);
-        shadedErrorBar(x,spk_runoff_grand,ste_runoff,{'color',[0.1922 0.6392 0.3294]});hold on;
-        ylim([-0.1,3.5]); hold on;
-        vline(1,'r'); ylabel('average firing rate');
-        title([sessions{i} ' aligned to running offset-deconvolution']);
-        
-        subplot(2,1,2);%plot(speed_runoff);
-        shadedErrorBar(x,mean_runoff_every100ms*2*3.1415926*7.5/128, ste_runoff_every100ms*2*3.1415926*7.5/128,{'color',[0.0196 0.4392 0.6902]});hold on;
-        vline(1,'r'); ylabel('speed(cm/s)');xlabel('time(s)');%title([sessions ' running triggered average speed']);
-        ylim([-5 20]);
-        savefig([image_analysis_dest sessions{i} '_runOffAve_FRwSpeed' num2str(threshold)]);
+        x = (1:size(frms_runoff_mat,1))/30-1;
+        eg_spk_runoff = figure; subplot(2,1,1);
+        shadedErrorBar(x,spk_runoff_grand,ste_runtrig,{'color',[0.1922 0.6392 0.3294]});hold on;
+        ylim([-0.1,2.6]); xlim([-1.1 1.6]);hold on;
+        vline(0,'k'); ylabel('firing rate(Hz)'); 
+        a = get(gca,'XTickLabel');
+        set(gca,'XTickLabel',a,'FontSize',7);
+        %title([sessions{i} ' aligned to running offset-deconvolution']);
+        subplot(2,1,2);
+        shadedErrorBar(x,avespd_runoff_100ms*2*3.1415926*7.5/128, stespd_runoff_100ms*2*3.1415926*7.5/128,{'color','k'});hold on;
+        ylabel('speed(cm/s)'); xlabel('time from running offset(s)');
+        ylim([0 15]);xlim([-1.1 1.6]);
+        vline(0,'k'); 
+        a = get(gca,'XTickLabel');
+        set(gca,'XTickLabel',a,'FontSize',7);
+        eg_spk_runoff.Units = 'centimeters';
+        eg_spk_runoff.Position = [1 1 5.5 5];
+        fig_name = 'eg_spk_runoff_190603_img1025';
+        path = 'Z:\Analysis\figures\figure3_2Prun_spike\';
+        orient(eg_spk_runoff,'landscape');
+        print(eg_spk_runoff,[path,fig_name],'-r600','-depsc');
+        %savefig([image_analysis_dest sessions{i} '_runOffAve_FRwSpeed' num2str(threshold)]);
     end
     %pause;
-    save([image_analysis_dest sessions{i},'_spk_deconvolve_threshold' num2str(threshold) '.mat'],...
-        'spk_runtrig_mat','spk_runoff_mat','-append');
+%     save([image_analysis_dest sessions{i},'_spk_deconvolve_threshold' num2str(threshold) '.mat'],...
+%         'spk_runtrig_mat','spk_runoff_mat','-append');
 end
 
 
