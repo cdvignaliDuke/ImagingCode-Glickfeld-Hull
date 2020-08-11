@@ -1,19 +1,19 @@
 clear all
 clear global
 %% get path names
-date = '200120';
-ImgFolder = strvcat('002');
-time = strvcat('1445');
-mouse = 'i1313';
-alignToRef = 1;
+date = '200106';
+ImgFolder = strvcat('003');
+time = strvcat('1251');
+mouse = 'i1316';
+alignToRef = 0;
 ref_date = '200118';
 ref_run = strvcat('002');
 nrun = size(ImgFolder,1);
 frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
-gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\data\2P_images';
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
+gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 behav_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 %% load and register
 data = [];
@@ -21,7 +21,7 @@ clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = fullfile(gl_fn, [mouse '\' date '\' ImgFolder(irun,:)]);
+    CD = fullfile(gl_fn, [mouse '\' date '_' mouse '\' ImgFolder(irun,:)]);
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
@@ -384,6 +384,7 @@ npSub_tc = npSub_tc';
 np_tc = np_tc';
 data_tc = data_tc';
 %% 
+date = '200108';
 Dir = cell2mat(input.tGratingDirectionDeg);
     Dirs = unique(Dir);
     nDirs = length(Dirs);
@@ -450,7 +451,7 @@ if isfield(input, 'nScansOn');
             title([num2str(Dirs(max_dir(i,:))) ' deg'])
         end
     end
-        print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str2], [date '_' mouse '_' run_str2 '_dirTuning.pdf']),'-dpdf')
+        print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dirTuning.pdf']),'-dpdf')
 
     
     nori = length(Dirs)/2;
@@ -497,8 +498,8 @@ if isfield(input, 'nScansOn');
     end
     
     good_ind = unique([find(x)'; find(sum(h_dir,2)>0); find(sum(h_ori,2)>0)]);
-    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str2], [date '_' mouse '_' run_str2 '_oriTuning.pdf']),'-dpdf')
-    save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str2], [date '_' mouse '_' run_str2 '_trialData.mat']),'data_dfof','max_dir','h_dir', 'h_ori', 'max_ori','good_ind')
+    print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuning.pdf']),'-dpdf')
+    save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_trialData.mat']),'data_dfof','max_dir','h_dir', 'h_ori', 'max_ori','good_ind')
 end
 
 %% ori fitting
@@ -515,10 +516,10 @@ data_tc_down = squeeze(mean(reshape(npSub_tc, [down,nframes,nCells]),1));
 
 tuningDownSampFactor = down;
 [avgResponseEaOri,semResponseEaOri,vonMisesFitAllCellsAllBoots,fitReliability,R_square,tuningTC] = ...
-    getOriTuningLG(data_tc_down(:,cells_all),input,tuningDownSampFactor);
+    getOriTuningLG(data_tc_down,input,tuningDownSampFactor);
     vonMisesFitAllCells = squeeze(vonMisesFitAllCellsAllBoots(:,1,:));
 
-save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str2], [date '_' mouse '_' run_str2 '_oriTuningAndFits.mat']),...
+save(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningAndFits.mat']),...
             'avgResponseEaOri','semResponseEaOri','vonMisesFitAllCellsAllBoots','fitReliability','R_square', 'tuningTC')
 
 %%
@@ -534,8 +535,7 @@ else
 end
 start = 1;
 x = 0;
-for icell = 1:length(cells_all)
-    ic = cells_all(icell);
+for ic = 1:nCells
     if start > 49
         suptitle([mouse ' ' date ' n = ' num2str(length(find(fitReliability<22.5))) '/' num2str(nCells) '- well-fit'])
         print(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_oriTuningFits_cells' num2str(start-49) '-' num2str(start-1) '.pdf']),'-dpdf','-fillpage')
@@ -543,7 +543,7 @@ for icell = 1:length(cells_all)
         x = x+1;
         figure;
     end
-    subplot(n,n2,icell-(x.*49))
+    subplot(n,n2,ic-(x.*49))
     errorbar(oris,avgResponseEaOri(ic,:), semResponseEaOri(ic,:),'-o')
     hold on
     plot(0:180,vonMisesFitAllCellsAllBoots(:,1,ic));

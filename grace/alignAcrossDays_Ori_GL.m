@@ -1,14 +1,14 @@
 clear all
 clear global
 %% 
-mouse = 'i1312';
-day2 = '200120';
-day3 = '200201';
+mouse = 'i1316';
+day2 = '200108';
+day3 = '200109';
 % day4 = '200110';
-ImgFolder = strvcat('002');
+ImgFolder = strvcat('003');
 ImgFolder2 = strvcat('003');
-ref_date = '200118';
-ref_run = strvcat('002');
+ref_date = '200106';
+ref_run = strvcat('003');
 nrun = size(ImgFolder,1);
 nrun2 = size(ImgFolder2,1);
 frame_rate = 15.5;
@@ -16,7 +16,7 @@ run_str = catRunName(ImgFolder, nrun);
 run_str2 = catRunName(ImgFolder2, nrun2);
 run_str3 = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 
 %% load data
 oriTuning_D1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_oriTuningAndFits.mat']));
@@ -29,13 +29,20 @@ TCs_D2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [
 TCs_D3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_TCs.mat']));
 % TCs_D4 = load(fullfile(fnout, [day4 '_' mouse], [day4 '_' mouse '_' run_str], [day4 '_' mouse '_' run_str '_TCs.mat']));
 
+trialData_D1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_trialData.mat']));
+trialData_D2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_trialData.mat']));
+trialData_D3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_trialData.mat']));
+
 %% define variables
 cells_all2 = TCs_D2.cells_all;
-goodfit_d1 = find(oriTuning_D1.fitReliability<22.5);
-goodfit_D1 = intersect(goodfit_d1,cells_all2);
-goodfit_d2 = find(oriTuning_D2.fitReliability<22.5);
-goodfit_D2 = cells_all(goodfit_d2);
+cells_all3 = TCs_D3.cells_all;
+cells_all = intersect(cells_all2,cells_all3);
+% cells_all3 = cells_all3';
+goodfit_D1 = find(oriTuning_D1.fitReliability<22.5);
+goodfit_D2 = find(oriTuning_D2.fitReliability<22.5);
+% goodfit_D2 = cells_all2(goodfit_d2);
 goodfit_D3 = find(oriTuning_D3.fitReliability<22.5);
+% goodfit_D3 = intersect(cells_all3,goodfit_d3);
 % goodfit_D4 = find(oriTuning_D4.fitReliability<22.5);
 gdft_D1 = length(goodfit_D1);
 gdft_D2 = length(goodfit_D2);
@@ -46,16 +53,22 @@ goodfit2 = intersect(goodfit, goodfit_D3);
 % goodfit3 = intersect(goodfit2, goodfit_D4);
 goodfit3to1 = intersect(goodfit_D1, goodfit_D3);
 % goodfit4to1 = intersect(goodfit_D1, goodfit_D4);
-nCells = size(goodfit,2);
+fitR1 = oriTuning_D1.fitReliability;
+fitR2 = oriTuning_D2.fitReliability;
+fitR3 = oriTuning_D3.fitReliability;
 
 [maxResp_D1 prefOri_D1] = max(squeeze(oriTuning_D1.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 [maxResp_D2 prefOri_D2] = max(squeeze(oriTuning_D2.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 [maxResp_D3 prefOri_D3] = max(squeeze(oriTuning_D3.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 % [maxResp_D4 prefOri_D4] = max(squeeze(oriTuning_D4.vonMisesFitAllCellsAllBoots(:,1,:)),[],1);
 
-prefOri2_temp = nan(1,nCells1);
-prefOri2_temp(cells_all2) = prefOri_D2;
-prefOri_D2 = prefOri2_temp;
+data_dfof1 = squeeze(mean(trialData_D1.data_dfof,1));
+data_dfof2 = squeeze(mean(trialData_D2.data_dfof,1));
+data_dfof3 = squeeze(mean(trialData_D3.data_dfof,1));
+
+avgResp_D1 = oriTuning_D1.avgResponseEaOri;
+avgResp_D2 = oriTuning_D2.avgResponseEaOri;
+avgResp_D3 = oriTuning_D3.avgResponseEaOri;
 
 % day 1
 load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_input.mat']));
@@ -105,6 +118,22 @@ trial_tc3 = reshape(npSub_tc3,[nFrames3 nTrials3 nCells3]);
 trial_f3 = mean(trial_tc3(nOff3/2:nOff3,:,:),1);
 trial_dfof3 = (trial_tc3-trial_f3)./trial_f3;
 
+
+% prefOri2_temp = nan(1,nCells1);
+% prefOri2_temp(cells_all2) = prefOri_D2;
+% prefOri_D2 = prefOri2_temp;
+% 
+% maxResp2_temp = nan(1,nCells1);
+% maxResp2_temp(cells_all2) = maxResp_D2;
+% maxResp_D2 = maxResp2_temp;
+% 
+% prefOri3_temp = nan(1,nCells1);
+% prefOri3_temp(:,cells_all3) = prefOri_D3;
+% prefOri_D3 = prefOri3_temp;
+% 
+% maxResp3_temp = nan(1,nCells1);
+% maxResp3_temp(cells_all3) = maxResp_D3;
+% maxResp_D3 = maxResp3_temp;
 % day 4
 % load(fullfile(fnout, [day4 '_' mouse], [day4 '_' mouse '_' run_str], [day4 '_' mouse '_' run_str '_input.mat']));
 % tGratingDir4 = celleqel2mat_padded(input.tGratingDirectionDeg);
@@ -121,41 +150,300 @@ trial_dfof3 = (trial_tc3-trial_f3)./trial_f3;
 % trial_f4 = mean(trial_tc4(nOff4/2:nOff4,:,:),1);
 % trial_dfof4 = (trial_tc4-trial_f4)./trial_f4;
 
+%% Multiple Comparison Test
+dir_mat = tGratingDir1;
+dirs = unique(dir_mat);
+ndir = length(dirs);
+ori_mat = dir_mat;
+ori_mat(find(dir_mat>=180)) = ori_mat(dir_mat>=180)-180;
+oris = unique(ori_mat);
+nori = length(oris);
+% perform anova on dfof values for each trial for each cell
+[p,t,stats] = anova1(data_dfof1);
+[c,m,h,nms] = multcompare(stats);
+
+% signal correlation matrix of pref ori between days
+goodfit_PO1 = prefOri_D1(goodfit);
+goodfit_AR1 = avgResp_D1(goodfit',:);
+goodfit_PO2 = prefOri_D2(goodfit);
+goodfit_AR2 = avgResp_D2(goodfit',:);
+[B,I] = sort(goodfit_PO1);
+[b,i] = sort(goodfit_PO2);
+color_axis_limit = [-1 1];
+figure;
+colormap(brewermap([],'*RdBu'))
+imagesc(corrcoef(goodfit_AR1(I,:)'))
+colorbar
+clim(color_axis_limit)
+xlabel('nCells in order of pref ori','FontSize',20)
+ylabel('nCells in order of pref ori','FontSize',20)
+title('signal correlation of avg responses for each ori','FontSize',20)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['signal_corr_matrix_goodfit.pdf']),'-dpdf', '-bestfit')
+
+% in order of day 1 pref ori (I)
+signal_corr1 = corrcoef(goodfit_AR1(I,:)');
+signal_corr2 = corrcoef(goodfit_AR2(I,:)');
+signal_diff12 = signal_corr1-signal_corr2;
+color_axis_limit = [-1 1];
+figure;
+colormap(brewermap([],'*RdBu'))
+imagesc(signal_diff12)
+colorbar
+clim(color_axis_limit)
+xlabel('nCells in order of D1 pref ori','FontSize',20)
+ylabel('nCells in order of D1 pref ori','FontSize',20)
+title('change in signal correlation of avg responses for each ori','FontSize',20)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['signal_corr_diff1_GF.pdf']),'-dpdf', '-bestfit')
+
+% in order of day 2 pref ori (i)
+signal_corr1 = corrcoef(goodfit_AR1(i,:)');
+signal_corr2 = corrcoef(goodfit_AR2(i,:)');
+signal_diff12 = signal_corr2-signal_corr1;
+color_axis_limit = [-1 1];
+figure;
+colormap(brewermap([],'*RdBu'))
+imagesc(signal_diff12)
+colorbar
+clim(color_axis_limit)
+xlabel('nCells in order of D2 pref ori','FontSize',20)
+ylabel('nCells in order of D2 pref ori','FontSize',20)
+title('change in signal correlation of avg responses for each ori','FontSize',20)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['signal_corr_diff2_GF.pdf']),'-dpdf', '-bestfit')
+
+% scatter
+nCells = length(goodfit);
+diffOri1 = zeros(nCells,nCells);
+diffOri2 = zeros(nCells,nCells);
+diffOri3 = zeros(nCells,nCells);
+ddeltaOri = zeros(nCells,nCells);
+diffSigCor = zeros(nCells,nCells);
+for icell = 1:length(goodfit)
+    iCell = (goodfit(icell));
+    for ic = 1:length(goodfit)
+        iC = goodfit(ic);
+    diffOri1(iC,iCell) = prefOri_D1(iC) - prefOri_D1(iCell);
+    diffOri2(iC,iCell) = prefOri_D2(iC) - prefOri_D2(iCell);
+    diffOri3(iC,iCell) = prefOri_D3(iC) - prefOri_D3(iCell);
+    ddeltaOri(iC,iCell) = diffOri1(iC,iCell)-diffOri2(iC,iCell);
+    D1sigcor = triu2vec(corrcoef(avgResp_D1(iC,:),avgResp_D1(iCell,:)));
+    D2sigcor = triu2vec(corrcoef(avgResp_D2(iC,:),avgResp_D2(iCell,:)));
+    diffSigCor(iC,iCell) = D1sigcor - D2sigcor;
+    end
+end
+% diffOri1 = tril(diffOri1);
+% diffOri1(diffOri1==0)=[];
+% diffOri2 = tril(diffOri2);
+% diffOri2(diffOri2==0)=[];
+% diffOri3 = tril(diffOri3);
+% diffOri3(diffOri3==0)=[];
+% PO1 = find(diffOri1<22.5&diffOri1>-22.5);
+% PO2 = find(diffOri2<22.5&diffOri2>-22.5);
+% PO3 = find(diffOri3<22.5&diffOri3>-22.5);
+% prefOri2 = intersect(PO1,PO2);
+% prefOri3 = intersect(PO1,PO3);
+deltPrefOri = tril(ddeltaOri);
+deltPrefOri(deltPrefOri==0)=[];
+deltSigCor = tril(diffSigCor);
+deltSigCor(deltSigCor==0)=[];
+figure;scatter(deltPrefOri,deltSigCor(1:344))
+xlabel('delta pref ori D1 - delta pref ori D2','FontSize',20)
+ylabel('difference in D1 vs D2 signal corr','FontSize',20)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['signal_corr_scatter.pdf']),'-dpdf', '-bestfit')
+
+
+% all cell pairs
+D1 = tril(triu2vec(corrcoef(avgResp_D1,avgResp_D1)));
+D2 = tril(triu2vec(corrcoef(avgResp_D2,avgResp_D2)));
+D3 = tril(triu2vec(corrcoef(avgResp_D3,avgResp_D3)));
+D1(D1==0)=[];
+D2(D2==0)=[];
+D3(D3==0)=[];
+b = [D1(1:100)' D2(1:100)' D3(1:100)'];
+x = [1 2 3];
+figure;
+plot(x,b)
+
+D12same = find(D2<D1+0.2 & D2>D1-0.2);
+D12large = find(D2>D1+0.2);
+D12small = find(D2<D1-0.2);
+D13same = find(D3<D1+0.2 & D3>D1-0.2);
+D13large = find(D3>D1+0.2);
+D13small = find(D3<D1-0.2);
+overlapSame = intersect(D12same,D13same);
+overlapLarge = intersect(D12large,D13large);
+overlapSmall = intersect(D12small,D13small);
+b = [length(D12same) length(D13same) length(overlapSame);length(D12large) length(D13large) length(overlapLarge);length(D12small) length(D13small) length(overlapSmall)];
+figure;
+c = bar(b);
+cellnames = {'within 0.2','greater than 0.2','less than 0.2'};
+set(gca,'xticklabel',cellnames,'FontSize',20)
+ylabel('n cell pairs')
+legend({'Days 1 & 2', 'Days 1 & 3','overlap'},'Location','northeast')
+c(1).FaceColor = [0 0.3906 0];
+c(2).FaceColor = [0.1797 0.5430 0.3398];
+c(3).FaceColor = [0.5625 0.9297 0.5625];
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['signal_corr_flux.pdf']),'-dpdf', '-bestfit')
+
+
+% noise correlation
+% ind is the trials where the orientations are the same
+delta_dfof1 = zeros(nCells1,nTrials1);
+for idir = 1:ndir
+    ind = find(dir_mat == dirs(idir));
+    for iI = 1:length(ind)
+    iind = ind(iI);
+    delta_dfof1(:,iind) = data_dfof1(:,iind) - mean(data_dfof1(:,ind),2);
+    end
+end
+
+dir_mat = tGratingDir2;
+ori_mat = dir_mat;
+ori_mat(find(dir_mat>=180)) = ori_mat(dir_mat>=180)-180;
+oris = unique(ori_mat);
+nori = length(oris);
+delta_dfof2 = zeros(nCells1,nTrials1);
+for iori = 1:nori
+    ind = find(ori_mat == oris(iori));
+    for iI = 1:length(ind)
+    iind = ind(iI);
+    delta_dfof2(:,iind) = data_dfof2(:,iind) - avgResp_D2(:,iori);
+    end
+end
+
+[B,I] = sort(dir_mat);
+figure;bar(mean(delta_dfof1(:,I),1))
+xlabel('nTrials in order of direction','FontSize',20)
+ylabel('individual resp for each trial - avg resp for each ori','FontSize',20)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['delta_dfof.pdf']),'-dpdf', '-bestfit')
+vline([1:20:160])
+summ = zeros(nCells1,1);
+[B,I] = sort(prefOri_D1);
+for iCell = 1:nCells1
+for iori = 1:nori
+    ind = find(ori_mat == oris(iori));
+    summ(iCell) = sum(delta_dfof1(I(iCell),ind),2);
+end
+end
+T = array2table(summ);
+plot(T{:,:})
+xlabel('nCells in order of pref ori','FontSize',20)
+ylabel('sum of resp for each trial - avg resp for each ori','FontSize',20)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['summ_delta_dfof.pdf']),'-dpdf', '-bestfit')
+
+T = array2table(summ);
+TString = evalc('disp(T)');
+TString = strrep(TString,'<strong>','\bf');
+TString = strrep(TString,'</strong>','\rm');
+TString = strrep(TString,'_','\_');
+FixedWidth = get(0,'FixedWidthFontName');
+annotation(gcf,'Textbox','String',TString,'Interpreter','Tex','FontName',FixedWidth,'Units','Normalized','Position',[0 0 1 1]);
+
+
+[B,I] = sort(prefOri_D1);
+color_axis_limit = [-1 1];
+figure;
+colormap(brewermap([],'*RdBu'))
+imagesc(corrcoef(delta_dfof1(I,:)'))
+colorbar
+clim(color_axis_limit)
+xlabel('nCells in order of pref ori','FontSize',20)
+ylabel('nCells in order of pref ori','FontSize',20)
+title('noise correlation of dfof fluctuations','FontSize',20)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['noise_corr_matrix.pdf']),'-dpdf', '-bestfit')
+
+cells_together = delta_dfof1 - mean(delta_dfof1,1);
+figure;
+bar(mean(cells_together,1))
 %% original plots 
 figure; 
-subplot(2,2,1)
-scatter(prefOri_D1(goodfit_D2),prefOri_D2(goodfit_d2))
+subplot(1,2,1)
+scatter(prefOri_D1,prefOri_D2,'filled','MarkerFaceColor',[0 0.5430 0.5430])
+hold on
+scatter(prefOri_D1(cells_all2),prefOri_D2(cells_all2),'filled','MarkerFaceColor',[1 0.8398 0])
 % scatter(maxResp_D1(goodfit),maxResp_D2(goodfit))
 axis square
 % xlim([0 max(max(maxResp_D1(goodfit),maxResp_D2(goodfit)))+0.05])
 % ylim([0 max(max(maxResp_D1(goodfit),maxResp_D2(goodfit)))+0.05])
 refline(1,0)
+set(gca,'FontSize',14)
 xlabel('D1 Preferred Ori (deg)')
 ylabel('D2 Preferred Ori (deg)')
+subplot(1,2,2)
+scatter(prefOri_D1,prefOri_D3,'filled','MarkerFaceColor',[0 0.5430 0.5430])
+hold on
+scatter(prefOri_D1(cells_all3),prefOri_D3(cells_all3),'filled','MarkerFaceColor',[1 0.8398 0])
+% scatter(maxResp_D1(goodfit),maxResp_D2(goodfit))
+axis square
+% xlim([0 max(max(maxResp_D1(goodfit),maxResp_D2(goodfit)))+0.05])
+% ylim([0 max(max(maxResp_D1(goodfit),maxResp_D2(goodfit)))+0.05])
+refline(1,0)
+set(gca,'FontSize',14)
+xlabel('D1 Preferred Ori (deg)')
+ylabel('D3 Preferred Ori (deg)')
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['prefOriScat.pdf']),'-dpdf', '-bestfit')
 
-prefOri_diff = abs(prefOri_D1(goodfit_D1)-prefOri_D2(goodfit1_d2));
-prefOri_diff(find(prefOri_diff>90)) = 180-prefOri_diff(find(prefOri_diff>90));
-subplot(2,2,2)
-hist(prefOri_diff)
+
+prefOri_diff2 = abs(prefOri_D1-prefOri_D2);
+prefOri_diff2(find(prefOri_diff2>90)) = 180-prefOri_diff2(find(prefOri_diff2>90));
+% subplot(2,2,2)
+hist(prefOri_diff2)
 xlabel('D1 vs D2 Pref ori')
 ylabel('Number of cells')
 
 subplot(2,2,3)
-scatter(maxResp_D1(goodfit),prefOri_diff)
+scatter(maxResp_D1,prefOri_diff2)
 xlabel('Day 1 peak dF/F')
 ylabel('D1 vs D2 Pref ori')
 axis square
 
-maxResp_diff = abs((maxResp_D1(goodfit)-maxResp_D2(goodfit1))./(maxResp_D1(goodfit)+maxResp_D2(goodfit1)));
+maxResp_diff = abs((maxResp_D1-maxResp_D2)./(maxResp_D1+maxResp_D2));
 subplot(2,2,4)
-scatter(maxResp_diff,prefOri_diff)
+scatter(maxResp_diff,prefOri_diff2)
 xlabel('D1 vs D2 peak dF/F')
 ylabel('D1 vs D2 Pref ori')
 axis square
 
-% suptitle([mouse ' ' ref_date ' vs ' day2 '- n = ' num2str(length(goodfit)) ' cells'])
-% print(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_compAcrossDaysTuning.pdf']),'-dpdf', '-bestfit')
-% save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_compAcrossDaysTuning.mat']), 'goodfit', 'prefOri_D1', 'maxResp_D1', 'prefOri_D2', 'maxResp_D2', 'prefOri_diff', 'maxResp_diff');
+suptitle([mouse ' ' ref_date ' vs ' day2 '- n = ' num2str(nCells1) ' cells'])
+print(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_compAcrossDaysTuning.pdf']),'-dpdf', '-bestfit')
+save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_compAcrossDaysTuning.mat']), 'goodfit', 'prefOri_D1', 'maxResp_D1', 'prefOri_D2', 'maxResp_D2', 'prefOri_diff2', 'maxResp_diff');
+
+figure; 
+% subplot(2,2,1)
+scatter(prefOri_D1,prefOri_D3,'filled','MarkerFaceColor',[0 0.5430 0.5430])
+hold on
+scatter(prefOri_D1(cells_all3),prefOri_D3(cells_all3),'filled','MarkerFaceColor',[1 0.8398 0])
+% scatter(maxResp_D1(goodfit),maxResp_D2(goodfit))
+axis square
+% xlim([0 max(max(maxResp_D1(goodfit),maxResp_D2(goodfit)))+0.05])
+% ylim([0 max(max(maxResp_D1(goodfit),maxResp_D2(goodfit)))+0.05])
+refline(1,0)
+set(gca,'FontSize',16)
+xlabel('D1 Preferred Ori (deg)')
+ylabel('D3 Preferred Ori (deg)')
+
+prefOri_diff3 = abs(prefOri_D1-prefOri_D3);
+prefOri_diff3(find(prefOri_diff3>90)) = 180-prefOri_diff3(find(prefOri_diff3>90));
+subplot(2,2,2)
+hist(prefOri_diff3)
+xlabel('D1 vs D3 Pref ori')
+ylabel('Number of cells')
+
+subplot(2,2,3)
+scatter(maxResp_D1,prefOri_diff3)
+xlabel('Day 1 peak dF/F')
+ylabel('D1 vs D3 Pref ori')
+axis square
+
+maxResp_diff = abs((maxResp_D1-maxResp_D3)./(maxResp_D1+maxResp_D3));
+subplot(2,2,4)
+scatter(maxResp_diff,prefOri_diff3)
+xlabel('D1 vs D3 peak dF/F')
+ylabel('D1 vs D3 Pref ori')
+axis square
+
+suptitle([mouse ' ' ref_date ' vs ' day3 '- n = ' num2str(nCells1) ' cells'])
+print(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_compAcrossDaysTuning.pdf']),'-dpdf', '-bestfit')
+save(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_compAcrossDaysTuning.mat']), 'goodfit', 'prefOri_D1', 'maxResp_D1', 'prefOri_D2', 'maxResp_D2', 'prefOri_diff3', 'maxResp_diff');
 
 %% Identify cells that are significantly responsive to at least 1 direction
 
@@ -168,9 +456,9 @@ base_wind2 = 1+nOff2-nOn2:nOff2;
 
 resp_wind3 = nOff3+1:nOff3+nOn3;
 base_wind3 = 1+nOff3-nOn3:nOff3;
-
-resp_wind4 = nOff4+1:nOff4+nOn4;
-base_wind4 = 1+nOff4-nOn4:nOff4;
+% 
+% resp_wind4 = nOff4+1:nOff4+nOn4;
+% base_wind4 = 1+nOff4-nOn4:nOff4;
 
 % Create two matrices
 dfof_resp1 = squeeze(mean(trial_dfof1(resp_wind1,:,:),1));
@@ -185,11 +473,15 @@ dfof_resp3 = squeeze(mean(trial_dfof3(resp_wind3,:,:),1));
 dfof_base3 = squeeze(mean(trial_dfof3(base_wind3,:,:),1));
 dfof_subtract3 = dfof_resp3 - dfof_base3;
 
-dfof_resp4 = squeeze(mean(trial_dfof4(resp_wind4,:,:),1));
-dfof_base4 = squeeze(mean(trial_dfof4(base_wind4,:,:),1));
-dfof_subtract4 = dfof_resp4 - dfof_base4;
+% dfof_resp4 = squeeze(mean(trial_dfof4(resp_wind4,:,:),1));
+% dfof_base4 = squeeze(mean(trial_dfof4(base_wind4,:,:),1));
+% dfof_subtract4 = dfof_resp4 - dfof_base4;
 
 % ttest for response significance
+% nCells = intersect(cells_all2, cells_all3);
+% nCells1 = length(nCells);
+% nCells2 = nCells1;
+% nCells3 = nCells1;
 % day 1
 dfof_dir1 = zeros(nDir1, nCells1, 2);
 h1 = zeros(nDir1, nCells1);
@@ -266,38 +558,39 @@ h3sum_dirs = zeros(1,nDir3);
 h3sum_dirs = sum(h_3(:,:));
 
 % day 4
-dfof_dir4 = zeros(nDir4, nCells4, 2);
-h4 = zeros(nDir4, nCells4);
-p4 = zeros(nDir4, nCells4);
-for idir = 1:nDir4
-    ind = find(tGratingDir4==dirs4(idir));
-    x4 = dfof_base4(ind,:);
-    y4 = dfof_resp4(ind,:);
-    [h4(idir,:),p4(idir,:)] = ttest(x4,y4,'dim',1,'Alpha',0.05./(nDir1-1),'tail','left');
-    dfof_dir4(idir,:,1) = mean(y4-x4,1);
-    dfof_dir4(idir,:,2) = std(y4-x4,[],1)./sqrt(length(ind));
-end
-h4sum = zeros(1, nCells4);
-h4over1 = zeros(1, nCells4);
-h4sum = sum(h4(:,:));
-h4dirsum = sum(h4);
-for iCell = 1:nCells4
-    h4over1(:,iCell) = h4sum(:,iCell) >= 1;
-end
-sig_resp_cells4 = sum(h4over1(:,:));
-
-h_4 = h4';
-h4sum_dirs = zeros(1,nDir4);
-h4sum_dirs = sum(h_4(:,:));
+% dfof_dir4 = zeros(nDir4, nCells4, 2);
+% h4 = zeros(nDir4, nCells4);
+% p4 = zeros(nDir4, nCells4);
+% for idir = 1:nDir4
+%     ind = find(tGratingDir4==dirs4(idir));
+%     x4 = dfof_base4(ind,:);
+%     y4 = dfof_resp4(ind,:);
+%     [h4(idir,:),p4(idir,:)] = ttest(x4,y4,'dim',1,'Alpha',0.05./(nDir1-1),'tail','left');
+%     dfof_dir4(idir,:,1) = mean(y4-x4,1);
+%     dfof_dir4(idir,:,2) = std(y4-x4,[],1)./sqrt(length(ind));
+% end
+% h4sum = zeros(1, nCells4);
+% h4over1 = zeros(1, nCells4);
+% h4sum = sum(h4(:,:));
+% h4dirsum = sum(h4);
+% for iCell = 1:nCells4
+%     h4over1(:,iCell) = h4sum(:,iCell) >= 1;
+% end
+% sig_resp_cells4 = sum(h4over1(:,:));
+% 
+% h_4 = h4';
+% h4sum_dirs = zeros(1,nDir4);
+% h4sum_dirs = sum(h_4(:,:));
 
 intersect1 = intersect(sig_resp_cells1,sig_resp_cells2);
 intersect2 = intersect(intersect1, sig_resp_cells3);
-all_sig_cells = intersect(intersect2, sig_resp_cells4);
+% all_sig_cells = intersect(intersect2, sig_resp_cells4);
 
+%% cell classifying figs 
 figure; 
-x = [1 2 3 4];
-y = [sig_resp_cells1 sig_resp_cells2 sig_resp_cells3 sig_resp_cells4];
-cellnames = {'Day 1'; 'Day 2'; 'Day 3'; 'Day 4';};
+x = [1 2 3];
+y = [sig_resp_cells1 sig_resp_cells2 sig_resp_cells3];
+cellnames = {'Day 1'; 'Day 2'; 'Day 3'};
 bar(x,y);
 set(gca,'xticklabel',cellnames)
 ylim([0 nCells1])
@@ -315,27 +608,27 @@ else mkdir(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grac
 end
 
 figure;
-x = [1 2 3 4];
-vals = [sig_resp_cells1 gdft_D1; sig_resp_cells2 gdft_D2; sig_resp_cells3 gdft_D3; sig_resp_cells4 gdft_D4]; 
-cellnames = {'Day 1'; 'Day 2'; 'Day 3'; 'Day 4';};
+x = [1 2 3];
+vals = [sig_resp_cells1 gdft_D1; sig_resp_cells2 gdft_D2; sig_resp_cells3 gdft_D3]; 
+cellnames = {'Day 1'; 'Day 2'; 'Day 3'};
 b11 = bar(x,vals);
 b11(1).FaceColor = [0.6953 0.1328 0.1328];
 b11(2).FaceColor = [0.9102 0.5859 0.4766];
-set(gca,'xticklabel',cellnames)
+set(gca,'xticklabel',cellnames,'FontSize',16)
 % title('Significantly Responsive Cells vs Goodfit Cells')
 ylabel('Number of cells')
 legend({'Sig Cells', 'Reliably Fit Cells'},'Location','northeast')
-ylim([0 max(vals)+2])
+ylim([0 55])
 print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\sig_resp_vs_goodfit'],'-dpdf') 
 
 figure;
-b = [h1dirsum; h2dirsum; h3dirsum; h4dirsum]';
+b = [h1dirsum; h2dirsum; h3dirsum]';
 b1 = bar(b,'stacked');
 b1(1).FaceColor = [0.0977 0.0977 0.5];
 b1(2).FaceColor = [0.2334 0.4678 0.700];
 b1(3).FaceColor = [0.6558 0.8238 0.8984];
 b1(4).FaceColor = [0.9375 0.9708 1.0000];
-legend({'Day 1', 'Day 2', 'Day 3', 'Day 4'},'Location','northeast')
+legend({'Day 1', 'Day 2', 'Day 3'},'Location','northeast')
 xlabel('Cell #')
 ylabel('nDirs')
 ylim([0 max(b)+2])
@@ -346,101 +639,122 @@ b1 = bar(h1dirsum);
 b1(1).FaceColor = [0.2334 0.4678 0.700];
 xlabel('Cell #')
 ylabel('nDirs')
-legend({'Day 1', 'Day 2', 'Day 3', 'Day 4'},'Location','northeast')
+legend({'Day 1', 'Day 2', 'Day 3'},'Location','northeast')
 print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\nDirs_eachCellD1'],'-dpdf') 
 
 figure;
-y = [h1sum_dirs; h2sum_dirs; h3sum_dirs; h4sum_dirs]';
+y = [h1sum_dirs; h2sum_dirs; h3sum_dirs]';
 y1 = bar(y,'stacked');
 y1(1).FaceColor = [0.0977 0.0977 0.5];
 y1(2).FaceColor = [0.2334 0.4678 0.700];
 y1(3).FaceColor = [0.6558 0.8238 0.8984];
-y1(4).FaceColor = [0.9375 0.9708 1.0000];
+% y1(4).FaceColor = [0.9375 0.9708 1.0000];
 % cellnames = {'0';'22.5';'45';'67.5';'90';'112.5';'135';'157.5';'180';'202.5';'225';'247.5';'270';'292.5';'315';'337.5'};
 cellnames = {'0';'45';'90';'135';'180';'225';'270';'315'};
 xticks([1:2:16])
 set(gca,'xticklabel',cellnames)
 xlabel('Direction')
 ylabel('Significantly Responsive Cells')
-legend({'Day 1', 'Day 2', 'Day 3', 'Day 4'},'Location','northeast')
+legend({'Day 1', 'Day 2', 'Day 3'},'Location','northeast')
 print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\sig_resp_16dir'],'-dpdf') 
+
+good2th2 = length(intersect(goodfit_D2,cells_all2'));
+good2th3 = length(intersect(goodfit_D3,cells_all3'));
+figure;
+x = [1 2];
+vals = [length(cells_all2) gdft_D2 good2th2; length(cells_all3) gdft_D3 good2th3]; 
+cellnames = {'Day 2'; 'Day 3'};
+b1 = bar(x,vals);
+b1(1).FaceColor = [0.2334 0.4678 0.700];
+b1(2).FaceColor = [0.6558 0.8238 0.8984];
+b1(3).FaceColor = [0.9375 0.9708 1.0000];
+set(gca,'xticklabel',cellnames,'FontSize',16)
+% title('Significantly Responsive Cells vs Goodfit Cells')
+ylabel('Number of cells')
+legend({'Thresh Cells', 'Reliably Fit Cells', 'Overlap'},'Location','northwest')
+ylim([0 50])
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\goodfit_thresh_overlap'],'-dpdf') 
+
+% scatter of pref ori diff
+figure;
+subplot(1,2,1)
+scatter(prefOri_diff2,fitR2,'filled','MarkerFaceColor',[0 1 0])
+hold on
+scatter(prefOri_diff2(cells_all2),fitR2(cells_all2),'filled','MarkerFaceColor',[1 0 1])
+refline(1,0)
+axis square
+xlabel('D1 vs D2 Pref Ori')
+ylabel('D2 90th Per Pref Ori Fit')
+set(gca,'FontSize',10)
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\prefOri_dif_D2scatter'],'-dpdf') 
+subplot(1,2,2)
+scatter(prefOri_diff3,fitR3,'filled','MarkerFaceColor',[0 1 0])
+hold on
+scatter(prefOri_diff3(cells_all3),fitR3(cells_all3),'filled','MarkerFaceColor',[1 0 1])
+refline(1,0)
+axis square
+xlabel('D1 vs D3 Pref Ori')
+ylabel('D3 90th Per Pref Ori Fit')
+set(gca,'FontSize',10)
+print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\prefOri_dif_D3scatter'],'-dpdf') 
 
 %% Preferred Direction Plots
 % with goodfit cells
-prefOri_D21 = find(((prefOri_D2(goodfit3))<(prefOri_D1(goodfit3)+10)) & ((prefOri_D2(goodfit3))> (prefOri_D1(goodfit3)-10)));
-prefOri_D31 = find(((prefOri_D3(goodfit3))<(prefOri_D1(goodfit3)+10)) & ((prefOri_D3(goodfit3))> (prefOri_D1(goodfit3)-10)));
-prefOri_D41 = find(((prefOri_D4(goodfit3))<(prefOri_D1(goodfit3)+10)) & ((prefOri_D4(goodfit3))> (prefOri_D1(goodfit3)-10)));
+prefOri_D21 = find(((prefOri_D2(goodfit2))<(prefOri_D1(goodfit2)+10)) & ((prefOri_D2(goodfit2))> (prefOri_D1(goodfit2)-10)));
+prefOri_D31 = find(((prefOri_D3(goodfit2))<(prefOri_D1(goodfit2)+10)) & ((prefOri_D3(goodfit2))> (prefOri_D1(goodfit2)-10)));
+% prefOri_D41 = find(((prefOri_D4(goodfit3))<(prefOri_D1(goodfit3)+10)) & ((prefOri_D4(goodfit3))> (prefOri_D1(goodfit3)-10)));
 
 % with all cells
 prefOri_D2_1 = find(((prefOri_D2)<(prefOri_D1+10)) & ((prefOri_D2)> (prefOri_D1-10)));
 prefOri_D3_1 = find(((prefOri_D3)<(prefOri_D1+10)) & ((prefOri_D3)> (prefOri_D1-10)));
-prefOri_D4_1 = find(((prefOri_D4)<(prefOri_D1+10)) & ((prefOri_D4)> (prefOri_D1-10)));
+% prefOri_D4_1 = find(((prefOri_D4)<(prefOri_D1+10)) & ((prefOri_D4)> (prefOri_D1-10)));
 
 figure;
 subplot(1,2,1); 
-x = [1 2 3];
-y = [size(prefOri_D21,2)/size(goodfit3,2) size(prefOri_D31,2)/size(goodfit3,2) size(prefOri_D41,2)/size(goodfit3,2)]; 
+x = [1 2];
+y = [size(prefOri_D21,2)/size(goodfit2,2) size(prefOri_D31,2)/size(goodfit2,2)]; 
 bar(x,y,'facecolor',[0 0.3906 0]);
-cellnames = {'Day 2';'Day 3';'Day 4'};
-set(gca,'xticklabel',cellnames)
-ylabel({'fraction of reliably fit cells';'maintaining their initial tuning'})
+cellnames = {'Day 2 ';' Day 3'};
+set(gca,'xticklabel',cellnames,'FontSize',14)
+ylabel({'fraction of rel fit cells'})
 axis square
+xlim([.2 2.8])
+title(['nCells ' num2str(size(goodfit2,2))])
 subplot(1,2,2); 
-x = [1 2 3];
-y = [size(prefOri_D2_1,2)/nCells1 size(prefOri_D3_1,2)/nCells1 size(prefOri_D4_1,2)/nCells1]; 
+x = [1 2];
+y = [size(prefOri_D2_1,2)/nCells1 size(prefOri_D3_1,2)/nCells1]; 
 bar(x,y,'facecolor',[0.0900 0.0977 0.5]);
-cellnames = {'Day 2';'Day 3';'Day 4'};
-set(gca,'xticklabel',cellnames)
-ylabel({'fraction of all cells maintaining'; 'their initial tuning'})
+cellnames = {'Day 2';'Day 3'};
+set(gca,'xticklabel',cellnames,'FontSize',14)
+ylabel({'fraction of all cells'})
 ylim([0 max(y)+0.1])
 axis square
+xlim([.2 2.8])
+title(['nCells ' num2str(nCells1)])
 print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' ref_date '_' mouse '\' ref_date '_' mouse '_' ref_str '\AcrossAllDays\maintained_tuning'],'-dpdf') 
 
 %% dfof traces
 % trace max dfof of each cell over 4 days
 figure;
-subplot(2,1,1);
-nCells = size(goodfit,2);
-hold on
-x = [1 2 3 4];
-xticks([1 2 3 4]);
-cellnames = {'Day1'; 'Day2'; 'Day3'; 'Day4';};
-for iCell = 1:nCells
-    maxResp_all = [maxResp_D1(iCell) maxResp_D2(iCell) maxResp_D3(iCell) maxResp_D4(iCell)];
-    plot(x,maxResp_all)
-    set(gca,'xticklabel',cellnames)
-    ylabel('max dF/F')
-    title([mouse ' cells goodfit on days 1 and 2'])
-end
-
-subplot(2,1,2);
-nCells2 = size(goodfit3,2);
-hold on
-x = [1 2 3 4];
-xticks([1 2 3 4]);
-cellnames = {'Day1'; 'Day2'; 'Day3'; 'Day4';};
-for iCell = 1:nCells2
-    maxResp_all = [maxResp_D1(iCell) maxResp_D2(iCell) maxResp_D3(iCell) maxResp_D4(iCell)];
-    plot(x,maxResp_all)
-    set(gca,'xticklabel',cellnames)
-    ylabel('max dF/F')
-    title([mouse ' cells goodfit on all days'])
-end
-
-mkdir(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays']))
+x = [1 2 3];
+xticks([1 2 3]);
+maxResp_all = [maxResp_D1' maxResp_D2' maxResp_D3'];
+plot(x,maxResp_all)
+cellnames = {'Day1'; 'Day2'; 'Day3'};
+set(gca,'xticklabel',cellnames,'FontSize',16)
+ylabel('max dF/F')
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], [ref_date '_' mouse '_' ref_str '_maxDfofAcrossDays.pdf']),'-dpdf', '-bestfit')
 
 % trace avg max dfof over 4 days
-avgdfof1 = mean(maxResp_D1(goodfit));
-avgdfof2 = mean(maxResp_D2(goodfit));
-avgdfof3 = mean(maxResp_D3(goodfit));
-avgdfof4 = mean(maxResp_D4(goodfit));
+avgdfof1 = mean(maxResp_D1);
+avgdfof2 = mean(maxResp_D2);
+avgdfof3 = mean(maxResp_D3);
 figure;
-x = [1 2 3 4];
-avgdfof = [avgdfof1 avgdfof2 avgdfof3 avgdfof4];
-cellnames = {'Day1'; 'Day2'; 'Day3'; 'Day4';};
+x = [1 2 3];
+avgdfof = [avgdfof1 avgdfof2 avgdfof3];
+cellnames = {'Day1'; 'Day2'; 'Day3'};
 bar(x,avgdfof)
-set(gca,'xticklabel',cellnames)
+set(gca,'xticklabel',cellnames,'Fontsize',16)
 ylabel('mean max dF/F')
 title(mouse)
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], [ref_date '_' mouse '_' ref_str '_AvgMaxDfofAcrossDays.pdf']),'-dpdf', '-bestfit')

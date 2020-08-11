@@ -260,3 +260,5 @@ set(gca,'xticklabel',cellnames)
 ylabel('Number of cells')
 print(['\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P\' date '_' mouse '\' date '_' mouse '_' run_str '\directionAnalysis\barplot'],'-dpdf')
 
+%% Multiple Comparison Test
+

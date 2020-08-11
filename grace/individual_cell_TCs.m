@@ -80,15 +80,15 @@ data_reg1 = data_reg;
 clear data date ImgFolder data_reg data_avg data_reg_avg reg time
 
 %% get path names D2
-mouse = 'i1312';
-date = '200120';
+mouse = 'i1316';
+date = '200108';
 ImgFolder = strvcat('003');
-time = strvcat('1214');
+time = strvcat('1158');
 nrun = size(ImgFolder,1);
 frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
-gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\2P_images';
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
+gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 behav_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 %% load and register
 data = [];
@@ -96,7 +96,7 @@ clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = fullfile(gl_fn, [mouse '\' date '\' ImgFolder(irun,:)]);
+    CD = fullfile(gl_fn, [mouse '\' date '_' mouse '\' ImgFolder(irun,:)]);
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
@@ -140,7 +140,7 @@ figure; for i = 1:nep; subplot(n,n2,i); imagesc(mean(data(:,:,1+((i-1)*t):500+((
 
 %% Register data
 
-data_avg = mean(data(:,:,8001:8500),3);
+data_avg = mean(data(:,:,6001:6500),3);
 
 if exist(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str]))
     load(fullfile(fnout, [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_reg_shifts.mat']))
@@ -160,14 +160,15 @@ data_reg2 = data_reg;
 clear data date ImgFolder data_reg data_avg data_reg_avg2 reg time
 
 %% get path names D3
-date = '200201';
-ImgFolder = strvcat('002');
-time = strvcat('1556');
+mouse = 'i1316';
+date = '200109';
+ImgFolder = strvcat('003');
+time = strvcat('1159');
 nrun = size(ImgFolder,1);
 frame_rate = 15.5;
 run_str = catRunName(ImgFolder, nrun);
-gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Data\2P_images';
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
+gl_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\2P_Imaging';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 behav_fn = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\Behavior\Data';
 %% load and register D3
 data = [];
@@ -175,7 +176,7 @@ clear temp
 trial_n = [];
 offset = 0;
 for irun = 1:nrun
-    CD = fullfile(gl_fn, [mouse '\' date '\' ImgFolder(irun,:)]);
+    CD = fullfile(gl_fn, [mouse '\' date '_' mouse '\' ImgFolder(irun,:)]);
     cd(CD);
     imgMatFile = [ImgFolder(irun,:) '_000_000.mat'];
     load(imgMatFile);
@@ -240,18 +241,18 @@ data_reg3 = data_reg;
 clear data date ImgFolder data_reg data_avg data_reg_avg2 reg time
 
 %% Neuropil Subtraction 
-ref_date = '200118';
-day2 = '200120';
-day3 = '200201';
-mouse = 'i1312';
-ImgFolder = strvcat('002');
+ref_date = '200106';
+day2 = '200108';
+day3 = '200109';
+mouse = 'i1316';
+ImgFolder = strvcat('003');
 ImgFolder2 = strvcat('003');
 nrun = size(ImgFolder,1);
 nrun2 = size(ImgFolder2,1);
 ref_str = catRunName(ImgFolder, nrun);
 run_str = catRunName(ImgFolder, nrun);
 run_str2 = catRunName(ImgFolder2, nrun2);
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
 
 % loading data
 maskD1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_mask_cell.mat']));
@@ -259,7 +260,7 @@ TCs_D1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_
 pixD1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_pixel.mat']));
 shiftsD1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_reg_shifts.mat']));
 data_reg_avg = shiftsD1.data_reg_avg;
-pixel1 = pixD1.pix;
+pixel1 = pixD1.pix_3hz;
 npSub_tc1 = TCs_D1.npSub_tc;
 nCells = size(npSub_tc1,2);
 mask_cell = maskD1.mask_cell;
@@ -268,24 +269,24 @@ cell_list = intersect(1:nCells, unique(mask_cell));
 cell_stats = regionprops(mask_cell);
 
 transD2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_transform.mat']));
-fgta2 = transD2.fitGeoTAf;
+fgta3 = transD2.fitGeoTAf;
 % data_reg_avg with FGTA transformation
-data_reg_avg2 = transD2.r2rFGTA;
+data_reg_avg3 = transD2.r2rFGTA;
 % data_reg_avg without FGTA transformation
 pixD2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_pixel.mat']));
-pix_fgta2 = pixD2.pix_fgta;
+pix_fgta3 = pixD2.pix_fgta;
 
-transD3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_transform.mat']));
-fgta3 = transD3.fitGeoTAf;
-data_reg_avg3 = transD3.r2rFGTA;
-pixD3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_pixel.mat']));
-pix_fgta3 = pixD3.pix_fgta;
+% transD3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_transform.mat']));
+% fgta3 = transD3.fitGeoTAf;
+% data_reg_avg3 = transD3.r2rFGTA;
+% pixD3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_pixel.mat']));
+% pix_fgta3 = pixD3.pix_fgta;
 
 %% transform data_reg
 sz = size(data_reg2);
 data_reg22 = NaN(sz(1),sz(2),nframes);
 for i = 1:nframes
-    data_reg22(:,:,i) = imwarp(double(data_reg2(:,:,i)),fgta2, 'OutputView', imref2d(size(data_reg_avg2)));
+    data_reg22(:,:,i) = imwarp(double(data_reg2(:,:,i)),fgta3, 'OutputView', imref2d(size(data_reg_avg3)));
     if rem(i,50) == 0
         fprintf([num2str(i) '/n'])
     end
@@ -301,8 +302,9 @@ data_reg2_avg = mean(data_reg22,3);
 % title('shifted avg of data stack')
 % axis image
 % print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_regavg_vs_avgreg.pdf']),'-dpdf', '-bestfit')
-
-
+sz = size(data_reg3);
+nframes = size(data_reg3,3);
+data_reg33 = NaN(sz(1),sz(2),nframes);
 for i = 1:nframes
     data_reg33(:,:,i) = imwarp(double(data_reg3(:,:,i)),fgta3, 'OutputView', imref2d(size(data_reg_avg3)));
     if rem(i,50) == 0
@@ -331,17 +333,17 @@ height = 30;width = 30;
 sz = size(data_reg22);
 nframes = size(data_reg22,3);
 down = 5;
-data_tc = zeros(length(nCells),sz(3));
-data_tc_down = zeros(length(nCells),floor(sz(3)./down));
-np_tc = zeros(length(nCells),sz(3));
-np_tc_down = zeros(length(nCells),floor(sz(3)./down));
+data_tc = zeros(nCells,sz(3));
+data_tc_down = zeros(nCells,floor(sz(3)./down));
+np_tc = zeros(nCells,sz(3));
+np_tc_down = zeros(nCells,floor(sz(3)./down));
 % cell_mask_np = NaN(51,51,nCells1);
 % np_w = zeros(nCells1,1);
 % ind = zeros(nCells1,1);
 ii= 0.01:0.01:1;
-r = zeros(length(nCells),1);
-p = zeros(length(nCells),1);
-npSub_tc = NaN(length(nCells),sz(3));
+r = zeros(nCells,1);
+p = zeros(nCells,1);
+npSub_tc = NaN(nCells,sz(3));
 for iCell = 1:nCells
     if find(iCell == cells)
         r(iCell) = 0;
@@ -406,28 +408,35 @@ height = 30;width = 30;
 sz = size(data_reg33);
 nframes = size(data_reg33,3);
 down = 5;
-data_tc = zeros(length(cells),sz(3));
-data_tc_down = zeros(length(cells),floor(sz(3)./down));
-np_tc = zeros(length(cells),sz(3));
-np_tc_down = zeros(length(cells),floor(sz(3)./down));
+data_tc = zeros(nCells,sz(3));
+data_tc_down = zeros(nCells,floor(sz(3)./down));
+np_tc = zeros(nCells,sz(3));
+np_tc_down = zeros(nCells,floor(sz(3)./down));
 % cell_mask_np = NaN(51,51,nCells1);
 % np_w = zeros(nCells1,1);
 % ind = zeros(nCells1,1);
 ii= 0.01:0.01:1;
-r3 = zeros(length(cells),1);
-p3 = zeros(length(cells),1);
-npSub_tc = zeros(length(cells),sz(3));
-for iC = 1:length(cells)
-    iCell = cells(iC);
+r3 = zeros(nCells,1);
+p3 = zeros(nCells,1);
+npSub_tc = NaN(nCells,sz(3));
+for iCell = 1:nCells
+    if find(iCell == cells)
+        r3(iCell) = 0;
+        p3(iCell) = 0;
+    else
     xCenter = round(cell_stats(iCell).Centroid(2));
     yCenter = round(cell_stats(iCell).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
     cell_reg_avg = data_reg_avg(xLeft:(xLeft+width),yBottom:(height+yBottom));
     pix1 = pixel1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-    cell_reg3 = data_reg33(xLeft:(xLeft+width),yBottom:(height+yBottom),:);
+    cell_reg3 = data_reg22(xLeft:(xLeft+width),yBottom:(height+yBottom),:);
     cell_reg3 = double(cell_reg3);
     cell_reg3_avg = data_reg_avg3(xLeft:(xLeft+width),yBottom:(height+yBottom));
+    if sum(sum(isnan(cell_reg3_avg),1),2)>90
+        r3(iCell) = 0;
+        p3(iCell) = 0;
+    else
     pix3 = pix_fgta3(xLeft:(xLeft+width),yBottom:(height+yBottom));
     [reg shift] = shift_opt(cell_reg3_avg,cell_reg_avg,4);
     [reg2 shift2] = shift_opt(pix3,pix1,4);
@@ -435,7 +444,7 @@ for iC = 1:length(cells)
     p3(iCell) = triu2vec(corrcoef(pix1(:),reg2(:)));
     r3(isnan(r3))=0;
     p3(isnan(p3))=0;
-    fine shift to course-shifted cell squares
+%     fine shift to course-shifted cell squares
 if r3(iCell)>0.8 && p3(iCell)>0.4
     [outs, reg_cell3] = stackRegister_MA(cell_reg3,[],[],repmat(shift,[nframes 1]));
 else
@@ -458,14 +467,14 @@ end
     [max_skew ind] =  max(x,[],2);
     np_w = 0.01*ind;
     npSub_tc(iCell,:) = data_tc(iCell,:)-bsxfun(@times,tcRemoveDC(np_tc(iCell,:)),np_w);
+    end
 end
-cells2 = find(r3>0.8&p3>.4&p3<.6);
-cells3 = find(r3>0.4&r3<.8&p3>.6);
-cells5 = find(r3>.8&p3>.6);
-cells4 = [cells2;cells3;cells5];
-cells_all = reshape(cells4,[],1);
+end
+cells2 = find(r3>0.8&p3>.4);
+cells3 = find(r3>0.4&p3>.6);
+cells_all = unique([cells2;cells3]);
 npSub_tc = npSub_tc';
-save(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc', 'cells_all')
+save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_TCs.mat']), 'data_tc', 'np_tc', 'npSub_tc', 'cells_all')
 % save(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_input.mat']), 'input')
 
 %% mask images

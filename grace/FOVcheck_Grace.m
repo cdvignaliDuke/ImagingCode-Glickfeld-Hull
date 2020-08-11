@@ -2,9 +2,9 @@
 clear all
 clear global
 %% 
-date = '200114';
-mouse = 'i1314';
-ImgFolder = '001';
+date = '200121';
+mouse = 'i1317';
+ImgFolder = '003';
 run = '000';
 doReg = 0;
 nrun = size(ImgFolder,1);

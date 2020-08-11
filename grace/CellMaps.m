@@ -99,6 +99,10 @@ reg2(find(reg2>7000)) = 0;
 reg2 = (reg2./max(max(abs(reg2))));
 cell_list2 = intersect(1:nCells1, unique(mask_cell2));
 cell_stats2 = regionprops(mask_cell2);
+og_reg2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_reg_shifts.mat']));
+data_reg_avg2 = og_reg2.data_reg_avg;
+stimAct2 = load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str], [day2 '_' mouse '_' run_str '_stimActFOV.mat']));
+dfof_max2 = stimAct2.data_dfof_max;
 
 maskD3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_mask_cell.mat']));
 mask_cell3 = maskD3.mask_cell;
@@ -109,6 +113,20 @@ reg3(find(reg3>7000)) = 0;
 reg3 = (reg3./max(max(abs(reg3))));
 cell_list3 = intersect(1:nCells1, unique(mask_cell3));
 cell_stats3 = regionprops(mask_cell3);
+og_reg3 = load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_reg_shifts.mat']));
+data_reg_avg3 = og_reg3.data_reg_avg;
+
+% rgb overlays
+sz_target = size(data_reg_avg2);
+rgb_reg2ref = zeros(sz_target(1), sz_target(2), 3);
+rgb_reg2ref_dfof = zeros(sz_target(1), sz_target(2), 3);
+rgb_reg2ref(:,:,1) = reg1;
+rgb_reg2ref(:,:,2) = reg2;
+rgb_reg2ref_dfof(:,:,1) = dfof;
+rgb_reg2ref_dfof(:,:,2) = dfof2;
+figure; subplot(1,2,1);imagesc(rgb_reg2ref); title(['day 2 on day 1, data reg rgb overlay']);axis image
+subplot(1,2,2);imagesc(rgb_reg2ref_dfof); title(['day 2 on day 1, dfof rgb overlay']);axis image
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], [ref_date '_' mouse '_' run_str '_RGBoverlays.pdf']), '-dpdf','-bestfit')
 
 %% off only 
 off_only1 = [ ];
@@ -1519,12 +1537,11 @@ load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [re
 pix_3hz1 = pix;
 pix_3hz1(isnan(pix_3hz1))=0;
 load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_pixel.mat']));
-load(fullfile(fnout, [day2 '_' mouse], [day2 '_' mouse '_' run_str2], [day2 '_' mouse '_' run_str2 '_transform.mat']));
+pix2 = pix;
 pix_fgta2 = pix_fgta;
-r2r_fgta2 = r2rFGTA;
 load(fullfile(fnout, [day3 '_' mouse], [day3 '_' mouse '_' run_str], [day3 '_' mouse '_' run_str '_pixel.mat']));
+pix3 = pix;
 pix_fgta3 = pix_fgta;
-r2r_fgta3 = r2rFGTA;
 
 r = triu2vec(corrcoef(pix_3hz1(:),pix_fgta2(:)));
 til_str1 = num2str(chop(r,3));
@@ -1544,81 +1561,81 @@ print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['
 figure;
 x = [1 2 3];
 xticks([1 2 3]);
-y = [r2 r3 r4];
+y = [r2 r3 r1];
 plot(x,y)
 cellnames = {'fitgeo aff';'fitgeo nr';'imregt'};
 ylabel('correlation coefficient')
 set(gca,'xticklabel',cellnames)
 hold on
-err = [std(r2,[],1)./sqrt(nCells1) std(r3,[],1)./sqrt(nCells1) std(r4,[],1)./sqrt(nCells1)];
+err = [std(r2,[],1)./sqrt(nCells1) std(r3,[],1)./sqrt(nCells1) std(r1,[],1)./sqrt(nCells1)];
 y_avg = mean(y,1);
 errorbar(x,y_avg,err,'-ok','LineWidth',2);
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_reg_lineplot.pdf']),'-dpdf', '-bestfit')
 
+
 % re-registering squares
-height = 24; width = 24;
+height = 30; width = 30;
+p2 = zeros(nCells1,1);
+p3 = zeros(nCells1,1);
 r2 = zeros(nCells1,1);
 r3 = zeros(nCells1,1);
-r4 = zeros(nCells1,1);
-r5 = zeros(nCells1,1);
-r6 = zeros(nCells1,1);
-r7 = zeros(nCells1,1);
-a = zeros(nCells1,1);
-x = zeros(nCells1,1);
-y = zeros(nCells1,1);
-regpix = zeros(nCells1,1);
-regr2r = zeros(nCells1,1);
 for iCell = 1:nCells1
     xCenter = round(cell_stats(iCell).Centroid(2));
     yCenter = round(cell_stats(iCell).Centroid(1));
     xLeft = (xCenter - width/2);
     yBottom = (yCenter - height/2);
- if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+ if xLeft > 1 && xLeft < 482 && yBottom > 1 && yBottom < 766
     a = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
     a1 = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
     x = pix_fgta2(xLeft:(xLeft+width),yBottom:(height+yBottom));
     [reg shift] = shift_opt(x,a,4);
     regpix = reg;
-    y = r2r_fgta2(xLeft:(xLeft+width),yBottom:(height+yBottom));
+    y = reg2(xLeft:(xLeft+width),yBottom:(height+yBottom));
     [reg shift] = shift_opt(y,a1,4);
     regr2r = reg;
-%     y = pix_fgtn2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-%    z = pix_imrt2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-     z = pix_fgta3(xLeft:(xLeft+width),yBottom:(height+yBottom));
-     h = r2r_fgta3(xLeft:(xLeft+width),yBottom:(height+yBottom));
-    r2(iCell) = triu2vec(corrcoef(a(:),x(:)));
-    r3(iCell) = triu2vec(corrcoef(a(:),regpix(:)));
-    r4(iCell) = triu2vec(corrcoef(a1(:),y(:)));
-    r5(iCell) = triu2vec(corrcoef(a1(:),regr2r(:)));
-    r6(iCell) = triu2vec(corrcoef(a(:),z(:)));
-    r7(iCell) = triu2vec(corrcoef(a1(:),h(:)));
+    z = pix_fgta3(xLeft:(xLeft+width),yBottom:(height+yBottom));
+    [reg shift] = shift_opt(z,a,4);
+    regpix3 = reg;
+    h = reg3(xLeft:(xLeft+width),yBottom:(height+yBottom));
+    [reg shift] = shift_opt(h,a1,4);
+    regr2r3 = reg;
+    p2(iCell) = triu2vec(corrcoef(a(:),regpix(:)));
+    p3(iCell) = triu2vec(corrcoef(a(:),regpix3(:)));
+    r2(iCell) = triu2vec(corrcoef(a1(:),regr2r(:)));
+    r3(iCell) = triu2vec(corrcoef(a1(:),regr2r3(:)));
  end
 end
 
 % pixel corr scatter plot
 figure;
-scatter(r2,r6)
-xlabel('pixel correlation D1 and D2')
-ylabel('pixel correlation D1 and D3')
+scatter(r2,r3)
+xlabel('reg correlation D1 and D2')
+ylabel('reg correlation D1 and D3')
+set(gca,'FontSize',16)
 refline(1,0)
-R = corrcoef(r2,r6);
+R = corrcoef(r2,r3);
 disp(R(1,2));
 str = ['    r = ',num2str(R(1,2))];
 T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
-set(T, 'fontsize', 10, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+set(T, 'fontsize', 14, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+axis square
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_reg_scat.pdf']),'-dpdf', '-bestfit')
+
+figure;
+scatter(p2,p3)
+xlabel('pixel correlation D1 and D2')
+ylabel('pixel correlation D1 and D3')
+set(gca,'FontSize',16)
+refline(1,0)
+R = corrcoef(p2,p3);
+disp(R(1,2));
+str = ['    r = ',num2str(R(1,2))];
+T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
+set(T, 'fontsize', 14, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+axis square
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_pixel_scat.pdf']),'-dpdf', '-bestfit')
 
 % comparing squares post fine registartion (day 1 vs fitgeo affine)
-figure;
-start = 1;
-for iCell = 1:10
-subplot(10,2,start)
-imagesc(a(iCell))
-axis off;axis square
-subplot(10,2,start+1)
-imagesc(x(iCell))
-axis off;axis square
-start = start +2;
-end
 
 r1_2 = find(r2>0.1 & r2<0.2);
 r2_2 = find(r2>0.2 & r2<0.3);
@@ -1640,211 +1657,99 @@ r7_3 = find(r3>0.7 & r3<0.8);
 r8_3 = find(r3>0.8 & r3<0.9);
 r9_3 = find(r3>0.9 & r3<1);
 
-r1_4 = find(r4>0.1 & r4<0.2);
-r2_4 = find(r4>0.2 & r4<0.3);
-r3_4 = find(r4>0.3 & r4<0.4);
-r4_4 = find(r4>0.4 & r4<0.5);
-r5_4 = find(r4>0.5 & r4<0.6);
-r6_4 = find(r4>0.6 & r4<0.7);
-r7_4 = find(r4>0.7 & r4<0.8);
-r8_4 = find(r4>0.8 & r4<0.9);
-r9_4 = find(r4>0.9 & r4<1);
+p1_2 = find(p2>0.1 & p2<0.2);
+p2_2 = find(p2>0.2 & p2<0.3);
+p3_2 = find(p2>0.3 & p2<0.4);
+p4_2 = find(p2>0.4 & p2<0.5);
+p5_2 = find(p2>0.5 & p2<0.6);
+p6_2 = find(p2>0.6 & p2<0.7);
+p7_2 = find(p2>0.7 & p2<0.8);
+p8_2 = find(p2>0.8 & p2<0.9);
+p9_2 = find(p2>0.9 & p2<1);
 
-r1_5 = find(r5>0.1 & r5<0.2);
-r2_5 = find(r5>0.2 & r5<0.3);
-r3_5 = find(r5>0.3 & r5<0.4);
-r4_5 = find(r5>0.4 & r5<0.5);
-r5_5 = find(r5>0.5 & r5<0.6);
-r6_5 = find(r5>0.6 & r5<0.7);
-r7_5 = find(r5>0.7 & r5<0.8);
-r8_5 = find(r5>0.8 & r5<0.9);
-r9_5 = find(r5>0.9 & r5<1);
+p1_3 = find(p3>0.1 & p3<0.2);
+p2_3 = find(p3>0.2 & p3<0.3);
+p3_3 = find(p3>0.3 & p3<0.4);
+p4_3 = find(p3>0.4 & p3<0.5);
+p5_3 = find(p3>0.5 & p3<0.6);
+p6_3 = find(p3>0.6 & p3<0.7);
+p7_3 = find(p3>0.7 & p3<0.8);
+p8_3 = find(p3>0.8 & p3<0.9);
+p9_3 = find(p3>0.9 & p3<1);
 
+badP = [p1_2;p2_2;p3_2;p1_2;p2_3;p3_3];
+badR = [r1_2;r2_2;r3_2;r1_3;r2_3;r3_3];
+badPR = intersect(badR,badP);
+
+decentP = [p4_2;p5_2;p4_3;p5_3];
+decentR = [r4_2;r5_2;r6_2;r4_3;r5_3;r6_3];
+decentPR = intersect(decentP,decentR);
+
+goodP = [p6_2;p7_2;p8_2;p9_2;p6_3;p7_3;p8_3;p9_3];
+goodR = [r7_2;r8_2;r9_2;r7_3;r8_3;r9_3];
+goodPR = intersect(goodP,goodR);
+%% 
 start = 1;
-height = 24; width = 24;
-% mat = [r4_2(1:5) r4_3(1:5) r4_4(1:5) r4_5(1:5) r5_2(1:5) r5_3(1:5) r5_4(1:5) r5_5(1:5) r6_2(1:5) r6_3(1:5) r6_4(1:5) r6_5(1:5) r7_2(1:5) r7_3(1:5) r7_4(1:5) r7_5(1:5) r8_2(1:5) r8_3(1:5) r8_4(1:5) r8_5(1:5)];
-mat = [r4_2(1) r5_2(1) r6_2(1) r7_2(1) r8_2(1) r4_3(1) r5_3(1) r6_3(1) r7_3(1) r8_3(1) r4_4(1) r5_4(1) r6_4(1) r7_4(1) r8_4(1) r4_5(1) r5_5(1) r6_5(1) r7_5(1) r8_5(1)];
-mat = reshape(mat,[],1);
+height = 30; width = 30;
 figure;
-suptitle('pix corr, registered pix corr, data reg, registered data reg')
-for iC = 1:5
-iCell = mat(iC);
+for iC = 2:5
+iCell = goodPR(iC);
 xCenter = round(cell_stats(iCell).Centroid(2));
 yCenter = round(cell_stats(iCell).Centroid(1));
 xLeft = (xCenter - width/2);
 yBottom = (yCenter - height/2);
-x = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(5,8,start)
+cell_mask = mask_cell(xLeft:(xLeft+width),yBottom:(height+yBottom));
+x = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
+subplot(4,6,start)
 imagesc(x)
-pos = get(gca, 'Position');
-pos(1) = 0.0;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis square
-axis off
-xCenter2 = round(cell_stats2(iCell).Centroid(2));
-yCenter2 = round(cell_stats2(iCell).Centroid(1));
-xLeft2 = (xCenter2 - width/2);
-yBottom2 = (yCenter2 - height/2);
-y = pix_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-subplot(5,8,start+1)
-imagesc(y)
 pos = get(gca, 'Position');
 pos(1) = 0.1;
 pos(3) = 0.05;
 set(gca, 'Position', pos)
+axis square
+axis off
+hold on
+    bound = cell2mat(bwboundaries(cell_mask(:,:,1)));
+    plot(bound(:,2),bound(:,1),'.','color','r','MarkerSize',2);
+y = reg2(xLeft:(xLeft+width),yBottom:(height+yBottom));
+[reg shift] = shift_opt(y,x,4);
+subplot(4,6,start+1)
+imagesc(reg)
+pos = get(gca, 'Position');
+pos(1) = 0.16;
+pos(3) = 0.05;
+set(gca, 'Position', pos)
 axis off
 axis square
-r = triu2vec(corrcoef(x(:),y(:)));
+r = triu2vec(corrcoef(x(:),reg(:)));
 til_str = num2str(chop(r,2));
-title(til_str,'FontSize',6);
-
-iCell = mat(iC+5);
-xCenter = round(cell_stats(iCell).Centroid(2));
-yCenter = round(cell_stats(iCell).Centroid(1));
-xLeft = (xCenter - width/2);
-yBottom = (yCenter - height/2);
-x = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(5,8,start+2)
-imagesc(x)
+title(til_str,'FontSize',8);
+hold on
+    bound = cell2mat(bwboundaries(cell_mask(:,:,1)));
+    plot(bound(:,2),bound(:,1),'.','color','r','MarkerSize',2);
+z = reg3(xLeft:(xLeft+width),yBottom:(height+yBottom));
+[hi shift] = shift_opt(z,x,4);
+subplot(4,6,start+2)
+imagesc(hi)
 pos = get(gca, 'Position');
 pos(1) = 0.22;
 pos(3) = 0.05;
 set(gca, 'Position', pos)
 axis square
 axis off
-xCenter2 = round(cell_stats2(iCell).Centroid(2));
-yCenter2 = round(cell_stats2(iCell).Centroid(1));
-xLeft2 = (xCenter2 - width/2);
-yBottom2 = (yCenter2 - height/2);
-y = pix_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-[reg shift] = shift_opt(y,x,4);
-subplot(5,8,start+3)
-imagesc(reg)
-pos = get(gca, 'Position');
-pos(1) = 0.32;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis off
-axis square
-r = triu2vec(corrcoef(x(:),reg(:)));
+r = triu2vec(corrcoef(x(:),hi(:)));
 til_str = num2str(chop(r,2));
-title(til_str,'FontSize',6);
+title(til_str,'FontSize',8);
+hold on
+    bound = cell2mat(bwboundaries(cell_mask(:,:,1)));
+    plot(bound(:,2),bound(:,1),'.','color','r','MarkerSize',2);
 
-iCell = mat(iC+10);
-xCenter = round(cell_stats(iCell).Centroid(2));
-yCenter = round(cell_stats(iCell).Centroid(1));
-xLeft = (xCenter - width/2);
-yBottom = (yCenter - height/2);
-x = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(5,8,start+4)
-imagesc(x)
-pos = get(gca, 'Position');
-pos(1) = 0.44;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis square
-axis off
-xCenter2 = round(cell_stats2(iCell).Centroid(2));
-yCenter2 = round(cell_stats2(iCell).Centroid(1));
-xLeft2 = (xCenter2 - width/2);
-yBottom2 = (yCenter2 - height/2);
-y = r2r_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-subplot(5,8,start+5)
-imagesc(y)
-pos = get(gca, 'Position');
-pos(1) = 0.54;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis off
-axis square
-r = triu2vec(corrcoef(x(:),y(:)));
-til_str = num2str(chop(r,2));
-title(til_str,'FontSize',6);
-
-iCell = mat(iC+15);
-xCenter = round(cell_stats(iCell).Centroid(2));
-yCenter = round(cell_stats(iCell).Centroid(1));
-xLeft = (xCenter - width/2);
-yBottom = (yCenter - height/2);
-x = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(5,8,start+6)
-imagesc(x)
-pos = get(gca, 'Position');
-pos(1) = 0.66;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis square
-axis off
-xCenter2 = round(cell_stats2(iCell).Centroid(2));
-yCenter2 = round(cell_stats2(iCell).Centroid(1));
-xLeft2 = (xCenter2 - width/2);
-yBottom2 = (yCenter2 - height/2);
-y = r2r_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-subplot(5,8,start+7)
-[reg shift] = shift_opt(y,x,4);
-imagesc(reg)
-pos = get(gca, 'Position');
-pos(1) = 0.76;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis off
-axis square
-r = triu2vec(corrcoef(x(:),reg(:)));
-til_str = num2str(chop(r,2));
-title(til_str,'FontSize',6);
-
-start = start+8;
-end 
-print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_rereg_compare.pdf']),'-dpdf', '-bestfit')
-
-
-start = 1;
-height = 24; width = 24;
-mat = [r6_3(1:15) r6_5(1:15) r8_3(1:15) r8_5(1:15)];
-mat = reshape(mat,[],1);
-figure;
-% suptitle('re-registered pixel corr and re-registered data reg avg, 0.6 and 0.8 corr coefs')
-for iC = 1:15
-iCell = mat(iC);
 xCenter = round(cell_stats(iCell).Centroid(2));
 yCenter = round(cell_stats(iCell).Centroid(1));
 xLeft = (xCenter - width/2);
 yBottom = (yCenter - height/2);
 x = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(15,8,start)
-imagesc(x)
-pos = get(gca, 'Position');
-pos(1) = 0.1;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis square
-axis off
-xCenter2 = round(cell_stats2(iCell).Centroid(2));
-yCenter2 = round(cell_stats2(iCell).Centroid(1));
-xLeft2 = (xCenter2 - width/2);
-yBottom2 = (yCenter2 - height/2);
-y = pix_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-[reg shift] = shift_opt(y,x,4);
-subplot(15,8,start+1)
-imagesc(reg)
-pos = get(gca, 'Position');
-pos(1) = .18;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis off
-axis square
-r = triu2vec(corrcoef(x(:),reg(:)));
-til_str = num2str(chop(r,2));
-title(til_str,'FontSize',6);
-
-iCell = mat(iC+3);
-xCenter = round(cell_stats(iCell).Centroid(2));
-yCenter = round(cell_stats(iCell).Centroid(1));
-xLeft = (xCenter - width/2);
-yBottom = (yCenter - height/2);
-x = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(15,8,start+2)
+subplot(4,6,start+3)
 imagesc(x)
 pos = get(gca, 'Position');
 pos(1) = 0.3;
@@ -1852,80 +1757,145 @@ pos(3) = 0.05;
 set(gca, 'Position', pos)
 axis square
 axis off
-xCenter2 = round(cell_stats2(iCell).Centroid(2));
-yCenter2 = round(cell_stats2(iCell).Centroid(1));
-xLeft2 = (xCenter2 - width/2);
-yBottom2 = (yCenter2 - height/2);
-y = r2r_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-[reg shift] = shift_opt(y,x,4);
-subplot(15,8,start+3)
-imagesc(reg)
+hold on
+    bound = cell2mat(bwboundaries(cell_mask(:,:,1)));
+    plot(bound(:,2),bound(:,1),'.','color','r','MarkerSize',2);
+y = pix_fgta2(xLeft:(xLeft+width),yBottom:(height+yBottom));
+[hey shift] = shift_opt(y,x,4);
+subplot(4,6,start+4)
+imagesc(hey)
 pos = get(gca, 'Position');
-pos(1) = 0.38;
+pos(1) = 0.36;
 pos(3) = 0.05;
 set(gca, 'Position', pos)
 axis off
 axis square
-r = triu2vec(corrcoef(x(:),reg(:)));
+r = triu2vec(corrcoef(x(:),hey(:)));
 til_str = num2str(chop(r,2));
-title(til_str,'FontSize',6);
-
-iCell = mat(iC+6);
-xCenter = round(cell_stats(iCell).Centroid(2));
-yCenter = round(cell_stats(iCell).Centroid(1));
-xLeft = (xCenter - width/2);
-yBottom = (yCenter - height/2);
-x = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(15,8,start+4)
-imagesc(x)
+title(til_str,'FontSize',8);
+hold on
+    bound = cell2mat(bwboundaries(cell_mask(:,:,1)));
+    plot(bound(:,2),bound(:,1),'.','color','r','MarkerSize',2);
+z = pix_fgta3(xLeft:(xLeft+width),yBottom:(height+yBottom));
+[mad shift] = shift_opt(z,x,4);
+subplot(4,6,start+5)
+imagesc(mad)
 pos = get(gca, 'Position');
-pos(1) = 0.5;
+pos(1) = 0.42;
 pos(3) = 0.05;
 set(gca, 'Position', pos)
 axis square
 axis off
-xCenter2 = round(cell_stats2(iCell).Centroid(2));
-yCenter2 = round(cell_stats2(iCell).Centroid(1));
-xLeft2 = (xCenter2 - width/2);
-yBottom2 = (yCenter2 - height/2);
-y = pix_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-[reg shift] = shift_opt(y,x,4);
-subplot(15,8,start+5)
-imagesc(reg)
-pos = get(gca, 'Position');
-pos(1) = 0.58;
-pos(3) = 0.05;
-set(gca, 'Position', pos)
-axis off
-axis square
-r = triu2vec(corrcoef(x(:),reg(:)));
+r = triu2vec(corrcoef(x(:),mad(:)));
 til_str = num2str(chop(r,2));
-title(til_str,'FontSize',6);
+title(til_str,'FontSize',8);
+hold on
+    bound = cell2mat(bwboundaries(cell_mask(:,:,1)));
+    plot(bound(:,2),bound(:,1),'.','color','r','MarkerSize',2);
 
-iCell = mat(iC+9);
+start = start+6;
+end 
+% print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_bad_cells.pdf']),'-dpdf', '-bestfit')
+
+%% 
+start = 1;
+height = 30; width = 30;
+figure;
+% bad cells
+for iC = 1:4
+iCell = badPR(iC);
 xCenter = round(cell_stats(iCell).Centroid(2));
 yCenter = round(cell_stats(iCell).Centroid(1));
 xLeft = (xCenter - width/2);
 yBottom = (yCenter - height/2);
 x = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-subplot(15,8,start+6)
+subplot(4,8,start)
 imagesc(x)
 pos = get(gca, 'Position');
-pos(1) = 0.7;
+pos(1) = 0.1;
 pos(3) = 0.05;
 set(gca, 'Position', pos)
 axis square
 axis off
-xCenter2 = round(cell_stats2(iCell).Centroid(2));
-yCenter2 = round(cell_stats2(iCell).Centroid(1));
-xLeft2 = (xCenter2 - width/2);
-yBottom2 = (yCenter2 - height/2);
-y = r2r_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
-subplot(15,8,start+7)
-[reg shift] = shift_opt(y,x,4);
+y = data_reg_avg2(xLeft:(xLeft+width),yBottom:(height+yBottom));
+subplot(4,8,start+1)
+imagesc(y)
+pos = get(gca, 'Position');
+pos(1) = 0.16;
+pos(3) = 0.05;
+set(gca, 'Position', pos)
+axis off
+axis square
+r = triu2vec(corrcoef(x(:),y(:)));
+til_str = num2str(chop(r,2));
+title(til_str,'FontSize',6);
+z = reg2(xLeft:(xLeft+width),yBottom:(height+yBottom));
+subplot(4,8,start+2)
+imagesc(z)
+pos = get(gca, 'Position');
+pos(1) = 0.22;
+pos(3) = 0.05;
+set(gca, 'Position', pos)
+axis square
+axis off
+r = triu2vec(corrcoef(x(:),z(:)));
+til_str = num2str(chop(r,2));
+title(til_str,'FontSize',6);
+[reg shift] = shift_opt(z,x,4);
+subplot(4,8,start+3)
 imagesc(reg)
 pos = get(gca, 'Position');
-pos(1) = 0.78;
+pos(1) = 0.28;
+pos(3) = 0.05;
+set(gca, 'Position', pos)
+axis off
+axis square
+r = triu2vec(corrcoef(x(:),reg(:)));
+til_str = num2str(chop(r,2));
+title(til_str,'FontSize',6);
+
+xCenter = round(cell_stats(iCell).Centroid(2));
+yCenter = round(cell_stats(iCell).Centroid(1));
+xLeft = (xCenter - width/2);
+yBottom = (yCenter - height/2);
+x = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
+subplot(4,8,start+4)
+imagesc(x)
+pos = get(gca, 'Position');
+pos(1) = 0.36;
+pos(3) = 0.05;
+set(gca, 'Position', pos)
+axis square
+axis off
+y = pix2(xLeft:(xLeft+width),yBottom:(height+yBottom));
+subplot(4,8,start+5)
+imagesc(y)
+pos = get(gca, 'Position');
+pos(1) = 0.42;
+pos(3) = 0.05;
+set(gca, 'Position', pos)
+axis off
+axis square
+r = triu2vec(corrcoef(x(:),y(:)));
+til_str = num2str(chop(r,2));
+title(til_str,'FontSize',6);
+z = pix_fgta2(xLeft:(xLeft+width),yBottom:(height+yBottom));
+subplot(4,8,start+6)
+imagesc(z)
+pos = get(gca, 'Position');
+pos(1) = 0.48;
+pos(3) = 0.05;
+set(gca, 'Position', pos)
+axis square
+axis off
+r = triu2vec(corrcoef(x(:),z(:)));
+til_str = num2str(chop(r,2));
+title(til_str,'FontSize',6);
+[reg shift] = shift_opt(z,x,4);
+subplot(4,8,start+7)
+imagesc(reg)
+pos = get(gca, 'Position');
+pos(1) = 0.54;
 pos(3) = 0.05;
 set(gca, 'Position', pos)
 axis off
@@ -1936,7 +1906,7 @@ title(til_str,'FontSize',6);
 
 start = start+8;
 end 
-print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_rereg_compare_67.pdf']),'-dpdf', '-bestfit')
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_bad_cells.pdf']),'-dpdf', '-bestfit')
 
 start = 1;
 height = 24; width = 24;
@@ -2071,8 +2041,8 @@ title('CorrCoef Distribution of Re-Registered Cells')
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_coef_dist.pdf']),'-dpdf', '-bestfit')
 
 % theshold distribution curve-finding reg distribution
-height = 24; width = 24;
-mat = [r1_3;r2_3;r3_3;r4_3;r5_3;r6_3];
+height = 30; width = 30;
+mat = [p1_2;p2_2;p3_2;p4_2;p5_2];
 mat = reshape(mat,[],1);
 rr2r2 = zeros(length(mat),1);
 for iC = 1:length(mat)
@@ -2085,9 +2055,9 @@ for iC = 1:length(mat)
     yBottom = (yCenter - height/2);
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
- if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+ if xLeft > 1 && xLeft < 482 && yBottom > 1 && yBottom < 766
     a1 = reg1(xLeft:(xLeft+width),yBottom:(height+yBottom));
-    y = r2r_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
+    y = reg2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
     [reg shift] = shift_opt(y,a1,4);
     regr2r = reg;
     rr2r2(iCell) = triu2vec(corrcoef(a1(:),regr2r(:)));
@@ -2096,8 +2066,8 @@ end
 rr2r2(rr2r2==0)=[];
 
 % finding pix distribution
-height = 24; width = 24;
-mat = [r1_5;r2_5;r3_5;r4_5;r5_5;r6_5];
+height = 30; width = 30;
+mat = [r1_2;r2_2;r3_2;r4_2;r5_2];
 mat = reshape(mat,[],1);
 rpix2 = zeros(length(mat),1);
 for iC = 1:length(mat)
@@ -2110,7 +2080,7 @@ for iC = 1:length(mat)
     yBottom = (yCenter - height/2);
     xLeft2 = (xCenter2 - width/2);
     yBottom2 = (yCenter2 - height/2);
- if xLeft > 12 && xLeft < 488 && yBottom > 12 && yBottom < 772
+ if xLeft > 1 && xLeft < 482 && yBottom > 1 && yBottom < 766
     a = pix_3hz1(xLeft:(xLeft+width),yBottom:(height+yBottom));
     x = pix_fgta2(xLeft2:(xLeft2+width),yBottom2:(height+yBottom2));
     [reg shift] = shift_opt(x,a,4);
@@ -2128,25 +2098,25 @@ legend('data reg avg','pixel img','location','northwest')
 legend boxoff
 ylabel('nCells')
 xlabel('correlation coefficient')
+set(gca,'FontSize',16)
 hist.FaceColor = [1 0 0];
 hist2.FaceColor = [0.2539 0.4102 0.8789];
-title('CorrCoef Dirstribution of Cells below 0.7 Thresh of Opposite Condition') 
-print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_below7thresh.pdf']),'-dpdf', '-bestfit')
+title('CorrCoef Dirstribution of Cells below 0.6 Thresh of Opposite Condition') 
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_below6thresh.pdf']),'-dpdf', '-bestfit')
 
-r79 = find(r3>0.7 | r5>0.9);
-r78 = find(r3>0.7 | r5>0.8);
-r68 = find(r3>0.6 | r5>0.8);
-r78rescue = [find(r3<0.7 & r5>0.8);find(r3>0.7 & r5<0.8)];
+r79 = find(p2>0.7 & r2>0.9);
+r78 = find(p2>0.7 & r2>0.8);
+r68 = find(p2>0.6 & r2>0.8);
+r78rescue = [find(r3<0.7 & r2>0.8);find(r3>0.7 & r2<0.8)];
 
 figure;
-x = [1 2 3];
 y = [length(r79) length(r78) length(r68)];
-bar = bar(x,y);
-bar.FaceColor = [0.3320 0.4180 0.1836];
-cellnames = {'p>0.7, r>0.9';'p>0.7, r>0.8';'p>0.6, r>0.8'};
-set(gca,'xticklabel',cellnames)
+b = bar(y);
+b.FaceColor = [0.3320 0.4180 0.1836];
 ylabel('nCells')
-print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_nCells_per_threshold.pdf']),'-dpdf', '-bestfit')
+cellnames = {'(p>0.7, r>0.9)      ';'(p>0.7, r>0.8)';'      (p>0.6, r>0.8)'};
+set(gca,'xticklabel',cellnames,'FontSize',14)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], ['AcrossAllDays'], ['CellMaps'], [ref_date '_' mouse '_nCells_per_&threshold.pdf']),'-dpdf', '-bestfit')
 
 start = 1;
 height = 24; width = 24;
