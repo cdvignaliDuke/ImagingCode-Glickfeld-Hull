@@ -1,7 +1,7 @@
 clc; clear all; close all;
 doRedChannel = 0;
 ds = 'CrossOriRandDir_ExptList';
-iexp = 1; 
+iexp = 6; 
 rc = behavConstsAV;
 eval(ds)
 
@@ -19,7 +19,7 @@ run_str = catRunName(cell2mat(ImgFolder), nrun);
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
 %LG_base = '\\CRASH.dhe.duke.edu\data\home\lindsey';
 
-fprintf(['2P imaging retinotopy analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
+fprintf(['2P imaging Cross-ori rand di analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
 for irun=1:nrun
     fprintf([ImgFolder{irun} ' - ' time{irun} '\n'])
 end
@@ -66,6 +66,7 @@ all_resp_dir = [];
 all_resp_plaid = [];
 all_dir = [];
 all_plaid = [];
+nStim = nStimDir;
 for iDir = 1:nStimDir
     ind_stimdir = find(stimDir_all == stimDirs(iDir));
     ind_maskdir = find(maskDir_all == stimDirs(iDir));
@@ -105,8 +106,8 @@ save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_
 figure; 
 start = 1;
 n = 1;
-for iC = 1:length(plaid_only)
-    iCell = plaid_only(iC);
+for iC = 1:length(resp_ind)
+    iCell = resp_ind(iC);
     if start>25
         suptitle([date ' ' mouse ' Direction Tuning'])
         print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_plaidResp_dirTuning_' num2str(n) '.pdf']),'-dpdf', '-fillpage')
@@ -126,25 +127,29 @@ end
 suptitle([date ' ' mouse ' Direction Tuning'])
 print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_plaidResp_dirTuning_' num2str(n) '.pdf']),'-dpdf', '-fillpage')       
 
-old_int = unique(diff(stimDirs));
-new_int = 15;
-range = 0:new_int:(360-new_int);
-avg_resp_dir_upsamp = zeros(nCells, length(range), 2);
-for iCell = 1:nCells
-    for i = 1:2
-        avg_resp_dir_upsamp(iCell,:,i) = interp1([stimDirs 360], [avg_resp_dir(iCell,:,i,1) avg_resp_dir(iCell,1,i,1)], range);
-    end
-end
-component = avg_resp_dir_upsamp(:,:,1)+circshift(avg_resp_dir_upsamp(:,:,1),90./new_int,2);
-pattern = circshift(avg_resp_dir_upsamp(:,:,1),45./new_int,2);
+% int = unique(diff(stimDirs));
+% new_int = 15;
+% range = 0:new_int:(360-new_int);
+% avg_resp_dir_upsamp = zeros(nCells, length(range), 2);
+% for iCell = 1:nCells
+%     for i = 1:2
+%         avg_resp_dir_upsamp(iCell,:,i) = interp1([stimDirs 360], [avg_resp_dir(iCell,:,i,1) avg_resp_dir(iCell,1,i,1)], range);
+%     end
+% end
+% component = avg_resp_dir_upsamp(:,:,1)+circshift(avg_resp_dir_upsamp(:,:,1),90./new_int,2);
+% pattern = circshift(avg_resp_dir_upsamp(:,:,1),45./new_int,2);
+
+int = unique(diff(stimDirs));
+component = avg_resp_dir(:,:,1,1)+circshift(avg_resp_dir(:,:,1,1),90./int,2);
+pattern = circshift(avg_resp_dir(:,:,1,1),45./int,2);
 
 comp_corr = zeros(1,nCells);
 patt_corr = zeros(1,nCells);
-comppatt_corr = zeros(1,nCells);
+comp_patt_corr = zeros(1,nCells);
 
 for iCell = 1:nCells
-    comp_corr(iCell) = triu2vec(corrcoef(avg_resp_dir_upsamp(iCell,:,2),component(iCell,:)));
-    patt_corr(iCell) = triu2vec(corrcoef(avg_resp_dir_upsamp(iCell,:,2),pattern(iCell,:)));
+    comp_corr(iCell) = triu2vec(corrcoef(avg_resp_dir(iCell,:,2,1),component(iCell,:)));
+    patt_corr(iCell) = triu2vec(corrcoef(avg_resp_dir(iCell,:,2,1),pattern(iCell,:)));
     comp_patt_corr(iCell) = triu2vec(corrcoef(component(iCell,:),pattern(iCell,:)));
 end
 Rp = ((patt_corr)-(comp_corr.*comp_patt_corr))./sqrt(((1-patt_corr).^2).*((1-comp_corr).^2));
@@ -159,19 +164,23 @@ xlim([-2 4])
 vline(1)
 hline(1)
 
-ind = find(Rp>0.75);
+ind = find(Rp>.75);
 figure; 
 start = 1;
 [n n2] = subplotn(length(ind));
 for iC = 1:length(ind)
     iCell = ind(iC);
     subplot(n,n2,start) 
-    %errorbar(stimDirs, avg_resp_dir(iCell,:,1,1), avg_resp_dir(iCell,:,1,2))
+    errorbar(stimDirs, avg_resp_dir(iCell,:,1,1), avg_resp_dir(iCell,:,1,2))
     hold on
     errorbar(stimDirs, avg_resp_dir(iCell,:,2,1), avg_resp_dir(iCell,:,2,2))
     start = start+1;
     title(['C = ' num2str(chop(Rc(iCell),2)) '; P = ' num2str(chop(Rp(iCell),2))])
 end
+suptitle([date ' ' mouse ' Cells with Rp>1'])
+print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dirTuning_Rpabove1.pdf']),'-dpdf', '-fillpage')       
+
+
 
 stim_OSI = zeros(1,nCells);
 plaid_OSI = zeros(1,nCells);
@@ -195,7 +204,7 @@ for iCell = 1:nCells
     null_ind(find(null_ind>nStimDir)) = null_ind(find(null_ind>nStimDir))-nStimDir;
     min_val = avg_resp_dir_rect(iCell,null_ind,2,1);
     plaid_DSI(iCell) = (max_val-min_val)./(max_val+min_val);
-    mask_ind = max_ind+(90./old_int);
+    mask_ind = max_ind+(90./int);
     mask_ind(find(mask_ind>nStimDir)) = mask_ind(find(mask_ind>nStimDir))-nStimDir;
     stim_val = avg_resp_dir_rect(iCell,max_ind,1,1);
     mask_val = avg_resp_dir_rect(iCell,mask_ind,1,1);
@@ -219,6 +228,8 @@ for iCell = 1:nCells
     min_val = avg_resp_ori_rect(iCell,null_ind,1,1);
     stim_OSI(iCell) = (max_val-min_val)./(max_val+min_val);
 end
+
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dirAnalysis.mat']), 'Rp', 'Rc', 'stim_OSI', 'stim_DSI', 'plaid_OSI', 'plaid_DSI', 'plaid_SI', 'nCells');
 
 figure; 
 subplot(3,3,1)
