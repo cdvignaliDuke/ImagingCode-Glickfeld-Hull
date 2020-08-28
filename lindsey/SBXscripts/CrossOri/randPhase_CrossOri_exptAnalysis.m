@@ -1,12 +1,13 @@
 clc; clear all; close all;
 doRedChannel = 0;
-ds = 'CrossOriRandPhase_ExptList';
-iexp = 1; 
+ds = 'CrossOriRandPhase_highSF_ExptList';
+
 rc = behavConstsAV;
 eval(ds)
+nexp = size(expt,2);
 
 frame_rate = 30;
-
+iexp  = 9;
 %%
 mouse = expt(iexp).mouse;
 date = expt(iexp).date;
@@ -19,18 +20,18 @@ run_str = catRunName(cell2mat(ImgFolder), nrun);
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
 %LG_base = '\\CRASH.dhe.duke.edu\data\home\lindsey';
 
-fprintf(['2P imaging retinotopy analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
+fprintf(['2P imaging Cross-ori rand phase analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
 for irun=1:nrun
     fprintf([ImgFolder{irun} ' - ' time{irun} '\n'])
 end
 
 %% Test stim analysis
-% load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']))
-% load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dataStim.mat']))
-% load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']))
-% if doRedChannel == 0
-%     red_cells = [];
-% end
+load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_TCs.mat']))
+load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dataStim.mat']))
+load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']))
+if doRedChannel == 0
+    red_cells = [];
+end
 
 prewin_frames = frame_rate;
 nFramesOn = unique(celleqel2mat_padded(input.nStimOneFramesOn));
@@ -56,45 +57,89 @@ nMaskPhas = length(maskPhas);
 nMaskCon = length(maskCons);
 nStimCon = length(stimCons);
 
-resp_cell = cell(nMaskCon,nStimCon,nMaskPhas);
-trialsperstim = zeros(nMaskCon,nStimCon,nMaskPhas);
-h_resp =zeros(nCells,nMaskCon,nStimCon);
-p_resp =zeros(nCells,nMaskCon,nStimCon);
+base_cell = cell(nMaskCon,nStimCon,nMaskPhas,nSF);
+resp_cell = cell(nMaskCon,nStimCon,nMaskPhas,nSF);
+trialInd = cell(nMaskCon,nStimCon,nMaskPhas,nSF);
+trialsperstim = zeros(nMaskCon,nStimCon,nMaskPhas,nSF);
+h_resp =zeros(nCells,nMaskCon,nStimCon,nSF);
+p_resp =zeros(nCells,nMaskCon,nStimCon,nSF);
+base_win = prewin_frames-15:prewin_frames;
 resp_win = prewin_frames+5:prewin_frames+nFramesOn;
-data_dfof_con_ph_tc_avg = nan(prewin_frames+postwin_frames, nCells, nMaskCon, nStimCon, nMaskPhas);
-for im = 1:nMaskCon
-    ind_mask = find(maskCon_all == maskCons(im));
-    for it = 1:nStimCon
-        ind_stim = find(stimCon_all == stimCons(it));
-        if it>1 & im>1
-            for ip = 1:nMaskPhas
-                ind_phas = find(maskPhas_all == maskPhas(ip));
-                ind = intersect(ind_phas, intersect(ind_stim,ind_mask));
-                trialsperstim(im,it,ip) = length(ind);
-                resp_cell{im,it,ip} = squeeze(mean(data_dfof_tc(resp_win,:,ind),1));
-                data_dfof_con_ph_tc_avg(:,:,im,it,ip) = squeeze(nanmean(data_dfof_tc(:,:,ind),3));
+data_dfof_con_ph_tc_avg = nan(prewin_frames+postwin_frames, nCells, nMaskCon, nStimCon, nMaskPhas,nSF);
+
+test_resp = cell(1,nSF);
+mask_resp = cell(1,nSF);
+plaid_resp = cell(1,nSF);
+prefplaid_nonlinear = cell(1,nSF);
+h_resptest = zeros(nCells,nSF);
+h_respmask = zeros(nCells,nSF);
+h_respplaid = zeros(nCells,nSF);
+h_preftest = zeros(nCells,nSF);
+h_prefmask = zeros(nCells,nSF);
+h_prefplaid1 = zeros(nCells,nSF);
+h_prefplaid2 = zeros(nCells,nSF);
+
+for isf = 1:nSF
+    ind_sf = find(SF_all == SFs(isf));
+    for im = 1:nMaskCon
+        ind_mask = find(maskCon_all == maskCons(im));
+        for it = 1:nStimCon
+            ind_stim = find(stimCon_all == stimCons(it));
+            if it>1 & im>1
+                for ip = 1:nMaskPhas
+                    ind_phas = find(maskPhas_all == maskPhas(ip));
+                    ind = intersect(ind_phas, intersect(ind_sf,intersect(ind_stim,ind_mask)));
+                    trialsperstim(im,it,ip,isf) = length(ind);
+                    resp_cell{im,it,ip,isf} = squeeze(mean(data_dfof_tc(resp_win,:,ind),1));
+                    base_cell{im,it,ip,isf} = squeeze(mean(data_dfof_tc(base_win,:,ind),1));
+                    data_dfof_con_ph_tc_avg(:,:,im,it,ip,isf) = squeeze(nanmean(data_dfof_tc(:,:,ind),3));
+                    trialInd{im,it,ip,isf} = ind;
+                end
+            elseif it>1 || im>1
+                ind = intersect(ind_sf,intersect(ind_mask,ind_stim));
+                trialsperstim(im,it,1,isf) = length(ind);
+                resp_cell{im,it,1,isf} = squeeze(mean(data_dfof_tc(resp_win,:,ind),1));
+                base_cell{im,it,1,isf} = squeeze(mean(data_dfof_tc(base_win,:,ind),1));
+                data_dfof_con_ph_tc_avg(:,:,im,it,1,isf) = squeeze(nanmean(data_dfof_tc(:,:,ind),3));
+                trialInd{im,it,1,isf} = ind;
+            elseif isf == 1
+                ind = intersect(ind_mask,ind_stim);
+                trialsperstim(im,it,1,1) = length(ind);
+                resp_cell{im,it,1,1} = squeeze(mean(data_dfof_tc(resp_win,:,ind),1));
+                base_cell{im,it,1,1} = squeeze(mean(data_dfof_tc(base_win,:,ind),1));
+                data_dfof_con_ph_tc_avg(:,:,im,it,1,1) = squeeze(nanmean(data_dfof_tc(:,:,ind),3));
+                trialInd{im,it,1,1} = ind;
             end
-        else
-            ind = intersect(ind_mask,ind_stim);
-            trialsperstim(im,it,1) = length(ind);
-            resp_cell{im,it,1} = squeeze(mean(data_dfof_tc(resp_win,:,ind),1));
-            data_dfof_con_ph_tc_avg(:,:,im,it,1) = squeeze(nanmean(data_dfof_tc(:,:,ind),3));
-            [h_resp(:,im,it), p_resp(:,im,it)] = ttest2(resp_cell{im,it,1},resp_cell{1,1,1},'dim',2,'tail','right','alpha',0.05./(nMaskCon*nStimCon));
         end
     end
+    test_resp{isf} = resp_cell{1,nStimCon,1,isf};
+    mask_resp{isf} = resp_cell{nMaskCon,1,1,isf};
+    plaid_resp{isf} = resp_cell{nMaskCon,nStimCon,1,isf};
+    null_resp = resp_cell{1,1,1,1};
+
+    if size(null_resp,2) == nCells || size(null_resp,2)<5
+        test_base = base_cell{1,nStimCon,1,isf};
+        mask_base = base_cell{nMaskCon,1,1,isf};
+        plaid_base = base_cell{nMaskCon,nStimCon,1,isf};
+        [h_resptest(:,isf) p_resptest] =  ttest2(test_resp{isf},test_base,'dim',2,'tail','right');
+        [h_respmask(:,isf) p_respmask] = ttest2(mask_resp{isf},mask_base,'dim',2,'tail','right');
+        [h_respplaid(:,isf) p_respplaid] = ttest2(plaid_resp{isf},plaid_base,'dim',2,'tail','right');
+    else
+        [h_resptest(:,isf) p_resptest] =  ttest2(test_resp{isf},null_resp,'dim',2,'tail','right');
+        [h_respmask(:,isf) p_respmask] = ttest2(mask_resp{isf},null_resp,'dim',2,'tail','right');
+        [h_respplaid(:,isf) p_respplaid] = ttest2(plaid_resp{isf},null_resp,'dim',2,'tail','right');
+    end
+    
+    [h_preftest(:,isf) p_preftest] = ttest2(test_resp{isf},mask_resp{isf},'dim',2,'tail','right');
+    [h_prefmask(:,isf) p_prefmask] = ttest2(test_resp{isf},mask_resp{isf},'dim',2,'tail','left');
+    [h_prefplaid1(:,isf) p_prefplaid1] = ttest2(plaid_resp{isf}, test_resp{isf} ,'dim',2,'tail','right');
+    [h_prefplaid2(:,isf) p_prefplaid2] = ttest2(plaid_resp{isf}, mask_resp{isf} ,'dim',2,'tail','right');
+    
+    prefplaid_nonlinear{isf} = find(mean(mask_resp{isf},2)+mean(test_resp{isf},2)<mean(plaid_resp{isf},2));
 end
-
-test_resp = resp_cell{1,nStimCon};
-mask_resp = resp_cell{nMaskCon,1};
-plaid_resp = resp_cell{nMaskCon,nStimCon};
-null_resp = resp_cell{1,1};
-
-[h_resptest p_resptest] =  ttest2(test_resp,null_resp,'dim',2,'tail','right');
-[h_respmask p_respmask] = ttest2(mask_resp,null_resp,'dim',2,'tail','right');
-[h_respplaid p_respplaid] = ttest2(plaid_resp,null_resp,'dim',2,'tail','right');
-resptest_ind = find(h_resptest);
-respmask_ind = find(h_respmask);
-respplaid_ind = find(h_respplaid);
+resptest_ind = find(sum(h_resptest,2));
+respmask_ind = find(sum(h_respmask,2));
+respplaid_ind = find(sum(h_respplaid,2));
 
 resptest_ind = setdiff(resptest_ind,red_cells);
 respmask_ind = setdiff(respmask_ind,red_cells);
@@ -103,15 +148,21 @@ respplaid_ind = setdiff(respplaid_ind,red_cells);
 resp_ind = unique([resptest_ind; respmask_ind; respplaid_ind]);
 resp_ind_nomask = unique([resptest_ind; respplaid_ind]);
 
-[h_preftest p_preftest] = ttest2(test_resp,mask_resp,'dim',2,'tail','right');
-[h_prefmask p_prefmask] = ttest2(test_resp,mask_resp,'dim',2,'tail','left');
-[h_prefplaid1 p_prefplaid1] = ttest2(plaid_resp, test_resp ,'dim',2,'tail','right');
-[h_prefplaid2 p_prefplaid2] = ttest2(plaid_resp, mask_resp ,'dim',2,'tail','right');
-preftest_ind = intersect(resp_ind,find(h_preftest));
-prefmask_ind = intersect(resp_ind,find(h_prefmask));
-prefplaid_ind = intersect(resp_ind,intersect(find(h_prefplaid1),find(h_prefplaid2)));
-prefplaid_nonlinear = find(mean(mask_resp,2)+mean(test_resp,2)<mean(plaid_resp,2));
-prefplaidonly_ind =  intersect(prefplaid_ind,prefplaid_nonlinear);
+resp_ind_sf = cell(1,nSF);
+for isf = 1:nSF
+    resp_all = h_resptest(:,isf)+h_respmask(:,isf)+h_respplaid(:,isf);
+    resp_ind_sf{isf} = find(resp_all);
+end
+
+preftest_ind = intersect(resp_ind,find(sum(h_preftest,2)));
+prefmask_ind = intersect(resp_ind,find(sum(h_prefmask,2)));
+prefplaid_ind = intersect(resp_ind,intersect(find(sum(h_prefplaid1,2)),find(sum(h_prefplaid2,2))));
+
+prefplaidonly_ind = [];
+for isf = 1:nSF
+    prefplaidonly_ind =  [prefplaidonly_ind; intersect(prefplaid_ind,prefplaid_nonlinear{isf})];
+end
+prefplaidonly_ind = unique(prefplaidonly_ind);
 preftestonly_ind = setdiff(preftest_ind,prefplaidonly_ind);
 prefmaskonly_ind = setdiff(prefmask_ind,prefplaidonly_ind);
 
@@ -119,8 +170,8 @@ preftestonly_ind = setdiff(preftestonly_ind,red_cells);
 prefmaskonly_ind = setdiff(prefmaskonly_ind,red_cells);
 prefplaidonly_ind = setdiff(prefplaidonly_ind,red_cells);
 
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_respData.mat']), 'data_dfof_con_ph_tc_avg', 'resp_cell', 'data_dfof_tc', 'resp_ind', 'preftest_ind', 'prefmask_ind', 'prefplaid_ind', 'preftestonly_ind', 'prefmaskonly_ind', 'prefplaidonly_ind', 'tt', 'frame_rate');
-save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']), 'prewin_frames', 'postwin_frames', 'resp_win', 'stimCon_all', 'maskCon_all', 'maskPhas_all', 'stimCons', 'maskCons', 'maskPhas', 'nStimCon', 'nMaskCon', 'nMaskPhas');
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_respData.mat']), 'data_dfof_con_ph_tc_avg', 'resp_cell','base_cell', 'data_dfof_tc', 'resp_ind', 'preftest_ind', 'prefmask_ind', 'prefplaid_ind', 'preftestonly_ind', 'prefmaskonly_ind', 'prefplaidonly_ind', 'tt', 'frame_rate','resp_ind_sf');
+save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_stimData.mat']), 'prewin_frames', 'postwin_frames', 'resp_win', 'base_win', 'stimCon_all', 'maskCon_all', 'maskPhas_all', 'stimCons', 'maskCons', 'maskPhas', 'nStimCon', 'nMaskCon', 'nMaskPhas');
 
 %% plots
 tf = input.stimOneGratingTemporalFreqCPS;
