@@ -286,7 +286,7 @@ pix_fgta3 = pixD2.pix_fgta;
 sz = size(data_reg2);
 data_reg22 = NaN(sz(1),sz(2),nframes);
 for i = 1:nframes
-    data_reg22(:,:,i) = imwarp(double(data_reg2(:,:,i)),fgta3, 'OutputView', imref2d(size(data_reg_avg3)));
+    data_reg22(:,:,i) = imwarp(double(data_reg2(:,:,i)),fgta2, 'OutputView', imref2d(size(data_reg_avg3)));
     if rem(i,50) == 0
         fprintf([num2str(i) '/n'])
     end
