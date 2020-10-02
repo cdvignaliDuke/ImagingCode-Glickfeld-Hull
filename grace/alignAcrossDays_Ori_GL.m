@@ -1,14 +1,14 @@
 clear all
 clear global
 %% 
-mouse = 'i1316';
-day2 = '200108';
-day3 = '200109';
+mouse = 'i1312';
+day2 = '200120';
+day3 = '200201';
 % day4 = '200110';
-ImgFolder = strvcat('003');
+ImgFolder = strvcat('002');
 ImgFolder2 = strvcat('003');
-ref_date = '200106';
-ref_run = strvcat('003');
+ref_date = '200118';
+ref_run = strvcat('002');
 nrun = size(ImgFolder,1);
 nrun2 = size(ImgFolder2,1);
 frame_rate = 15.5;
@@ -16,7 +16,7 @@ run_str = catRunName(ImgFolder, nrun);
 run_str2 = catRunName(ImgFolder2, nrun2);
 run_str3 = catRunName(ImgFolder, nrun);
 ref_str = catRunName(ref_run, size(ref_run,1));
-fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\grace\Analysis\2P';
+fnout = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_Staff\home\lindsey\Analysis\2P';
 
 %% load data
 oriTuning_D1 = load(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' ref_str], [ref_date '_' mouse '_' ref_str '_oriTuningAndFits.mat']));
@@ -158,21 +158,19 @@ ori_mat = dir_mat;
 ori_mat(find(dir_mat>=180)) = ori_mat(dir_mat>=180)-180;
 oris = unique(ori_mat);
 nori = length(oris);
-% perform anova on dfof values for each trial for each cell
+% perform anova on dfof values for each trial for each cellfr
 [p,t,stats] = anova1(data_dfof1);
 [c,m,h,nms] = multcompare(stats);
 
 % signal correlation matrix of pref ori between days
 goodfit_PO1 = prefOri_D1(goodfit);
-goodfit_AR1 = avgResp_D1(goodfit',:);
 goodfit_PO2 = prefOri_D2(goodfit);
-goodfit_AR2 = avgResp_D2(goodfit',:);
 [B,I] = sort(goodfit_PO1);
 [b,i] = sort(goodfit_PO2);
 color_axis_limit = [-1 1];
 figure;
 colormap(brewermap([],'*RdBu'))
-imagesc(corrcoef(goodfit_AR1(I,:)'))
+imagesc(corrcoef(avgResp_D1(I,:)'))
 colorbar
 clim(color_axis_limit)
 xlabel('nCells in order of pref ori','FontSize',20)
@@ -181,10 +179,10 @@ title('signal correlation of avg responses for each ori','FontSize',20)
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['signal_corr_matrix_goodfit.pdf']),'-dpdf', '-bestfit')
 
 % in order of day 1 pref ori (I)
-signal_corr1 = corrcoef(goodfit_AR1(I,:)');
-signal_corr2 = corrcoef(goodfit_AR2(I,:)');
-signal_diff12 = signal_corr1-signal_corr2;
-color_axis_limit = [-1 1];
+signal_corr1 = corrcoef(avgResp_D1(I,:)');
+signal_corr2 = corrcoef(avgResp_D2(I,:)');
+signal_diff12 = abs(signal_corr1-signal_corr2);
+color_axis_limit = [0 1];
 figure;
 colormap(brewermap([],'*RdBu'))
 imagesc(signal_diff12)
@@ -196,9 +194,9 @@ title('change in signal correlation of avg responses for each ori','FontSize',20
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['signal_corr_diff1_GF.pdf']),'-dpdf', '-bestfit')
 
 % in order of day 2 pref ori (i)
-signal_corr1 = corrcoef(goodfit_AR1(i,:)');
-signal_corr2 = corrcoef(goodfit_AR2(i,:)');
-signal_diff12 = signal_corr2-signal_corr1;
+signal_corr1 = corrcoef(avgResp_D1(i,:)');
+signal_corr2 = corrcoef(avgResp_D2(i,:)');
+signal_diff12 = abs(signal_corr2-signal_corr1);
 color_axis_limit = [-1 1];
 figure;
 colormap(brewermap([],'*RdBu'))
@@ -209,6 +207,145 @@ xlabel('nCells in order of D2 pref ori','FontSize',20)
 ylabel('nCells in order of D2 pref ori','FontSize',20)
 title('change in signal correlation of avg responses for each ori','FontSize',20)
 print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['signal_corr_diff2_GF.pdf']),'-dpdf', '-bestfit')
+
+% within day
+dir_mat = tGratingDir1;
+ori_mat = dir_mat;
+ori_mat(find(dir_mat>=180)) = ori_mat(dir_mat>=180)-180;
+oris = unique(ori_mat);
+nOri = length(oris);
+resp_wind = nOff1+1:nOff1+nOn1;
+resp = squeeze(mean(data_dfof1(resp_wind,:,:),1));
+ind = cell(1,2);
+ind{1} = randperm(nTrials1,nTrials1/2);
+ind{2} = setdiff(1:nTrials1, ind{1});
+ori_resp_avg = zeros(nCells1,nOri,2,2);
+ori_resp_avg2 = zeros(nCells1,nOri,2,2);
+for i = 1:2
+  for iOri = 1:nOri
+    ind_ori = intersect(ind{i}, find(ori_mat == oris(iOri)));
+    ori_resp_avg(:,iOri,1,i) = squeeze(mean(data_dfof1(:,ind_ori),2));
+    ori_resp_avg(:,iOri,2,i) = squeeze(std(data_dfof1(:,ind_ori),[],2))./sqrt(length(ind_ori));
+    ori_resp_avg2(:,iOri,1,i) = squeeze(mean(data_dfof2(:,ind_ori),2));
+    ori_resp_avg2(:,iOri,2,i) = squeeze(std(data_dfof2(:,ind_ori),[],2))./sqrt(length(ind_ori));
+  end
+end
+
+figure;
+start = 1;
+for iC = 1:length(goodfit)
+    iCell = goodfit(iC);
+  for i = 1:2
+    if start>25
+      figure;
+      start = 1;
+    end
+    subplot(5,5,start)
+    errorbar(oris, ori_resp_avg(iCell,:,1,i), ori_resp_avg(iCell,:,2,i), '-o')
+    hold on
+  end
+  start = start+1;
+end
+
+[B,I] = sort(goodfit_PO1);
+D1half1 = corrcoef(ori_resp_avg(I,:,1)');
+D1half2 = corrcoef(ori_resp_avg(I,:,2)');
+D2half1 = corrcoef(ori_resp_avg2(I,:,1)');
+D2half2 = corrcoef(ori_resp_avg2(I,:,2)');
+half_diff = abs(D1half2-D1half1);
+color_axis_limit = [-1 1];
+figure;
+title('abs difference in signal cor between randomized trial halves')
+colormap(brewermap([],'*RdBu'))
+imagesc(half_diff)
+colorbar
+clim(color_axis_limit)
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['same_day_colormap.pdf']),'-dpdf', '-bestfit')
+
+half_diff1 = abs(D1half1-D1half2);
+half_diff2 = abs(D2half1-D2half2);
+delta_half = abs(half_diff2-half_diff1)/half_diff1;
+
+signal_corr1 = tril(corrcoef(avgResp_D1(I,:)'));
+signal_corr1(signal_corr1==0)=[];
+signal_corr2 = tril(corrcoef(avgResp_D2(I,:)'));
+signal_corr2(signal_corr2==0)=[];
+D1H1 = tril(D1half1);
+D1H1(D1H1==0)=[];
+D1H2 = tril(D1half2);
+D1H2(D1H2==0)=[];
+D2H1 = tril(D2half1);
+D2H1(D2H1==0)=[];
+D2H2 = tril(D2half2);
+D2H2(D2H2==0)=[];
+figure;
+plot(reshape(D1H1(2:21),[],1),'LineWidth',2)
+hold on
+plot(reshape(D1H2(2:21),[],1),'LineWidth',2)
+hold on
+plot(reshape(D2H1(2:21),[],1),'LineWidth',2)
+hold on
+plot(reshape(D2H2(2:21),[],1),'LineWidth',2)
+legend({'D1H1','D1H2','D2H1','D2H2','overlap'},'Location','northeast')
+xlabel('cell pairs')
+ylabel('signal correlation')
+
+% hold on
+% plot(reshape(signal_corr1(1:10),[],1))
+% hold on
+% plot(reshape(signal_corr2(1:10),[],1))
+
+figure;
+suptitle('Cell1 Half1, Cell1 Half2, Cell2 Half1, Cell2 Half2, similar ori')
+start = 1;
+for icell = 1:length(goodfit)
+    iCell = goodfit(icell);
+     for ic = 1:length(goodfit)
+        iC = goodfit(ic);
+        if iCell~= iC
+            if prefOri_D1(iCell)<prefOri_D1(iC)+11&&prefOri_D1(iCell)>prefOri_D1(iC)-11
+            subplot(4,4,start)
+            plot(1:8,ori_resp_avg(iCell,:,1,1),'color',[1 0 0])
+            hold on
+            plot(1:8,ori_resp_avg(iCell,:,1,2),'color',[1 0.5469 0])
+            hold on
+            plot(1:8,ori_resp_avg(iC,:,1,1),'color',[1 0.8398 0])
+            hold on
+            plot(1:8,ori_resp_avg(iC,:,1,2),'color',[0.1328 0.5430 0.1328])
+            title([num2str(iCell) 'and' num2str(iC)])
+            start = start+1;
+            axis square
+            end
+        end
+     end
+end
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['same_ori_AR.pdf']),'-dpdf', '-bestfit')
+
+figure;
+suptitle('Cell1 Half1, Cell1 Half2, Cell2 Half1, Cell2 Half2, diff ori')
+start = 1;
+for icell = 1:length(goodfit)
+    iCell = goodfit(icell);
+     for ic = 1:length(goodfit)
+        iC = goodfit(ic);
+        if iCell~=iC
+        if prefOri_D1(iCell)>prefOri_D1(iC)+11||prefOri_D1(iCell)<prefOri_D1(iC)-11
+            subplot(4,4,start)
+            plot(1:8,ori_resp_avg(iCell,:,1,1),'color',[0.6016 0.8008 0.1953])
+            hold on
+            plot(1:8,ori_resp_avg(iCell,:,1,2),'color',[0.2500 0.8750 0.8125])
+            hold on
+            plot(1:8,ori_resp_avg(iC,:,1,1),'color',[0.9297 0.5078 0.9297])
+            hold on
+            plot(1:8,ori_resp_avg(iC,:,1,2),'color',[0.4648 0.5313 0.5977])
+            title([num2str(iCell) 'and' num2str(iC)])
+            start = start+1;
+            axis square
+        end
+        end
+     end
+end
+print(fullfile(fnout, [ref_date '_' mouse], [ref_date '_' mouse '_' run_str], ['diff_ori_AR.pdf']),'-dpdf', '-bestfit')
 
 % scatter
 nCells = length(goodfit);

@@ -1,11 +1,12 @@
 function [x_um,y_um,sb_img_50um] = scalebarCalib(exptDateYYMMDD, obj, img, zm)%% for 30 Hz imaging on 2P
+
 d = datestr(datenum(num2str(exptDateYYMMDD,'%d'),'yymmdd'),'yymmdd');
 if strcmp(obj,'16x')
     if any(strcmp({'14','15','16'},d(1:2)))
         % 16x 2014 - 2016
         x_um = 555;
         y_um = 233;
-    elseif any(strcmp({'17','18','19'},d(1:2)))
+    elseif any(strcmp({'17','18','19','20'},d(1:2)))
         % 16x 2017-2019
         x_um = 1030;
         y_um = 581;
@@ -24,7 +25,6 @@ if length(nargin > 3)
     y_um = y_um/zm;
 end
 
-
 %%
 if nargin > 2
     [y_pix,x_pix] = size(img);
@@ -39,5 +39,5 @@ if nargin > 2
     sb_img = zeros(y_pix,x_pix);
     sb_img(sb_y_ind,sb_x_ind) = 1;
     sb_img_50um = sb_img;
-    figure;imagesc(sb_img)
+%     figure;imagesc(sb_img)
 end
