@@ -432,7 +432,7 @@ title(['n = ' num2str(size(supp_ind,1))])
 % load((fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_cellResp.mat'])))
 close all
 stimOn_fr = 23;
-resp_win_sec = [150 750];
+resp_win_sec = [200 700];
 resp_win_fr = stimOn_fr + ceil(resp_win_sec./(1000/frameRateHz));
 base_win_fr = resp_win_fr-resp_win_fr(1)+1;
 h_ttest = zeros(nSpd+1,nCon,nCells);

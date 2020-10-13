@@ -19,6 +19,7 @@ cell_weights = cell(size(area_list));
 max_spd_grating = cell(size(area_list));
 TF_resp_cells = cell(size(area_list));
 TF_tuned_cells = cell(size(area_list));
+dfof_spd_resp_all = cell(size(area_list));
 spd_resp_all = cell(size(area_list));
 expt_id = cell(size(area_list));
 mice = cell(size(expt));
@@ -37,6 +38,7 @@ for iexp = 1:length(expt)
     mice{iexp} = [expt(iexp).mouse '_'];
     LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
     
+    load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' dot_run_str], [date '_' mouse '_' dot_run_str '_cellResp.mat']))
     load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' dot_run_str], [date '_' mouse '_' dot_run_str '_trResp.mat']))
     load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' dot_run_str], [date '_' mouse '_' dot_run_str '_singleCellDecode.mat']))
     
@@ -55,6 +57,8 @@ for iexp = 1:length(expt)
     max_spd_nobase{iarea} = [max_spd_nobase{iarea}; max_ind_nobase];
     expt_id{iarea} = [expt_id{iarea} iexp.*ones(size(pctCorrectTarget_ho_singlecell))];
     
+    dfof_spd_resp_all{iarea} = cat(2, dfof_spd_resp_all{iarea}, data_dfof_spd);
+    
     load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' grating_run_str], [date '_' mouse '_' grating_run_str '_dfofData.mat']))
     load(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' grating_run_str], [date '_' mouse '_' grating_run_str '_stimData.mat']))
     max_spd_grating{iarea} = max_ind_tf;
@@ -66,21 +70,68 @@ end
 mouse_list = cell2mat(unique(mice));
 summary_pn = fullfile(LG_base, '\Analysis\2P\SpeedTuning');
 %% responsive cells
-for iarea=2:length(area_list)
-    fprintf([area_list{iarea} ':\n Responsive: ' num2str(length(resp_cells{iarea})) '/' num2str(length(singleCellPctCorrect{iarea})) '- ' ...
-        num2str(mean(fract_resp{iarea},2)) '+/-' num2str(num2str(std(fract_resp{iarea},[],2)./sqrt(length(fract_resp{iarea}))))...
-        '\n Inc Responsive: ' num2str(length(inc_resp_cells{iarea})) '/' num2str(length(resp_cells{iarea})) '- ' ...
-        num2str(mean(fract_inc_resp{iarea},2)) '+/-' num2str(num2str(std(fract_inc_resp{iarea},[],2)./sqrt(length(fract_inc_resp{iarea}))))...
-        '\n Tuned: ' num2str(length(tuned_cells{iarea})) '/' num2str(length(inc_resp_cells{iarea})) '- ' ...
-        num2str(mean(fract_tuned{iarea},2)) '+/-' num2str(num2str(std(fract_tuned{iarea},[],2)./sqrt(length(fract_tuned{iarea})))) '\n']);
-end
-[h p] = ttest2(fract_resp{2},fract_resp{3});
-fprintf(['Responsive: ' num2str(chop(p,2)) '\n']);
-[h p_inc] = ttest2(fract_inc_resp{2},fract_inc_resp{3});
-fprintf(['Inc Responsive: ' num2str(chop(p_inc,2)) '\n']);
-[h p_tuned] = ttest2(fract_tuned{2},fract_tuned{3});
-fprintf(['Tuned: ' num2str(chop(p_tuned,2)) '\n']);
+% for iarea=2:length(area_list)
+%     fprintf([area_list{iarea} ':\n Responsive: ' num2str(length(resp_cells{iarea})) '/' num2str(length(singleCellPctCorrect{iarea})) '- ' ...
+%         num2str(mean(fract_resp{iarea},2)) '+/-' num2str(num2str(std(fract_resp{iarea},[],2)./sqrt(length(fract_resp{iarea}))))...
+%         '\n Inc Responsive: ' num2str(length(inc_resp_cells{iarea})) '/' num2str(length(resp_cells{iarea})) '- ' ...
+%         num2str(mean(fract_inc_resp{iarea},2)) '+/-' num2str(num2str(std(fract_inc_resp{iarea},[],2)./sqrt(length(fract_inc_resp{iarea}))))...
+%         '\n Tuned: ' num2str(length(tuned_cells{iarea})) '/' num2str(length(inc_resp_cells{iarea})) '- ' ...
+%         num2str(mean(fract_tuned{iarea},2)) '+/-' num2str(num2str(std(fract_tuned{iarea},[],2)./sqrt(length(fract_tuned{iarea})))) '\n']);
+% end
+ 
+resp=[size(dfof_spd_resp_all{2},2) size(resp_cells{2},1); size(dfof_spd_resp_all{3},2) size(resp_cells{3},1)];
+ e = sum(resp,2)*sum(resp)/sum(resp(:)); % expected
+ X2 = (resp-e).^2./e;
+ X2 = sum(X2(:)); % chi square
+ df = prod(size(resp)-[1 1]); % degree of freedom
+ p_resp = 1-chi2cdf(X2,df);
+ [AL_m AL_CI] = binofit(size(resp_cells{2},1), size(dfof_spd_resp_all{2},2));
+ [PM_m PM_CI] = binofit(size(resp_cells{3},1), size(dfof_spd_resp_all{3},2));
+ fprintf(['Responsive CI: AL- ' num2str(chop(AL_CI,2)) '; PM- ' num2str(chop(PM_CI,2)) '\n' ]);
+fprintf(['Responsive: ' num2str(chop(p_resp,2)) '\n']);
 
+inc=[size(resp_cells{2},1) size(inc_resp_cells{2},1); size(resp_cells{3},1) size(inc_resp_cells{3},1)];
+ e = sum(inc,2)*sum(inc)/sum(inc(:)); % expected
+ X2 = (inc-e).^2./e;
+ X2 = sum(X2(:)); % chi square
+ df = prod(size(inc)-[1 1]); % degree of freedom
+ p_inc = 1-chi2cdf(X2,df);
+ [AL_m AL_CI] = binofit(size(inc_resp_cells{2},1), size(resp_cells{2},1));
+ [PM_m PM_CI] = binofit(size(inc_resp_cells{3},1), size(resp_cells{3},1));
+ fprintf(['Inc Responsive CI: AL- ' num2str(chop(AL_CI,2)) '; PM- ' num2str(chop(PM_CI,2)) '\n' ]);
+fprintf(['Inc Responsive: ' num2str(chop(p_inc,2)) '\n']);
+
+tuned=[size(inc_resp_cells{2},1) size(tuned_cells{2},2);size(inc_resp_cells{3},1) size(tuned_cells{3},2)];
+ e = sum(tuned,2)*sum(tuned)/sum(tuned(:)); % expected
+ X2 = (tuned-e).^2./e;
+ X2 = sum(X2(:)); % chi square
+ df = prod(size(tuned)-[1 1]); % degree of freedom
+ p_tuned = 1-chi2cdf(X2,df);
+
+ [AL_m AL_CI] = binofit(size(tuned_cells{2},2), size(inc_resp_cells{2},1));
+ [PM_m PM_CI] = binofit(size(tuned_cells{3},2), size(inc_resp_cells{3},1));
+ fprintf(['Tuned CI: AL- ' num2str(chop(AL_CI,2)) '; PM- ' num2str(chop(PM_CI,2)) '\n' ]);
+fprintf(['Tuned: ' num2str(chop(p_tuned,2)) '\n']);
+%% average response to each speed
+nSpd = size(dfof_spd_resp_all{1},4);
+tt = [-22:97].*(1000/frameRateHz);
+figure;
+for iarea=2:length(area_list)
+    for iSpd = 1:nSpd
+        subplot(2,nSpd,iSpd+((iarea-2).*nSpd))
+        shadedErrorBar(tt, mean(dfof_spd_resp_all{iarea}(:,inc_resp_cells{iarea},2,iSpd),2), std(dfof_spd_resp_all{iarea}(:,inc_resp_cells{iarea},2,iSpd),[],2)./sqrt(length(inc_resp_cells{iarea})));
+        ylim([-0.01 .2])
+        xlim([-500 3000])
+        vline([200 733], 'k')
+        if iarea == 2
+            title([num2str(spd_step(iSpd+1)) ' deg/s'])
+        end
+        if iSpd == 1
+            ylabel(area_list{iarea})
+        end
+    end
+end
+print(fullfile(summary_pn, [mouse_list 'speedSummary_avgTCs.pdf']),'-dpdf','-fillpage')
 %% fit speed response curves
 spdRng = 0.5:0.01:30;
 nSpd = length(spd_step(2:end));
@@ -312,56 +363,29 @@ spdpref = zeros(length(spd_step),length(t_area_list));
 area_list_tunedcells = cell(size(t_area_list));
 t_area_list_increspcells = cell(size(t_area_list));
 figure;
-for iarea = 1:length(t_area_list)
+for iarea = 2:3
+    t_area_list_increspcells{iarea-1} = [t_area_list{iarea-1} '- ' num2str(length(inc_resp_cells{iarea}))];
     subplot(2,2,1)
-    scatter(iarea.*ones(1,length(fract_inc_resp{iarea})), fract_inc_resp{iarea}, 'ob')
-    hold on
-    errorbar(iarea, mean(fract_inc_resp{iarea},2), std(fract_inc_resp{iarea},[],2)./length(fract_inc_resp{iarea}),'ok')
-    ylim([0 1])
-    xlim([0 3])
-    
-    t_area_list_increspcells{iarea} = [t_area_list{iarea} '- ' num2str(length(inc_resp_cells{iarea}))];
-    
-    set(gca, 'XTick', [1:2], 'XTickLabel', t_area_list)
-    subplot(2,2,3)
     resp_mat = [resp_mat; reshape(squeeze(spd_resp_all{iarea}(inc_resp_cells{iarea},2,:)), [length(inc_resp_cells{iarea})*size(spd_resp_all{iarea},3) 1])];
     area_mat = [area_mat; iarea.*ones(length(inc_resp_cells{iarea})*size(spd_resp_all{iarea},3), 1)];
     spd_mat = [spd_mat; reshape(repmat(spd_step(2:end), [length(inc_resp_cells{iarea}) 1]), [length(inc_resp_cells{iarea})*size(spd_resp_all{iarea},3) 1])];
-    errorbar(spd_step(2:end),squeeze(mean(spd_resp_all{iarea}(inc_resp_cells{iarea},2,:),1)),  squeeze(std(spd_resp_all{iarea}(inc_resp_cells{iarea},2,:),[],1))./sqrt(length(inc_resp_cells{iarea})))
+    errorbar(spd_step(2:end),squeeze(mean(spd_resp_all{iarea}(inc_resp_cells{iarea},2,:),1)),  squeeze(std(spd_resp_all{iarea}(inc_resp_cells{iarea},2,:),[],1))./sqrt(length(inc_resp_cells{iarea})),'-o')
     hold on
-    if iarea==length(t_area_list)
+    if iarea==3
         legend(t_area_list_increspcells,'location','northwest')
     end
-    subplot(2,2,2)
-    scatter(iarea.*ones(1,length(fract_tuned{iarea})), fract_tuned{iarea}, 'ob')
-    hold on
-    errorbar(iarea, mean(fract_tuned{iarea},2), std(fract_tuned{iarea},[],2)./length(fract_tuned{iarea}),'ok')
-    ylim([0 1])
-    xlim([0 3])
-    t_area_list_tunedcells{iarea} = [t_area_list{iarea} '- ' num2str(length(tuned_cells{iarea}))];
-    set(gca, 'XTick', [1:2], 'XTickLabel', t_area_list)
-    
+    t_area_list_tunedcells{iarea-1} = [t_area_list{iarea-1} '- ' num2str(length(tuned_cells{iarea}))];
     [n bin] = histcounts(max_spd{iarea}(tuned_cells{iarea}));
-    spdpref(:,iarea) = n;
+    spdpref(:,iarea-1) = n;
 end
-
-%[p_inc table_inc stats_inc] = anova1(reshape(cell2mat(fract_inc_resp),[length(expt)./length(area_list) length(area_list)]),[],'off');
 subplot(2,2,1)
-title({'IncrementResp/TotResp',['p = ' num2str(chop(p_inc,2))]})
-ylabel('Fraction Inc Responsive')
-
-%[p_tune table_tune stats_tune] = anova1(reshape(cell2mat(fract_tuned),[length(expt)./length(area_list) length(area_list)]),[],'off');
-subplot(2,2,2)
-title({'Tuned/IncrementResp',['p = ' num2str(chop(p_tuned,2))]})
-ylabel('Fraction Tuned')
-
-subplot(2,2,3)
 %[p_spdresp table_spdresp stats_spdresp] = anovan(resp_mat, {area_mat,spd_mat});
 title('Speed response')
 ylabel('dF/F')
 xlabel('Speed increment')
+ylim([0 0.15])
 
-subplot(2,2,4)
+subplot(2,2,2)
 cats = categorical(cellstr(num2str(spd_step')),cellstr(num2str(spd_step')));
 bar(cats,spdpref./sum(spdpref,1))
 ylim([0 1])
@@ -370,6 +394,31 @@ xlabel('Speed step (deg/s)')
 legend(t_area_list_tunedcells,'location','northwest')
 title('Speed preferences')
 print(fullfile(summary_pn, [mouse_list 'speedSummary_Responsivity_noV1.pdf']),'-dpdf','-fillpage')
+
+pref_maxspeed=[size(tuned_cells{2},2) spdpref(end,1);size(tuned_cells{3},2) spdpref(end,2)];
+ e = sum(pref_maxspeed,2)*sum(pref_maxspeed)/sum(pref_maxspeed(:)); % expected
+ X2 = (pref_maxspeed-e).^2./e;
+ X2 = sum(X2(:)); % chi square
+ df = prod(size(pref_maxspeed)-[1 1]); % degree of freedom
+ p_prefmax = 1-chi2cdf(X2,df);
+ [AL_m AL_CI] = binofit( spdpref(end,1), size(tuned_cells{2},2));
+ [PM_m PM_CI] = binofit( spdpref(end,2), size(tuned_cells{3},2));
+ fprintf(['MaxSpeed CI: AL- ' num2str(chop(AL_CI,2)) '; PM- ' num2str(chop(PM_CI,2)) '\n' ]);
+fprintf(['MaxSpeed: ' num2str(chop(p_prefmax,2)) '\n']);
+
+
+R2_AL = [spdSummary(2).spdFit(:,2).Rsq];
+R2_PM = [spdSummary(3).spdFit(:,2).Rsq];
+R2_fit = [size(tuned_cells{2},2) length(find(R2_AL(tuned_cells{2})>0.5)); size(tuned_cells{3},2) length(find(R2_PM(tuned_cells{3})>0.5))];
+ e = sum(R2_fit,2)*sum(R2_fit)/sum(R2_fit(:)); % expected
+ X2 = (R2_fit-e).^2./e;
+ X2 = sum(X2(:)); % chi square
+ df = prod(size(R2_fit)-[1 1]); % degree of freedom
+ p_prefmax = 1-chi2cdf(X2,df);
+ [AL_m AL_CI] = binofit( length(find(R2_AL(tuned_cells{2})>0.5)), size(tuned_cells{2},2));
+ [PM_m PM_CI] = binofit( length(find(R2_PM(tuned_cells{3})>0.5)), size(tuned_cells{3},2));
+ fprintf(['R2 fit CI: AL- ' num2str(chop(AL_CI,2)) '; PM- ' num2str(chop(PM_CI,2)) '\n' ]);
+fprintf(['R2 fit: ' num2str(chop(p_prefmax,2)) '\n']);
 
 %%
 %distribution of percent correct by cell group
