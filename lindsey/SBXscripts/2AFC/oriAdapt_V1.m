@@ -16,7 +16,7 @@ expt(1).z = 200;
 expt(1).obj = '16x';
 expt(1).zoom = 1.4;
 expt(1).redImg = '005';
-expt(1).eyeData = 1;
+expt(1).eyeData = 0;
 
 %% i1402 191002 
 expt(2).mouse = 'i1402';
@@ -271,7 +271,7 @@ expt(15).date = '191024';
 expt(15).img_loc  = {'AL';'L2/3'};
 expt(15).img_strct  = {'axons'};
 expt(15).indicator = {'AAV';'GCaMP7f'};
-expt(15).time_mat = ['1508'];
+expt(15).time_mat = ['1506'];
 expt(15).runs = ['001'];
 expt(15).nrun = size(expt(15).runs,1);
 expt(15).frame_rate = 30;
@@ -417,7 +417,7 @@ expt(22).zoom = 2;
 expt(22).redImg = '003';
 expt(22).eyeData = 1;
 
-%% i1403 200402- check images
+%% i1403 200402- check images- blurry weak responses
 expt(23).mouse = 'i1403';
 expt(23).date = '200402';
 expt(23).img_loc  = {'V1';'L2/3'};
@@ -436,7 +436,7 @@ expt(23).zoom = 2;
 expt(23).redImg = '003';
 expt(23).eyeData = 1;
 
-%% i1403 200403- check images
+%% i1403 200403- check images- strange texture
 expt(24).mouse = 'i1403';
 expt(24).date = '200403';
 expt(24).img_loc  = {'V1';'L2/3'};
@@ -461,32 +461,32 @@ expt(25).date = '200403';
 expt(25).img_loc  = {'V1';'L2/3'};
 expt(25).img_strct  = {'cells'};
 expt(25).indicator = {'AAV';'GCaMP7f'};
-expt(25).time_mat = ['1005'];
+expt(25).time_mat = ['1003'];
 expt(25).runs = ['001'];
 expt(25).nrun = size(expt(25).runs,1);
 expt(25).frame_rate = 30;
 expt(25).folder = 'lindsey';
 expt(25).dirtuning = '002';
-expt(25).dirtuning_time = '1110';
+expt(25).dirtuning_time = '1106';
 expt(25).z = 200;
 expt(25).obj = '16x';
 expt(25).zoom = 2;
 expt(25).redImg = '003';
 expt(25).eyeData = 1;
 
-%% i1403 200405- check images
+%% i1403 200405- check images- no responses
 expt(26).mouse = 'i1403';
 expt(26).date = '200405';
 expt(26).img_loc  = {'V1';'L2/3'};
 expt(26).img_strct  = {'cells'};
 expt(26).indicator = {'AAV';'GCaMP7f'};
-expt(26).time_mat = ['0941'];
+expt(26).time_mat = ['1005'];
 expt(26).runs = ['001'];
 expt(26).nrun = size(expt(26).runs,1);
 expt(26).frame_rate = 30;
 expt(26).folder = 'lindsey';
 expt(26).dirtuning = '002';
-expt(26).dirtuning_time = '1043';
+expt(26).dirtuning_time = '1110';
 expt(26).z = 200;
 expt(26).obj = '16x';
 expt(26).zoom = 2;
@@ -539,8 +539,8 @@ expt(29).img_strct  = {'cells'};
 expt(29).indicator = {'AAV';'GCaMP7f'};
 expt(29).time_mat = ['1014'];
 expt(29).runs = ['001'];
-expt(29).FM_time = ['1118'];
-expt(29).FM_run = ['002'];
+expt(29).pass_time = ['1118'];
+expt(29).pass_run = ['002'];
 expt(29).nrun = size(expt(29).runs,1);
 expt(29).frame_rate = 30;
 expt(29).folder = 'lindsey';
