@@ -1129,3 +1129,21 @@ for im = 2:nMask
 end
 legend({'No adapt', 'Single'}, 'location','northwest')
 suptitle('Mask resp')
+
+figure;
+ind_l = find(respMask_noadapt_MIP(:,5,5)<-0.2);
+nC_l = length(ind_l);
+ind_h = find(respMask_noadapt_MIP(:,5,5)>0.2);
+nC_h = length(ind_h);
+plot(repmat([1 2], [nC_l 1])',[respMask_noadapt_MIP(ind_l,5,5) respMask_singadapt_MIP(ind_l,5,5)]','b')
+hold on
+errorbar([1; 2], [nanmean(respMask_noadapt_MIP(ind_l,5,5),1) nanmean(respMask_singadapt_MIP(ind_l,5,5),1)]', [nanstd(respMask_noadapt_MIP(ind_l,5,5),[],1)./sqrt(nC_l) nanstd(respMask_singadapt_MIP(ind_l,5,5),[],1)./sqrt(nC_l)]','ob')
+plot(repmat([1 2], [nC_h 1])',[respMask_noadapt_MIP(ind_h,5,5) respMask_singadapt_MIP(ind_h,5,5)]','r')
+errorbar([1; 2], [nanmean(respMask_noadapt_MIP(ind_h,5,5),1) nanmean(respMask_singadapt_MIP(ind_h,5,5),1)]', [nanstd(respMask_noadapt_MIP(ind_h,5,5),[],1)./sqrt(nC_h) nanstd(respMask_singadapt_MIP(ind_h,5,5),[],1)./sqrt(nC_h)]','or')
+xlim([0 3])
+
+figure;
+respMask_MIP_diff = respMask_noadapt_MIP-respMask_singadapt_MIP;
+cdfplot(respMask_MIP_diff(ind_l,5,5))
+hold on
+cdfplot(respMask_MIP_diff(ind_h,5,5))

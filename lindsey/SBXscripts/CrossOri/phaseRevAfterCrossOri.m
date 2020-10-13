@@ -1,7 +1,7 @@
 %% get path names
 close all;clear all;clc;
 
-ds = 'CrossOriRandPhase_lowSF_ExptList';
+ds = 'CrossOriRandPhase_ExptList';
 eval(ds)
 nexp = length(expt);
 rc = behavConstsAV;

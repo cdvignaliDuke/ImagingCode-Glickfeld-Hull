@@ -8,7 +8,7 @@ nexp = size(expt,2);
 nanframes = zeros(1,nexp);
 seed = rng;
 
-for iexp = 5
+for iexp = 7
     mouse = expt(iexp).mouse;
     date = expt(iexp).date;
     area = expt(iexp).img_loc{1};

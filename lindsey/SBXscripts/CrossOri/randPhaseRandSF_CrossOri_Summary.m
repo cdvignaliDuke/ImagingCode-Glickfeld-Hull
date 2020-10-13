@@ -16,6 +16,7 @@ plaidSI_all = [];
 testPI_all = [];
 RsqSF_all = [];
 prefSF_all = [];
+b_hat_all = [];
 amp_hat_all = [];
 amp_hat_shuf_all = [];
 resp_ind_all = [];
@@ -49,6 +50,7 @@ for iexp = 1:nexp
     testPI_all = [testPI_all; testPI];
     RsqSF_all = [RsqSF_all; RsqSF'];
     prefSF_all = [prefSF_all; prefSF'];
+    b_hat_all = [b_hat_all; b_hat];
     amp_hat_all = [amp_hat_all; amp_hat];
     amp_hat_shuf_all = [amp_hat_shuf_all; amp_hat_shuf];
     resp_ind_all = [resp_ind_all; resp_ind+totCells];
@@ -118,7 +120,7 @@ end
 
     figure;  movegui('center');
     amp_diff_all = amp_hat_all-amp_hat_shuf_all;
-    subplot(1,2,1)
+    subplot(2,2,1)
     legstr = [];
     for isf = 1:nSF
         if length(resp_ind_sf_all{isf})>1
@@ -132,7 +134,7 @@ end
     xlabel('Sine Amp: Data-Shuf')
     legend(legstr,'location', 'northwest')
     title('All responsive')
-    subplot(1,2,2)
+    subplot(2,2,2)
     legstr = [];
     for isf = 1:nSF
         ind = intersect(find(max_sf_ind_all==isf),resp_ind_sf_all{isf});
@@ -147,6 +149,32 @@ end
     xlabel('Sine Amp: Data-Shuf')
     legend(legstr,'location', 'northwest')
     title('Peak SF')
+    subplot(2,2,3)
+    legstr = [];
+    for isf = 1:nSF
+        if length(resp_ind_sf_all{isf})>1
+            if sum(~isnan(b_hat_all(resp_ind_sf_all{isf},isf)),1)>1
+            cdfplot(b_hat_all(resp_ind_sf_all{isf},isf))
+            hold on
+            legstr = [legstr; [num2str(SFs(isf)) '- n = ' num2str(length(resp_ind_sf_all{isf}))]];
+            end
+        end
+    end
+    xlabel('Sine Baseline')
+    subplot(2,2,4)
+    legstr = [];
+    for isf = 1:nSF
+        ind = intersect(find(max_sf_ind_all==isf),resp_ind_sf_all{isf});
+        if length(ind)>1
+            if sum(~isnan(b_hat_all(ind,isf)),1)>1
+            cdfplot(b_hat_all(ind,isf))
+            hold on
+            legstr = [legstr; [num2str(SFs(isf)) '- n = ' num2str(length(ind))]];
+            end
+        end
+    end
+    xlabel('Sine Baseline')
+    
     print(fullfile(summaryDir, 'randPhaseRandSF_diffAmpByStimSF_cdfs.pdf'),'-dpdf','-bestfit');
     
 
@@ -186,3 +214,32 @@ end
     ylim([-0.2 0.7])
     xlim([0.02 0.32])
     print(fullfile(summaryDir, 'randPhaseRandSF_diffAmpByPrefSF_scatters.pdf'),'-dpdf','-fillpage');
+    
+    figure;  movegui('center');
+    for isf = 1:nSF
+        subplot(3,2,isf)
+        for iCell = 1:totCells
+            if find(resp_ind_sf_all{isf} == iCell)
+                scatter(2.^prefSF_all(iCell), b_hat_all(iCell,isf),'ok')
+                hold on
+            end
+        end
+        ylim([-1 1])
+        xlim([0.02 0.32])
+        ylabel('Sine Baseline')
+        xlabel('Preferred SF')
+        title(['Stim SF: ' num2str(SFs(isf))])
+    end
+    subplot(3,2,6)
+    for iCell = 1:totCells
+        if find(resp_ind_all == iCell)
+            scatter(2.^prefSF_all(iCell), b_hat_all(iCell,max_sf_ind_all(iCell)),'ok')
+            hold on
+        end
+    end
+    ylabel('Sine Baseline')
+    xlabel('Preferred SF')
+    title('At Peak SF')
+    ylim([-1 1])
+    xlim([0.02 0.32])
+    print(fullfile(summaryDir, 'randPhaseRandSF_baseByPrefSF_scatters.pdf'),'-dpdf','-fillpage');

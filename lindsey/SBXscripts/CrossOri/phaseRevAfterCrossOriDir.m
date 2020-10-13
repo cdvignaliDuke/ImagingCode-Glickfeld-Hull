@@ -8,8 +8,8 @@ rc = behavConstsAV;
 nexp = size(expt,2);
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
 
-iexp = 7;
-            %%
+iexp = 42;
+             %%
         mouse = expt(iexp).mouse;
         date = expt(iexp).date;
         area = expt(iexp).img_loc{1};
@@ -22,7 +22,7 @@ iexp = 7;
         run_str = catRunName(cell2mat(ImgFolder), nrun);
         co_run_str = catRunName(cell2mat(coFolder), nrun);
 
-            fprintf(['2P imaging TF analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
+            fprintf(['2P imaging Phase analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
             for irun=1:nrun
                 fprintf([ImgFolder{irun} ' - ' time{irun} '\n'])
             end
@@ -76,8 +76,9 @@ iexp = 7;
                 save(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_input.mat']), 'input')
                 clear data
                 %% test stability
-                movegui('center')
+                
                 figure; 
+                movegui('center')
                 subplot(2,2,1);
                 imagesc(data_reg_avg);
                 title('PhaseRev run avg')

@@ -52,7 +52,7 @@ for iexp = 1:nexp
     print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_phaseMap.pdf']),'-dpdf','-bestfit')
 
     stats = regionprops(mask_cell);
-    centroids = reshape([stats.Centroid],[nCells 2]);
+    centroids = reshape([stats.Centroid],[2 nCells])';
     nMod = length(mod_ind);
     d_space = nan(nMod);
     d_phase = nan(nMod);

@@ -4,7 +4,7 @@ close all;clear all;clc;
 ds = 'CrossOriRandPhase_ExptList';
 eval(ds)
 nexp = length(expt);
-for iexp = 1:nexp;
+for iexp = 7
 rc = behavConstsAV;
 
 %%
@@ -105,7 +105,7 @@ nCells = max(mask_cell(:)); % take max label of mask_cell, should circumvent bwl
 fprintf([num2str(nCells) ' total cells selected\n'])
 fprintf('Cell segmentation complete\n')
 
-neuropil subtraction
+%neuropil subtraction
 down = 5;
 sz = size(data_reg);
 
@@ -120,7 +120,7 @@ for i = 1:nCells
      np_tc_down(:,i) = stackGetTimeCourses(data_reg_down,mask_np(:,:,i));
      fprintf(['Cell #' num2str(i) '%s/n']) 
 end
-get weights by maximizing skew
+%get weights by maximizing skew
 ii= 0.01:0.01:1;
 x = zeros(length(ii), nCells);
 for i = 1:100
@@ -197,7 +197,7 @@ for iCell = 1:nCells
     p_diranova(iCell) = anova1(dir_resp_mat(:,iCell),dir_list,'off');
     if start>25
         suptitle([mouse ' ' date ' Dir'])
-        print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dirTuningAndFitsCells' num2str(start+((n-1).*25)) '-' num2str(25+((n-1).*25)) '.pdf']))
+     print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dirTuningAndFitsCells' num2str(n) '.pdf']),'-dpdf', 'bestfit')
         figure;
         n = n+1;
         start = 1;
@@ -215,7 +215,7 @@ for iCell = 1:nCells
     start = start+1;
 end
 suptitle([mouse ' ' date ' Dir'])
-print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dirTuningAndFitsCells' num2str(start+((n-1).*25)) '-' num2str(25+((n-1).*25)) '.pdf']))
+print(fullfile(LG_base, 'Analysis\2P', [date '_' mouse], [date '_' mouse '_' run_str], [date '_' mouse '_' run_str '_dirTuningAndFitsCells' num2str(n) '.pdf']),'-dpdf', 'bestfit')
 dirresp_ind = find(h_dir_all);
 dirtuned_ind = find(p_diranova<0.05);
 [max_val, max_ind_dir] = max(dir_resp_avg(:,:,1),[],2);

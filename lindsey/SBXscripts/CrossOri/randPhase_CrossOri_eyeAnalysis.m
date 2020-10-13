@@ -6,7 +6,7 @@ rc = behavConstsAV;
 frame_rate = 30;
 nexp = size(expt,2);
 %%
-for iexp = 5
+for iexp = 7
 mouse = expt(iexp).mouse;
 date = expt(iexp).date;
 area = expt(iexp).img_loc{1};
@@ -17,7 +17,7 @@ run_str = catRunName(cell2mat(ImgFolder), nrun);
 
 LG_base = '\\duhs-user-nc1.dhe.duke.edu\dusom_glickfeldlab\All_staff\home\lindsey';
 
-fprintf(['2P imaging spatial analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
+fprintf(['2P imaging eye analysis\nSelected data:\nMouse: ' mouse '\nDate: ' date '\nExperiments:\n'])
 for irun=1:nrun
     fprintf([ImgFolder{irun} ' - ' time{irun} '\n'])
 end
