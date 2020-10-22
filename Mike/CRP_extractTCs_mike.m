@@ -1,7 +1,8 @@
 clear all
 mike_out = 'H:\home\mike\Analysis\CC 2P';
-bx_source = 'H:\home\jake\Data\WidefieldImaging\GCaMP\behavior\';
-CRP_expt_list_LS_jh
+bx_source = 'H:\home\mike\Data\Behavior\';
+write_tiff = true; do_jake_pockel = true;
+CRP_expt_list_mike;
 
 pairings = Load_CRP_List();
 
@@ -29,14 +30,12 @@ for iexp = exp_subset   %6:7   %1:nexp
     elseif str2num(mouse)<100 || str2num(mouse) > 1000
         mouse_name = mouse;
     end
-    cd(fullfile('H:\home\jake\Data\2P_imaging', [date '_img' mouse_name], ['img' mouse_name]))
+    cd(fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name], ['img' mouse_name]))
     load(['img' mouse_name '_000_' run '.mat'])
-    if exist(fullfile(mike_out, img_fn, [img_fn '_input.mat']))
-        load(fullfile(mike_out, img_fn, [img_fn '_input.mat']))
-    else
-        img_fn2 = [date '_img' mouse];
-        mworks = get_bx_data(bx_source, img_fn2);
-    end
+
+    img_fn2 = [date '_img' mouse];
+    mworks = get_bx_data(bx_source, img_fn2);
+    
     clear ttl_log
     nf= mworks.counterValues{end}(end);
     if mod(nf,10000)==2
@@ -45,12 +44,13 @@ for iexp = exp_subset   %6:7   %1:nexp
         nf = nf-1;
     end
     
+    nf = 2000;
     if expt(id).ttl(iexp) 
         load(['img' mouse_name '_000_' run '_realtime.mat'])
-        fprintf('Loading data \n')
+        disp(['Loading ' num2str(nf) ' frames'])
         data = sbxread(['img' mouse_name '_000_' run],0,nf);
         data = squeeze(data);
-        if length(unique(ttl_log)) == 1 | sum(ttl_log) < 0.05*(length(ttl_log))  %if ttl_log is faulty then identify pockel transitions via changes in F
+        if do_jake_pockel && length(unique(ttl_log)) == 1 | sum(ttl_log) < 0.05*(length(ttl_log))  %if ttl_log is faulty then identify pockel transitions via changes in F
             pockel_tc = find_pockel_tc(data, 0); 
             data = data(:,:,find(pockel_tc));
         else
@@ -70,6 +70,16 @@ for iexp = exp_subset   %6:7   %1:nexp
         data = sbxread(['img' mouse_name '_000_' run],0,nf);
         data = squeeze(data);
     end
+    disp(['Data is now ' num2str(size(data,3)) ' frames long after removing laser-off periods' ])
+    if write_tiff && ~exist(fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name], ['img' mouse_name '.tif']))
+        saveastiff(data(:,:,1:1000),fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name], ['img' mouse_name '_1k.tif']));
+        saveastiff(data(:,:,10000:11000),fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name], ['img' mouse_name '_10k.tif']));
+        saveastiff(data(:,:,20000:21000),fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name], ['img' mouse_name '_20k.tif']));
+        saveastiff(data(:,:,30000:31000),fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name], ['img' mouse_name '_30k.tif']));
+        saveastiff(data(:,:,40000:41000),fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name], ['img' mouse_name '_40k.tif']));
+        saveastiff(data(:,:,55000:56000),fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name], ['img' mouse_name '_55k.tif']));
+    end
+    
     if exist(fullfile(mike_out, img_fn, [img_fn '_reg.mat']))
         load(fullfile(mike_out, img_fn, [img_fn '_reg.mat']))
     else
@@ -179,7 +189,6 @@ for iexp = exp_subset   %6:7   %1:nexp
         mask_cell(:,:,ic) = bwlabel(sm_logical); % label multiple IC on single frame
     end
     
-    % separate multiple ICs and remove small ones and deal with overlapping 
     mask_final = processMask(mask_cell);
     mask_raw = reshape(mask_final, npw, nph);
     figure; imagesc(mask_raw); %truesize;

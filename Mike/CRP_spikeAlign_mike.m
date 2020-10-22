@@ -1,11 +1,15 @@
 clear all
 plotDetect = 0;
 negAdjust = 0;
+do_decon = 1;
+spike_rate_thresh = 0.3;
 
 mike_out = 'H:\home\mike\Analysis\CC 2P';
-behav_dir = 'H:\home\jake\Data\WidefieldImaging\GCaMP\behavior';
+bx_source ='H:\home\mike\Data\Behavior';
+removing_bad_trials = true; bad_trials = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]; %added to remove shitty trials, turn off if not needed
+%bad_cells_manual = [1,2,3,4,7,9,13,38,41,43,45,46,47,50,51,52,55];
 
-CRP_expt_list_LS_jh
+CRP_expt_list_mike;
 pairings = Load_CRP_List();
 
 for  j = 1:size(pairings,2)
@@ -22,6 +26,7 @@ nexp = size(expt(id).date,1);
         fprintf([date ' ' mouse '\n'])
         img_fn = [date '_' mouse];
         load(fullfile(mike_out,img_fn, [img_fn '_ROI_TCs.mat']))
+        %tc_avg(:,bad_cells_manual) = [];
         nIC = size(tc_avg,2);
 
         opt.thresh = 1.7;
@@ -41,19 +46,22 @@ nexp = size(expt(id).date,1);
             mouse_name = mouse;
         end
         %% correct for skipped frames
-        fns = dir(fullfile(behav_dir, ['data-i' mouse '-' date '*']));
+        fns = dir(fullfile(bx_source, ['data-i' mouse '-' date '*']));
         if length(fns)>1
             nfns{id}(iexp) = length(fns);
             fn(id).tr{iexp}= [];
             for i = 1:length(fns)
-                load(fullfile(behav_dir,fns(i).name));
+                load(fullfile(bx_source,fns(i).name));
                 fn(id).tr{iexp} = [fn(id).tr{iexp} size(input.gratingContrast,2)];
             end
             fns = fns(end); %assumes the final behavioral file collected is the correct one
         else
             nfns{id}(iexp) = 1;  
         end
-        load(fullfile(behav_dir,fns.name));  %laods bx data
+        load(fullfile(bx_source,fns.name));  %laods bx data
+        react_time = double(cell2mat(input.reactTimesMs));
+        cue_rew_int = input.RewardDelayDurationMs + round(mean(react_time),-1); %"total interval between cueonset and reward delivery"
+        
         nTrials = length(input.cTargetOn);
         input.counterValues_orig = input.counterValues; 
         input.counterTimesUs_orig = input.counterTimesUs;
@@ -122,19 +130,22 @@ nexp = size(expt(id).date,1);
         tc_avg_temp = tc_avg;
         cTargetOn = celleqel2mat_padded(input.cTargetOn);
         if expt(id).ttl(iexp)
-            cd(fullfile('H:\home\jake\Data\2P_imaging', [date '_img' mouse_name],['img' mouse_name]))
+            cd(fullfile('H:\home\mike\Data\2P Imaging', [date '_img' mouse_name],['img' mouse_name]))
             load(['img' mouse_name '_000_' run '_realtime.mat'])
+            
             %if ttl_log is faulty then identify pockel transitions via changes in F
             if length(unique(ttl_log)) == 1 | sum(ttl_log) < 0.05*(length(ttl_log))
                 clear ttl_log
                 ttl_log = find_pockel_tc(tc_avg, 1)';
             end
-            ttl_log = ttl_log(1:size(tc_avg,1),:);
-            ttl_trans = find(abs(diff(ttl_log))); 
-            n = length(ttl_trans);
-            for i = 1:n
-                ttl_log(ttl_trans(i)-4:ttl_trans(i)+4,:) = 0;
-            end
+            %Below commented out by Mike on 12/9/19, seems to find pockel transition frames in
+            %an inconsistent manner with the find_pockel_tc function
+            %ttl_log = ttl_log(1:size(tc_avg,1),:);
+            %ttl_trans = find(abs(diff(ttl_log)));      
+            %n = length(ttl_trans);
+            %for i = 1:n
+            %    ttl_log(ttl_trans(i)-4:ttl_trans(i)+4,:) = 0;
+            %end
             ind_ttl = intersect(1:size(tc_avg,1), find(ttl_log == 0));
             tc_avg(ind_ttl,:) = NaN;
             ind_tc = find(~isnan(tc_avg(:,1)));
@@ -150,6 +161,7 @@ nexp = size(expt(id).date,1);
             IC_list = [];
         end
         for ic = 1:nIC
+            if do_decon; continue; end
             [~, iti_ind, ~] = CellsortFindspikes(tc_diff(:,ic), opt.thresh, opt.dt, opt.deconvtau, opt.normalization);
             iti_ind(find(diff(iti_ind)==1)+1)=[];
             all_events(iti_ind+1,ic) = 1;
@@ -190,6 +202,29 @@ nexp = size(expt(id).date,1);
         if plotDetect
             savefig(fullfile(mike_out,img_fn, [img_fn '_Cell#' num2str(IC_list(1)) '-' num2str(IC_list(end)) '_diff_findSpikes.fig']))
         end
+ %% Deconvolution adapted from Shuyang's script by Mike 12/9/19.
+ %this section overwrites the CellsortFindspikes function when activated
+        if do_decon
+            TCave = tc_avg_temp;
+            frames = 1:1:size(TCave,1);
+            threshold = -2.5; %changing the threhold basically changes the identification of spikes when the peak amplitude is small (those small peaks), doesn't change anything with the bigger jittered ones. -3 or -3.5 gives a FR close to 1 during stationary
+            % write a loop, get the c and s for all cells and draw a GUI
+            kernel = zeros(size(TCave,1),size(TCave,2));
+            spk = zeros(size(TCave,1),size(TCave,2));
+            spk_peak = {};
+            spk_inx = {};
+            spk_logic = zeros(size(TCave,1),size(TCave,2));
+
+            for c = 1: size(TCave,2)
+                [kernel(:,c), spk(:,c), options] = deconvolveCa(TCave(:,c), 'optimize_pars', true, ...
+                    'optimize_b', true, 'method','foopsi', 'smin', threshold);
+                % get only the peaks of each spike
+                [spk_peak{c},spk_inx{c}] = findpeaks(spk(:,c));
+                % spike logic
+                spk_logic(:,c) = (ismember(frames,spk_inx{c}))';
+            end
+            all_events = spk_logic;
+        end
         if expt(id).ttl(iexp)
             all_events_temp = nan(size(tc_avg));
             all_events_temp(ind_tc,:) = all_events;
@@ -204,17 +239,23 @@ nexp = size(expt(id).date,1);
             nFrames = size(all_events,1);
         end
         frameRateHz = double(input.frameRateHz);
-        spikeRate = (nansum(all_events,1)./nFrames).*frameRateHz; 
-        figure; hist(spikeRate)
-        xlim([0 5]); xlabel('Spike rate'); ylabel('Cells'); 
+        spikeRate = (nansum(all_events,1)./nFrames).*frameRateHz;
+        
+        if do_decon
+        [fig_deconvolve] = GUI_rawTrace_nDeconvolve(TCave,kernel,spk_logic,[date '_' mouse],threshold);       
+        badPCs = find(spikeRate <= spike_rate_thresh);
+        TCave(:,badPCs) = [];
+        spikeRate(badPCs) = [];
+        end
+        
+        figure; histogram(spikeRate,'BinWidth',0.1)
+        xlim([0 2]); xlabel('Spike rate'); ylabel('Cells'); 
         title([date ' ' mouse ' spike rates'])
         savefig(fullfile(mike_out,img_fn, [img_fn '_spikeRate.fig']))
 
         
         %% align events    
         
-        omitRewTrial = celleqel2mat_padded(input.tRewardOmissionTrial);
-        unexpRewTrial = celleqel2mat_padded(input.tDoNoStimulusChange);
         nTrials = length(cTargetOn);
         prewin_frames = round(1500./frameRateHz);
         postwin_frames = round(3000./frameRateHz);
@@ -235,66 +276,117 @@ nexp = size(expt(id).date,1);
 
         targetAlignF = nanmean(targetAlign_tc(1:prewin_frames,:,:),1);
         targetAligndFoverF = (targetAlign_tc-repmat(targetAlignF, [size(targetAlign_tc,1),1,1])./repmat(targetAlignF, [size(targetAlign_tc,1),1,1]));
+%% INDEXING
 
+        omitRewTrial = celleqel2mat_padded(input.tRewardOmissionTrial);
         ind_omit = find(omitRewTrial);
+        
+        unexpRewTrial = celleqel2mat_padded(input.tDoNoStimulusChange);
         ind_unexp = find(unexpRewTrial);
-        ind_rew = intersect(find(omitRewTrial == 0),find(unexpRewTrial == 0));
-        if intersect(ind_omit, ind_unexp)
-            x = ismember(ind_omit,intersect(ind_omit, ind_unexp));
-            ind_omit(x) = [];
-            x = ismember(ind_unexp,intersect(ind_omit, ind_unexp));
-            ind_unexp(x) = [];
+        
+        if input.doBlock2 %Specific CS+/CS- experiment added by Mike
+            block2Trial = celleqel2mat_padded(input.tBlock2TrialNumber);
+            ind_block2 = find(block2Trial); 
+            ind_rew = find(~block2Trial); 
+        else
+            ind_rew = intersect(find(omitRewTrial == 0),find(unexpRewTrial == 0));
+            if intersect(ind_omit, ind_unexp)
+                x = ismember(ind_omit,intersect(ind_omit, ind_unexp));
+                ind_omit(x) = [];
+                x = ismember(ind_unexp,intersect(ind_omit, ind_unexp));
+                ind_unexp(x) = [];
+            end
         end
+        
+        if removing_bad_trials
+            for b = 1:length(bad_trials)
+                ind_omit = ind_omit(ind_omit ~= bad_trials(b));
+                ind_unexp = ind_unexp(ind_unexp ~= bad_trials(b));
+                ind_rew = ind_rew(ind_rew ~= bad_trials(b));
+                if input.doBlock2
+                    ind_block2 = ind_block2(ind_block2 ~= bad_trials(b));
+                end
+            end
+        end
+        
         tt = (-prewin_frames:postwin_frames-1).*(1000./frameRateHz);
         rewardDelayDurationMs = double(max(celleqel2mat_padded(input.tRewardDelayDurationMs),[],2));
         reactTimesMs = double(mean(celleqel2mat_padded(input.reactTimesMs),2));
         delayTimeMs = reactTimesMs+rewardDelayDurationMs;
-
-
-        figure;
-        subplot(3,1,1)
+%%      
+        s=1;
+        if length(ind_omit>5); s = s+1; end
+        if length(ind_unexp>5); s = s+1; end
+        if input.doBlock2; s = s+1; end
+            
+        figure; n = 1;
+        subplot(s,1,n)
         shadedErrorBar(tt, nanmean(nanmean(targetAligndFoverF(:,:,ind_rew),3),2), nanstd(nanmean(targetAligndFoverF(:,:,ind_rew),3),[],2)./sqrt(nIC));
         xlabel('Time from cue')
         ylabel('Avg dF/F')
-        title('Reward')
-        subplot(3,1,2)
+        title('CS+')
+        n = n+1;
         if length(ind_omit>5)
+        subplot(s,1,n)
         shadedErrorBar(tt, nanmean(nanmean(targetAligndFoverF(:,:,ind_omit),3),2), nanstd(nanmean(targetAligndFoverF(:,:,ind_omit),3),[],2)./sqrt(nIC),'r');
         xlabel('Time from cue')
         ylabel('Avg dF/F')
         title('Omit')
+        n = n+1;
         end
-        subplot(3,1,3)
         if length(ind_unexp>5)
+        subplot(s,1,n)
         shadedErrorBar(tt, nanmean(nanmean(targetAligndFoverF(:,:,ind_unexp),3),2), nanstd(nanmean(targetAligndFoverF(:,:,ind_unexp),3),[],2)./sqrt(nIC),'g');
         xlabel('Time from cue')
         ylabel('Avg dF/F')
         title('Unexpected reward')
+        n = n+1;
         end
-        %suptitle([date ' ' mouse])
+        if input.doBlock2
+        subplot(s,1,n)
+        shadedErrorBar(tt, nanmean(nanmean(targetAligndFoverF(:,:,ind_block2),3),2), nanstd(nanmean(targetAligndFoverF(:,:,ind_block2),3),[],2)./sqrt(nIC),'b');
+        xlabel('Time from cue')
+        ylabel('Avg dF/F')
+        title('CS-')
+        end
+        sgtitle([date ' ' mouse])
         savefig(fullfile(mike_out,img_fn, [img_fn '_cueAlign_dFoverF.fig']))
 
-        figure;
-        subplot(3,1,1)
+        figure; n=1;
+        subplot(s,1,n)
         shadedErrorBar(tt, nanmean(nanmean(targetAlign_events(:,:,ind_rew),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_rew),3),[],2)./sqrt(nIC)).*(1000./frameRateHz));
+        vline(cue_rew_int)
         xlabel('Time from cue')
         ylabel('Spike rate (Hz)')
-        title('Reward')
+        title('CS+')
+        n = n+1;
         if length(ind_omit>5)
-        subplot(3,1,2)
-        shadedErrorBar(tt, nanmean(nanmean(targetAlign_events(:,:,ind_omit),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit),3),[],2)./sqrt(nIC)).*(1000./frameRateHz),'r');
+        subplot(s,1,n)
+        shadedErrorBar(tt, nanmean(nanmean(targetAlign_events(:,:,ind_omit),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit),3),[],2)./sqrt(nIC)).*(1000./frameRateHz),'b');
+        vline(cue_rew_int)
         xlabel('Time from cue')
         ylabel('Spike rate (Hz)')
         title('Omit')
+        n = n+1;
         end
         if length(ind_unexp>5)
-        subplot(3,1,3)
+        subplot(s,1,n)
         shadedErrorBar(tt, nanmean(nanmean(targetAlign_events(:,:,ind_unexp),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_unexp),3),[],2)./sqrt(nIC)).*(1000./frameRateHz),'g');
+        vline(cue_rew_int)
         xlabel('Time from cue')
         ylabel('Spike rate (Hz)')
         title('Unexpected reward')
-        end    
-        %suptitle([date ' ' mouse])
+        n = n+1;
+        end
+        if input.doBlock2
+        subplot(s,1,n)
+        shadedErrorBar(tt, nanmean(nanmean(targetAlign_events(:,:,ind_block2),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_block2),3),[],2)./sqrt(nIC)).*(1000./frameRateHz),'r');
+        vline(cue_rew_int)
+        xlabel('Time from cue')
+        ylabel('Spike rate (Hz)')
+        title('CS-')
+        end
+        sgtitle([date ' ' mouse])
         savefig(fullfile(mike_out,img_fn, [img_fn '_cueAlign_events_Hz.fig']))
         
         if length(ind_omit>10)
@@ -324,7 +416,7 @@ nexp = size(expt(id).date,1);
             xlabel('Time from cue')
             ylabel('Spike rate (Hz)')
             title(['Reward trial pre (black n = ' num2str(length(ind_rew_preomit)) ') vs post (blue n = ' num2str(length(ind_rew_postomit)) ') omit trials'])
-            %suptitle([date ' ' mouse])
+            sgtitle([date ' ' mouse])
             savefig(fullfile(mike_out,img_fn, [img_fn '_omitByInterval.fig']))
         else
             ind_omit_short = [];
@@ -361,20 +453,20 @@ nexp = size(expt(id).date,1);
             xlabel('Time from cue')
             ylabel('Spike rate (Hz)')
             title(['Trials ' num2str(1+(i-1).*n) ':' num2str(i*n)])
-            vline(600)
-            if length(ind_omit)>=10
+            vline(cue_rew_int)
+            if length(ind_block2)>=10
                 subplot(3,2,start+1)
-                ind_omit_temp = intersect(ind_omit,1+(i-1).*n:i*n);
-                shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_omit_temp),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_omit_temp),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'r');
+                ind_block2_temp = intersect(ind_block2,1+(i-1).*n:i*n);
+                shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,:,ind_block2_temp),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,:,ind_block2_temp),3),[],2).*(1000./frameRateHz))./sqrt(nIC),'r');
                 ylim([0 5])
                 xlabel('Time from cue')
                 ylabel('Spike rate (Hz)')
                 title(['Trials ' num2str(1+(i-1).*n) ':' num2str(i*n)])
-                vline(600)
+                vline(cue_rew_int)
             end
             start = start+2;
         end
-        %suptitle([date ' ' mouse '- Reward (black), Omit (red)'])
+        sgtitle([date ' ' mouse '- CS+ (black), CS- (red)'])
         savefig(fullfile(mike_out,img_fn, [img_fn '_repsByTrial.fig']))
         
         if unique(expt(id).name == 'Crus')
@@ -388,13 +480,13 @@ nexp = size(expt(id).date,1);
             xlabel('Time from cue')
             ylabel('Spike rate (Hz)')
             title(['Reward- Left side- n=' num2str(length(indL))])
-            vline(600)
+            vline(cue_rew_int)
             subplot(2,2,2)
             shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indR,ind_rew),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indR,ind_rew),3),[],2).*(1000./frameRateHz))./sqrt(length(indR)),'k');
             ylim([0 5])
             xlabel('Time from cue')
             ylabel('Spike rate (Hz)')
-            vline(600)
+            vline(cue_rew_int)
             title(['Reward- Right side- n=' num2str(length(indR))])
             subplot(2,2,3)
             shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indL,ind_omit),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indL,ind_omit),3),[],2).*(1000./frameRateHz))./sqrt(length(indL)),'r');
@@ -402,20 +494,20 @@ nexp = size(expt(id).date,1);
             xlabel('Time from cue')
             ylabel('Spike rate (Hz)')
             title(['Omit- Left side- n=' num2str(length(indL))])
-            vline(600)
+            vline(cue_rew_int)
             subplot(2,2,4)
             shadedErrorBar(tt,nanmean(nanmean(targetAlign_events(:,indR,ind_omit),3),2).*(1000./frameRateHz), (nanstd(nanmean(targetAlign_events(:,indR,ind_omit),3),[],2).*(1000./frameRateHz))./sqrt(length(indR)),'r');
             ylim([0 5])
             xlabel('Time from cue')
             ylabel('Spike rate (Hz)')
             title(['omit- Right side- n=' num2str(length(indR))])
-            vline(600)
-            %suptitle([date ' ' mouse '- Reward (black), Omit (red)'])
+            vline(cue_rew_int)
+            sgtitle([date ' ' mouse '- Reward (black), Omit (red)'])
             savefig(fullfile(mike_out,img_fn, [img_fn '_repsByCrus.fig']))
         end
 
         
-        save(fullfile(mike_out,img_fn, [img_fn '_targetAlign.mat']), 'ind_rew', 'ind_omit', 'ind_unexp', 'targetAlign_events', 'targetAligndFoverF', 'prewin_frames', 'postwin_frames', 'tt', 'frameRateHz', 'ind_omit_short','ind_omit_long','ind_unexp_short','ind_unexp_long','ind_rew_preomit','ind_rew_postomit')
+        save(fullfile(mike_out,img_fn, [img_fn '_targetAlign.mat']), 'ind_rew', 'ind_block2', 'ind_omit', 'ind_unexp', 'targetAlign_events', 'targetAligndFoverF', 'prewin_frames', 'postwin_frames', 'tt', 'frameRateHz', 'ind_omit_short','ind_omit_long','ind_unexp_short','ind_unexp_long','ind_rew_preomit','ind_rew_postomit')
         save(fullfile(mike_out,img_fn, [img_fn '_input.mat']), 'input')
         %close all
     end
