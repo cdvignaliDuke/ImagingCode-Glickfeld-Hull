@@ -1,12 +1,15 @@
 clear all
 close all
+
 ds = 'szTuning_PM';
+doRet = true;
+
 eval(ds)
 
 doManualSearchRegion = true;
 doFindPupil = true;
 
-slct_exp = 1:3;
+slct_exp = 4:5;
 %%
 calib = 1/26.6; %mm per pixel
 
@@ -15,8 +18,13 @@ rc = behavConstsAV;
 
 for iexp = slct_exp
     if contains(ds,'szTuning')
-        runs = [expt(iexp).sizeTuningFolder];
-        times = [expt(iexp).sizeTuningTime];
+        if doRet
+            runs = [expt(iexp).retinotopyFolder];
+            times = [expt(iexp).retinotopyTime];
+        else
+            runs = [expt(iexp).sizeTuningFolder];
+            times = [expt(iexp).sizeTuningTime];
+        end
     end
 
     expDate = expt(iexp).date;

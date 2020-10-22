@@ -1,14 +1,15 @@
 clear all
 close all
 %CRP_expt_list_all;
-CRP_OT_expt_list_Crus_jh;
+%CRP_OT_expt_list_Crus_jh;
+CRP_OT_expt_list_LS_jh;
 jh_out = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_analysis_2P';
 %jh_out = 'Y:\home\jake\Analysis\Cue_reward_pairing_analysis\CC_OT_plots_and_outputs';
 
-for id = 1:6
+for id = 4
     nexp = size(expt(id).date,1);
     fprintf(['Day ' num2str(id) '\n'])
-    for iexp = 1:nexp
+    for iexp = :nexp
         mouse = strtrim(expt(id).mouse(iexp,:));
         date = expt(id).date(iexp,:);
         run = expt(id).run(iexp,:);

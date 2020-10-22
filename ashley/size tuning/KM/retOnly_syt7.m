@@ -9,7 +9,7 @@
 close all;clear all;clc;
 
 ds = 'szTuning_syt7_V1';
-iexp = 9; 
+iexp = 11; 
 rc = behavConstsAV;
 eval(ds)
 

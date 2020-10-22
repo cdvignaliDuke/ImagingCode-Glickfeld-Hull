@@ -1,5 +1,5 @@
-xpix = size(data_bx_g_reg,2);
-ypix = size(data_bx_g_reg,1);
+xpix = size(data_bx_reg,2);
+ypix = size(data_bx_reg,1);
 
 nRuns = expt(slct_expt).nrun;
 
@@ -76,21 +76,21 @@ tr_tar_frames = nan(ypix,xpix,nframes_1s,sum(tr_tar_on));
 ind3 = 0;
 ind4 = 0;
 for i = 1:nt
-    tr_bl_frames(:,:,:,i) = data_bx_g_reg(:,:,...
+    tr_bl_frames(:,:,:,i) = data_bx_reg(:,:,...
         (tr_start_all(i)-nframes_1s+1):tr_start_all(i));
     if tr_start(i)
         ind1 = ind1+1;
-        tr_start_frames(:,:,:,ind1) = data_bx_g_reg(:,:,...
+        tr_start_frames(:,:,:,ind1) = data_bx_reg(:,:,...
         double((tr_start_all(i)+1):(tr_start_all(i)+nframes_2stim)));
     end
     if tr_long(i)
         ind2 = ind2+1;
-        tr_long_frames(:,:,:,ind2) = data_bx_g_reg(:,:,...
+        tr_long_frames(:,:,:,ind2) = data_bx_reg(:,:,...
         (tr_start_all(i)+(2*nframes_2stim)+1):(tr_start_all(i)+(3*nframes_2stim)));
     end
     if tr_tar_on(i) && (tr_tar_all(i)+nframes_1s) < nfr_bx
         ind3 = ind3+1;
-        tr_tar_frames(:,:,:,ind3) = data_bx_g_reg(:,:,...
+        tr_tar_frames(:,:,:,ind3) = data_bx_reg(:,:,...
         (tr_tar_all(i)+1):(tr_tar_all(i)+nframes_1s));
     elseif (tr_tar_all(i)+nframes_1s) < nfr_bx
         tr_tar_frames = tr_tar_frames(:,:,:,1:ind3);

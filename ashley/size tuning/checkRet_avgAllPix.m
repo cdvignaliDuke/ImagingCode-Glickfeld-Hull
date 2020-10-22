@@ -1,15 +1,16 @@
-ms = '842';
-dt = '190104';
-t = '1728';
-imgFolder = '005';
-imgName = '005_000_000';
-nfr = 4050;
+ms = '764';
+dt = '190423';
+t = '1618';
+imgFolder = '001';
+imgName = '001_000_000';
+nfr = 5000;
 doShortSession = true;
 %%
 fn = fullfile('Z:\home\ashley\data',ms,'two-photon imaging',dt,imgFolder);
 fnout = fullfile('Z:\home\ashley\Analysis',ms,'two-photon imaging',dt,imgFolder);
 cd(fn);
 d = squeeze(sbxread(imgName,0,nfr));
+% d = squeeze(d(1,:,:,:));
 tc = squeeze(mean(mean(d,1),2));
 % d = loadsbx_choosepmt(1,ms,dt,imgFolder,imgName);
 %%
@@ -43,7 +44,18 @@ for iaz = 1:naz
         tpos(ind) = {[num2str(az(iaz)) '/' num2str(el(iel))]};
     end
 end
-pos_azel = unique(tpos);
+
+% pos_azel = unique(tpos);
+pos_azel = cell(1,naz*nel);
+for iaz = 1:naz
+    if iaz == 1
+        ipos = 1;
+    end
+    for iel = 1:nel
+        pos_azel{ipos} = [num2str(az(iaz)) '/' num2str(el(iel))];
+        ipos = ipos+1;
+    end
+end
 
 %%
 if doShortSession
@@ -59,7 +71,7 @@ dff = (tc_tr - f0)./f0;
 
 dff_pos = nan(on+off,npos);
 for i = 1:npos
-    ind = strcmp(tpos,pos_azel(i));
+    ind = strcmp(tpos,pos_azel{i});
     dff_pos(:,i) = mean(dff(:,ind),2);
 end
 
@@ -105,11 +117,21 @@ title(L,'Pos az/el')
 if exist(fnout,'dir') == 0
     mkdir(fnout)
 end
-print(fullfile(fnout,'checkRet_meanPixVal'),'-dpdf','-fillpage')
+print(fullfile(fnout,'checkRet_meanPixTC'),'-dpdf','-fillpage')
 
+dff_pos_mean = mean(dff_pos((on/2+off):(off+on),:),1);
+dff_pos_sq = reshape(dff_pos_mean,[naz nel]);
+pos_names_sq = reshape(pos_azel,[naz nel]);
+figure; colormap(brewermap([],'YlOrRd'))
+imagesc(flipud(dff_pos_sq))
+figXAxis([],'az',[],1:naz,az)
+figYAxis([],'el',[],1:nel,fliplr(el))
+figAxForm
+colorbar
+print(fullfile(fnout,'checkRet_meanPixHM'),'-dpdf','-fillpage')
 %%
 [ypix,xpix,nfr] = size(d);
-
+d = d(:,:,1:(ntr*(on+off)));
 d_align = double(reshape(d,[ypix,xpix,on+off,ntr]));
 f0 = mean(d_align(:,:,(off/2):off,:),3);
 dff = (d_align - f0)./f0;

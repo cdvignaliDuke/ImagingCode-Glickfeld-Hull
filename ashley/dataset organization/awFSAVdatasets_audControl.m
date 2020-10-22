@@ -33,6 +33,12 @@ expt(1).rettuning = {'006';'1357'};
 expt(1).motionTestBimodal = 0;
 expt(1).z = 273;
 expt(1).regImgStartFrame = 50144;
+expt(1).trial_range = nan;
+expt(1).attentionTask = false;
+expt(1).hasAttention = false;
+expt(1).catch = 0;
+expt(1).catchRew = 0;
+expt(1).nframesPerRun = [];
 
 % % %% AW71 170110 V1 injection - behavior not good enough
 % % expt(2).SubNum = '671';
@@ -87,6 +93,11 @@ expt(2).rettuning = {'008';'1218'};
 expt(2).motionTestBimodal = 0;
 expt(2).z = 233;
 expt(2).regImgStartFrame = 52042;
+expt(2).trial_range = [1:80];
+expt(2).attentionTask = false;
+expt(2).hasAttention = false;
+expt(2).catch = 0;
+expt(2).catchRew = 0;
 
 %% AW71 170123 V1 injection
 expt(3).SubNum = '671';
@@ -105,6 +116,11 @@ expt(3).rettuning = {'007';'1226'};
 expt(3).motionTestBimodal = 0;
 expt(3).z = 250;
 expt(3).regImgStartFrame = nan;
+expt(3).trial_range = [1:40,60:90];
+expt(3).attentionTask = false;
+expt(3).hasAttention = false;
+expt(3).catch = 0;
+expt(3).catchRew = 0;
 
 % % %% AW80 170420 V1 injection ** not well driven
 % % expt(4).SubNum = '680';
@@ -140,6 +156,11 @@ expt(4).rettuning = {'005';'1147'};
 expt(4).motionTestBimodal = 0;
 expt(4).z = 246;
 expt(4).regImgStartFrame = 26981;
+expt(4).trial_range = nan;
+expt(4).attentionTask = false;
+expt(4).hasAttention = false;
+expt(4).catch = 0;
+expt(4).catchRew = 0;
 
 %% AW81 170511 V1 injection
 expt(5).SubNum = '681';
@@ -158,6 +179,12 @@ expt(5).rettuning = {'004';'1306'};
 expt(5).motionTestBimodal = 0;
 expt(5).z = 277;
 expt(5).regImgStartFrame = nan;
+expt(5).trial_range = [1:320];
+expt(5).attentionTask = false;
+expt(5).hasAttention = false;
+expt(5).catch = 0;
+expt(5).catchRew = 0;
+
 %% AW80 170522 V1 injection 
 expt(6).SubNum = '680';
 expt(6).mouse = 'AW80';
@@ -175,6 +202,12 @@ expt(6).rettuning = {'004';'1052'};
 expt(6).motionTestBimodal = 0;
 expt(6).z = 216;
 expt(6).regImgStartFrame = 77013;
+expt(6).trial_range = [1:20,100:200];
+expt(6).attentionTask = false;
+expt(6).hasAttention = false;
+expt(6).catch = 0;
+expt(6).catchRew = 0;
+
 %% AW80 170526 V1 injection 
 expt(7).SubNum = '680';
 expt(7).mouse = 'AW80';
@@ -193,3 +226,8 @@ expt(7).motionTestBimodal = 0;
 expt(7).regImgStartFrame = nan;
 expt(7).z = 254;
 expt(7).regImgStartFrame = 24721;
+expt(7).trial_range = 15:200;
+expt(7).attentionTask = false;
+expt(7).hasAttention = false;
+expt(7).catch = 0;
+expt(7).catchRew = 0;

@@ -71,6 +71,24 @@ x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1); repm
 [tbl,chi2stat,pval] = crosstab(x1,x2);
 
 n1 = length(find(suppInd_V1==0)); N1 = length(suppInd_V1);
+n2 = length(find(suppInd_axons_LM==0)); N2 =length(suppInd_axons_LM);
+x1 = [repmat('a',N1,1); repmat('b',N2,1)];
+x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
+[tbl,chi2stat,pval_V1vsLM] = crosstab(x1,x2);
+
+n1 = length(find(suppInd_V1==0)); N1 = length(suppInd_V1);
+n2 = length(find(suppInd_axons_AL==0)); N2 =length(suppInd_axons_AL);
+x1 = [repmat('a',N1,1); repmat('b',N2,1)];
+x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
+[tbl,chi2stat,pval_V1vsAL] = crosstab(x1,x2);
+
+n1 = length(find(suppInd_V1==0)); N1 = length(suppInd_V1);
+n2 = length(find(suppInd_axons_PM==0)); N2 =length(suppInd_axons_PM);
+x1 = [repmat('a',N1,1); repmat('b',N2,1)];
+x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
+[tbl,chi2stat,pval_V1vsPM] = crosstab(x1,x2);
+
+n1 = length(find(suppInd_V1==0)); N1 = length(suppInd_V1);
 n2 = length(find(suppInd_axons_PM==0))+length(find(suppInd_axons_AL==0))+length(find(suppInd_axons_LM==0)); N2 =length(suppInd_axons_PM)+length(suppInd_axons_AL)+length(suppInd_axons_LM);
 x1 = [repmat('a',N1,1); repmat('b',N2,1)];
 x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
@@ -164,7 +182,7 @@ x1 = [repmat('a',N1,1); repmat('b',N2,1)];
 x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];
 [tbl,chi2stat,pval_LM] = crosstab(x1,x2);
 
-n1 = length(find(suppInd_LM==0)); N1 = length(suppInd_AL);
+n1 = length(find(suppInd_AL==0)); N1 = length(suppInd_AL);
 n2 = length(find(suppInd_axons_AL==0)); N2 =length(suppInd_axons_AL);
 x1 = [repmat('a',N1,1); repmat('b',N2,1)];
 x2 = [repmat(1,n1,1); repmat(2,N1-n1,1); repmat(1,n2,1); repmat(2,N2-n2,1)];

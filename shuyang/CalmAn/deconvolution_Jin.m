@@ -1,19 +1,18 @@
 % spike identification using deconvolution. (function deconvolve Ca got from OASIS on git hub)
+% to use the deconvolution function, need to add OASIS function to search
+% path: >>oasis_setup
 % function deconvolve Ca: denoise raw fluorescence trace and identifies spike events. 
 % right now using FOOPSI method and the model is ar1 (also tried ar2: see commented bottom part),ar1 works better than ar2.
 % then SECTION II draws the GUI showing raw traces with identified events and deconvolved trace.
-
+% 
 %% assign document paths and experimental sessions
 clear;
-sessions = '190429_img1027'; 
-image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
+sessions = '190603_img1025'; 
+days = '1025-190603_1';
+image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\';%stores the data on crash in the movingDots analysis folder
 image_analysis_dest = [image_analysis_base, sessions, '\'];
-
-% behavior analysis results 
-days = '1027-190429_1';
+% behavior analysis results
 behav_dest = ['Z:\Analysis\2P_MovingDots_Analysis\behavioral_analysis\' days '\'];
-color_code = {'b','r','k','c'};
-
 %load data
 filename = dir([image_analysis_dest 'getTC\' '*' '_TCave.mat']);
 TCave = load([image_analysis_dest 'getTC\' filename.name]);
@@ -23,14 +22,16 @@ behav_output = load([behav_dest days '_behavAnalysis.mat']);
 frm_stay_cell = behav_output.frames_stay_cell;
 frm_stay = cell2mat(frm_stay_cell);
 
+
 %% SECTION I deconvolution
 % input: fluorescence trace: T*1, threshold for spike size (how big the spikes are supposed to be: normal set as -3(3 sigma, 3 times bigger than noise levels)).
 % kernal: denoised trace, T*1 vector
 % spikes: all of the values in a spike(thus, you will get more than 1 values if a spike is longer than a frame. e.g.: if a spike is 120ms long, you will get 4 values back to back which all belong to a single spike)
+    
 frames = 1:1:size(TCave,1);
 threshold = -4; %changing the threhold basically changes the identification of spikes when the peak amplitude is small (those small peaks), doesn't change anything with the bigger jittered ones. -3 or -3.5 gives a FR close to 1 during stationary
 
-% write a loop, get the c and s for all cells and draw a GUI
+% deconvolution
 kernel = zeros(size(TCave,1),size(TCave,2));
 spk = zeros(size(TCave,1),size(TCave,2));
 spk_peak = {};
@@ -49,62 +50,117 @@ for c = 1: size(TCave,2)
     FRstay_cell(c)= num_spks_cell(c)/length(frm_stay)*30; % firing rate = # of spikes/duration(s)
 end
 aveFR = mean(FRstay_cell);
-hist_FR = figure; 
-histogram(FRstay_cell,'BinWidth',0.1);
-title([sessions 'deconvolution-firing rate-stationary-threshold' num2str(threshold)]);
-saveas(hist_FR,[image_analysis_dest sessions '_histFR_deconvolution_threshold' num2str(threshold) '.fig']);
-
-% there are a few cells has super low FR !!!!!
 
 %save variables
 save([image_analysis_dest sessions '_spk_deconvolve_threshold' num2str(threshold) '.mat' ],'threshold',...
     'FRstay_cell', 'aveFR','num_spks_cell','options','spk_logic','spk','kernel','spk_peak','spk_inx');
 
-
 %% plots
 % write a GUI with subplots: TCave with red dots and kernel
-[fig_deconvolve] = GUI_rawTrace_nDeconvolve(TCave,kernel,spk_logic,sessions,threshold);
-savefig([image_analysis_dest sessions '_GUI_TCave_deconvolution_threshold' num2str(threshold) '.fig']);
+deconvolutionFigureDest = [image_analysis_dest,'deconvolution\'];
+if ~exist(deconvolutionFigureDest)
+    mkdir(deconvolutionFigureDest);
+end
 
-% spike logic 
+hist_FR = figure;
+histogram(FRstay_cell,'BinWidth',0.1);
+title([sessions 'deconvolution-firing rate-stationary-threshold' num2str(threshold)]);
+saveas(hist_FR,[deconvolutionFigureDest sessions '_histFR_deconvolution_threshold' num2str(threshold) '.fig']);
+
+[fig_deconvolve] = GUI_rawTrace_nDeconvolve(TCave,kernel,spk_logic,sessions,threshold);
+savefig([deconvolutionFigureDest sessions '_GUI_TCave_deconvolution_threshold' num2str(threshold) '.fig']);
+
+% spike logic
 % plot spike logic
 figure;
-imagesc(spk_logic);
-xlabel('Cell #');
-ylabel('Frame #');
+colormap gray;
+imagesc(imcomplement(spk_logic'));
+xlabel('Frame #');
+ylabel('Cell #');
+%xlim([25000 28992]);
 title ([sessions ' deconvolution']);
-savefig([image_analysis_dest sessions '_scatter_spikeLogic_deconvolve_threshold' num2str(threshold) '.fig']);
+savefig([deconvolutionFigureDest sessions '_scatter_spikeLogic_deconvolve_threshold' num2str(threshold) '.fig']);
 
 % plot spike rates for each cell during stationary
-figure; 
-scatter(1:length(FRstay_cell), FRstay_cell, 'bo');
+figure;
+scatter(1:length(FRstay_cell), FRstay_cell,70, 'ko');
 ylabel('Spike Rate (Hz)');
-xlabel('Cell #');
+xlabel('Cell #'); axis square;
+%ylim([0 1.4]);
 title ([sessions ' deconvolution']);
-savefig([image_analysis_dest sessions '_scatter_spikeRate_deconvolve_threshold' num2str(threshold) '.fig']);
+savefig([deconvolutionFigureDest sessions '_scatter_spikeRate_deconvolve_threshold' num2str(threshold) '.fig']);
 
 
-%% find the ones that has super low FR (fake cells), delete those in TCave
-badPCs1 = find(FRstay_cell <= 0.4);
-% some wierd fake cells doesn't fire for a long time, but then fires a lot
-% within a short time (the whole trace just looks noisy and wierd) --- even if the firing rate is bigger than 0.4, raw trace still looks wierd.
-for n = 1: size(TCave,2)
-% if it doesn't fire for more than half a minute, then throw away? 
-% if the deconvovled trace doesn't go back to baseline for a few hundred
-% frames, then throw away?
-    spk_inx{n}
-
-
+%% delete the bad cells
+nobase_maxperiod = zeros(1,size(spk_peak,2));
+for c = 1:size(spk_peak,2)
+    nobase_maxperiod(c) = max(diff(find(kernel(:,c)<100)));
+    %kernel values smaller than 100 is considered as basline. diff(find) gives you how many continous frames the denoised signal doesn't return to baseline
 end
-TCave_cl = TCave;
-TCave_cl(:,badPCs) = [];
-FRstay_cell_cl = FRstay_cell;
-FRstay_cell_cl(badPCs) = [];
+figure; plot(nobase_maxperiod);
+title('not return to baseline period');
+savefig([deconvolutionFigureDest sessions '_Caevent_nobase' num2str(threshold) '.fig']);
+%if the maximum not return to baseline period is bigger than n # of frames,
+%through out this cell
+nobase_thres = 2000;
+nobase_cell = find(nobase_maxperiod > nobase_thres);
+
+baseline_btm = zeros(1, size(TCave,2));
+for n = 1:size(TCave,2)                     % for each cell
+        TCave_sort = sort(TCave(:,n),1,'ascend');
+        btm = TCave_sort(1:floor(length(TCave_sort)*0.1));
+        %        % test if btm always belongs to running
+        %         btm_inx = frames(ismember(TCave_cl(:,n),btm));
+        %         NbtmInRun = sum((ismember(frm_run,btm_inx))==1);
+        baseline_btm(n) = mean(btm);
+end
+figure; plot(baseline_btm);
+title('baseline fluorescence');
+savefig([deconvolutionFigureDest sessions '_baselineF' num2str(threshold) '.fig']);
+baseline_thres = 2800;
+%baseline_thres = [];
+low_Fcell = find(baseline_btm < baseline_thres);
+%low_Fcell = [];
+
+badPCs = union(nobase_cell,low_Fcell);
+TCave_cl = TCave;TCave_cl(:,badPCs) = [];
+FRstay_cell_cl = FRstay_cell;FRstay_cell_cl(badPCs) = [];
 aveFR_cl = mean(FRstay_cell_cl);
+spk_logic_cl = spk_logic; spk_logic_cl(:,badPCs) = [];
+spk_cl = spk; spk_cl(:,badPCs) = [];
+kernel_cl = kernel; kernel_cl(:,badPCs) = [];
+spk_peak_cl = spk_peak; spk_peak_cl(badPCs) = [];
+spk_inx_cl = spk_inx; spk_inx_cl(badPCs) = [];
 
-save([image_analysis_dest sessions '_deconvolution_thresh', num2str(threshold), '_TCave_cl.mat'], 'TCave_cl','threshold','badPCs');
-save([image_analysis_dest sessions '_spk_deconvolve_threshold' num2str(threshold) '.mat' ],'FRstay_cell_cl', 'aveFR_cl','badPCs','-append');
+% make sure you save everything you want to save
+save([image_analysis_dest sessions '_deconvolution_thresh', num2str(threshold), '_TCave_cl.mat'],...
+    'TCave_cl','threshold','badPCs','nobase_cell','low_Fcell','nobase_thres','baseline_thres');
+save([image_analysis_dest sessions '_spk_deconvolve_threshold' num2str(threshold) '.mat' ],'FRstay_cell_cl', ...
+    'aveFR_cl','badPCs','spk_logic_cl','spk_cl','kernel_cl','spk_peak_cl',...
+    'spk_inx_cl','threshold','badPCs','nobase_cell','low_Fcell','nobase_thres',...
+    'baseline_thres','-append');
 
+%% make a new mask figure
+% load mask3D final
+filename2 = dir([image_analysis_dest 'getTC\' '*' 'thresh97_coor0.8_mask3D.mat']);
+%filename2 = dir([image_analysis_dest 'getTC\' '*' 'thresh97_coor0.8_mask3D.mat']);
+mask3D = load([image_analysis_dest 'getTC\' filename2.name]);
+mask3D = mask3D.mask3D;
+allcells = 1:size(TCave,2);
+goodcells = setdiff(allcells,badPCs);
+figure; 
+%needs to modify the line below due to different file names
+imshow([image_analysis_dest 'getTC\' 'AVG_' sessions '_000_rgstr_tiff_0_60000_50_ref42_' 'jpeg.jpg']); hold on;
+for m  = 1:length(goodcells)
+    bound = cell2mat(bwboundaries(mask3D(:,:,goodcells(m))));
+    randcolor = rand(1,4);
+    plot(bound(:,2),bound(:,1),'.','color',randcolor); hold on;
+    text(mean(bound(:,2)),mean(bound(:,1)), ...
+        num2str(goodcells(m)), 'color', 'y', 'FontSize', 8);
+end
+hold on;
+title([sessions ' masks only good cells']);
+savefig([image_analysis_dest sessions '_mask_wdendrites_goodcells.fig']);
 %%
 % frames = 1:1:60000;
 % % what pengcheng told me:

@@ -1,23 +1,26 @@
 %Analyze raw 2P data
 %motion correction; PCA, ICA
 %smooth and threshold mask, seperate overlaps and combine the one have a high correlation
-%get TCs
-
+%get TCs and plot masks
 
 %% SECTION ONE - assign pathnames and datasets to be analyzed/written. 
 clear;
 %NEED TO UPDATE THIS SO IT ACCESSES SPREADSHEET INSTEAD OF JUST WRITING IN THE NAMES
-sessions = '190706_img1033_vermisVI'; 
+sessions = '200320_img1063_tone'; 
 %ID = '1016';
 image_source_base  = 'Z:\Data\2photon\'; %location of permanently stored image files for retreiving meta data
-%image_analysis_base    = 'Z:\Analysis\2photon_test\'; %stores the data on crash in the movingDots analysis folder
-image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; %stores the data on crash in the movingDots analysis folder
+%image_analysis_base    = 'Z:\Analysis\Airpuff_analysis\imaging_analysis\'; 
+image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\tone\imaging_analysis\'; 
+%image_analysis_base    = 'Z:\Analysis\2P_MovingDots_Analysis\imaging_analysis\'; 
+%image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\running\imaging_analysis\'; 
+%image_analysis_base    = 'Z:\Analysis\motorizedWheel_Analysis\airpuff\imaging_analysis\'; 
+
 %image_source = [image_source_base, sessions,'\',ID,'\'];
 image_source = [image_source_base, sessions,'\'];
 image_analysis_dest = [image_analysis_base, sessions, '\' 'getTC\'];
 %% 
 cd(image_source);
-order = '001';
+order = '000';
 %file = [ID '_000_' order];
 file = [sessions '_000_' order];
 %% Motion correct
@@ -27,11 +30,13 @@ file = [sessions '_000_' order];
 % frames that doesn't shift by eyeballing. 
 
 % write tiff to get an idea about what the data looks like --------------------------------------------------------
-frame_start = 0;
-nframes = 30000;
+%the very first frame in sbxfile should be 0, but the first frame of the
+%new 2P is half black, so read it from the second frame
+%!!!!!!!make sure you delete the speed of the first frame in behavior
+frame_start = 1; 
+nframes = 29999;%total frame number - frame_start
 imgread = squeeze(sbxread(file,frame_start,nframes));
-%imgread = imgread(:,:,1:17780);
-f1 = 1;
+f1 = 2;
 f2 = 1000;
 img_tiff = imgread(:,:,f1:f2);
 writetiff(img_tiff,[image_analysis_dest sessions '_'...
@@ -69,6 +74,7 @@ gap = 50;
 idx = (1:gap:nframes);
 writetiff(img_rgs(:,:,idx),[image_analysis_dest sessions '_'...
     order '_rgstr_tiff_', num2str(frame_start), '_', num2str(nframes) '_',num2str(gap) '_ref' num2str(ref_frame)]);
+
 save([image_analysis_dest sessions '_' order '_img_rgs_ref' num2str(ref_frame) '.mat'], 'img_rgs', 'rgs_out', 'img_ref','-append');
 %another way to look at the registered movies: wirte an index(e.g.: all running onsets), and draw 100
 %frames around each element, average each of those 100 frames and write a movie
@@ -109,12 +115,12 @@ save([image_analysis_dest sessions '_' order '_PCA_variables_', num2str(nPCA),'.
 
 %% ICA: seperates independent spatial and temporal components
 %PCuse =       1:125;
-PCuse =       1:size(mixedfilters_PCA,3);%
+PCuse =       1:size(mixedfilters_PCA,3);
 mu =          0.3; % weight of temporal info in spatio-teporal ICA
-nIC =         180; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
+nIC =         200; % cannot be bigger than nPCA. If CoEvals doesn't change in later ICs, it will not converge!
 ica_A_guess = []; %If this is empty than matlab will randomdize it and you can get different results, can see the random number generator in CellsortICA2P
 termtol =      1e-6;
-maxrounds =   2000;
+maxrounds =   3000;
 npw =         264;
 nph =         796;
 [ica_sig, mixedfilters_ICA, ica_A, numiter] = CellsortICA_2P(mixedsig_PCA,...
@@ -149,12 +155,14 @@ icasig_filt = stackFilter(icasig);
 
 %set threshold a threshold for which pixels to include in a given dendrite's mask.
 nIC = size(icasig_filt, 3);
-cluster_threshold = 96; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
+cluster_threshold = 96.5; % this is using the top 3 percent of the fluorescence values, so brightest 3% is yes (1), and the rest is no (0)
 %tried lower values for the threshold and turns out to have some wierd
 %masks
 mask_cell = zeros(size(icasig_filt));
-sm_logical = zeros(npw,nph);
+
 for ic = 1:nIC
+    %initialize sm_logical
+    sm_logical = zeros(npw,nph);
     %convert to a binary mask (0 and 1)
     icasig_filt(:,:,ic) = imclearborder(icasig_filt(:,:,ic));
     sm_logical((icasig_filt(:,:,ic)> mean([max(prctile(icasig_filt(:,:,ic),cluster_threshold,1)) max(prctile(icasig_filt(:,:,ic),cluster_threshold,2))])))=1;
@@ -194,9 +202,10 @@ savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_mask_process.fig']);
 
 % combine highly correlated ICs to one
-threshold = 0.9; %got the same thing when threshold = 0.8 and 0.9, tried different values, doesn't seem to change things
+threshold = 0.8; %got the same thing when threshold = 0.8 and 0.9, tried different values, doesn't seem to change things
 [ ~, mask3D, ~] = finalMask_Jin(img_rgs, mask_final, threshold);
-figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
+%figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_jpeg.jpg']); hold on;
+figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_1_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
 for i  = 1:size(mask3D,3)
     bound = cell2mat(bwboundaries(mask3D(:,:,i)));
     randcolor = rand(1,4);
@@ -214,8 +223,9 @@ save([image_analysis_dest sessions '_' order, '_nPCA', ...
 
 
 %% look at the masks, mananully delete the ones that don't look like dendrites
-%mask3D(:,:,[1,21,44,54,90,112]) = [];
-figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
+mask3D(:,:,[]) = [];
+%figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_0_' num2str(nframes) '_50_jpeg.jpg']); hold on;
+figure; imshow([image_analysis_dest 'AVG_' sessions '_' order '_rgstr_tiff_1_' num2str(nframes) '_50_ref' num2str(ref_frame) '_jpeg.jpg']); hold on;
 for i  = 1:size(mask3D,3)
     bound = cell2mat(bwboundaries(mask3D(:,:,i)));
     randcolor = rand(1,4);
@@ -223,6 +233,8 @@ for i  = 1:size(mask3D,3)
     text(mean(bound(:,2)),mean(bound(:,1)), ...
             num2str(i), 'color', 'y', 'FontSize', 8);
 end
+hold on;
+title([sessions ' masks_final']);
 savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), ...
     '_coor' num2str(threshold),'_mask_wdendrites_final.fig']);
@@ -236,8 +248,15 @@ nmask = size(mask3D,3);
 FrameRate = 30;
 tc_avg = getTC(img_rgs, mask3D, nmask);
 
+% delete the first frame !!!!!! make sure you also delete the first frame
+% of speed. doing this because the first frame is half-black
+
+% tc_avg = tc_avg((2:end),:);
+
 rgstr_sum = sum(img_rgs,3);
 plotTC_Jin(tc_avg, mask3D, rgstr_sum, 1:size(tc_avg,2), FrameRate);
+% if plotting all the neurons make all lines look flat, plot some of them
+% plotTC_Jin(tc_avg,~,~,1:40,~);
 savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold), '_TC.fig']);
 mask_flat = plotMask_Jin(mask3D,1); %second input is either 0 or 1, if 1, makes a figure. 
@@ -253,6 +272,14 @@ save([image_analysis_dest sessions '_' order, '_nPCA', ...
     num2str(nPCA), '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', ...
     num2str(cluster_threshold), '_TCave.mat'], 'tc_avg');
 
+% %plot TC zoomed in if have too many neurons on the TC plot
+% PC1 = 32;
+% PC2 = 65;
+% plotTC_Jin(tc_avg,mask3D, rgstr_sum,PC1:PC2,FrameRate); hold on;
+% title([sessions ' TCave']);
+% savefig([image_analysis_dest sessions '_' order, '_nPCA', num2str(nPCA),...
+%     '_mu', num2str(mu), '_nIC', num2str(nIC), '_thresh', num2str(cluster_threshold),'_' num2str(PC1) '-' num2str(PC2) '_TC.fig']);
+% 
 
-
+%plotTC_Jin(tc_avg,1,1,32:65,1); this also works
 

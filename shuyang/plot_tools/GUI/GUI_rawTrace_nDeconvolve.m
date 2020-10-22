@@ -33,14 +33,14 @@ plot_component(1)
         subplot(2,1,1)
         plot(TCave(:,k)); hold on;
         plot(plotred,'ro','MarkerSize',8); ylabel('TCave');
-        xlim([1,1500]);
+        xlim([1,5000]);
         lims = ylim;
         text(10,lims(2)-20,['cell' num2str(k)]);
         drawnow; hold off
 
         subplot(2,1,2)
         plot(kernel(:,k)); hold on;
-        xlim([1,1500]);ylabel('deconvolved signal');xlabel('frame');
+        xlim([1,5000]);ylabel('deconvolved signal');xlabel('frame');
         drawnow; hold off
         
     end
