@@ -3,7 +3,7 @@ quickRet.m %quick analysis of 2P retinotopy experiments
 quickImgFromSbx.m %save a tiff of the first 100 frames of a scanbox run
 
 %% data organization
-DART_V1_PV_contrast
+DART_V1_contrast_ori
 
 %% data processing and multiday
 regdata_selectcells

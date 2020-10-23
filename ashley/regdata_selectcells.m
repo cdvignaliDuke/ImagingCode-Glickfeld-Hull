@@ -179,7 +179,7 @@ clear selection_img_temp selection_img_smooth
 if doGreenOnly
     green_mask_cell = maskFromMultiMaxDFFStack(selection_img);
 else
-    [red_mask_cell, green_mask_cell] = maskFromMultiMaxDFFStack_2color(selection_img);
+    [red_mask_cell, green_mask_cell] = maskFromMultiMaxDFFStack_2color(selection_img); % first image should be red
 end
 close all
 figure; setFigParams4Print('portrait')
